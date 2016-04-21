@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -20,30 +20,28 @@ function template_report_type()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=reports" method="post" accept-charset="', $context['character_set'], '">
-			<div id="generate_reports_type">
-				<div class="cat_bar">
-					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
-				</div>
-				<div class="windowbg2">
-					<dl class="generate_report">';
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
+			</div>
+			<div class="windowbg2">
+				<dl class="settings">';
 
 	// Go through each type of report they can run.
 	foreach ($context['report_types'] as $type)
 	{
-		echo '
-						<dt>
-							<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
-							<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-						</dt>';
 		if (isset($type['description']))
 			echo '
-						<dd>', $type['description'], '</dd>';
+					<dt>', $type['description'], '</dt>';
+		echo '
+					<dd>
+						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
+						<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
+					</dd>';
 	}
 		echo '
-					</dl>
-					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				</div>
+				</dl>
+				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>
 	</div>';
@@ -113,12 +111,12 @@ function template_main()
 				// Shaded?
 				if ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
-					<td align="', $table['align']['shaded'], '" class="table_caption"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
+					<td class="table_caption ', $table['align']['shaded'], 'text"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width'].'shaded'] . '"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td class="smalltext" align="', $table['align']['normal'], '"', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td class="smalltext centertext" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
 						', $data['v'], '
 					</td>';
 
@@ -132,8 +130,7 @@ function template_main()
 		}
 		echo '
 			</tbody>
-		</table>
-		<br>';
+		</table>';
 	}
 	echo '
 	</div>';
@@ -206,12 +203,12 @@ function template_print()
 				// Shaded?
 				if ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
-					<td align="', $table['align']['shaded'], '" class="titlebg"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
+					<td class="titlebg ', $table['align']['shaded'], 'text"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td align="', $table['align']['normal'], '"', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td class="centertext" ', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
 						', $data['v'], '
 					</td>';
 

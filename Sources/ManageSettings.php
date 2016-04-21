@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -168,6 +168,9 @@ function ModifyBasicSettings($return_config = false)
 			// Jquery source
 			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),
 			array('text', 'jquery_custom', 'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75),
+		'',
+			// css and js minification.
+			array('check', 'minimize_files'),
 		'',
 			// SEO stuff
 			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
@@ -617,7 +620,7 @@ function ModifyAntispamSettings($return_config = false)
 		$context['question_answers'][$row['id_question']] = array(
 			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answers' => unserialize($row['answers']),
+			'answers' => json_decode($row['answers'], true),
 		);
 		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
@@ -732,7 +735,7 @@ function ModifyAntispamSettings($return_config = false)
 							$changes['delete'][] = $q_id;
 						continue;
 					}
-					$answers = serialize($answers);
+					$answers = json_encode($answers);
 
 					// At this point we know we have a question and some answers. What are we doing with it?
 					if (!isset($context['question_answers'][$q_id]))
@@ -932,11 +935,12 @@ function ModifySignatureSettings($return_config = false)
 			$request = $smcFunc['db_query']('', '
 				SELECT id_member, signature
 				FROM {db_prefix}members
-				WHERE id_member BETWEEN ' . $_GET['step'] . ' AND ' . $_GET['step'] . ' + 49
+				WHERE id_member BETWEEN {int:step} AND {int:step} + 49
 					AND id_group != {int:admin_group}
 					AND FIND_IN_SET({int:admin_group}, additional_groups) = 0',
 				array(
 					'admin_group' => 1,
+					'step' => $_GET['step'],
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -2025,7 +2029,7 @@ function EditCustomProfiles()
 		}
 		$smcFunc['db_free_result']($request);
 
-		updateSettings(array('displayFields' => serialize($fields)));
+		updateSettings(array('displayFields' => json_encode($fields)));
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=profile');
 	}

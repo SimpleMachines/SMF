@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -186,21 +186,23 @@ function getReports($closed = 0)
 	// Lonely, standalone var.
 	$reports = array();
 
-	// By George, that means we in a position to get the reports, golly good.
+	// By George, that means we are in a position to get the reports, golly good.
 	if ($context['report_type'] == 'members')
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_member,
 				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-				IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
+				COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.closed = {int:view_closed}
 				AND lr.id_board = 0
 			ORDER BY lr.time_updated DESC
-			LIMIT ' . $context['start'] . ', 10',
+			LIMIT {int:start}, {int:max}',
 			array(
 				'view_closed' => (int) $closed,
+				'start' => $context['start'],
+				'max' => 10,
 			)
 		);
 	}
@@ -209,16 +211,18 @@ function getReports($closed = 0)
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-				IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
+				COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.closed = {int:view_closed}
 				AND lr.id_board != 0
 				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
 			ORDER BY lr.time_updated DESC
-			LIMIT ' . $context['start'] . ', 10',
+			LIMIT {int:start}, {int:max}',
 			array(
 				'view_closed' => (int) $closed,
+				'start' => $context['start'],
+				'max' => 10,
 			)
 		);
 	}
@@ -306,7 +310,7 @@ function getReports($closed = 0)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment,
-				IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.membername) AS reporter
+				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 			FROM {db_prefix}log_reported_comments AS lrc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
 			WHERE lrc.id_report IN ({array_int:report_list})',
@@ -399,7 +403,7 @@ function getReportDetails($report_id)
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_member,
 					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-					IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
+					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_report = {int:id_report}
@@ -416,7 +420,7 @@ function getReportDetails($report_id)
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
 				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-				IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
+				COALESCE(mem.real_name, lr.membername) AS author_name, COALESCE(mem.id_member, 0) AS id_author
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_report = {int:id_report}
@@ -460,7 +464,7 @@ function getReportComments($report_id)
 	// So what bad things do the reporters have to say about it?
 	$request = $smcFunc['db_query']('', '
 		SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.membername) AS reporter
+			COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 		FROM {db_prefix}log_reported_comments AS lrc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
 		WHERE lrc.id_report = {int:id_report}',
@@ -489,7 +493,7 @@ function getReportComments($report_id)
 	// Hang about old chap, any comments from moderators on this one?
 	$request = $smcFunc['db_query']('', '
 		SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS moderator
+			COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS moderator
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 		WHERE lc.id_notice = {int:id_report}
@@ -619,7 +623,7 @@ function saveModComment($report_id, $data)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', $prefix . 'ReportReply_Notify_Background', serialize($data), 0),
+			array('$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', $prefix . 'ReportReply_Notify_Background', json_encode($data), 0),
 			array('id_task')
 		);
 }

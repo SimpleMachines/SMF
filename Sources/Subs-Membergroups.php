@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -403,10 +403,11 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 		FROM {db_prefix}members
 		WHERE (FIND_IN_SET({raw:additional_groups_implode}, additional_groups) != 0)
 			AND id_member IN ({array_int:member_list})
-		LIMIT ' . count($members),
+		LIMIT {int:limit}',
 		array(
 			'member_list' => $members,
 			'additional_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
+			'limit' => count($members),
 		)
 	);
 	$updates = array();
@@ -696,7 +697,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 
 	$request = $smcFunc['db_query']('substring_membergroups', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts, mg.description, mg.group_type, mg.online_color, mg.hidden,
-			mg.icons, IFNULL(gm.id_member, 0) AS can_moderate, 0 AS num_members
+			mg.icons, COALESCE(gm.id_member, 0) AS can_moderate, 0 AS num_members
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts {raw:min_posts}' . (allowedTo('admin_forum') ? '' : '

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -56,6 +56,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_sybase' => false,
 			'db_case_sensitive' => false,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
+			'db_is_resource' => 'is_resource',
 		);
 
 	if (!empty($db_options['port']))
@@ -226,6 +227,15 @@ function smf_db_replacement__callback($matches)
 
 		case 'raw':
 			return $replacement;
+		break;
+
+		case 'inet':
+			if ($replacement == 'null')
+				return 'null';
+			if (!isValidIP($replacement))
+				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+			//we don't use the native support of mysql > 5.6.2
+			return sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
 		break;
 
 		default:

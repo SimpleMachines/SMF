@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -567,9 +567,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	{
 		// This defines the formatting for the page indexes used throughout the forum.
 		$settings['page_index'] = array(
-			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
 			'previous_page' => '<span class="generic_icons previous_page"></span>',
-			'current_page' => '<span class="current_page">[%1$d]</span> ',
+			'current_page' => '<span class="current_page">%1$d</span> ',
 			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 			'next_page' => '<span class="generic_icons next_page"></span>',
@@ -897,59 +897,6 @@ function permute($array)
 	return $orders;
 }
 
- /**
- * Lexicographic permutation function.
- *
- * This is a special type of permutation which involves the order of the set. The next
- * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
- * set larger than the current one.
- *
- * The benefit of this over a recursive solution is that the whole list does NOT need
- * to be held in memory. So it's actually possible to run 30! permutations without
- * causing a memory overflow.
- *
- * Source: O'Reilly PHP Cookbook
- *
- * @param mixed[] $p An array of permutations
- * @param int $size The size of our array
- *
- * @return mixed[] The next permutation of the passed array $p
- */
-function pc_next_permutation($p, $size)
-{
-	// Slide down the array looking for where we're smaller than the next guy
-	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
-	{
-	}
-
-	// If this doesn't occur, we've finished our permutations
-	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
-	if ($i === -1)
-	{
-		return false;
-	}
-
-	// Slide down the array looking for a bigger number than what we found before
-	for ($j = $size; $p[$j] <= $p[$i]; --$j)
-	{
-	}
-
-	// Swap them
-	$tmp = $p[$i];
-	$p[$i] = $p[$j];
-	$p[$j] = $tmp;
-
-	// Now reverse the elements in between by swapping the ends
-	for ($i, $j = $size; $i < $j; $i, --$j)
-	{
-		$tmp = $p[$i];
-		$p[$i] = $p[$j];
-		$p[$j] = $tmp;
-	}
-
-	return $p;
-}
-
 /**
  * Parse bulletin board code in a string, as well as smileys optionally.
  *
@@ -969,7 +916,7 @@ function pc_next_permutation($p, $size)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info;
+	global $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -1017,6 +964,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	{
 		if (!empty($modSettings['disabledBBC']))
 		{
+			$disabled = array();
+
 			$temp = explode(',', strtolower($modSettings['disabledBBC']));
 
 			foreach ($temp as $tag)
@@ -1127,6 +1076,51 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
 				'before' => '<span id="post_$1">',
 				'after' => '</span>',
+			),
+			array(
+				'tag' => 'attach',
+				'type' => 'unparsed_equals_content',
+				'parameters' => array(
+					'name' => array('optional' => true),
+				),
+				'content' => '$1',
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
+				{
+					$returnContext = '';
+
+					// BBC or the entire attachments feature is disabled
+					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
+						return $data;
+
+					// Save the attach ID.
+					$attachID = is_array($data) ? $data[0] : $data;
+
+					// Kinda need this.
+					require_once($sourcedir . '/Subs-Attachments.php');
+
+					$currentAttachment = parseAttachBBC($attachID);
+
+					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
+					if (is_string($currentAttachment))
+						return $data[0] = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+
+					if (!empty($currentAttachment['is_image']))
+					{
+						if ($currentAttachment['thumbnail']['has_thumb'])
+							$returnContext .= '
+													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
+						else
+							$returnContext .= '
+													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
+					}
+
+					// No image. Show a link.
+					else
+						$returnContext .= $currentAttachment['link'];
+
+					// Gotta append what we just did.
+					$data[0] = $returnContext;
+				},
 			),
 			array(
 				'tag' => 'b',
@@ -1649,6 +1643,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		foreach ($codes as $code)
 		{
+			// Make it easier to process parameters later
+			if (!empty($code['parameters']))
+				ksort($code['parameters'], SORT_STRING);
+
 			// If we are not doing every tag only do ones we are interested in.
 			if (empty($parse_tags) || in_array($code['tag'], $parse_tags))
 				$bbc_codes[substr($code['tag'], 0, 1)][] = $code;
@@ -1660,7 +1658,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
-		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . serialize($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
+		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . json_encode($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
 
 		if (($temp = cache_get_data($cache_key, 240)) != null)
 			return $temp;
@@ -1703,6 +1701,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
+
+	foreach ($bbc_codes as $section) {
+		foreach ($section as $code) {
+			$alltags[] = $code['tag'];
+		}
+	}
+	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
 
 	// The non-breaking-space looks a bit different each time.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -1942,8 +1947,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && substr($message, $pos, 6) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
+				if (!empty($tag['block_level']) && substr($message, $pos, 4) == '<br>')
+					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
@@ -2030,29 +2035,27 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
+					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
 
-				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$param_size = count($preg) - 1;
-				$preg_keys = range(0, $param_size);
-				$message_stub = substr($message, $pos1 - 1);
+				// Extract the string that potentially holds our parameters.
+				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
+				$blobs = preg_split('~\]~i', $blob[1]);
 
-				// If sometthhing adds many parameters we can exceed max_execution time; let's prevent that.
-				// 5040 = 7, 40,320 = 8, (N!) etc
-				$max_iterations = 5040;
+				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
-				// Step, one by one, through all possible permutations of the parameters until we have a match.
-				do
-				{
-					$match_preg = '~^';
-					foreach ($preg_keys as $key)
-						$match_preg .= $preg[$key];
-					$match_preg .= '\]~i';
+				// Progressively append more blobs until we find our parameters or run out of blobs
+				$blob_counter = 0;
+				while ($blob_counter <= count($blobs)) {
 
-					// Check if this combination of parameters matches the user input.
-					$match = preg_match($match_preg, $message_stub, $matches) !== 0;
+					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
+
+					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
+					sort($given_params, SORT_STRING);
+
+					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+
+					if ($match) $blob_counter = count($blobs) + 1;
 				}
-				while (!$match && --$max_iterations && ($preg_keys = pc_next_permutation($preg_keys, $param_size)));
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
@@ -2089,7 +2092,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (isset($tag['content']))
 					$tag['content'] = strtr($tag['content'], $params);
 
-				$pos1 += strlen($matches[0]) - 1;
+				$pos1 += strlen($given_param_string);
 			}
 			else
 				$tag = $possible;
@@ -2144,7 +2147,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos3 = strpos($message, '[/', $pos);
 			if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false))
 			{
-				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 6), $matches);
+				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 4), $matches);
 				$message = substr($message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($message, $pos2);
 
 				$open_tags[count($open_tags) - 2]['after'] = '</ul>';
@@ -2214,8 +2217,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += $ot_strlen + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 6) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
+				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 4) == '<br>')
+					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
 				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
@@ -2240,8 +2243,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$data = substr($message, $pos1, $pos2 - $pos1);
 
-			if (!empty($tag['block_level']) && substr($data, 0, 6) == '<br>')
-				$data = substr($data, 6);
+			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br>')
+				$data = substr($data, 4);
 
 			if (isset($tag['validate']))
 				$tag['validate']($tag, $data, $disabled);
@@ -2282,8 +2285,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
-			if (!empty($tag['block_level']) && substr($data[0], 0, 6) == '<br>')
-				$data[0] = substr($data[0], 6);
+			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br>')
+				$data[0] = substr($data[0], 4);
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
@@ -2389,8 +2392,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($tag['block_level']) && substr($message, $pos + 1, 6) == '<br>')
-			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 7);
+		if (!empty($tag['block_level']) && substr($message, $pos + 1, 4) == '<br>')
+			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 5);
 
 		// Are we trimming outside this tag?
 		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos + 1), $matches) != 0)
@@ -2536,7 +2539,7 @@ function parsesmileys(&$message)
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
@@ -3096,7 +3099,7 @@ function template_header()
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
 				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			}
 			else
@@ -3179,11 +3182,7 @@ function theme_copyright()
 		return;
 
 	// Put in the version...
-	$forum_copyright = sprintf($forum_copyright, $forum_version, $software_year);
-
-	echo '
-			<span class="smalltext" style="display: inline; visibility: visible; font-family: Verdana, Arial, sans-serif;">' . $forum_copyright . '
-			</span>';
+	printf($forum_copyright, $forum_version, $software_year);
 }
 
 /**
@@ -3207,17 +3206,20 @@ function template_footer()
  * 	- tabbing in this function is to make the HTML source look good proper
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
- * @param bool $do_defered If true will only output the deferred JS (the stuff that goes right before the closing body tag)
+ * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
-function template_javascript($do_defered = false)
+function template_javascript($do_deferred = false)
 {
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
+	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
+
+	$toMinify = array();
+	$toMinifyDefer = array();
 
 	// Ouput the declared Javascript variables.
-	if (!empty($context['javascript_vars']) && !$do_defered)
+	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
 	<script>';
@@ -3240,18 +3242,44 @@ function template_javascript($do_defered = false)
 	</script>';
 	}
 
-	// While we have Javascript files to place in the template
+	// While we have JavaScript files to place in the template.
 	foreach ($context['javascript_files'] as $id => $js_file)
 	{
-		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
+		// Last minute call! allow theme authors to disable single files.
+		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
+			continue;
+
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		{
+			if ($do_deferred && !empty($js_file['options']['defer']))
+				$toMinifyDefer[] = $js_file;
+
+			elseif (!$do_deferred && empty($js_file['options']['defer']))
+				$toMinify[] = $js_file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $js_file['options']['seed'];
+		}
+
+		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
+	}
+
+	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
+	{
+		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+
+		echo '
+	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
 
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
 	{
-		if (!empty($context['javascript_inline']['defer']) && $do_defered)
+		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
 <script>';
@@ -3263,7 +3291,7 @@ function template_javascript($do_defered = false)
 </script>';
 		}
 
-		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
+		if (!empty($context['javascript_inline']['standard']) && !$do_deferred)
 		{
 			echo '
 	<script>';
@@ -3282,14 +3310,42 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context, $db_show_debug, $boardurl;
+	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
 
+	$toMinify = array();
+
 	foreach ($context['css_files'] as $id => $file)
+	{
+		// Last minute call! allow theme authors to disable single files.
+		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
+			continue;
+
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		{
+			$toMinify[] = $file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $file['options']['seed'];
+		}
+
+		else
+			echo '
+	<link rel="stylesheet" href="', $file['filename'] ,'">';
+	}
+
+	if (!empty($toMinify))
+	{
+		custMinify($toMinify, 'css');
+
 		echo '
-	<link rel="stylesheet" href="', $file['filename'], '">';
+	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	}
+
 
 	if ($db_show_debug === true)
 	{
@@ -3311,6 +3367,57 @@ function template_css()
 		echo'
 	</style>';
 	}
+}
+
+/**
+ * Get an array of previously defined files and adds them to our main minified file.
+ * Sets a one day cache to avoid re-creating a file on every request.
+ *
+ * @param array $data The files to minify.
+ * @param string $type either css or js.
+ * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
+ * @return boolean
+ */
+function custMinify($data, $type, $do_deferred = false)
+{
+	global $sourcedir, $smcFunc, $settings;
+
+	$types = array('css', 'js');
+	$type = !empty($type) && in_array($type, $types) ? $type : false;
+	$data = !empty($data) ? $data : false;
+
+	if (empty($type) || empty($data))
+		return false;
+
+	// What kind of file are we going to create?
+	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+	// Did we do this already?
+	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
+		return true;
+
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
+
+	// Yep, need a bunch of files.
+	require_once $sourcedir . '/minify/src/Minify.php';
+	require_once $sourcedir . '/minify/src/'. strtoupper($type) .'.php';
+	require_once $sourcedir . '/minify/src/Exception.php';
+	require_once $sourcedir . '/minify/src/Converter.php';
+
+	$minifier = new $classType();
+
+	foreach ($data as $file)
+		$minifier->add(str_replace($file['options']['seed'], '', $file['filepath']));
+
+	// Create the file.
+	$minifier->minify($toCreate);
+	unset($minifier);
+
+	// And create a long lived cache entry.
+	cache_put_data('minimized_'. $type, $type, 86400);
+
+	return true;
 }
 
 /**
@@ -3362,7 +3469,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
 	}
 	else
@@ -3380,53 +3487,75 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  */
 function ip2range($fullip)
 {
-	// If its IPv6, validate it first.
-	if (isValidIPv6($fullip) !== false)
-	{
-		$ip_parts = explode(':', expandIPv6($fullip, false));
-		$ip_array = array();
-
-		if (count($ip_parts) != 8)
-			return array();
-
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($ip_parts[$i] == '*')
-				$ip_array[$i] = array('low' => '0', 'high' => hexdec('ffff'));
-			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
-				$ip_array[$i] = array('low' => hexdec($range[1]), 'high' => hexdec($range[2]));
-			elseif (is_numeric(hexdec($ip_parts[$i])))
-				$ip_array[$i] = array('low' => hexdec($ip_parts[$i]), 'high' => hexdec($ip_parts[$i]));
-		}
-
-		return $ip_array;
-	}
-
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
 
-	$ip_parts = explode('.', $fullip);
+	$ip_parts = explode('-', $fullip);
 	$ip_array = array();
 
-	if (count($ip_parts) != 4)
-		return array();
-
-	for ($i = 0; $i < 4; $i++)
+	// if ip 22.12.31.21
+	if (count($ip_parts) == 1 && isValidIP($fullip))
 	{
-		if ($ip_parts[$i] == '*')
-			$ip_array[$i] = array('low' => '0', 'high' => '255');
-		elseif (preg_match('/^(\d{1,3})\-(\d{1,3})$/', $ip_parts[$i], $range) == 1)
-			$ip_array[$i] = array('low' => $range[1], 'high' => $range[2]);
-		elseif (is_numeric($ip_parts[$i]))
-			$ip_array[$i] = array('low' => $ip_parts[$i], 'high' => $ip_parts[$i]);
+		$ip_array['low'] = $fullip;
+		$ip_array['high'] = $fullip;
+		return $ip_array;
+	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	elseif (count($ip_parts) == 1)
+	{
+		$ip_parts[0] = $fullip;
+		$ip_parts[1] = $fullip;
 	}
 
-	// Makes it simpiler to work with.
-	$ip_array[4] = array('low' => 0, 'high' => 0);
-	$ip_array[5] = array('low' => 0, 'high' => 0);
-	$ip_array[6] = array('low' => 0, 'high' => 0);
-	$ip_array[7] = array('low' => 0, 'high' => 0);
+	// if ip 22.12.31.21-12.21.31.21
+	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
+	{
+		$ip_array['low'] = $ip_parts[0];
+		$ip_array['high'] = $ip_parts[1];
+		return $ip_array;
+	}
+	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
+	{
+		$valid_low = isValidIP($ip_parts[0]);
+		$valid_high = isValidIP($ip_parts[1]);
+		$count = 0;
+		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$max = ($mode == ':' ? 'ffff' : '255');
+		$min = 0;
+		if(!$valid_low)
+		{
+			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
+			$valid_low = isValidIP($ip_parts[0]);
+			while (!$valid_low)
+			{
+				$ip_parts[0] .= $mode . $min;
+				$valid_low = isValidIP($ip_parts[0]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+
+		$count = 0;
+		if(!$valid_high)
+		{
+			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
+			$valid_high = isValidIP($ip_parts[1]);
+			while (!$valid_high)
+			{
+				$ip_parts[1] .= $mode . $max;
+				$valid_high = isValidIP($ip_parts[1]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+
+		if($valid_high && $valid_low)
+		{
+			$ip_array['low'] = $ip_parts[0];
+			$ip_array['high'] = $ip_parts[1];
+		}
+
+	}
 
 	return $ip_array;
 }
@@ -4027,24 +4156,32 @@ function call_integration_hook($hook, $parameters = array())
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
-		$function = trim($function);
-		$call = '';
+		// Hook has been marked as "disabled". Skip it!
+		if (strpos($function, '!') !== false)
+			continue;
 
-		// Did we find a file to load?
-		$function = load_file($function);
-
-		if (!empty($function))
-			$call = call_helper($function, true);
+		$call = call_helper($function, true);
 
 		// Is it valid?
 		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
-		elseif (!empty($function) && !empty($absPath))
+		elseif (!empty($function))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['hook_fail_call_to'], $function, $absPath), 'general');
+
+			// Get a full path to show on error.
+			if (strpos($function, '|') !== false)
+			{
+				list ($file, $string) = explode('|', $function);
+				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
+			}
+
+			// "Assume" the file resides on $boarddir somewhere...
+			else
+				log_error(sprintf($txt['hook_fail_call_to'], $function, $boarddir), 'general');
 		}
 	}
 
@@ -4180,7 +4317,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
  *
- * @param string $string The string containing a function name or a static call.
+ * @param mixed $string The string containing a function name or a static call. The function can also accept a closure, object or a callable array (object/class, valid_callable)
  * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
  * @return string|array|boolean Either a string or an array that contains a callable function name or an array with a class and method to call. Boolean false if the given string cannot produce a callable var.
  */
@@ -4192,9 +4329,14 @@ function call_helper($string, $return = false)
 	if (empty($string))
 		return false;
 
-	// Is this a closure?
-	if ($string instanceof Closure)
-		return $string;
+	// An array? should be a "callable" array IE array(object/class, valid_callable).
+	// A closure? should be a callable one.
+	if (is_array($string) || $string instanceof Closure)
+		return $return ? $string : (is_callable($string) ? call_user_func($string) : false);
+
+	// No full objects, sorry! pass a method or a property instead!
+	if (is_object($string))
+		return false;
 
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
@@ -4691,4 +4833,348 @@ function smf_list_timezones()
 	);
 }
 
+/**
+ * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
+ * @return binary The IP address in binary or false
+ */
+function inet_ptod($ip_address)
+{
+	if (!isValidIP($ip_address))
+		return $ip_address;
+
+	$bin = inet_pton($ip_address);
+	return $bin;
+}
+
+/**
+ * @param binary $bin An IP address in IPv4, IPv6
+ * @return string The IP address in presentation format or false on error
+ */
+function inet_dtop($bin)
+{
+	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
+		return $bin;
+
+	$ip_address = inet_ntop($bin);
+
+	return $ip_address;
+}
+
+/**
+ * Safe serialize() and unserialize() replacements
+ *
+ * @license Public Domain
+ *
+ * @author anthon (dot) pang (at) gmail (dot) com
+ */
+
+/*
+ * Arbitrary limits for safe_unserialize()
+ */
+define('MAX_SERIALIZED_INPUT_LENGTH', 4096);
+define('MAX_SERIALIZED_ARRAY_LENGTH', 256);
+define('MAX_SERIALIZED_ARRAY_DEPTH', 3);
+
+/**
+ * Safe serialize() replacement. Recursive
+ * - output a strict subset of PHP's native serialized representation
+ * - does not serialize objects
+ *
+ * @param mixed $value
+ * @return string
+ */
+function _safe_serialize($value)
+{
+	if(is_null($value))
+		return 'N;';
+
+	if(is_bool($value))
+		return 'b:'. (int) $value .';';
+
+	if(is_int($value))
+		return 'i:'. $value .';';
+
+	if(is_float($value))
+		return 'd:'. str_replace(',', '.', $value) .';';
+
+	if(is_string($value))
+		return 's:'. strlen($value) .':"'. $value .'";';
+
+	if(is_array($value))
+	{
+		$out = '';
+		foreach($value as $k => $v)
+			$out .= _safe_serialize($k) . _safe_serialize($v);
+
+		return 'a:'. count($value) .':{'. $out .'}';
+	}
+
+	// safe_serialize cannot serialize resources or objects.
+	return false;
+}
+/**
+ * Wrapper for _safe_serialize() that handles exceptions and multibyte encoding issues.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function safe_serialize($value)
+{
+	// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+	if (function_exists('mb_internal_encoding') &&
+		(((int) ini_get('mbstring.func_overload')) & 2))
+	{
+		$mbIntEnc = mb_internal_encoding();
+		mb_internal_encoding('ASCII');
+	}
+
+	$out = _safe_serialize($value);
+
+	if (isset($mbIntEnc))
+		mb_internal_encoding($mbIntEnc);
+
+	return $out;
+}
+
+/**
+ * Safe unserialize() replacement
+ * - accepts a strict subset of PHP's native serialized representation
+ * - does not unserialize objects
+ *
+ * @param string $str
+ * @return mixed
+ * @throw Exception if $str is malformed or contains unsupported types (e.g., resources, objects)
+ */
+function _safe_unserialize($str)
+{
+	// Input exceeds MAX_SERIALIZED_INPUT_LENGTH.
+	if(strlen($str) > MAX_SERIALIZED_INPUT_LENGTH)
+		return false;
+
+	// Input  is not a string.
+	if(empty($str) || !is_string($str))
+		return false;
+
+	$stack = array();
+	$expected = array();
+
+	/*
+	 * states:
+	 *   0 - initial state, expecting a single value or array
+	 *   1 - terminal state
+	 *   2 - in array, expecting end of array or a key
+	 *   3 - in array, expecting value or another array
+	 */
+	$state = 0;
+	while($state != 1)
+	{
+		$type = isset($str[0]) ? $str[0] : '';
+		if($type == '}')
+			$str = substr($str, 1);
+
+		else if($type == 'N' && $str[1] == ';')
+		{
+			$value = null;
+			$str = substr($str, 2);
+		}
+		else if($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
+		{
+			$value = $matches[1] == '1' ? true : false;
+			$str = substr($str, 4);
+		}
+		else if($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
+		{
+			$value = (int)$matches[1];
+			$str = $matches[2];
+		}
+		else if($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
+		{
+			$value = (float)$matches[1];
+			$str = $matches[3];
+		}
+		else if($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int)$matches[1], 2) == '";')
+		{
+			$value = substr($matches[2], 0, (int)$matches[1]);
+			$str = substr($matches[2], (int)$matches[1] + 2);
+		}
+		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches) && $matches[1] < MAX_SERIALIZED_ARRAY_LENGTH)
+		{
+			$expectedLength = (int)$matches[1];
+			$str = $matches[2];
+		}
+
+		// Object or unknown/malformed type.
+		else
+			return false;
+
+		switch($state)
+		{
+			case 3: // In array, expecting value or another array.
+				if($type == 'a')
+				{
+					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
+					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
+						return false;
+
+					$stack[] = &$list;
+					$list[$key] = array();
+					$list = &$list[$key];
+					$expected[] = $expectedLength;
+					$state = 2;
+					break;
+				}
+				if($type != '}')
+				{
+					$list[$key] = $value;
+					$state = 2;
+					break;
+				}
+
+				// Missing array value.
+				return false;
+
+			case 2: // in array, expecting end of array or a key
+				if($type == '}')
+				{
+					// Array size is less than expected.
+					if(count($list) < end($expected))
+						return false;
+
+					unset($list);
+					$list = &$stack[count($stack)-1];
+					array_pop($stack);
+
+					// Go to terminal state if we're at the end of the root array.
+					array_pop($expected);
+
+					if(count($expected) == 0)
+						$state = 1;
+
+					break;
+				}
+
+				if($type == 'i' || $type == 's')
+				{
+					// Array size exceeds MAX_SERIALIZED_ARRAY_LENGTH.
+					if(count($list) >= MAX_SERIALIZED_ARRAY_LENGTH)
+						return false;
+
+					// Array size exceeds expected length.
+					if(count($list) >= end($expected))
+						return false;
+
+					$key = $value;
+					$state = 3;
+					break;
+				}
+
+				// Illegal array index type.
+				return false;
+
+			// Expecting array or value.
+			case 0:
+				if($type == 'a')
+				{
+					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
+					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
+						return false;
+
+					$data = array();
+					$list = &$data;
+					$expected[] = $expectedLength;
+					$state = 2;
+					break;
+				}
+
+				if($type != '}')
+				{
+					$data = $value;
+					$state = 1;
+					break;
+				}
+
+				// Not in array.
+				return false;
+		}
+	}
+
+	// Trailing data in input.
+	if(!empty($str))
+		return false;
+
+	return $data;
+}
+
+/**
+ * Wrapper for _safe_unserialize() that handles exceptions and multibyte encoding issue
+ *
+ * @param string $str
+ * @return mixed
+ */
+function safe_unserialize($str)
+{
+	// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+	if (function_exists('mb_internal_encoding') &&
+		(((int) ini_get('mbstring.func_overload')) & 0x02))
+	{
+		$mbIntEnc = mb_internal_encoding();
+		mb_internal_encoding('ASCII');
+	}
+
+	$out = _safe_unserialize($str);
+
+	if (isset($mbIntEnc))
+		mb_internal_encoding($mbIntEnc);
+
+	return $out;
+}
+
+/**
+ * Tries different modes to make file/dirs writable. Wrapper function for chmod()
+
+ * @param string $file The file/dir full path.
+ * @param int $value Not needed, added for legacy reasons.
+ * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
+ */
+function smf_chmod($file, $value = 0)
+{
+	// No file? no checks!
+	if (empty($file))
+		return false;
+
+	// Already writable?
+	if (is_writable($file))
+		return true;
+
+	// Do we have a file or a dir?
+	$isDir = is_dir($file);
+	$isWritable = false;
+
+	// Set different modes.
+	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
+
+	foreach($chmodValues as $val)
+	{
+		// If it's writable, break out of the loop.
+		if (is_writable($file))
+		{
+			$isWritable = true;
+			break;
+		}
+
+		else
+			@chmod($file, $val);
+	}
+
+	return $isWritable;
+}
+
+/**
+ * Check the given String if he is a valid IPv4 or IPv6
+ * return true or false
+ */
+function isValidIP($IPString)
+{
+	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
+}
 ?>

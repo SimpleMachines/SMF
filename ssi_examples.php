@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -33,7 +33,7 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 template_ssi_above();
 ?>
 			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 Beta 2</p>
+			<p><strong>Current Version:</strong> 2.1 Beta 3</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -416,71 +416,58 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 Beta 2 SSI.php Examples</title>
+		<title>SMF 2.1 Beta 3 SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
-			#wrapper
-			{
+			#wrapper {
 				width: 90%;
 			}
-			#upper_section .user
-			{
+			#upper_section .user {
 				height: 4em;
 			}
-			#upper_section .news
-			{
+			#upper_section .news {
 				height: 80px;
 			}
-			#content_section
-			{
+			#content_section {
 				position: relative;
 			}
-			#main_content_section h2
-			{
+			#main_content_section h2 {
 				font-size: 1.5em;
 				border-bottom: solid 1px #d05800;
 				line-height: 1.5em;
 				margin: 0.5em 0;
 				color: #d05800;
 			}
-			#liftup
-			{
+			#liftup {
 				top: -70px;
 				padding: 1em 2em 1em 1em;
 				line-height: 1.6em;
 			}
-			#footer_section
-			{
+			#footer {
 				position: relative;
 			}
-			#sidenav
-			{
+			#sidenav {
 				width: 210px;
 				float: left;
 				margin-right: 20px;
 			}
-			#sidenav ul
-			{
+			#sidenav ul {
 				margin: 0 0 0 15px;
 				padding: 0;
 				list-style: none;
 				font-size: 90%;
 			}
-			#preview
-			{
+			#preview {
 				margin-left: 230px;
 			}
-			.ssi_preview
-			{
+			.ssi_preview {
 				margin-bottom: 1.5em;
 			}
-			.ssi_preview h3
-			{
+			.ssi_preview h3 {
 				margin: 1em 0 0.5em 0;
 			}
-			.ssi_result
-			{
+			.ssi_result {
 				background-color: #fff;
 				border: 1px solid #99a;
 				padding: 10px;
@@ -515,10 +502,8 @@ function template_ssi_above()
 	</head>
 	<body>
 		<div id="header">
-			<div class="frame">
-				<h1 class="forumtitle">SMF 2.1 Beta 2 SSI.php Examples</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
-			</div>
+			<h1 class="forumtitle">SMF 2.1 Beta 3 SSI.php Examples</h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">
 			<div id="upper_section"><p><br></p></div>
@@ -537,15 +522,13 @@ function template_ssi_below()
 				</div>
 			</div>
 		</div>
-			<div id="footer_section">
-				<div class="frame">
-					<a href="#header" id="bot" class="go_up"></a>
-					<ul class="reset">
-						<li class="copyright">
-							<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
-						</li>
-					</ul>
-				</div>
+			<div id="footer">
+				<a href="#header" id="bot" class="go_up"></a>
+				<ul>
+					<li class="copyright">
+						<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
+					</li>
+				</ul>
 			</div>
 	</body>
 </html>';

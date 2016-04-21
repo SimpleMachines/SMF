@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 //------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ function template_main()
 				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 			</div>
 		</div>
-	</div><br>';
+	</div>';
 
 	echo '
 	<div id="report_form">
@@ -78,7 +78,6 @@ function template_main()
 
 	echo '
 					<p class="noticebox">', $context['notice'], '</p>
-					<br>
 					<dl class="settings" id="report_post">';
 
 	echo '
@@ -91,11 +90,9 @@ function template_main()
 
 	echo '
 					</dl>
-					<div class="flow_auto">
-						<input type="submit" name="preview" value="', $txt['preview'] , '" class="button_submit">
-						<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					</div>
+					<input type="submit" name="preview" value="', $txt['preview'] , '" class="button_submit">
+					<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 		</form>
 	</div>';

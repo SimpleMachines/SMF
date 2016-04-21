@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -58,7 +58,7 @@ function template_modify_subscription()
 						<input type="checkbox" name="active" id="activated_check"', empty($context['sub']['active']) ? '' : ' checked', ' class="input_check">
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<dl class="settings">
 					<dt>
 						', $txt['paid_mod_prim_group'], ':<br><span class="smalltext">', $txt['paid_mod_prim_group_desc'], '</span>
@@ -100,7 +100,7 @@ function template_modify_subscription()
 						<textarea name="emailcomplete" rows="6" cols="40">', $context['sub']['email_complete'], '</textarea>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'fixed\');">
 				<strong><label for="duration_type_fixed">', $txt['paid_mod_fixed_price'], '</label></strong>
 				<br>
@@ -365,7 +365,7 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
 		</div>
 		<div class="windowbg">
-			<ul class="reset">';
+			<ul>';
 
 		foreach ($context['pending_payments'] as $id => $payment)
 		{
@@ -461,7 +461,7 @@ function template_user_subscription()
 					', sprintf($modSettings['paid_currency_symbol'], $subscription['costs']['fixed']);
 
 				echo '
-					<hr class="hrcolor">
+					<hr>
 					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit">';
 			}
 			else

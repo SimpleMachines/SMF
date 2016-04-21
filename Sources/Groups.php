@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -402,9 +402,11 @@ function MembergroupMembers()
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		ORDER BY ' . $querySort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
-		LIMIT ' . $context['start'] . ', ' . $modSettings['defaultMaxMembers'],
+		LIMIT {int:start}, {int:max}',
 		array(
 			'group' => $_REQUEST['group'],
+			'start' => $context['start'],
+			'max' => $modSettings['defaultMaxMembers'],
 		)
 	);
 	$context['members'] = array();
@@ -443,7 +445,7 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings, $language;
+	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings;
 
 	// Set up the template stuff...
 	$context['page_title'] = $txt['mc_group_requests'];
@@ -524,7 +526,7 @@ function GroupRequests()
 			$smcFunc['db_free_result']($request);
 
 			// Add a background task to handle notifying people of this request
-			$data = serialize(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
+			$data = json_encode(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
@@ -731,9 +733,11 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
 		WHERE ' . $where . '
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array_merge($where_parameters, array(
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$group_requests = array();

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; ManageSettings
+// Version: 2.1 Beta 3; ManageSettings
 
 global $scripturl;
 
@@ -65,6 +65,7 @@ $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
+$txt['minimize_files'] = 'Minimize css and JavaScript files';
 $txt['queryless_urls_note'] = 'Apache/Lighttpd only';
 $txt['enableReportPM'] = 'Enable reporting of personal messages';
 $txt['max_pm_recipients'] = 'Maximum number of recipients allowed in a personal message';
@@ -338,8 +339,7 @@ $txt['languages_download_info'] = '<strong>Note:</strong>
 		<li>Where a file already exists on your forum the &quot;Already Exists&quot; column will have one of two values. &quot;Identical&quot; indicates that the file already exists in an identical form and need not be overwritten. &quot;Different&quot; means that the contents vary in some way and overwriting is probably the optimum solution.</li>
 	</ul>';
 
-$txt['languages_download_main_files'] = 'Primary Files';
-$txt['languages_download_theme_files'] = 'Theme-related Files';
+$txt['languages_download_main_files'] = 'Primary Files';+
 $txt['languages_download_filename'] = 'File Name';
 $txt['languages_download_dest'] = 'Destination';
 $txt['languages_download_writable'] = 'Writable';

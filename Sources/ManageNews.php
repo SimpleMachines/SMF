@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -1085,7 +1085,6 @@ function ModifyNewsSettings($return_config = false)
 
 	// Wrap it all up nice and warm...
 	$context['post_url'] = $scripturl . '?action=admin;area=news;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Add some javascript at the bottom...
 	addInlineJavascript('

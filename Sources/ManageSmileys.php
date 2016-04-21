@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -156,7 +156,6 @@ function EditSmileySettings($return_config = false)
 
 	// Finish up the form...
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -637,7 +636,7 @@ function AddSmiley()
 			{
 				$smileyLocation = $context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName;
 				move_uploaded_file($_FILES['uploadSmiley']['tmp_name'], $smileyLocation);
-				@chmod($smileyLocation, 0644);
+				smf_chmod($smileyLocation, 0644);
 
 				// Now, we want to move it from there to all the other sets.
 				for ($n = count($context['smiley_sets']); $i < $n; $i++)
@@ -650,7 +649,7 @@ function AddSmiley()
 
 					// Okay, so copy the first one we made to here.
 					copy($smileyLocation, $currentPath);
-					@chmod($currentPath, 0644);
+					smf_chmod($currentPath, 0644);
 				}
 			}
 
@@ -705,7 +704,7 @@ function AddSmiley()
 
 				// Finally - move the image!
 				move_uploaded_file($_FILES['individual_' . $set['name']]['tmp_name'], $smileyLocation);
-				@chmod($smileyLocation, 0644);
+				smf_chmod($smileyLocation, 0644);
 
 				// Should always be saved correctly!
 				$_POST['smiley_filename'] = $destName;
@@ -1218,8 +1217,9 @@ function list_getSmileys($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_smiley, code, filename, description, smiley_row, smiley_order, hidden
 		FROM {db_prefix}smileys
-		ORDER BY ' . $sort,
+		ORDER BY {raw:sort}',
 		array(
+			'sort' => $sort,
 		)
 	);
 	$smileys = array();
@@ -1241,8 +1241,7 @@ function list_getNumSmileys()
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}smileys',
-		array(
-		)
+		array()
 	);
 	list($numSmileys) = $smcFunc['db_fetch_row'];
 	$smcFunc['db_free_result']($request);
@@ -1609,7 +1608,7 @@ function InstallSmileySet()
 		package_flush_cache();
 
 		// Credits tag?
-		$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
+		$credits_tag = (empty($credits_tag)) ? '' : json_encode($credits_tag);
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_packages',
 			array(
@@ -1988,8 +1987,7 @@ function list_getMessageIcons($start, $items_per_page, $sort)
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE ({query_see_board} OR b.id_board IS NULL)
 		ORDER BY m.icon_order',
-		array(
-		)
+		array()
 	);
 
 	$message_icons = array();

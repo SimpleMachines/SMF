@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -102,7 +102,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['msg_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
-					'extra' => serialize(
+					'extra' => json_encode(
 						array(
 							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)
@@ -178,7 +178,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'report' . $this->_details['report_id'], false, 2);
+					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'report' . $this->_details['report_id'], $emaildata['is_html'], 2);
 			}
 		}
 

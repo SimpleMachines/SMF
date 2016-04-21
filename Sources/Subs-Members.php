@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -77,10 +77,11 @@ function deleteMembers($users, $check_not_admin = false)
 		SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:user_list})
-		LIMIT ' . count($users),
+		LIMIT {int:limit}',
 		array(
 			'user_list' => $users,
 			'admin_group' => 1,
+			'limit' => count($users),
 		)
 	);
 	$admins = array();
@@ -751,7 +752,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 			$emaildata = loadEmailTemplate($email_message, $replacements);
 
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, $emaildata['is_html'], 0);
 		}
 
 		// All admins are finished here.
@@ -770,7 +771,7 @@ function registerMember(&$regOptions, $return_errors = false)
 				'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
 			);
 			$emaildata = loadEmailTemplate('register_immediate', $replacements);
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', $emaildata['is_html'], 0);
 		}
 
 		// Send admin their notification.
@@ -799,7 +800,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, $emaildata['is_html'], 0);
 	}
 	// Must be awaiting approval.
 	else
@@ -813,7 +814,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_pending', $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', $emaildata['is_html'], 0);
 
 		// Admin gets informed here...
 		adminNotify('approval', $memberID, $regOptions['username']);
@@ -896,19 +897,23 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 
 	// Get rid of any SQL parts of the reserved name...
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
+	
+	//when we got no wildcard we can use equal -> fast
+	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=' );
 
 	// Make sure they don't want someone else's name.
-	$request = $smcFunc['db_query']('case_insensitive', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
-			AND ') . '({raw:real_name} LIKE {string:check_name} OR {raw:member_name} LIKE {string:check_name})
+			AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
 		LIMIT 1',
 		array(
 			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'member_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name',
 			'current_member' => $current_ID_MEMBER,
 			'check_name' => $checkName,
+			'operator' => $operator,
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)
@@ -1268,7 +1273,7 @@ function BuddyListToggle()
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', serialize(array(
+				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', json_encode(array(
 					'receiver_id' => $userReceiver,
 					'id_member' => $user_info['id'],
 					'member_name' => $user_info['username'],

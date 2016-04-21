@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // Don't do anything if SMF is already loaded.
@@ -217,7 +217,7 @@ function ssi_welcome($output_method = 'echo')
 	if ($output_method == 'echo')
 	{
 		if ($context['user']['is_guest'])
-			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login');
+			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
 		else
 			echo $txt['hello_member'], ' <strong>', $context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '';
 	}
@@ -439,6 +439,9 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			);
 	}
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of posts, let them do that now.
+	call_integration_hook('integrate_ssi_queryPosts', array(&$posts));
 
 	// Just return it.
 	if ($output_method != 'echo' || empty($posts))
@@ -597,10 +600,13 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 			'new' => !empty($row['is_read']),
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
-			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" align="middle" alt="' . $row['icon'] . '">',
+			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
 		);
 	}
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of topics, let them do that now.
+	call_integration_hook('integrate_ssi_recentTopics', array(&$posts));
 
 	// Just return it.
 	if ($output_method != 'echo' || empty($posts))
@@ -656,6 +662,9 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 			'posts' => $row['posts']
 		);
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of members, let them do that now.
+	call_integration_hook('integrate_ssi_topPoster', array(&$return));
 
 	// Just return all the top posters.
 	if ($output_method != 'echo')
@@ -707,6 +716,9 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 			'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>'
 		);
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of boards, let them do that now.
+	call_integration_hook('integrate_ssi_topBoards', array(&$boards));
 
 	// If we shouldn't output or have nothing to output, just jump out.
 	if ($output_method != 'echo' || empty($boards))
@@ -719,12 +731,12 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 				<th style="text-align: left">', $txt['board_topics'], '</th>
 				<th style="text-align: left">', $txt['posts'], '</th>
 			</tr>';
-	foreach ($boards as $board)
+	foreach ($boards as $sBoard)
 		echo '
 			<tr>
-				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
-				<td style="text-align: right">', comma_format($board['num_topics']), '</td>
-				<td style="text-align: right">', comma_format($board['num_posts']), '</td>
+				<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
+				<td style="text-align: right">', comma_format($sBoard['num_topics']), '</td>
+				<td style="text-align: right">', comma_format($sBoard['num_posts']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -798,6 +810,9 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 		);
 	}
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of topics, let them do that now.
+	call_integration_hook('integrate_ssi_topTopics', array(&$topics, $type));
 
 	if ($output_method != 'echo' || empty($topics))
 		return $topics;
@@ -809,14 +824,14 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 				<th style="text-align: left">', $txt['views'], '</th>
 				<th style="text-align: left">', $txt['replies'], '</th>
 			</tr>';
-	foreach ($topics as $topic)
+	foreach ($topics as $sTopic)
 		echo '
 			<tr>
 				<td style="text-align: left">
-					', $topic['link'], '
+					', $sTopic['link'], '
 				</td>
-				<td style="text-align: right">', comma_format($topic['num_views']), '</td>
-				<td style="text-align: right">', comma_format($topic['num_replies']), '</td>
+				<td style="text-align: right">', comma_format($sTopic['num_views']), '</td>
+				<td style="text-align: right">', comma_format($sTopic['num_replies']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -995,6 +1010,9 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 
 	if (empty($members))
 		return array();
+	
+	// If mods want to do somthing with this list of members, let them do that now.
+	call_integration_hook('integrate_ssi_queryMembers', array(&$members));
 
 	// Load the members.
 	loadMemberData($members);
@@ -1070,6 +1088,9 @@ function ssi_boardStats($output_method = 'echo')
 	);
 	list ($totals['categories']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
+	
+	// If mods want to do somthing with the board stats, let them do that now.
+	call_integration_hook('integrate_ssi_boardStats', array(&$totals));
 
 	if ($output_method != 'echo')
 		return $totals;
@@ -1096,6 +1117,9 @@ function ssi_whosOnline($output_method = 'echo')
 		'show_hidden' => allowedTo('moderate_forum'),
 	);
 	$return = getMembersOnlineStats($membersOnlineOptions);
+	
+	// If mods want to do somthing with the list of who is online, let them do that now.
+	call_integration_hook('integrate_ssi_whosOnline', array(&$return));
 
 	// Add some redundancy for backwards compatibility reasons.
 	if ($output_method != 'echo')
@@ -1105,7 +1129,7 @@ function ssi_whosOnline($output_method = 'echo')
 			'hidden' => $return['num_users_hidden'],
 			'buddies' => $return['num_buddies'],
 			'num_users' => $return['num_users_online'],
-			'total_users' => $return['num_users_online'] + $return['num_guests'] + $return['num_spiders'],
+			'total_users' => $return['num_users_online'] + $return['num_guests'],
 		);
 
 	echo '
@@ -1155,7 +1179,7 @@ function ssi_logOnline($output_method = 'echo')
  */
 function ssi_login($redirect_to = '', $output_method = 'echo')
 {
-	global $scripturl, $txt, $user_info, $context, $modSettings;
+	global $scripturl, $txt, $user_info, $context;
 
 	if ($redirect_to != '')
 		$_SESSION['login_url'] = $redirect_to;
@@ -1273,12 +1297,12 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	$options = array();
+	$sOptions = array();
 	while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
 	{
 		censorText($rowChoice['label']);
 
-		$options[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
+		$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1299,7 +1323,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 	// Calculate the percentages and bar lengths...
 	$divisor = $return['total_votes'] == 0 ? 1 : $return['total_votes'];
-	foreach ($options as $i => $option)
+	foreach ($sOptions as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
 		$return['options'][$i] = array(
@@ -1311,7 +1335,10 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($options), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
+	
+	// If mods want to do somthing with this list of polls, let them do that now.
+	call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
 
 	if ($output_method != 'echo')
 		return $return;
@@ -1440,13 +1467,13 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	$options = array();
+	$sOptions = array();
 	$total_votes = 0;
 	while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
 	{
 		censorText($rowChoice['label']);
 
-		$options[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
+		$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 		$total_votes += $rowChoice['votes'];
 	}
 	$smcFunc['db_free_result']($request);
@@ -1464,7 +1491,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 	// Calculate the percentages and bar lengths...
 	$divisor = $total_votes == 0 ? 1 : $total_votes;
-	foreach ($options as $i => $option)
+	foreach ($sOptions as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
 		$return['options'][$i] = array(
@@ -1476,7 +1503,10 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($options), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
+	
+	// If mods want to do somthing with this poll, let them do that now.
+	call_integration_hook('integrate_ssi_showPoll', array(&$return));
 
 	if ($output_method != 'echo')
 		return $return;
@@ -1601,13 +1631,13 @@ function ssi_pollVote()
 			redirectexit('topic=' . $row['id_topic'] . '.0');
 	}
 
-	$options = array();
+	$sOptions = array();
 	$inserts = array();
 	foreach ($_REQUEST['options'] as $id)
 	{
 		$id = (int) $id;
 
-		$options[] = $id;
+		$sOptions[] = $id;
 		$inserts[] = array($_POST['poll'], $user_info['id'], $id);
 	}
 
@@ -1624,7 +1654,7 @@ function ssi_pollVote()
 		WHERE id_poll = {int:current_poll}
 			AND id_choice IN ({array_int:option_list})',
 		array(
-			'option_list' => $options,
+			'option_list' => $sOptions,
 			'current_poll' => $_POST['poll'],
 		)
 	);
@@ -1674,6 +1704,9 @@ function ssi_news($output_method = 'echo')
 	global $context;
 
 	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+	
+	// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
+	call_integration_hook('integrate_ssi_news');
 
 	if ($output_method != 'echo')
 		return $context['random_news_line'];
@@ -1698,6 +1731,9 @@ function ssi_todaysBirthdays($output_method = 'echo')
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
 	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	
+	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
+	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 	if ($output_method != 'echo')
 		return $return['calendar_birthdays'];
@@ -1724,6 +1760,9 @@ function ssi_todaysHolidays($output_method = 'echo')
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
 	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	
+	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
+	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 	if ($output_method != 'echo')
 		return $return['calendar_holidays'];
@@ -1748,6 +1787,9 @@ function ssi_todaysEvents($output_method = 'echo')
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
 	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	
+	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
+	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 	if ($output_method != 'echo')
 		return $return['calendar_events'];
@@ -1781,6 +1823,9 @@ function ssi_todaysCalendar($output_method = 'echo')
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
 	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	
+	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
+	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
 
 	if ($output_method != 'echo')
 		return $return;
@@ -1993,6 +2038,9 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		return $return;
 
 	$return[count($return) - 1]['is_last'] = true;
+	
+	// If mods want to do somthing with this list of posts, let them do that now.
+	call_integration_hook('integrate_ssi_boardNews', array(&$return));
 
 	if ($output_method != 'echo')
 		return $return;
@@ -2123,6 +2171,9 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 
 	foreach ($return as $mday => $array)
 		$return[$mday][count($array) - 1]['is_last'] = true;
+	
+	// If mods want to do somthing with this list of events, let them do that now.
+	call_integration_hook('integrate_ssi_recentEvents', array(&$return));
 
 	if ($output_method != 'echo' || empty($return))
 		return $return;
@@ -2179,7 +2230,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
  * @param string $output_method The output method. If 'echo', displays a table with links/info, otherwise returns an array with information about the attachments
  * @return void|array Displays a table of attachment info or returns an array containing info about the attachments, depending on output_method.
  */
-function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
+function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 {
 	global $smcFunc, $modSettings, $scripturl, $txt, $settings;
 
@@ -2191,8 +2242,7 @@ function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array()
 		return array();
 
 	// Is it an array?
-	if (!is_array($attachment_ext))
-		$attachment_ext = array($attachment_ext);
+	$attachment_ext = (array) $attachment_ext;
 
 	// Lets build the query.
 	$request = $smcFunc['db_query']('', '
@@ -2268,6 +2318,9 @@ function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array()
 		}
 	}
 	$smcFunc['db_free_result']($request);
+	
+	// If mods want to do somthing with this list of attachments, let them do that now.
+	call_integration_hook('integrate_ssi_recentAttachments', array(&$attachments));
 
 	// So you just want an array?  Here you can have it.
 	if ($output_method == 'array' || empty($attachments))

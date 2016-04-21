@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; Admin
+// Version: 2.1 Beta 3; Admin
 
 global $settings, $scripturl;
 
@@ -62,6 +62,8 @@ $txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
+$txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if they are already embedded in it.';
+$txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attachments to appear twice. Attachments embedded in the post still count towards attachment limits and can still be treated like normal attachments.';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
 $txt['registration_agreement'] = 'Registration Agreement';
@@ -297,6 +299,7 @@ $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
 $txt['support_versions_php'] = 'PHP version';
 $txt['support_versions_db'] = '%1$s version';
+$txt['support_versions_db_engine'] = '%1$s engine';
 $txt['support_versions_server'] = 'Server version';
 $txt['support_versions_gd'] = 'GD version';
 $txt['support_versions_imagemagick'] = 'ImageMagick version';
@@ -571,7 +574,7 @@ $txt['enableSpellChecking_warning'] = 'this does not work on all servers.';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
-$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
+$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';
 $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';

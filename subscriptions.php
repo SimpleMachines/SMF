@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // Start things rolling by getting SMF alive...
@@ -180,14 +180,14 @@ if ($gatewayClass->isRefund())
 // Otherwise is it what we want, a purchase?
 elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 {
-	$cost = unserialize($subscription_info['cost']);
+	$cost = json_decode($subscription_info['cost'], true);
 	$total_cost = $gatewayClass->getCost();
 	$notify = false;
 
 	// For one off's we want to only capture them once!
 	if (!$gatewayClass->isSubscription())
 	{
-		$real_details = @unserialize($subscription_info['pending_details']);
+		$real_details = json_decode($subscription_info['pending_details'], true);
 		if (empty($real_details))
 			generateSubscriptionError(sprintf($txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
 
@@ -201,7 +201,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			break;
 		}
 
-		$subscription_info['pending_details'] = empty($real_details) ? '' : serialize($real_details);
+		$subscription_info['pending_details'] = empty($real_details) ? '' : json_encode($real_details);
 
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_subscribed

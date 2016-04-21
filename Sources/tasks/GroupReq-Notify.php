@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -82,7 +82,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => 'group_request',
 						'is_read' => 0,
-						'extra' => serialize(array('group_name' => $this->_details['group_name'])),
+						'extra' => json_encode(array('group_name' => $this->_details['group_name'])),
 					);
 				}
 
@@ -122,7 +122,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 					);
 
 					$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], false, 2);
+					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], $emaildata['is_html'], 2);
 				}
 			}
 		}

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -244,7 +244,7 @@ function template_create_index()
 						</select>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
@@ -272,7 +272,7 @@ function template_create_index_progress()
 						<div class="green_percent" style="width: ', $context['percentage'], '%;">&nbsp;</div>
 					</div>
 				</div>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="step" value="', $context['step'], '">
@@ -360,7 +360,7 @@ function template_spider_edit()
 						<textarea name="spider_ip" id="spider_ip" rows="4" cols="20">', $context['spider']['ip_info'], '</textarea>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '">

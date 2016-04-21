@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -70,7 +70,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('alert_unapproved_reply', $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
+				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
 			if ($pref & 0x01)
@@ -84,7 +84,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => 'reply',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],

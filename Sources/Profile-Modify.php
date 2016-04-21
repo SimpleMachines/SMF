@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -292,6 +292,9 @@ function loadProfileFields($force_reload = false)
 					{
 						validateUsername($context['id_member'], trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $value)));
 						updateMemberData($context['id_member'], array('member_name' => $value));
+
+						// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
+						call_integration_hook('integrate_reset_pass', array($cur_profile['member_name'], $value, $_POST['passwrd1']));
 					}
 				}
 				return false;
@@ -620,6 +623,14 @@ function setupProfileContext($fields)
 {
 	global $profile_fields, $context, $cur_profile, $txt;
 
+	// Some default bits.
+	$context['profile_prehtml'] = '';
+	$context['profile_posthtml'] = '';
+	$context['profile_javascript'] = '';
+	$context['profile_onsubmit_javascript'] = '';
+
+	call_integration_hook('integrate_setup_profile_context', array(&$fields));
+
 	// Make sure we have this!
 	loadProfileFields(true);
 
@@ -627,12 +638,6 @@ function setupProfileContext($fields)
 	foreach ($profile_fields as $key => $field)
 		if (isset($field['link_with']) && in_array($field['link_with'], $fields))
 			$fields[] = $key;
-
-	// Some default bits.
-	$context['profile_prehtml'] = '';
-	$context['profile_posthtml'] = '';
-	$context['profile_javascript'] = '';
-	$context['profile_onsubmit_javascript'] = '';
 
 	$i = 0;
 	$last_type = '';
@@ -1820,7 +1825,7 @@ function notification($memID)
 	global $txt, $context;
 
 	// Going to want this for consistency.
-	loadCSSFile('admin.css', array(), 'admin');
+	loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// This is just a bootstrap for everything else.
 	$sa = array(
@@ -1863,7 +1868,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
+	loadJavascriptFile('alertSettings.js', array('default_theme' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -1873,7 +1878,7 @@ function alert_configuration($memID)
 
 	$context['member'] += array(
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
-		'notify_announcements' => isset($context['alert_prefs']['notify_announcements']) ? $context['alert_prefs']['notify_announcements'] : 0,
+		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
 
 	// Now for the exciting stuff.
@@ -2393,7 +2398,7 @@ function alert_notifications_topics($memID)
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button_submit" />
 							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
-				'align' => 'right',
+				'class' => 'floatright',
 			),
 		),
 	);
@@ -2511,7 +2516,7 @@ function alert_notifications_boards($memID)
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">
 							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
-				'align' => 'right',
+				'class' => 'floatright',
 			),
 		),
 	);
@@ -2569,10 +2574,10 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	// All the topics with notification on...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
-			t.id_topic, ms.subject, ms.id_member, IFNULL(mem.real_name, ms.poster_name) AS real_name_col,
+			COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
+			t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 			ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
-			IFNULL(mem2.real_name, ml.poster_name) AS last_real_name,
+			COALESCE(mem2.real_name, ml.poster_name) AS last_real_name,
 			lt.unwatched
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic' . ($modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
@@ -2640,16 +2645,17 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT b.id_board, b.name, IFNULL(lb.id_msg, 0) AS board_read, b.id_msg_updated
+		SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 		WHERE ln.id_member = {int:selected_member}
 			AND {query_see_board}
-		ORDER BY ' . $sort,
+		ORDER BY {raw:sort}',
 		array(
 			'current_member' => $user_info['id'],
 			'selected_member' => $memID,
+			'sort' => $sort,
 		)
 	);
 	$notification_boards = array();
@@ -3121,6 +3127,9 @@ function profileSaveGroups(&$value)
 			updateSettings(array('settings_updated' => time()));
 	}
 
+	// Announce to any hooks that we have changed groups, but don't allow them to change it.
+	call_integration_hook('integrate_profile_profileSaveGroups', array($value, $additional_groups));
+
 	return true;
 }
 
@@ -3281,7 +3290,7 @@ function profileSaveAvatarData(&$value)
 				if (!empty($modSettings['avatar_resize_upload']))
 				{
 					// Attempt to chmod it.
-					@chmod($_FILES['attachment']['tmp_name'], 0644);
+					smf_chmod($_FILES['attachment']['tmp_name'], 0644);
 
 					// @todo remove this require when appropriate
 					require_once($sourcedir . '/Subs-Graphics.php');
@@ -3370,7 +3379,7 @@ function profileSaveAvatarData(&$value)
 				}
 
 				// Attempt to chmod it.
-				@chmod($uploadDir . '/' . $destinationPath, 0644);
+				smf_chmod($uploadDir . '/' . $destinationPath, 0644);
 			}
 			$profile_vars['avatar'] = '';
 
@@ -3650,7 +3659,7 @@ function profileSendActivation()
 
 	// Send off the email.
 	$emaildata = loadEmailTemplate('activate_reactivate', $replacements, empty($cur_profile['lngfile']) || empty($modSettings['userLanguage']) ? $language : $cur_profile['lngfile']);
-	sendmail($profile_vars['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', false, 0);
+	sendmail($profile_vars['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reactivate', $emaildata['is_html'], 0);
 
 	// Log the user out.
 	$smcFunc['db_query']('', '
@@ -3661,7 +3670,7 @@ function profileSendActivation()
 		)
 	);
 	$_SESSION['log_time'] = 0;
-	$_SESSION['login_' . $cookiename] = serialize(array(0, '', 0));
+	$_SESSION['login_' . $cookiename] = json_encode(array(0, '', 0));
 
 	if (isset($_COOKIE[$cookiename]))
 		$_COOKIE[$cookiename] = '';
@@ -3706,7 +3715,7 @@ function groupMembership($memID)
 	// Get all the membergroups they can join.
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, mg.description, mg.group_type, mg.online_color, mg.hidden,
-			IFNULL(lgr.id_member, 0) AS pending
+			COALESCE(lgr.id_member, 0) AS pending
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}log_group_requests AS lgr ON (lgr.id_member = {int:selected_member} AND lgr.id_group = mg.id_group AND lgr.status = {int:status_open})
 		WHERE (mg.id_group IN ({array_int:group_list})
@@ -3936,7 +3945,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		);
 
 		// Set up some data for our background task...
-		$data = serialize(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
+		$data = json_encode(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
 
 		// Add a background task to handle notifying people of this request
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',

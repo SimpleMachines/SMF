@@ -146,6 +146,8 @@ div.sceditor-grip {
 	font-weight: 700;
 	border-radius: 4px;
 	background-clip: padding-box;
+	min-width: 100%;
+	max-width: 100%;
 }
 .sceditor-container {
 	font-weight: normal;
@@ -162,11 +164,16 @@ div.sceditor-grip {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 13px;
 	color: #111;
-	padding: 0;
-	margin: 5px;
+	padding: 5px 0;
+	margin: 0;
 	resize: none;
 	background: #fff;
 	display: block;
+	min-width: 100%;
+	max-width: 100%;
+}
+.sceditor-container textarea {
+	padding: 5px;
 }
 div.sceditor-resize-cover {
 	position: absolute;

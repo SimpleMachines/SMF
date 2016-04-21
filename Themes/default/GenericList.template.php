@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -97,7 +97,7 @@ function template_show_list($list_id = null)
 	if (empty($cur_list['rows']) && !empty($cur_list['no_items_label']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', $cur_list['num_columns'], '" align="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'center', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
+					<td colspan="', $cur_list['num_columns'], '" class="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'centertext', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
 				</tr>';
 
 	// Show the list rows.
@@ -232,7 +232,7 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
 				<td>&nbsp;</td>' : '', '
-				<td align="', $list_menu['position'], '">
+				<td class="', $list_menu['position'], 'text">
 					<table>
 						<tr>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>';
@@ -272,7 +272,7 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
 				<td>&nbsp;</td>' : '', '
-				<td align="', $list_menu['position'], '">
+				<td class="', $list_menu['position'], 'text">
 					<table>
 						<tr>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>

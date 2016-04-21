@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; Packages
+// Version: 2.1 Beta 3; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -99,6 +99,7 @@ $txt['execute_database_changes'] = 'Execute file';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
+$txt['execute_hook_action_inverse'] = 'Removing hook %1$s';
 $txt['package_requires'] = 'Requires Modification';
 $txt['package_check_for'] = 'Check for installation:';
 $txt['execute_credits_add'] = 'Add Credits';
@@ -274,5 +275,7 @@ $txt['package_readme_default'] = 'Default';
 $txt['package_available_readme_language'] = 'Available Readme Languages:';
 $txt['package_license_default'] = 'Default';
 $txt['package_available_license_language'] = 'Available License Languages:';
+
+$txt['package_chmod_linux'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
 
 ?>

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -242,7 +242,7 @@ function template_email_members_compose()
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 					echo '
-				<ul class="reset">
+				<ul>
 					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty($context['send_pm']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_pms'], '</label></li>
 					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
 					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled class="input_check"> ', $txt['email_parsed_html'], '</label></li>
@@ -400,7 +400,7 @@ function template_email_members_send()
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
 				</div>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="subject" value="', $context['subject'], '">

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -74,8 +74,6 @@ function ManageScheduledTasks()
 function ScheduledTasks()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
-	global $modSettings;
-
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -114,7 +112,7 @@ function ScheduledTasks()
 				'remove_redirect' => 'remove_topic_redirect'
 			)
 		);
-		
+
 		$temp = $smcFunc['db_fetch_assoc']($get_info);
 		$task_disabled = !empty($temp['disabled']) ? 0 : 1;
 		$smcFunc['db_free_result']($get_info);
@@ -140,9 +138,10 @@ function ScheduledTasks()
 			SELECT id_task, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task IN ({array_int:tasks})
-			LIMIT ' . count($tasks),
+			LIMIT {int:limit}',
 			array(
 				'tasks' => $tasks,
+				'limit' => count($tasks),
 			)
 		);
 
@@ -592,9 +591,12 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 		SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 		FROM {db_prefix}log_scheduled_tasks AS lst
 			INNER JOIN {db_prefix}scheduled_tasks AS st ON (st.id_task = lst.id_task)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$log_entries = array();

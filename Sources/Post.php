@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -45,10 +45,13 @@ function Post($post_errors = array())
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
+	$context['posting_fields'] = array();
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
-	$context['notify_prefs'] = (array) array_pop(getNotifyPrefs($user_info['id']));
+	// use $temp to get around "Only variables should be passed by reference"
+	$temp = getNotifyPrefs($user_info['id']);
+	$context['notify_prefs'] = (array) array_pop($temp);
 	$context['auto_notify'] = !empty($context['notify_prefs']['msg_auto_notify']);
 
 	// You must be posting to *some* board.
@@ -88,7 +91,7 @@ function Post($post_errors = array())
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				t.locked, IFNULL(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
+				t.locked, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
 				t.id_first_msg, mf.subject, ml.modified_reason,
 				CASE WHEN ml.poster_time > ml.modified_time THEN ml.poster_time ELSE ml.modified_time END AS last_post_time
 			FROM {db_prefix}topics AS t
@@ -184,6 +187,13 @@ function Post($post_errors = array())
 
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
+
+	// If there are attachments already uploaded, pass them to the current attachments array.
+	if (!empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		$context['current_attachments'] = getRawAttachInfo($_SESSION['already_attached']);
+	}
 
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
@@ -513,7 +523,7 @@ function Post($post_errors = array())
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
+					COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 					m.poster_time, log.id_action
 				FROM {db_prefix}messages AS m
@@ -564,7 +574,7 @@ function Post($post_errors = array())
 			if (!empty($modSettings['attachmentEnable']))
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT IFNULL(size, -1) AS filesize, filename, id_attach, approved
+					SELECT COALESCE(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
 						AND attachment_type = {int:attachment_type}
@@ -579,11 +589,13 @@ function Post($post_errors = array())
 				{
 					if ($row['filesize'] <= 0)
 						continue;
-					$context['current_attachments'][] = array(
+					$context['current_attachments'][$row['id_attach']] = array(
 						'name' => $smcFunc['htmlspecialchars']($row['filename']),
 						'size' => $row['filesize'],
-						'id' => $row['id_attach'],
+						'attachID' => $row['id_attach'],
 						'approved' => $row['approved'],
+						'mime_type' => $row['mime_type'],
+						'thumb' => $row['id_thumb'],
 					);
 				}
 				$smcFunc['db_free_result']($request);
@@ -629,7 +641,7 @@ function Post($post_errors = array())
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
+				COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
@@ -711,11 +723,13 @@ function Post($post_errors = array())
 		// Load up 'em attachments!
 		foreach ($temp as $attachment)
 		{
-			$context['current_attachments'][] = array(
+			$context['current_attachments'][$attachment['id_attach']] = array(
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
-				'id' => $attachment['id_attach'],
+				'attachID' => $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
+				'mime_type' => $attachment['mime_type'],
+				'thumb' => $attachment['id_thumb'],
 			);
 		}
 
@@ -751,7 +765,7 @@ function Post($post_errors = array())
 		{
 			// Make sure they _can_ quote this post, and if so get it.
 			$request = $smcFunc['db_query']('', '
-				SELECT m.subject, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
+				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -958,12 +972,14 @@ function Post($post_errors = array())
 				if (!isset($context['files_in_session_warning']))
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
-				$context['current_attachments'][] = array(
+				$context['current_attachments'][$attachID] = array(
 					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
 					'size' => $attachment['size'],
-					'id' => $attachID,
+					'attachID' => $attachID,
 					'unchecked' => false,
 					'approved' => 1,
+					'mime_type' => '',
+					'thumb' => 0,
 				);
 			}
 		}
@@ -1167,15 +1183,75 @@ function Post($post_errors = array())
 	{
 		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
 		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
 	}
 
 	// quotedText.js
 	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
 
+	// Mock files to show already attached files.
+	addInlineJavascript('
+	var current_attachments = [];', true);
+
+	if (!empty($context['current_attachments']))
+	{
+		foreach ($context['current_attachments'] as $key => $mock)
+			addInlineJavascript('
+	current_attachments.push({
+		name: '. JavaScriptEscape($mock['name']) .',
+		size: '. $mock['size'] .',
+		attachID: '. $mock['attachID'] .',
+		approved: '. $mock['approved'] .',
+		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') .',
+		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) .'
+	});', true);
+	}
+
+	// File Upload.
+	if ($context['can_post_attachment'])
+	{
+		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.'. $smcFunc['htmltrim']($val);} , explode(',', $context['allowed_extensions'])));
+
+		loadJavascriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
+		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true), 'smf_fileUpload');
+		addInlineJavascript('
+	$(function() {
+		smf_fileUpload({
+			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
+			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
+			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
+			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
+			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) .',
+			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
+			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
+			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .',
+			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) .',
+			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) .',
+			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
+			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
+			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
+			acceptedFiles: '. JavaScriptEscape($acceptedFiles) .',
+			maxFilesize: '. ($modSettings['attachmentSizeLimit']) .',
+			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
+			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
+			maxFiles: '. $context['num_allowed_attachments'] .',
+			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
+			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
+			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
+		});
+	});', true);
+	}
+
+	// Knowing the current board ID might be handy.
+	addInlineJavascript('
+	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
+
+	call_integration_hook('integrate_post_end');
 }
 
 /**
@@ -1189,7 +1265,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $smcFunc;
+	global $user_info, $board_info, $smcFunc, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1271,8 +1347,8 @@ function Post2()
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if ($context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		 require_once($sourcedir . '/Subs-Attachments.php');
-		 processAttachments();
+		require_once($sourcedir . '/Subs-Attachments.php');
+		processAttachments();
 	}
 
 	// If this isn't a new topic load the topic info that we need.
@@ -1859,6 +1935,20 @@ function Post2()
 	// Creating a new topic?
 	$newTopic = empty($_REQUEST['msg']) && empty($topic);
 
+	// Check the icon.
+	if (!isset($_POST['icon']))
+		$_POST['icon'] = 'xx';
+
+	else
+	{
+		$_POST['icon'] = $smcFunc['htmlspecialchars']($_POST['icon']);
+
+		// Need to figure it out if this is a valid icon name.
+		if ((!file_exists($settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
+			$_POST['icon'] = 'xx';
+	}
+
+	// Give an attach clip if the message contains attachments.
 	$_POST['icon'] = !empty($attachIDs) && $_POST['icon'] == 'xx' ? 'clip' : $_POST['icon'];
 
 	// Collect all parameters for the creation or modification of a post.
@@ -1911,6 +2001,14 @@ function Post2()
 
 		if (isset($topicOptions['id']))
 			$topic = $topicOptions['id'];
+	}
+
+	// Assign the previously uploaded attachments to the brand new message.
+	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		assignAttachments($_SESSION['already_attached'], $msgOptions['id']);
+		unset($_SESSION['already_attached']);
 	}
 
 	// If we had a draft for this, its time to remove it since it was just posted
@@ -2057,41 +2155,13 @@ function Post2()
 	if ($board_info['num_topics'] == 0)
 		cache_put_data('board-' . $board, null, 120);
 
+	call_integration_hook('integrate_post2_end');
+
 	if (!empty($_POST['announce_topic']))
 		redirectexit('action=announce;sa=selectgroup;topic=' . $topic . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
 	if (!empty($_POST['move']) && allowedTo('move_any'))
 		redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
-
-	// If there are attachment errors. Let's show a list to the user.
-	if (!empty($attach_errors))
-	{
-		global $settings, $scripturl;
-
-		loadTemplate('Errors');
-		$context['sub_template'] = 'attachment_errors';
-		$context['page_title'] = $txt['error_occured'];
-
-		$context['error_message'] = '<dl>';
-		$context['error_message'] .= implode("\n", $attach_errors);
-		$context['error_message'] .= '</dl>';
-		$context['error_title'] = $txt['attach_error_title'];
-
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?topic=' . $topic . '.0',
-			'name' => $_POST['subject'],
-			'extra_before' => !empty($settings['linktree_inline']) ? $txt['topic'] . ':' : ''
-		);
-
-		if (isset($_REQUEST['msg']))
-			$context['redirect_link'] = '?topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'];
-		else
-			$context['redirect_link'] = '?topic=' . $topic . '.new#new';
-
-		$context['back_link'] = '?action=post;msg=' . $msgOptions['id'] . ';topic=' . $topic . ';additionalOptions#postAttachment';
-
-		obExit(null, true);
-	}
 
 	// Return to post if the mod is on.
 	if (isset($_REQUEST['msg']) && !empty($_REQUEST['goback']))
@@ -2332,6 +2402,7 @@ function AnnouncementSend()
 			$announcements[$cur_language] = array(
 				'subject' => $emaildata['subject'],
 				'body' => $emaildata['body'],
+				'is_html' => $emaildata['is_html'],
 				'recipients' => array(),
 			);
 		}
@@ -2339,11 +2410,10 @@ function AnnouncementSend()
 		$announcements[$cur_language]['recipients'][$row['id_member']] = $row['email_address'];
 		$context['start'] = $row['id_member'];
 	}
-	$smcFunc['db_free_result']($request);
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)
-		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, false, 5);
+		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, $mail['is_html'], 5);
 
 	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
 
@@ -2378,7 +2448,7 @@ function getTopic()
 	// If you're modifying, get only those posts before the current one. (otherwise get all.)
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 			m.body, m.smileys_enabled, m.id_msg, m.id_member
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -2440,7 +2510,7 @@ function QuoteFast()
 	$context['post_box_name'] = isset($_GET['pb']) ? $_GET['pb'] : '';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
+		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 			m.id_board, m.id_member, m.approved
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)

@@ -691,19 +691,19 @@ function smf_sessionKeepAlive()
 window.setTimeout('smf_sessionKeepAlive();', 1200000);
 
 // Set a theme option through javascript.
-function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_var, additional_vars)
+function smf_setThemeOption(theme_var, theme_value, theme_id, theme_cur_session_id, theme_cur_session_var, theme_additional_vars)
 {
 	// Compatibility.
-	if (cur_session_id == null)
-		cur_session_id = smf_session_id;
-	if (typeof(cur_session_var) == 'undefined')
-		cur_session_var = 'sesc';
+	if (theme_cur_session_id == null)
+		theme_cur_session_id = smf_session_id;
+	if (typeof(theme_cur_session_var) == 'undefined')
+		theme_cur_session_var = 'sesc';
 
-	if (additional_vars == null)
-		additional_vars = '';
+	if (theme_additional_vars == null)
+		theme_additional_vars = '';
 
 	var tempImage = new Image();
-	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + option + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
+	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + theme_var + ';val=' + theme_value + ';' + theme_cur_session_var + '=' + theme_cur_session_id + theme_additional_vars + (theme_id == null ? '' : '&th=' + theme_id) + ';time=' + (new Date().getTime());
 }
 
 // Shows the page numbers by clicking the dots (in compact view).
@@ -955,10 +955,10 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 
 	// Update the cookie, if desired.
 	if ('oCookieOptions' in this.opt && this.opt.oCookieOptions.bUseCookie)
-		this.oCookie.set(this.opt.oCookieOptions.sCookieName, this.bCollapsed ? '1' : '0');
+		this.oCookie.set(this.opt.oCookieOptions.sCookieName, this.bCollapsed | 0);
 
 	if (!bInit && 'oThemeOptions' in this.opt && this.opt.oThemeOptions.bUseThemeSettings)
-		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed ? '1' : '0', 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, smf_session_id, smf_session_var, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
+		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed | 0, 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, smf_session_id, smf_session_var, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
 }
 
 smc_Toggle.prototype.toggle = function()

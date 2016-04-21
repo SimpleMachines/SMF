@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -248,7 +248,7 @@ function RecentPosts()
 		unset($query_these_boards_params['max_id_msg']);
 
 		$get_num_posts = $smcFunc['db_query']('', '
-			SELECT IFNULL(SUM(b.num_posts), 0)
+			SELECT COALESCE(SUM(b.num_posts), 0)
 			FROM {db_prefix}boards AS b
 			WHERE ' . $query_these_boards . '
 				AND b.redirect = {string:empty}',
@@ -272,7 +272,7 @@ function RecentPosts()
 	if ($context['is_redirect'])
 		$messages = 0;
 
-	$key = 'recent-' . $user_info['id'] . '-' . md5(serialize(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
+	$key = 'recent-' . $user_info['id'] . '-' . md5(json_encode(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
 	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
@@ -325,8 +325,8 @@ function RecentPosts()
 		SELECT
 			m.id_msg, m.subject, m.smileys_enabled, m.poster_time, m.body, m.id_topic, t.id_board, b.id_cat,
 			b.name AS bname, c.name AS cname, t.num_replies, m.id_member, m2.id_member AS id_first_member,
-			IFNULL(mem2.real_name, m2.poster_name) AS first_poster_name, t.id_first_msg,
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, t.id_last_msg
+			COALESCE(mem2.real_name, m2.poster_name) AS first_poster_name, t.id_first_msg,
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_last_msg
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -336,9 +336,10 @@ function RecentPosts()
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = m2.id_member)
 		WHERE m.id_msg IN ({array_int:message_list})
 		ORDER BY m.id_msg DESC
-		LIMIT ' . count($messages),
+		LIMIT {int:limit}',
 		array(
 			'message_list' => $messages,
+			'limit' => count($messages),
 		)
 	);
 	$counter = $_REQUEST['start'] + 1;
@@ -627,7 +628,7 @@ function UnreadTopics()
 
 	$sort_methods = array(
 		'subject' => 'ms.subject',
-		'starter' => 'IFNULL(mems.real_name, ms.poster_name)',
+		'starter' => 'COALESCE(mems.real_name, ms.poster_name)',
 		'replies' => 't.num_replies',
 		'views' => 't.num_views',
 		'first_post' => 't.id_topic',
@@ -702,10 +703,10 @@ function UnreadTopics()
 	$select_clause = '
 				ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
 				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
-				ml.poster_time AS last_poster_time, IFNULL(mems.real_name, ms.poster_name) AS first_poster_name,
-				IFNULL(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
+				ml.poster_time AS last_poster_time, COALESCE(mems.real_name, ms.poster_name) AS first_poster_name,
+				COALESCE(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
 				ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
-				IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from, SUBSTRING(ml.body, 1, 385) AS last_body,
+				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, SUBSTRING(ml.body, 1, 385) AS last_body,
 				SUBSTRING(ms.body, 1, 385) AS first_body, ml.smileys_enabled AS last_smileys, ms.smileys_enabled AS first_smileys, t.id_first_msg, t.id_last_msg';
 
 	if ($context['showing_all_topics'])
@@ -815,7 +816,7 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
+				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : ''),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
@@ -871,7 +872,7 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE b.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
+				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
@@ -896,7 +897,7 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . ($context['showing_all_topics'] && !empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
+				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
@@ -958,7 +959,7 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . ($modSettings['postmod_active'] ? '
+				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < ml.id_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
@@ -991,7 +992,7 @@ function UnreadTopics()
 			$sortKey_joins = array(
 				'ms.subject' => '
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)',
-				'IFNULL(mems.real_name, ms.poster_name)' => '
+				'COALESCE(mems.real_name, ms.poster_name)' => '
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 					LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)',
 			);
@@ -1005,7 +1006,7 @@ function UnreadTopics()
 					id_msg int(10) unsigned NOT NULL default {string:string_zero},
 					PRIMARY KEY (id_topic)
 				)
-				SELECT t.id_topic, t.id_board, t.id_last_msg, IFNULL(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
+				SELECT t.id_topic, t.id_board, t.id_last_msg, COALESCE(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
@@ -1047,7 +1048,7 @@ function UnreadTopics()
 				FROM {db_prefix}topics_posted_in AS pi
 					LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = pi.id_topic)
 				WHERE pi.' . $query_this_board . '
-					AND IFNULL(lt.id_msg, pi.id_msg) < pi.id_last_msg',
+					AND COALESCE(lt.id_msg, pi.id_msg) < pi.id_last_msg',
 				array_merge($query_parameters, array(
 				))
 			);
@@ -1064,7 +1065,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
-					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
+					AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
@@ -1108,7 +1109,7 @@ function UnreadTopics()
 				FROM {db_prefix}topics_posted_in AS t
 					LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = t.id_topic)
 				WHERE t.' . $query_this_board . '
-					AND IFNULL(lt.id_msg, t.id_msg) < t.id_last_msg
+					AND COALESCE(lt.id_msg, t.id_msg) < t.id_last_msg
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
@@ -1118,8 +1119,8 @@ function UnreadTopics()
 				))
 			);
 		else
-			$request = $smcFunc['db_query']('unread_replies', '
-				SELECT DISTINCT t.id_topic
+			$request = $smcFunc['db_query']('', '
+				SELECT DISTINCT t.id_topic,'.$_REQUEST['sort'].'
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '
@@ -1128,7 +1129,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
-					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg
+					AND (COALESCE(lt.id_msg, lmr.id_msg, 0)) < t.id_last_msg
 					AND t.approved = {int:is_approved} AND lt.unwatched != 1
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
@@ -1171,11 +1172,13 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.id_topic IN ({array_int:topic_list})
-			ORDER BY ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
-			LIMIT ' . count($topics),
+			ORDER BY {raw:sort}' . ($ascending ? '' : ' DESC') . '
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'topic_list' => $topics,
+				'sort' => $_REQUEST['sort'],
+				'limit' => count($topics),
 			)
 		);
 	}

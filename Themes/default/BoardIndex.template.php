@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -123,7 +123,7 @@ function template_main()
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</div>
-					<div class="lastpost">';
+					<div class="lastpost ',!empty($board['last_post']['id']) ? 'lpr_border' : 'hidden','">';
 
 				if (!empty($board['last_post']['id']))
 					echo '
@@ -153,7 +153,7 @@ function template_main()
 
 				echo '
 					<div id="board_', $board['id'], '_children" class="children">
-						<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
+						<p><strong>', $txt['sub_boards'], '</strong>: ', implode($children), '</p>
 					</div>';
 				}
 
@@ -206,7 +206,7 @@ function template_info_center()
 
 	foreach ($context['info_center'] as $block)
 	{
-		$func = 'template_ic_block_' . $block;
+		$func = 'template_ic_block_' . $block['tpl'];
 		$func();
 	}
 

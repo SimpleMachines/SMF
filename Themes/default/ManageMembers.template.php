@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -138,78 +138,75 @@ function template_search_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>
-			<div class="flow_hidden">
-				<table width="49%" class="table_grid floatleft">
-					<thead>
-						<tr class="title_bar">
-							<th scope="col">', $txt['membergroups'], '</th>
-							<th scope="col" class="centercol">', $txt['primary'], '</th>
-							<th scope="col" class="centercol">', $txt['additional'], '</th>
-						</tr>
-					</thead>
-					<tbody>';
+			<table class="table_grid">
+				<thead>
+					<tr class="title_bar">
+						<th scope="col">', $txt['membergroups'], '</th>
+						<th scope="col" class="centercol quarter_table">', $txt['primary'], '</th>
+						<th scope="col" class="centercol quarter_table">', $txt['additional'], '</th>
+					</tr>
+				</thead>
+				<tbody>';
 
 			foreach ($context['membergroups'] as $membergroup)
 				echo '
-						<tr class="windowbg">
-							<td>', $membergroup['name'], '</td>
-							<td class="centercol">
-								<input type="checkbox" name="membergroups[1][]" value="', $membergroup['id'], '" checked class="input_check">
-							</td>
-							<td class="centercol">
-								', $membergroup['can_be_additional'] ? '<input type="checkbox" name="membergroups[2][]" value="' . $membergroup['id'] . '" checked class="input_check">' : '', '
-							</td>
-						</tr>';
+					<tr class="windowbg">
+						<td>', $membergroup['name'], '</td>
+						<td class="centercol">
+							<input type="checkbox" name="membergroups[1][]" value="', $membergroup['id'], '" checked class="input_check">
+						</td>
+						<td class="centercol">
+							', $membergroup['can_be_additional'] ? '<input type="checkbox" name="membergroups[2][]" value="' . $membergroup['id'] . '" checked class="input_check">' : '', '
+						</td>
+					</tr>';
 
 			echo '
-						<tr class="windowbg">
-							<td>
-								<em>', $txt['check_all'], '</em>
-							</td>
-							<td class="centercol">
-								<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[1]\');" checked class="input_check">
-							</td>
-							<td class="centercol">
-								<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[2]\');" checked class="input_check">
-							</td>
-						</tr>
-					</tbody>
-				</table>
-
-				<table width="49%" class="table_grid floatright">
-					<thead>
-						<tr class="title_bar">
-							<th scope="col">
-								', $txt['membergroups_postgroups'], '
-							</th>
-							<th>&nbsp;</th>
-						</tr>
-					</thead>
-					<tbody>';
+					<tr class="windowbg">
+						<td>
+							<em>', $txt['check_all'], '</em>
+						</td>
+						<td class="centercol">
+							<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[1]\');" checked class="input_check">
+						</td>
+						<td class="centercol">
+							<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[2]\');" checked class="input_check">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="table_grid">
+				<thead>
+					<tr class="title_bar">
+						<th scope="col">
+							', $txt['membergroups_postgroups'], '
+						</th>
+						<th class="quarter_table">&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>';
 
 			foreach ($context['postgroups'] as $postgroup)
 				echo '
-						<tr class="windowbg">
-							<td>
-								', $postgroup['name'], '
-							</td>
-							<td width="40" class="centercol">
-								<input type="checkbox" name="postgroups[]" value="', $postgroup['id'], '" checked class="input_check">
-							</td>
-						</tr>';
+					<tr class="windowbg">
+						<td>
+							', $postgroup['name'], '
+						</td>
+						<td class="centercol">
+							<input type="checkbox" name="postgroups[]" value="', $postgroup['id'], '" checked class="input_check">
+						</td>
+					</tr>';
 
 			echo '
-						<tr class="windowbg">
-							<td>
-								<em>', $txt['check_all'], '</em>
-							</td>
-							<td class="centercol">
-								<input type="checkbox" onclick="invertAll(this, this.form, \'postgroups[]\');" checked class="input_check">
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+					<tr class="windowbg">
+						<td>
+							<em>', $txt['check_all'], '</em>
+						</td>
+						<td class="centercol">
+							<input type="checkbox" onclick="invertAll(this, this.form, \'postgroups[]\');" checked class="input_check">
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			<br>
 			<input type="submit" value="', $txt['search'], '" class="button_submit">
 		</form>

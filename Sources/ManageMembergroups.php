@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -967,9 +967,10 @@ function EditMembergroup()
 						SELECT id_member
 						FROM {db_prefix}members
 						WHERE member_name IN ({array_string:moderators}) OR real_name IN ({array_string:moderators})
-						LIMIT ' . count($moderators),
+						LIMIT {int:count}',
 						array(
 							'moderators' => $moderators,
+							'count' => count($moderators),
 						)
 					);
 					while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1178,7 +1179,7 @@ function EditMembergroup()
 
 	// Insert our JS, if we have possible icons.
 	if (!empty($context['possible_icons']))
-		loadJavascriptFile('icondropdown.js', array('validate' => true));
+		loadJavascriptFile('icondropdown.js', array('validate' => true), 'smf_icondropdown');
 
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 
@@ -1229,9 +1230,6 @@ function ModifyMembergroupsettings()
 
 	// Needed for the settings functions.
 	require_once($sourcedir . '/ManageServer.php');
-
-	// Don't allow assignment of guests.
-	$context['permissions_excluded'] = array(-1);
 
 	// Only one thing here!
 	$config_vars = array(

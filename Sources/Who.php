@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -98,7 +98,7 @@ function Who()
 
 	$conditions = array();
 	if (!allowedTo('moderate_forum'))
-		$conditions[] = '(IFNULL(mem.show_online, 1) = 1)';
+		$conditions[] = '(COALESCE(mem.show_online, 1) = 1)';
 
 	// Fallback to top filter?
 	if (isset($_REQUEST['submit_top']) && isset($_REQUEST['show_top']))
@@ -134,7 +134,7 @@ function Who()
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			lo.log_time, lo.id_member, lo.url, INET_NTOA(lo.ip) AS ip, mem.real_name,
-			lo.session, mg.online_color, IFNULL(mem.show_online, 1) AS show_online,
+			lo.session, mg.online_color, COALESCE(mem.show_online, 1) AS show_online,
 			lo.id_spider
 		FROM {db_prefix}log_online AS lo
 			LEFT JOIN {db_prefix}members AS mem ON (lo.id_member = mem.id_member)
@@ -155,7 +155,7 @@ function Who()
 	$url_data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$actions = @unserialize($row['url']);
+		$actions = @json_decode($row['url'], true);
 		if ($actions === false)
 			continue;
 
@@ -195,7 +195,7 @@ function Who()
 	$spiderContext = array();
 	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] == 2 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
 	{
-		foreach (unserialize($modSettings['spider_name_cache']) as $id => $name)
+		foreach (json_decode($modSettings['spider_name_cache'], true) as $id => $name)
 			$spiderContext[$id] = array(
 				'id' => 0,
 				'name' => $name,
@@ -255,7 +255,7 @@ function Who()
  *    use whoallow_ACTION and add a list of possible permissions to the
  *    $allowedActions array, using ACTION as the key.
  *
- * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (serialized request data, id_member)
+ * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
  * @param string $preferred_prefix = false
  * @return array, an array of descriptions if you passed an array, otherwise the string describing their current location.
  */
@@ -306,7 +306,7 @@ function determineActions($urls, $preferred_prefix = false)
 	foreach ($url_list as $k => $url)
 	{
 		// Get the request parameters..
-		$actions = @unserialize($url[0]);
+		$actions = @json_decode($url[0], true);
 		if ($actions === false)
 			continue;
 
@@ -480,9 +480,10 @@ function determineActions($urls, $preferred_prefix = false)
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
 				AND b.id_board IN ({array_int:board_list})
-			LIMIT ' . count($board_ids),
+			LIMIT {int:liomit}',
 			array(
 				'board_list' => array_keys($board_ids),
+				'limit' => count($board_ids),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -764,6 +765,8 @@ function Credits($in_admin = false)
 			'<a href="https://github.com/ichord/At.js">At.js</a> | &copy; chord.luo@gmail.com | Licensed under <a href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT">The MIT License (MIT)</a>',
 			'<a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications">HTML5 Desktop Notifications</a> | &copy; Tsvetan Tsvetkov | Licensed under <a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications/blob/master/License.txt">The Apache License Version 2.0</a>',
 			'<a href="https://github.com/enygma/gauth">GAuth Code Generator/Validator</a> | &copy; Chris Cornutt | Licensed under <a href="https://github.com/enygma/gauth/blob/master/LICENSE">The MIT License (MIT)</a>',
+			'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | &copy; Matias Meno | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/matthiasmullie/minify">Minify</a> | &copy; Matthias Mullie | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
 			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
@@ -792,7 +795,7 @@ function Credits($in_admin = false)
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$credit_info = unserialize($row['credits']);
+			$credit_info = json_decode($row['credits'], true);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
 			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -222,7 +222,7 @@ function PackageInstallTest()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : unserialize($row['db_changes']);
+		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -531,7 +531,7 @@ function PackageInstallTest()
 
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
-				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+				'action' => sprintf($txt['execute_hook_action'. ($action['reverse'] ? '_inverse' : '')],  $smcFunc['htmlspecialchars']($action['hook'])),
 			);
 		}
 		elseif ($action['type'] == 'credits')
@@ -663,7 +663,7 @@ function PackageInstallTest()
 			$context['has_failure'] = true;
 
 			$thisAction += array(
-				'description' => $txt['package_action_error'],
+				'description' => $txt['package_action_missing'],
 				'failed' => true,
 			);
 		}
@@ -729,7 +729,7 @@ function PackageInstallTest()
 								'type' => $txt['package_delete'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
 								'action' => strtr($real_path, array('\\' => '/', $boarddir => '.')),
 								'description' => '',
-								'value' => base64_encode(serialize(array('type' => $action_data['type'], 'orig' => $action_data['filename'], 'future' => $real_path, 'id' => $id))),
+								'value' => base64_encode(json_encode(array('type' => $action_data['type'], 'orig' => $action_data['filename'], 'future' => $real_path, 'id' => $id))),
 								'not_mod' => true,
 							);
 						else
@@ -737,7 +737,7 @@ function PackageInstallTest()
 								'type' => $txt['package_extract'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
 								'action' => strtr($real_path, array('\\' => '/', $boarddir => '.')),
 								'description' => '',
-								'value' => base64_encode(serialize(array('type' => $action_data['type'], 'orig' => $action_data['destination'], 'future' => $real_path, 'id' => $id))),
+								'value' => base64_encode(json_encode(array('type' => $action_data['type'], 'orig' => $action_data['destination'], 'future' => $real_path, 'id' => $id))),
 								'not_mod' => true,
 							);
 					}
@@ -873,7 +873,7 @@ function PackageInstall()
 		{
 			if (empty($change))
 				continue;
-			$theme_data = unserialize(base64_decode($change));
+			$theme_data = json_decode(base64_decode($change), true);
 			if (empty($theme_data['type']))
 				continue;
 
@@ -921,7 +921,7 @@ function PackageInstall()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : unserialize($row['db_changes']);
+		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1051,6 +1051,13 @@ function PackageInstall()
 				$context['redirect_url'] = $action['redirect_url'];
 				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename'])) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
 				$context['redirect_timeout'] = $action['redirect_timeout'];
+				if (!empty($action['parse_bbc']))
+				{
+					require_once($sourcedir . '/Subs-Post.php');
+					$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', $context['redirect_text']);
+					preparsecode($context['redirect_text']);
+					$context['redirect_text'] = parse_bbc($context['redirect_text']);
+				}
 
 				// Parse out a couple of common urls.
 				$urls = array(
@@ -1107,7 +1114,7 @@ function PackageInstall()
 			else
 			{
 				$is_upgrade = true;
-				$old_db_changes = empty($row['db_changes']) ? array() : unserialize($row['db_changes']);
+				$old_db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 			}
 		}
 
@@ -1147,7 +1154,7 @@ function PackageInstall()
 					elseif (in_array($log[1], $tables))
 						unset($db_package_log[$k]);
 				}
-				$db_changes = serialize($db_package_log);
+				$db_changes = json_encode($db_package_log);
 			}
 			else
 				$db_changes = '';
@@ -1157,7 +1164,7 @@ function PackageInstall()
 			$themes_installed = implode(',', $themes_installed);
 
 			// What failed steps?
-			$failed_step_insert = serialize($failed_steps);
+			$failed_step_insert = json_encode($failed_steps);
 
 			// Un-sanitize things before we insert them...
 			$keys = array('filename', 'name', 'id', 'version');
@@ -1168,7 +1175,7 @@ function PackageInstall()
 			}
 
 			// Credits tag?
-			$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
+			$credits_tag = (empty($credits_tag)) ? '' : json_encode($credits_tag);
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_packages',
 				array(
@@ -1332,7 +1339,7 @@ function PackageRemove()
 			deltree($packagesdir . '/' . $_GET['package']);
 		else
 		{
-			@chmod($packagesdir . '/' . $_GET['package'], 0777);
+			smf_chmod($packagesdir . '/' . $_GET['package'], 0777);
 			unlink($packagesdir . '/' . $_GET['package']);
 		}
 	}
@@ -1351,6 +1358,8 @@ function PackageBrowse()
 
 	$context['forum_version'] = $forum_version;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+
+	call_integration_hook('integrate_modification_types');
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1500,7 +1509,7 @@ function PackageBrowse()
 	$smcFunc['db_free_result']($get_versions);
 
 	// Decode the data.
-	$items = json_decode($data['data']);
+	$items = json_decode($data['data'], true);
 
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
@@ -1525,7 +1534,7 @@ function PackageBrowse()
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
 	global $scripturl, $packagesdir, $context, $forum_version;
-	static $instmods, $packages;
+	static $packages, $installed_mods;
 
 	// Start things up
 	if (!isset($packages[$params]))
@@ -1557,7 +1566,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (isset($_SESSION['single_version_emulate']))
 		unset($_SESSION['single_version_emulate']);
 
-	if (empty($instmods))
+	if (empty($installed_mods))
 	{
 		$instmods = loadInstalledPackages();
 		$installed_mods = array();
@@ -1587,6 +1596,8 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'language' => 1,
 			'unknown' => 1,
 		);
+		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
+
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
@@ -1629,7 +1640,11 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
 				$packageInfo['time_installed'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['time_installed'] : 0;
 
-				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+				if (!isset($sort_id[$packageInfo['type']]))
+					$packageInfo['sort_id'] = $sort_id['unknown'];
+				else
+					$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
 				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
 				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
@@ -1735,6 +1750,13 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					$sort_id[$packageInfo['type']]++;
 					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_language'][md5($package)] = $packageInfo;
+				}
+				// This might be a 3rd party section.
+				elseif (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]))
+				{
+					$sort_id[$packageInfo['type']]++;
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
+					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else
@@ -2073,7 +2095,7 @@ function PackagePermissions()
 		unset($context['file_tree'][strtr($boarddir, array('\\' => '/'))]['contents']['attachments']);
 
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 
 		// @todo Should we suggest non-current directories be read only?
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
@@ -2176,7 +2198,7 @@ function PackagePermissions()
 	// Have we got a load of back-catalogue trees to expand from a submit etc?
 	if (!empty($_GET['back_look']))
 	{
-		$potententialTrees = unserialize(base64_decode($_GET['back_look']));
+		$potententialTrees = json_decode(base64_decode($_GET['back_look']), true);
 		foreach ($potententialTrees as $tree)
 			$context['look_for'][] = $tree;
 	}
@@ -2184,7 +2206,7 @@ function PackagePermissions()
 	if (!empty($_POST['back_look']))
 		$context['only_find'] = array_merge($context['only_find'], $_POST['back_look']);
 
-	$context['back_look_data'] = base64_encode(serialize(array_slice($context['look_for'], 0, 15)));
+	$context['back_look_data'] = base64_encode(json_encode(array_slice($context['look_for'], 0, 15)));
 
 	// Are we finding more files than first thought?
 	$context['file_offset'] = !empty($_REQUEST['fileoffset']) ? (int) $_REQUEST['fileoffset'] : 0;
@@ -2434,7 +2456,7 @@ function PackagePermissionsAction()
 
 		// Continuing?
 		if (isset($_POST['toProcess']))
-			$_POST['permStatus'] = unserialize(base64_decode($_POST['toProcess']));
+			$_POST['permStatus'] = json_decode(base64_decode($_POST['toProcess']), true);
 
 		if (isset($_POST['permStatus']))
 		{
@@ -2474,7 +2496,7 @@ function PackagePermissionsAction()
 
 			// Nothing to do?
 			if (empty($context['to_process']))
-				redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(serialize($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
+				redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(json_encode($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
 		}
 		// Should never get here,
 		else
@@ -2497,7 +2519,7 @@ function PackagePermissionsAction()
 					$package_ftp->chmod($ftp_file, $custom_value);
 				}
 				else
-					@chmod($path, $custom_value);
+					smf_chmod($path, $custom_value);
 			}
 
 			// This fish is fried...
@@ -2514,7 +2536,7 @@ function PackagePermissionsAction()
 		$context['predefined_type'] = isset($_POST['predefined']) ? $_POST['predefined'] : 'restricted';
 
 		$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : 0;
-		$context['directory_list'] = isset($_POST['dirList']) ? unserialize(base64_decode($_POST['dirList'])) : array();
+		$context['directory_list'] = isset($_POST['dirList']) ? json_decode(base64_decode($_POST['dirList']), true) : array();
 
 		$context['file_offset'] = isset($_POST['fileOffset']) ? (int) $_POST['fileOffset'] : 0;
 
@@ -2589,7 +2611,7 @@ function PackagePermissionsAction()
 		elseif ($context['predefined_type'] == 'free')
 			$context['special_files'] = array();
 		else
-			$context['special_files'] = unserialize(base64_decode($_POST['specialFiles']));
+			$context['special_files'] = json_decode(base64_decode($_POST['specialFiles']), true);
 
 		// Now we definitely know where we are, we need to go through again doing the chmod!
 		foreach ($context['directory_list'] as $path => $dummy)
@@ -2640,7 +2662,7 @@ function PackagePermissionsAction()
 	}
 
 	// If we're here we are done!
-	redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(serialize($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
+	redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(json_encode($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
 }
 
 /**

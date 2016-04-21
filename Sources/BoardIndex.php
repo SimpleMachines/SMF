@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -63,7 +63,10 @@ function BoardIndex()
 		}
 
 		if (!empty($context['latest_posts']) || !empty($context['latest_post']))
-			$context['info_center'][] = 'recent';
+			$context['info_center'][] = array(
+				'tpl' => 'recent',
+				'txt' => 'recent_posts',
+			);
 	}
 
 	// Load the calendar?
@@ -85,13 +88,19 @@ function BoardIndex()
 		$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
 
 		if ($context['show_calendar'])
-			$context['info_center'][] = 'calendar';
+			$context['info_center'][] = array(
+				'tpl' => 'calendar',
+				'txt' => $context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming',
+			);
 	}
 
 	// And stats.
 	$context['show_stats'] = allowedTo('view_stats') && !empty($modSettings['trackStats']);
 	if ($settings['show_stats_index'])
-		$context['info_center'][] = 'stats';
+		$context['info_center'][] = array(
+				'tpl' => 'stats',
+				'txt' => 'forum_stats',
+			);
 
 	// Now the online stuff
 	require_once($sourcedir . '/Subs-MembersOnline.php');
@@ -103,7 +112,10 @@ function BoardIndex()
 	$context += getMembersOnlineStats($membersOnlineOptions);
 	$context['show_buddies'] = !empty($user_info['buddies']);
 	$context['show_who'] = allowedTo('who_view') && !empty($modSettings['who_enabled']);
-	$context['info_center'][] = 'online';
+	$context['info_center'][] = array(
+				'tpl' => 'online',
+				'txt' => 'online_users',
+			);
 
 	// Track most online statistics? (Subs-MembersOnline.php)
 	if (!empty($modSettings['trackStats']))
@@ -126,8 +138,8 @@ function BoardIndex()
 
 	if (!empty($settings['show_newsfader']))
 	{
-		loadJavascriptFile('slippry.min.js', array('default_theme' => true));
-		loadCSSFile('slider.min.css');
+		loadJavascriptFile('slippry.min.js', array('default_theme' => true), 'smf_jquery_slippry');
+		loadCSSFile('slider.min.css', array(), 'smf_jquery_slider');
 	}
 }
 

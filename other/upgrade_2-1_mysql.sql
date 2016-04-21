@@ -105,6 +105,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
+---# Adding new "minimize_files" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
+---#
+
 ---# Collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
@@ -231,10 +235,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
-	$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
+	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
-$is_done = false;
+// No need to do this if we already did it previously...
+if (empty($modSettings['json_done']))
+  $is_done = false;
+else
+  $is_done = true;
+
 while (!$is_done)
 {
 	nextSubStep($substep);
@@ -384,32 +393,46 @@ if (!empty($attachs))
 ---}
 ---#
 
-/******************************************************************************/
---- Adding support for IPv6...
-/******************************************************************************/
+---# Fixing attachment directory setting...
+---{
+if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
+{
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:attach_dir}
+		WHERE variable = {string:uploadDir}',
+		array(
+			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+			'uploadDir' => 'attachmentUploadDir'
+		)
+	);
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('currentAttachmentUploadDir', '1'),
+		array('variable')
+	);
+}
+elseif (empty($modSettings['json_done']))
+{
+	// Serialized maybe?
+	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
+	if ($array !== false)
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {string:attach_dir}
+			WHERE variable = {string:uploadDir}',
+			array(
+				'attach_dir' => json_encode($array),
+				'uploadDir' => 'attachmentUploadDir'
+			)
+		);
 
----# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Changing existing columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
+		// Assume currentAttachmentUploadDir is already set
+	}
+}
+---}
 ---#
 
 /******************************************************************************/
@@ -1765,6 +1788,7 @@ CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
 ---# Changing url column in log_online from TEXT to VARCHAR(1024)
 ALTER TABLE {$db_prefix}log_online
 CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
+---#
 
 /******************************************************************************/
 --- Adding support for 2FA
@@ -1848,4 +1872,57 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]',
 ---# Replacing [blue] with [color=blue]
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
+---#
+
+/******************************************************************************/
+--- remove redundant index
+/******************************************************************************/
+---# duplicate to messages_current_topic
+DROP INDEX idx_id_topic on {$db_prefix}messages;
+DROP INDEX idx_topic on {$db_prefix}messages;
+---#
+
+---# duplicate to topics_last_message_sticky and topics_board_news
+DROP INDEX idx_id_board on {$db_prefix}topics;
+---#
+
+/******************************************************************************/
+--- update ban ip with ipv6 support
+/******************************************************************************/
+---# add columns
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low varbinary(16);
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
+---#
+
+---# convert data
+UPDATE IGNORE {$db_prefix}ban_items
+SET ip_low =
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+        )
+    ),
+ip_high =
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+        )
+    )
+where ip_low1 > 0;
+---#
+
+---#  index
+CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
+---#
+
+---# Dropping columns from ban_items
+ALTER TABLE {$db_prefix}ban_items
+DROP ip_low1,
+DROP ip_low2,
+DROP ip_low3,
+DROP ip_low4,
+DROP ip_high1,
+DROP ip_high2,
+DROP ip_high3,
+DROP ip_high4;
 ---#

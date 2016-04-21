@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 2',
+	'forum_version' => 'SMF 2.1 Beta 3',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
@@ -395,7 +395,7 @@ function PlushSearch2()
 	if (!empty($search_params['minage']) || !empty($search_params['maxage']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT ' . (empty($search_params['maxage']) ? '0, ' : 'IFNULL(MIN(id_msg), -1), ') . (empty($search_params['minage']) ? '0' : 'IFNULL(MAX(id_msg), -1)') . '
+			SELECT ' . (empty($search_params['maxage']) ? '0, ' : 'COALESCE(MIN(id_msg), -1), ') . (empty($search_params['minage']) ? '0' : 'COALESCE(MAX(id_msg), -1)') . '
 			FROM {db_prefix}messages
 			WHERE 1=1' . ($modSettings['postmod_active'] ? '
 				AND approved = {int:is_approved_true}' : '') . (empty($search_params['minage']) ? '' : '
@@ -1699,10 +1699,14 @@ function PlushSearch2()
 			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}
-			ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-			LIMIT ' . (int) $_REQUEST['start'] . ', ' . $modSettings['search_results_per_page'],
+			ORDER BY {raw:sort} {raw:sort_dir}
+			LIMIT {int:start}, {int:max}',
 			array(
 				'id_search' => $_SESSION['search_cache']['id_search'],
+				'sort' => $search_params['sort'],
+				'sort_dir' => $search_params['sort_dir'],
+				'start' => $_REQUEST['start'],
+				'max' => $modSettings['search_results_per_page'],
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1746,10 +1750,11 @@ function PlushSearch2()
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}
 				AND id_msg IN ({array_int:message_list})
-			LIMIT ' . count($context['topics']),
+			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,
 				'no_member' => 0,
+				'limit' => count($context['topics']),
 			)
 		);
 		$posters = array();
@@ -1768,9 +1773,9 @@ function PlushSearch2()
 				m.id_msg, m.subject, m.poster_name, m.poster_email, m.poster_time, m.id_member,
 				m.icon, m.poster_ip, m.body, m.smileys_enabled, m.modified_time, m.modified_name,
 				first_m.id_msg AS first_msg, first_m.subject AS first_subject, first_m.icon AS first_icon, first_m.poster_time AS first_poster_time,
-				first_mem.id_member AS first_member_id, IFNULL(first_mem.real_name, first_m.poster_name) AS first_member_name,
+				first_mem.id_member AS first_member_id, COALESCE(first_mem.real_name, first_m.poster_name) AS first_member_name,
 				last_m.id_msg AS last_msg, last_m.poster_time AS last_poster_time, last_mem.id_member AS last_member_id,
-				IFNULL(last_mem.real_name, last_m.poster_name) AS last_member_name, last_m.icon AS last_icon, last_m.subject AS last_subject,
+				COALESCE(last_mem.real_name, last_m.poster_name) AS last_member_name, last_m.icon AS last_icon, last_m.subject AS last_subject,
 				t.id_topic, t.is_sticky, t.locked, t.id_poll, t.num_replies, t.num_views,
 				b.id_board, b.name AS board_name, c.id_cat, c.name AS cat_name
 			FROM {db_prefix}messages AS m
@@ -1806,10 +1811,11 @@ function PlushSearch2()
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:current_member}
 				GROUP BY id_topic
-				LIMIT ' . count($participants),
+				LIMIT {int:limit}',
 				array(
 					'current_member' => $user_info['id'],
 					'topic_list' => array_keys($participants),
+					'limit' => count($participants),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -1846,10 +1852,6 @@ function PlushSearch2()
 
 /**
  * Callback to return messages - saves memory.
- * @todo Fix this, update it, whatever... from Display.php mainly.
- * Note that the call to loadAttachmentContext() doesn't work:
- * this function doesn't fulfill the pre-condition to fill $attachments global...
- * So all it does is to fallback and return.
  *
  * What it does:
  * - callback function for the results sub template.
@@ -2109,7 +2111,7 @@ function prepareSearchContext($reset = false)
 
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
-		'attachment' => loadAttachmentContext($message['id_msg']),
+		'attachment' => array(),
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
@@ -2129,7 +2131,7 @@ function prepareSearchContext($reset = false)
 	);
 	$counter++;
 
-	call_integration_hook('integrate_search_message_context', array($counter, &$output));
+	call_integration_hook('integrate_search_message_context', array(&$output, &$message, $counter));
 
 	return $output;
 }

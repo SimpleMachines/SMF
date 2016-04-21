@@ -10,10 +10,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 namespace {
@@ -27,7 +27,7 @@ namespace {
 		 * Hash the password using the specified algorithm
 		 * Limits the maximum length of password to 72, if a longer
 		 * string is supplied the first 72 characters are used
-		 * 
+		 *
 		 * @param string $password The password to hash
 		 * @param int    $algo     The algorithm to use (Defined by PASSWORD_* constants)
 		 * @param array  $options  The options for the algorithm to use

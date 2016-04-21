@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -223,6 +223,7 @@ function EditCategory()
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
+	require_once($sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
 	// id_cat must be a number.... if it exists.
@@ -259,8 +260,8 @@ function EditCategory()
 		$context['category'] = array(
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => $smcFunc['htmlspecialchars']($cat_tree[$_REQUEST['cat']]['node']['name']),
-			'description' => $smcFunc['htmlspecialchars']($cat_tree[$_REQUEST['cat']]['node']['description']),
+			'editable_name' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['name']),
+			'description' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['description']),
 			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
 			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
@@ -312,7 +313,7 @@ function EditCategory()
  */
 function EditCategory2()
 {
-	global $sourcedir;
+	global $sourcedir, $smcFunc, $context;
 
 	checkSession();
 	validateToken('admin-bc-' . $_REQUEST['cat']);
@@ -330,8 +331,8 @@ function EditCategory2()
 			$catOptions['move_after'] = (int) $_POST['cat_order'];
 
 		// Change "This & That" to "This &amp; That" but don't change "&cent" to "&amp;cent;"...
-		$catOptions['cat_name'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['cat_name']);
-		$catOptions['cat_desc'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['cat_desc']);
+		$catOptions['cat_name'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['cat_name']), false, '', $context['description_allowed_tags']);
+		$catOptions['cat_desc'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['cat_desc']), false, '', $context['description_allowed_tags']);
 
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
@@ -379,6 +380,7 @@ function EditBoard()
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
+	require_once($sourcedir . '/Subs-Editor.php');
 	getBoardTree();
 
 	// For editing the profile we'll need this.
@@ -433,8 +435,8 @@ function EditBoard()
 		// Just some easy shortcuts.
 		$curBoard = &$boards[$_REQUEST['boardid']];
 		$context['board'] = $boards[$_REQUEST['boardid']];
-		$context['board']['name'] = $smcFunc['htmlspecialchars'](strtr($context['board']['name'], array('&amp;' => '&')));
-		$context['board']['description'] = $smcFunc['htmlspecialchars']($context['board']['description']);
+		$context['board']['name'] = html_to_bbc($context['board']['name']);
+		$context['board']['description'] = html_to_bbc($context['board']['description']);
 		$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
 		$context['board']['is_recycle'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $context['board']['id'];
 	}
@@ -522,8 +524,9 @@ function EditBoard()
 	{
 		$context['can_move_children'] = false;
 		$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
-		foreach ($context['board_order'] as $board)
-			if ($board['is_child'] == false && $board['selected'] == false)
+
+		foreach ($context['board_order'] as $lBoard)
+			if ($lBoard['is_child'] == false && $lBoard['selected'] == false)
 				$context['can_move_children'] = true;
 	}
 
@@ -673,9 +676,9 @@ function EditBoard2()
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
-		// Change '1 & 2' to '1 &amp; 2', but not '&amp;' to '&amp;amp;'...
-		$boardOptions['board_name'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['board_name']);
-		$boardOptions['board_description'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['desc']);
+		// Do not allow HTML tags. Parse the string.
+		$boardOptions['board_name'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['board_name']), false, '', $context['description_allowed_tags']);
+		$boardOptions['board_description'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['desc']), false, '', $context['description_allowed_tags']);
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 
@@ -863,9 +866,7 @@ function EditBoardSettings($return_config = false)
 	// Needed for the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
-	// Don't let guests have these permissions.
 	$context['post_url'] = $scripturl . '?action=admin;area=manageboards;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	$context['page_title'] = $txt['boards_and_cats'] . ' - ' . $txt['settings'];
 

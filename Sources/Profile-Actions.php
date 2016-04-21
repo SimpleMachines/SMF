@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -403,10 +403,9 @@ function issueWarning($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT recipient_name AS template_title, body
 		FROM {db_prefix}log_comments
-		WHERE comment_type = {string:warntpl}
+		WHERE comment_type = {literal:warntpl}
 			AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
 		array(
-			'warntpl' => 'warntpl',
 			'generic' => 0,
 			'current_member' => $user_info['id'],
 		)
@@ -450,10 +449,9 @@ function list_getUserWarningCount($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE id_recipient = {int:selected_member}
-			AND comment_type = {string:warning}',
+			AND comment_type = {literal:warning}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
 		)
 	);
 	list ($total_warnings) = $smcFunc['db_fetch_row']($request);
@@ -476,17 +474,19 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name,
+		SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 			lc.log_time, lc.body, lc.counter, lc.id_notice
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 		WHERE lc.id_recipient = {int:selected_member}
-			AND lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+			AND lc.comment_type = {literal:warning}
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$previous_warnings = array();
@@ -524,6 +524,9 @@ function deleteAccount($memID)
 
 	// Permissions for removing stuff...
 	$context['can_delete_posts'] = !$context['user']['is_owner'] && allowedTo('moderate_forum');
+
+	// Show an extra option if recycling is enabled...
+	$context['show_perma_delete'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']);
 
 	// Can they do this, or will they need approval?
 	$context['needs_approval'] = $context['user']['is_owner'] && !empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
@@ -636,6 +639,9 @@ function deleteAccount2($memID)
 			// Include RemoveTopics - essential for this type of work!
 			require_once($sourcedir . '/RemoveTopic.php');
 
+			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
+			$recycle_board = empty($modSettings['recycle_board']) ? 0 : $modSettings['recycle_board'];
+
 			// First off we delete any topics the member has started - if they wanted topics being done.
 			if ($_POST['remove_type'] == 'topics')
 			{
@@ -643,9 +649,10 @@ function deleteAccount2($memID)
 				$request = $smcFunc['db_query']('', '
 					SELECT t.id_topic
 					FROM {db_prefix}topics AS t
-					WHERE t.id_member_started = {int:selected_member}',
+					WHERE t.id_member_started = {int:selected_member}' . $extra,
 					array(
 						'selected_member' => $memID,
+						'recycle_board' => $recycle_board,
 					)
 				);
 				$topicIDs = array();
@@ -653,9 +660,9 @@ function deleteAccount2($memID)
 					$topicIDs[] = $row['id_topic'];
 				$smcFunc['db_free_result']($request);
 
-				// Actually remove the topics.
+				// Actually remove the topics. Ignore recycling if we want to perma-delete things...
 				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
-				removeTopics($topicIDs);
+				removeTopics($topicIDs, true, !empty($extra));
 			}
 
 			// Now delete the remaining messages.
@@ -664,9 +671,10 @@ function deleteAccount2($memID)
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
 						AND t.id_first_msg != m.id_msg)
-				WHERE m.id_member = {int:selected_member}',
+				WHERE m.id_member = {int:selected_member}' . $extra,
 				array(
 					'selected_member' => $memID,
+					'recycle_board' => $recycle_board,
 				)
 			);
 			// This could take a while... but ya know it's gonna be worth it in the end.
@@ -726,7 +734,7 @@ function subscriptions($memID)
 	foreach ($context['subscriptions'] as $id => $sub)
 	{
 		// Work out the costs.
-		$costs = @unserialize($sub['real_cost']);
+		$costs = @json_decode($sub['real_cost'], true);
 
 		$cost_array = array();
 		if ($sub['real_length'] == 'F')
@@ -807,7 +815,7 @@ function subscriptions($memID)
 		if (isset($context['current'][$_GET['sub_id']]))
 		{
 			// What are the details like?
-			$current_pending = @unserialize($context['current'][$_GET['sub_id']]['pending_details']);
+			$current_pending = @json_decode($context['current'][$_GET['sub_id']]['pending_details'], true);
 			if (!empty($current_pending))
 			{
 				$current_pending = array_reverse($current_pending);
@@ -822,7 +830,7 @@ function subscriptions($memID)
 				}
 
 				// Save the details back.
-				$pending_details = serialize($current_pending);
+				$pending_details = json_encode($current_pending);
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_subscribed
@@ -905,7 +913,7 @@ function subscriptions($memID)
 			// What are the details like?
 			$current_pending = array();
 			if ($context['current'][$context['sub']['id']]['pending_details'] != '')
-				$current_pending = @unserialize($context['current'][$context['sub']['id']]['pending_details']);
+				$current_pending = @json_decode($context['current'][$context['sub']['id']]['pending_details'], true);
 			// Don't get silly.
 			if (count($current_pending) > 9)
 				$current_pending = array();
@@ -918,7 +926,7 @@ function subscriptions($memID)
 			if (!in_array($new_data, $current_pending))
 			{
 				$current_pending[] = $new_data;
-				$pending_details = serialize($current_pending);
+				$pending_details = json_encode($current_pending);
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_subscribed
@@ -938,7 +946,7 @@ function subscriptions($memID)
 		// Never had this before, lovely.
 		else
 		{
-			$pending_details = serialize(array($new_data));
+			$pending_details = json_encode(array($new_data));
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_subscribed',
 				array(

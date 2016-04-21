@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -415,7 +415,7 @@ function template_maintain_topics()
 		echo '
 							<fieldset>
 								<legend>', $category['name'], '</legend>
-								<ul class="reset">';
+								<ul>';
 
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board)
@@ -547,45 +547,6 @@ function template_optimize()
 }
 
 /**
- * Template for converting data to UTF-8.
- */
-function template_convert_utf8()
-{
-	global $context, $txt, $scripturl;
-
-	echo '
-	<div id="manage_maintenance">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['utf8_title'], '</h3>
-		</div>
-		<div class="windowbg">
-			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['utf8_introduction'], '</p>
-				<div>', $txt['utf8_warning'], '</div>
-
-				<dl class="settings">
-					<dt><strong>', $txt['utf8_source_charset'], ':</strong></dt>
-					<dd><select name="src_charset">';
-	foreach ($context['charset_list'] as $charset)
-		echo '
-						<option value="', $charset, '"', $charset === $context['charset_detected'] ? ' selected' : '', '>', $charset, '</option>';
-	echo '
-						</select></dd>
-					<dt><strong>', $txt['utf8_database_charset'], ':</strong></dt>
-					<dd>', $context['database_charset'], '</dd>
-					<dt><strong>', $txt['utf8_target_charset'], ': </strong></dt>
-					<dd>', $txt['utf8_utf8'], '</dd>
-				</dl>
-				<input type="submit" value="', $txt['utf8_proceed'], '" class="button_submit">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
-				<input type="hidden" name="proceed" value="1">
-			</form>
-		</div>
-	</div>';
-}
-
-/**
  * Template for converting entities to UTF-8 characters
  */
 function template_convert_entities()
@@ -639,7 +600,7 @@ function template_convert_msgbody()
 
 	echo '
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
-			<hr class="hrcolor">
+			<hr>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			<input type="submit" name="do_conversion" value="', $txt['entity_convert_proceed'], '" class="button_submit">

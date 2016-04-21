@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -898,7 +898,7 @@ function template_package_list()
 				// This is supposed to be a rule..
 				elseif ($package['is_line'])
 					echo '
-						<hr class="hrcolor">';
+						<hr>';
 				// A remote link.
 				elseif ($package['is_remote'])
 				{
@@ -1024,8 +1024,8 @@ function template_downloaded()
 		</div>
 		<div class="windowbg">
 			<p>', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '</p>
-			<ul class="reset">
-				<li class="reset"><span class="floatleft"><strong>', $context['package']['name'], '</strong></span>
+			<ul>
+				<li><span class="floatleft"><strong>', $context['package']['name'], '</strong></span>
 					<span class="package_server floatright">', $context['package']['list_files']['link'], '</span>
 					<span class="package_server floatright">', $context['package']['install']['link'], '</span>
 				</li>
@@ -1124,7 +1124,15 @@ function template_control_chmod()
 						<li>', $file, '</li>';
 
 		echo '
-					</ul>
+					</ul>';
+
+		if (!$context['server']['is_windows'])
+			echo '
+				<hr />
+				', $txt['package_chmod_linux'], '<br />
+				<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
+
+		echo '
 				</div>';
 	}
 
@@ -1771,14 +1779,14 @@ function template_action_permissions()
 		echo '
 				<input type="hidden" name="custom_value" value="', $context['custom_value'], '">
 				<input type="hidden" name="totalItems" value="', $context['total_items'], '">
-				<input type="hidden" name="toProcess" value="', base64_encode(serialize($context['to_process'])), '">';
+				<input type="hidden" name="toProcess" value="', base64_encode(json_encode($context['to_process'])), '">';
 	else
 		echo '
 				<input type="hidden" name="predefined" value="', $context['predefined_type'], '">
 				<input type="hidden" name="fileOffset" value="', $context['file_offset'], '">
 				<input type="hidden" name="totalItems" value="', $context['total_items'], '">
-				<input type="hidden" name="dirList" value="', base64_encode(serialize($context['directory_list'])), '">
-				<input type="hidden" name="specialFiles" value="', base64_encode(serialize($context['special_files'])), '">';
+				<input type="hidden" name="dirList" value="', base64_encode(json_encode($context['directory_list'])), '">
+				<input type="hidden" name="specialFiles" value="', base64_encode(json_encode($context['special_files'])), '">';
 
 	// Are we not using FTP for whatever reason.
 	if (!empty($context['skip_ftp']))

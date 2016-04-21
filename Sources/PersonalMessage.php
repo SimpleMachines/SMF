@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -121,7 +121,7 @@ function MessageMain()
 
 		// Now load info about all the other labels
 		$result = $smcFunc['db_query']('', '
-			SELECT l.id_label, l.name, IFNULL(SUM(pr.is_read & 1), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
+			SELECT l.id_label, l.name, COALESCE(SUM(pr.is_read & 1), 0) AS num_read, COALESCE(COUNT(pr.id_pm), 0) AS total
 			FROM {db_prefix}pm_labels AS l
 				LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 				LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
@@ -420,8 +420,8 @@ function MessagePopup()
 		$senders = array();
 
 		$request = $smcFunc['db_query']('', '
-			SELECT pm.id_pm, pm.id_pm_head, IFNULL(mem.id_member, pm.id_member_from) AS id_member_from,
-				IFNULL(mem.real_name, pm.from_name) AS member_from, pm.msgtime AS timestamp, pm.subject
+			SELECT pm.id_pm, pm.id_pm_head, COALESCE(mem.id_member, pm.id_member_from) AS id_member_from,
+				COALESCE(mem.real_name, pm.from_name) AS member_from, pm.msgtime AS timestamp, pm.subject
 			FROM {db_prefix}personal_messages AS pm
 				LEFT JOIN {db_prefix}members AS mem ON (pm.id_member_from = mem.id_member)
 			WHERE pm.id_pm IN ({array_int:id_pms})',
@@ -506,7 +506,7 @@ function MessageFolder()
 	// Sorting the folder.
 	$sort_methods = array(
 		'date' => 'pm.id_pm',
-		'name' => 'IFNULL(mem.real_name, \'\')',
+		'name' => 'COALESCE(mem.real_name, \'\')',
 		'subject' => 'pm.subject',
 	);
 
@@ -668,81 +668,26 @@ function MessageFolder()
 		if ($context['folder'] != 'sent' && $context['folder'] != 'inbox')
 		{
 			$labelJoin = '
-					INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
+				INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
 
 			$labelQuery = '';
 			$labelQuery2 = '
-						AND pl.id_label = ' . $context['current_label_id'];
+				AND pl.id_label = ' . $context['current_label_id'];
 		}
 
-		// On a non-default sort due to PostgreSQL we have to do a harder sort.
-		if ($smcFunc['db_title'] == 'PostgreSQL' && $_GET['sort'] != 'pm.id_pm')
-		{
-			$sub_request = $smcFunc['db_query']('', '
-				SELECT MAX({raw:sort}) AS sort_param, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:not_deleted}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})') : '') . '
-				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
-					AND pm.deleted_by_sender = {int:not_deleted}' : '1=1') . (empty($pmsg) ? '' : '
-					AND pm.id_pm = {int:id_pm}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head
-				ORDER BY sort_param' . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'not_deleted' => 0,
-					'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-					'id_pm' => isset($pmsg) ? $pmsg : '0',
-					'sort' => $_GET['sort'],
-				)
-			);
-			$sub_pms = array();
-			while ($row = $smcFunc['db_fetch_assoc']($sub_request))
-				$sub_pms[$row['id_pm_head']] = $row['sort_param'];
-
-			$smcFunc['db_free_result']($sub_request);
-
-			$request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm AS id_pm, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:not_deleted}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})') : '') . '
-				WHERE ' . (empty($sub_pms) ? '0=1' : 'pm.id_pm IN ({array_int:pm_list})') . $labelQuery2 . '
-				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'pm_list' => array_keys($sub_pms),
-					'not_deleted' => 0,
-					'sort' => $_GET['sort'],
-					'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-				)
-			);
-		}
-		else
-		{
-			$request = $smcFunc['db_query']('pm_conversation_list', '
+		$request = $smcFunc['db_query']('pm_conversation_list', '
 				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:deleted_by}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
+				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
+					AND pmr.id_member = {int:current_member}
+					AND pmr.deleted = {int:deleted_by}
+					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
 				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
 					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
 					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head
+				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ','.$_GET['sort'] : '').'
 				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
 				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
@@ -752,8 +697,8 @@ function MessageFolder()
 					'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
 					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
 				)
-			);
-		}
+		);
+		
 	}
 	// This is kinda simple!
 	else
@@ -938,15 +883,16 @@ function MessageFolder()
 
 			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm, pm.subject, IFNULL(pm.id_member_from, 0) AS id_member_from, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
+				SELECT pm.id_pm, pm.subject, COALESCE(pm.id_member_from, 0) AS id_member_from, pm.msgtime, COALESCE(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member
 				FROM {db_prefix}personal_messages AS pm
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
 				WHERE pm.id_pm IN ({array_int:pm_list})
 				ORDER BY ' . implode(', ', $orderBy) . '
-				LIMIT ' . count($pms),
+				LIMIT {int:limit}',
 				array(
 					'pm_list' => $pms,
+					'limit' => count($pms),
 				)
 			);
 		}
@@ -959,11 +905,13 @@ function MessageFolder()
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})' : '') . '
 			WHERE pm.id_pm IN ({array_int:display_pms})' . ($context['folder'] == 'sent' ? '
 			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' : '') . '
-			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : $_GET['sort']) . ($descending ? ' DESC' : ' ASC') . '
-			LIMIT ' . count($display_pms),
+			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . '
+			LIMIT {int:limit}',
 			array(
 				'display_pms' => $display_pms,
 				'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
+				'limit' => count($display_pms),
+				'sort' => $_GET['sort'],
 			)
 		);
 
@@ -1157,6 +1105,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 				default:
 					$output['custom_fields']['standard'][] = $custom;
 			}
+	
+	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1580,11 +1530,15 @@ function MessageSearch2()
 			AND pm.deleted_by_sender = {int:not_deleted}') . '
 			' . $userQuery . $labelQuery . $timeQuery . '
 			AND (' . $searchQuery . ')
-		ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-		LIMIT ' . $context['start'] . ', ' . $modSettings['search_results_per_page'],
+		ORDER BY {raw:sort} {raw:sort_dir}
+		LIMIT {int:start}, {int:max}',
 		array_merge($searchq_parameters, array(
 			'current_member' => $user_info['id'],
 			'not_deleted' => 0,
+			'sort' => $search_params['sort'],
+			'sort_dir' => $search_params['sort_dir'],
+			'start' => $context['start'],
+			'max' => $modSettings['search_results_per_page'],
 		))
 	);
 	$foundMessages = array();
@@ -1696,10 +1650,13 @@ function MessageSearch2()
 			SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name
 			FROM {db_prefix}personal_messages AS pm
 			WHERE pm.id_pm IN ({array_int:message_list})
-			ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-			LIMIT ' . count($foundMessages),
+			ORDER BY {raw:sort} {raw:sort_dir}
+			LIMIT {int:limit}',
 			array(
 				'message_list' => $foundMessages,
+				'limit' => count($foundMessages),
+				'sort' => $search_params['sort'],
+				'sort_dir' => $search_params['sort_dir'],
 			)
 		);
 		$counter = 0;
@@ -1744,6 +1701,8 @@ function MessageSearch2()
 		}
 		$smcFunc['db_free_result']($request);
 	}
+	
+	call_integration_hook('integrate_search_pm_context');
 
 	// Finish off the context.
 	$context['page_title'] = $txt['pm_search_title'];
@@ -1831,8 +1790,8 @@ function MessagePost()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				pm.id_pm, CASE WHEN pm.id_pm_head = {int:id_pm_head_empty} THEN pm.id_pm ELSE pm.id_pm_head END AS pm_head,
-				pm.body, pm.subject, pm.msgtime, mem.member_name, IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.real_name, pm.from_name) AS real_name
+				pm.body, pm.subject, pm.msgtime, mem.member_name, COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.real_name, pm.from_name) AS real_name
 			FROM {db_prefix}personal_messages AS pm' . (!$isReceived ? '' : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = {int:id_pm})') . '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -1964,9 +1923,10 @@ function MessagePost()
 				SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
-				LIMIT ' . count($_REQUEST['u']),
+				LIMIT {int:limit}',
 				array(
 					'member_list' => $_REQUEST['u'],
+					'limit' => count($_REQUEST['u']),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -2038,6 +1998,8 @@ function MessagePost()
 		$context['require_verification'] = create_control_verification($verificationOptions);
 		$context['visual_verification_id'] = $verificationOptions['id'];
 	}
+	
+	call_integration_hook('integrate_pm_post');
 
 	// Register this form and get a sequence number in $context.
 	checkSubmitOnce('register');
@@ -2124,8 +2086,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				pm.id_pm, CASE WHEN pm.id_pm_head = {int:no_id_pm_head} THEN pm.id_pm ELSE pm.id_pm_head END AS pm_head,
-				pm.body, pm.subject, pm.msgtime, mem.member_name, IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.real_name, pm.from_name) AS real_name
+				pm.body, pm.subject, pm.msgtime, mem.member_name, COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.real_name, pm.from_name) AS real_name
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '' : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = {int:replied_to})') . '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -2234,6 +2196,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	$context['to_value'] = empty($named_recipients['to']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['to']) . '&quot;';
 	$context['bcc_value'] = empty($named_recipients['bcc']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['bcc']) . '&quot;';
+	
+	call_integration_hook('integrate_pm_error');
 
 	// No check for the previous submission is needed.
 	checkSubmitOnce('free');
@@ -3007,7 +2971,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		$get_labels = $smcFunc['db_query']('', '
 			SELECT pml.id_label
 			FROM {db_prefix}pm_labels AS l
-  				INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+			INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 			WHERE l.id_member IN ({array_int:member_list})' . $where,
 			array(
 				'member_list' => $owner,
@@ -3040,10 +3004,8 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		SELECT pm.id_pm AS sender, pmr.id_pm
 		FROM {db_prefix}personal_messages AS pm
 			LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm AND pmr.deleted = {int:not_deleted})
-		WHERE pm.deleted_by_sender = {int:is_deleted}
-			' . str_replace('id_pm', 'pm.id_pm', $where) . '
-		GROUP BY sender, pmr.id_pm
-		HAVING pmr.id_pm IS null',
+		WHERE pm.deleted_by_sender = {int:is_deleted} AND pmr.id_pm is null
+			' . str_replace('id_pm', 'pm.id_pm', $where),
 		array(
 			'not_deleted' => 0,
 			'is_deleted' => 1,
@@ -3157,7 +3119,8 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 			FROM {db_prefix}pm_recipients
 			WHERE id_member = {int:id_member}
 				AND NOT (is_read & 1 >= 1)
-				AND deleted = {int:is_not_deleted}',
+				AND deleted = {int:is_not_deleted}
+			GROUP BY id_pm, in_inbox',
 			array(
 				'id_member' => $owner,
 				'is_not_deleted' => 0,
@@ -3426,7 +3389,7 @@ function ManageLabels()
 						array(
 							'current_member' => $user_info['id'],
 							'id_rule' => $id,
-							'actions' => serialize($context['rules'][$id]['actions']),
+							'actions' => json_encode($context['rules'][$id]['actions']),
 						)
 					);
 					unset($rule_changes[$k]);
@@ -3581,7 +3544,7 @@ function ReportMessage()
 
 		// First, pull out the message contents, and verify it actually went to them!
 		$request = $smcFunc['db_query']('', '
-			SELECT pm.subject, pm.body, pm.msgtime, pm.id_member_from, IFNULL(m.real_name, pm.from_name) AS sender_name
+			SELECT pm.subject, pm.body, pm.msgtime, pm.id_member_from, COALESCE(m.real_name, pm.from_name) AS sender_name
 			FROM {db_prefix}personal_messages AS pm
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				LEFT JOIN {db_prefix}members AS m ON (m.id_member = pm.id_member_from)
@@ -3719,7 +3682,7 @@ function ManageRules()
 
 	// Likely to need all the groups!
 	$request = $smcFunc['db_query']('', '
-		SELECT mg.id_group, mg.group_name, IFNULL(gm.id_member, 0) AS can_moderate, mg.hidden
+		SELECT mg.id_group, mg.group_name, COALESCE(gm.id_member, 0) AS can_moderate, mg.hidden
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts = {int:min_posts}
@@ -3869,8 +3832,8 @@ function ManageRules()
 			fatal_lang_error('pm_rule_no_criteria', false);
 
 		// What are we storing?
-		$criteria = serialize($criteria);
-		$actions = serialize($actions);
+		$criteria = json_encode($criteria);
+		$actions = json_encode($actions);
 
 		// Create the rule?
 		if (empty($context['rid']))
@@ -4085,8 +4048,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => unserialize($row['criteria']),
-			'actions' => unserialize($row['actions']),
+			'criteria' => json_decode($row['criteria'], true),
+			'actions' => json_decode($row['actions'], true),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

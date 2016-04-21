@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -359,9 +359,9 @@ function PermissionByBoard()
 		validateToken('admin-mpb');
 
 		$changes = array();
-		foreach ($_POST['boardprofile'] as $board => $profile)
+		foreach ($_POST['boardprofile'] as $pBoard => $profile)
 		{
-			$changes[(int) $profile][] = (int) $board;
+			$changes[(int) $profile][] = (int) $pBoard;
 		}
 
 		if (!empty($changes))
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $smcFunc;
+	global $context, $txt, $smcFunc, $modSettings;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
@@ -1560,7 +1560,7 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_unapproved_replies';
 		$hiddenPermissions[] = 'post_unapproved_attachments';
 	}
-	// If we show them on classic view we change the name.
+	// If post moderation is enabled, these are named differently...
 	else
 	{
 		// Relabel the topics permissions
@@ -1742,7 +1742,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	$smcFunc['db_free_result']($request);
 
 	$request = $smcFunc['db_query']('', '
-		SELECT mg.id_group, mg.group_name, mg.min_posts, IFNULL(p.add_deny, -1) AS status, p.permission
+		SELECT mg.id_group, mg.group_name, mg.min_posts, COALESCE(p.add_deny, -1) AS status, p.permission
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}permissions AS p ON (p.id_group = mg.id_group AND p.permission IN ({array_string:permissions}))
 		WHERE mg.id_group NOT IN (1, 3)
@@ -1772,6 +1772,9 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Make sure we honor the "illegal guest permissions"
+	loadIllegalGuestPermissions();
+
 	// Some permissions cannot be given to certain groups. Remove the groups.
 	foreach ($excluded_groups as $group)
 	{
@@ -1780,6 +1783,14 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 			if (isset($context[$permission][$group]))
 				unset($context[$permission][$group]);
 		}
+	}
+
+	// Are any of these permissions that guests can't have?
+	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
+	foreach ($non_guest_perms as $permission)
+	{
+		if (isset($context[$permission][-1]))
+			unset($context[$permission][-1]);
 	}
 
 	// Create the token for the separate inline permission verification.
@@ -2213,6 +2224,7 @@ function loadIllegalGuestPermissions()
 		'delete_replies',
 		'edit_news',
 		'issue_warning',
+		'likes_like',
 		'lock',
 		'make_sticky',
 		'manage_attachments',

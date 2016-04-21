@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -156,11 +156,11 @@ function Display()
 		SELECT
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
-			IFNULL(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
-			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
+			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
+			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? (', '. implode(', ', $topic_selects)) : '') . '
-			' . (!$user_info['is_guest'] ? ', IFNULL(lt.unwatched, 0) as unwatched' : '') . '
+			' . (!$user_info['is_guest'] ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem on (mem.id_member = ms.id_member)' . ($user_info['is_guest'] ? '' : '
@@ -253,7 +253,7 @@ function Display()
 			{
 				// Find the earliest unread message in the topic. (the use of topics here is just for both tables.)
 				$request = $smcFunc['db_query']('', '
-					SELECT IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from
+					SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
 					FROM {db_prefix}topics AS t
 						LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 						LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})
@@ -388,7 +388,7 @@ function Display()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_id_group' => 0,
-				'in_url_string' => 's:5:"topic";i:' . $topic . ';',
+				'in_url_string' => '"topic":'.$topic,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
@@ -598,7 +598,7 @@ function Display()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
-				p.guest_vote, p.id_member, IFNULL(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
+				p.guest_vote, p.id_member, COALESCE(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
 			FROM {db_prefix}polls AS p
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = p.id_member)
 			WHERE p.id_poll = {int:id_poll}
@@ -628,7 +628,7 @@ function Display()
 
 		// Get all the options, and calculate the total votes.
 		$request = $smcFunc['db_query']('', '
-			SELECT pc.id_choice, pc.label, pc.votes, IFNULL(lp.id_choice, -1) AS voted_this
+			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
 			WHERE pc.id_poll = {int:id_poll}',
@@ -811,19 +811,20 @@ function Display()
 	}
 
 	// Get each post and poster in this topic.
-	$request = $smcFunc['db_query']('display_get_post_poster', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_msg, id_member, approved
 		FROM {db_prefix}messages
-		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : (!empty($modSettings['db_mysql_group_by_fix']) ? '' : '
-		GROUP BY id_msg') . '
-		HAVING (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+		AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-		LIMIT ' . $start . ', ' . $limit),
+		LIMIT {int:start}, {int:max}'),
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'is_approved' => 1,
 			'blank_id_member' => 0,
+			'start' => $start,
+			'max' => $limit,
 		)
 	);
 
@@ -912,8 +913,8 @@ function Display()
 					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = {int:current_board} AND lb.id_member = {int:current_member})
 					LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				WHERE t.id_board = {int:current_board}
-					AND t.id_last_msg > IFNULL(lb.id_msg, 0)
-					AND t.id_last_msg > IFNULL(lt.id_msg, 0)' . (empty($_SESSION['id_msg_last_visit']) ? '' : '
+					AND t.id_last_msg > COALESCE(lb.id_msg, 0)
+					AND t.id_last_msg > COALESCE(lt.id_msg, 0)' . (empty($_SESSION['id_msg_last_visit']) ? '' : '
 					AND t.id_last_msg > {int:id_msg_last_visit}'),
 				array(
 					'current_board' => $board,
@@ -963,7 +964,7 @@ function Display()
 	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
 	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($context['topicinfo']['notify_prefs']['pref'] & 0x02 ? 3 : ($context['topicinfo']['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
 
-	$attachments = array();
+	$context['loaded_attachments'] = array();
 
 	// If there _are_ messages here... (probably an error otherwise :!)
 	if (!empty($messages))
@@ -973,9 +974,9 @@ function Display()
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT
-					a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved,
+					a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved,
 					a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-					IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+					COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 				FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 					LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				WHERE a.id_msg IN ({array_int:message_list})
@@ -993,9 +994,11 @@ function Display()
 					continue;
 
 				$temp[$row['id_attach']] = $row;
+				$temp[$row['id_attach']]['topic'] = $topic;
+				$temp[$row['id_attach']]['board'] = $board;
 
-				if (!isset($attachments[$row['id_msg']]))
-					$attachments[$row['id_msg']] = array();
+				if (!isset($context['loaded_attachments'][$row['id_msg']]))
+					$context['loaded_attachments'][$row['id_msg']] = array();
 			}
 			$smcFunc['db_free_result']($request);
 
@@ -1003,7 +1006,7 @@ function Display()
 			ksort($temp);
 
 			foreach ($temp as $row)
-				$attachments[$row['id_msg']][] = $row;
+				$context['loaded_attachments'][$row['id_msg']][] = $row;
 		}
 
 		$msg_parameters = array(
@@ -1021,7 +1024,7 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
+				' . (!empty($msg_selects) ? (', '. implode(', ', $msg_selects)) : '') . '
 			FROM {db_prefix}messages
 				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
@@ -1284,7 +1287,7 @@ function Display()
 	{
 		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
 	}
 }
 
@@ -1300,7 +1303,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
-	global $memberContext, $context, $messages_request, $topic, $board_info;
+	global $memberContext, $context, $messages_request, $topic, $board_info, $sourcedir;
 
 	static $counter = null;
 
@@ -1392,9 +1395,11 @@ function prepareDisplayContext($reset = false)
 	if (!empty($board_info['recycle']))
 		$message['icon'] = 'recycled';
 
+	require_once($sourcedir . '/Subs-Attachments.php');
+
 	// Compose the memory eat- I mean message array.
 	$output = array(
-		'attachment' => loadAttachmentContext($message['id_msg']),
+		'attachment' => loadAttachmentContext($message['id_msg'], $context['loaded_attachments']),
 		'id' => $message['id_msg'],
 		'href' => $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'],
 		'link' => '<a href="' . $scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
@@ -1446,12 +1451,13 @@ function prepareDisplayContext($reset = false)
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
-
 	if (empty($options['view_newest_first']))
 		$counter++;
+
 	else
 		$counter--;
+
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1463,6 +1469,7 @@ function prepareDisplayContext($reset = false)
  * It depends on the attachmentUploadDir setting being correct.
  * It is accessed via the query string ?action=dlattach.
  * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
+ * Legacy code, all attachments are now handled by ShowAttachments.php
  */
 function Download()
 {
@@ -1473,32 +1480,45 @@ function Download()
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['no_last_modified'] = true;
 
+	// Prevent a preview image from being displayed twice.
+	if (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
+		return;
+
 	// Make sure some attachment was requested!
 	if (!isset($_REQUEST['attach']) && !isset($_REQUEST['id']))
 		fatal_lang_error('no_access', false);
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	// This checks only the current board for $board/$topic's permissions.
-	isAllowedTo('view_attachments');
+	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
+	$attachRequest = null;
+	call_integration_hook('integrate_download_request', array(&$attachRequest));
+	if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
+		$request = $attachRequest;
+	else
+	{
+		// This checks only the current board for $board/$topic's permissions.
+		isAllowedTo('view_attachments');
 
-	// Make sure this attachment is on this board.
-	// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-	$request = $smcFunc['db_query']('', '
-		SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-		WHERE a.id_attach = {int:attach}
-		LIMIT 1',
-		array(
-			'attach' => $_REQUEST['attach'],
-			'current_topic' => $topic,
-		)
-	);
+		// Make sure this attachment is on this board.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		$request = $smcFunc['db_query']('', '
+			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			WHERE a.id_attach = {int:attach}
+			LIMIT 1',
+			array(
+				'attach' => $_REQUEST['attach'],
+				'current_topic' => $topic,
+			)
+		);
+	}
 
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);
+
 	list ($id_folder, $real_filename, $file_hash, $file_ext, $id_attach, $attachment_type, $mime_type, $is_approved, $id_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -1523,6 +1543,7 @@ function Download()
 	ob_end_clean();
 	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
 		@ob_start('ob_gzhandler');
+
 	else
 	{
 		ob_start();
@@ -1565,8 +1586,10 @@ function Download()
 
 	// Send the attachment headers.
 	header('Pragma: ');
+
 	if (!isBrowser('gecko'))
 		header('Content-Transfer-Encoding: binary');
+
 	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT');
 	header('Accept-Ranges: bytes');
@@ -1662,181 +1685,6 @@ function Download()
 }
 
 /**
- * This loads an attachment's contextual data including, most importantly, its size if it is an image.
- * Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
- * (@todo change this pre-condition, too fragile and error-prone.)
- * It requires the view_attachments permission to calculate image size.
- * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
- * the max_image_width and max_image_height settings.
- *
- * @param int $id_msg ID of the post to load attachments for
- * @return array An array of attachment info
- */
-function loadAttachmentContext($id_msg)
-{
-	global $attachments, $modSettings, $txt, $scripturl, $topic, $sourcedir, $smcFunc;
-
-	// Set up the attachment info - based on code by Meriadoc.
-	$attachmentData = array();
-	$have_unapproved = false;
-	if (isset($attachments[$id_msg]) && !empty($modSettings['attachmentEnable']))
-	{
-		foreach ($attachments[$id_msg] as $i => $attachment)
-		{
-			$attachmentData[$i] = array(
-				'id' => $attachment['id_attach'],
-				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
-				'downloads' => $attachment['downloads'],
-				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
-				'byte_size' => $attachment['filesize'],
-				'href' => $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attachment['id_attach'],
-				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
-				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
-				'is_approved' => $attachment['approved'],
-			);
-
-			// If something is unapproved we'll note it so we can sort them.
-			if (!$attachment['approved'])
-				$have_unapproved = true;
-
-			if (!$attachmentData[$i]['is_image'])
-				continue;
-
-			$attachmentData[$i]['real_width'] = $attachment['width'];
-			$attachmentData[$i]['width'] = $attachment['width'];
-			$attachmentData[$i]['real_height'] = $attachment['height'];
-			$attachmentData[$i]['height'] = $attachment['height'];
-
-			// Let's see, do we want thumbs?
-			if (!empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
-			{
-				// A proper thumb doesn't exist yet? Create one!
-				if (empty($attachment['id_thumb']) || $attachment['thumb_width'] > $modSettings['attachmentThumbWidth'] || $attachment['thumb_height'] > $modSettings['attachmentThumbHeight'] || ($attachment['thumb_width'] < $modSettings['attachmentThumbWidth'] && $attachment['thumb_height'] < $modSettings['attachmentThumbHeight']))
-				{
-					$filename = getAttachmentFilename($attachment['filename'], $attachment['id_attach'], $attachment['id_folder']);
-
-					require_once($sourcedir . '/Subs-Graphics.php');
-					if (createThumbnail($filename, $modSettings['attachmentThumbWidth'], $modSettings['attachmentThumbHeight']))
-					{
-						// So what folder are we putting this image in?
-						if (!empty($modSettings['currentAttachmentUploadDir']))
-						{
-							if (!is_array($modSettings['attachmentUploadDir']))
-								$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
-							$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-							$id_folder_thumb = $modSettings['currentAttachmentUploadDir'];
-						}
-						else
-						{
-							$path = $modSettings['attachmentUploadDir'];
-							$id_folder_thumb = 1;
-						}
-
-						// Calculate the size of the created thumbnail.
-						$size = @getimagesize($filename . '_thumb');
-						list ($attachment['thumb_width'], $attachment['thumb_height']) = $size;
-						$thumb_size = filesize($filename . '_thumb');
-
-						// These are the only valid image types for SMF.
-						$validImageTypes = array(1 => 'gif', 2 => 'jpeg', 3 => 'png', 5 => 'psd', 6 => 'bmp', 7 => 'tiff', 8 => 'tiff', 9 => 'jpeg', 14 => 'iff');
-
-						// What about the extension?
-						$thumb_ext = isset($validImageTypes[$size[2]]) ? $validImageTypes[$size[2]] : '';
-
-						// Figure out the mime type.
-						if (!empty($size['mime']))
-							$thumb_mime = $size['mime'];
-						else
-							$thumb_mime = 'image/' . $thumb_ext;
-
-						$thumb_filename = $attachment['filename'] . '_thumb';
-						$thumb_hash = getAttachmentFilename($thumb_filename, false, null, true);
-
-						// Add this beauty to the database.
-						$smcFunc['db_insert']('',
-							'{db_prefix}attachments',
-							array('id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'size' => 'int', 'width' => 'int', 'height' => 'int', 'fileext' => 'string', 'mime_type' => 'string'),
-							array($id_folder_thumb, $id_msg, 3, $thumb_filename, $thumb_hash, (int) $thumb_size, (int) $attachment['thumb_width'], (int) $attachment['thumb_height'], $thumb_ext, $thumb_mime),
-							array('id_attach')
-						);
-						$old_id_thumb = $attachment['id_thumb'];
-						$attachment['id_thumb'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
-						if (!empty($attachment['id_thumb']))
-						{
-							$smcFunc['db_query']('', '
-								UPDATE {db_prefix}attachments
-								SET id_thumb = {int:id_thumb}
-								WHERE id_attach = {int:id_attach}',
-								array(
-									'id_thumb' => $attachment['id_thumb'],
-									'id_attach' => $attachment['id_attach'],
-								)
-							);
-
-							$thumb_realname = getAttachmentFilename($thumb_filename, $attachment['id_thumb'], $id_folder_thumb, false, $thumb_hash);
-							rename($filename . '_thumb', $thumb_realname);
-
-							// Do we need to remove an old thumbnail?
-							if (!empty($old_id_thumb))
-							{
-								require_once($sourcedir . '/ManageAttachments.php');
-								removeAttachments(array('id_attach' => $old_id_thumb), '', false, false);
-							}
-						}
-					}
-				}
-
-				// Only adjust dimensions on successful thumbnail creation.
-				if (!empty($attachment['thumb_width']) && !empty($attachment['thumb_height']))
-				{
-					$attachmentData[$i]['width'] = $attachment['thumb_width'];
-					$attachmentData[$i]['height'] = $attachment['thumb_height'];
-				}
-			}
-
-			if (!empty($attachment['id_thumb']))
-				$attachmentData[$i]['thumbnail'] = array(
-					'id' => $attachment['id_thumb'],
-					'href' => $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attachment['id_thumb'] . ';image',
-				);
-			$attachmentData[$i]['thumbnail']['has_thumb'] = !empty($attachment['id_thumb']);
-
-			// If thumbnails are disabled, check the maximum size of the image.
-			if (!$attachmentData[$i]['thumbnail']['has_thumb'] && ((!empty($modSettings['max_image_width']) && $attachment['width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachment['height'] > $modSettings['max_image_height'])))
-			{
-				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $attachment['height'] * $modSettings['max_image_width'] / $attachment['width'] <= $modSettings['max_image_height']))
-				{
-					$attachmentData[$i]['width'] = $modSettings['max_image_width'];
-					$attachmentData[$i]['height'] = floor($attachment['height'] * $modSettings['max_image_width'] / $attachment['width']);
-				}
-				elseif (!empty($modSettings['max_image_width']))
-				{
-					$attachmentData[$i]['width'] = floor($attachment['width'] * $modSettings['max_image_height'] / $attachment['height']);
-					$attachmentData[$i]['height'] = $modSettings['max_image_height'];
-				}
-			}
-			elseif ($attachmentData[$i]['thumbnail']['has_thumb'])
-			{
-				// If the image is too large to show inline, make it a popup.
-				if (((!empty($modSettings['max_image_width']) && $attachmentData[$i]['real_width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachmentData[$i]['real_height'] > $modSettings['max_image_height'])))
-					$attachmentData[$i]['thumbnail']['javascript'] = 'return reqWin(\'' . $attachmentData[$i]['href'] . ';image\', ' . ($attachment['width'] + 20) . ', ' . ($attachment['height'] + 20) . ', true);';
-				else
-					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
-			}
-
-			if (!$attachmentData[$i]['thumbnail']['has_thumb'])
-				$attachmentData[$i]['downloads']++;
-		}
-	}
-
-	// Do we need to instigate a sort?
-	if ($have_unapproved)
-		usort($attachmentData, 'approved_attach_sort');
-
-	return $attachmentData;
-}
-
-/**
  * A sort function for putting unapproved attachments first.
  * @param array $a An array of info about one attachment
  * @param array $b An array of info about a second attachment
@@ -1923,11 +1771,12 @@ function QuickInTopicModeration()
 		WHERE id_msg IN ({array_int:message_list})
 			AND id_topic = {int:current_topic}' . (!$allowed_all ? '
 			AND id_member = {int:current_member}' : '') . '
-		LIMIT ' . count($messages),
+		LIMIT {int:limit}',
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'message_list' => $messages,
+			'limit' => count($messages),
 		)
 	);
 	$messages = array();

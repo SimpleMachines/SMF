@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -337,9 +337,12 @@ function list_getSpiders($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, spider_name, user_agent, ip_info
 		FROM {db_prefix}spiders
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spiders = array();
@@ -502,33 +505,25 @@ function SpiderCheck()
 	// Only do these bits once.
 	$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
-	// Always attempt IPv6 first.
-	if (strpos($_SERVER['REMOTE_ADDR'], ':') !== false)
-		$ip_parts = convertIPv6toInts($_SERVER['REMOTE_ADDR']);
-	else
-		preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $ip_parts);
-
 	foreach ($spider_data as $spider)
 	{
 		// User agent is easy.
 		if (!empty($spider['user_agent']) && strpos($ci_user_agent, strtolower($spider['user_agent'])) !== false)
 			$_SESSION['id_robot'] = $spider['id_spider'];
 		// IP stuff is harder.
-		elseif (!empty($ip_parts))
+		elseif ($_SERVER['REMOTE_ADDR'])
 		{
 			$ips = explode(',', $spider['ip_info']);
 			foreach ($ips as $ip)
 			{
+				if ($ip === '')
+					continue;
+
 				$ip = ip2range($ip);
 				if (!empty($ip))
 				{
-					foreach ($ip as $key => $value)
-					{
-						if ($value['low'] > $ip_parts[$key + 1] || $value['high'] < $ip_parts[$key + 1])
-							break;
-						elseif (($key == 7 && strpos($_SERVER['REMOTE_ADDR'], ':') !== false) || ($key == 3 && strpos($_SERVER['REMOTE_ADDR'], ':') === false))
-							$_SESSION['id_robot'] = $spider['id_spider'];
-					}
+					if (inet_ptod($ip['low']) <= inet_ptod($_SERVER['REMOTE_ADDR']) && inet_ptod($ip['high']) >= inet_ptod($_SERVER['REMOTE_ADDR']))
+						$_SESSION['id_robot'] = $spider['id_spider'];
 				}
 			}
 		}
@@ -594,7 +589,7 @@ function logSpider()
 		{
 			$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 			unset($url['sesc'], $url[$context['session_var']]);
-			$url = serialize($url);
+			$url = json_encode($url);
 		}
 		else
 			$url = '';
@@ -640,7 +635,7 @@ function consolidateSpiderStats()
 		$date = strftime('%Y-%m-%d', $stat['last_seen']);
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_spider_stats
-			SET page_hits = page_hits + ' . $stat['num_hits'] . ',
+			SET page_hits = page_hits + {int:hits},
 				last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
 			WHERE id_spider = {int:current_spider}
 				AND stat_date = {date:last_seen_date}',
@@ -648,6 +643,7 @@ function consolidateSpiderStats()
 				'last_seen_date' => $date,
 				'last_seen' => $stat['last_seen'],
 				'current_spider' => $stat['id_spider'],
+				'hits' => $stat['num_hits'],
 			)
 		);
 		if ($smcFunc['db_affected_rows']() == 0)
@@ -687,21 +683,32 @@ function SpiderLogs()
 	loadTemplate('ManageSearch');
 
 	// Did they want to delete some entries?
-	if (!empty($_POST['delete_entries']) && isset($_POST['older']))
+	if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))
 	{
 		checkSession();
 		validateToken('admin-sl');
 
-		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
+		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
+		{
+			$deleteTime = time() - (((int)$_POST['older']) * 24 * 60 * 60);
 
-		// Delete the entires.
-		$smcFunc['db_query']('', '
+			// Delete the entires.
+			$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_spider_hits
 			WHERE log_time < {int:delete_period}',
-			array(
-				'delete_period' => $deleteTime,
-			)
-		);
+				array(
+					'delete_period' => $deleteTime,
+				)
+			);
+		}
+		else
+		{
+			// Deleting all of them
+			$smcFunc['db_query']('', '
+			TRUNCATE TABLE {db_prefix}log_spider_hits',
+				array()
+			);
+		}
 	}
 
 	$listOptions = array(
@@ -821,9 +828,12 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 		SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 		FROM {db_prefix}log_spider_hits AS sl
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spider_logs = array();
@@ -1045,9 +1055,12 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 		SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 		FROM {db_prefix}log_spider_stats AS ss
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spider_stats = array();
@@ -1090,15 +1103,14 @@ function recacheSpiderNames()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, spider_name
 		FROM {db_prefix}spiders',
-		array(
-		)
+		array()
 	);
 	$spiders = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$spiders[$row['id_spider']] = $row['spider_name'];
 	$smcFunc['db_free_result']($request);
 
-	updateSettings(array('spider_name_cache' => serialize($spiders)));
+	updateSettings(array('spider_name_cache' => json_encode($spiders)));
 }
 
 ?>

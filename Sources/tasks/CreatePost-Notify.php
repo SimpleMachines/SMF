@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -23,7 +23,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $language;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
@@ -158,7 +158,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
+				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
 			if ($pref & 0x01)
@@ -173,7 +173,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
@@ -241,7 +241,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], false, 2);
+				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
 			if ($prefs[$id]['msg_quote'] & 0x01)
@@ -255,7 +255,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'quote',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
@@ -353,7 +353,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], false, 2);
+				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
 			if ($prefs[$id]['msg_mention'] & 0x01)
@@ -367,7 +367,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'mention',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),

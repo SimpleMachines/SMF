@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -133,6 +133,18 @@ function template_main()
 	// The post header... important stuff
 	echo '
 					<dl id="post_header">';
+
+	// Custom posting fields.
+	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
+		foreach ($context['posting_fields'] as $pf)
+			echo '
+						<dt>
+							', $pf['dt'] ,'
+						</dt>
+						<dd>
+							', $pf['dd'] ,'
+						</dd>';
+
 
 	// Guests have to put in their name and email...
 	if (isset($context['name']) && isset($context['email']))
@@ -415,7 +427,7 @@ function template_main()
 		foreach ($context['current_attachments'] as $attachment)
 			echo '
 							<dd class="smalltext">
-								<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
+								<label for="attachment_', $attachment['attachID'], '"><input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
 								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
 							</dd>';
 
@@ -430,45 +442,78 @@ function template_main()
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
+			// Print dropzone UI.
+			echo '
+						<div class="files" id="au-previews">
+							<div id="au-template">
+								<div class="attach-preview">
+									<img data-dz-thumbnail />
+								</div>
+								<div class="attach-info">
+									<p class="name" data-dz-name></p>
+									<p class="error" data-dz-errormessage></p>
+									<p class="size" data-dz-size></p>
+									<p class="message" data-dz-message></p>
+									<p class="attached_BBC">
+										<input type="text" name="attachBBC" value="" readonly>
+										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
+									</p>
+									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
+								</div>
+								<div class="attach-ui">
+									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
+									<a class="button_submit start">', $txt['upload'] ,'</a>
+								</div>
+							</div>
+						</div>
+						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
+						<div id ="maxFiles_progress_text"></div>';
+
 		echo '
 						<dl id="postAttachment2">';
 
-		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
-		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
-		{
-			echo '
+
+		echo '
 							<dt>
 								', $txt['attach'], ':
 							</dt>
-							<dd class="smalltext">
-								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">'), '
-								<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+							<dd class="smalltext fallback">
+								<div id="attachUpload" class="descbox">
+									<h5>', $txt['attach_drop_zone'] ,'</h5>
+									<a class="button_submit" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
+									<a class="button_submit" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
+									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
+									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="fallback">
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
+								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">');
 
-			// Show more boxes if they aren't approaching that limit.
-			if ($context['num_allowed_attachments'] > 1)
-				echo '
-								<script>
-									var allowed_attachments = ', $context['num_allowed_attachments'], ';
-									var current_attachment = 1;
+		// Show more boxes if they aren't approaching that limit.
+		if ($context['num_allowed_attachments'] > 1)
+			echo '
+										<script>
+											var allowed_attachments = ', $context['num_allowed_attachments'], ';
+											var current_attachment = 1;
 
-									function addAttachment()
-									{
-										allowed_attachments = allowed_attachments - 1;
-										current_attachment = current_attachment + 1;
-										if (allowed_attachments <= 0)
-											return alert("', $txt['more_attachments_error'], '");
+											function addAttachment()
+											{
+												allowed_attachments = allowed_attachments - 1;
+												current_attachment = current_attachment + 1;
+												if (allowed_attachments <= 0)
+													return alert("', $txt['more_attachments_error'], '");
 
-										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+												setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
 
-										return true;
-									}
-								</script>
-							</dd>
-							<dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a></dd>';
-			else
-				echo '
+												return true;
+											}
+										</script>
+										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
+									</div>
+								</div>
 							</dd>';
-		}
+		else
+			echo '
+							</dd>';
 
 		// Add any template changes for an alternative upload system here.
 		call_integration_hook('integrate_upload_template');
@@ -568,7 +613,6 @@ function template_main()
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
-			var current_board = ', empty($context['current_board']) ? 'null' : $context['current_board'], ';
 			var make_poll = ', $context['make_poll'] ? 'true' : 'false', ';
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";
@@ -641,7 +685,8 @@ function template_main()
 
 				var bodyText = \'\';
 				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
-					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
+					if (preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue != null)
+						bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
 
 				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
 				document.getElementById(\'preview_body\').className = \'windowbg\';
@@ -1055,7 +1100,7 @@ function template_announce()
 				<p>
 					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
 				</p>
-				<ul class="reset">';
+				<ul>';
 
 	foreach ($context['groups'] as $group)
 		echo '
@@ -1068,7 +1113,7 @@ function template_announce()
 						<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
 					</li>
 				</ul>
-				<hr class="hrcolor">
+				<hr>
 				<div id="confirm_buttons">
 					<input type="submit" value="', $txt['post'], '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -1099,7 +1144,7 @@ function template_announcement_send()
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
 				</div>
-				<hr class="hrcolor">
+				<hr>
 				<div id="confirm_buttons">
 					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

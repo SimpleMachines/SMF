@@ -24,10 +24,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -1301,7 +1301,7 @@ function InstallFile()
 	if (!is_writable($dirtemp))
 	{
 		// Lets give it a try.
-		@chmod($dirtemp, '0755');
+		smf_chmod($dirtemp, '0755');
 
 		// How about now?
 		if (!is_writable($dirtemp))
@@ -1404,7 +1404,7 @@ function InstallCopy()
 	foreach ($to_copy as $file)
 	{
 		copy($settings['default_theme_dir'] . $file, $context['to_install']['theme_dir'] . $file);
-		@chmod($context['to_install']['theme_dir'] . $file, 0777);
+		smf_chmod($context['to_install']['theme_dir'] . $file, 0777);
 	}
 
 	// And now the entire images directory!
@@ -1552,7 +1552,7 @@ function WrapAction()
 		if (!isset($settings['catch_action']['filename']))
 			$settings['catch_action']['filename'] = '';
 
-		add_integration_function('integrate_wrap_action', $hook, $settings['catch_action']['filename'], false, false);
+		add_integration_function('integrate_wrap_action', $hook, false, $settings['catch_action']['filename'], false);
 		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
@@ -1580,7 +1580,7 @@ function SetJavaScript()
 	if (empty($_GET['var']) || !isset($_GET['val']))
 		redirectexit($settings['images_url'] . '/blank.png');
 
-	// Sorry, guests can't go any further than this..
+	// Sorry, guests can't go any further than this.
 	if ($user_info['is_guest'] || $user_info['id'] == 0)
 		obExit(false);
 
@@ -1620,13 +1620,13 @@ function SetJavaScript()
 	// If this is the admin preferences the passed value will just be an element of it.
 	if ($_GET['var'] == 'admin_preferences')
 	{
-		$options['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+		$options['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
 		// New thingy...
 		if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5)
 			$options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
 
 		// Change the value to be something nice,
-		$_GET['val'] = serialize($options['admin_preferences']);
+		$_GET['val'] = json_encode($options['admin_preferences']);
 	}
 
 	// Update the option.

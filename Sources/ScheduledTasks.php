@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -220,11 +220,10 @@ function scheduled_approval_notification()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, id_profile, add_deny
 		FROM {db_prefix}board_permissions
-		WHERE permission = {string:approve_posts}
+		WHERE permission = {literal:approve_posts}
 			AND id_profile IN ({array_int:profile_list})',
 		array(
 			'profile_list' => $profiles,
-			'approve_posts' => 'approve_posts',
 		)
 	);
 	$perms = array();
@@ -367,7 +366,7 @@ function scheduled_approval_notification()
 		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
 
 		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', false, 2);
+		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', $emaildata['is_html'], 2);
 	}
 
 	// All went well!
@@ -467,9 +466,9 @@ function scheduled_daily_maintenance()
 	// Clean up some old login history information.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}member_logins
-		WHERE time > {int:oldLogins}',
+		WHERE time < {int:oldLogins}',
 		array(
-			'oldLogins' => !empty($modSettings['loginHistoryDays']) ? 60 * 60 * $modSettings['loginHistoryDays'] : 108000,
+			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
 
 	// Log we've done it...
@@ -878,8 +877,9 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
-		LIMIT ' . $number,
+		LIMIT {int:limit}',
 		array(
+			'limit' => $number,
 		)
 	);
 	$ids = array();
@@ -1558,7 +1558,7 @@ function scheduled_paid_subscriptions()
 
 		// Send the actual email.
 		if ($notifyPrefs[$row['id_member']] & 0x02)
-			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
+			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', $emaildata['is_html'], 2);
 
 		if ($notifyPrefs[$row['id_member']] & 0x01)
 		{
@@ -1571,7 +1571,7 @@ function scheduled_paid_subscriptions()
 				'content_id' => $row['id_sublog'],
 				'content_action' => 'expiring',
 				'is_read' => 0,
-				'extra' => serialize(array(
+				'extra' => json_encode(array(
 					'subscription_name' => $row['name'],
 					'end_time' => strip_tags(timeformat($row['end_time'])),
 				)),
@@ -1617,7 +1617,7 @@ function scheduled_remove_temp_attachments()
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 
 		// Just use the current path for temp files.
 		$attach_dirs = $modSettings['attachmentUploadDir'];

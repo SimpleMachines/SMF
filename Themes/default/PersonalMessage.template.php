@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -79,13 +79,12 @@ function template_pm_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+				<div class="details">
 					<div class="subject">', $pm_details['pm_link'], '</div>
 					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="generic_icons replied centericon" style="margin-right: 4px" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="generic_icons im_off centericon" style="margin-right: 4px" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
 					!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '</div>
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}
@@ -228,7 +227,7 @@ function template_folder()
 		{
 			echo '
 			<div class="custom_fields_above_member">
-				<ul class="reset nolist">';
+				<ul class="nolist">';
 
 			foreach ($message['custom_fields']['above_member'] as $custom)
 				echo '
@@ -474,7 +473,7 @@ function template_folder()
 			{
 				echo '
 					<div class="custom_fields_above_signature">
-						<ul class="reset nolist">';
+						<ul class="nolist">';
 
 				foreach ($message['custom_fields']['above_signature'] as $custom)
 					echo '
@@ -495,7 +494,7 @@ function template_folder()
 			{
 				echo '
 					<div class="custom_fields_below_signature">
-						<ul class="reset nolist">';
+						<ul class="nolist">';
 
 				foreach ($message['custom_fields']['below_signature'] as $custom)
 					echo '
@@ -786,7 +785,7 @@ function template_search()
 					</h3>
 				</div>
 				<div id="advanced_panel_div">
-					<ul id="searchLabelsExpand" class="reset">';
+					<ul id="searchLabelsExpand">';
 
 		foreach ($context['search_labels'] as $label)
 			echo '
@@ -1097,7 +1096,7 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<hr class="hrcolor">
+				<hr>
 				<span id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>

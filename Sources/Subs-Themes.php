@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -244,7 +244,7 @@ function get_theme_info($path)
 	}
 
 	if (!empty($theme_info_xml['extra']))
-		$xml_data += unserialize($theme_info_xml['extra']);
+		$xml_data += json_decode($theme_info_xml['extra'], true);
 
 	return $xml_data;
 }

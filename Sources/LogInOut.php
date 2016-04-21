@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -98,9 +98,21 @@ function Login2()
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
-			list (, , $timeout) = @unserialize($_COOKIE[$cookiename]);
+		{
+			list (, , $timeout) = json_decode($_COOKIE[$cookiename], true);
+
+			// That didn't work... Maybe it's using serialize?
+			if (is_null($timeout))
+				list (, , $timeout) = @unserialize($_COOKIE[$cookiename]);
+		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
-			list (, , $timeout) = @unserialize($_SESSION['login_' . $cookiename]);
+		{
+			list (, , $timeout) = json_decode($_SESSION['login_' . $cookiename]);
+
+			// Try for old format
+			if (is_null($timeout))
+				list (, , $timeout) = @unserialize($_SESSION['login_' . $cookiename]);
+		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
 
@@ -110,7 +122,13 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+
+			// If that didn't work, try unserialize instead...
+			if (is_null($tfadata))
+				$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
 			// If we're preserving the cookie, reset it with updated salt
 			if ($preserve && time() < $exp)
@@ -135,7 +153,7 @@ function Login2()
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
-		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
+		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
 			unset ($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
@@ -667,7 +685,13 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+		$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+
+		// If that failed, try the old method
+		if (is_null($tfadata))
+			$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
 		// If we're preserving the cookie, reset it with updated salt
 		if ($preserve && time() < $exp)
@@ -683,7 +707,7 @@ function Logout($internal = false, $redirect = true)
 	{
 		if (empty($_SESSION['logout_url']))
 			redirectexit('', $context['server']['needs_login_fix']);
-		elseif (!empty($_SESSION['logout_url']) && (strpos('http://', $_SESSION['logout_url']) === false && strpos('https://', $_SESSION['logout_url']) === false))
+		elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
 		{
 			unset ($_SESSION['logout_url']);
 			redirectexit();

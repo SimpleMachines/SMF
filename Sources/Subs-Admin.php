@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -65,6 +65,9 @@ function getServerVersions($checkFor)
 			trigger_error('getServerVersions(): you need to be connected to the database in order to get its server version', E_USER_NOTICE);
 		else
 		{
+			$versions['db_engine'] = array('title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']), 'version' => '');
+			$versions['db_engine']['version'] = $smcFunc['db_get_engine']();
+
 			$versions['db_server'] = array('title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']), 'version' => '');
 			$versions['db_server']['version'] = $smcFunc['db_get_version']();
 		}
@@ -455,7 +458,7 @@ function updateAdminPreferences()
 		return false;
 
 	// This is what we'll be saving.
-	$options['admin_preferences'] = serialize($context['admin_preferences']);
+	$options['admin_preferences'] = json_encode($context['admin_preferences']);
 
 	// Just check we haven't ended up with something theme exclusive somehow.
 	$smcFunc['db_query']('', '
@@ -503,7 +506,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+	$prefs = getNotifyPrefs($members, 'announcements', true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address
@@ -528,7 +531,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		$emaildata = loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Then send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, false, 1);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
 
 		// Track who we emailed so we don't do it twice.
 		$emails_sent[] = $row['email_address'];
@@ -550,7 +553,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			$emaildata = loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty($modSettings['userLanguage']) ? $language : $recipient['lang']);
 
 			// Send off the email.
-			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, false, 1);
+			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
 		}
 }
 

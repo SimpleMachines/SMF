@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -359,6 +359,7 @@ function Register2()
 		'require' => !empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
 		'extra_register_vars' => array(),
 		'theme_vars' => array(),
+		'timezone' => !empty($modSettings['default_timezone']) ? $modSettings['default_timezone'] : '',
 	);
 
 	// Include the additional options that might have been filled in.
@@ -611,7 +612,7 @@ function Activate()
 
 		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', false, 0);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
 		$context['page_title'] = $txt['invalid_activation_resend'];
 

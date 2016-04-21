@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -62,68 +62,6 @@ function template_download_language()
 
 	// Show the main files.
 	template_show_list('lang_main_files_list');
-
-	// Now, all the images and the likes, hidden via javascript 'cause there are so fecking many.
-	echo '
-			<br>
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['languages_download_theme_files'], '
-				</h3>
-			</div>
-			<table class="table_grid">
-				<thead>
-					<tr class="title_bar">
-						<th scope="col">
-							', $txt['languages_download_filename'], '
-						</th>
-						<th scope="col" style="width: 100px">
-							', $txt['languages_download_writable'], '
-						</th>
-						<th scope="col" style="width: 100px">
-							', $txt['languages_download_exists'], '
-						</th>
-						<th class="centercol" scope="col" style="width: 4%">
-							', $txt['languages_download_copy'], '
-						</th>
-					</tr>
-				</thead>
-				<tbody>';
-
-	foreach ($context['files']['images'] as $theme => $group)
-	{
-		$count = 0;
-		echo '
-				<tr class="titlebg">
-					<td colspan="4">
-						<img class="sort" src="', $settings['images_url'], '/selected_open.png" id="toggle_image_', $theme, '" alt="*">&nbsp;', isset($context['theme_names'][$theme]) ? $context['theme_names'][$theme] : $theme, '
-					</td>
-				</tr>';
-
-		foreach ($group as $file)
-		{
-			echo '
-				<tr class="windowbg" id="', $theme, '-', $count++, '">
-					<td>
-						<strong>', $file['name'], '</strong><br>
-						<span class="smalltext">', $txt['languages_download_dest'], ': ', $file['destination'], '</span>
-					</td>
-					<td>
-						<span style="color: ', ($file['writable'] ? 'green' : 'red'), ';">', ($file['writable'] ? $txt['yes'] : $txt['no']), '</span>
-					</td>
-					<td>
-						', $file['exists'] ? ($file['exists'] == 'same' ? $txt['languages_download_exists_same'] : $txt['languages_download_exists_different']) : $txt['no'], '
-					</td>
-					<td class="centercol">
-						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked' : ''), ' class="input_check">
-					</td>
-				</tr>';
-		}
-	}
-
-	echo '
-			</tbody>
-			</table>';
 
 	// Do we want some FTP baby?
 	// If the files are not writable, we might!
@@ -185,40 +123,6 @@ function template_download_language()
 			</div>
 		</form>
 	</div>';
-
-	// The javascript for expand and collapse of sections.
-	echo '
-	<script>';
-
-	// Each theme gets its own handler.
-	foreach ($context['files']['images'] as $theme => $group)
-	{
-		$count = 0;
-		echo '
-			var oTogglePanel_', $theme, ' = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: true,
-				aSwappableContainers: [';
-		foreach ($group as $file)
-			echo '
-					', JavaScriptEscape($theme . '-' . $count++), ',';
-		echo '
-					null
-				],
-				aSwapImages: [
-					{
-						sId: \'toggle_image_', $theme, '\',
-						srcExpanded: smf_images_url + \'/selected_open.png\',
-						altExpanded: \'*\',
-						srcCollapsed: smf_images_url + \'/selected.png\',
-						altCollapsed: \'*\'
-					}
-				]
-			});';
-	}
-
-	echo '
-	</script>';
 }
 
 /**

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -102,7 +102,7 @@ function template_modifyset()
 
 		echo '
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -211,7 +211,7 @@ function template_addsmiley()
 				<h3 class="catbg">', $txt['smileys_add_method'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<ul class="reset">
+				<ul>
 					<li>
 						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked class="input_radio"> ', $txt['smileys_add_existing'], '</label>
 					</li>

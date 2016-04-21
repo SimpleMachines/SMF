@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -208,7 +208,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 		$recipientList['bcc'] = isset($_POST['recipient_bcc']) ? explode(',', $_POST['recipient_bcc']) : array();
 	}
 	elseif (!empty($draft_info['to_list']) && empty($recipientList))
-		$recipientList = unserialize($draft_info['to_list']);
+		$recipientList = json_decode($draft_info['to_list'], true);
 
 	// prepare the data we got from the form
 	$reply_id = empty($_POST['replied_to']) ? 0 : (int) $_POST['replied_to'];
@@ -240,7 +240,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'subject' => $draft['subject'],
 				'body' => $draft['body'],
 				'id_pm_draft' => $id_pm_draft,
-				'to_list' => serialize($recipientList),
+				'to_list' => json_encode($recipientList),
 			)
 		);
 
@@ -269,7 +269,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				$user_info['id'],
 				$draft['subject'],
 				$draft['body'],
-				serialize($recipientList),
+				json_encode($recipientList),
 			),
 			array(
 				'id_draft'
@@ -370,7 +370,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
 			$context['id_pm_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
-			$recipients = unserialize($draft_info['to_list']);
+			$recipients = json_decode($draft_info['to_list'], true);
 
 			// make sure we only have integers in this array
 			$recipients['to'] = array_map('intval', $recipients['to']);
@@ -514,7 +514,7 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $txt, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// Some initial context.
 	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -593,11 +593,13 @@ function showProfileDrafts($memID, $draft_type = 0)
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		ORDER BY ud.id_draft ' . ($reverse ? 'ASC' : 'DESC') . '
-		LIMIT ' . $start . ', ' . $maxIndex,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'current_member' => $memID,
 			'draft_type' => $draft_type,
 			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'start' => $start,
+			'max' => $maxIndex,
 		)
 	);
 
@@ -665,7 +667,7 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// init
 	$draft_type = 1;
@@ -747,11 +749,13 @@ function showPMDrafts($memID = -1)
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
 		ORDER BY ud.id_draft ' . ($reverse ? 'ASC' : 'DESC') . '
-		LIMIT ' . $start . ', ' . $maxIndex,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'current_member' => $memID,
 			'draft_type' => $draft_type,
 			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
+			'start' => $start,
+			'max' => $maxIndex,
 		)
 	);
 
@@ -779,7 +783,7 @@ function showPMDrafts($memID = -1)
 			'to' => array(),
 			'bcc' => array(),
 		);
-		$recipient_ids = (!empty($row['to_list'])) ? unserialize($row['to_list']) : array();
+		$recipient_ids = (!empty($row['to_list'])) ? json_decode($row['to_list'], true) : array();
 
 		// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
 		// at least its only for draft PM's and only the user can see them ... so not heavily used .. still

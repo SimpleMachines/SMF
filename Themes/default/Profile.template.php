@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -60,7 +60,6 @@ function template_profile_popup()
 			<span class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></span>
 			<span class="profile_group">', $context['member']['group'], '</span>
 		</div>
-		<br class="clear">
 		<div class="profile_user_links">
 			<ol>';
 
@@ -77,7 +76,6 @@ function template_profile_popup()
 
 	echo '
 			</ol>
-			<br class="clear">
 		</div>';
 }
 
@@ -111,11 +109,10 @@ function template_alerts_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}
@@ -203,7 +200,7 @@ function template_summary()
 	}
 
 		echo '
-			<ul class="reset clear">';
+			<ul class="clear">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -254,7 +251,7 @@ function template_summary()
 	{
 		echo '
 			<div class="custom_fields_bottom">
-				<ul class="reset nolist">';
+				<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['bottom_poster'] as $field)
 			if (!empty($field['output_html']))
@@ -409,7 +406,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -434,7 +431,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_below_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -584,8 +581,8 @@ function template_showAlerts()
 					<td>', $alert['time'], '</td>
 					<td>
 						<ul class="quickbuttons">
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'] ,'</a></li>
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'] ,'</a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid=', $id ,';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
 							<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
 						</ul>
 					</td>
@@ -1031,6 +1028,17 @@ function template_trackIP()
 	echo '<br>';
 
 	template_show_list('track_user_list');
+
+	// 3rd party integrations may have added additional tracking.
+	if (!empty($context['additional_track_lists']))
+	{
+		foreach ($context['additional_track_lists'] as $list)
+		{
+			echo '<br>';
+
+			template_show_list($list);
+		}
+	}
 }
 
 /**
@@ -1394,7 +1402,7 @@ function template_edit_options()
 		{
 			echo '
 				</dl>
-				<hr width="100%" size="1" class="hrcolor clear">
+				<hr>
 				<dl>';
 		}
 		elseif ($field['type'] == 'callback')
@@ -1490,7 +1498,7 @@ function template_edit_options()
 	{
 		if ($lastItem != 'hr')
 			echo '
-				<hr width="100%" size="1" class="hrcolor clear">';
+				<hr>';
 
 		echo '
 				<dl>';
@@ -2459,7 +2467,7 @@ function template_issueWarning()
 					if ($(request).find("error").text() != \'\')
 					{
 						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors" class="reset">\';
+						var errors_html = \'<ul class="list_errors">\';
 						var errors = $(request).find(\'error\').each(function() {
 							errors_html += \'<li>\' + $(this).text() + \'</li>\';
 						});
@@ -2538,6 +2546,7 @@ function template_deleteAccount()
 
 		// Only actually give these options if they are kind of important.
 		if ($context['can_delete_posts'])
+		{
 			echo '
 				<div>
 					<label for="deleteVotes"><input type="checkbox" name="deleteVotes" id="deleteVotes" value="1" class="input_check"> ', $txt['deleteAccount_votes'], ':</label><br>
@@ -2545,8 +2554,15 @@ function template_deleteAccount()
 					<select name="remove_type">
 						<option value="posts">', $txt['deleteAccount_all_posts'], '</option>
 						<option value="topics">', $txt['deleteAccount_topics'], '</option>
-					</select>
+					</select>';
+
+			if ($context['show_perma_delete'])
+				echo '
+					<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
+
+			echo '
 				</div>';
+		}
 
 		echo '
 				<div>
@@ -2580,7 +2596,7 @@ function template_profile_save()
 
 	echo '
 
-					<hr width="100%" size="1" class="hrcolor clear">';
+					<hr>';
 
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])
@@ -2844,8 +2860,8 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_upload">
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
-									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
+									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
 

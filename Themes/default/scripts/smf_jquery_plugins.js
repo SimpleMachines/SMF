@@ -3,7 +3,7 @@
  *
  * - will use the hoverintent plugin if available
  * - shows the tooltip in a div with the class defined in tooltipClass
- * - moves all selector titles to a hidden div and removes the title attribute to 
+ * - moves all selector titles to a hidden div and removes the title attribute to
  *   prevent any default browser actions
  * - attempts to keep the tooltip on screen
  *
@@ -11,13 +11,13 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  *
  */
- 
+
 (function($) {
 	$.fn.SMFtooltip = function(oInstanceSettings) {
 		$.fn.SMFtooltip.oDefaultsSettings = {
@@ -41,16 +41,16 @@
 			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + htmlspecialchars(this.title) + '</span>').hide();
 			$(this).append(sTitle).attr('title', '');
 		});
-		
+
 		// determine where we are going to place the tooltip, while trying to keep it on screen
 		var positionTooltip = function(event)
 		{
 			var iPosx = 0;
 			var iPosy = 0;
-			
+
 			if (!event)
 				var event = window.event;
-				
+
 			if (event.pageX || event.pageY)
 			{
 				iPosx = event.pageX;
@@ -61,7 +61,7 @@
 				iPosx = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
 				iPosy = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
 			}
-			
+
 			// Position of the tooltip top left corner and its size
 			var oPosition = {
 				x: iPosx + oSettings.positionLeft,
@@ -92,27 +92,27 @@
 			{
 				oPosition.y = oPosition.y - (((oPosition.y + oPosition.h) - (oLimits.y + oLimits.h)) + 24);
 			}
-			
+
 			// finally set the position we determined
 			$('#' + oSettings.tooltipID).css({'left': oPosition.x + 'px', 'top': oPosition.y + 'px'});
 		}
-		
+
 		// used to show a tooltip
 		var showTooltip = function(){
 			$('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID).show();
 		}
-		
+
 		// used to hide a tooltip
 		var hideTooltip = function(valueOfThis){
 			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
 		}
-		
+
 		// used to keep html encoded
 		function htmlspecialchars(string)
 		{
 			return $('<span>').text(string).html();
 		}
-		
+
 		// for all of the elements that match the selector on the page, lets set up some actions
 		return this.each(function(index)
 		{
@@ -132,7 +132,7 @@
 				// plain old hover it is
 				$(this).hover(smf_tooltip_on, smf_tooltip_off);
 			}
-			
+
 			// create the on tip action
 			function smf_tooltip_on(event)
 			{
@@ -141,34 +141,34 @@
 				{
 					// create a ID'ed div with our style class that holds the tooltip info, hidden for now
 					$('body').append('<div id="' + oSettings.tooltipID + '" class="' + oSettings.tooltipClass + '"><div id="' + oSettings.tooltipTextID + '" style="display:none;"></div></div>');
-					
+
 					// load information in to our newly created div
 					var tt = $('#' + oSettings.tooltipID);
 					var ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
-					
+
 					if (oSettings.tooltipContent == 'html')
 						ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
 					else
 						ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
-					
+
 					oSettings.tooltipContent
-					
+
 					// show then position or it may postion off screen
 					tt.show();
 					showTooltip();
 					positionTooltip(event);
 				}
-			
+
 				return false;
 			};
-			
+
 			// create the Bye bye tip
 			function smf_tooltip_off(event)
 			{
 				hideTooltip(this);
 				return false;
 			};
-			
+
 			// create the tip move with the cursor
 			if (oSettings.followMouse)
 			{
@@ -177,7 +177,7 @@
 					return false;
 				});
 			}
-			
+
 			// clear the tip on a click
 			$(this).bind("click", function(event){
 				hideTooltip(this);
@@ -186,7 +186,24 @@
 
 		});
 	};
-	
+
+	// A simple plugin for deleting an element from the DOM.
+	$.fn.fadeOutAndRemove = function(speed){
+		$(this).fadeOut(speed,function(){
+			$(this).remove();
+		});
+	};
+
+	// Range to percent.
+	$.fn.rangeToPercent = function(number, min, max){
+		return ((number - min) / (max - min));
+	};
+
+	// Percent to range.
+	$.fn.percentToRange = function(percent, min, max){
+		return((max - min) * percent + min);
+	};
+
 })(jQuery);
 
 /**
@@ -303,7 +320,7 @@
 })(jQuery);
 
 /*
- * jQuery Superfish Menu Plugin - v1.7.6
+ * jQuery Superfish Menu Plugin - v1.7.7
  * Copyright (c) 2015
  *
  * Dual licensed under the MIT and GPL licenses:
@@ -323,12 +340,10 @@
 				menuArrowClass: 'sf-arrows'
 			},
 			ios = (function () {
-				var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+				var ios = /^(?![\w\W]*Windows Phone)[\w\W]*(iPhone|iPad|iPod)/i.test(navigator.userAgent);
 				if (ios) {
-					// iOS clicks only bubble as far as body children
-					$(w).load(function () {
-						$('body').children().on('click', $.noop);
-					});
+					// tap anywhere on iOS to unfocus a submenu
+					$('html').css('cursor', 'pointer').on('click', $.noop);
 				}
 				return ios;
 			})(),
@@ -693,8 +708,8 @@
     };
 })(jQuery);
 
-/* @todo Devs please write some description here */
-$(document).ready(function() {
+/* Takes every category header available and adds a collapse option */
+$(function() {
 	if (smf_member_id > 0)
 		$('div.boardindex_table div.cat_bar').each(function(index, el)
 		{
@@ -720,4 +735,20 @@ $(document).ready(function() {
 				}
 			});
 		});
+});
+
+/* Mobile Pop */
+$(function() {
+	$( '.mobile_act' ).click(function() {
+		$( '#mobile_action' ).show();
+		});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_action' ).hide();
+	});
+	$( '.mobile_mod' ).click(function() {
+		$( '#mobile_moderation' ).show();
+	});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_moderation' ).hide();
+	});
 });

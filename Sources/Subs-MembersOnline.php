@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -68,7 +68,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 	$spiders = array();
 	$spider_finds = array();
 	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] < 3 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
-		$spiders = unserialize($modSettings['spider_name_cache']);
+		$spiders = json_decode($modSettings['spider_name_cache'], true);
 
 	// Load the users online right now.
 	$request = $smcFunc['db_query']('', '

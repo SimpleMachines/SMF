@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -52,7 +52,7 @@ function template_main()
 		// Boards table header.
 		echo '
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', $context['character_set'], '">
-				<ul id="category_', $category['id'], '" class="reset nolist">';
+				<ul id="category_', $category['id'], '" class="nolist">';
 
 		if (!empty($category['move_link']))
 			echo '
@@ -151,7 +151,7 @@ function template_modify_category()
 					</dd>
 					<dt>
 						<strong>', $txt['mboards_description'], '</strong><br>
-						<span class="smalltext">', $txt['mboards_cat_description_desc'], '</span>
+						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_cat_description_desc']), '</span>
 					</dt>
 					<dd>
 						<textarea name="cat_desc" rows="3" cols="35" style="width: 99%;">', $context['category']['description'], '</textarea>
@@ -320,7 +320,7 @@ function template_modify_board()
 					</dd>
 					<dt>
 						<strong>', $txt['mboards_description'], ':</strong><br>
-						<span class="smalltext">', $txt['mboards_description_desc'], '</span>
+						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_description_desc']), '</span>
 					</dt>
 					<dd>
 						<textarea name="desc" rows="3" cols="35" style="width:99%;">', $context['board']['description'], '</textarea>
@@ -447,7 +447,7 @@ function template_modify_board()
 						});
 					});
 				</script>
-				<hr class="hrcolor">';
+				<hr>';
 
 	if (empty($context['board']['is_recycle']) && empty($context['board']['topics']))
 	{

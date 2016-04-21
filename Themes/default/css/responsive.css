@@ -48,17 +48,10 @@
 	.dropmenu ul li a {
 		width: auto !important;
 	}
-	#footer_section ul {
+	#footer ul {
 		width: 100%;
 		margin: 5px;
 		float: none;
-	}
-	/* BoardIndex */
-	.board_icon {
-		width: 15% !important;
-	}
-	div.lastpost {
-		display: none;
 	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
@@ -67,17 +60,6 @@
 	#main_content_section .pagesection {
 		margin: 5px 0;
 		padding: 0;
-	}
-	#main_content_section .buttonlist {
-		margin: 0 0 5px 0;
-		padding: 0;
-		display: block;
-		clear: both;
-	}
-	#main_content_section .button {
-		padding: 0 6px;
-		margin: 5px 0 0 0;
-		font-size: 0.75em;
 	}
 	#topic_icons p {
 		display: block;
@@ -309,6 +291,51 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+	/* New Mobile Action/Mod Pop (Test) */
+	.moderationbuttons_check {
+		display: none;
+	}
+	.moderationbuttons_mobile_check {
+		display: inline-block;
+	}
+	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
+		width: 95% !important;
+		padding: 5px;
+		margin: 0;
+		border-radius: 0;
+	}
+	#mobile_action .notify_dropdown {
+		top: 0 !important;
+		left: 0 !important;
+		position: relative;
+	}
+	#mobile_action .top_menu {
+		width: 95%;
+		padding: 0;
+		margin: 0 auto;
+	}
+	#mobile_action .notify_dropdown a {
+		border-bottom: 1px solid #999;
+	}
+	#mobile_action .notify_dropdown a:last-of-type {
+		border-bottom: none;
+	}
+	#mobile_action .notify_dropdown span {
+		display: none;
+	}
+	.mobile_buttons {
+		margin: 5px 0;
+	}
+	.mobile_buttons .button {
+		margin: 0;
+	}
+	.pagesection .buttonlist, #moderationbuttons {
+		display: none;
+	}
+	.mobile_buttons {
+		display: block;
+	}
+
 	/* Stuff */
 	.infolinks {
 		display: inline-block;
@@ -339,8 +366,16 @@
 	.action_home {
 		width: 100% !important;
 	}
-	#wrapper, .frame {
+	#wrapper {
 		min-width: 100% !important;
+	}
+	#top_section, #footer {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	#header {
+		margin-left: 0;
+		margin-right: 0;
 	}
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;
@@ -367,28 +402,38 @@
 	.board_icon {
 		margin-top: 10px;
 	}
-	div.info {
-		width: 75% !important;
-	}
 	.board_stats {
 		display: none;
 	}
 	div.lastpost {
 		width: 100%;
-		margin: 0 0 0 5px;
 		padding: 0;
+		display: block;
+		min-height: 2em !important;
+	}
+	.lpr_border {
+		border-top: 1px solid #DDD;
+	}
+	div.lastpost p {
+		margin: 5px;
 	}
 	span.postby {
-		float: none;
+		display: inline-block;
 	}
 
 	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost, #messageindex .moderation {
+	#messageindex .board_icon, #messageindex .lastpost {
 		display: none;
 	}
 	#messageindex .info {
-		width: 95% !important;
-		margin: 0 5px 0 5px;
+		padding: 0 5px 0 5px;
+	}
+	.info_block {
+		display: block;
+		width: 95%;
+	}
+	.moderation a {
+		padding: 3px;
 	}
 
 	/* Display (Topics) */
@@ -468,6 +513,15 @@
 	}
 	#private, #enclose {
 		width: 95%;
+	}
+
+	/* Attachment uploading. */
+	#au-previews div.descbox div,
+	#au-previews div.errorbox div,
+	#au-previews div.infobox div{
+		display:block;
+		width:auto;
+		padding-bottom: 3px;
 	}
 }
 /* Still not enough data or people to test this... */

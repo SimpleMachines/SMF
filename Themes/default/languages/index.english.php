@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; index
+// Version: 2.1 Beta 3; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -43,6 +43,8 @@ $txt['moderate'] = 'Moderate';
 
 $txt['save'] = 'Save';
 $txt['upload'] = 'Upload';
+$txt['upload_all'] = 'Upload All';
+$txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
 $txt['forum_index'] = '%1$s - Index';
@@ -341,7 +343,7 @@ $txt['days_word'] = 'days';
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
 
-$txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
+$txt['forum_in_maintenance'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
 $txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
 $txt['read_one_time'] = 'Read 1 time';
@@ -747,6 +749,7 @@ $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after
 $txt['split_reset_selection'] = 'reset selection';
 
 $txt['modify_cancel'] = 'Cancel';
+$txt['modify_cancel_all'] = 'Cancel All';
 $txt['mark_read_short'] = 'Mark Read';
 
 $txt['alerts'] = 'Alerts';
@@ -839,6 +842,12 @@ $txt['debug_hooks'] = 'Hooks called: ';
 $txt['debug_instances'] = 'Instances created: ';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 
+// Inline attachments messages.
+$txt['attachments_not_enable'] = 'Attachments are disabled';
+$txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
+$txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
+$txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
+
 // Accessibility
 $txt['hide_category'] = 'Hide Category';
 $txt['show_category'] = 'Show Category';
@@ -860,4 +869,8 @@ $txt['notify_board_3'] = 'Receive Emails and Alerts';
 $txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
 $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
+
+// Mobile Actions
+$txt['mobile_action'] = 'User actions';
+$txt['mobile_moderation'] = 'Moderation';
 ?>

@@ -461,18 +461,6 @@ div#admin_menu {
 	float: right;
 }
 
-/* User information. */
-#profile_menu a.avatar {
-	float: right;
-	margin: 0 10px 0 20px;
-}
-#profile_menu .profile_user_info ol {
-	float: right;
-}
-#profile_menu .profile_user_links li {
-	float: right;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
 #basicinfo {
@@ -572,10 +560,6 @@ h3.profile_hd {
 .infolinks {
 	min-width: 95%;
 	float: right;
-}
-/* Introduce New Title Bar */
-.title_bar {
-	text-align: right;
 }
 
 /* Styles for the statistics center.
@@ -735,6 +719,7 @@ span.pages {
 }
 
 /* Code is a code do it LTR */
-code.bbc_code {
+code.bbc_code, pre.file_content {
 	text-align: left;
+	direction: ltr;
 }

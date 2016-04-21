@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -214,8 +214,8 @@ function BanList()
 					},
 				),
 				'sort' => array(
-					'default' => 'IFNULL(bg.expire_time, 1=1) DESC, bg.expire_time DESC',
-					'reverse' => 'IFNULL(bg.expire_time, 1=1), bg.expire_time',
+					'default' => 'COALESCE(bg.expire_time, 1=1) DESC, bg.expire_time DESC',
+					'reverse' => 'COALESCE(bg.expire_time, 1=1), bg.expire_time',
 				),
 			),
 			'num_triggers' => array(
@@ -573,7 +573,7 @@ function BanEdit()
 		}
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
 	$context['sub_template'] = 'ban_edit';
 
 }
@@ -595,10 +595,9 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
-			bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
-			bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
+			bi.ip_low, bi.ip_high,
 			bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
-			IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
+			COALESCE(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
 		FROM {db_prefix}ban_groups AS bg
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
@@ -644,10 +643,10 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 				'id' => $row['id_ban'],
 				'hits' => $row['hits'],
 			);
-			if (!empty($row['ip_high1']))
+			if (!empty($row['ip_high']))
 			{
 				$ban_items[$row['id_ban']]['type'] = 'ip';
-				$ban_items[$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
+				$ban_items[$row['id_ban']]['ip'] = range2ip($row['ip_low'], $row['ip_high']);
 			}
 			elseif (!empty($row['hostname']))
 			{
@@ -885,6 +884,8 @@ function banEdit2()
  */
 function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id = 0)
 {
+	global $context;
+
 	$triggers = array(
 		'main_ip' => '',
 		'hostname' => '',
@@ -947,9 +948,8 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
-			bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
-			bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
-			IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
+			bi.ip_low, bi.ip_high,
+			COALESCE(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
 		FROM {db_prefix}ban_items AS bi
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
 		WHERE bi.id_ban IN ({array_int:ban_list})',
@@ -966,10 +966,10 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 			$ban_items[$row['id_ban']] = array(
 				'id' => $row['id_ban'],
 			);
-			if (!empty($row['ip_high1']))
+			if (!empty($row['ip_high']))
 			{
 				$ban_items[$row['id_ban']]['type'] = 'ip';
-				$ban_items[$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
+				$ban_items[$row['id_ban']]['ip'] = range2ip($row['ip_low'], $row['ip_high']);
 
 				$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
 
@@ -1147,22 +1147,8 @@ function validateTriggers(&$triggers)
 				else
 				{
 					$ban_triggers['main_ip'] = array(
-						'ip_low1' => $ip_parts[0]['low'],
-						'ip_high1' => $ip_parts[0]['high'],
-						'ip_low2' => $ip_parts[1]['low'],
-						'ip_high2' => $ip_parts[1]['high'],
-						'ip_low3' => $ip_parts[2]['low'],
-						'ip_high3' => $ip_parts[2]['high'],
-						'ip_low4' => $ip_parts[3]['low'],
-						'ip_high4' => $ip_parts[3]['high'],
-						'ip_low5' => $ip_parts[4]['low'],
-						'ip_high5' => $ip_parts[4]['high'],
-						'ip_low6' => $ip_parts[5]['low'],
-						'ip_high6' => $ip_parts[5]['high'],
-						'ip_low7' => $ip_parts[6]['low'],
-						'ip_high7' => $ip_parts[6]['high'],
-						'ip_low8' => $ip_parts[7]['low'],
-						'ip_high8' => $ip_parts[7]['high'],
+						'ip_low' => $ip_parts['low'],
+						'ip_high' => $ip_parts['high']
 					);
 				}
 			}
@@ -1247,22 +1233,8 @@ function validateTriggers(&$triggers)
 					else
 					{
 						$ban_triggers[$key][] = array(
-							'ip_low1' => $ip_parts[0]['low'],
-							'ip_high1' => $ip_parts[0]['high'],
-							'ip_low2' => $ip_parts[1]['low'],
-							'ip_high2' => $ip_parts[1]['high'],
-							'ip_low3' => $ip_parts[2]['low'],
-							'ip_high3' => $ip_parts[2]['high'],
-							'ip_low4' => $ip_parts[3]['low'],
-							'ip_high4' => $ip_parts[3]['high'],
-							'ip_low5' => $ip_parts[4]['low'],
-							'ip_high5' => $ip_parts[4]['high'],
-							'ip_low6' => $ip_parts[5]['low'],
-							'ip_high6' => $ip_parts[5]['high'],
-							'ip_low7' => $ip_parts[6]['low'],
-							'ip_high7' => $ip_parts[6]['high'],
-							'ip_low8' => $ip_parts[7]['low'],
-							'ip_high8' => $ip_parts[7]['high'],
+							'ip_low' => $ip_parts['low'],
+							'ip_high' => $ip_parts['high'],
 						);
 
 						$log_info[] = array(
@@ -1297,7 +1269,7 @@ function validateTriggers(&$triggers)
  */
 function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 {
-	global $smcFunc;
+	global $smcFunc, $context;
 
 	if (empty($group_id))
 		$context['ban_errors'][] = 'ban_id_empty';
@@ -1308,22 +1280,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'hostname' => '',
 		'email_address' => '',
 		'id_member' => 0,
-		'ip_low1' => 0,
-		'ip_high1' => 0,
-		'ip_low2' => 0,
-		'ip_high2' => 0,
-		'ip_low3' => 0,
-		'ip_high3' => 0,
-		'ip_low4' => 0,
-		'ip_high4' => 0,
-		'ip_low5' => 0,
-		'ip_high5' => 0,
-		'ip_low6' => 0,
-		'ip_high6' => 0,
-		'ip_low7' => 0,
-		'ip_high7' => 0,
-		'ip_low8' => 0,
-		'ip_high8' => 0,
+		'ip_low' => 'null',
+		'ip_high' => 'null',
 	);
 
 	$insertKeys = array(
@@ -1331,22 +1289,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'hostname' => 'string',
 		'email_address' => 'string',
 		'id_member' => 'int',
-		'ip_low1' => 'int',
-		'ip_high1' => 'int',
-		'ip_low2' => 'int',
-		'ip_high2' => 'int',
-		'ip_low3' => 'int',
-		'ip_high3' => 'int',
-		'ip_low4' => 'int',
-		'ip_high4' => 'int',
-		'ip_low5' => 'int',
-		'ip_high5' => 'int',
-		'ip_low6' => 'int',
-		'ip_high6' => 'int',
-		'ip_low7' => 'int',
-		'ip_high7' => 'int',
-		'ip_low8' => 'int',
-		'ip_high8' => 'int',
+		'ip_low' => 'inet',
+		'ip_high' => 'inet',
 	);
 
 	$insertTriggers = array();
@@ -1408,22 +1352,8 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 		'hostname' => '',
 		'email_address' => '',
 		'id_member' => 0,
-		'ip_low1' => 0,
-		'ip_high1' => 0,
-		'ip_low2' => 0,
-		'ip_high2' => 0,
-		'ip_low3' => 0,
-		'ip_high3' => 0,
-		'ip_low4' => 0,
-		'ip_high4' => 0,
-		'ip_low5' => 0,
-		'ip_high5' => 0,
-		'ip_low6' => 0,
-		'ip_high6' => 0,
-		'ip_low7' => 0,
-		'ip_high7' => 0,
-		'ip_low8' => 0,
-		'ip_high8' => 0,
+		'ip_low' => 'null',
+		'ip_high' => 'null',
 	);
 
 	$trigger = array_merge($values, $trigger);
@@ -1432,14 +1362,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 		UPDATE {db_prefix}ban_items
 		SET
 			hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
-			ip_low1 = {int:ip_low1}, ip_high1 = {int:ip_high1},
-			ip_low2 = {int:ip_low2}, ip_high2 = {int:ip_high2},
-			ip_low3 = {int:ip_low3}, ip_high3 = {int:ip_high3},
-			ip_low4 = {int:ip_low4}, ip_high4 = {int:ip_high4},
-			ip_low5 = {int:ip_low5}, ip_high5 = {int:ip_high5},
-			ip_low6 = {int:ip_low6}, ip_high6 = {int:ip_high6},
-			ip_low7 = {int:ip_low7}, ip_high7 = {int:ip_high7},
-			ip_low8 = {int:ip_low8}, ip_high8 = {int:ip_high8}
+			ip_low = {inet:ip_low}, ip_high = {inet:ip_high}
 		WHERE id_ban = {int:ban_item}
 			AND id_ban_group = {int:id_ban_group}',
 		array_merge($trigger, array(
@@ -1703,8 +1626,7 @@ function BanEditTrigger()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
-				bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
-				bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
+				bi.ip_low, bi.ip_high,
 				mem.member_name, mem.real_name
 			FROM {db_prefix}ban_items AS bi
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
@@ -1725,8 +1647,8 @@ function BanEditTrigger()
 			'id' => $row['id_ban'],
 			'group' => $row['id_ban_group'],
 			'ip' => array(
-				'value' => empty($row['ip_low1']) ? '' : range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'], $row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8'])),
-				'selected' => !empty($row['ip_low1']),
+				'value' => empty($row['ip_low']) ? '' : range2ip($row['ip_low'], $row['ip_high']),
+				'selected' => !empty($row['ip_low']),
 			),
 			'hostname' => array(
 				'value' => str_replace('%', '*', $row['hostname']),
@@ -1869,30 +1791,16 @@ function BanBrowseTriggers()
 		$listOptions['columns']['banned_entity']['data'] = array(
 			'function' => function ($rowData)
 			{
-				return range2ip(array(
-					$rowData['ip_low1'],
-					$rowData['ip_low2'],
-					$rowData['ip_low3'],
-					$rowData['ip_low4'],
-					$rowData['ip_low5'],
-					$rowData['ip_low6'],
-					$rowData['ip_low7'],
-					$rowData['ip_low8']
-				), array(
-					$rowData['ip_high1'],
-					$rowData['ip_high2'],
-					$rowData['ip_high3'],
-					$rowData['ip_high4'],
-					$rowData['ip_high5'],
-					$rowData['ip_high6'],
-					$rowData['ip_high7'],
-					$rowData['ip_high8']
-				));
+				return range2ip(
+					$rowData['ip_low']
+				,
+					$rowData['ip_high']
+				);
 			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
-			'default' => 'bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8',
-			'reverse' => 'bi.ip_low1 DESC, bi.ip_high1 DESC, bi.ip_low2 DESC, bi.ip_high2 DESC, bi.ip_low3 DESC, bi.ip_high3 DESC, bi.ip_low4 DESC, bi.ip_high4 DESC, bi.ip_low5 DESC, bi.ip_high5 DESC, bi.ip_low6 DESC, bi.ip_high6 DESC, bi.ip_low7 DESC, bi.ip_high7 DESC, bi.ip_low8 DESC, bi.ip_high8 DESC',
+			'default' => 'bi.ip_low, bi.ip_high, bi.ip_low',
+			'reverse' => 'bi.ip_low DESC, bi.ip_high DESC',
 		);
 	}
 	elseif ($context['selected_entity'] === 'hostname')
@@ -1961,24 +1869,27 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 	global $smcFunc;
 
 	$where = array(
-		'ip' => 'bi.ip_low1 > 0',
+		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			bi.id_ban, bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8, bi.hostname, bi.email_address, bi.hits,
+			bi.id_ban, bi.ip_low, bi.ip_high, bi.hostname, bi.email_address, bi.hits,
 			bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
 			mem.id_member, mem.real_name' : '') . '
 		FROM {db_prefix}ban_items AS bi
 			INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)' . ($trigger_type === 'member' ? '
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)' : '
 		WHERE ' . $where[$trigger_type]) . '
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'blank_string' => '',
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$ban_triggers = array();
@@ -2000,7 +1911,7 @@ function list_getNumBanTriggers($trigger_type)
 	global $smcFunc;
 
 	$where = array(
-		'ip' => 'bi.ip_low1 > 0',
+		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
@@ -2106,8 +2017,8 @@ function BanLog()
 					),
 				),
 				'sort' => array(
-					'default' => 'IFNULL(mem.real_name, 1=1), mem.real_name',
-					'reverse' => 'IFNULL(mem.real_name, 1=1) DESC, mem.real_name DESC',
+					'default' => 'COALESCE(mem.real_name, 1=1), mem.real_name',
+					'reverse' => 'COALESCE(mem.real_name, 1=1) DESC, mem.real_name DESC',
 				),
 			),
 			'date' => array(
@@ -2187,14 +2098,17 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT lb.id_ban_log, lb.id_member, IFNULL(lb.ip, {string:dash}) AS ip, IFNULL(lb.email, {string:dash}) AS email, lb.log_time, IFNULL(mem.real_name, {string:blank_string}) AS real_name
+		SELECT lb.id_ban_log, lb.id_member, COALESCE(lb.ip, {string:dash}) AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 		FROM {db_prefix}log_banned AS lb
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
 			'blank_string' => '',
 			'dash' => '-',
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$log_entries = array();
@@ -2238,46 +2152,14 @@ function list_getNumBanLogEntries()
  */
 function range2ip($low, $high)
 {
-	// IPv6 check.
-	if (!empty($high[4]) || !empty($high[5]) || !empty($high[6]) || !empty($high[7]))
-	{
-		if (count($low) != 8 || count($high) != 8)
-			return '';
+	$low = inet_dtop($low);
+	$high = inet_dtop($high);
 
-		$ip = array();
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($low[$i] == $high[$i])
-				$ip[$i] = dechex($low[$i]);
-			elseif ($low[$i] == '0' && $high[$i] == '255')
-				$ip[$i] = '*';
-			else
-				$ip[$i] = dechex($low[$i]) . '-' . dechex($high[$i]);
-		}
-
-		return implode(':', $ip);
-	}
-
-	// Legacy IPv4 stuff.
-	// (count($low) != 4 || count($high) != 4) would not work because $low and $high always contain 8 elements!
-	if ((count($low) != 4 || count($high) != 4) && (count($low) != 8 || count($high) != 8))
-			return '';
-
-	for ($i = 0; $i < 4; $i++)
-	{
-		if ($low[$i] == $high[$i])
-			$ip[$i] = $low[$i];
-		elseif ($low[$i] == '0' && $high[$i] == '255')
-			$ip[$i] = '*';
-		else
-			$ip[$i] = $low[$i] . '-' . $high[$i];
-	}
-
-	// Pretending is fun... the IP can't be this, so use it for 'unknown'.
-	if ($ip == array(255, 255, 255, 255))
-		return 'unknown';
-
-	return implode('.', $ip);
+	if ($low == '255.255.255.255') return 'unkown';
+	if ($low == $high)
+	    return $low;
+	else
+	    return $low . '-'.$high;
 }
 
 /**
@@ -2293,41 +2175,19 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 {
 	global $smcFunc, $scripturl;
 
-	if (count($ip_array) == 4 || count($ip_array) == 8)
-		$values = array(
-			'ip_low1' => $ip_array[0]['low'],
-			'ip_high1' => $ip_array[0]['high'],
-			'ip_low2' => $ip_array[1]['low'],
-			'ip_high2' => $ip_array[1]['high'],
-			'ip_low3' => $ip_array[2]['low'],
-			'ip_high3' => $ip_array[2]['high'],
-			'ip_low4' => $ip_array[3]['low'],
-			'ip_high4' => $ip_array[3]['high'],
-			'ip_low5' => $ip_array[4]['low'],
-			'ip_high5' => $ip_array[4]['high'],
-			'ip_low6' => $ip_array[5]['low'],
-			'ip_high6' => $ip_array[5]['high'],
-			'ip_low7' => $ip_array[6]['low'],
-			'ip_high7' => $ip_array[6]['high'],
-			'ip_low8' => $ip_array[7]['low'],
-			'ip_high8' => $ip_array[7]['high'],
-		);
-	else
-		return false;
+
+	$values = array(
+		'ip_low' => $ip_array['low'],
+		'ip_high' => $ip_array['high']
+	);
+
 
 	$request = $smcFunc['db_query']('', '
 		SELECT bg.id_ban_group, bg.name
 		FROM {db_prefix}ban_groups AS bg
 		INNER JOIN {db_prefix}ban_items AS bi ON
 			(bi.id_ban_group = bg.id_ban_group)
-			AND ip_low1 = {int:ip_low1} AND ip_high1 = {int:ip_high1}
-			AND ip_low2 = {int:ip_low2} AND ip_high2 = {int:ip_high2}
-			AND ip_low3 = {int:ip_low3} AND ip_high3 = {int:ip_high3}
-			AND ip_low4 = {int:ip_low4} AND ip_high4 = {int:ip_high4}
-			AND ip_low5 = {int:ip_low5} AND ip_high5 = {int:ip_high5}
-			AND ip_low6 = {int:ip_low6} AND ip_high6 = {int:ip_high6}
-			AND ip_low7 = {int:ip_low7} AND ip_high7 = {int:ip_high7}
-			AND ip_low8 = {int:ip_low8} AND ip_high8 = {int:ip_high8}
+			AND ip_low = {inet:ip_low} AND ip_high = {inet:ip_high}
 		LIMIT 1',
 		$values
 	);

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -62,7 +62,7 @@ function template_move()
 
 	// Stick our "create a redirection topic" template in here...
 	template_redirect_options('move');
-    
+
     echo '
 					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">
 				</div>
@@ -147,7 +147,7 @@ function template_merge_done()
 			<div class="windowbg">
 				<p>', $txt['merge_successful'], '</p>
 				<br>
-				<ul class="reset">
+				<ul>
 					<li>
 						<a href="', $scripturl, '?board=', $context['target_board'], '.0">', $txt['message_index'], '</a>
 					</li>
@@ -233,7 +233,7 @@ function template_merge()
 					', $context['page_index'], '
 				</div>
 				<div class="windowbg2">
-					<ul class="reset merge_topics">';
+					<ul class="merge_topics">';
 
 		$merge_button = create_button('merge', 'merge', '');
 
@@ -298,11 +298,11 @@ function template_merge_extra_options()
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" style="width:10px;">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
-						<th scope="col" width="20px">' . $txt['merge_include_notifications'] . '</th>
+						<th scope="col" style="width:20px;">' . $txt['merge_include_notifications'] . '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -356,7 +356,7 @@ function template_merge_extra_options()
 		echo '
 				<fieldset id="merge_board" class="merge_options">
 					<legend>', $txt['merge_select_target_board'], '</legend>
-					<ul class="reset">';
+					<ul>';
 		foreach ($context['boards'] as $board)
 			echo '
 						<li>
@@ -371,7 +371,7 @@ function template_merge_extra_options()
 		echo '
 				<fieldset id="merge_poll" class="merge_options">
 					<legend>' . $txt['merge_select_poll'] . '</legend>
-					<ul class="reset">';
+					<ul>';
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>

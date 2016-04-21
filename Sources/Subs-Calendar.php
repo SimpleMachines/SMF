@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -855,7 +855,7 @@ function insertEvent(&$eventOptions)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', serialize(array(
+			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', json_encode(array(
 				'event_title' => $eventOptions['title'],
 				'event_id' => $eventOptions['id'],
 				'sender_id' => $eventOptions['member'],
@@ -1040,9 +1040,11 @@ function list_getHolidays($start, $items_per_page, $sort)
 		SELECT id_holiday, YEAR(event_date) AS year, MONTH(event_date) AS month, DAYOFMONTH(event_date) AS day, title
 		FROM {db_prefix}calendar_holidays
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$holidays = array();

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -185,7 +185,7 @@ function MessageIndex()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_member_group' => 0,
-				'in_url_string' => 's:5:"board";i:' . $board . ';',
+				'in_url_string' => '"board":' . $board,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
@@ -231,8 +231,8 @@ function MessageIndex()
 	// Default sort methods.
 	$sort_methods = array(
 		'subject' => 'mf.subject',
-		'starter' => 'IFNULL(memf.real_name, mf.poster_name)',
-		'last_poster' => 'IFNULL(meml.real_name, ml.poster_name)',
+		'starter' => 'COALESCE(memf.real_name, mf.poster_name)',
+		'last_poster' => 'COALESCE(meml.real_name, ml.poster_name)',
 		'replies' => 't.num_replies',
 		'views' => 't.num_views',
 		'first_post' => 't.id_topic',
@@ -293,7 +293,7 @@ function MessageIndex()
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
 			WHERE t.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
+			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {string:sort}' . ($ascending ? '' : ' DESC') . '
 			LIMIT {int:start}, {int:maxindex}',
 			array(
 				'current_board' => $board,
@@ -302,6 +302,7 @@ function MessageIndex()
 				'id_member_guest' => 0,
 				'start' => $start,
 				'maxindex' => $maxindex,
+				'sort' => $_REQUEST['sort'],
 			)
 		);
 		$topic_ids = array();
@@ -331,14 +332,14 @@ function MessageIndex()
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
-				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
+				' . ($user_info['is_guest'] ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, IFNULL(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, IFNULL(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
-				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
+				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, COALESCE(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, COALESCE(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
+				COALESCE(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
-				IFNULL(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
+				COALESCE(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
 				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
 				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
 				' . (!empty($message_index_selects) ? (', '. implode(', ', $message_index_selects)) : '') . '
@@ -379,10 +380,6 @@ function MessageIndex()
 				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
 					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
 
-				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
-				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
-					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
-
 				// Censor the subject and message preview.
 				censorText($row['first_subject']);
 				censorText($row['first_body']);
@@ -395,6 +392,10 @@ function MessageIndex()
 				}
 				else
 				{
+					$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
+					if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
+						$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
+
 					censorText($row['last_subject']);
 					censorText($row['last_body']);
 				}
@@ -414,16 +415,13 @@ function MessageIndex()
 			// Decide how many pages the topic should have.
 			if ($row['num_replies'] + 1 > $context['messages_per_page'])
 			{
-				$pages = '&#171; ';
-
 				// We can't pass start by reference.
 				$start = -1;
-				$pages .= constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, $context['messages_per_page'], true, false);
+				$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, $context['messages_per_page'], true, false);
 
 				// If we can use all, show all.
 				if (!empty($modSettings['enableAllMessages']) && $row['num_replies'] + 1 < $modSettings['enableAllMessages'])
 					$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
-				$pages .= ' &#187;';
 			}
 			else
 				$pages = '';
@@ -549,10 +547,11 @@ function MessageIndex()
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:current_member}
 				GROUP BY id_topic
-				LIMIT ' . count($topic_ids),
+				LIMIT {int:limit}',
 				array(
 					'current_member' => $user_info['id'],
 					'topic_list' => $topic_ids,
+					'limit' => count($topic_ids),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -885,9 +884,10 @@ function QuickModeration()
 			SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:action_topic_ids})
-			LIMIT ' . count($_REQUEST['actions']),
+			LIMIT {int:limit}',
 			array(
 				'action_topic_ids' => array_keys($_REQUEST['actions']),
+				'limit' => count($_REQUEST['actions']),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -980,9 +980,10 @@ function QuickModeration()
 			SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
-			LIMIT ' . count($stickyCache),
+			LIMIT {int:limit}',
 			array(
 				'sticky_topic_ids' => $stickyCache,
+				'limit' => count($stickyCache),
 			)
 		);
 		$stickyCacheBoards = array();
@@ -1005,10 +1006,11 @@ function QuickModeration()
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty($board) && !allowedTo('move_any') ? '
 				AND t.id_member_started = {int:current_member}' : '') . '
-			LIMIT ' . count($moveCache[0]),
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'move_topic_ids' => $moveCache[0],
+				'limit' => count($moveCache[0])
 			)
 		);
 		$moveTos = array();
@@ -1117,10 +1119,11 @@ function QuickModeration()
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty($board) && !allowedTo('remove_any') ? '
 				AND id_member_started = {int:current_member}' : '') . '
-			LIMIT ' . count($removeCache),
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'removed_topic_ids' => $removeCache,
+				'limit' => count($removeCache),
 			)
 		);
 
@@ -1158,10 +1161,11 @@ function QuickModeration()
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
 				AND approved = {int:not_approved}
-			LIMIT ' . count($approveCache),
+			LIMIT {int:limit}',
 			array(
 				'approve_topic_ids' => $approveCache,
 				'not_approved' => 0,
+				'limit' => count($approveCache),
 			)
 		);
 		$approveCache = array();
@@ -1200,10 +1204,11 @@ function QuickModeration()
 				WHERE id_topic IN ({array_int:locked_topic_ids})
 					AND id_member_started = {int:current_member}
 					AND locked IN (2, 0)
-				LIMIT ' . count($lockCache),
+				LIMIT {int:limit}',
 				array(
 					'current_member' => $user_info['id'],
 					'locked_topic_ids' => $lockCache,
+					'limit' => count($lockCache),
 				)
 			);
 			$lockCache = array();
@@ -1222,9 +1227,10 @@ function QuickModeration()
 				SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
-				LIMIT ' . count($lockCache),
+				LIMIT {int:limit}',
 				array(
 					'locked_topic_ids' => $lockCache,
+					'limit' => count($lockCache)
 				)
 			);
 			$lockCacheBoards = array();

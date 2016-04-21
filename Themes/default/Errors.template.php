@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // @todo
@@ -71,7 +71,7 @@ function template_error_log()
 				<div class="floatleft">
 					', $context['page_index'], '
 				</div>
-				<div class="floatright" style="margin-top: 1ex">
+				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
 				</div>
@@ -184,7 +184,7 @@ function template_error_log()
 			</div>';
 
 	echo '
-			<div class="floatright" style="margin-top: 1ex">
+			<div class="floatright">
 				<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
 				<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
 			</div>
@@ -225,7 +225,7 @@ function template_show_file()
 		$is_target = $line_num == $context['file_data']['target'];
 		echo '
 			<tr>
-				<td align="right"', $is_target ? ' class="current">==&gt;' : '>', $line_num , ':</td>
+				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num , ':</td>
 				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;':'','">', $line, '</td>
 			</tr>';
 	}

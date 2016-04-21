@@ -107,6 +107,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
+---# Adding new "minimize_files" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
+---#
+
 ---# Collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
@@ -211,10 +215,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
-	$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
+	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
-$is_done = false;
+// No need to do this if we already did it previously...
+if (empty($modSettings['json_done']))
+  $is_done = false;
+else
+  $is_done = true;
+
 while (!$is_done)
 {
 	nextSubStep($substep);
@@ -364,59 +373,45 @@ if (!empty($attachs))
 ---}
 ---#
 
-/******************************************************************************/
---- Adding support for IPv6...
-/******************************************************************************/
-
----# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 smallint NOT NULL DEFAULT '0';
----#
-
----# Changing existing columns to ban items...
+---# Fixing attachment directory setting...
 ---{
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 type smallint,
-	ALTER COLUMN ip_high1 type smallint,
-	ALTER COLUMN ip_low2 type smallint,
-	ALTER COLUMN ip_high2 type smallint,
-	ALTER COLUMN ip_low3 type smallint,
-	ALTER COLUMN ip_high3 type smallint,
-	ALTER COLUMN ip_low4 type smallint,
-	ALTER COLUMN ip_high4 type smallint;"
-);
+if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
+{
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:attach_dir}
+		WHERE variable = {string:uploadDir}',
+		array(
+			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+			'uploadDir' => 'attachmentUploadDir'
+		)
+	);
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('currentAttachmentUploadDir', '1'),
+		array('variable')
+	);
+}
+elseif (empty($modSettings['json_done']))
+{
+	// Serialized maybe?
+	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
+	if ($array !== false)
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {string:attach_dir}
+			WHERE variable = {string:uploadDir}',
+			array(
+				'attach_dir' => json_encode($array),
+				'uploadDir' => 'attachmentUploadDir'
+			)
+		);
 
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 SET DEFAULT '0',
-	ALTER COLUMN ip_high1 SET DEFAULT '0',
-	ALTER COLUMN ip_low2 SET DEFAULT '0',
-	ALTER COLUMN ip_high2 SET DEFAULT '0',
-	ALTER COLUMN ip_low3 SET DEFAULT '0',
-	ALTER COLUMN ip_high3 SET DEFAULT '0',
-	ALTER COLUMN ip_low4 SET DEFAULT '0',
-	ALTER COLUMN ip_high4 SET DEFAULT '0';"
-);
-
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 SET NOT NULL,
-	ALTER COLUMN ip_high1 SET NOT NULL,
-	ALTER COLUMN ip_low2 SET NOT NULL,
-	ALTER COLUMN ip_high2 SET NOT NULL,
-	ALTER COLUMN ip_low3 SET NOT NULL,
-	ALTER COLUMN ip_high3 SET NOT NULL,
-	ALTER COLUMN ip_low4 SET NOT NULL,
-	ALTER COLUMN ip_high4 SET NOT NULL;"
-);
+		// Assume currentAttachmentUploadDir is already set
+	}
+}
 ---}
 ---#
 
@@ -1954,3 +1949,96 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]',
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 ---#
+
+/******************************************************************************/
+--- optimization of members
+/******************************************************************************/
+
+---# ADD INDEX to members
+CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name));
+CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name));
+---#
+
+/******************************************************************************/
+---UNLOGGED Table PG 9.1+
+/******************************************************************************/
+---# update table
+---{
+$result = $smcFunc['db_query']('', '
+	SHOW server_version_num'
+);
+if ($result !== false)
+{
+	while ($row = $smcFunc['db_fetch_assoc']($result))
+		$pg_version = $row['server_version_num'];
+	$smcFunc['db_free_result']($result);
+}
+		
+if(isset($pg_version) && $pg_version >= 90100)
+{
+	$tables = array('log_online','log_floodcontrol','sessions');
+	foreach($tables as $tab)
+	{
+		if($pg_version >= 90500)
+			upgrade_query("ALTER TABLE {$db_prefix}".$tab." SET UNLOGGED;");
+		ELSE
+			upgrade_query("
+			alter table {$db_prefix}".$tab." rename to old_{$db_prefix}".$tab.";
+
+			do 
+			$$ 
+			declare r record; 
+			begin 
+				for r in select * from pg_constraint where conrelid='old_{$db_prefix}".$tab."'::regclass loop 
+					execute format('alter table old_{$db_prefix}".$tab." rename constraint %I to %I', r.conname, 'old_' || r.conname); 
+				end loop; 
+				for r in select * from pg_indexes where tablename='old_{$db_prefix}".$tab."' and indexname !~ '^old_' loop
+					execute format('alter index %I rename to %I', r.indexname, 'old_' || r.indexname); 
+				end loop; 
+			end; 
+			$$;
+
+			create unlogged table {$db_prefix}".$tab." (like old_{$db_prefix}".$tab." including all);
+
+			insert into {$db_prefix}".$tab." select * from old_{$db_prefix}".$tab.";
+
+			drop table old_{$db_prefix}".$tab.";"
+			);
+	}
+
+}
+---}
+---#
+
+/******************************************************************************/
+--- remove redundant index
+/******************************************************************************/
+
+---# duplicate to messages_current_topic
+DROP INDEX IF EXISTS {$db_prefix}messages_id_topic;
+DROP INDEX IF EXISTS {$db_prefix}messages_topic;
+---#
+ 
+---# duplicate to topics_last_message_sticky and topics_board_news
+DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
+---#
+
+/******************************************************************************/
+--- update ban ip with ipv6 support
+/******************************************************************************/
+---# add columns
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+---#
+
+---# convert data
+UPDATE {$db_prefix}ban_items
+SET ip_low = (ip_low1||'.'||ip_low2||'.'||ip_low3||'.'||ip_low4)::inet,
+	ip_high = (ip_high1||'.'||ip_high2||'.'||ip_high3||'.'||ip_high4)::inet
+WHERE ip_low1 > 0;
+---#
+
+---# index
+CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
+---#
+

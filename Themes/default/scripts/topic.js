@@ -564,7 +564,7 @@ InTopicModeration.prototype.init = function()
 		// Create the checkbox.
 		var oCheckbox = document.createElement('input');
 		oCheckbox.type = 'checkbox';
-		oCheckbox.className = 'input_check';
+		oCheckbox.className = this.opt.sButtonStrip + '_check input_check';
 		oCheckbox.name = 'msgs[]';
 		oCheckbox.value = this.opt.aMessageIds[i];
 		oCheckbox.instanceRef = this;
@@ -769,7 +769,7 @@ $(function() {
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
-		return reqOverlayDiv(url, title, 'post/thumbsup.png');
+		return reqOverlayDiv(url, title, 'post/thumbup.png');
 	});
 
 	// Message likes.

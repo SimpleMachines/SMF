@@ -5,15 +5,15 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 2');
-define('SMF_LANG_VERSION', '2.1 Beta 2');
+define('SMF_VERSION', '2.1 Beta 3');
+define('SMF_LANG_VERSION', '2.1 Beta 3');
 
 $GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '5.0.3';
@@ -62,10 +62,12 @@ $upcontext['steps'] = array(
 	0 => array(1, 'Login', 'WelcomeLogin', 2),
 	1 => array(2, 'Upgrade Options', 'UpgradeOptions', 2),
 	2 => array(3, 'Backup', 'BackupDatabase', 10),
-	3 => array(4, 'Database Changes', 'DatabaseChanges', 70),
+	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
+	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
+	5 => array(6, 'Convert serialized strings to JSON', 'serialize_to_json', 10),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
-	4 => array(5, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
+	6 => array(7, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -130,7 +132,6 @@ loadEssentialData();
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
-	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Errors.php');
 	require_once($sourcedir . '/Logging.php');
 	require_once($sourcedir . '/Load.php');
@@ -140,10 +141,6 @@ if (isset($_GET['ssi']))
 	loadUserSettings();
 	loadPermissions();
 }
-
-// All the non-SSI stuff.
-if (!function_exists('ip2range') && php_version_check())
-	require_once($sourcedir . '/Subs.php');
 
 if (!function_exists('un_htmlspecialchars'))
 {
@@ -607,7 +604,7 @@ $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SM
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
-	$upcontext['upgrade_status'] = unserialize(base64_decode($_GET['data']));
+	$upcontext['upgrade_status'] = safe_unserialize(base64_decode($_GET['data']));
 	$upcontext['current_step'] = $upcontext['upgrade_status']['curstep'];
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 	$upcontext['rid'] = $upcontext['upgrade_status']['rid'];
@@ -685,7 +682,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
-		$upgradeData = base64_encode(serialize($upcontext['user']));
+		$upgradeData = base64_encode(safe_serialize($upcontext['user']));
 		copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 		changeSettings(array('upgradeData' => '"' . $upgradeData . '"'));
 		updateLastError();
@@ -734,7 +731,7 @@ function upgradeExit($fallThrough = false)
 		if (isset($upcontext['sub_template']))
 		{
 			$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(serialize($upcontext['upgrade_status']));
+			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(safe_serialize($upcontext['upgrade_status']));
 
 			// Custom stuff to pass back?
 			if (!empty($upcontext['query_string']))
@@ -771,7 +768,7 @@ function redirectLocation($location, $addForm = true)
 	if ($addForm)
 	{
 		$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(serialize($upcontext['upgrade_status'])) . $location;
+		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(safe_serialize($upcontext['upgrade_status'])) . $location;
 	}
 
 	while (@ob_end_clean());
@@ -788,7 +785,9 @@ function loadEssentialData()
 	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
-	@set_magic_quotes_runtime(0);
+	if (function_exists('set_magic_quotes_runtime'))
+		@set_magic_quotes_runtime(0);
+
 	error_reporting(E_ALL);
 	define('SMF', 1);
 
@@ -848,6 +847,8 @@ function loadEssentialData()
 	{
 		return throw_error('Cannot find ' . $sourcedir . '/Subs-Db-' . $db_type . '.php' . '. Please check you have uploaded all source files and have the correct paths set.');
 	}
+
+	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -994,7 +995,7 @@ function WelcomeLogin()
 	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => array('id_test'), 'type' => 'primary')), array(), 'overwrite');
 
 	// ALTER
-	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array('name' => 'txt', 'type' => 'tinytext', 'null' => false, 'default' => ''));
+	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array('name' => 'txt', 'type' => 'varchar', 'size' => 4, 'null' => false, 'default' => ''));
 
 	// DROP
 	$drop = $smcFunc['db_drop_table']('{db_prefix}priv_check');
@@ -1464,7 +1465,7 @@ function UpgradeOptions()
 	$settings_file = file_get_contents($boarddir . '/Settings.php');
 
 	// Look to see if the new error-catching section is there...
-	if (stripos('if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))', $settings_file) === false)
+	if (stripos($settings_file, 'if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))') === false)
 	{
 		// This is what we want to add...
 		$error_catching_header = '
@@ -1631,7 +1632,7 @@ function backupTable($table)
 {
 	global $is_debug, $command_line, $db_prefix, $smcFunc;
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 	{
 		echo "\n" . ' +++ Backing up \"' . str_replace($db_prefix, '', $table) . '"...';
 		flush();
@@ -1639,7 +1640,7 @@ function backupTable($table)
 
 	$smcFunc['db_backup_table']($table, 'backup_' . $table);
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 		echo ' done.';
 }
 
@@ -1733,10 +1734,6 @@ function DatabaseChanges()
 	{
 		$upcontext['changes_complete'] = true;
 
-		// If this is the command line we can't do any more.
-		if ($command_line)
-			return DeleteUpgrade();
-
 		return true;
 	}
 	return false;
@@ -1775,7 +1772,7 @@ function CleanupMods()
 	// Do we already know about some writable files?
 	if (isset($_POST['writable_files']))
 	{
-		$writable_files = unserialize(base64_decode($_POST['writable_files']));
+		$writable_files = safe_unserialize(base64_decode($_POST['writable_files']));
 		if (!makeFilesWritable($writable_files))
 		{
 			// What have we left?
@@ -2136,7 +2133,7 @@ function DeleteUpgrade()
 		),
 		array(
 			time(), 3, $user_info['id'], $command_line ? '127.0.0.1' : $user_info['ip'], 'upgrade',
-			0, 0, 0, serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
+			0, 0, 0, safe_serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
 		),
 		array('id_action')
 	);
@@ -3387,6 +3384,8 @@ function makeFilesWritable(&$files)
 	// On linux, it's easy - just use is_writable!
 	if (substr(__FILE__, 1, 2) != ':\\')
 	{
+		$upcontext['systemos'] = 'linux';
+
 		foreach ($files as $k => $file)
 		{
 			if (!is_writable($file))
@@ -3407,6 +3406,8 @@ function makeFilesWritable(&$files)
 	// Windows is trickier.  Let's try opening for r+...
 	else
 	{
+		$upcontext['systemos'] = 'windows';
+
 		foreach ($files as $k => $file)
 		{
 			// Folders can't be opened for write... but the index.php in them can ;).
@@ -3590,7 +3591,762 @@ function smf_strtolower($string)
 		return mb_strtolower($string, 'UTF-8');
 	require_once($sourcedir . '/Subs-Charset.php');
 	return utf8_strtolower($string);
-};
+}
+
+/**
+ * Handles converting your database to UTF-8
+ */
+function convertUtf8()
+{
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js, $is_debug;
+
+	// First make sure they aren't already on UTF-8 before we go anywhere...
+	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
+	{
+		return true;
+	}
+	else
+	{
+		$upcontext['page_title'] = 'Converting to UTF8';
+		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
+
+		// The character sets used in SMF's language files with their db equivalent.
+		$charsets = array(
+			// Armenian
+			'armscii8' => 'armscii8',
+			// Chinese-traditional.
+			'big5' => 'big5',
+			// Chinese-simplified.
+			'gbk' => 'gbk',
+			// West European.
+			'ISO-8859-1' => 'latin1',
+			// Romanian.
+			'ISO-8859-2' => 'latin2',
+			// Turkish.
+			'ISO-8859-9' => 'latin5',
+			// Latvian
+			'ISO-8859-13' => 'latin7',
+			// West European with Euro sign.
+			'ISO-8859-15' => 'latin9',
+			// Thai.
+			'tis-620' => 'tis620',
+			// Persian, Chinese, etc.
+			'UTF-8' => 'utf8',
+			// Russian.
+			'windows-1251' => 'cp1251',
+			// Greek.
+			'windows-1253' => 'utf8',
+			// Hebrew.
+			'windows-1255' => 'utf8',
+			// Arabic.
+			'windows-1256' => 'cp1256',
+		);
+
+		// Get a list of character sets supported by your MySQL server.
+		$request = $smcFunc['db_query']('', '
+			SHOW CHARACTER SET',
+			array(
+			)
+		);
+		$db_charsets = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$db_charsets[] = $row['Charset'];
+
+		$smcFunc['db_free_result']($request);
+
+		// Character sets supported by both MySQL and SMF's language files.
+		$charsets = array_intersect($charsets, $db_charsets);
+
+		// Use the messages.body column as indicator for the database charset.
+		$request = $smcFunc['db_query']('', '
+			SHOW FULL COLUMNS
+			FROM {db_prefix}messages
+			LIKE {string:body_like}',
+			array(
+				'body_like' => 'body',
+			)
+		);
+		$column_info = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// A collation looks like latin1_swedish. We only need the character set.
+		list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
+		$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
+
+		// Detect whether a fulltext index is set.
+		$request = $smcFunc['db_query']('', '
+ 			SHOW INDEX
+	  	    FROM {db_prefix}messages',
+			array(
+			)
+		);
+
+		$upcontext['dropping_index'] = false;
+
+		// If there's a fulltext index, we need to drop it first...
+		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
+					$upcontext['fulltext_index'][] = $row['Key_name'];
+			$smcFunc['db_free_result']($request);
+
+			if (isset($upcontext['fulltext_index']))
+				$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
+		}
+
+		// Drop it and make a note...
+		if (!empty($upcontext['fulltext_index']))
+		{
+			$upcontext['dropping_index'] = true;
+
+			$smcFunc['db_query']('', '
+  			ALTER TABLE {db_prefix}messages
+	  		DROP INDEX ' . implode(',
+		  	DROP INDEX ', $upcontext['fulltext_index']),
+				array(
+					'db_error_skip' => true,
+				)
+			);
+
+			// Update the settings table
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('db_search_index', ''),
+				array('variable')
+			);
+		}
+
+		// Figure out what charset we should be converting from...
+		$lang_charsets = array(
+			'arabic' => 'windows-1256',
+			'armenian_east' => 'armscii-8',
+			'armenian_west' => 'armscii-8',
+			'azerbaijani_latin' => 'ISO-8859-9',
+			'bangla' => 'UTF-8',
+			'belarusian' => 'ISO-8859-5',
+			'bulgarian' => 'windows-1251',
+			'cambodian' => 'UTF-8',
+			'chinese_simplified' => 'gbk',
+			'chinese_traditional' => 'big5',
+			'croation' => 'ISO-8859-2',
+			'czech' => 'ISO-8859-2',
+			'czech_informal' => 'ISO-8859-2',
+			'english_pirate' => 'UTF-8',
+			'esperanto' => 'ISO-8859-3',
+			'estonian' => 'ISO-8859-15',
+			'filipino_tagalog' => 'UTF-8',
+			'filipino_vasayan' => 'UTF-8',
+			'georgian' => 'UTF-8',
+			'greek' => 'ISO-8859-3',
+			'hebrew' => 'windows-1255',
+			'hungarian' => 'ISO-8859-2',
+			'irish' => 'UTF-8',
+			'japanese' => 'UTF-8',
+			'khmer' => 'UTF-8',
+			'korean' => 'UTF-8',
+			'kurdish_kurmanji' => 'ISO-8859-9',
+			'kurdish_sorani' => 'windows-1256',
+			'lao' => 'tis-620',
+			'latvian' => 'ISO-8859-13',
+			'lithuanian' => 'ISO-8859-4',
+			'macedonian' => 'UTF-8',
+			'malayalam' => 'UTF-8',
+			'mongolian' => 'UTF-8',
+			'nepali' => 'UTF-8',
+			'persian' => 'UTF-8',
+			'polish' => 'ISO-8859-2',
+			'romanian' => 'ISO-8859-2',
+			'russian' => 'windows-1252',
+			'sakha' => 'UTF-8',
+			'serbian_cyrillic' => 'ISO-8859-5',
+			'serbian_latin' => 'ISO-8859-2',
+			'sinhala' => 'UTF-8',
+			'slovak' => 'ISO-8859-2',
+			'slovenian' => 'ISO-8859-2',
+			'telugu' => 'UTF-8',
+			'thai' => 'tis-620',
+			'turkish' => 'ISO-8859-9',
+			'turkmen' => 'ISO-8859-9',
+			'ukranian' => 'windows-1251',
+			'urdu' => 'UTF-8',
+			'uzbek_cyrillic' => 'ISO-8859-5',
+			'uzbek_latin' => 'ISO-8859-5',
+			'vietnamese' => 'UTF-8',
+			'yoruba' => 'UTF-8'
+		);
+
+		// Default to ISO-8859-1 unless we detected another supported charset
+		$upcontext['charset_detected'] = (isset($lang_charsets[$language]) && isset($charsets[strtr(strtolower($upcontext['charset_detected']), array('utf' => 'UTF', 'iso' => 'ISO'))])) ? $lang_charsets[$language] : 'ISO-8859-1';
+
+		$upcontext['charset_list'] = array_keys($charsets);
+
+		// Translation table for the character sets not native for MySQL.
+		$translation_tables = array(
+			'windows-1255' => array(
+				'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
+				'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
+				'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
+				'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
+				'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
+				'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
+				'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '\'\'',
+				'0xFC' => '\'\'',		'0xFF' => '\'\'',		'0xC2' => '0xFF',
+				'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
+				'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
+				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+				'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
+				'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
+				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+				'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
+				'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
+				'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
+				'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
+				'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
+				'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
+				'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
+				'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
+				'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
+				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+				'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
+				'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+				'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
+				'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
+				'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
+				'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
+				'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
+				'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
+				'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
+				'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
+				'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
+				'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
+				'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
+				'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
+				'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
+				'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
+				'0xFA' => '0xD7AA',		'0xFF' => '0xD6B2',		'0xFC' => '0xE282AC',
+				'0xFB' => '0xD792',
+			),
+			'windows-1253' => array(
+				'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
+				'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
+				'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
+				'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
+				'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
+				'0xD2' => '\'\'',			'0xFF' => '\'\'',			'0xCE' => '0xCE9E',
+				'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
+				'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
+				'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
+				'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
+				'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
+				'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
+				'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
+				'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
+				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+				'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
+				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+				'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
+				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+				'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
+				'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
+				'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
+				'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+				'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
+				'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
+				'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
+				'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
+				'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
+				'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
+				'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
+				'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
+				'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
+				'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
+				'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
+				'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
+				'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
+				'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
+				'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
+				'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
+				'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
+				'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',		'0xFF' => '0xCE92',
+				'0xD2' => '0xE282AC',
+			),
+		);
+
+		// Make some preparations.
+		if (isset($translation_tables[$upcontext['charset_detected']]))
+		{
+			$replace = '%field%';
+
+			// Build a huge REPLACE statement...
+			foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to)
+				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+		}
+
+		// Get a list of table names ahead of time... This makes it easier to set our substep and such
+		db_extend();
+		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix);
+
+		$upcontext['table_count'] = count($queryTables);
+		$file_steps = $upcontext['table_count'];
+
+		for($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		{
+			$table = $queryTables[$_GET['substep']];
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			$getTableStatus = $smcFunc['db_query']('', '
+				SHOW TABLE STATUS
+				LIKE {string:table_name}',
+				array(
+					'table_name' => str_replace('_', '\_', $table)
+				)
+			);
+
+			// Only one row so we can just fetch_assoc and free the result...
+			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
+			$smcFunc['db_free_result']($getTableStatus);
+
+			$upcontext['cur_table_num'] = $_GET['substep'];
+			$upcontext['cur_table_name'] = $table_info['Name'];
+			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+			// Just to make sure it doesn't time out.
+			if (function_exists('apache_reset_timeout'))
+				@apache_reset_timeout();
+
+			$table_charsets = array();
+
+			// Loop through each column.
+			$queryColumns = $smcFunc['db_query']('', '
+				SHOW FULL COLUMNS
+				FROM ' . $table_info['Name'],
+				array(
+				)
+			);
+			while ($column_info = $smcFunc['db_fetch_assoc']($queryColumns))
+			{
+				// Only text'ish columns have a character set and need converting.
+				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false)
+				{
+					$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
+					if (!empty($collation) && $collation !== 'NULL')
+					{
+						list($charset) = explode('_', $collation);
+
+						if (!isset($table_charsets[$charset]))
+							$table_charsets[$charset] = array();
+
+						$table_charsets[$charset][] = $column_info;
+					}
+				}
+			}
+			$smcFunc['db_free_result']($queryColumns);
+
+			// Only change the column if the data doesn't match the current charset.
+			if ((count($table_charsets) === 1 && key($table_charsets) !== $charsets[$upcontext['charset_detected']]) || count($table_charsets) > 1)
+			{
+				$updates_blob = '';
+				$updates_text = '';
+				foreach ($table_charsets as $charset => $columns)
+				{
+					if ($charset !== $charsets[$upcontext['charset_detected']])
+					{
+						foreach ($columns as $column)
+						{
+							$updates_blob .= '
+								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], array('text' => 'blob', 'char' => 'binary')) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+							$updates_text .= '
+								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+						}
+					}
+				}
+
+				// Change the columns to binary form.
+				$smcFunc['db_query']('', '
+					ALTER TABLE {raw:table_name}{raw:updates_blob}',
+					array(
+						'table_name' => $table_info['Name'],
+						'updates_blob' => substr($updates_blob, 0, -1),
+					)
+				);
+
+				// Convert the character set if MySQL has no native support for it.
+				if (isset($translation_tables[$upcontext['charset_detected']]))
+				{
+					$update = '';
+					foreach ($table_charsets as $charset => $columns)
+						foreach ($columns as $column)
+							$update .= '
+								' . $column['Field'] . ' = ' . strtr($replace, array('%field%' => $column['Field'])) . ',';
+
+					$smcFunc['db_query']('', '
+						UPDATE {raw:table_name}
+						SET {raw:updates}',
+						array(
+							'table_name' => $table_info['Name'],
+							'updates' => substr($update, 0, -1),
+						)
+					);
+				}
+
+				// Change the columns back, but with the proper character set.
+				$smcFunc['db_query']('', '
+					ALTER TABLE {raw:table_name}{raw:updates_text}',
+					array(
+						'table_name' => $table_info['Name'],
+						'updates_text' => substr($updates_text, 0, -1),
+					)
+				);
+			}
+
+			// Now do the actual conversion (if still needed).
+			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
+			{
+				if ($command_line)
+					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+
+				$smcFunc['db_query']('', '
+					ALTER TABLE {raw:table_name}
+					CONVERT TO CHARACTER SET utf8',
+						array(
+								'table_name' => $table_info['Name'],
+						)
+				);
+
+				if ($command_line)
+					echo " done.\n";
+			}
+		}
+
+		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
+
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array(array('global_character_set', 'UTF-8'), array('previousCharacterSet', $prev_charset)),
+			array('variable')
+		);
+
+		// Store it in Settings.php too because it's needed before db connection.
+		// Hopefully this works...
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('db_character_set' => '\'utf8\''));
+
+		// The conversion might have messed up some serialized strings. Fix them!
+		$request = $smcFunc['db_query']('', '
+			SELECT id_action, extra
+			FROM {db_prefix}log_actions
+			WHERE action IN ({string:remove}, {string:delete})',
+			array(
+				'remove' => 'remove',
+				'delete' => 'delete',
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (@safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}log_actions
+					SET extra = {string:extra}
+					WHERE id_action = {int:current_action}',
+					array(
+						'current_action' => $row['id_action'],
+						'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
+					)
+				);
+		}
+		$smcFunc['db_free_result']($request);
+
+		if ($upcontext['dropping_index'] && $command_line)
+		{
+			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
+			flush();
+		}
+	}
+
+	return true;
+}
+
+function serialize_to_json()
+{
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
+
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
+	// First thing's first - did we already do this?
+	if (!empty($modSettings['json_done']))
+	{
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
+	}
+
+	// Done it already - js wise?
+	if (!empty($_POST['json_done']))
+		return true;
+
+	// List of tables affected by this function
+	// name => array('key', col1[,col2|true[,col3]])
+	// If 3rd item in array is true, it indicates that col1 could be empty...
+	$tables = array(
+		'background_tasks' => array('id_task', 'task_data'),
+		'log_actions' => array('id_action', 'extra'),
+		'log_online' => array('session', 'url'),
+		'log_packages' => array('id_install', 'db_changes', 'failed_steps', 'credits'),
+		'log_spider_hits' => array('id_hit', 'url'),
+		'log_subscribed' => array('id_sublog', 'pending_details'),
+		'pm_rules' => array('id_rule', 'criteria', 'actions'),
+		'qanda' => array('id_question', 'answers'),
+		'subscriptions' => array('id_subscribe', 'cost'),
+		'user_alerts' => array('id_alert', 'extra', true),
+		'user_drafts' => array('id_draft', 'to_list', true),
+		// These last two are a bit different - we'll handle those separately
+		'settings' => array(),
+		'themes' => array()
+	);
+
+	// Set up some context stuff...
+	// Because we're not using numeric indices, we need this to figure out the current table name...
+	$keys = array_keys($tables);
+
+	$upcontext['table_count'] = 13;
+	$upcontext['cur_table_num'] = $_GET['substep'];
+	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+	$file_steps = $upcontext['table_count'];
+
+	foreach($keys as $id => $table)
+		if ($id < $_GET['substep'])
+			$upcontext['previous_tables'][] = $table;
+
+	if ($command_line)
+		echo 'Converting data from serialize() to json_encode().';
+
+	if (!$support_js || isset($_GET['xml']))
+	{
+		// Fix the data in each table
+		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		{
+			$upcontext['cur_table_name'] = isset($keys[$substep + 1]) ? $keys[$substep + 1] : $keys[$substep];
+			$upcontext['cur_table_num'] = $substep + 1;
+
+			$upcontext['step_progress'] = (int)(($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			// Initialize a few things...
+			$where = '';
+			$vars = array();
+			$table = $keys[$substep];
+			$info = $tables[$table];
+
+			// Now the fun - build our queries and all that fun stuff
+			if ($table == 'settings')
+			{
+				// Now a few settings...
+				$serialized_settings = array(
+					'attachment_basedirectories',
+					'attachmentUploadDir',
+					'cal_today_birthday',
+					'cal_today_event',
+					'cal_today_holiday',
+					'displayFields',
+					'last_attachments_directory',
+					'memberlist_cache',
+					'search_index_custom_config',
+					'spider_name_cache'
+				);
+
+				// Loop through and fix these...
+				$new_settings = array();
+				if ($command_line)
+					echo "\n" . 'Fixing some settings...';
+
+				foreach ($serialized_settings as $var)
+				{
+					if (isset($modSettings[$var]))
+					{
+						// Attempt to unserialize the setting
+						$temp = @safe_unserialize($modSettings[$var]);
+						if (!$temp && $command_line)
+							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+						elseif ($temp !== false)
+							$new_settings[$var] = json_encode($temp);
+					}
+				}
+
+				// Update everything at once
+				if (!function_exists('cache_put_data'))
+					require_once($sourcedir . '/Load.php');
+				updateSettings($new_settings, true);
+
+				if ($command_line)
+					echo ' done.';
+			}
+			elseif ($table == 'themes')
+			{
+				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+				$query = $smcFunc['db_query']('', '
+					SELECT * FROM {db_prefix}themes
+					WHERE variable = {string:admin_prefs}',
+						array(
+							'admin_prefs' => 'admin_preferences'
+						)
+				);
+
+				if ($smcFunc['db_num_rows']($query) != 0)
+				{
+					while ($row = $smcFunc['db_fetch_assoc']($query))
+					{
+						$temp = @safe_unserialize($row['admin_preferences']);
+
+						if ($command_line)
+						{
+							if ($temp === false)
+								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+							else
+								echo "\n" . 'Fixing admin preferences...';
+						}
+
+						if ($temp !== false)
+						{
+							$row['admin_preferences'] = json_encode($temp);
+
+							// Even though we have all values from the table, UPDATE is still faster than REPLACE
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:prefs}
+								WHERE id_theme = {int:theme}
+									AND id_member = {int:member}',
+								array(
+									'prefs' => $row['admin_preferences'],
+									'theme' => $row['id_theme'],
+									'member' => $row['id_member']
+								)
+							);
+
+							if ($is_debug || $command_line)
+								echo ' done.';
+						}
+					}
+
+					$smcFunc['db_free_result']($query);
+				}
+			}
+			else
+			{
+				// First item is always the key...
+				$key = $info[0];
+				unset($info[0]);
+
+				// Now we know what columns we have and such...
+				if (count($info) == 2 && $info[2] === true)
+				{
+					$col_select = $info[1];
+					$where = ' WHERE ' . $info[1] . ' != {empty}';
+				}
+				else
+				{
+					$col_select = implode(', ', $info);
+				}
+
+				$query = $smcFunc['db_query']('', '
+					SELECT ' . $key . ', ' . $col_select . '
+					FROM {db_prefix}' . $table . $where,
+					array()
+				);
+
+				if ($smcFunc['db_num_rows']($query) != 0)
+				{
+					if ($command_line)
+					{
+						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+						flush();
+					}
+
+					while ($row = $smcFunc['db_fetch_assoc']($query))
+					{
+						$update = '';
+
+						// We already know what our key is...
+						foreach ($info as $col)
+						{
+							if ($col !== true && $row[$col] != '')
+							{
+								$temp = @safe_unserialize($row[$col]);
+
+								if ($temp === false && $command_line)
+								{
+									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
+								}
+								else
+								{
+									$row[$col] = json_encode($temp);
+
+									// Build our SET string and variables array
+									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+									$vars[$col] = $row[$col];
+								}
+							}
+						}
+
+						$vars[$key] = $row[$key];
+
+						// In a few cases, we might have empty data, so don't try to update in those situations...
+						if (!empty($update))
+						{
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}' . $table . '
+								SET ' . $update . '
+								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+								$vars
+							);
+						}
+					}
+
+					if ($command_line)
+						echo ' done.';
+
+					// Free up some memory...
+					$smcFunc['db_free_result']($query);
+				}
+			}
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
+		}
+
+		if ($command_line)
+		{
+			echo "\n" . 'Successful.' . "\n";
+			flush();
+		}
+		$upcontext['step_progress'] = 100;
+
+		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+		updateSettings(array('json_done' => true));
+
+		$_GET['substep'] = 0;
+		// Make sure we move on!
+		if ($command_line)
+			return DeleteUpgrade();
+
+		return true;
+	}
+
+	// If this fails we just move on to deleting the upgrade anyway...
+	$_GET['substep'] = 0;
+	return false;
+}
 
 /******************************************************************************
 ******************* Templates are below this point ****************************
@@ -3639,7 +4395,15 @@ function template_chmod()
 					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
-					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
+					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
+
+	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
+		echo '
+					content.write(\'<hr />\n\t\t\t\');
+					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
+					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
+
+	echo '
 					content.write(\'<a href="javascript:self.close();">close</a>\n\t\t</div>\n\t</body>\n</html>\');
 					content.close();
 				}
@@ -3711,6 +4475,7 @@ function template_upgrade_above()
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script>
 			var smf_scripturl = \'', $upgradeurl, '\';
@@ -3722,25 +4487,26 @@ function template_upgrade_above()
 			{
 				// What out the actual percent.
 				var width = parseInt((current / max) * 100);
-				if (document.getElementById(\'step_progress\'))
+				if (document.getElementById(\'step_progress_upgrade\'))
 				{
-					document.getElementById(\'step_progress\').style.width = width + "%";
-					setInnerHTML(document.getElementById(\'step_text\'), width + "%");
+					document.getElementById(\'step_progress_upgrade\').style.width = width + "%";
+					setInnerHTML(document.getElementById(\'step_text_upgrade\'), width + "%");
 				}
-				if (overall_weight && document.getElementById(\'overall_progress\'))
+				if (overall_weight && document.getElementById(\'overall_progress_upgrade\'))
 				{
 					overall_width = parseInt(startPercent + width * (overall_weight / 100));
-					document.getElementById(\'overall_progress\').style.width = overall_width + "%";
-					setInnerHTML(document.getElementById(\'overall_text\'), overall_width + "%");
+					document.getElementById(\'overall_progress_upgrade\').style.width = overall_width + "%";
+					setInnerHTML(document.getElementById(\'overall_text_upgrade\'), overall_width + "%");
 				}
 			}
 		</script>
 	</head>
 	<body>
-	<div id="header"><div class="frame">
-				<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+	<div id="footerfix">
+		<div id="header">
+			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
-	</div></div>
+		</div>
 	<div id="wrapper">
 	<div id="upper_section">
 		<div id="main_content_section">
@@ -3837,11 +4603,12 @@ function template_upgrade_below()
 			</div>
 			</div>
 		</div>
-	<div id="footer_section"><div class="frame" style="height: 40px;">
-	<ul class="reset">
-		<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
-	</ul>
-	</div></div>
+		</div>
+		<div id="footer">
+			<ul>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2016, Simple Machines</a></li>
+			</ul>
+		</div>
 	</body>
 </html>';
 
@@ -4245,7 +5012,10 @@ function template_backup_database()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+				if (document.getElementById(\'debuginfo\').scrollHeight)
+					document.getElementById(\'debuginfo\').scrollTop = document.getElementById(\'debuginfo\').scrollHeight;';
 
 		echo '
 				// Get the next update...
@@ -4604,6 +5374,97 @@ function template_database_xml()
 	<error>', $upcontext['error_message'], '</error>';
 }
 
+// Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
+function template_convert_utf8()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+			<h3>Please wait while your database is converted to UTF-8. For large forums this may take some time!</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Done any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
+
+	// If we dropped their index, let's let them know
+	if ($upcontext['cur_table_num'] == $upcontext['table_count'] && $upcontext['dropping_index'])
+		echo '
+			<br><span style="display:inline;">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated.</span>';
+
+	echo '
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Conversion Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'utf8_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_utf8_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
+}
+
 function template_clean_mods()
 {
 	global $upcontext;
@@ -4648,7 +5509,7 @@ function template_clean_mods()
 	// Files to make writable?
 	if (!empty($upcontext['writable_files']))
 		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(serialize($upcontext['writable_files'])), '">';
+		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
 
 	// We'll want a continue button...
 	if (empty($upcontext['chmod']['files']))
@@ -4769,13 +5630,13 @@ function template_upgrade_templates()
 
 	if (!empty($upcontext['languages']))
 		echo '
-		<input type="hidden" name="languages" value="', base64_encode(serialize($upcontext['languages'])), '">';
+		<input type="hidden" name="languages" value="', base64_encode(safe_serialize($upcontext['languages'])), '">';
 	if (!empty($upcontext['themes']))
 		echo '
-		<input type="hidden" name="themes" value="', base64_encode(serialize($upcontext['themes'])), '">';
+		<input type="hidden" name="themes" value="', base64_encode(safe_serialize($upcontext['themes'])), '">';
 	if (!empty($upcontext['writable_files']))
 		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(serialize($upcontext['writable_files'])), '">';
+		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
 
 	// Offer them the option to upgrade from YaBB SE?
 	if (!empty($upcontext['can_upgrade_yabbse']))
@@ -4785,6 +5646,90 @@ function template_upgrade_templates()
 	// We'll want a continue button... assuming chmod is OK (Otherwise let them use connect!)
 	if (empty($upcontext['chmod']['files']) || $upcontext['is_test'])
 		$upcontext['continue'] = 1;
+}
+
+// Template for the database backup tool/
+function template_serialize_json()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+			<h3>Converting data from serialize to JSON...</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="json_done" id="json_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'json_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_serialize_json_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
 
 function template_upgrade_complete()

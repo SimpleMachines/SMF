@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -45,7 +45,7 @@ function ModerationMain($dont_call = false)
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
 	$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -248,7 +248,7 @@ function ModerationHome()
 	global $txt, $context, $options;
 
 	loadTemplate('ModerationCenter');
-	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'smf_admin');
 
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
@@ -285,7 +285,7 @@ function ModerationHome()
 			$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -391,17 +391,19 @@ function ModBlockNotes()
 				SELECT id_member
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:note}
-					AND comment_type = {literal:modnote}',
+					AND comment_type = {literal:modnote}
+					AND id_member = {int:user}',
 				array(
 					'note' => $_GET['delete'],
+					'user' => $user_info['id'],
 				)
 			);
 
-			list ($note_owner) = $smcFunc['db_fetch_assoc']($get_owner);
+			$note_owner = $smcFunc['db_num_rows']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
 
-			if ($note_owner != $user_info['id'])
-				fatal_lang_error($txt['mc_notes_delete_own'], false);
+			if(empty($note_owner))
+				fatal_lang_error('mc_notes_delete_own', false);
 		}
 
 		// Lets delete it.
@@ -446,7 +448,7 @@ function ModBlockNotes()
 	if ($offset != 0 || ($moderator_notes = cache_get_data('moderator_notes', 240)) === null)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name,
+			SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.id_comment AS id_note
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -500,7 +502,7 @@ function ModBlockReportedPosts()
 	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(serialize($user_info['mod_cache']['bq']));
+	$cachekey = md5(json_encode($user_info['mod_cache']['bq']));
 	$context['reported_posts'] = array();
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		return 'reported_posts_block';
@@ -510,8 +512,8 @@ function ModBlockReportedPosts()
 		// By George, that means we in a position to get the reports, jolly good.
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject,
-				lr.num_reports, IFNULL(mem.real_name, lr.membername) AS author_name,
-				IFNULL(mem.id_member, 0) AS id_author
+				lr.num_reports, COALESCE(mem.real_name, lr.membername) AS author_name,
+				COALESCE(mem.id_member, 0) AS id_author
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
@@ -614,7 +616,7 @@ function ModBlockReportedMembers()
 	global $context, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
+	$cachekey = md5(json_encode((int) allowedTo('moderate_forum')));
 	$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
@@ -624,8 +626,8 @@ function ModBlockReportedMembers()
 		// By George, that means we in a position to get the reports, jolly good.
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_member,
-				lr.num_reports, IFNULL(mem.real_name, lr.membername) AS user_name,
-				IFNULL(mem.id_member, 0) AS id_user
+				lr.num_reports, COALESCE(mem.real_name, lr.membername) AS user_name,
+				COALESCE(mem.id_member, 0) AS id_user
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_board = {int:not_a_reported_post}
@@ -825,16 +827,18 @@ function ReportedMembers()
 	// By George, that means we in a position to get the reports, golly good.
 	$request = $smcFunc['db_query']('', '
 		SELECT lr.id_report, lr.id_member, lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-			IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
+			COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 		FROM {db_prefix}log_reported AS lr
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 		WHERE lr.closed = {int:view_closed}
 			AND lr.id_board = {int:not_a_reported_post}
 		ORDER BY lr.time_updated DESC
-		LIMIT ' . $context['start'] . ', 10',
+		LIMIT {int:limit}, {int:max}',
 		array(
 			'view_closed' => $context['view_closed'],
 			'not_a_reported_post' => 0,
+			'limit' => $context['start'],
+			'max' => 10,
 		)
 	);
 	$context['reports'] = array();
@@ -866,7 +870,7 @@ function ReportedMembers()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment,
-				IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.membername) AS reporter
+				COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lrc.membername) AS reporter
 			FROM {db_prefix}log_reported_comments AS lrc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
 			WHERE lrc.id_report IN ({array_int:report_list})',
@@ -1138,7 +1142,7 @@ function ViewWatchedUsers()
 				'position' => 'bottom_of_list',
 				'value' => '
 					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">',
-				'align' => 'right',
+				'class' => 'floatright',
 			) : array(),
 		),
 	);
@@ -1206,10 +1210,12 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		FROM {db_prefix}members
 		WHERE warning >= {int:warning_watch}
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$watched_users = array();
@@ -1331,7 +1337,7 @@ function list_getWatchedUserPostsCount($approve_query)
  */
 function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards)
 {
-	global $smcFunc, $txt, $scripturl, $modSettings;
+	global $smcFunc, $scripturl, $modSettings;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
@@ -1343,9 +1349,11 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 			AND {query_see_board}
 			' . $approve_query . '
 		ORDER BY m.id_msg DESC
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$member_posts = array();
@@ -1417,7 +1425,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = @unserialize($search_params);
+		$search_params = @json_decode($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -1454,7 +1462,7 @@ function ViewWarningLog()
 	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort='.  $context['order'];
 
 	// Setup the search context.
-	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(serialize($search_params));
+	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(json_encode($search_params));
 	$context['search'] = array(
 		'string' => $search_params['string'],
 		'type' => $search_params['type'],
@@ -1606,17 +1614,20 @@ function list_getWarnings($start, $items_per_page, $sort)
 	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name_col,
-			IFNULL(mem2.id_member, 0) AS id_recipient, IFNULL(mem2.real_name, lc.recipient_name) AS recipient_name,
+		SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
+			COALESCE(mem2.id_member, 0) AS id_recipient, COALESCE(mem2.real_name, lc.recipient_name) AS recipient_name,
 			lc.log_time, lc.body, lc.id_notice, lc.counter
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = lc.id_recipient)
 		WHERE lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning' => 'warning',
+			'start' => $start,
+			'max' => $items_per_page,
+			'sort' => $sort,
 		)
 	);
 	$warnings = array();
@@ -1825,8 +1836,8 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
 	global $smcFunc, $scripturl, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT lc.id_comment, IFNULL(mem.id_member, 0) AS id_member,
-			IFNULL(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
+		SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
+			COALESCE(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
 			lc.log_time, lc.body
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -247,7 +247,7 @@ function reloadSettings()
 	if (empty($modSettings['currentAttachmentUploadDir']))
 	{
 		updateSettings(array(
-			'attachmentUploadDir' => serialize(array(1 => $modSettings['attachmentUploadDir'])),
+			'attachmentUploadDir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
 			'currentAttachmentUploadDir' => 1,
 		));
 	}
@@ -255,7 +255,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = unserialize(SMF_INTEGRATION_SETTINGS);
+		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -306,8 +306,21 @@ function reloadSettings()
 		'<div>',
 	);
 
+	// These are the only valid image types for SMF, by default anyway.
+	$context['validImageTypes'] = array(
+		1 => 'gif',
+		2 => 'jpeg',
+		3 => 'png',
+		5 => 'psd',
+		6 => 'bmp',
+		7 => 'tiff',
+		8 => 'tiff',
+		9 => 'jpeg',
+		14 => 'iff'
+	);
+
 	// Define a list of allowed tags for descriptions.
-	$context['description_allowed_tags'] = array('abbr', 'anchor', 'center', 'color', 'font', 'hr', 'i', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
@@ -362,13 +375,23 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
+		$cookie_data = json_decode($_COOKIE[$cookiename], true);
+
+		if (is_null($cookie_data))
+			$cookie_data = @unserialize($_COOKIE[$cookiename]);
+
+		list ($id_member, $password) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
+		$cookie_data = json_decode($_SESSION['login_' . $cookiename]);
+
+		if (is_null($cookie_data))
+			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
+
+		list ($id_member, $password, $login_span) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 
@@ -379,7 +402,7 @@ function loadUserSettings()
 		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.*, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
+				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = {int:id_member})
 				WHERE mem.id_member = {int:id_member}
@@ -434,7 +457,12 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					list ($tfamember, $tfasecret) = @unserialize($_COOKIE[$tfacookie]);
+					$tfa_data = json_decode($_COOKIE[$tfacookie]);
+
+					if (is_null($tfa_data))
+						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
+
+					list ($tfamember, $tfasecret) = $tfa_data;
 
 					if ((int) $tfamember != $id_member)
 						$tfasecret = null;
@@ -586,7 +614,12 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			list ($id, $user, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfa_data = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+
+			if (is_null($tfa_data))
+				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
 			if (!$preserve || time() > $exp)
 			{
@@ -789,8 +822,8 @@ function loadBoard()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
-				b.id_parent, c.name AS cname, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name,
-				IFNULL(mem.id_member, 0) AS id_moderator,
+				b.id_parent, c.name AS cname, COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name,
+				COALESCE(mem.id_member, 0) AS id_moderator,
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
@@ -1162,12 +1195,12 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
+			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
-			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
-			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group,
+			mg.online_color AS member_group_color, COALESCE(mg.group_name, {string:blank_string}) AS member_group,
+			pg.online_color AS post_group_color, COALESCE(pg.group_name, {string:blank_string}) AS post_group,
 			mem.is_activated, mem.warning, ' . (!empty($modSettings['titlesEnable']) ? 'mem.usertitle, ' : '') . '
 			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
 	$select_tables = '
@@ -1441,7 +1474,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			// So it's stored in the member table?
 			if (!empty($profile['avatar']))
 			{
-				$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
 			}
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
@@ -1463,7 +1496,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	{
 		$memberContext[$user]['custom_fields'] = array();
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = unserialize($modSettings['displayFields']);
+			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -1987,13 +2020,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css');
+	loadCSSFile('index.css', array('minimize' => true), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true));
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css');
+		loadCSSFile('rtl.css', array(), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2016,9 +2049,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css');
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css');
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2050,26 +2083,29 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
+
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
+
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavascriptFile($modSettings['jquery_custom'], array(), 'jquery');
+		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
+
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
+	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true, 'minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
-		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
+		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
+		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');
-	loadJavascriptFile('theme.js', array(), 'theme_scripts');
+	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
+	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
@@ -2261,14 +2297,14 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
 	{
 		echo '
-<div style="font-size: 8pt; border: 1px dashed red; background: orange; text-align: center; font-weight: bold;">---- ', $sub_template_name, ' ends ----</div>';
+<div class="warningbox">---- ', $sub_template_name, ' ends ----</div>';
 	}
 }
 
 /**
  * Add a CSS file for output later
  *
- * @param string $filename THe name of the file to load
+ * @param string $fileName The name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
  * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
@@ -2277,39 +2313,61 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
-function loadCSSFile($filename, $params = array(), $id = '')
+function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['external'] = isset($params['external']) ? $params['external'] : false;
 
-	// account for shorthand like admin.css?alp21 filenames
-	$has_seed = strpos($filename, '.css?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	// If this is an external file, automatically set this to false.
+	if (!empty($params['external']))
+		$params['minimize'] = false;
+
+	// Account for shorthand like admin.css?alp21 filenames
+	$has_seed = strpos($fileName, '.css?');
+	$id = empty($id) ? strtr(basename(str_replace('.css', '', $fileName)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/css/' . $fileName))
 		{
 			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
-				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
+			{
+				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			}
+
 			else
-				$filename = false;
+				$fileUrl = false;
 		}
+
 		else
-			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+		{
+			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+		}
+	}
+
+	// An external file doesn't have a filepath. Mock one for simplicity.
+	else
+	{
+		$fileUrl = $fileName;
+		$filePath = $fileName;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($fileName))
+		$context['css_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2350,40 +2408,65 @@ function addInlineCss($css)
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
  *
  * @param string $id An ID to stick on the end of the filename
  */
-function loadJavascriptFile($filename, $params = array(), $id = '')
+function loadJavascriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['external'] = isset($params['external']) ? $params['external'] : false;
 
-	// account for shorthand like admin.js?alp21 filenames
-	$has_seed = strpos($filename, '.js?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	// If this is an external file, automatically set this to false.
+	if (!empty($params['external']))
+		$params['minimize'] = false;
+
+	// Account for shorthand like admin.js?alp21 filenames
+	$has_seed = strpos($fileName, '.js?');
+	$id = empty($id) ? strtr(basename(str_replace('.js', '', $fileName)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
 		{
-			// can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
-				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+			// Can't find it in this theme, how about the default?
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			{
+				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			}
+
 			else
-				$filename = false;
+			{
+				$fileUrl = false;
+				$filePath = false;
+			}
 		}
+
 		else
-			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+		{
+			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+		}
+	}
+
+	// An external file doesn't have a filepath. Mock one for simplicity.
+	else
+	{
+		$fileUrl = $fileName;
+		$filePath = $fileName;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($fileName))
+		$context['javascript_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
 }
 
 /**
@@ -2572,8 +2655,8 @@ function getBoardParents($id_parent)
 			$result = $smcFunc['db_query']('', '
 				SELECT
 					b.id_parent, b.name, {int:board_parent} AS id_board, b.member_groups, b.deny_member_groups,
-					b.child_level, IFNULL(mem.id_member, 0) AS id_moderator, mem.real_name,
-					IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name
+					b.child_level, COALESCE(mem.id_member, 0) AS id_moderator, mem.real_name,
+					COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
@@ -2799,7 +2882,10 @@ function censorText(&$text, $force = false)
 
 	// Censoring isn't so very complicated :P.
 	if (empty($modSettings['censorWholeWord']))
-		$text = empty($modSettings['censorIgnoreCase']) ? str_ireplace($censor_vulgar, $censor_proper, $text) : str_replace($censor_vulgar, $censor_proper, $text);
+	{
+		$func = !empty($modSettings['censorIgnoreCase']) ? 'str_ireplace' : 'str_replace';
+		$text = $func($censor_vulgar, $censor_proper, $text);
+	}
 	else
 		$text = preg_replace($censor_vulgar, $censor_proper, $text);
 
@@ -3118,7 +3204,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 
@@ -3128,12 +3214,12 @@ function cache_put_data($key, $value, $ttl = 120)
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(serialize($value)));
+		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(json_encode($value)));
 		$st = microtime();
 	}
 
 	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
-	$value = $value === null ? null : serialize($value);
+	$value = $value === null ? null : json_encode($value);
 
 	switch ($cache_accelerator)
 	{
@@ -3218,7 +3304,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 
@@ -3294,7 +3380,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @unserialize($value);
+	return empty($value) ? null : @json_decode($value, true);
 }
 
 /**

@@ -44,4 +44,9 @@ hr {
 .copyright {
 	font-size: x-small;
 	text-align: center;
+	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
+}
+.centertext {
+	margin: 0 auto;
+	text-align: center;
 }

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -74,7 +74,7 @@ function template_registration_form()
 		echo '
 		<div class="errorbox">
 			<span>', $txt['registration_errors_occurred'], '</span>
-			<ul class="reset">';
+			<ul>';
 
 		// Cycle through each error and display an error message.
 		foreach ($context['registration_errors'] as $error)
@@ -401,21 +401,21 @@ function template_coppa_form()
 	echo '
 		<table style="width: 100%; padding: 3px; border: 0" class="tborder">
 			<tr>
-				<td align="left">', $context['forum_contacts'], '</td>
+				<td>', $context['forum_contacts'], '</td>
 			</tr><tr>
-				<td align="right">
+				<td class="righttext">
 					<em>', $txt['coppa_form_address'], '</em>: ', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '
 				</td>
 			</tr><tr>
-				<td align="right">
+				<td class="righttext">
 					<em>', $txt['coppa_form_date'], '</em>: ', $context['ul'], '
 					<br><br>
 				</td>
 			</tr><tr>
-				<td align="left">
+				<td>
 					', $context['coppa_body'], '
 				</td>
 			</tr>

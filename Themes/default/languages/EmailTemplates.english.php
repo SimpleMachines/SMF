@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; EmailTemplates
+// Version: 2.1 Beta 3; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -191,7 +191,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 {REGARDS}';
 
 $txt['admin_register_immediate_subject'] = 'Welcome to {FORUMNAME}';
-$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME} and your password is {PASSWORD}.
+$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}, your password is {PASSWORD} and the forum url is: {SCRIPTURL}.
 
 {REGARDS}';
 

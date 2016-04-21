@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -564,7 +564,7 @@ function ModifySubscription()
 			if (empty($_POST['cost_day']) && empty($_POST['cost_week']) && empty($_POST['cost_month']) && empty($_POST['cost_year']))
 				fatal_lang_error('paid_all_freq_blank');
 		}
-		$cost = serialize($cost);
+		$cost = json_encode($cost);
 
 		// Having now validated everything that might throw an error, let's also now deal with the token.
 		validateToken('admin-pms');
@@ -698,7 +698,7 @@ function ModifySubscription()
 			$context['sub'] = array(
 				'name' => $row['name'],
 				'desc' => $row['description'],
-				'cost' => @unserialize($row['cost']),
+				'cost' => @json_decode($row['cost'], true),
 				'span' => array(
 					'value' => $span_value,
 					'unit' => $span_unit,
@@ -790,7 +790,7 @@ function ViewSubscribedUsers()
 	$smcFunc['db_free_result']($request);
 
 	// Are we searching for people?
-	$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND IFNULL(mem.real_name, {string:guest}) LIKE {string:search}' : '';
+	$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND COALESCE(mem.real_name, {string:guest}) LIKE {string:search}' : '';
 	$search_vars = empty($_POST['sub_search']) ? array() : array('search' => '%' . $_POST['sub_search'] . '%', 'guest' => $txt['guest']);
 
 	$listOptions = array(
@@ -994,19 +994,22 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 	global $smcFunc, $txt;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT ls.id_sublog, IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
+		SELECT ls.id_sublog, COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
 			ls.status, ls.payments_pending
 		FROM {db_prefix}log_subscribed AS ls
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
 		WHERE ls.id_subscribe = {int:current_subscription} ' . $search_string . '
 			AND (ls.end_time != {int:no_end_time} OR ls.payments_pending != {int:no_payments_pending})
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array_merge($search_vars, array(
 			'current_subscription' => $id_sub,
 			'no_end_time' => 0,
 			'no_payments_pending' => 0,
 			'guest' => $txt['guest'],
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$subscribers = array();
@@ -1252,7 +1255,7 @@ function ModifyUserSubscription()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT ls.id_sublog, ls.id_subscribe, ls.id_member, start_time, end_time, status, payments_pending, pending_details,
-				IFNULL(mem.real_name, {string:blank_string}) AS username
+				COALESCE(mem.real_name, {string:blank_string}) AS username
 			FROM {db_prefix}log_subscribed AS ls
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
 			WHERE ls.id_sublog = {int:current_subscription_item}
@@ -1271,14 +1274,14 @@ function ModifyUserSubscription()
 		$context['pending_payments'] = array();
 		if (!empty($row['pending_details']))
 		{
-			$pending_details = @unserialize($row['pending_details']);
+			$pending_details = @json_decode($row['pending_details'], true);
 			foreach ($pending_details as $id => $pending)
 			{
 				// Only this type need be displayed.
 				if ($pending[3] == 'payback')
 				{
 					// Work out what the options were.
-					$costs = @unserialize($context['current_subscription']['real_cost']);
+					$costs = @json_decode($context['current_subscription']['real_cost'], true);
 
 					if ($context['current_subscription']['real_length'] == 'F')
 					{
@@ -1312,7 +1315,7 @@ function ModifyUserSubscription()
 							addSubscription($context['current_subscription']['id'], $row['id_member'], $context['current_subscription']['real_length'] == 'F' ? strtoupper(substr($pending[2], 0, 1)) : 0);
 						unset($pending_details[$id]);
 
-						$new_details = serialize($pending_details);
+						$new_details = json_encode($pending_details);
 
 						// Update the entry.
 						$smcFunc['db_query']('', '
@@ -1840,7 +1843,7 @@ function loadSubscriptions()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Pick a cost.
-		$costs = @unserialize($row['cost']);
+		$costs = @json_decode($row['cost'], true);
 
 		if ($row['length'] != 'F' && !empty($modSettings['paid_currency_symbol']) && !empty($costs['fixed']))
 			$cost = sprintf($modSettings['paid_currency_symbol'], $costs['fixed']);

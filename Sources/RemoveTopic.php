@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -290,10 +290,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 				AND id_board != {int:recycle_board}
-			LIMIT ' . count($topics),
+			LIMIT {int:limit}',
 			array(
 				'recycle_board' => $recycle_board,
 				'topics' => $topics,
+				'limit' => count($topics),
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) > 0)
@@ -396,7 +397,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
 	}
 	$smcFunc['db_free_result']($request);
-	
+
 	if($updateBoardCount)
 	{
 		// Decrease the posts/topics...
@@ -429,10 +430,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topics})
 			AND id_poll > {int:no_poll}
-		LIMIT ' . count($topics),
+		LIMIT {int:limit}',
 		array(
 			'no_poll' => 0,
 			'topics' => $topics,
+			'limit' => count($topics),
 		)
 	);
 	$polls = array();
@@ -476,7 +478,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	// Delete possible search index entries.
 	if (!empty($modSettings['search_custom_index_config']))
 	{
-		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
+		$customIndexSettings = json_decode($modSettings['search_custom_index_config'], true);
 
 		$words = array();
 		$messages = array();
@@ -776,7 +778,7 @@ function removeMessage($message, $decreasePostCount = true)
 	{
 		// Check if the recycle board exists and if so get the read status.
 		$request = $smcFunc['db_query']('', '
-			SELECT (IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
+			SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE b.id_board = {int:recycle_board}',
@@ -959,7 +961,7 @@ function removeMessage($message, $decreasePostCount = true)
 
 		if (!empty($modSettings['search_custom_index_config']))
 		{
-			$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
+			$customIndexSettings = json_decode($modSettings['search_custom_index_config'], true);
 			$words = text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
 			if (!empty($words))
 				$smcFunc['db_query']('', '
@@ -1052,7 +1054,7 @@ function RestoreTopic()
 		// Get the id_previous_board and id_previous_topic.
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_topic, m.id_msg, m.id_board, m.subject, m.id_member, t.id_previous_board, t.id_previous_topic,
-				t.id_first_msg, b.count_posts, IFNULL(pt.id_board, 0) AS possible_prev_board
+				t.id_first_msg, b.count_posts, COALESCE(pt.id_board, 0) AS possible_prev_board
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1301,7 +1303,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		UPDATE {db_prefix}messages
 		SET
 			id_topic = {int:target_topic},
-			id_board = {int:target_board},
+			id_board = {int:target_board}
 		WHERE id_msg IN({array_int:msgs})',
 		array(
 			'target_topic' => $target_topic,

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -24,8 +24,8 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
      * @return bool Always returns true
      */
 	public function execute()
- 	{
- 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;
+	{
+		global $sourcedir, $smcFunc, $language, $modSettings;
 
 		// Get the details of all the members concerned...
 		$request = $smcFunc['db_query']('', '
@@ -115,7 +115,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => $pref_name,
 						'is_read' => 0,
-						'extra' => serialize(array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
+						'extra' => json_encode(array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
 					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}
@@ -137,7 +137,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 					$emaildata = loadEmailTemplate($email_template_name, $replacements, $user['language']);
 
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], false, 2);
+					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], $emaildata['is_html'], 2);
 				}
 			}
 

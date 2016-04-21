@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -63,8 +63,8 @@ function Memberlist()
 		'is_online' => array(
 			'label' => $txt['status'],
 			'sort' => array(
-				'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
-				'up' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
+				'down' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
+				'up' => allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
 			),
 		),
 		'real_name' => array(
@@ -78,15 +78,15 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => 'LENGTH(mem.website_url) > 0 ASC, IFNULL(mem.website_url, 1=1) DESC, mem.website_url DESC',
-				'up' => 'LENGTH(mem.website_url) > 0 DESC, IFNULL(mem.website_url, 1=1) ASC, mem.website_url ASC'
+				'down' => 'LENGTH(mem.website_url) > 0 ASC, COALESCE(mem.website_url, 1=1) DESC, mem.website_url DESC',
+				'up' => 'LENGTH(mem.website_url) > 0 DESC, COALESCE(mem.website_url, 1=1) ASC, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
 			'label' => $txt['position'],
 			'sort' => array(
-				'down' => 'IFNULL(mg.group_name, 1=1) DESC, mg.group_name DESC',
-				'up' => 'IFNULL(mg.group_name, 1=1) ASC, mg.group_name ASC'
+				'down' => 'COALESCE(mg.group_name, 1=1) DESC, mg.group_name DESC',
+				'up' => 'COALESCE(mg.group_name, 1=1) ASC, mg.group_name ASC'
 			),
 		),
 		'registered' => array(
@@ -177,7 +177,7 @@ function MLAll()
 	{
 		// Maybe there's something cached already.
 		if (!empty($modSettings['memberlist_cache']))
-			$memberlist_cache = @unserialize($modSettings['memberlist_cache']);
+			$memberlist_cache = @json_decode($modSettings['memberlist_cache'], true);
 
 		// The chunk size for the cached index.
 		$cache_step_size = 500;
@@ -211,7 +211,7 @@ function MLAll()
 			$smcFunc['db_free_result']($request);
 
 			// Now we've got the cache...store it.
-			updateSettings(array('memberlist_cache' => serialize($memberlist_cache)));
+			updateSettings(array('memberlist_cache' => json_encode($memberlist_cache)));
 		}
 
 		$context['num_members'] = $memberlist_cache['num_members'];
@@ -336,8 +336,12 @@ function MLAll()
 		WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
 			AND ' . $where) . '
 		ORDER BY {raw:sort}
-		LIMIT ' . $limit . ', ' . $modSettings['defaultMaxMembers'],
-		$query_parameters
+		LIMIT {int:start}, {int:max}',
+		array_merge($query_parameters, array(
+			'sort' => $sort,
+			'start' => $limit,
+			'max' => $modSettings['defaultMaxMembers'],
+		))
 	);
 	printMemberListRows($request);
 	$smcFunc['db_free_result']($request);
@@ -463,7 +467,7 @@ function MLSearch()
 		// Search for groups.
 		if (in_array('group', $_POST['fields']))
 		{
-			$fields += array(9 => 'IFNULL(group_name, {string:blank_string})');
+			$fields += array(9 => 'COALESCE(group_name, {string:blank_string})');
 			$search_fields[] = 'group';
 		}
 		// Search for an email address?
@@ -488,7 +492,7 @@ function MLSearch()
 			{
 				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {string:t' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
 				$query_parameters['t' . $row['col_name']] = $row['col_name'];
-				$fields += array($customCount++ => 'IFNULL(t' . $row['col_name'] . '.value, {string:blank_string})');
+				$fields += array($customCount++ => 'COALESCE(t' . $row['col_name'] . '.value, {string:blank_string})');
 				$search_fields[] = $field;
 			}
 		}
@@ -525,8 +529,11 @@ function MLSearch()
 			WHERE (' . implode( ' ' . $query . ' OR ', $fields) . ' ' . $query . ')
 				AND mem.is_activated = {int:is_activated}
 			ORDER BY {raw:sort}
-			LIMIT ' . $_REQUEST['start'] . ', ' . $modSettings['defaultMaxMembers'],
-			$query_parameters
+			LIMIT {int:start}, {int:max}',
+			array_merge($query_parameters, array(
+				'start' => $_REQUEST['start'],
+				'max' => $modSettings['defaultMaxMembers'],
+			))
 		);
 		printMemberListRows($request);
 		$smcFunc['db_free_result']($request);
@@ -682,8 +689,8 @@ function getCustFieldsMList()
 		// Get the right sort method depending on the cust field type.
 		if ($row['field_type'] != 'check')
 			$cpf['columns'][$row['col_name']]['sort'] = array(
-				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, IFNULL(t' . $row['col_name'] . '.value, "") DESC',
-				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, IFNULL(t' . $row['col_name'] . '.value, "") ASC'
+				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, COALESCE(t' . $row['col_name'] . '.value, "") DESC',
+				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, COALESCE(t' . $row['col_name'] . '.value, "") ASC'
 			);
 
 		else

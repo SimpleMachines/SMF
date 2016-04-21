@@ -5,13 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 2';
+$GLOBALS['current_smf_version'] = '2.1 Beta 3';
 $GLOBALS['db_script_version'] = '2-1';
 
 $GLOBALS['required_php_version'] = '5.3.8';
@@ -517,6 +517,8 @@ function CheckFilesWritable()
 	// On linux, it's easy - just use is_writable!
 	if (substr(__FILE__, 1, 2) != ':\\')
 	{
+		$incontext['systemos'] = 'linux';
+
 		foreach ($writable_files as $file)
 		{
 			if (!is_writable(dirname(__FILE__) . '/' . $file))
@@ -534,6 +536,8 @@ function CheckFilesWritable()
 	// Windows is trickier.  Let's try opening for r+...
 	else
 	{
+		$incontext['systemos'] = 'windows';
+
 		foreach ($writable_files as $file)
 		{
 			// Folders can't be opened for write... but the index.php in them can ;)
@@ -1021,8 +1025,15 @@ function DatabasePopulation()
 			)
 		);
 
+	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
+	if (substr(__DIR__, -1) == '\\')
+		$attachdir = __DIR__ . 'attachments';
+	else
+		$attachdir = __DIR__ . '/attachments';
+
 	$replaces = array(
 		'{$db_prefix}' => $db_prefix,
+		'{$attachdir}' => json_encode(array(1 => $smcFunc['db_escape_string']($attachdir))),
 		'{$boarddir}' => $smcFunc['db_escape_string'](dirname(__FILE__)),
 		'{$boardurl}' => $boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
@@ -1076,6 +1087,29 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
+	} 
+	else 
+	{
+		$has_innodb = false;
+	}
+
+	// PostgreSQL-specific stuff - unlogged table
+	if ($db_type == 'postgresql')
+	{
+		$result = $smcFunc['db_query']('', '
+			SHOW server_version_num'
+		);
+		if ($result !== false)
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+				$pg_version = $row['server_version_num'];
+			$smcFunc['db_free_result']($result);
+		}
+		
+		if(isset($pg_version) && $pg_version >= 90100)
+			$replaces['{$unlogged}'] = 'UNLOGGED';
+		else
+			$replaces['{$unlogged}'] = '';
 	}
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1254,7 +1288,11 @@ function DatabasePopulation()
 			}
 		}
 	}
-
+	
+	// MySQL specific stuff 
+	if (substr($db_type, 0, 5) != 'mysql')
+		return false;
+	
 	// Find database user privileges.
 	$privs = array();
 	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
@@ -2110,15 +2148,15 @@ function template_install_above()
 		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
+
+		<script src="Themes/default/scripts/jquery-2.1.3.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
-	<body>
+	<body><div id="footerfix">
 		<div id="header">
-			<div class="frame">
-				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
-			</div>
-                </div>
+			<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
+		</div>
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">
@@ -2201,13 +2239,11 @@ function template_install_below()
 					</div>
 				</div>
 			</div>
-		</div>
-		<div id="footer_section">
-			<div class="frame">
-				<ul class="reset">
-					<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
-				</ul>
-			</div>
+		</div></div>
+		<div id="footer">
+			<ul>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2016, Simple Machines</a></li>
+			</ul>
 		</div>
 	</body>
 </html>';
@@ -2304,6 +2340,12 @@ function template_chmod_files()
 			<li>', implode('</li>
 			<li>', $incontext['failed_files']), '</li>
 		</ul>';
+
+	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux')
+		echo '
+		<hr />
+		<p>', $txt['chmod_linux_info'], '</p>
+		<tt># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</tt>';
 
 	// This is serious!
 	if (!template_warning_divs())

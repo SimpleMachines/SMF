@@ -14,18 +14,18 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
-$forum_version = 'SMF 2.1 Beta 2';
-$software_year = '2015';
+$forum_version = 'SMF 2.1 Beta 3';
+$software_year = '2016';
 
 // Get everything started up...
 define('SMF', 1);
-if (function_exists('set_magic_quotes_runtime'))
+if (function_exists('set_magic_quotes_runtime') && strnatcmp(phpversion(),'5.3.0') < 0)
 	@set_magic_quotes_runtime(0);
 error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : E_ALL);
 $time_start = microtime();
@@ -79,13 +79,6 @@ if (isset($_GET['scheduled']))
 	AutoTask();
 }
 
-// Displaying attached avatars, legacy.
-elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && $_GET['type'] == 'avatar')
-{
-	require_once($sourcedir. '/Avatar.php');
-	showAvatar();
-}
-
 // And important includes.
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Errors.php');
@@ -107,7 +100,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 }
 
 // Register an error handler.
-set_error_handler('error_handler');
+set_error_handler('smf_error_handler');
 
 // Start the session. (assuming it hasn't already been.)
 loadSession();
@@ -179,17 +172,17 @@ function smf_main()
 	if (!empty($maintenance) && !allowedTo('admin_forum'))
 	{
 		// You can only login.... otherwise, you're getting the "maintenance mode" display.
-		if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'login2' || $_REQUEST['action'] == 'logout'))
+		if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))
 		{
 			require_once($sourcedir . '/LogInOut.php');
-			return $_REQUEST['action'] == 'login2' ? 'Login2' : 'Logout';
+			return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
 		}
 		// Don't even try it, sonny.
 		else
 			return 'InMaintenance';
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
 		return 'KickGuest';
 	elseif (empty($_REQUEST['action']))
 	{
@@ -247,7 +240,7 @@ function smf_main()
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
-		'dlattach' => array('Display.php', 'Download'),
+		'dlattach' => array('ShowAttachments.php', 'showAttachment'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
 		'findmember' => array('Subs-Auth.php', 'JSMembers'),
@@ -305,6 +298,7 @@ function smf_main()
 		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
+		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),

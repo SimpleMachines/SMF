@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -80,7 +80,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['event_id'],
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
-					'extra' => serialize(array($this->_details['event_id'], $this->_details['event_title'])),
+					'extra' => json_encode(array($this->_details['event_id'], $this->_details['event_title'])),
 				);
 			}
 

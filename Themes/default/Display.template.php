@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -121,7 +121,7 @@ function template_main()
 							<p class="smallpadding">', $context['poll']['allowed_warning'], '</p>';
 
 			echo '
-							<ul class="reset options">';
+							<ul class="options">';
 
 			// Show each option with its button - a radio likely.
 			foreach ($context['poll']['options'] as $option)
@@ -162,7 +162,7 @@ function template_main()
 				<h3 class="titlebg">', $txt['calendar_linked_events'], '</h3>
 			</div>
 			<div class="information">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
@@ -185,6 +185,13 @@ function template_main()
 				</div>
 			</div>';
 
+	// Mobile action - moderation buttons (top)
+	echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'],'</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+			</div>';
+
 	// Show the topic information - icon, subject, etc.
 	echo '
 			<div id="forumposts">';
@@ -203,6 +210,13 @@ function template_main()
 				</form>
 			</div>';
 
+	// Mobile action - moderation buttons (bottom)
+	echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'],'</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+			</div>';
+
 	// Show the page index... "Pages: [1]".
 	echo '
 			<div class="pagesection">
@@ -216,6 +230,7 @@ function template_main()
 	// Show the lower breadcrumbs.
 	theme_linktree();
 
+	// Moderation buttons
 	echo '
 			<div id="moderationbuttons">
 				', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '
@@ -229,10 +244,34 @@ function template_main()
 	if ($context['can_reply'])
 	template_quickreply();
 
+	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
+	echo '
+			<div id="mobile_action" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_action'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['normal_buttons']), '
+				</div>
+			</div>';
+
+	// Show the moderation button & pop only if user can moderate
+	if ($context['can_moderate_forum'] || $context['user']['is_mod'])
+		echo '
+			<div id="mobile_moderation" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_moderation'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					<div id="moderationbuttons_mobile">
+						', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip_mobile')), '
+					</div>
+				</div>
+			</div>';
+
 		echo '
 				<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
+	{
 		echo '
 					var oInTopicModeration = new InTopicModeration({
 						sSelf: \'oInTopicModeration\',
@@ -257,6 +296,33 @@ function template_main()
 						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
 						sFormId: \'quickModForm\'
 					});';
+
+		// Add it to the mobile button strip as well
+		echo '
+					var oInTopicModerationMobile = new InTopicModeration({
+						sSelf: \'oInTopicModerationMobile\',
+						sCheckboxContainerMask: \'in_topic_mod_check_\',
+						aMessageIds: [\'', implode('\', \'', $context['removableMessageIDs']), '\'],
+						sSessionId: smf_session_id,
+						sSessionVar: smf_session_var,
+						sButtonStrip: \'moderationbuttons_mobile\',
+						sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
+						bUseImageButton: false,
+						bCanRemove: ', $context['can_remove_post'] ? 'true' : 'false', ',
+						sRemoveButtonLabel: \'', $txt['quickmod_delete_selected'], '\',
+						sRemoveButtonImage: \'delete_selected.png\',
+						sRemoveButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanRestore: ', $context['can_restore_msg'] ? 'true' : 'false', ',
+						sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
+						sRestoreButtonImage: \'restore_selected.png\',
+						sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanSplit: ', $context['can_split'] ? 'true' : 'false', ',
+						sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+						sSplitButtonImage: \'split_selected.png\',
+						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						sFormId: \'quickModForm\'
+					});';
+	}
 
 	echo '
 					if (\'XMLHttpRequest\' in window)
@@ -329,7 +395,6 @@ function template_main()
 
 	echo '
 				</script>';
-
 }
 
 /**
@@ -368,7 +433,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_above_member">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
@@ -401,7 +466,7 @@ function template_single_post($message)
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
-									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
+									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
 
 	// Are there any custom fields below the avatar?
@@ -551,7 +616,7 @@ function template_single_post($message)
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
 								<h5>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
@@ -591,15 +656,25 @@ function template_single_post($message)
 	// Assuming there are attachments...
 	if (!empty($message['attachment']))
 	{
-		echo '
-							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
-
 		$last_approved_state = 1;
 		$attachments_per_line = 5;
 		$i = 0;
+		// Don't output the div unless we actually have something to show...
+		$div_output = false;
 
 		foreach ($message['attachment'] as $attachment)
 		{
+			// Do we want this attachment to not be showed here?
+			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
+				continue;
+			elseif (!$div_output)
+			{
+				$div_output = true;
+
+				echo '
+							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
+			}
+
 			// Show a special box for unapproved attachments...
 			if ($attachment['is_approved'] != $last_approved_state)
 			{
@@ -660,7 +735,9 @@ function template_single_post($message)
 			echo '
 								</fieldset>';
 
-		echo '
+		// Only do this if we output a div above - otherwise it'll break things
+		if ($div_output)
+			echo '
 							</div>';
 	}
 
@@ -797,7 +874,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_above_signature">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['above_signature'] as $custom)
 			echo '
@@ -819,7 +896,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_below_signature">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['below_signature'] as $custom)
 			echo '

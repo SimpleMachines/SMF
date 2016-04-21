@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -51,7 +51,7 @@ function template_main()
 	}
 
 	// Close our wrapper.
-	echo '<br class="clear">
+	echo '
 	</div>';
 }
 
@@ -90,24 +90,24 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				if (empty($calendar_data['previous_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
 				{
 					echo '
-						<span class="floatleft xlarge_text">
+						<span class="floatleft">
 							<a href="', $calendar_data['previous_calendar']['href'], '">&#171;</a>
+						</span>
+					';
+				}
+
+				// Next Link: if we're showing prev / next and it's not a mini-calendar.
+				if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
+				{
+					echo '
+						<span class="floatright">
+							<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
 						</span>
 					';
 				}
 
 				// Arguably the most exciting part, the title!
 				echo '<a href="', $scripturl, '?action=calendar;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
-
-				// Next Link: if we're showing prev / next and it's not a mini-calendar.
-				if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
-				{
-					echo '
-						<span class="floatright xlarge_text">
-							<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
-						</span>
-					';
-				}
 
 				echo '
 				</h3>
@@ -193,6 +193,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				}
 			}
 			else
+				// Default Classes (either compact or comfortable and disabled).
+				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = 'disabled';
 
 			// Now, implode the classes for each day.
@@ -338,24 +340,24 @@ function template_show_week_grid($grid_name)
 					if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
 					{
 						echo '
-							<span class="floatleft xlarge_text">
+							<span class="floatleft">
 								<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
 							</span>
 						';
 					}
 
-					// The Month Title + Week Number...
-					if (!empty($calendar_data['week_title']))
-							echo $calendar_data['week_title'];
-
 					// Next Week Link...
 					if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
 					{
 						echo '
-							<span class="floatright xlarge_text">
+							<span class="floatright">
 								<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
 							</span>';
 					}
+
+					// The Month Title + Week Number...
+					if (!empty($calendar_data['week_title']))
+							echo $calendar_data['week_title'];
 
 					echo '
 					</h3>
@@ -397,7 +399,7 @@ function template_show_week_grid($grid_name)
 								echo $txt['days'][$day['day_of_week']], ' - ', $day['day'];
 
 							echo '</td>
-							<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . ($context['can_post'] ? ' week_post' : '')) : ' events', '">';
+							<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . ($context['can_post'] ? ' week_post' : '')) : ' events', ' event_col">';
 							// Show any events...
 							if (!empty($day['events']))
 							{
@@ -442,13 +444,13 @@ function template_show_week_grid($grid_name)
 								}
 							}
 							echo '</td>
-							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', '">';
+							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col">';
 							// Show any holidays!
 							if (!empty($day['holidays']))
 								echo implode('<br>', $day['holidays']);
 
 							echo '</td>
-							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', '">';
+							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col">';
 							// Show any birthdays...
 							if (!empty($day['birthdays']))
 							{
@@ -508,7 +510,6 @@ function template_calendar_base($col_span = 1)
 					echo '</select>
 					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
 				</form>
-				<br class="clear">
 			</td>
 		</tr>';
 }

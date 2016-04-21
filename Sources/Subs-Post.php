@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -38,6 +38,9 @@ function preparsecode(&$message, $previewing = false)
 	{
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
+
+	// Remove empty bbc.
+	$message = preg_replace('~\[([^\]=\s]+)[^\]]*\](?' . '>\s|(?R))*?\[/\1\]\s?~i', '', $message);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -884,7 +887,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Check whether we have to apply anything...
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$criteria = unserialize($row['criteria']);
+		$criteria = json_decode($row['criteria'], true);
 		// Note we don't check the buddy status, cause deletion from buddy = madness!
 		$delete = false;
 		foreach ($criteria as $criterium)
@@ -1124,10 +1127,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	foreach ($notifications as $lang => $notification_list)
 	{
-		$mail = loadEmailTemplate($email_template, $replacements, $lang);
+		$emaildata = loadEmailTemplate($email_template, $replacements, $lang);
 
 		// Off the notification email goes!
-		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
+		sendmail($notification_list, $emaildata['subject'], $emaildata['body'], null, 'p' . $id_pm, $emaildata['is_html'], 2, null, true);
 	}
 
 	// Integrated After PMs
@@ -1527,7 +1530,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 	// Get the subject and body...
 	$result = $smcFunc['db_query']('', '
 		SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
-			IFNULL(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
+			COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -1548,7 +1551,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 		$task_rows[] = array(
-			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
 				'msgOptions' => array(
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
@@ -1877,7 +1880,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', serialize(array(
+				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', json_encode(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -1925,7 +1928,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', serialize(array(
+				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', json_encode(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -1968,7 +1971,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
 				'msgOptions' => $msgOptions,
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
@@ -2059,7 +2062,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$smcFunc['db_insert']('',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -2189,7 +2192,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	// May as well start at the beginning, working out *what* we need to change.
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
-			m.body, m.subject, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.id_member,
+			m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 			t.approved AS topic_approved, b.count_posts
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -2359,7 +2362,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		$task_rows = array();
 		foreach (array_merge($notification_topics, $notification_posts) as $topic)
 			$task_rows[] = array(
-				'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+				'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
 					'msgOptions' => array(
 						'id' => $topic['msg'],
 						'body' => $topic['body'],
@@ -2634,7 +2637,7 @@ function adminNotify($type, $memberID, $member_name = null)
 	$smcFunc['db_insert']('insert',
 		'{db_prefix}background_tasks',
 		array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/Register-Notify.php', 'Register_Notify_Background', serialize(array(
+		array('$sourcedir/tasks/Register-Notify.php', 'Register_Notify_Background', json_encode(array(
 			'new_member_id' => $memberID,
 			'new_member_name' => $member_name,
 			'notify_type' => $type,
@@ -2667,6 +2670,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 	$ret = array(
 		'subject' => $txt[$template . '_subject'],
 		'body' => $txt[$template . '_body'],
+		'is_html' => !empty($txt[$template . '_html']),
 	);
 
 	// Add in the default replacements.
@@ -2829,7 +2833,7 @@ function spell_check($dict, $word)
 		if (!$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 with iconv
-			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
+			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
 		}
 		return enchant_dict_check($dict, $word);
 	}
