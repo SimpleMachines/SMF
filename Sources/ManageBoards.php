@@ -866,9 +866,7 @@ function EditBoardSettings($return_config = false)
 	// Needed for the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
-	// Don't let guests have these permissions.
 	$context['post_url'] = $scripturl . '?action=admin;area=manageboards;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	$context['page_title'] = $txt['boards_and_cats'] . ' - ' . $txt['settings'];
 

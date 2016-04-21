@@ -1772,6 +1772,9 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Make sure we honor the "illegal guest permissions"
+	loadIllegalGuestPermissions();
+
 	// Some permissions cannot be given to certain groups. Remove the groups.
 	foreach ($excluded_groups as $group)
 	{
@@ -1780,6 +1783,14 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 			if (isset($context[$permission][$group]))
 				unset($context[$permission][$group]);
 		}
+	}
+
+	// Are any of these permissions that guests can't have?
+	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
+	foreach ($non_guest_perms as $permission)
+	{
+		if (isset($context[$permission][-1]))
+			unset($context[$permission][-1]);
 	}
 
 	// Create the token for the separate inline permission verification.
@@ -2213,6 +2224,7 @@ function loadIllegalGuestPermissions()
 		'delete_replies',
 		'edit_news',
 		'issue_warning',
+		'likes_like',
 		'lock',
 		'make_sticky',
 		'manage_attachments',
