@@ -480,9 +480,10 @@ function determineActions($urls, $preferred_prefix = false)
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
 				AND b.id_board IN ({array_int:board_list})
-			LIMIT ' . count($board_ids),
+			LIMIT {int:liomit}',
 			array(
 				'board_list' => array_keys($board_ids),
+				'limit' => count($board_ids),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($result))

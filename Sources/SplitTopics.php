@@ -1018,9 +1018,10 @@ function MergeExecute($topics = array())
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = m2.id_member)
 		WHERE t.id_topic IN ({array_int:topic_list})
 		ORDER BY t.id_first_msg
-		LIMIT ' . count($topics),
+		LIMIT {int:limit}',
 		array(
 			'topic_list' => $topics,
+			'limit' => count($topics),
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) < 2)
@@ -1138,10 +1139,11 @@ function MergeExecute($topics = array())
 		WHERE b.id_board IN ({array_int:boards})
 			AND {query_see_board}' . (!in_array(0, $merge_boards) ? '
 			AND b.id_board IN ({array_int:merge_boards})' : '') . '
-		LIMIT ' . count($boards),
+		LIMIT {int:limit}',
 		array(
 			'boards' => $boards,
 			'merge_boards' => $merge_boards,
+			'limit' => count($boards),
 		)
 	);
 	// If the number of boards that's in the output isn't exactly the same as we've put in there, you're in trouble.
@@ -1159,9 +1161,10 @@ function MergeExecute($topics = array())
 					INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				WHERE p.id_poll IN ({array_int:polls})
-				LIMIT ' . count($polls),
+				LIMIT {int:limit}',
 				array(
 					'polls' => $polls,
+					'limit' => count($polls),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1183,9 +1186,10 @@ function MergeExecute($topics = array())
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:boards})
 				ORDER BY name
-				LIMIT ' . count($boards),
+				LIMIT {int:limit}',
 				array(
 					'boards' => $boards,
+					'limit' => count($boards),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))

@@ -116,9 +116,11 @@ function ViewErrorLog()
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
 		WHERE ' . $filter['variable'] . ' LIKE {string:filter}' : '') . '
 		ORDER BY id_error ' . ($context['sort_direction'] == 'down' ? 'DESC' : '') . '
-		LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxListItems'],
+		LIMIT {int:start}, {int:max}',
 		array(
 			'filter' => isset($filter) ? $filter['value']['sql'] : '',
+			'start' => $_GET['start'],
+			'max' => $modSettings['defaultMaxListItems'],
 		)
 	);
 	$context['errors'] = array();
@@ -181,9 +183,10 @@ function ViewErrorLog()
 			SELECT id_member, member_name, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:member_list})
-			LIMIT ' . count($members),
+			LIMIT {int:members}',
 			array(
 				'member_list' => $members,
+				'members' => count($members),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))

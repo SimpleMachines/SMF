@@ -1079,7 +1079,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'attach',
-				'type' => 'unparsed_content',
+				'type' => 'unparsed_equals_content',
 				'parameters' => array(
 					'name' => array('optional' => true),
 				),
@@ -1093,7 +1093,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = $data;
+					$attachID = is_array($data) ? $data[0] : $data;
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1102,7 +1102,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data[0] = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{
@@ -1119,7 +1119,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$returnContext .= $currentAttachment['link'];
 
 					// Gotta append what we just did.
-					$data = $returnContext;
+					$data[0] = $returnContext;
 				},
 			),
 			array(
@@ -1646,7 +1646,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Make it easier to process parameters later
 			if (!empty($code['parameters']))
 				ksort($code['parameters'], SORT_STRING);
-			
+
 			// If we are not doing every tag only do ones we are interested in.
 			if (empty($parse_tags) || in_array($code['tag'], $parse_tags))
 				$bbc_codes[substr($code['tag'], 0, 1)][] = $code;
@@ -1701,7 +1701,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
-	
+
 	foreach ($bbc_codes as $section) {
 		foreach ($section as $code) {
 			$alltags[] = $code['tag'];
@@ -2036,24 +2036,24 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
-				
+
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
 				$blobs = preg_split('~\]~i', $blob[1]);
-				
+
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
 				$blob_counter = 0;
 				while ($blob_counter <= count($blobs)) {
-					
+
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
-					
+
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
-					
+
 					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
-					
+
 					if ($match) $blob_counter = count($blobs) + 1;
 				}
 

@@ -230,23 +230,21 @@ function EditSearchMethod()
 					'db_error_skip' => true,
 				)
 			);
-			
+
 			$request = $smcFunc['db_query']('','
 				SHOW default_text_search_config',
-				array(
-					
-				)
+				array()
 			);
-			
+
 			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 			{
 				$row = $smcFunc['db_fetch_assoc']($request);
 				$language_ftx = $row['default_text_search_config'];
 			}
-			
-			
+
+
 			$smcFunc['db_query']('', '
-				CREATE INDEX smf_messages_ftx ON smf_messages 
+				CREATE INDEX smf_messages_ftx ON smf_messages
 				USING gin(to_tsvector({string:language},body))',
 				array(
 					'language' => $language_ftx
@@ -425,7 +423,7 @@ function EditSearchMethod()
 						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid )
 				AS foo
 				ON t.tablename = foo.ctablename
-			WHERE t.schemaname= {string:schema} and ( 
+			WHERE t.schemaname= {string:schema} and (
 				indexname = {string:messages_ftx} OR indexname = {string:log_search_words} )',
 			array(
 				'messages_ftx' => $db_prefix. 'messages_ftx',

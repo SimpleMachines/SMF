@@ -379,12 +379,15 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 				AND {raw:modlog_query}'
 			. (!empty($query_string) ? '
 				AND ' . $query_string : '') . '
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array_merge($query_params, array(
 			'reg_group_id' => 0,
 			'log_type' => $log_type,
 			'modlog_query' => $modlog_query,
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 
@@ -488,9 +491,10 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			SELECT id_board, name
 			FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:board_list})
-			LIMIT ' . count(array_keys($boards)),
+			LIMIT {int:limit}',
 			array(
 				'board_list' => array_keys($boards),
+				'limit' => count(array_keys($boards)),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -516,9 +520,10 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			WHERE t.id_topic IN ({array_int:topic_list})
-			LIMIT ' . count(array_keys($topics)),
+			LIMIT {int:limit}',
 			array(
 				'topic_list' => array_keys($topics),
+				'limit' => count(array_keys($topics)),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -551,9 +556,10 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			SELECT id_msg, subject
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
-			LIMIT ' . count(array_keys($messages)),
+			LIMIT {int:limit}',
 			array(
 				'message_list' => array_keys($messages),
+				'limit' => count(array_keys($messages)),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -584,9 +590,10 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			SELECT real_name, id_member
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:member_list})
-			LIMIT ' . count(array_keys($members)),
+			LIMIT {int:limit}',
 			array(
 				'member_list' => array_keys($members),
+				'limit' => count(array_keys($members)),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))

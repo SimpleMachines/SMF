@@ -336,8 +336,12 @@ function MLAll()
 		WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
 			AND ' . $where) . '
 		ORDER BY {raw:sort}
-		LIMIT ' . $limit . ', ' . $modSettings['defaultMaxMembers'],
-		$query_parameters
+		LIMIT {int:start}, {int:max}',
+		array_merge($query_parameters, array(
+			'sort' => $sort,
+			'start' => $limit,
+			'max' => $modSettings['defaultMaxMembers'],
+		))
 	);
 	printMemberListRows($request);
 	$smcFunc['db_free_result']($request);
@@ -525,8 +529,11 @@ function MLSearch()
 			WHERE (' . implode( ' ' . $query . ' OR ', $fields) . ' ' . $query . ')
 				AND mem.is_activated = {int:is_activated}
 			ORDER BY {raw:sort}
-			LIMIT ' . $_REQUEST['start'] . ', ' . $modSettings['defaultMaxMembers'],
-			$query_parameters
+			LIMIT {int:start}, {int:max}',
+			array_merge($query_parameters, array(
+				'start' => $_REQUEST['start'],
+				'max' => $modSettings['defaultMaxMembers'],
+			))
 		);
 		printMemberListRows($request);
 		$smcFunc['db_free_result']($request);

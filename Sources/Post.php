@@ -1231,14 +1231,14 @@ function Post($post_errors = array())
 			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
 			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			acceptedFiles: '. JavaScriptEscape($acceptedFiles) .',
-			maxFilesize: '. ($modSettings['attachmentSizeLimit'] * 0.001) .',
+			maxFilesize: '. ($modSettings['attachmentSizeLimit']) .',
 			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
 			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
 			maxFiles: '. $context['num_allowed_attachments'] .',
 			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1000 .',
-			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1000 .',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
+			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
 		});
 	});', true);
 	}

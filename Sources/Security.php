@@ -269,11 +269,12 @@ function is_not_banned($forceCheck = false)
 			WHERE bi.id_ban IN ({array_int:ban_list})
 				AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})
 				AND bg.cannot_access = {int:cannot_access}
-			LIMIT ' . count($bans),
+			LIMIT {int:limit}',
 			array(
 				'cannot_access' => 1,
 				'ban_list' => $bans,
 				'current_time' => time(),
+				'limit' => count($bans),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))

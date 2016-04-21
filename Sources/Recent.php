@@ -336,9 +336,10 @@ function RecentPosts()
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = m2.id_member)
 		WHERE m.id_msg IN ({array_int:message_list})
 		ORDER BY m.id_msg DESC
-		LIMIT ' . count($messages),
+		LIMIT {int:limit}',
 		array(
 			'message_list' => $messages,
+			'limit' => count($messages),
 		)
 	);
 	$counter = $_REQUEST['start'] + 1;
@@ -1171,11 +1172,13 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.id_topic IN ({array_int:topic_list})
-			ORDER BY ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
-			LIMIT ' . count($topics),
+			ORDER BY {raw:sort}' . ($ascending ? '' : ' DESC') . '
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'topic_list' => $topics,
+				'sort' => $_REQUEST['sort'],
+				'limit' => count($topics),
 			)
 		);
 	}

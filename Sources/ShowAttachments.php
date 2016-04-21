@@ -33,16 +33,16 @@ function showAttachment()
 	// This is done to clear any output that was made before now.
 	ob_end_clean();
 
-	if(!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
+	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
-		if(@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
+		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
 			$modSettings['enableCompressedOutput'] = 0;
 
 		else
 			ob_start('ob_gzhandler');
 	}
 
-	if(empty($modSettings['enableCompressedOutput']))
+	if (empty($modSettings['enableCompressedOutput']))
 	{
 		ob_start();
 		header('Content-Encoding: none');
@@ -52,29 +52,30 @@ function showAttachment()
 	$attachId = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 
 	// We need a valid ID.
-	if(empty($attachId))
+	if (empty($attachId))
 	{
 		header('HTTP/1.0 404 File Not Found');
 		die('404 File Not Found');
 	}
 
 	// A thumbnail has been requested? madness! madness I say!
-	$showThumb = isset($_GET['thumb']);
+	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
+	$showThumb = isset($_REQUEST['thumb']) || !empty($preview);
 	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
-	// No access in strict maintenance mode.
-	if(!empty($maintenance) && $maintenance == 2)
+	// No access in strict maintenance mode or you don't have permission to see attachments.
+	if ((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
 	{
 		header('HTTP/1.0 404 File Not Found');
 		die('404 File Not Found');
 	}
 
 	// Use cache when possible.
-	if(($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
-		$file = $cache;
+	if (($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
+		list($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
-	else
+	if(empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
 	{
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;
@@ -86,7 +87,38 @@ function showAttachment()
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
+				FROM {db_prefix}attachments
+				WHERE id_attach = {int:attach}
+				LIMIT 1',
+				array(
+					'attach' => $attachId,
+				)
+			);
+		}
+
+		// No attachment has been found.
+		if ($smcFunc['db_num_rows']($request) == 0)
+		{
+			header('HTTP/1.0 404 File Not Found');
+			die('404 File Not Found');
+		}
+
+		$file = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// If theres a message ID stored, we NEED a topic ID.
+		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
+		{
+			header('HTTP/1.0 404 File Not Found');
+			die('404 File Not Found');
+		}
+
+		// Previews doesn't have this info.
+		if (empty($preview))
+		{
+			$request2 = $smcFunc['db_query']('', '
+				SELECT a.id_msg
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
@@ -97,29 +129,56 @@ function showAttachment()
 					'current_topic' => $attachTopic,
 				)
 			);
+
+			// The provided topic must match the one stored in the DB for this particular attachment, also.
+			if ($smcFunc['db_num_rows']($request2) == 0)
+			{
+				header('HTTP/1.0 404 File Not Found');
+				die('404 File Not Found');
+			}
+
+			$smcFunc['db_free_result']($request2);
 		}
 
-		// The provided topic must match the one stored in the DB for this particular attachment, also, you need permission to view attachments.
-		if ($smcFunc['db_num_rows']($request) == 0 || !allowedTo('view_attachments'))
-		{
-			header('HTTP/1.0 404 File Not Found');
-			die('404 File Not Found');
-		}
-
-		$file = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
-
+		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-
-		// ETag time.
 		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
 
+		// now get the thumbfile!
+		$thumbFile = array();
+		if (!empty($file['id_thumb']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
+				FROM {db_prefix}attachments
+				WHERE id_attach = {int:thumb_id}
+				LIMIT 1',
+				array(
+					'thumb_id' => $file['id_thumb'],
+				)
+			);
+
+			$thumbFile = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
+
+			// Got something! replace the $file var with the thumbnail info.
+			if ($thumbFile)
+			{
+				$attachId = $thumbFile['id_attach'];
+
+				// set filePath and ETag time
+				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
+				$thumbFile['etag'] = '"'. md5_file($thumbFile['filePath']) .'"';
+			}
+		}
+
 		// Cache it.
-		cache_put_data('attachment_lookup_id-'. $attachId, $file, mt_rand(850, 900));
+		if(!empty($file) || !empty($thumbFile))
+			cache_put_data('attachment_lookup_id-'. $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
 	// Update the download counter (unless it's a thumbnail).
-	if ($file['attachment_type'] != 3)
+	if ($file['attachment_type'] != 3 && empty($showThumb))
 		$smcFunc['db_query']('attach_download_increase', '
 			UPDATE LOW_PRIORITY {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -130,34 +189,8 @@ function showAttachment()
 		);
 
 	// Replace the normal file with its thumbnail if it has one!
-	if ($showThumb && $file['id_thumb'])
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
-			FROM {db_prefix}attachments
-			WHERE id_attach = {int:id_attach}
-			LIMIT 1',
-			array(
-				'id_attach' => $file['id_thumb'],
-				'blank_id_member' => 0,
-				'attachment_type' => 3,
-			)
-		);
-
-		$thumbFile = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
-
-		// Got something! replace the $file var with the thumbnail info.
-		if ($thumbFile)
-		{
-			$attachId = $file['id_thumb'];
-			$file = $thumbFile;
-			$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-
-			// ETag time.
-			$file['etag'] = '"'. md5_file($file['filename']) .'"';
-		}
-	}
+	if (!empty($showThumb) && !empty($thumbFile))
+		$file = $thumbFile;
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($file['filePath']))
@@ -240,6 +273,7 @@ function showAttachment()
 	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
 	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
 		header('Cache-Control: no-cache');
+
 	else
 		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
 
