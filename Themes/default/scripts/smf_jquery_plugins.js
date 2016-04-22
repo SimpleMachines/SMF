@@ -751,4 +751,10 @@ $(function() {
 	$( '.hide_popup' ).click(function() {
 		$( '#mobile_moderation' ).hide();
 	});
+	$( '.mobile_user_menu' ).click(function() {
+		$( '#mobile_user_menu' ).show();
+		});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_user_menu' ).hide();
+	});
 });

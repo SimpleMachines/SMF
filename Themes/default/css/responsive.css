@@ -9,9 +9,6 @@
 	#notify_dropdown {
 		margin: 5px 0 0 2px;
 	}
-	.dropmenu li a {
-		width: 80%;
-	}
 }
 
 /* I have a Lumia with 480px screen... so ^^ */
@@ -41,18 +38,43 @@
 	#pm_menu {
 		margin: 0 0 0 -85px;
 	}
-	.dropmenu li {
-		width: 50%;
+	#main_menu {
+		display: none;
 	}
-	.dropmenu li a {
-		width: 65%;
+	#mobile_user_menu #main_menu {
+		display: block;
+	}
+	.dropmenu li, .dropmenu li:hover,
+	.dropmenu li a, .dropmenu li a:hover,
+	.dropmenu li ul {
+		width: 100%;
+		padding: 0;
+		margin: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+	.dropmenu li a, .dropmenu li:hover a {
+		padding: 5px 0;
+	}
+	.dropmenu li a, .dropmenu li a:hover {
+		text-indent: 10px;
+		border-radius: 0;
+	}
+	.dropmenu li a, .dropmenu li:hover a,
+	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu ul li a:hover, .dropmenu li li a:hover {
+		border-left: 0;
+		border-right: 0;
 	}
 	.dropmenu ul li a {
 		width: auto !important;
 	}
+	.dropmenu li ul {
+		position: relative;
+		border-radius: 0;
+	}
 	#footer ul {
 		width: 100%;
-		margin: 5px;
 		float: none;
 	}
 	/* MessageIndex */
@@ -293,6 +315,12 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+	.menu_icon {
+		display: inline-block;
+		background: url(../images/menu_icon.png) no-repeat;
+		height: 20px;
+		width: 20px;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -372,7 +400,9 @@
 		width: 100% !important;
 	}
 	#wrapper {
-		min-width: 100% !important;
+		width: 100% !important;
+		border-left: 0;
+		border-right: 0;
 	}
 	#top_section, #footer {
 		padding-left: 0;
