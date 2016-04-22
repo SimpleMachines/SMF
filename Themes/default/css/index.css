@@ -1395,6 +1395,7 @@ ul li.greeting {
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	line-height: 1.9em;
 	position: relative;
+	cursor: pointer;
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;

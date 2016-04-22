@@ -1082,11 +1082,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals_content',
 				'parameters' => array(
 					'name' => array('optional' => true),
+					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
+					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
 				{
 					$returnContext = '';
+					$currentAttachment['lightbox_id'] = 'none';
 
 					// BBC or the entire attachments feature is disabled
 					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
@@ -1102,16 +1105,53 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data[0] = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data = !empty($txt[$currentAttachment]) ? array($txt[$currentAttachment]) : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						if ($currentAttachment['thumbnail']['has_thumb'])
-							$returnContext .= '
-													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
+						if (!isset($currentAttachment['lightbox_id']))
+							$currentAttachment['lightbox_id'] = '';
+
+						// width, height, alt set?
+						$style = '';
+						$alt = '';
+						if (preg_match('/alt=(\S+|$)/', $data[1], $altstr) && isset($altstr[1]))
+							$alt = $altstr[1];
+
+						if (preg_match('/width=([0-9]+)/', $data[1], $width) || preg_match('/height=([0-9]+)/', $data[1], $height))
+						{
+							if (isset($width[1]) && isset($height[1]))
+								$style = ' style="max-width:'. $width[1] .'px;max-height:'. $height[1] .'px;"';
+							elseif (isset($width[1]))
+								$style = ' style="max-width:'. $width[1] .'px;height:auto;"';
+							elseif (isset($height[1]))
+								$style = ' style="width:auto;max-height:'. $height[1] .';"';
+						}
+
+						if (isset($_REQUEST['preview']))
+						{
+							if (!empty($modSettings['attachmentShowImages']))
+							{
+								if ($currentAttachment['thumbnail']['has_thumb'] && empty($style))
+									$returnContext = '
+												<img src="'. $currentAttachment['thumbnail']['href'] .'"  alt="'. $alt .'">';
+								else
+									$returnContext = '
+												<img src="'. $currentAttachment['href'] .'"  alt="'. $alt .'"' . $style .'>';
+							}
+						}
 						else
-							$returnContext .= '
-													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
+						{
+							if (!empty($modSettings['attachmentShowImages']))
+							{
+								if ($currentAttachment['thumbnail']['has_thumb'] && empty($style))
+									$returnContext .= '
+												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $currentAttachment['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false"><img src="'. $currentAttachment['thumbnail']['href'] .'" alt="'. $alt .'" id="'. $currentAttachment['lightbox_id'] .'"></a>';
+								else
+									$returnContext .= '
+												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $currentAttachment['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false"><img src="'. $currentAttachment['href'] .'"'. $style .' alt="'. $alt .'" id="'. $currentAttachment['lightbox_id'] .'"></a>';
+							}
+						}    
 					}
 
 					// No image. Show a link.
@@ -2292,7 +2332,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (isset($tag['validate']))
 				$tag['validate']($tag, $data, $disabled);
 
-			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => $data[1]));
+			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => isset($data[1]) ? $data[1] : $data[0]));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos3 + 3 + $tag_strlen);
 			$pos += strlen($code) - 1 + 2;
 		}
