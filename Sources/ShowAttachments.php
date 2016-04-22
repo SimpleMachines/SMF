@@ -142,6 +142,9 @@ function showAttachment()
 
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
+		// ensure variant attachment compatibility
+		$filePath = pathinfo($file['filePath']);
+		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension'])+1)) : $file['filePath'];
 		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
 
 		// now get the thumbfile!
