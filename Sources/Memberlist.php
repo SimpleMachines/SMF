@@ -338,7 +338,7 @@ function MLAll()
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($query_parameters, array(
-			'sort' => $sort,
+			'sort' => $query_parameters['sort'],
 			'start' => $limit,
 			'max' => $modSettings['defaultMaxMembers'],
 		))
