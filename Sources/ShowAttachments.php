@@ -71,11 +71,12 @@ function showAttachment()
 	}
 
 	// Use cache when possible.
-	if (($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
-		list($file, $thumbFile) = $cache;
+	$cache = cache_get_data('attachment_lookup');
+	if (!empty($cache) && in_array($attachId, array_keys($cache)))
+		list($file, $thumbFile) = $cache[$attachId];
 
 	// Get the info from the DB.
-	if(empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
+	if (empty($cache) || empty($file) || (empty($thumbFile) && !empty($file['id_thumb'])))
 	{
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;
@@ -173,10 +174,16 @@ function showAttachment()
 		}
 
 		// Cache it.
-		if(!empty($file) || !empty($thumbFile))
-			cache_put_data('attachment_lookup_id-'. $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
+		if (!empty($file) || !empty($thumbFile))
+		{
+			$cache[$file['id_attach']] = array($file, $thumbFile);
+			cache_put_data('attachment_lookup', $cache, 60 * 60 * 24);
+		}
 	}
 
+	// cleanup
+	if (isset($cache))
+		unset($cache);
 	// Update the download counter (unless it's a thumbnail).
 	if ($file['attachment_type'] != 3 && empty($showThumb))
 		$smcFunc['db_query']('attach_download_increase', '

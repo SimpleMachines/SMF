@@ -697,16 +697,18 @@ function template_single_post($message)
 			if ($attachment['is_image'])
 			{
 				echo '
-										<div class="attachments_top">';
+										<div class="attachments_top">
+											<a href="' . $attachment['href'] . '" title="'. $txt['lightbox_expand'] .'" data-lightbox="' . $attachment['lightbox_id'] . '" data-title="' . $attachment['name'] . '" oncontextmenu="return false">';
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '" class="atc_img"></a>';
+												<img src="' . $attachment['thumbnail']['href'] . '" alt="" id="' . $attachment['lightbox_id'] . '">';
 				else
 					echo '
-											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '" class="atc_img">';
+												<img src="' . $attachment['href'] . ';image" alt="" id="' . $attachment['lightbox_id'] . '" style="' .($attachment['width'] > $attachment['height'] ? 'width:150px;height:auto' : 'width:auto;height:150px') . '">';
 
 				echo '
+											</a>
 										</div>';
 			}
 

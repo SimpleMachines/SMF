@@ -871,7 +871,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  *
  * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
  */
-function parseAttachBBC($attachID = 0)
+function parseAttachBBC($attachID = 0, $lightbox_id = null)
 {
 	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
 
@@ -901,11 +901,11 @@ function parseAttachBBC($attachID = 0)
 	if (!empty($context['preview_message']))
 	{
 		$allAttachments = getAttachsByMsg(0);
+		$attachContext = $allAttachments[0][$attachID];
 
-		if (empty($allAttachments[0][$attachID]))
+		if (empty($attachContext))
 			return 'attachments_no_data_loaded';
 
-		$attachContext = $allAttachments[0][$attachID];
 		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
@@ -1014,7 +1014,7 @@ function getRawAttachInfo($attachIDs)
 			'unchecked' => false,
 			'approved' => 1,
 			'mime_type' => $row['mime_type'],
-			'thumb' => $row['id_thumb'],
+			'thumb' => isset($row['id_thumb']) ? $row['id_thumb'] : false,
 		);
 	$smcFunc['db_free_result']($request);
 
@@ -1116,7 +1116,7 @@ function getAttachsByMsg($msgID = 0)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $context, $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
 
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
@@ -1136,11 +1136,13 @@ function loadAttachmentContext($id_msg, $attachments)
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
-				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
+				'is_image' => !empty($attachment['width']) && !empty($attachment['height']), // && !empty($modSettings['attachmentShowImages']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
 			);
+			if (isset($context['lightbox_id']))
+				$attachmentData[$i]['lightbox_id'] = $context['lightbox_id'];
 
 			// If something is unapproved we'll note it so we can sort them.
 			if (!$attachment['approved'])
@@ -1258,14 +1260,6 @@ function loadAttachmentContext($id_msg, $attachments)
 					$attachmentData[$i]['width'] = floor($attachment['width'] * $modSettings['max_image_height'] / $attachment['height']);
 					$attachmentData[$i]['height'] = $modSettings['max_image_height'];
 				}
-			}
-			elseif ($attachmentData[$i]['thumbnail']['has_thumb'])
-			{
-				// If the image is too large to show inline, make it a popup.
-				if (((!empty($modSettings['max_image_width']) && $attachmentData[$i]['real_width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachmentData[$i]['real_height'] > $modSettings['max_image_height'])))
-					$attachmentData[$i]['thumbnail']['javascript'] = 'return reqWin(\'' . $attachmentData[$i]['href'] . ';image\', ' . ($attachment['width'] + 20) . ', ' . ($attachment['height'] + 20) . ', true);';
-				else
-					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
 			}
 
 			if (!$attachmentData[$i]['thumbnail']['has_thumb'])

@@ -69,6 +69,7 @@ blockquote cite:before {
 	font-style: normal;
 	content: '\275D';
 	margin-right: 5px;
+	vertical-align: -7px;
 }
 div, p {
 	min-height: 1.25em;

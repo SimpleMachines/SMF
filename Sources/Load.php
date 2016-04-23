@@ -2100,6 +2100,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
 	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
+	// lightbox
+	addInlineJavascript('
+	var Lightbox_help = \''. $txt['lightbox_help'] .'\';
+	var Lightbox_label = \''. $txt['lightbox_label'] .'\';');
+	loadJavascriptFile('lightbox.js', array('default_theme' => true, 'defer' => true), 'lightbox');
+	loadCSSFile('lightbox.css', array('default_theme' => true), 'lightbox');
+
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
 	{
