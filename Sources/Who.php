@@ -480,7 +480,7 @@ function determineActions($urls, $preferred_prefix = false)
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
 				AND b.id_board IN ({array_int:board_list})
-			LIMIT {int:liomit}',
+			LIMIT {int:limit}',
 			array(
 				'board_list' => array_keys($board_ids),
 				'limit' => count($board_ids),
