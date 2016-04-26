@@ -63,16 +63,20 @@
 	}
 	.dropmenu li a, .dropmenu li:hover a,
 	.dropmenu li a.active, .dropmenu li a.active:hover,
-	.dropmenu ul li a:hover, .dropmenu li li a:hover {
+	.dropmenu ul li a:hover, .dropmenu li li a:hover,
+	.dropmenu ul li li:hover, .dropmenu li ul,
+	.dropmenu li li:hover ul, .dropmenu li li ul {
 		border-left: 0;
 		border-right: 0;
 	}
 	.dropmenu ul li a {
 		width: auto !important;
 	}
-	.dropmenu li ul {
+	.dropmenu li ul,
+	.dropmenu li li:hover ul, .dropmenu li li ul {
 		position: relative;
 		border-radius: 0;
+		left: 0;
 	}
 	#footer ul {
 		width: 100%;
@@ -261,9 +265,6 @@
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
 		margin: 0 !important;
-	}
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		left: 1px !important;
 	}
 }
 
