@@ -21,8 +21,58 @@ function template_generic_menu_dropdown_above()
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
 
+	// Load the menu
+	template_generic_menu($menu_context);
+	template_generic_menu_mobile($menu_context);
+
+	// This is the main table - we need it so we can keep the content to the right of it.
 	echo '
-				<div id="admin_menu">';
+				<div id="admin_content">';
+
+	// It's possible that some pages have their own tabs they wanna force...
+// 	if (!empty($context['tabs']))
+		template_generic_menu_tabs($menu_context);
+}
+
+/**
+ * Part of the admin layer - used with generic_menu_dropdown_above to close the admin content div.
+ */
+function template_generic_menu_dropdown_below()
+{
+	echo '
+				</div>';
+}
+
+function template_generic_menu_mobile(&$menu_context)
+{
+	global $context, $txt;
+
+	// Load mobile menu here
+	echo '
+		<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
+		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
+			<div class="popup_window description">
+				<div class="popup_heading">', $txt['mobile_user_menu'],'
+				<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+				', template_generic_menu($menu_context), '
+			</div>
+		</div>
+		<script>
+			$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
+				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
+				});
+			$( ".hide_popup" ).click(function() {
+				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
+			});
+		</script>';
+}
+
+function template_generic_menu (&$menu_context)
+{
+	global $context;
+
+	echo '
+				<div id="generic_menu">';
 
 	echo '
 					<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
@@ -85,23 +135,6 @@ function template_generic_menu_dropdown_above()
 
 	echo '
 					</ul>
-				</div>';
-
-	// This is the main table - we need it so we can keep the content to the right of it.
-	echo '
-				<div id="admin_content">';
-
-	// It's possible that some pages have their own tabs they wanna force...
-// 	if (!empty($context['tabs']))
-		template_generic_menu_tabs($menu_context);
-}
-
-/**
- * Part of the admin layer - used with generic_menu_dropdown_above to close the admin content div.
- */
-function template_generic_menu_dropdown_below()
-{
-	echo '
 				</div>';
 }
 
