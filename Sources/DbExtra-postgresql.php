@@ -93,7 +93,7 @@ function smf_db_optimize_table($table)
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
 	$request = $smcFunc['db_query']('', '
-			VACUUM ANALYZE {raw:table}',
+			VACUUM FULL ANALYZE {raw:table}',
 			array(
 				'table' => $table,
 			)
