@@ -2882,9 +2882,13 @@ span.postby {
 	margin: -2px 0 0 23px;
 	font-size: 0.9em;
 }
+#ic_recentposts th {
+	text-align: left;
+	padding: 0 4px 0 0;
+}
 #ic_recentposts td {
 	border-top: 1px solid #eaeaea;
-	padding: 0 4px;
+	padding: 0 4px 0 0;
 	vertical-align: top;
 }
 #ic_recentposts tr:first-child td {
@@ -2956,19 +2960,23 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, 
+#topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	min-height: 4em;
+	min-height: 3.5em;
 }
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
+.icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
 	border: none;
+}
+.icons {
+	padding: 0 7px;
 }
 .moderation {
 	display: table-cell;
@@ -3400,7 +3408,9 @@ ul.post_options li {
 	margin: 6px;
 }
 /* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature, .attachments, .under_message, .custom_fields_above_signature {
+.signature, .attachments, .under_message,
+.custom_fields_above_signature,
+.custom_fields_below_signature {
 	width: 100%;
 	overflow: auto;
 	clear: right;
@@ -3413,11 +3423,6 @@ ul.post_options li {
 }
 .under_message {
 	overflow: visible;
-}
-.under_message:after {
-	clear: both;
-	content: "";
-	display: block;
 }
 /* Events */
 .edit_event {
