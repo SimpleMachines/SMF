@@ -2318,6 +2318,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2414,6 +2415,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2430,7 +2432,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
 		{
 			// Can't find it in this theme, how about the default?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
