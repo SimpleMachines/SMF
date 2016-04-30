@@ -1892,6 +1892,7 @@ function TrackIP($memID = 0)
 	//mysql didn't support like search with varbinary
 	//$ip_var = str_replace('*', '%', $context['ip']);
 	//$ip_string = strpos($ip_var, '%') === false ? '= {inet:ip_address}' : 'LIKE {string:ip_address}';
+	$ip_var = $context['ip'];
 	$ip_string = '= {inet:ip_address}';
 
 	if (empty($context['tracking_area']))
