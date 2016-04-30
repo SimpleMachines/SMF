@@ -92,12 +92,36 @@ function smf_db_optimize_table($table)
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
-	$request = $smcFunc['db_query']('', '
+	//pg below 9.0.0 is very slow on full vacuum
+	if (startWith(smf_db_get_version(),'8'))
+	{
+		$request = $smcFunc['db_query']('', '
+			CLUSTER {raw:table} ON {raw:table}_pkey',
+			array(
+				'table' => $table,
+			)
+		);
+		$request = $smcFunc['db_query']('', '
+			VALTER TABLE {raw:table} SET WITHOUT CLUSTER',
+			array(
+				'table' => $table,
+			)
+		);
+		$request = $smcFunc['db_query']('', '
 			VACUUM ANALYZE {raw:table}',
 			array(
 				'table' => $table,
 			)
 		);
+	} 
+	else
+		$request = $smcFunc['db_query']('', '
+				VACUUM FULL ANALYZE {raw:table}',
+				array(
+					'table' => $table,
+				)
+			);
+			
 	if (!$request)
 		return -1;
 
