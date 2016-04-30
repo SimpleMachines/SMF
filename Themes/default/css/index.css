@@ -390,6 +390,7 @@ h3.largetext {
 .bbc_img, .atc_img {
 	border: 0;
 	max-width: 100%;
+	height: auto;
 }
 .bbc_table {
 	font: inherit;
