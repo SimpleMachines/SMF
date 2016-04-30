@@ -5761,4 +5761,65 @@ function template_upgrade_complete()
 			Simple Machines';
 }
 
+/**
+ * Convert MySQL (var)char ip col to binary
+ * newCol needs to be a varbinary(16) null able field
+ * return true or false
+ */
+function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
+{
+	global $smcFunc;
+	
+	//mysql default max length is 1mb http://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
+	$max = 10000;
+	$arIp = array();
+	
+	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
+	$smcFunc['db_free_result']($request);
+	
+	$request = $smcFunc['db_query']('', 'CREATE TABLE {db_prefix}ip_table
+    (oldip varchar(255), newip varbinary(16) )
+    ENGINE = MEMORY');
+	$smcFunc['db_free_result']($request);
+	
+	$request = $smcFunc['db_query']('', 'SELECT DISTINCT '.$oldCol.' FROM {db_prefix}'.$targetTable);
+	while($row = $smcFunc['db_fetch_assoc']($request))
+		$arIp[] = $row[$oldCol]; 
+	$smcFunc['db_free_result']($request);
+	
+	$insertStart = 'INSERT INTO {db_prefix}ip_table(oldip, newip) VALUES';
+	$query = $insertStart;
+	$impArray = array();
+	$x = 0;
+	for($i = 0; $i < count($arIp); $i++)
+	{
+		$query .= $x > 0 ? ',':'';
+		$query .= '({string:ip'.$x.'},{inet:ip'.$x.'})';
+		$impArry['ip'.$x] = trim($arIp[$i]);
+
+		$x++;
+		if($x > $max)
+		{
+			$request = $smcFunc['db_query']('', $query, $impArray);
+			$smcFunc['db_free_result']($request);
+			$x = 0;
+			$query = $insertStart;
+			$impArray = array();
+		}
+	}
+	$request = $smcFunc['db_query']('', $query, $impArray);
+	$smcFunc['db_free_result']($request);
+	
+	$request = $smcFunc['db_query']('', 'UPDATE {db_prefix}'.$targetTable.' a
+	JOIN {db_prefix}ip_table b ON a.'.$oldCol.' = b.oldip
+	SET a.'.$newCol.' = b.newip');
+	$smcFunc['db_free_result']($request);
+	
+	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
+	$smcFunc['db_free_result']($request);
+	
+	return
+		true;
+}
+
 ?>

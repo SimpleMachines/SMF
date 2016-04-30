@@ -1926,3 +1926,139 @@ DROP ip_high2,
 DROP ip_high3,
 DROP ip_high4;
 ---#
+
+/******************************************************************************/
+--- update log_action ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update log_banned ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update log_errors members ip with ipv6 support
+/******************************************************************************/
+---# rename old columns
+ALTER TABLE {$db_prefix}members CHANGE member_ip member_ip_old varchar(200);
+ALTER TABLE {$db_prefix}members CHANGE member_ip2 member_ip2_old varchar(200);
+---#
+
+---# delete old column
+ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
+ALTER TABLE {$db_prefix}members ADD COLUMN member_ip2 VARBINARY(16);
+---#
+
+---# convert
+---{
+MySQLConvertOldIp('members','member_ip_old','member_ip');
+MySQLConvertOldIp('members','member_ip2_old','member_ip2');
+---}
+---#
+
+---# add the index again
+CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
+---#
+
+---#
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
+---#
+/******************************************************************************/
+--- update messages poster_ip with ipv6 support
+/******************************************************************************/
+---# rename old column
+ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+---#
+
+---# convert
+---{
+MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
+---}
+---#
+
+---# drop old column
+ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
+---#
+
+---# add the index again
+CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+---#
+
+/******************************************************************************/
+--- update log_floodcontrol ip with ipv6 support without converting
+/******************************************************************************/
+---# prep
+ALTER TABLE {$db_prefix}log_floodcontrol DROP PRIMARY KEY;
+TRUNCATE TABLE {$db_prefix}log_floodcontrol;
+---#
+
+---# delete old columns
+ALTER TABLE {$db_prefix}log_floodcontrol DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null ;
+---#
+
+---# create pk
+ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
+---#
+
+/******************************************************************************/
+--- update log_online ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old column
+ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update log_reported_comments member_ip with ipv6 support without converting
+/******************************************************************************/
+---# drop old column
+ALTER TABLE {$db_prefix}log_reported_comments DROP COLUMN member_ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update member_logins ip with ipv6 support without converting
+/******************************************************************************/
+---# drop old columns
+ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip;
+ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip2;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
+---#

@@ -1327,7 +1327,11 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 
 	$members = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$row['member_ip'] = inet_dtop($row['member_ip']);
+		$row['member_ip2'] = inet_dtop($row['member_ip2']);
 		$members[] = $row;
+	}
 	$smcFunc['db_free_result']($request);
 
 	// If we want duplicates pass the members array off.
@@ -1402,8 +1406,8 @@ function populateDuplicateMembers(&$members)
 		SELECT
 			id_member, member_name, email_address, member_ip, member_ip2, is_activated
 		FROM {db_prefix}members
-		WHERE member_ip IN ({array_string:ips})
-			OR member_ip2 IN ({array_string:ips})',
+		WHERE member_ip IN ({array_inet:ips})
+			OR member_ip2 IN ({array_inet:ips})',
 		array(
 			'ips' => $ips,
 		)
@@ -1413,6 +1417,8 @@ function populateDuplicateMembers(&$members)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		//$duplicate_ids[] = $row['id_member'];
+		$row['member_ip'] = inet_dtop($row['member_ip']);
+		$row['member_ip2'] = inet_dtop($row['member_ip2']);
 
 		$member_context = array(
 			'id' => $row['id_member'],
@@ -1438,7 +1444,7 @@ function populateDuplicateMembers(&$members)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_member != 0
 			' . (!empty($duplicate_ids) ? 'AND m.id_member NOT IN ({array_int:duplicate_ids})' : '') . '
-			AND m.poster_ip IN ({array_string:ips})',
+			AND m.poster_ip IN ({array_inet:ips})',
 		array(
 			'duplicate_ids' => $duplicate_ids,
 			'ips' => $ips,
@@ -1448,6 +1454,8 @@ function populateDuplicateMembers(&$members)
 	$had_ips = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$row['poster_ip'] = inet_dtop($row['poster_ip']);
+		
 		// Don't collect lots of the same.
 		if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']]))
 			continue;

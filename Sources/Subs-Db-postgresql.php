@@ -223,6 +223,27 @@ function smf_db_replacement__callback($matches)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
 		break;
+		
+		case 'array_inet':
+			if (is_array($replacement))
+			{
+				if (empty($replacement))
+					smf_db_error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				foreach ($replacement as $key => $value)
+				{
+					if ($replacement == 'null')
+						$replacement[$key] = 'null';
+					if (inet_pton($replacement) === false)
+						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					$replacement[$key] =  sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
+				}
+
+				return implode(', ', $replacement);
+			}
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
 
 		default:
 			smf_db_error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
@@ -279,14 +300,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'ban_suggest_error_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
-		'ban_suggest_message_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
