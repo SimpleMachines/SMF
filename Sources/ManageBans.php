@@ -573,7 +573,7 @@ function BanEdit()
 		}
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array(), 'smf_suggest');
 	$context['sub_template'] = 'ban_edit';
 
 }
@@ -1595,7 +1595,7 @@ function BanEditTrigger()
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array(), 'smf_suggest');
 
 	if (empty($ban_id))
 	{

@@ -424,7 +424,7 @@ function SelectMailingMembers()
 
 	$context['can_send_pm'] = allowedTo('pm_send');
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**

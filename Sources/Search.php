@@ -47,7 +47,7 @@ function PlushSearch1()
 	if (!isset($_REQUEST['xml']))
 	{
 		loadTemplate('Search');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 
 	// Check the user's permissions.
