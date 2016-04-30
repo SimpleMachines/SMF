@@ -2079,7 +2079,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
@@ -2089,15 +2089,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true, 'minimize' => true), 'smf_jquery_plugins');
+	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
+		loadJavascriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
 		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
+	loadJavascriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
 	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
