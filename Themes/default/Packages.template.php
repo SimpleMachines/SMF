@@ -156,11 +156,11 @@ function template_view_package()
 
 			echo '
 				<tr class="windowbg">
-					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
-					<td>', $i++, '.</td>
-					<td>', $packageaction['type'], '</td>
-					<td>', $packageaction['action'], '</td>
-					<td>', $packageaction['description'], '</td>
+					<td style="width: 5%;">', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
+					<td style="width: 5%;">', $i++, '.</td>
+					<td style="width: 20%;">', $packageaction['type'], '</td>
+					<td style="width: 50%;">', $packageaction['action'], '</td>
+					<td style="width: 20%";>', $packageaction['description'], '</td>
 				</tr>';
 
 			// Is there water on the knee? Operation!
@@ -169,7 +169,7 @@ function template_view_package()
 				echo '
 				<tr id="operation_', $action_num, '">
 					<td colspan="5" class="windowbg2">
-						<table width="100%">';
+						<table class="table_grid">';
 
 				// Show the operations.
 				$operation_num = 1;
@@ -180,12 +180,11 @@ function template_view_package()
 
 					echo '
 							<tr class="windowbg">
-								<td width="0"></td>
-								<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="generic_icons package_ops"></span></a></td>
-								<td width="30" class="smalltext">', $operation_num, '.</td>
-								<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
-								<td width="50%" class="smalltext">', $operation['action'], '</td>
-								<td width="20%" class="smalltext">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+								<td class="smalltext" style="width: 5%;"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="generic_icons package_ops"></span></a></td>
+								<td class="smalltext" style="width: 5%;">', $operation_num, '.</td>
+								<td class="smalltext" style="width: 20%;">', $txt[$operation_text], '</td>
+								<td class="smalltext" style="width: 50%;">', $operation['action'], '</td>
+								<td class="smalltext" style="width: 20%;">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
 							</tr>';
 
 					$operation_num++;

@@ -13,6 +13,8 @@ Packages/*.zip
 Packages/*/
 attachments/
 /upgrade.php
+Themes/default/css/minified.css
+Themes/default/scripts/minified.js
 
 # Compiled source #
 ###################
