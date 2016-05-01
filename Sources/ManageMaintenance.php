@@ -750,7 +750,7 @@ function OptimizeTables()
 		// Continue?
 		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 10)
 		{
-			$_REQUEST['start'] = $key - 1;
+			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 			$context['continue_percent'] = round(100 * $_REQUEST['start'] / $context['num_tables']);
 			$context['sub_template'] = 'not_done';

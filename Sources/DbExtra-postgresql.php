@@ -91,9 +91,28 @@ function smf_db_optimize_table($table)
 	global $smcFunc, $db_prefix;
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
+	
+	$pg_tables = array('pg_catalog','information_schema');
+	
+	$request = $smcFunc['db_query']('', '
+		SELECT pg_relation_size(C.oid) AS "size"
+		FROM pg_class C
+		LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+		WHERE nspname NOT IN ({array_string:pg_tables})
+		and relname = {string:table}',
+		array(
+			'table' => $table,
+			'pg_tables' => $pg_tables,
+		)
+	);
+	
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+	
+	$old_size = $row['size'];
 
 	//pg below 9.0.0 is very slow on full vacuum
-	if (startWith(smf_db_get_version(),'8'))
+	if (substr(smf_db_get_version(),1) == 8)
 	{
 		$request = $smcFunc['db_query']('', '
 			CLUSTER {raw:table} ON {raw:table}_pkey',
@@ -124,12 +143,25 @@ function smf_db_optimize_table($table)
 			
 	if (!$request)
 		return -1;
+	
+	$request = $smcFunc['db_query']('', '
+		SELECT pg_relation_size(C.oid) AS "size"
+		FROM pg_class C
+		LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+		WHERE nspname NOT IN ({array_string:pg_tables})
+		and relname = {string:table}',
+		array(
+			'table' => $table,
+			'pg_tables' => $pg_tables,
+		)
+	);
+	
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	if (isset($row['Data_free']))
-			return $row['Data_free'] / 1024;
+	if (isset($row['size']))
+			return ($old_size - $row['size']) / 1024;
 	else
 		return 0;
 }
