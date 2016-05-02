@@ -5775,12 +5775,10 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	$arIp = array();
 	
 	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
-	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', 'CREATE TABLE {db_prefix}ip_table
     (oldip varchar(255), newip varbinary(16) )
     ENGINE = MEMORY');
-	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', 'SELECT DISTINCT '.$oldCol.' FROM {db_prefix}'.$targetTable);
 	while($row = $smcFunc['db_fetch_assoc']($request))
@@ -5801,22 +5799,18 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 		if($x > $max)
 		{
 			$request = $smcFunc['db_query']('', $query, $impArray);
-			$smcFunc['db_free_result']($request);
 			$x = 0;
 			$query = $insertStart;
 			$impArray = array();
 		}
 	}
 	$request = $smcFunc['db_query']('', $query, $impArray);
-	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', 'UPDATE {db_prefix}'.$targetTable.' a
 	JOIN {db_prefix}ip_table b ON a.'.$oldCol.' = b.oldip
 	SET a.'.$newCol.' = b.newip');
-	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
-	$smcFunc['db_free_result']($request);
 	
 	return
 		true;
