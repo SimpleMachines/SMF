@@ -4856,6 +4856,9 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
+	if(empty($bin))
+		return '';
+	
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
