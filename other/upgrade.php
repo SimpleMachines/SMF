@@ -5795,7 +5795,7 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	{
 		$query .= $x > 0 ? ',':'';
 		$query .= '({string:ip'.$x.'},{inet:ip'.$x.'})';
-		$impArry['ip'.$x] = trim($arIp[$i]);
+		$impArray['ip'.$x] = trim($arIp[$i]);
 
 		$x++;
 		if($x > $max)
