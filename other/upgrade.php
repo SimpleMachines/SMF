@@ -5776,13 +5776,16 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	
 	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
 	
-	$request = $smcFunc['db_query']('', 'CREATE TABLE {db_prefix}ip_table
-    (oldip varchar(255), newip varbinary(16) )
-    ENGINE = MEMORY');
+	$request = $smcFunc['db_query']('', '
+		CREATE TABLE {db_prefix}ip_table
+		(oldip varchar(255), newip varbinary(16) )
+		ENGINE = MEMORY'
+		);
 	
 	$request = $smcFunc['db_query']('', 'SELECT DISTINCT '.$oldCol.' FROM {db_prefix}'.$targetTable);
 	while($row = $smcFunc['db_fetch_assoc']($request))
-		$arIp[] = $row[$oldCol]; 
+		if( isValidIP(trim($row[$oldCol])) )
+			$arIp[] = trim($row[$oldCol]); 
 	$smcFunc['db_free_result']($request);
 	
 	$insertStart = 'INSERT INTO {db_prefix}ip_table(oldip, newip) VALUES';
@@ -5793,7 +5796,7 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	{
 		$query .= $x > 0 ? ',':'';
 		$query .= '({string:ip'.$x.'},{inet:ip'.$x.'})';
-		$impArray['ip'.$x] = trim($arIp[$i]);
+		$impArray['ip'.$x] = $arIp[$i];
 
 		$x++;
 		if($x > $max)
@@ -5804,11 +5807,14 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 			$impArray = array();
 		}
 	}
-	$request = $smcFunc['db_query']('', $query, $impArray);
+	if(count($impArray) > 0)
+		$request = $smcFunc['db_query']('', $query, $impArray);
 	
-	$request = $smcFunc['db_query']('', 'UPDATE {db_prefix}'.$targetTable.' a
-	JOIN {db_prefix}ip_table b ON a.'.$oldCol.' = b.oldip
-	SET a.'.$newCol.' = b.newip');
+	$request = $smcFunc['db_query']('', '
+		UPDATE {db_prefix}'.$targetTable.' a
+		JOIN {db_prefix}ip_table b ON a.'.$oldCol.' = b.oldip
+		SET a.'.$newCol.' = b.newip'
+		);
 	
 	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
 	
