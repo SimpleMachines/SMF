@@ -2049,7 +2049,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
 				$blob_counter = 0;
-				while ($blob_counter <= count($blobs)) {
+				while ($blob_counter <= count($blobs))
+				{
 
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
 
@@ -2058,7 +2059,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
 
-					if ($match) $blob_counter = count($blobs) + 1;
+					if ($match)
+						$blob_counter = count($blobs) + 1;
 				}
 
 				// Didn't match our parameter list, try the next possible.
@@ -4858,7 +4860,7 @@ function inet_dtop($bin)
 {
 	if(empty($bin))
 		return '';
-	
+
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
