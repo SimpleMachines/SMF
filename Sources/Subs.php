@@ -3399,7 +3399,7 @@ function custMinify($data, $type, $do_deferred = false)
 	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
 
 	// File has to exists, if it isn't try to create it.
-	if (!file_exists($toCreate) && @fopen($toCreate, 'w')) === false)
+	if (!file_exists($toCreate) && @fopen($toCreate, 'w') === false)
 	{
 		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
 		return false;
