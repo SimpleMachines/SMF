@@ -1967,9 +1967,14 @@ ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# convert
+---# convert member_ip
 ---{
 MySQLConvertOldIp('members','member_ip_old','member_ip');
+---}
+---#
+
+---# convert member_ip2
+---{
 MySQLConvertOldIp('members','member_ip2_old','member_ip2');
 ---}
 ---#
@@ -1993,7 +1998,7 @@ ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# convert
+---# convert poster_ip
 ---{
 MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
 ---}
