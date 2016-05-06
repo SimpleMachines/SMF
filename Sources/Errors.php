@@ -111,10 +111,10 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 			array('id_error')
 		);
 		$last_error = $error_info;
-	}
 
-	// Increment our error count for the menu
-	$context['num_errors']++;
+		// Increment our error count for the menu
+		$context['num_errors']++;
+	}
 
 	// Return the message to make things simpler.
 	return $error_message;
