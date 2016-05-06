@@ -5778,8 +5778,9 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	
 	$request = $smcFunc['db_query']('', '
 		CREATE TABLE {db_prefix}ip_table
-		(oldip varchar(255), newip varbinary(16) )
-		ENGINE = MEMORY'
+		(oldip varchar(255) character set utf8 not null, 
+		newip varbinary(16) )
+		ENGINE = myisam'
 		);
 	
 	$request = $smcFunc['db_query']('', 'SELECT DISTINCT '.$oldCol.' FROM {db_prefix}'.$targetTable);
@@ -5809,6 +5810,10 @@ function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
 	}
 	if(count($impArray) > 0)
 		$request = $smcFunc['db_query']('', $query, $impArray);
+	
+	$request = $smcFunc['db_query']('', '
+		ALTER TABLE {db_prefix}ip_table ADD PRIMARY KEY(oldip)'
+	);
 	
 	$request = $smcFunc['db_query']('', '
 		UPDATE {db_prefix}'.$targetTable.' a
