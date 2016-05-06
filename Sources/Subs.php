@@ -3386,7 +3386,7 @@ function template_css()
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $smcFunc, $settings;
+	global $sourcedir, $smcFunc, $settings, $txt;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -3397,6 +3397,13 @@ function custMinify($data, $type, $do_deferred = false)
 
 	// What kind of file are we going to create?
 	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+	// File has to exists, if it isn't try to create it.
+	if (!file_exists($toCreate) && @fopen($toCreate, 'w')) === false)
+	{
+		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+		return false;
+	}
 
 	// Did we do this already?
 	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))

@@ -421,6 +421,8 @@ $txt['search_api_not_compatible'] = 'The selected search API the forum is using 
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
 
+$txt['file_not_created'] = 'The file at "%1$s" could not be created. Please make sure the parent directory has the appropiate permissions';
+
 // SubActions failed attempt.
 $txt['subAction_fail'] = 'The callable %s could not be called.';
 
