@@ -2355,3 +2355,36 @@ if ($doChange)
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
+
+/******************************************************************************/
+--- Update log_online ip with ipv6 support without converting
+/******************************************************************************/
+---# Delete old column log banned ip
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_online
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;");
+---}
+---#
+
+---# Add the new log banned ip
+ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
+---#
