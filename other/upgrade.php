@@ -110,6 +110,8 @@ if (isset($upgradeData))
 
 	$upcontext['started'] = $upcontext['user']['started'];
 	$upcontext['updated'] = $upcontext['user']['updated'];
+
+	$is_debug = !empty($upcontext['user']['debug']) ? true : false;
 }
 
 // Nothing sensible?
@@ -604,12 +606,17 @@ $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SM
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
+	global $is_debug;
+
 	$upcontext['upgrade_status'] = safe_unserialize(base64_decode($_GET['data']));
 	$upcontext['current_step'] = $upcontext['upgrade_status']['curstep'];
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 	$upcontext['rid'] = $upcontext['upgrade_status']['rid'];
-	$is_debug = $upcontext['upgrade_status']['debug'];
 	$support_js = $upcontext['upgrade_status']['js'];
+
+	// Only set this if the upgrader status says so.
+	if (empty($is_debug))
+		$is_debug = $upcontext['upgrade_status']['debug'];
 
 	// Load the language.
 	if (file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
@@ -674,7 +681,7 @@ upgradeExit();
 // Exit the upgrade script.
 function upgradeExit($fallThrough = false)
 {
-	global $upcontext, $upgradeurl, $boarddir, $command_line;
+	global $upcontext, $upgradeurl, $boarddir, $command_line, $is_debug;
 
 	// Save where we are...
 	if (!empty($upcontext['current_step']) && !empty($upcontext['user']['id']))
@@ -682,6 +689,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
+		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(safe_serialize($upcontext['user']));
 		copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 		changeSettings(array('upgradeData' => '"' . $upgradeData . '"'));
@@ -749,6 +757,26 @@ function upgradeExit($fallThrough = false)
 			template_upgrade_below();
 		else
 			template_xml_below();
+	}
+
+
+	if (!empty($command_line) && $is_debug)
+	{
+		$active = time() - $upcontext['started'];
+		$hours = floor($active / 3600);     
+		$minutes = intval(($active / 60) % 60);        
+		$seconds = intval($active % 60);     
+
+		$totalTime = '';
+		if ($hours > 0)
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+		if ($minutes > 0)
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+		if ($seconds > 0)
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+
+		if (!empty($totalTime))
+			echo "\n" . 'Upgrade completed in ' . $totalTime . "\n";
 	}
 
 	// Bang - gone!
@@ -2844,6 +2872,7 @@ function upgrade_query($string, $unbuffered = false)
 	if (!empty($upcontext['return_error']))
 	{
 		$upcontext['error_message'] = $db_error_message;
+		$upcontext['error_string'] = $string;
 		return false;
 	}
 
@@ -3120,6 +3149,7 @@ function checkChange(&$change)
 				'old_name' => $temp[1],
 				'new_name' => $temp[2],
 		));
+		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
 		if ($smcFunc['db_num_rows'] != 1)
 			return;
 
@@ -3136,6 +3166,7 @@ function checkChange(&$change)
 				'table' => $change['table'],
 		));
 		// Mayday!
+		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
 		if ($smcFunc['db_num_rows'] == 0)
 			return;
 
@@ -5047,6 +5078,9 @@ function template_database_changes()
 {
 	global $upcontext, $support_js, $is_debug, $timeLimitThreshold;
 
+	if (empty($is_debug) && !empty($upcontext['upgrade_status']['debug']))
+		$is_debug = true;
+
 	echo '
 		<h3>Executing database changes</h3>
 		<h4 style="font-style: italic;">Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!</h4>';
@@ -5065,7 +5099,30 @@ function template_database_changes()
 			echo '<br>' . $item;
 		}
 		if (!empty($upcontext['changes_complete']))
-			echo ' Successful!<br><br><span id="commess" style="font-weight: bold;">Database Updates Complete! Click Continue to Proceed.</span><br>';
+		{
+			$active = time() - $upcontext['started'];
+			$hours = floor($active / 3600);     
+			$minutes = intval(($active / 60) % 60);        
+			$seconds = intval($active % 60);     
+
+			if ($is_debug)
+			{
+				$totalTime = '';
+				if ($hours > 0)
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+				if ($minutes > 0)
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+				if ($seconds > 0)
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+			}
+
+			if ($is_debug && !empty($totalTime))
+				echo ' Successful! Completed in ', $totalTime, '<br><br>';
+			else
+				echo ' Successful!<br><br>';
+
+			echo '<span id="commess" style="font-weight: bold;">Database Updates Complete! Click Continue to Proceed.</span><br>';
+		}
 	}
 	else
 	{
@@ -5080,6 +5137,20 @@ function template_database_changes()
 
 		if ($is_debug)
 		{
+			if ($upcontext['current_debug_item_num'] == $upcontext['debug_items'])
+			{
+				$totalTime = '';
+				if ($hours > 0)
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+				if ($minutes > 0)
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+				if ($seconds > 0)
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+			}
+
+			if ($is_debug && !empty($totalTime))
+				echo '<br> Completed in ', $totalTime, '<br>';
+
 			echo '
 			<div id="debug_section" style="height: 200px; overflow: auto;">
 			<span id="debuginfo"></span>
@@ -5372,6 +5443,10 @@ function template_database_xml()
 	if (!empty($upcontext['error_message']))
 		echo '
 	<error>', $upcontext['error_message'], '</error>';
+
+	if (!empty($upcontext['error_string']))
+		echo '
+	<sql>', $upcontext['error_string'], '</sql>';
 }
 
 // Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
@@ -5672,6 +5747,11 @@ function template_serialize_json()
 			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
 			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
 
+	// Try to make sure substep was reset.
+	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
+		echo '
+			<input type="hidden" name="substep" id="substep" value="0">';
+
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
 
@@ -5734,7 +5814,7 @@ function template_serialize_json_xml()
 
 function template_upgrade_complete()
 {
-	global $upcontext, $upgradeurl, $settings, $boardurl;
+	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug;
 
 	echo '
 	<h3>That wasn\'t so hard, was it?  Now you are ready to use <a href="', $boardurl, '/index.php">your installation of SMF</a>.  Hope you like it!</h3>
@@ -5754,6 +5834,25 @@ function template_upgrade_complete()
 			</script>
 			<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
+	$active = time() - $upcontext['started'];
+	$hours = floor($active / 3600);     
+	$minutes = intval(($active / 60) % 60);        
+	$seconds = intval($active % 60);     
+
+	if ($is_debug)
+	{
+		$totalTime = '';
+		if ($hours > 0)
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+		if ($minutes > 0)
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+		if ($seconds > 0)
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+	}
+
+	if ($is_debug && !empty($totalTime))
+		echo '<br> Upgrade completed in ', $totalTime, '<br><br>';
+
 	echo '<br>
 			If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="http://www.simplemachines.org/community/index.php">look to us for assistance</a>.<br>
 			<br>
@@ -5766,54 +5865,72 @@ function template_upgrade_complete()
  * newCol needs to be a varbinary(16) null able field
  * return true or false
  */
-function MySQLConvertOldIp($targetTable,$oldCol,$newCol)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000)
 {
 	global $smcFunc;
-	
-	//mysql default max length is 1mb http://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
-	$max = 10000;
-	$arIp = array();
-	
-	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
-	
-	$request = $smcFunc['db_query']('', 'CREATE TABLE {db_prefix}ip_table
-    (oldip varchar(255), newip varbinary(16) )
-    ENGINE = MEMORY');
-	
-	$request = $smcFunc['db_query']('', 'SELECT DISTINCT '.$oldCol.' FROM {db_prefix}'.$targetTable);
-	while($row = $smcFunc['db_fetch_assoc']($request))
-		$arIp[] = $row[$oldCol]; 
-	$smcFunc['db_free_result']($request);
-	
-	$insertStart = 'INSERT INTO {db_prefix}ip_table(oldip, newip) VALUES';
-	$query = $insertStart;
-	$impArray = array();
-	$x = 0;
-	for($i = 0; $i < count($arIp); $i++)
-	{
-		$query .= $x > 0 ? ',':'';
-		$query .= '({string:ip'.$x.'},{inet:ip'.$x.'})';
-		$impArray['ip'.$x] = trim($arIp[$i]);
 
-		$x++;
-		if($x > $max)
-		{
-			$request = $smcFunc['db_query']('', $query, $impArray);
-			$x = 0;
-			$query = $insertStart;
-			$impArray = array();
-		}
+	// Skip this if we don't have the column
+	$request = $smcFunc['db_query']('', '
+		SHOW FIELDS
+		FROM {db_prefix}{raw:table}
+		WHERE Field = {string:name}',
+		array(
+			'table' => $targetTable,
+			'name' => $oldCol,
+	));
+	if ($smcFunc['db_num_rows']($request) !== 1)
+	{
+		$smcFunc['db_free_result']($request);
+		return;
 	}
-	$request = $smcFunc['db_query']('', $query, $impArray);
-	
-	$request = $smcFunc['db_query']('', 'UPDATE {db_prefix}'.$targetTable.' a
-	JOIN {db_prefix}ip_table b ON a.'.$oldCol.' = b.oldip
-	SET a.'.$newCol.' = b.newip');
-	
-	$request = $smcFunc['db_query']('', 'DROP TABLE IF EXISTS {db_prefix}ip_table');
-	
-	return
-		true;
+	$smcFunc['db_free_result']($request);
+
+	//mysql default max length is 1mb http://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
+	$arIp = array();
+
+	$is_done = false;
+	while (!$is_done)
+	{
+		nextSubStep($substep);
+
+		$request = $smcFunc['db_query']('', '
+			SELECT DISTINCT {raw:old_col}
+			FROM {db_prefix}{raw:table_name}
+			WHERE {raw:new_col} IS NULL
+			LIMIT {int:limit}',
+			array(
+				'old_col' => $oldCol,
+				'new_col' => $newCol,
+				'table_name' => $targetTable,
+				'empty' => '',
+				'limit' => $limit,
+		));
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$arIp[] = $row[$oldCol]; 
+		$smcFunc['db_free_result']($request);
+
+		// Special case, null ip could keep us in a loop.
+		if (is_null($arIp[0]))
+			unset($arIp[0]);
+
+		if (empty($arIp))
+			$is_done = true;
+
+		for ($i = 0; $i < count($arIp); $i++)
+			$request = $smcFunc['db_query']('', '
+				UPDATE {db_prefix}'.$targetTable.'
+				SET '.$newCol.' = {inet:ip'.$x.'}
+				WHERE '.$oldCol.' = {string:ip'.$x.'}',
+				array(
+					'ip'.$x => trim($arIp[$i])
+				)
+			);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+	}
+
+	unset($_GET['a']);
 }
 
 ?>

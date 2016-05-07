@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
 	id_member MEDIUMINT(8) NOT NULL,
 	time INT(10) NOT NULL,
-	ip VARCHAR(255) NOT NULL DEFAULT '',
-	ip2 VARCHAR(255) NOT NULL DEFAULT '',
+	ip VARBINARY(16) NOT NULL DEFAULT '',
+	ip2 VARBINARY(16) NOT NULL DEFAULT '',
 	PRIMARY KEY id_login(id_login),
 	INDEX idx_id_member (id_member),
 	INDEX idx_time (time)
@@ -185,7 +185,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Converting legacy attachments.
 ---{
-
 // Need to know a few things first.
 $custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
 
@@ -1824,53 +1823,83 @@ ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Converting old bbcodes
 /******************************************************************************/
----# Replacing [br] with &lt;br&gt;
+---# Replacing [br] with &lt;br&gt; on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
+---#
+
+---# Replacing [br] with &lt;br&gt; on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
 ---#
 
----# Replacing [acronym] with [abbr]
+---# Replacing [acronym] with [abbr] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
+---#
+
+---# Replacing [acronym] with [abbr] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
 ---#
 
----# Replacing [tt] with [font=monospace]
+---# Replacing [tt] with [font=monospace] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
+---#
+
+---# Replacing [tt] with [font=monospace] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
 ---#
 
----# Replacing [bdo=ltr] with [ltr]
+---# Replacing [bdo=ltr] with [ltr] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
+---#
+
+---# Replacing [bdo=ltr] with [ltr] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
 ---#
 
----# Replacing [bdo=rtl] with [rtl]
+---# Replacing [bdo=rtl] with [rtl] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
+---#
+
+---# Replacing [bdo=rtl] with [rtl] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
 ---#
 
----# Replacing [black] with [color=black]
+---# Replacing [black] with [color=black] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
+---#
+
+---# Replacing [black] with [color=black] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
 ---#
 
----# Replacing [white] with [color=white]
+---# Replacing [white] with [color=white] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
+---#
+
+---# Replacing [white] with [color=white] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
 ---#
 
----# Replacing [red] with [color=red]
+---# Replacing [red] with [color=red] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
+---#
+
+---# Replacing [red] with [color=red] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
 ---#
 
----# Replacing [green] with [color=green]
+---# Replacing [green] with [color=green] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
+---#
+
+---# Replacing [green] with [color=green] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
 ---#
 
----# Replacing [blue] with [color=blue]
+---# Replacing [blue] with [color=blue] on messages
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
+---#
+
+---# Replacing [blue] with [color=blue] on pms
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 ---#
 
@@ -1889,12 +1918,13 @@ DROP INDEX idx_id_board on {$db_prefix}topics;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
----# add columns
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low varbinary(16);
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
+---# add columns to ban_items
+ALTER TABLE {$db_prefix}ban_items
+ADD COLUMN ip_low varbinary(16),
+ADD COLUMN ip_high varbinary(16);
 ---#
 
----# convert data
+---# convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
     UNHEX(
@@ -1911,7 +1941,7 @@ ip_high =
 where ip_low1 > 0;
 ---#
 
----#  index
+---#  create new index on ban_items
 CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
 ---#
 
@@ -1930,8 +1960,30 @@ DROP ip_high4;
 /******************************************************************************/
 --- update log_action ip with ipv6 support without converting
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
+---# Remove the old ip column
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_actions
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;");
+---}
 ---#
 
 ---# add the new one
@@ -1941,124 +1993,362 @@ ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16);
 /******************************************************************************/
 --- update log_banned ip with ipv6 support without converting
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
+---# delete old column log banned ip
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_banned
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;");
+---}
 ---#
 
----# add the new one
+---# add the new log banned ip
 ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update log_errors members ip with ipv6 support
+--- update log_errors ip with ipv6 support
 /******************************************************************************/
----# rename old columns
-ALTER TABLE {$db_prefix}members CHANGE member_ip member_ip_old varchar(200);
-ALTER TABLE {$db_prefix}members CHANGE member_ip2 member_ip2_old varchar(200);
+---# delete old log errors ip column
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_errors
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;");
+---}
 ---#
 
----# delete old column
-ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;
----#
-
----# add the new one
+---# add the new ip columns to log errors
 ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
-ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
-ALTER TABLE {$db_prefix}members ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# convert
+---# add the ip index for log errors
+CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
+---#
+
+/******************************************************************************/
+--- update members ip with ipv6 support
+/******************************************************************************/
+---# rename old ip columns on members
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}members
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'member_ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+{
+	upgrade_query("ALTER TABLE {$db_prefix}members CHANGE member_ip member_ip_old varchar(200);");
+	upgrade_query("ALTER TABLE {$db_prefix}members CHANGE member_ip2 member_ip2_old varchar(200);");
+}
+---}
+---#
+
+---# add the new ip columns to members
+ALTER TABLE {$db_prefix}members
+ADD COLUMN member_ip VARBINARY(16),
+ADD COLUMN member_ip2 VARBINARY(16);
+---#
+
+---# create a ip index for old ips
+---{
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}members
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'member_ip_old',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	upgrade_query("CREATE INDEX {$db_prefix}temp_old_ip ON {$db_prefix}members (member_ip_old);");
+	upgrade_query("CREATE INDEX {$db_prefix}temp_old_ip2 ON {$db_prefix}members (member_ip2_old);");
+}
+$smcFunc['db_free_result']($request);
+---}
+---#
+
+---# convert member ips
 ---{
 MySQLConvertOldIp('members','member_ip_old','member_ip');
+---}
+
+---# convert member ips2
+---{
 MySQLConvertOldIp('members','member_ip2_old','member_ip2');
 ---}
 ---#
 
----# add the index again
-CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
----#
-
----#
+---# Remove the old member columns
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
+---#
+
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_ip on {$db_prefix}messages;
+DROP INDEX temp_old_ip2 on {$db_prefix}messages;
 ---#
 /******************************************************************************/
 --- update messages poster_ip with ipv6 support
 /******************************************************************************/
----# rename old column
-ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);
+---# rename old ip column on messages
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}messages
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'poster_ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);");
+---}
 ---#
 
----# add the new one
+---# add the new ip column to messages
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# convert
+---# create a ip index for old ips
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}members
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'member_ip_old',
+));
+if ($smcFunc['db_num_rows']($request) == 0)
+	$doChange = false;
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("CREATE INDEX {$db_prefix}temp_old_poster_ip ON {$db_prefix}messages (poster_ip_old);");
+---}
+---#
+
+---# convert ips on messages
 ---{
 MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
 ---}
 ---#
 
----# drop old column
+---# drop old column to messages
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
----# add the index again
+---# add the index again to mesages
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+---#
+
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ---#
 
 /******************************************************************************/
 --- update log_floodcontrol ip with ipv6 support without converting
 /******************************************************************************/
----# prep
-ALTER TABLE {$db_prefix}log_floodcontrol DROP PRIMARY KEY;
-TRUNCATE TABLE {$db_prefix}log_floodcontrol;
+---# prep floodcontrol
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_floodcontrol
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+{
+	upgrade_query("TRUNCATE TABLE {$db_prefix}log_floodcontrol;");
+	upgrade_query("ALTER TABLE {$db_prefix}log_floodcontrol DROP PRIMARY KEY;");
+	upgrade_query("ALTER TABLE {$db_prefix}log_floodcontrol DROP COLUMN ip;");
+}
+---}
 ---#
 
----# delete old columns
-ALTER TABLE {$db_prefix}log_floodcontrol DROP COLUMN ip;
+---# add the new floodcontrol ip column
+ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null;
 ---#
 
----# add the new one
-ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null ;
----#
-
----# create pk
+---# create primary key for floodcontrol
 ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
 ---#
 
 /******************************************************************************/
 --- update log_online ip with ipv6 support without converting
 /******************************************************************************/
----# delete old column
-ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;
+---# delete the old ip column for log online
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_online
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;");
+---}
 ---#
 
----# add the new one
+---# add the new ip column for log online
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
 --- update log_reported_comments member_ip with ipv6 support without converting
 /******************************************************************************/
----# drop old column
-ALTER TABLE {$db_prefix}log_reported_comments DROP COLUMN member_ip;
+---# drop old ip column for reported comments
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}log_reported_comments
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'member_ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+	upgrade_query("ALTER TABLE {$db_prefix}log_reported_comments DROP COLUMN member_ip;");
+---}
 ---#
 
----# add the new one
+---# add the new ip column for reported comments
 ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
 --- update member_logins ip with ipv6 support without converting
 /******************************************************************************/
----# drop old columns
-ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip;
-ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip2;
+---# drop old ip columns for member logins
+---{
+$doChange = true;
+// Get the details about this change.
+$request = $smcFunc['db_query']('', '
+	SHOW FIELDS
+	FROM {db_prefix}member_logins
+	WHERE Field = {string:name}',
+	array(
+		'name' => 'ip',
+));
+if ($smcFunc['db_num_rows']($request) == 1)
+{
+	list (, $columnType) = $smcFunc['db_fetch_row']($request);
+
+	// This hasn't been converted yet.
+	if (stripos($columnType, 'varbinary') !== false)
+		$doChange = false;
+}
+$smcFunc['db_free_result']($request);
+
+if ($doChange)
+{
+	upgrade_query("ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip;");
+	upgrade_query("ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip2;");
+}
+---}
 ---#
 
----# add the new one
+---# add the new ip columns for member logins
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
