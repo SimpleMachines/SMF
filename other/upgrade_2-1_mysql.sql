@@ -1904,27 +1904,27 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 ---#
 
 /******************************************************************************/
---- remove redundant index
+--- Remove redundant indexes
 /******************************************************************************/
----# duplicate to messages_current_topic
+---# Duplicates to messages_current_topic
 DROP INDEX idx_id_topic on {$db_prefix}messages;
 DROP INDEX idx_topic on {$db_prefix}messages;
 ---#
 
----# duplicate to topics_last_message_sticky and topics_board_news
+---# Duplicate to topics_last_message_sticky and topics_board_news
 DROP INDEX idx_id_board on {$db_prefix}topics;
 ---#
 
 /******************************************************************************/
---- update ban ip with ipv6 support
+--- Update ban ip with ipv6 support
 /******************************************************************************/
----# add columns to ban_items
+---# Add columns to ban_items
 ALTER TABLE {$db_prefix}ban_items
 ADD COLUMN ip_low varbinary(16),
 ADD COLUMN ip_high varbinary(16);
 ---#
 
----# convert data for ban_items
+---# Convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
     UNHEX(
@@ -1941,7 +1941,7 @@ ip_high =
 where ip_low1 > 0;
 ---#
 
----#  create new index on ban_items
+---# Create new index on ban_items
 CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
 ---#
 
@@ -1958,7 +1958,7 @@ DROP ip_high4;
 ---#
 
 /******************************************************************************/
---- update log_action ip with ipv6 support without converting
+--- Update log_action ip with ipv6 support without converting
 /******************************************************************************/
 ---# Remove the old ip column
 ---{
@@ -1986,14 +1986,14 @@ if ($doChange)
 ---}
 ---#
 
----# add the new one
+---# Add the new one
 ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update log_banned ip with ipv6 support without converting
+--- Update log_banned ip with ipv6 support without converting
 /******************************************************************************/
----# delete old column log banned ip
+---# Delete old column log banned ip
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2019,14 +2019,14 @@ if ($doChange)
 ---}
 ---#
 
----# add the new log banned ip
+---# Add the new log banned ip
 ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update log_errors ip with ipv6 support
+--- Update log_errors ip with ipv6 support
 /******************************************************************************/
----# delete old log errors ip column
+---# Delete old log errors ip column
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2052,18 +2052,18 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip columns to log errors
+---# Add the new ip columns to log errors
 ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
 ---#
 
----# add the ip index for log errors
+---# Add the ip index for log errors
 CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 ---#
 
 /******************************************************************************/
---- update members ip with ipv6 support
+--- Update members ip with ipv6 support
 /******************************************************************************/
----# rename old ip columns on members
+---# Rename old ip columns on members
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2092,13 +2092,13 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip columns to members
+---# Add the new ip columns to members
 ALTER TABLE {$db_prefix}members
 ADD COLUMN member_ip VARBINARY(16),
 ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# create a ip index for old ips
+---# Create a ip index for old ips
 ---{
 // Get the details about this change.
 $request = $smcFunc['db_query']('', '
@@ -2117,12 +2117,12 @@ $smcFunc['db_free_result']($request);
 ---}
 ---#
 
----# convert member ips
+---# Convert member ips
 ---{
 MySQLConvertOldIp('members','member_ip_old','member_ip');
 ---}
 
----# convert member ips2
+---# Convert member ips2
 ---{
 MySQLConvertOldIp('members','member_ip2_old','member_ip2');
 ---}
@@ -2138,9 +2138,9 @@ DROP INDEX temp_old_ip on {$db_prefix}messages;
 DROP INDEX temp_old_ip2 on {$db_prefix}messages;
 ---#
 /******************************************************************************/
---- update messages poster_ip with ipv6 support
+--- Update messages poster_ip with ipv6 support (May take a while)
 /******************************************************************************/
----# rename old ip column on messages
+---# Rename old ip column on messages
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2166,11 +2166,11 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip column to messages
+---# Add the new ip column to messages
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# create a ip index for old ips
+---# Create a ip index for old ips
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2190,18 +2190,21 @@ if ($doChange)
 ---}
 ---#
 
----# convert ips on messages
+---# Convert ips on messages
 ---{
 MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
 ---}
 ---#
 
----# drop old column to messages
+---# Drop old column to messages
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
----# add the index again to mesages
+---# Add the index again to mesages poster ip topic
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+---#
+
+---# Add the index again to mesages poster ip msg
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
 
@@ -2210,9 +2213,9 @@ DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ---#
 
 /******************************************************************************/
---- update log_floodcontrol ip with ipv6 support without converting
+--- Update log_floodcontrol ip with ipv6 support without converting
 /******************************************************************************/
----# prep floodcontrol
+---# Prep floodcontrol
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2242,18 +2245,18 @@ if ($doChange)
 ---}
 ---#
 
----# add the new floodcontrol ip column
+---# Add the new floodcontrol ip column
 ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null;
 ---#
 
----# create primary key for floodcontrol
+---# Create primary key for floodcontrol
 ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
 ---#
 
 /******************************************************************************/
---- update log_online ip with ipv6 support without converting
+--- Update log_online ip with ipv6 support without converting
 /******************************************************************************/
----# delete the old ip column for log online
+---# Delete the old ip column for log online
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2279,14 +2282,14 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip column for log online
+---# Add the new ip column for log online
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update log_reported_comments member_ip with ipv6 support without converting
+--- Update log_reported_comments member_ip with ipv6 support without converting
 /******************************************************************************/
----# drop old ip column for reported comments
+---# Drop old ip column for reported comments
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2312,14 +2315,14 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip column for reported comments
+---# Add the new ip column for reported comments
 ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update member_logins ip with ipv6 support without converting
+--- Update member_logins ip with ipv6 support without converting
 /******************************************************************************/
----# drop old ip columns for member logins
+---# Drop old ip columns for member logins
 ---{
 $doChange = true;
 // Get the details about this change.
@@ -2348,7 +2351,7 @@ if ($doChange)
 ---}
 ---#
 
----# add the new ip columns for member logins
+---# Add the new ip columns for member logins
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
 ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
