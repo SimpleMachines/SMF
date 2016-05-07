@@ -341,7 +341,7 @@ CREATE TABLE {$db_prefix}log_errors (
   PRIMARY KEY (id_error),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member),
-  INDEX idx_ip (ip(16))
+  INDEX idx_ip (ip)
 ) ENGINE={$engine};
 
 #
@@ -352,7 +352,7 @@ CREATE TABLE {$db_prefix}log_floodcontrol (
   ip VARBINARY(16),
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   log_type VARCHAR(8) DEFAULT 'post',
-  PRIMARY KEY (ip(16), log_type(8))
+  PRIMARY KEY (ip, log_type(8))
 ) ENGINE={$memory};
 
 #
@@ -418,7 +418,7 @@ CREATE TABLE {$db_prefix}log_online (
   log_time INT(10) NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  ip INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  ip VARBINARY(16),
   url VARCHAR(1024) NOT NULL,
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
@@ -792,7 +792,7 @@ CREATE TABLE {$db_prefix}messages (
   UNIQUE idx_id_board (id_board, id_msg),
   UNIQUE idx_id_member (id_member, id_msg),
   INDEX idx_approved (approved),
-  INDEX idx_ip_index (poster_ip(15), id_topic),
+  INDEX idx_ip_index (poster_ip, id_topic),
   INDEX idx_participation (id_member, id_topic),
   INDEX idx_show_posts (id_member, id_board),
   INDEX idx_id_member_msg (id_member, approved, id_msg),
