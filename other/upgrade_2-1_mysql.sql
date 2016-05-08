@@ -685,31 +685,57 @@ VALUES (0, 'member_group_request', 1),
 
 ---# Upgrading post notification settings
 ---{
+$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+$step_progress['name'] = 'Upgrading post notification settings';
+$step_progress['current'] = $_GET['a'];
+
+$limit = 100000;
+$is_done = false;
+
+$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+while (!$is_done)
+{
+	nextSubStep($substep);
+	$inserts = array();
+
 	// Skip errors here so we don't croak if the columns don't exist...
-	$existing_notify = $smcFunc['db_query']('', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member, notify_regularity, notify_send_body, notify_types
-		FROM {db_prefix}members',
+		FROM {db_prefix}members
+		LIMIT {int:start}, {int:limit}',
 		array(
 			'db_error_skip' => true,
+			'start' => $_GET['a'],
+			'limit' => $limit,
 		)
 	);
-	if (!empty($existing_notify))
+	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
 		{
-			$smcFunc['db_insert']('ignore',
-				'{db_prefix}user_alerts_prefs',
-				array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-				array(
-					array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-					array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-					array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-				),
-				array('id_member', 'alert_pref')
-			);
+			$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
+			$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
+			$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 		}
 		$smcFunc['db_free_result']($existing_notify);
 	}
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}user_alerts_prefs',
+		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+		$inserts,
+		array('id_member', 'alert_pref')
+	);
+
+	$_GET['a'] += $limit;
+	$step_progress['current'] = $_GET['a'];
+
+	if ($step_progress['current'] >= $maxMembers)
+		$is_done = true;
+}
+unset($_GET['a']);
 ---}
 ---#
 
@@ -962,42 +988,69 @@ $select_columns = array_intersect($possible_columns, $results);
 
 if (!empty($select_columns))
 {
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, '. implode(',', $select_columns) .'
-		FROM {db_prefix}members');
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Converting member values';
+	$step_progress['current'] = $_GET['a'];
 
-	$inserts = array();
-	$genderTypes = array(1 => 'Male', 2 => 'Female');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+	$limit = 10000;
+	$is_done = false;
+
+	while (!$is_done)
 	{
-		if (!empty($row['aim']))
-			$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
+		nextSubStep($substep);
+		$inserts = array();
 
-		if (!empty($row['icq']))
-			$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, '. implode(',', $select_columns) .'
+			FROM {db_prefix}members
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $_GET['a'],
+				'limit' => $limit,
+		));
 
-		if (!empty($row['msn']))
-			$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
+		$genderTypes = array(1 => 'Male', 2 => 'Female');
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['aim']))
+				$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
 
-		if (!empty($row['yim']))
-			$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
+			if (!empty($row['icq']))
+				$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
 
-		if (!empty($row['location']))
-			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
+			if (!empty($row['msn']))
+				$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
 
-		if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
-			$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+			if (!empty($row['yim']))
+				$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
+
+			if (!empty($row['location']))
+				$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
+
+			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
+				$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+		}
+		$smcFunc['db_free_result']($request);
+
+		if (!empty($inserts))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+				$inserts,
+				array('id_theme', 'id_member', 'variable')
+			);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
 	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($inserts))
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			$inserts,
-			array('id_theme', 'id_member', 'variable')
-		);
 }
+unset($_GET['a']);
 ---}
 ---#
 
@@ -1144,7 +1197,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 ) ENGINE=MyISAM;
 ---#
 
----# Adding count to the messages table.
+---# Adding count to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 ---#
@@ -1458,7 +1511,7 @@ ALTER TABLE {$db_prefix}pm_recipients
 ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 ---#
 
----# Moving label info to new tables and updating rules...
+---# Moving label info to new tables and updating rules (May be slow!!!)
 ---{
 	// First see if we still have a message_labels column
 	$results = $smcFunc['db_list_columns']('{db_prefix}members');
@@ -1619,9 +1672,9 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 ---#
 
 /******************************************************************************/
---- Adding support for edit reasons
+--- Adding support for edit reasons (May take a while)
 /******************************************************************************/
----# Adding "modified_reason" column to messages
+---# Adding "modified_reason" column to messages (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 ---#
