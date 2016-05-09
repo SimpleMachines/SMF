@@ -3322,6 +3322,7 @@ function template_css()
 	call_integration_hook('integrate_pre_css_output');
 
 	$toMinify = array();
+	$normal = array();
 
 	foreach ($context['css_files'] as $id => $file)
 	{
@@ -3340,8 +3341,7 @@ function template_css()
 		}
 
 		else
-			echo '
-	<link rel="stylesheet" href="', $file['filename'] ,'">';
+			$normal[] = $file['filename'];
 	}
 
 	if (!empty($toMinify))
@@ -3352,6 +3352,11 @@ function template_css()
 	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
 	}
 
+	// Print the rest after the minified files.
+	if (!empty($normal))
+		foreach ($normal as $nf)
+			echo '
+	<link rel="stylesheet" href="', $nf ,'">';
 
 	if ($db_show_debug === true)
 	{
