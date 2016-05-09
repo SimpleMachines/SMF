@@ -63,11 +63,17 @@ function smf_fileUpload(oOptions)
 			// This file has reached the max total size per post.
 			if (myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+
+				// File is cancel.
+				file.status = Dropzone.CANCELED;
 			}
 
 			// The file is too big.
 			if ((file.size * 0.001) > myDropzone.options.maxFilesize){
 				done(myDropzone.options.dictFileTooBig);
+
+				// File is cancel.
+				file.status = Dropzone.CANCELED;
 
 				// File wasn't accepted so remove its size.
 				myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
