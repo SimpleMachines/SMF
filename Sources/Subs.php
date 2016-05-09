@@ -3271,7 +3271,7 @@ function template_javascript($do_deferred = false)
 
 		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
 			echo '
-	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
+	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 	}
 
 	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
@@ -3279,7 +3279,7 @@ function template_javascript($do_deferred = false)
 		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
 		echo '
-	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
+	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3341,7 +3341,7 @@ function template_css()
 		}
 
 		else
-			$normal[] = $file['filename'];
+			$normal[] = $file['fileUrl'];
 	}
 
 	if (!empty($toMinify))
@@ -3349,7 +3349,7 @@ function template_css()
 		custMinify($toMinify, 'css');
 
 		echo '
-	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
 	}
 
 	// Print the rest after the minified files.
@@ -3391,7 +3391,7 @@ function template_css()
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $smcFunc, $settings, $txt;
+	global $sourcedir, $smcFunc, $settings, $txt, $context;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -3400,22 +3400,20 @@ function custMinify($data, $type, $do_deferred = false)
 	if (empty($type) || empty($data))
 		return false;
 
-	// What kind of file are we going to create?
-	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+	// Did we already did this?
+	$toCache = cache_get_data('minimized_'. $type, 86400);
 
-	// File has to exists, if it isn't try to create it.
-	if (!file_exists($toCreate) && @fopen($toCreate, 'w') === false)
-	{
-		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		return false;
-	}
-
-	// Did we do this already?
-	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
+	// Already done?
+	if (!empty($toCache))
 		return true;
 
-	// No namespaces, sorry!
-	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
+	// Get all themes. Because reasons!
+	require_once $sourcedir . '/Subs-Themes.php';
+	get_all_themes(true);
+
+	// Some globals witchcraft.
+	if (empty($context['themes']))
+		return false;
 
 	// Yep, need a bunch of files.
 	require_once $sourcedir . '/minify/src/Minify.php';
@@ -3423,17 +3421,62 @@ function custMinify($data, $type, $do_deferred = false)
 	require_once $sourcedir . '/minify/src/Exception.php';
 	require_once $sourcedir . '/minify/src/Converter.php';
 
-	$minifier = new $classType();
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 
-	foreach ($data as $file)
-		$minifier->add(str_replace($file['options']['seed'], '', $file['filepath']));
+	foreach ($context['themes'] as $cTheme)
+	{
+		// Temp path.
+		$cTempPath = $cTheme['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+		$cDefaultThemePath = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
 
-	// Create the file.
-	$minifier->minify($toCreate);
-	unset($minifier);
+		// What kind of file are we going to create?
+		$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+		// File has to exists, if it isn't try to create it.
+		if (!file_exists($toCreate) && @fopen($toCreate, 'w') === false)
+		{
+			loadLanguage('Errors');
+			log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+			continue;
+		}
+
+		$minifier = new $classType();
+
+		foreach ($data as $file)
+		{
+			$toAdd = '';
+
+			// Check if the file exists on this theme, if not use the default one.
+			if (file_exists($cTempPath . $file['fileName']))
+				$toAdd = $cTempPath . $file['fileName'];
+
+			// Perhaps the default theme has it?
+			else if (file_exists($cDefaultThemePath . $file['fileName']))
+				$toAdd = $cDefaultThemePath . $file['fileName'];
+
+			// The file couldn't be located so it won't be added, log this error.
+			if (empty($toAdd))
+			{
+				loadLanguage('Errors');
+				log_error(sprintf($txt['file_minimize_fail'], $file['fileName']), 'general');
+				continue;
+			}
+
+			// Add this file to the list.
+			$minifier->add($toAdd);
+		}
+
+		// Create the file.
+		$minifier->minify($toCreate);
+		unset($minifier);
+
+		// Store this for the cache to know which files were created.
+		$toCache[] = $toCreate;
+	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_'. $type, $type, 86400);
+	cache_put_data('minimized_'. $type, (!empty($toCache) ? $toCache : null), 86400);
 
 	return true;
 }

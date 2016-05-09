@@ -422,6 +422,7 @@ $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be l
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
 
 $txt['file_not_created'] = 'The file at "%1$s" could not be created. Please make sure the parent directory has the appropiate permissions';
+$txt['file_minimize_fail'] = 'The file "%1$s" could not be located on the current or the default theme and therefore it wasn\'t included in the minified file.';
 
 // SubActions failed attempt.
 $txt['subAction_fail'] = 'The callable %s could not be called.';
