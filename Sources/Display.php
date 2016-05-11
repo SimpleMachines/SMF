@@ -1389,7 +1389,7 @@ function prepareDisplayContext($reset = false)
 	censorText($message['subject']);
 
 	// Run BBC interpreter on the message.
-	$context['lightbox_id'] = 'topic-'. $topic .'_msg-'. $message['id_msg'];
+	$context['lbimage_data'] = array('id_msg' => $message['id_msg'], 'lightbox_id' => (empty($modSettings['use_lightbox']) ? null : 'topic-'. $topic .'-msg-'. $message['id_msg']));
 	$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 
 	// If it's in the recycle bin we need to override whatever icon we did have.

@@ -1141,8 +1141,6 @@ function loadAttachmentContext($id_msg, $attachments)
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
 			);
-			if (isset($context['lightbox_id']))
-				$attachmentData[$i]['lightbox_id'] = $context['lightbox_id'];
 
 			// If something is unapproved we'll note it so we can sort them.
 			if (!$attachment['approved'])

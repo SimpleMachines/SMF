@@ -1605,6 +1605,12 @@ function create_control_richedit($editorOptions)
 		loadCSSFile('jquery.sceditor.css', array('force_current' => false, 'validate' => true), 'smf_jquery_sceditor');
 		loadTemplate('GenericControls');
 
+		// convert text vars for JS
+		foreach($txt['days_short'] as $i => $val)
+			$shortdays[$i] = addcslashes($val, "'");
+		foreach($txt['months_short'] as $i => $val)
+			$shortmonths[$i] = addcslashes($val, "'");
+
 		// JS makes the editor go round
 		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
 		loadJavascriptFile('jquery.sceditor.bbcode.min.js', array('default_theme' => true), 'smf_sceditor_bbcode');
@@ -1613,7 +1619,10 @@ function create_control_richedit($editorOptions)
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
 		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
-		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
+		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';
+		var bbc_days = new Array(\''. implode('\',\'', $shortdays) .'\');
+		var bbc_months = new Array(\''. implode('\',\'', $shortmonths) .'\');');
+
 		// editor language file
 		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
 			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array('external' => true), 'sceditor_language');

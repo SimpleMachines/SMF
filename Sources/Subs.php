@@ -1086,10 +1086,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $sourcedir, $txt)
 				{
+					global $context;
+
 					$returnContext = '';
-					$currentAttachment['lightbox_id'] = 'none';
 
 					// BBC or the entire attachments feature is disabled
 					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
@@ -1105,52 +1106,37 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? array($txt[$currentAttachment]) : $currentAttachment;
+						return $data = !empty($txt[$currentAttachment]) ? array(0 => $txt[$currentAttachment]) : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						if (!isset($currentAttachment['lightbox_id']))
-							$currentAttachment['lightbox_id'] = '';
+						// width, height, alt, class set?
+						$width = $height = $alt = $class = '';
+						if (isset($context['lbimage_data']['class']) && !empty($context['lbimage_data']['class']))
+							$class = ' class="'. $context['lbimage_data']['class'] .'"';
 
-						// width, height, alt set?
-						$style = '';
-						$alt = '';
-						if (preg_match('/alt=(\S+|$)/', $data[1], $altstr) && isset($altstr[1]))
-							$alt = $altstr[1];
+						if (preg_match('/alt=(\S+|$)/', $data[1], $tempalt) && isset($tempalt[1]))
+							$alt = ' alt="'. $tempalt[1] .'"';
 
-						if (preg_match('/width=([0-9]+)/', $data[1], $width) || preg_match('/height=([0-9]+)/', $data[1], $height))
+						if(preg_match('/width=([0-9]+)/', $data[1], $tmpwidth) >= 0 && preg_match('/height=([0-9]+)/', $data[1], $tmpheight) >= 0)
 						{
-							if (isset($width[1]) && isset($height[1]))
-								$style = ' style="max-width:'. $width[1] .'px;max-height:'. $height[1] .'px;"';
-							elseif (isset($width[1]))
-								$style = ' style="max-width:'. $width[1] .'px;height:auto;"';
-							elseif (isset($height[1]))
-								$style = ' style="width:auto;max-height:'. $height[1] .';"';
+							$width = isset($tmpwidth[1]) ? ' width="'. $tmpwidth[1] .'"' : '';
+							$height = isset($tmpheight[1]) ? ' height="'. $tmpheight[1] .'"' : '';
 						}
 
-						if (isset($_REQUEST['preview']))
+						if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
 						{
 							if (!empty($modSettings['attachmentShowImages']))
-							{
-								if ($currentAttachment['thumbnail']['has_thumb'] && empty($style))
-									$returnContext = '
-												<img src="'. $currentAttachment['thumbnail']['href'] .'"  alt="'. $alt .'">';
-								else
-									$returnContext = '
-												<img src="'. $currentAttachment['href'] .'"  alt="'. $alt .'"' . $style .'>';
-							}
+								$returnContext .= '
+												<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
 						}
 						else
 						{
 							if (!empty($modSettings['attachmentShowImages']))
-							{
-								if ($currentAttachment['thumbnail']['has_thumb'] && empty($style))
-									$returnContext .= '
-												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $currentAttachment['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false"><img src="'. $currentAttachment['thumbnail']['href'] .'" alt="'. $alt .'" id="'. $currentAttachment['lightbox_id'] .'"></a>';
-								else
-									$returnContext .= '
-												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $currentAttachment['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false"><img src="'. $currentAttachment['href'] .'"'. $style .' alt="'. $alt .'" id="'. $currentAttachment['lightbox_id'] .'"></a>';
-							}
+								$returnContext .= '
+												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false">
+													<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'>
+												</a>';
 						}    
 					}
 
@@ -1314,34 +1300,54 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'img',
-				'type' => 'unparsed_content',
+				'type' => 'unparsed_equals_content',
 				'parameters' => array(
 					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
-				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
+				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $context, $boardurl, $txt;
 
-					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$data[0] = strtr($data[0], array('<br>' => ''));
+					if (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
+						$data[0] = 'http://' . $data[0];
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					if (substr($data[0], 0, 8) != 'https://' && $image_proxy_enabled)
+						$data[0] = $boardurl . '/proxy.php?request=' . urlencode($data[0]) . '&hash=' . md5($data[0] . $image_proxy_secret);
+
+					// class given?
+					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
+
+					// width, height, alt, class set?
+					$width = $heigth = $alt = $class = '';
+					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
+
+					if (preg_match('/alt=(\S+|$)/', $data[1], $tmpalt) && isset($tmpalt[1]))
+						$alt = ' alt="'. $tmpalt[1] .'"';
+
+					if(preg_match('/width=([0-9]+)/', $data[1], $tmpwidth) >= 0 && preg_match('/height=([0-9]+)/', $data[1], $tmpheight) >= 0)
+					{
+						$width = isset($tmpwidth[1]) ? ' width="'. $tmpwidth[1] .'"' : '';
+						$height = isset($tmpheight[1]) ? ' height="'. $tmpheight[1] .'"' : '';
+					}
+
+					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
+						$data[0] = '<img src="'. $data[0]  .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
+					else
+						$data[0] = '<a href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'></a>';  
 				},
 				'disabled_content' => '($1)',
 			),
 			array(
 				'tag' => 'img',
 				'type' => 'unparsed_content',
-				'content' => '<img src="$1" alt="" class="bbc_img">',
+				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $context, $boardurl, $txt;
 
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
@@ -1349,6 +1355,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+
+					// class given?
+					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
+
+					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
+						$data = '<img src="'. $data  .'"'. $class .' oncontextmenu="return false">';
+					else
+						$data = '<a href="'. $data .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data, strrpos($data, '/')+1) .'" oncontextmenu="return false"><img src="'. $data  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $class .'></a>';  
 				},
 				'disabled_content' => '($1)',
 			),

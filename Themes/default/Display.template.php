@@ -420,8 +420,8 @@ function template_single_post($message)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['css_class'] ,'">', $message['id'] != $context['first_message'] ? '
-					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
+				<div class="', $message['css_class'] ,'">
+					<a class="msg_id_link" id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a class="msg_id_link" id="new"></a>' : ''), '
 					<div class="post_wrapper">';
 
 	// Show information about the poster of this message.
@@ -603,7 +603,7 @@ function template_single_post($message)
 						</div>
 						<div class="postarea">
 							<div class="keyinfo">
-								<div class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
+								<div class="messageicon">
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 								</div>';
 
@@ -697,18 +697,18 @@ function template_single_post($message)
 			if ($attachment['is_image'])
 			{
 				echo '
-										<div class="attachments_top">
-											<a href="' . $attachment['href'] . '" title="'. $txt['lightbox_expand'] .'" data-lightbox="' . $attachment['lightbox_id'] . '" data-title="' . $attachment['name'] . '" oncontextmenu="return false">';
+										<div class="attachments_top">'. (isset($context['lbimage_data']['lightbox_id']) ? '
+											<a href="' . $attachment['href'] . '" title="'. $txt['lightbox_expand'] .'" data-lightbox="' . $context['lbimage_data']['lightbox_id'] . '" data-title="' . $attachment['name'] . '" oncontextmenu="return false">' : '');
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-												<img src="' . $attachment['thumbnail']['href'] . '" alt="" id="' . $attachment['lightbox_id'] . '">';
+												<img src="' . $attachment['thumbnail']['href'] . '" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : '') . '>';
 				else
 					echo '
-												<img src="' . $attachment['href'] . ';image" alt="" id="' . $attachment['lightbox_id'] . '" style="' .($attachment['width'] > $attachment['height'] ? 'width:150px;height:auto' : 'width:auto;height:150px') . '">';
+												<img src="' . $attachment['href'] . ';image" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : '') . ($attachment['width'] >= $attachment['height'] ? ' width="150"' : ' height="150"') . '>';
 
 				echo '
-											</a>
+											'. (isset($context['lbimage_data']['lightbox_id']) ? '</a>' : '') .'
 										</div>';
 			}
 
@@ -796,7 +796,7 @@ function template_single_post($message)
 		// Can they quote? if so they can select and quote as well!
 		if ($context['can_quote'])
 			echo '
-									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '"', (empty($modSettings['pmx_quickreply']) ? ' onclick="return oQuickReply.quote('. $message['id']. ');"' : '') ,'><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
 									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>';
 
 		// Can the user modify the contents of this post? Show the modify inline image.

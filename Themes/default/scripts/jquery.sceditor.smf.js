@@ -323,6 +323,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					attribs += ' height=' + element.attr('height');
 				if (element.attr('alt'))
 					attribs += " alt=" + element.attr('alt');
+				if (element.attr('class'))
+					attribs += " class=" + element.attr('class');
 
 				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}
@@ -338,8 +340,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('title'))
-				attribs += " title=" + element.attr('title');
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 		},
@@ -354,8 +354,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
-			if (typeof attrs.title !== "undefined")
-				attribs += ' title="' + attrs.title + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
 		}
@@ -388,6 +386,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " name=" + element.attr('name');
 			if (element.attr('type'))
 				attribs += " type=" + element.attr('type');
+			if (element.attr('class'))
+				attribs += " class=" + element.attr('class');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
@@ -405,11 +405,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' type="' + attrs.type + '"';
 			if (typeof attrs.name !== "undefined")
 				attribs += ' name="' + attrs.name + '"';
+			if (typeof attrs.class !== "undefined")
+				attribs += ' class="' + attrs.class + '"';
 
 			// Is this an image?
 			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
 			contentIMG = new Image();
-				contentIMG.src = contentUrl;
+			contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
 			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') == 0){
@@ -492,7 +494,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			}
 		},
 		html: function (token, attrs, content) {
-
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
@@ -577,6 +578,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			var author = '';
 			var date = '';
 			var link = '';
+			content = content.replace(/^\r\n|\r\n$/gm, '');
 
 			// The <cite> contains only the graphic for the quote, so we can skip it
 			if (element[0].tagName.toLowerCase() === 'cite')
@@ -595,6 +597,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			var attr_author = '', author = '';
 			var attr_date = '', sDate = '';
 			var attr_link = '', link = '';
+			content = content.replace(/^<br\s\/>|<br\s\/>$/gm, '');
 
 			if (typeof attrs.author !== "undefined" && attrs.author)
 			{
@@ -609,7 +612,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key) && attrs[key] != '')
 				{
 					var attr_link = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
-
 					link = attr_link.substr(0, 7) == 'http://' ? attr_link : smf_scripturl + '?' + attr_link;
 					author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': ' + link + '</a>' : '<a href="' + link + '">' + author + '</a>';
 				}
@@ -619,36 +621,30 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof(attrs.date) !== "undefined" && attrs.date !== "undefined")
 			{
 				attr_date = attrs.date;
-				var tDate = new Date(attr_date * 1000);
-				var patt = /GMT(.)(\d+)/;
-				var result = patt.exec(tDate);
-				if(result && result.length == 3)
-				{
-					var offs = (result[2].substr(0, 2) * 3600) + (result[2].substr(2, 2) * 60);
-					attr_date = (result[1] == '+' ? attr_date - offs : (result[1] == '-' ?  attr_date + offs : attr_date));
-					tDate = new Date(attr_date * 1000);
-					sDate = tDate.toString();
-					sDate = '<date timestamp="' + attrs.date + '">' +  sDate.substr(0, sDate.indexOf(result[0])) + '</date>';
-				}
-				else
-					sDate = '<date timestamp="' + attrs.date + '">' +  tDate + '</date>';
+				tDate = new Date(attr_date * 1000);
+				tzOfs = tDate.getTimezoneOffset() * 60;
+				tDate = new Date((parseInt(attr_date) + parseInt(tzOfs)) * 1000);
+				sDay = '0' + tDate.getDate();
+				sHour = '0' + tDate.getHours();
+				sMin = '0' + tDate.getMinutes();
+				sSec = '0' + tDate.getSeconds();
+				sDate = bbc_days[tDate.getDay()] + ', ' + sDay.substr(sDay.length - 2, 2) + '. ' + bbc_months[tDate.getMonth()] + ' ' + tDate.getFullYear() + ', ' + sHour.substr(sHour.length - 2, 2) + ':' + sMin.substr(sMin.length - 2, 2) + ':' + sSec.substr(sSec.length - 2, 2); 
+				sDate = '<date timestamp="' + attrs.date + '">' +  sDate + '</date>';
 			}
 			else
 				attrs.date = '';
 
+			author = typeof(attrs.author) !== "undefined" ? attrs.author : ''; 
 			if (author == '' && sDate == '')
 				author = bbc_quote;
-			else if (author == '' && sDate !== '')
-				author += bbc_quote + ' ' + bbc_search_on;
-			var temp = author.replace(/<\/a>/, '');
-			if (temp != author)
-			{
-				author = temp;
-				sDate += '</a>';
-			}
-			content = '<blockquote author="' + attr_author + '" date="' + attrs.date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
+			else if (author !== '' && sDate !== '')
+				author = bbc_quote_from + ': '+ author + ' ' + bbc_search_on;
+			else if (author !== '' && sDate === '')
+				author = bbc_quote_from + ': ' + author;
+			else if (author === '' && sDate !== '')
+				author = bbc_quote + ' ' + bbc_search_on;
 
-			return content;
+			return '<blockquote author="' + attr_author + '" date="' + attrs.date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
 		}
 	}
 );

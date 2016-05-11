@@ -313,6 +313,7 @@ h3.largetext {
 	content: '\275D';
 	position: absolute;
 	left: 5px;
+	top: 9px;
 }
 /* Remove the difference IE/Opera/Chrome/Firefox etc... */
 #firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
@@ -360,7 +361,7 @@ h3.largetext {
 .codeheader, .quoteheader {
 	color: #666;
 	font-size: 0.9em;
-	padding: 0 2px;
+	padding: 0 2px 4px 0;
 }
 /* For links to change the code stuff... */
 .codeoperation {
@@ -3150,6 +3151,11 @@ div#pollmoderation {
 	display: block;
 	clear: both;
 }
+.msg_id_link {
+	position: relative;
+	display: table-cell;
+	top: -14px;
+}
 /* poster details and list of items */
 .poster {
 	float: left;
@@ -3213,7 +3219,7 @@ div#pollmoderation {
 	margin: -5px 6px -6px 0;
 }
 .messageicon img {
-	padding: 0 3px 0 3px;
+	padding: 0 3px 0 1px !important;
 }
 .keyinfo h5 {
 	padding: 1px 0 5px 0;
