@@ -74,7 +74,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => 'attach_error_title',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
