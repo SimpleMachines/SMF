@@ -779,16 +779,15 @@ $(function() {
 		ajax_indicator(true);
 		$.ajax({
 			type: 'GET',
-			url: obj.attr('href') + ';js=1;',
+			url: obj.attr('href') + ';js=1',
 			cache: false,
 			dataType: 'html',
-			success: function(html)
-			{
-				ajax_indicator(false);
+			success: function(html){
 				obj.closest('ul').replaceWith(html);
 			},
-			error: function (html)
-			{
+			error: function (html){
+			},
+			complete: function (){
 				ajax_indicator(false);
 			}
 		});
