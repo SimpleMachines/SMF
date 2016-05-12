@@ -2365,7 +2365,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['css_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
+		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2465,7 +2465,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['javascript_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
+		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
 }
 
 /**

@@ -99,6 +99,9 @@ function ThemesMain()
 	// CRUD $subActions as needed.
 	call_integration_hook('integrate_manage_themes', array(&$subActions));
 
+	// Whatever you decide to do, clean the minify cache.
+	cache_put_data('minimized_css', null);
+
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		call_helper($subActions[$_GET['sa']]);

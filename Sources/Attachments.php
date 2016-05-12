@@ -74,7 +74,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => 'attach_error_title',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
@@ -93,7 +93,7 @@ class Attachments
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
-		if (!$attachID || !is_int($attachID) || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
+		if (!$attachID || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
@@ -338,10 +338,10 @@ class Attachments
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
 					unset($attachmentOptions['id']);
 
-					$_SESSION['already_attached'][] = $attachmentOptions['attachID'];
+					$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions['attachID'];
 
 					if (!empty($attachmentOptions['thumb']))
-						$_SESSION['already_attached'][] = $attachmentOptions['thumb'];
+						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
 
 					if ($this->_msg)
 						assignAttachments($_SESSION['already_attached'], $this->_msg);
