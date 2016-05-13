@@ -254,7 +254,7 @@ function ViewMemberlist()
 			),
 			'ip' => array(
 				'db_fields' => array('member_ip'),
-				'type' => 'string'
+				'type' => 'inet'
 			)
 		);
 		$range_trans = array(
@@ -509,8 +509,8 @@ function ViewMemberlist()
 					'class' => 'hidden',
 				),
 				'sort' => array(
-					'default' => 'INET_ATON(member_ip)',
-					'reverse' => 'INET_ATON(member_ip) DESC',
+					'default' => 'member_ip',
+					'reverse' => 'member_ip DESC',
 				),
 			),
 			'last_active' => array(
@@ -868,8 +868,8 @@ function MembersAwaitingActivation()
 					),
 				),
 				'sort' => array(
-					'default' => 'INET_ATON(member_ip)',
-					'reverse' => 'INET_ATON(member_ip) DESC',
+					'default' => 'member_ip',
+					'reverse' => 'member_ip DESC',
 				),
 			),
 			'hostname' => array(
@@ -879,7 +879,7 @@ function MembersAwaitingActivation()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return host_from_ip($rowData['member_ip']);
+						return host_from_ip(inet_dtop($rowData['member_ip']));
 					},
 					'class' => 'smalltext',
 				),

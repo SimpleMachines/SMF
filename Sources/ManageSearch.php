@@ -108,7 +108,7 @@ function EditSearchSettings($return_config = false)
 	require_once($sourcedir . '/Search.php');
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'searchSettings')))
-		call_user_func_array($searchAPI->searchSettings, array(&$config_vars));
+		call_user_func_array(array($searchAPI, 'searchSettings'), array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

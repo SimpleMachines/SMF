@@ -1612,9 +1612,9 @@ function create_control_richedit($editorOptions)
 			$shortmonths[$i] = addcslashes($val, "'");
 
 		// JS makes the editor go round
-		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
-		loadJavascriptFile('jquery.sceditor.bbcode.min.js', array('default_theme' => true), 'smf_sceditor_bbcode');
-		loadJavascriptFile('jquery.sceditor.smf.js', array('default_theme' => true), 'smf_sceditor_smf');
+		loadJavascriptFile('editor.js', array(), 'smf_editor');
+		loadJavascriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
+		loadJavascriptFile('jquery.sceditor.smf.js', array(), 'smf_sceditor_smf');
 		addInlineJavascript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -2041,7 +2041,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		// Some javascript ma'am?
 		if (!empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
-			loadJavascriptFile('captcha.js', array('default_theme' => true), 'smf_captcha');
+			loadJavascriptFile('captcha.js', array(), 'smf_captcha');
 
 		$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 

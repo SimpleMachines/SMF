@@ -373,6 +373,10 @@ function updateMemberData($members, $data)
 			$type = 'float';
 		elseif ($var == 'birthdate')
 			$type = 'date';
+		elseif ($var == 'member_ip')
+			$type = 'inet';
+		elseif ($var == 'member_ip2')
+			$type = 'inet';
 
 		// Doing an increment?
 		if ($type == 'int' && ($val === '+' || $val === '-'))
@@ -2346,7 +2350,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (isset($tag['validate']))
 				$tag['validate']($tag, $data, $disabled);
 
-			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => isset($data[1]) ? $data[1] : $data[0]));
+			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => $data[1]));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos3 + 3 + $tag_strlen);
 			$pos += strlen($code) - 1 + 2;
 		}
@@ -3891,7 +3895,7 @@ function setupMenuContext()
 			addInlineJavascript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array('default_theme' => true), 'smf_alerts');
+			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
 		}
 	}
 
@@ -4906,10 +4910,13 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
+	if(empty($bin))
+		return '';
+	
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
-	$ip_address = inet_ntop($bin);
+	$ip_address = @inet_ntop($bin);
 
 	return $ip_address;
 }

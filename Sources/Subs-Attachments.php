@@ -871,7 +871,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  *
  * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
  */
-function parseAttachBBC($attachID = 0, $lightbox_id = null)
+function parseAttachBBC($attachID = 0)
 {
 	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
 
@@ -1014,7 +1014,7 @@ function getRawAttachInfo($attachIDs)
 			'unchecked' => false,
 			'approved' => 1,
 			'mime_type' => $row['mime_type'],
-			'thumb' => isset($row['id_thumb']) ? $row['id_thumb'] : false,
+			'thumb' => $row['id_thumb'],
 		);
 	$smcFunc['db_free_result']($request);
 

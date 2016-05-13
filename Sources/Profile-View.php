@@ -1631,8 +1631,8 @@ function trackActivity($memID)
 	$context['ips'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['poster_ip'] . ';u=' . $memID . '">' . $row['poster_ip'] . '</a>';
-		$ips[] = $row['poster_ip'];
+		$context['ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . inet_dtop($row['poster_ip']) . ';u=' . $memID . '">' . inet_dtop($row['poster_ip']) . '</a>';
+		$ips[] = inet_dtop($row['poster_ip']);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1650,7 +1650,7 @@ function trackActivity($memID)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$context['error_ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['ip'] . ';u=' . $memID . '">' . $row['ip'] . '</a>';
-		$ips[] = $row['ip'];
+		$ips[] = inet_dtop($row['ip']);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1664,7 +1664,7 @@ function trackActivity($memID)
 			SELECT mem.id_member
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			WHERE m.poster_ip IN ({array_string:ip_list})
+			WHERE m.poster_ip IN ({array_inet:ip_list})
 				AND mem.id_member != {int:current_member}',
 			array(
 				'current_member' => $memID,
@@ -1697,7 +1697,7 @@ function trackActivity($memID)
 			SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member != {int:current_member}
-				AND member_ip IN ({array_string:ip_list})',
+				AND member_ip IN ({array_inet:ip_list})',
 			array(
 				'current_member' => $memID,
 				'ip_list' => $ips,
@@ -1766,7 +1766,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 	$error_messages = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$error_messages[] = array(
-			'ip' => $row['ip'],
+			'ip' => inet_dtop($row['ip']),
 			'member_link' => $row['id_member'] > 0 ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>' : $row['display_name'],
 			'message' => strtr($row['message'], array('&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '')),
 			'url' => $row['url'],
@@ -1837,7 +1837,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 	$messages = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$messages[] = array(
-			'ip' => $row['poster_ip'],
+			'ip' => inet_dtop($row['poster_ip']),
 			'member_link' => empty($row['id_member']) ? $row['display_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>',
 			'board' => array(
 				'id' => $row['id_board'],
@@ -1886,11 +1886,14 @@ function TrackIP($memID = 0)
 	if (isset($_REQUEST['searchip']))
 		$context['ip'] = trim($_REQUEST['searchip']);
 
-	if (preg_match('/^\d{1,3}\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/', $context['ip']) == 0 && isValidIPv6($context['ip']) === false)
+	if (isValidIP($context['ip']) === false)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	$ip_var = str_replace('*', '%', $context['ip']);
-	$ip_string = strpos($ip_var, '%') === false ? '= {string:ip_address}' : 'LIKE {string:ip_address}';
+	//mysql didn't support like search with varbinary
+	//$ip_var = str_replace('*', '%', $context['ip']);
+	//$ip_string = strpos($ip_var, '%') === false ? '= {inet:ip_address}' : 'LIKE {string:ip_address}';
+	$ip_var = $context['ip'];
+	$ip_string = '= {inet:ip_address}';
 
 	if (empty($context['tracking_area']))
 		$context['page_title'] = $txt['trackIP'] . ' - ' . $context['ip'];
@@ -1905,7 +1908,7 @@ function TrackIP($memID = 0)
 	);
 	$context['ips'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['ips'][$row['member_ip']][] = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>';
+		$context['ips'][inet_dtop($row['member_ip'])][] = '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>';
 	$smcFunc['db_free_result']($request);
 
 	ksort($context['ips']);
@@ -1953,8 +1956,8 @@ function TrackIP($memID = 0)
 					),
 				),
 				'sort' => array(
-					'default' => 'INET_ATON(m.poster_ip)',
-					'reverse' => 'INET_ATON(m.poster_ip) DESC',
+					'default' => 'm.poster_ip',
+					'reverse' => 'm.poster_ip DESC',
 				),
 			),
 			'poster' => array(
@@ -2043,8 +2046,8 @@ function TrackIP($memID = 0)
 					),
 				),
 				'sort' => array(
-					'default' => 'INET_ATON(le.ip)',
-					'reverse' => 'INET_ATON(le.ip) DESC',
+					'default' => 'le.ip',
+					'reverse' => 'le.ip DESC',
 				),
 			),
 			'display_name' => array(
@@ -2274,8 +2277,8 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$logins[] = array(
 			'time' => timeformat($row['time']),
-			'ip' => $row['ip'],
-			'ip2' => $row['ip2'],
+			'ip' => inet_dtop($row['ip']),
+			'ip2' => inet_dtop($row['ip2']),
 		);
 	$smcFunc['db_free_result']($request);
 
@@ -2463,7 +2466,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 
 		$edits[] = array(
 			'id' => $row['id_action'],
-			'ip' => $row['ip'],
+			'ip' => inet_dtop($row['ip']),
 			'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
 			'member_link' => $txt['trackEdit_deleted_member'],
 			'action' => $row['action'],

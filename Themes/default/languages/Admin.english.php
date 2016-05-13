@@ -573,6 +573,7 @@ $txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
 $txt['enableSpellChecking'] = 'Enable spell checking';
 $txt['enableSpellChecking_warning'] = 'this does not work on all servers.';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
+$txt['disable_quick_reply'] = 'Disable Quick Reply';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
 $txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';

@@ -702,10 +702,10 @@ function template_single_post($message)
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-												<img src="' . $attachment['thumbnail']['href'] . '" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : '') . '>';
+												<img src="' . $attachment['thumbnail']['href'] . '" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : ' oncontextmenu="return false"') . '>';
 				else
 					echo '
-												<img src="' . $attachment['href'] . ';image" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : '') . ($attachment['width'] >= $attachment['height'] ? ' width="150"' : ' height="150"') . '>';
+												<img src="' . $attachment['href'] . ';image" alt=""' . (isset($context['lbimage_data']['lightbox_id']) ? ' id="' . $context['lbimage_data']['lightbox_id'] . '"' : ' oncontextmenu="return false"') . ($attachment['width'] >= $attachment['height'] ? ' width="150"' : ' height="150"') . '>';
 
 				echo '
 											'. (isset($context['lbimage_data']['lightbox_id']) ? '</a>' : '') .'
@@ -796,7 +796,7 @@ function template_single_post($message)
 		// Can they quote? if so they can select and quote as well!
 		if ($context['can_quote'])
 			echo '
-									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '"', (empty($modSettings['pmx_quickreply']) ? ' onclick="return oQuickReply.quote('. $message['id']. ');"' : '') ,'><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '"', (empty($modSettings['disable_quick_reply']) ? ' onclick="return oQuickReply.quote('. $message['id']. ');"' : '') ,'><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
 									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>';
 
 		// Can the user modify the contents of this post? Show the modify inline image.
@@ -922,6 +922,10 @@ function template_single_post($message)
 function template_quickreply()
 {
 	global $context, $modSettings, $scripturl, $options, $txt;
+
+	if(!empty($modSettings['disable_quick_reply']))
+		echo '
+		<div style="display:none;">';
 	echo '
 		<a id="quickreply"></a>
 		<div class="tborder" id="quickreplybox">
@@ -1011,6 +1015,10 @@ function template_quickreply()
 			</div>
 		</div>
 		<br class="clear">';
+
+	if(!empty($modSettings['disable_quick_reply']))
+		echo '
+		</div>';
 
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']))

@@ -1252,6 +1252,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
+			if ( isset($row['member_ip']) )
+				$row['member_ip'] = inet_dtop($row['member_ip']);
+			if ( isset($row['member_ip2']) )
+				$row['member_ip2'] = inet_dtop($row['member_ip2']);
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
@@ -2079,7 +2083,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
@@ -2089,15 +2093,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true, 'minimize' => true), 'smf_jquery_plugins');
+	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
+		loadJavascriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
 		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
+	loadJavascriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
 	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// lightbox
@@ -2325,6 +2329,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2421,6 +2426,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2437,7 +2443,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
 		{
 			// Can't find it in this theme, how about the default?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);

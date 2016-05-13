@@ -340,6 +340,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
+			if (element.attr('title'))
+				attribs += " title=" + element.attr('title');
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 		},
@@ -354,6 +356,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
+			if (typeof attrs.title !== "undefined")
+				attribs += ' title="' + attrs.title + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
 		}
@@ -466,33 +470,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
-		tags: {
-			a: {
-				href: null
-			}
-		},
-		format: function (token, content) {
-			if (typeof content !== "undefined" && content.length !== 0)
-			{
-				// test for attach
-				var pattern = new Array(/\[iurl\=/, /action\=dlattach/, /attach\=([\d]+)/, /\](.*)\[\/iurl\]/);
-				var result = [];
-				var found = 0;
-				for(var i=0; i < pattern.length; i++)
-				{
-					temp = pattern[i].exec(content);
-					if(typeof temp !== "undefined" && temp !== null)
-					{
-						result[found] = temp;
-						found++;
-					}
-				}
-				if(found == 4)
-					return '[attach name=' + result[3][1] + ' type=application]' + result[2][1] + '[/attach]';
-				else
-					return content;
-			}
-		},
 		html: function (token, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
