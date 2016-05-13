@@ -711,20 +711,23 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 // *** Other functions...
 function expandThumb(thumbID)
 {
+	var img = document.getElementById('thumb_' + thumbID);
+	var link = document.getElementById('link_' + thumbID);
+
 	// save the currently displayed image attributes
-	var tmp_src = thumbID.firstChild.src;
-	var tmp_width = thumbID.firstChild.style.width;
-	var tmp_height = thumbID.firstChild.style.height;
+	var tmp_src = img.src;
+	var tmp_height = img.style.height;
+	var tmp_width = img.style.width;
 
 	// set the displayed image attributes to the link attributes, this will expand in place
-	thumbID.firstChild.src = thumbID.href;
-	thumbID.firstChild.style.width = thumbID.style.width;
-	thumbID.firstChild.style.height = thumbID.style.height;
+	img.src = link.href;
+	img.style.width = link.style.width;
+	img.style.height = link.style.height;
 
 	// place the image attributes back
-	thumbID.href = tmp_src;
-	thumbID.style.width = tmp_width;
-	thumbID.style.width = tmp_height;
+	link.href = tmp_src;
+	link.style.width = tmp_width;
+	link.style.height = tmp_height;
 
 	return false;
 }
@@ -776,16 +779,15 @@ $(function() {
 		ajax_indicator(true);
 		$.ajax({
 			type: 'GET',
-			url: obj.attr('href') + ';js=1;',
+			url: obj.attr('href') + ';js=1',
 			cache: false,
 			dataType: 'html',
-			success: function(html)
-			{
-				ajax_indicator(false);
+			success: function(html){
 				obj.closest('ul').replaceWith(html);
 			},
-			error: function (html)
-			{
+			error: function (html){
+			},
+			complete: function (){
 				ajax_indicator(false);
 			}
 		});

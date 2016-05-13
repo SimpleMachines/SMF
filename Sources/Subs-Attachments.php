@@ -901,11 +901,11 @@ function parseAttachBBC($attachID = 0)
 	if (!empty($context['preview_message']))
 	{
 		$allAttachments = getAttachsByMsg(0);
-		$attachContext = $allAttachments[0][$attachID];
 
-		if (empty($attachContext))
+		if (empty($allAttachments[0][$attachID]))
 			return 'attachments_no_data_loaded';
 
+		$attachContext = $allAttachments[0][$attachID];
 		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
@@ -1136,7 +1136,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
-				'is_image' => !empty($attachment['width']) && !empty($attachment['height']), // && !empty($modSettings['attachmentShowImages']),
+				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],

@@ -322,9 +322,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				if (element.attr('height'))
 					attribs += ' height=' + element.attr('height');
 				if (element.attr('alt'))
-					attribs += " alt=" + element.attr('alt');
+					attribs += ' alt=' + element.attr('alt');
 				if (element.attr('class'))
-					attribs += " class=" + element.attr('class');
+					attribs += ' class=' + element.attr('class');
 
 				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}

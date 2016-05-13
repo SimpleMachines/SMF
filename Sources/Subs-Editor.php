@@ -1631,7 +1631,7 @@ function create_control_richedit($editorOptions)
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 		if ($context['show_spellchecking'])
 		{
-			loadJavascriptFile('spellcheck.js', array('default_theme' => true), 'smf_spellcheck');
+			loadJavascriptFile('spellcheck.js', array(), 'smf_spellcheck');
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))

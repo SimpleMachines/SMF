@@ -74,7 +74,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => 'attach_error_title',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
@@ -338,10 +338,10 @@ class Attachments
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
 					unset($attachmentOptions['id']);
 
-					$_SESSION['already_attached'][] = $attachmentOptions['attachID'];
+					$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions['attachID'];
 
 					if (!empty($attachmentOptions['thumb']))
-						$_SESSION['already_attached'][] = $attachmentOptions['thumb'];
+						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
 
 					if ($this->_msg)
 						assignAttachments($_SESSION['already_attached'], $this->_msg);

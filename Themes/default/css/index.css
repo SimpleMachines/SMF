@@ -3225,7 +3225,7 @@ div#pollmoderation {
 }
 .messageicon {
 	float: left;
-	margin: -5px 6px -6px 0;
+	margin: -5px 6px -6px -4px;
 }
 .messageicon img {
 	padding: 0 3px 0 1px !important;
