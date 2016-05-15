@@ -845,6 +845,11 @@ $txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
 $txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
 $txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
 
+// lightbox messages.
+$txt['lightbox_help'] = 'Click here or outside this window to close.';
+$txt['lightbox_label'] = 'Image %1 of %2';
+$txt['lightbox_expand'] = 'Click to expand';
+
 // Accessibility
 $txt['hide_category'] = 'Hide Category';
 $txt['show_category'] = 'Show Category';

@@ -244,7 +244,7 @@ function template_generic_menu_tabs(&$menu_context)
 					</p>';
 
 	// Print out all the items in this tab (if any).
-	if (!empty($context['tabs']))
+	if (!empty($tab_context['tabs']))
 	{
 		// The admin tabs.
 		echo '

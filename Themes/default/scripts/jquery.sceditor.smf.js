@@ -316,7 +316,15 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				if (element.attr('name'))
 					attribs += ' name=' + element.attr('name');
 				if (element.attr('type'))
-					attribs += ' type=' + 	element.attr('type');
+					attribs += ' type=' + element.attr('type');
+				if (element.attr('width'))
+					attribs += ' width=' + element.attr('width');
+				if (element.attr('height'))
+					attribs += ' height=' + element.attr('height');
+				if (element.attr('alt'))
+					attribs += ' alt=' + element.attr('alt');
+				if (element.attr('class'))
+					attribs += ' class=' + element.attr('class');
 
 				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}
@@ -382,6 +390,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " name=" + element.attr('name');
 			if (element.attr('type'))
 				attribs += " type=" + element.attr('type');
+			if (element.attr('class'))
+				attribs += " class=" + element.attr('class');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
@@ -399,11 +409,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' type="' + attrs.type + '"';
 			if (typeof attrs.name !== "undefined")
 				attribs += ' name="' + attrs.name + '"';
+			if (typeof attrs.class !== "undefined")
+				attribs += ' class="' + attrs.class + '"';
 
 			// Is this an image?
 			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
 			contentIMG = new Image();
-				contentIMG.src = contentUrl;
+			contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
 			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') == 0){
@@ -442,17 +454,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			if (element.attr('target') !== undefined)
 				return '[url=' + decodeURI(url) + ']' + content + '[/url]';
-			// Is this an attachment?
-			else if (element.attr('data-attachment') !== "undefined")
-			{
-				var attribs = '';
-				if (typeof element.attr('name') !== "undefined")
-					attribs += ' name=' + element.attr('name');
-				if (typeof element.attr('type') !== "undefined")
-					attribs += ' type=' + element.attr("type");
-
-				return '[attach'+attribs+']'+content+'[/attach]';
-			}
 			else
 				return '[iurl=' + decodeURI(url) + ']' + content + '[/iurl]';
 		},
@@ -470,7 +471,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
-
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
@@ -555,24 +555,26 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			var author = '';
 			var date = '';
 			var link = '';
+			content = content.replace(/^\r\n|\r\n$/gm, '');
 
 			// The <cite> contains only the graphic for the quote, so we can skip it
 			if (element[0].tagName.toLowerCase() === 'cite')
 				return '';
 
+			var qoutestr = '[quote';
 			if (element.attr('author'))
-				author = ' author=' + element.attr('author').php_unhtmlspecialchars();
+				qoutestr += ' author=' + element.attr('author').php_unhtmlspecialchars();
 			if (element.attr('link'))
-				link = ' link=' + element.attr('link');
+				qoutestr += ' link=' + element.attr('link');
 			if (element.attr('date'))
-				date = ' date=' + element.attr('date');
-
-			return '[quote' + author + link + date + ']' + content + '[/quote]';
+				qoutestr += ' date=' + element.attr('date');
+			return qoutestr += ']' + content + '[/quote]';
 		},
 		html: function (element, attrs, content) {
 			var attr_author = '', author = '';
 			var attr_date = '', sDate = '';
 			var attr_link = '', link = '';
+			content = content.replace(/^<br\s\/>|<br\s\/>$/gm, '');
 
 			if (typeof attrs.author !== "undefined" && attrs.author)
 			{
@@ -584,29 +586,42 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			// Probably no more necessary
 			for (var key in attrs)
 			{
-				if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key))
+				if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key) && attrs[key] != '')
 				{
 					var attr_link = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
-
 					link = attr_link.substr(0, 7) == 'http://' ? attr_link : smf_scripturl + '?' + attr_link;
 					author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': ' + link + '</a>' : '<a href="' + link + '">' + author + '</a>';
 				}
 			}
 
-			if (typeof attrs.date !== "undefined" && attrs.date)
+			var sDate = '';
+			if (typeof(attrs.date) !== "undefined" && attrs.date !== "undefined")
 			{
 				attr_date = attrs.date;
-				sDate = '<date timestamp="' + attr_date + '">' + new Date(attrs.date * 1000) + '</date>';
+				tDate = new Date(attr_date * 1000);
+				tzOfs = tDate.getTimezoneOffset() * 60;
+				tDate = new Date((parseInt(attr_date) + parseInt(tzOfs)) * 1000);
+				sDay = '0' + tDate.getDate();
+				sHour = '0' + tDate.getHours();
+				sMin = '0' + tDate.getMinutes();
+				sSec = '0' + tDate.getSeconds();
+				sDate = bbc_days[tDate.getDay()] + ', ' + sDay.substr(sDay.length - 2, 2) + '. ' + bbc_months[tDate.getMonth()] + ' ' + tDate.getFullYear() + ', ' + sHour.substr(sHour.length - 2, 2) + ':' + sMin.substr(sMin.length - 2, 2) + ':' + sSec.substr(sSec.length - 2, 2); 
+				sDate = '<date timestamp="' + attrs.date + '">' +  sDate + '</date>';
 			}
+			else
+				attrs.date = '';
 
+			author = typeof(attrs.author) !== "undefined" ? attrs.author : ''; 
 			if (author == '' && sDate == '')
 				author = bbc_quote;
-			else if (author == '' && sDate != '')
-				author += ' ' + bbc_search_on;
+			else if (author !== '' && sDate !== '')
+				author = bbc_quote_from + ': '+ author + ' ' + bbc_search_on;
+			else if (author !== '' && sDate === '')
+				author = bbc_quote_from + ': ' + author;
+			else if (author === '' && sDate !== '')
+				author = bbc_quote + ' ' + bbc_search_on;
 
-			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
-
-			return content;
+			return '<blockquote author="' + attr_author + '" date="' + attrs.date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
 		}
 	}
 );
