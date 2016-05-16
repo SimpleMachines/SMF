@@ -348,7 +348,7 @@ function MessageIndex()
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
-				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = meml.id_member)
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
