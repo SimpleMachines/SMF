@@ -2048,7 +2048,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
-				$blob_counter = 0;
+				$blob_counter = 1;
 				while ($blob_counter <= count($blobs))
 				{
 
