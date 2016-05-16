@@ -257,6 +257,7 @@ function PrintTopic()
 		censorText($row['subject']);
 		censorText($row['body']);
 
+		$context['lbimage_data']['lightbox_id'] = null;
 		$context['posts'][] = array(
 			'subject' => $row['subject'],
 			'member' => $row['poster_name'],
@@ -306,22 +307,16 @@ function PrintTopic()
 		{
 			if (!empty($row['width']) && !empty($row['height']))
 			{
-				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $row['height'] * ($modSettings['max_image_width'] / $row['width']) <= $modSettings['max_image_height']))
+				if(!empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']))
 				{
-					if ($row['width'] > $modSettings['max_image_width'])
-					{
-						$row['height'] = floor($row['height'] * ($modSettings['max_image_width'] / $row['width']));
-						$row['width'] = $modSettings['max_image_width'];
-					}
+					$row['width'] = $row['height'] = '';
+					if($modSettings['attachmentThumbWidth'] >= $modSettings['attachmentThumbHeight'])
+						$row['width'] = $modSettings['attachmentThumbWidth'];
+					else
+						$row['height'] = $modSettings['attachmentThumbHeight'];
 				}
-				elseif (!empty($modSettings['max_image_width']))
-				{
-					if ($row['height'] > $modSettings['max_image_height'])
-					{
-						$row['width'] = floor($row['width'] * $modSettings['max_image_height'] / $row['height']);
-						$row['height'] = $modSettings['max_image_height'];
-					}
-				}
+				else
+					$row['width'] = '150';
 
 				$row['filename'] = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
 

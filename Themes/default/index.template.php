@@ -340,6 +340,10 @@ function template_body_above()
 			</div>
 		</div>';
 
+	if(isset($_GET['prev_next']))
+		echo '
+		<div id="topic"></div>';
+
 	// The main content should go here.
 	echo '
 		<div id="content_section">

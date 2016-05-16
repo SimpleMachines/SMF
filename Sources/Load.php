@@ -1217,7 +1217,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			break;
 		case 'profile':
 			$select_columns .= ', mem.additional_groups, mem.id_theme, mem.pm_ignore_list, mem.pm_receive_from,
-			mem.time_format, mem.timezone, mem.secret_question, mem.smiley_set, mem.tfa_secret,
+			mem.time_format, mem.timezone, mem.secret_question, mem.smiley_set, mem.tfa_secret, mem.member_ip, mem.member_ip2,
 			mem.total_time_logged_in, lo.url, mem.ignore_boards, mem.password_salt, mem.pm_prefs, mem.buddy_list, mem.alerts';
 			break;
 		case 'minimal':
@@ -1252,10 +1252,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
-			if ( isset($row['member_ip']) )
-				$row['member_ip'] = inet_dtop($row['member_ip']);
-			if ( isset($row['member_ip2']) )
-				$row['member_ip2'] = inet_dtop($row['member_ip2']);
+			$row['member_ip'] = !empty($row['member_ip']) ? inet_dtop($row['member_ip']) : inet_dtop($_SERVER['REMOTE_ADDR']);
+			$row['member_ip2'] = !empty($row['member_ip2']) ? inet_dtop($row['member_ip2']) : inet_dtop($_SERVER['REMOTE_ADDR']);
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
@@ -2108,8 +2106,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 	addInlineJavascript('
 	var Lightbox_help = \''. $txt['lightbox_help'] .'\';
 	var Lightbox_label = \''. $txt['lightbox_label'] .'\';');
-	loadJavascriptFile('lightbox.js', array('default_theme' => true, 'defer' => true), 'lightbox');
-	loadCSSFile('lightbox.css', array('default_theme' => true), 'lightbox');
+	loadJavascriptFile('lightbox.js', array('defer' => true), 'lightbox');
+	loadCSSFile('lightbox.css', array('minimize' => true), 'lightbox');
+
+	// add favicon?
+	if(!empty($modSettings['add_favicon_to_links']))
+		addInlineJavascript('
+	var fSetFavicon=function(){$(\':not(.signature)>.bbc_link\').each(function(){var url=$(this).attr(\'href\'),domain=url.match(/:\/\/(.[^/]+)/)[1],schema=url.match(/^(http[s]*):\/\//)[1];$(this).css({\'background-image\':\'url(//www.google.com/s2/favicons?domain=\'+schema+\'://\'+domain+\')\',\'background-repeat\':\'no-repeat\',\'padding-left\':\'20px\',\'background-position\':\'1px\'});});}
+	addLoadEvent(fSetFavicon);');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())

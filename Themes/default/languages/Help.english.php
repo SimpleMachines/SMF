@@ -387,7 +387,7 @@ $helptxt['posts_require_captcha'] = 'This setting will force users to pass anti-
 $helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. Your server ' . ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? 'DOES' : 'DOES NOT') . ' appear to have this set up.';
 $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the WYSIWYG (&quot;What You See Is What You Get&quot;) editor on the post page.';
 $helptxt['disable_quick_reply'] = 'This setting disallows all users from using the Quick Reply box on the post page.';
-
+$helptxt['add_favicon_to_links'] = 'This settings add a favicon (if the site have one) to each link with the class "bbc_link".';
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
 $helptxt['customoptions'] = 'This defines the options that a user may choose from a drop down list. There are a few key points to note on this page:

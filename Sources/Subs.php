@@ -374,9 +374,9 @@ function updateMemberData($members, $data)
 		elseif ($var == 'birthdate')
 			$type = 'date';
 		elseif ($var == 'member_ip')
-			$type = 'inet';
+			$type = 'string';
 		elseif ($var == 'member_ip2')
-			$type = 'inet';
+			$type = 'string';
 
 		// Doing an increment?
 		if ($type == 'int' && ($val === '+' || $val === '-'))
@@ -1110,7 +1110,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? array(0 => $txt[$currentAttachment]) : $currentAttachment;
+						return $data = !empty($txt[$currentAttachment]) ? array(0 => $txt[$currentAttachment], 1 => '') : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{
@@ -1131,13 +1131,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
 						{
 							if (!empty($modSettings['attachmentShowImages']))
-								$returnContext .= '
+								$returnContext = '
 												<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
 						}
 						else
 						{
 							if (!empty($modSettings['attachmentShowImages']))
-								$returnContext .= '
+								$returnContext = '
 												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false">
 													<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'>
 												</a>';
@@ -1315,15 +1315,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					global $image_proxy_enabled, $image_proxy_secret, $context, $boardurl, $txt;
 
+					if(!empty($disabled['img']))
+						return $data[0] = '';
+
 					$data[0] = strtr($data[0], array('<br>' => ''));
 					if (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
 						$data[0] = 'http://' . $data[0];
 
 					if (substr($data[0], 0, 8) != 'https://' && $image_proxy_enabled)
 						$data[0] = $boardurl . '/proxy.php?request=' . urlencode($data[0]) . '&hash=' . md5($data[0] . $image_proxy_secret);
-
-					// class given?
-					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
 
 					// width, height, alt, class set?
 					$width = $heigth = $alt = $class = '';
@@ -1341,9 +1341,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
 						$data[0] = '<img src="'. $data[0]  .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
 					else
-						$data[0] = '<a href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'></a>';  
+						$data[0] = '<a href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'></a>';
 				},
-				'disabled_content' => '($1)',
+				'disabled_content' => '$1',
 			),
 			array(
 				'tag' => 'img',
@@ -1352,6 +1352,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $image_proxy_secret, $context, $boardurl, $txt;
+
+					if(!empty($disabled['img']))
+						return $data[0] = '';
 
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
@@ -1368,7 +1371,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					else
 						$data = '<a href="'. $data .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data, strrpos($data, '/')+1) .'" oncontextmenu="return false"><img src="'. $data  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $class .'></a>';  
 				},
-				'disabled_content' => '($1)',
+				'disabled_content' => '$1',
 			),
 			array(
 				'tag' => 'iurl',
@@ -4973,7 +4976,7 @@ function inet_dtop($bin)
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
-	$ip_address = inet_ntop($bin);
+	$ip_address = @inet_ntop($bin);
 
 	return $ip_address;
 }
