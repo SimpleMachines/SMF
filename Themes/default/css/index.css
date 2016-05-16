@@ -305,40 +305,34 @@ h3.largetext {
 	padding-left: 0.3%;
 }
 
-/* BBC */
-/* A quote, perhaps from another post. */
-.bbc_standard_quote:before, .bbc_alternate_quote:before {
-	color: #aaa;
-	font-size: 22px;
-	content: '\275D';
-	position: absolute;
-	left: 5px;
-}
-/* Remove the difference IE/Opera/Chrome/Firefox etc... */
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
-	font-size: 30px;
-}
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
-#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
-	vertical-align: middle;
-	margin: 0 5px 0 0;
-}
-.bbc_standard_quote, .bbc_alternate_quote {
+/* Blockquote stylings */
+blockquote {
 	margin: 0 0 8px 0;
-	padding: 6px 10px 6px 25px;
-	font-size: 0.9em;
+	padding: 6px 10px;
+	font-size: small;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
-	position: relative;
 }
-/* Alternate blockquote stylings */
+blockquote cite {
+	display: block;
+	border-bottom: 1px solid #aaa;
+	font-size: 0.9em;
+}
+blockquote cite:before {
+	color: #aaa;
+	font-size: 22px;
+	font-style: normal;
+	content: '\275D';
+	margin-right: 5px;
+}
 .bbc_standard_quote {
 	background-color: #e0e6f6;
 }
 .bbc_alternate_quote {
 	background-color: #ebf4f8;
 }
+
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
