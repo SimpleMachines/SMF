@@ -1428,7 +1428,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'quote',
-				'before' => '<div class="quoteheader">' . $txt['quote'] . '</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote'] . '</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1438,7 +1438,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)', 'quoted' => true),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': {author}</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1446,7 +1446,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'quote',
 				'type' => 'parsed_equals',
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': $1</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': $1</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'quoted' => 'optional',
@@ -1461,7 +1461,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'),
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
-				'before' => '<div class="quoteheader"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div><blockquote>',
+				'before' => '<blockquote><cite><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1471,7 +1471,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)'),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': {author}</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -2048,7 +2048,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
-				$blob_counter = 0;
+				$blob_counter = 1;
 				while ($blob_counter <= count($blobs))
 				{
 
@@ -3363,7 +3363,7 @@ function template_css()
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
+			$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
 	}
 
 	if (!empty($context['css_header']))
