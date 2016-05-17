@@ -3363,7 +3363,7 @@ function template_css()
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
+			$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
 	}
 
 	if (!empty($context['css_header']))
