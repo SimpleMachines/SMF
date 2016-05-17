@@ -5100,13 +5100,13 @@ function template_database_changes()
 		}
 		if (!empty($upcontext['changes_complete']))
 		{
-			$active = time() - $upcontext['started'];
-			$hours = floor($active / 3600);     
-			$minutes = intval(($active / 60) % 60);        
-			$seconds = intval($active % 60);     
-
 			if ($is_debug)
 			{
+				$active = time() - $upcontext['started'];
+				$hours = floor($active / 3600);     
+				$minutes = intval(($active / 60) % 60);        
+				$seconds = intval($active % 60);     
+
 				$totalTime = '';
 				if ($hours > 0)
 					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
@@ -5121,7 +5121,7 @@ function template_database_changes()
 			else
 				echo ' Successful!<br><br>';
 
-			echo '<span id="commess" style="font-weight: bold;">Database Updates Complete! Click Continue to Proceed.</span><br>';
+			echo '<span id="commess" style="font-weight: bold;">1 Database Updates Complete! Click Continue to Proceed.</span><br>';
 		}
 	}
 	else
@@ -5137,8 +5137,13 @@ function template_database_changes()
 
 		if ($is_debug)
 		{
-			if ($upcontext['current_debug_item_num'] == $upcontext['debug_items'])
+			if (!empty($upcontext['current_debug_item_num'] == $upcontext['debug_items']))
 			{
+				$active = time() - $upcontext['started'];
+				$hours = floor($active / 3600);     
+				$minutes = intval(($active / 60) % 60);        
+				$seconds = intval($active % 60);     
+
 				$totalTime = '';
 				if ($hours > 0)
 					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
@@ -5148,10 +5153,13 @@ function template_database_changes()
 					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
 			}
 
-			if ($is_debug && !empty($totalTime))
-				echo '<br> Completed in ', $totalTime, '<br>';
-
 			echo '
+			<br><span id="upgradeCompleted">';
+
+			if (!empty($totalTime))
+				echo 'Completed in ', $totalTime, '<br>';
+
+			echo '</span>
 			<div id="debug_section" style="height: 200px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
@@ -5184,7 +5192,13 @@ function template_database_changes()
 			var testvar = 0;
 			var timeOutID = 0;
 			var getData = "";
-			var debugItems = ', $upcontext['debug_items'], ';
+			var debugItems = ', $upcontext['debug_items'], ';';
+
+		if ($is_debug)
+			echo '
+			var upgradeStartTime = ' . $upcontext['started'] . ';';
+
+		echo '
 			function getNextItem()
 			{
 				// We want to track this...
@@ -5308,7 +5322,23 @@ function template_database_changes()
 
 		if ($is_debug)
 			echo '
-					document.getElementById(\'debug_section\').style.display = "none";';
+					document.getElementById(\'debug_section\').style.display = "none";
+
+					var upgradeFinishedTime = parseInt(oXMLDoc.getElementsByTagName("curtime")[0].childNodes[0].nodeValue);
+					var diffTime = upgradeFinishedTime - upgradeStartTime;
+					var diffHours = Math.floor(diffTime / 3600);
+					var diffMinutes = parseInt((diffTime / 60) % 60);
+					var diffSeconds = parseInt(diffTime % 60);
+
+					var totalTime = "";
+					if (diffHours > 0)
+						totalTime = totalTime + diffHours + " hour" + (diffHours > 1 ? "s" : "") + " ";
+					if (diffMinutes > 0)
+						totalTime = totalTime + diffMinutes + " minute" + (diffMinutes > 1 ? "s" : "") + " ";
+					if (diffSeconds > 0)
+						totalTime = totalTime + diffSeconds + " second" + (diffSeconds > 1 ? "s" : "");
+
+					setInnerHTML(document.getElementById("upgradeCompleted"), "Completed in " + totalTime);';
 
 		echo '
 
@@ -5433,7 +5463,7 @@ function template_database_changes()
 
 function template_database_xml()
 {
-	global $upcontext, $txt;
+	global $is_debug, $upcontext, $txt;
 
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
@@ -5447,6 +5477,10 @@ function template_database_xml()
 	if (!empty($upcontext['error_string']))
 		echo '
 	<sql>', $upcontext['error_string'], '</sql>';
+
+	if ($is_debug)
+		echo '
+	<curtime>', time(), '</curtime>';
 }
 
 // Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
@@ -5865,9 +5899,12 @@ function template_upgrade_complete()
  * newCol needs to be a varbinary(16) null able field
  * return true or false
  */
-function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
 {
-	global $smcFunc;
+	global $smcFunc, $step_progress;
+
+	$step_progress['name'] = 'Converting ips';
+	$step_progress['current'] = $_GET['a'];
 
 	// Skip this if we don't have the column
 	$request = $smcFunc['db_query']('', '
@@ -5916,15 +5953,71 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000)
 		if (empty($arIp))
 			$is_done = true;
 
+		$updates = array();
+		$cases = array();
 		for ($i = 0; $i < count($arIp); $i++)
-			$request = $smcFunc['db_query']('', '
-				UPDATE {db_prefix}'.$targetTable.'
-				SET '.$newCol.' = {inet:ip'.$x.'}
-				WHERE '.$oldCol.' = {string:ip'.$x.'}',
-				array(
-					'ip'.$x => trim($arIp[$i])
-				)
-			);
+		{
+			if (empty(trim($arIp[$i])))
+				continue;
+
+			$updates['ip' . $i] = trim($arIp[$i]);
+			$cases[trim($arIp[$i])] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
+			
+			if ($setSize > 0 && $i % $setSize === 0)
+			{
+				if (count($updates) == 1)
+					continue;
+
+				$updates['whereSet'] = array_values($updates);
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}' . $targetTable . '
+					SET ' . $newCol . ' = CASE ' .
+					implode('
+						', $cases) . '
+						ELSE NULL
+					END
+					WHERE ' . $oldCol . ' IN ({array_string:whereSet})',
+					$updates
+				);
+
+				$updates = array();
+				$cases = array();
+			}
+		}
+
+		// Incase some extras made it through.
+		if (!empty($updates))
+		{
+			if (count($updates) == 1)
+			{
+				foreach ($updates as $key => $ip)
+				{
+					$request = $smcFunc['db_query']('', '
+						UPDATE {db_prefix}' . $targetTable . '
+						SET ' . $newCol . ' = {inet:ip}
+						WHERE ' . $oldCol . ' = {string:ip}',
+						array(
+							'ip' => $ip
+					));
+				}
+			}
+			else
+			{
+				$updates['whereSet'] = array_values($updates);
+				$request = $smcFunc['db_query']('', '
+					UPDATE {db_prefix}' . $targetTable . '
+					SET ' . $newCol . ' = CASE ' .
+					implode('
+						', $cases) . '
+						ELSE NULL
+					END
+					WHERE ' . $oldCol . ' IN ({array_string:whereSet})',
+					$updates
+				);
+			}
+		}
+		else
+			$is_done = true;
 
 		$_GET['a'] += $limit;
 		$step_progress['current'] = $_GET['a'];
