@@ -1376,6 +1376,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	censorText($profile['personal_text']);
 
 	// Set things up to be used before hand.
+	$context['lbimage_data'] = null;
 	$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
 	$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
 
@@ -1506,7 +1507,10 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			// BBC?
 			if ($custom['bbc'])
+			{
+				$context['lbimage_data'] = null;
 				$value = parse_bbc($value);
+			}
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
 				$value = $value ? $txt['yes'] : $txt['no'];
@@ -1571,7 +1575,10 @@ function loadMemberCustomFields($users, $params)
 	{
 		// BBC?
 		if (!empty($row['bbc']))
+		{
+			$context['lbimage_data'] = null;
 			$row['value'] = parse_bbc($row['value']);
+		}
 
 		// ... or checkbox?
 		elseif (isset($row['type']) && $row['type'] == 'check')

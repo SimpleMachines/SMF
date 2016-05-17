@@ -620,6 +620,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		censorText($row['subject']);
 
 		// BBC-ilize the message.
+		$context['lbimage_data'] = null;
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
 
 		// And the array...
@@ -776,6 +777,7 @@ function showPMDrafts($memID = -1)
 		censorText($row['subject']);
 
 		// BBC-ilize the message.
+		$context['lbimage_data'] = null;
 		$row['body'] = parse_bbc($row['body'], true, 'draft' . $row['id_draft']);
 
 		// Have they provide who this will go to?

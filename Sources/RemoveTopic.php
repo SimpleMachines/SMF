@@ -572,6 +572,8 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	foreach ($adjustBoards as $stats)
 		$updates[] = $stats['id_board'];
 	updateLastMessages($updates);
+
+	clean_cache();
 }
 
 /**
@@ -1018,6 +1020,7 @@ function removeMessage($message, $decreasePostCount = true)
 		recountOpenReports('posts');
 	}
 
+	clean_cache();
 	return false;
 }
 
@@ -1227,6 +1230,8 @@ function RestoreTopic()
 	// Didn't find some things?
 	if (!empty($unfound_messages))
 		fatal_lang_error('restore_not_found', false, array(implode('<br>', $unfound_messages)));
+
+	clean_cache();
 
 	// Just send them to the index if they get here.
 	redirectexit();
@@ -1487,6 +1492,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 	}
 
 	updateLastMessages(array($from_board, $target_board));
+	clean_cache();
 }
 
 /**

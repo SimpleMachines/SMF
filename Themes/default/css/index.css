@@ -2256,7 +2256,7 @@ dl {
 	overflow: auto;
 }
 .centericon {
-	vertical-align: middle;
+	vertical-align: -3px;
 }
 .sizefix {
 	width: 16px;
@@ -2979,7 +2979,7 @@ span.postby {
 	border: none;
 }
 .icons {
-	padding: 0 7px;
+	padding: 0 7px 0 0;
 }
 .moderation {
 	display: table-cell;
@@ -3225,10 +3225,10 @@ div#pollmoderation {
 }
 .messageicon {
 	float: left;
-	margin: -5px 6px -6px -4px;
+	margin: -5px 6px -6px -2px;
 }
 .messageicon img {
-	padding: 0 3px 0 1px !important;
+	padding: 0 3px 0 0px !important;
 }
 .keyinfo h5 {
 	padding: 1px 0 5px 0;
@@ -3258,7 +3258,7 @@ div#pollmoderation {
 	opacity: 0.4;
 }
 .inner {
-	padding: 7px 8px 2px 2px;
+	padding: 7px 8px 5px 2px;
 	margin: 0;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
@@ -3273,7 +3273,7 @@ img.smiley {
 	padding: 12px 0 0 0;
 }
 .attached {
-	padding: 0 6px 8px 6px;
+	padding: 0 10px 10px 0;
 	max-width: 100%;
 }
 .attachments_top {
@@ -3291,6 +3291,7 @@ img.smiley {
 /* Next and previous topic links */
 .nextlinks {
 	text-transform: capitalize;
+	padding-top: 4px;
 }
 /* Styles for the quick reply area. */
 #quickreplybox {
@@ -3422,7 +3423,7 @@ ul.post_options li {
 	width: 100%;
 	overflow: auto;
 	clear: right;
-	padding: 12px 0 3px 0;
+	padding: 12px 2px 3px 2px;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	line-height: 1.4em;
@@ -3731,6 +3732,7 @@ h3.profile_hd {
 .display_title {
 	font-weight: normal;
 	font-size: 26px;
+	line-height: 24px;
 	margin-bottom: 0.25em;
 }
 

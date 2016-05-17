@@ -1098,7 +1098,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// BBC or the entire attachments feature is disabled
 					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
-						return $data;
+						return $returnContext;
 
 					// Save the attach ID.
 					$attachID = is_array($data) ? $data[0] : $data;
@@ -1146,7 +1146,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// No image. Show a link.
 					else
-						$returnContext .= $currentAttachment['link'];
+						$returnContext = $currentAttachment['link'];
 
 					// Gotta append what we just did.
 					$data[0] = $returnContext;

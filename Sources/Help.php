@@ -95,6 +95,7 @@ function HelpRules()
 	);
 
 	// Have we got a localized one?
+	$context['lbimage_data'] = null;
 	if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
 		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
 	elseif (file_exists($boarddir . '/agreement.txt'))
