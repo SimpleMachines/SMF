@@ -2095,7 +2095,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
