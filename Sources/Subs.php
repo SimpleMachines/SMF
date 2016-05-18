@@ -1139,7 +1139,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							if (!empty($modSettings['attachmentShowImages']))
 								$returnContext = '
 												<a href="'. $currentAttachment['href'] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. $currentAttachment['name'] .'" oncontextmenu="return false">
-													<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'>
+													<img src="'. ($currentAttachment['thumbnail']['has_thumb'] ? $currentAttachment['thumbnail']['href'] : $currentAttachment['href']) .'"'. $alt . $width . $height . $class .'>
 												</a>';
 						}    
 					}
@@ -1341,7 +1341,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
 						$data[0] = '<img src="'. $data[0]  .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
 					else
-						$data[0] = '<a href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'" id="'. $context['lbimage_data']['lightbox_id'] .'"'. $alt . $width . $height . $class .'></a>';
+						$data[0] = '<a href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'"'. $alt . $width . $height . $class .'></a>';
 				},
 				'disabled_content' => '$1',
 			),

@@ -2088,14 +2088,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
+		loadJavascriptFile('jquery-2.2.3.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -2113,8 +2113,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	addInlineJavascript('
 	var Lightbox_help = \''. $txt['lightbox_help'] .'\';
 	var Lightbox_label = \''. $txt['lightbox_label'] .'\';');
-	loadJavascriptFile('lightbox.js', array('defer' => true), 'lightbox');
-	loadCSSFile('lightbox.css', array('minimize' => true), 'lightbox');
+	loadCSSFile('lightbox.css', array(), 'lightbox');
+	loadJavascriptFile('lightbox.js', array(), 'lightbox');
 
 	// add favicon?
 	if(!empty($modSettings['add_favicon_to_links']))
