@@ -325,6 +325,7 @@ blockquote cite:before {
 	font-style: normal;
 	content: '\275D';
 	margin-right: 5px;
+	vertical-align:-7px;
 }
 .bbc_standard_quote {
 	background-color: #e0e6f6;
@@ -3237,7 +3238,7 @@ div#pollmoderation {
 	float: right;
 	color: #333;
 	font-weight: normal;
-	padding: 2px 4px 0 4px;
+	padding: 2px 0 0 4px;
 }
 .subject_title a {
 	font-size: 0.9em;
@@ -3248,9 +3249,10 @@ div#pollmoderation {
 	color: #ad6825;
 	font-weight: bold;
 	opacity: 0.4;
+	margin-top: -20px;
 }
 .inner {
-	padding: 7px 8px 5px 2px;
+	padding: 7px 2px 5px 2px;
 	margin: 0;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;

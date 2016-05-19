@@ -390,8 +390,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " name=" + element.attr('name');
 			if (element.attr('type'))
 				attribs += " type=" + element.attr('type');
-			if (element.attr('class'))
-				attribs += " class=" + element.attr('class');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
@@ -409,8 +407,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' type="' + attrs.type + '"';
 			if (typeof attrs.name !== "undefined")
 				attribs += ' name="' + attrs.name + '"';
-			if (typeof attrs.class !== "undefined")
-				attribs += ' class="' + attrs.class + '"';
 
 			// Is this an image?
 			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';

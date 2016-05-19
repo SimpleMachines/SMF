@@ -215,7 +215,7 @@ function smf_db_replacement__callback($matches)
 		case 'raw':
 			return $replacement;
 		break;
-
+		
 		case 'inet':
 			if ($replacement == 'null')
 				return 'null';

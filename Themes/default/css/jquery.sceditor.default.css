@@ -50,24 +50,26 @@ code, code:before {
 	direction: ltr;
 }
 blockquote {
-	margin: 0 0 20px 0;
+	margin: 0 0 8px 0;
 	padding: 6px 10px;
 	font-size: small;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
 	background-color: #e0e6f6;
-	position: relative;
-	top: 16px;
 }
 blockquote cite {
 	display: block;
 	font-size: 0.9em;
+	border-bottom: 1px solid #aaa;
+}
+blockquote cite:before {
+	color: #aaa;
+	font-size: 22px;
 	font-style: normal;
-	position: relative;
-	top: -26px;
-	left: -10px;
-	height: 0;
+	content: '\275D';
+	margin-right: 5px;
+	vertical-align:-7px;
 }
 div, p {
 	min-height: 1.25em;

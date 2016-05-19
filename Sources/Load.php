@@ -1252,8 +1252,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
-			$row['member_ip'] = !empty($row['member_ip']) ? inet_dtop($row['member_ip']) : inet_dtop($_SERVER['REMOTE_ADDR']);
-			$row['member_ip2'] = !empty($row['member_ip2']) ? inet_dtop($row['member_ip2']) : inet_dtop($_SERVER['REMOTE_ADDR']);
+			if ( isset($row['member_ip']) )
+				$row['member_ip'] = inet_dtop($row['member_ip']);
+			if ( isset($row['member_ip2']) )
+				$row['member_ip2'] = inet_dtop($row['member_ip2']);
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
