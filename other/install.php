@@ -1337,6 +1337,8 @@ function AdminAccount()
 	load_database();
 
 	require_once($sourcedir . '/Subs-Auth.php');
+	
+	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
