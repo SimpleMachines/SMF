@@ -3,7 +3,7 @@ body.lb-disable-scrolling{overflow:hidden;}
 .lightboxOverlay{position:absolute;top:0;left:0;z-index:9999;background-color:black;filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=70);opacity:0.7;display:none;}
 .lightbox{position:absolute;left:0;width:100%;z-index:10000;text-align:center;line-height:0;font-weight:normal;}
 .lightbox .lb-image{display:block;height:auto;max-width:inherit;border-radius:3px;}
-.lightbox a img{border:none;}
+.lightbox a img{border:none;}.lb-link{display:inline-block;Opacity:1;transition:Opacity .25s ease-in-out;}.lb-link:hover{Opacity:0.8;}.lb-link img{display:table-cell;}
 .lb-outerContainer{position:relative;background-color:#5070a0;*zoom:1;width:250px;height:250px;margin:0 auto;border-radius:4px;border-bottom-left-radius:0;border-bottom-right-radius:0;}
 .lb-outerContainer:after{content:"";display:table;clear:both;}
 .lb-container{padding:4px;}

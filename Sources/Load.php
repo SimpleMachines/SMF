@@ -2113,7 +2113,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	addInlineJavascript('
 	var Lightbox_help = \''. $txt['lightbox_help'] .'\';
 	var Lightbox_label = \''. $txt['lightbox_label'] .'\';');
-	loadCSSFile('lightbox.css', array(), 'lightbox');
+	loadCSSFile('lightbox.css', array('defer' => true), 'lightbox');
 	loadJavascriptFile('lightbox.js', array(), 'lightbox');
 
 	// add favicon?

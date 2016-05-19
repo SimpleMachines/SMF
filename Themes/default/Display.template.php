@@ -698,7 +698,7 @@ function template_single_post($message)
 			{
 				echo '
 										<div class="attachments_top">'. (isset($context['lbimage_data']['lightbox_id']) ? '
-											<a href="' . $attachment['href'] . '" title="'. $txt['lightbox_expand'] .'" data-lightbox="' . $context['lbimage_data']['lightbox_id'] . '" data-title="' . $attachment['name'] . '" oncontextmenu="return false">' : '');
+											<a class="lb-link" href="' . $attachment['href'] . '" title="'. $txt['lightbox_expand'] .'" data-lightbox="' . $context['lbimage_data']['lightbox_id'] . '" data-title="' . $attachment['name'] . '" oncontextmenu="return false">' : '');
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
@@ -714,7 +714,7 @@ function template_single_post($message)
 
 			echo '
 										<div class="attachments_bot">
-											<a href="' . $attachment['href'] . '"><img src="' . $settings['images_url'] . '/icons/clip.png" class="centericon" alt="*">&nbsp;' . $attachment['name'] . '</a> ';
+											' . (!$attachment['is_image'] ? '<a href="' . $attachment['href'] . '"><img src="' . $settings['images_url'] . '/icons/clip.png" class="centericon" alt="*">&nbsp;' . $attachment['name'] . '</a> ' : $attachment['name'] . ' ');
 
 			if (!$attachment['is_approved'] && $context['can_approve'])
 				echo '
