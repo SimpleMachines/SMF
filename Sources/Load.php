@@ -1946,16 +1946,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'spellcheck',
 	);
 
+	// area => parent action
 	$simpleAreas = array(
-		'profile' => 'popup',
-		'profile' => 'alerts_popup',
+		'popup' => 'profile',
+		'alerts_popup' => 'profile',
 	);
 
+	// subAction => parent action
 	$simpleSubActions = array(
-		'pm' => 'popup',
+		'popup' => 'pm',
 	);
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) && array_search($_REQUEST['area'], $simpleAreas) == $context['current_action']) || (in_array($context['current_subaction'], $simpleSubActions) && array_search($context['current_subaction'], $simpleSubActions) == $context['current_action']);
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && isset($simpleAreas[$_REQUEST['area']]) && $simpleAreas[$_REQUEST['area']] == $context['current_action']) || (isset($simpleSubActions[$context['current_subaction']]) && $simpleSubActions[$context['current_subaction']] == $context['current_action']);
 
 	// Output is fully XML, so no need for the index template.
 	if (isset($_REQUEST['xml']))
