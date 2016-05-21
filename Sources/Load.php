@@ -1942,36 +1942,47 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'findmember',
 		'helpadmin',
 		'printpage',
-		'quotefast',
 		'spellcheck',
 	);
 
-	// area => parent action
+	// Parent action => array of areas
 	$simpleAreas = array(
-		'popup' => 'profile',
-		'alerts_popup' => 'profile',
+		'profile' => array('popup', 'alerts_popup',),
 	);
 
-	// subAction => parent action
+	// Parent action => array of subactions
 	$simpleSubActions = array(
-		'popup' => 'pm',
+		'pm' => array('popup',),
 	);
-	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && isset($simpleAreas[$_REQUEST['area']]) && $simpleAreas[$_REQUEST['area']] == $context['current_action']) || (isset($simpleSubActions[$context['current_subaction']]) && $simpleSubActions[$context['current_subaction']] == $context['current_action']);
+
+	// Actions that specifically uses XML output.
+	$xmlActions = array(
+		'quotefast',
+		'jsmodify',
+		'xmlhttp',
+	);
+
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
+
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
+	(isset($simpleAreas[$context['current_action']]) && in_array($simpleAreas[$context['current_action']], $_REQUEST['area'])) ||
+	(isset($simpleSubActions[$context['current_action']]) && in_array($simpleSubActions[$context['current_action']], $context['current_subaction']));
 
 	// Output is fully XML, so no need for the index template.
-	if (isset($_REQUEST['xml']))
+	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');
 		$context['template_layers'] = array();
 	}
+
 	// These actions don't require the index template at all.
 	elseif (!empty($context['simple_action']))
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
 	}
+
 	else
 	{
 		// Custom templates to load, or just default?
