@@ -73,11 +73,11 @@ $txt['report_profile'] = 'Report profile of \'%1$s\'';
 $txt['reported_profile'] = 'Reported user';
 $txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d KB';
-$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$d MB';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d KB';
-$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$d MB';
-$txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$s KB';
+$txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$s MB';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$s KB';
+$txt['attach_restrict_attachmentSizeLimit_MB'] = 'maximum individual size %1$s MB';
+$txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$s per post';
 $txt['attach_restrictions'] = 'Restrictions:';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';

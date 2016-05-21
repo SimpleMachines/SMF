@@ -200,6 +200,7 @@ function ModifyPostSettings($return_config = false)
 			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed)
 			array('check', 'enableSpellChecking', 'subtext' => ($can_spell_check ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
 			array('check', 'add_favicon_to_links'),
+			array('check', 'use_lightbox', 'subtext' => $txt['use_lightbox_sub']),
 			array('check', 'disable_wysiwyg'),
 			array('check', 'disable_quick_reply'),
 			array('check', 'additional_options_collapsable'),

@@ -1156,7 +1156,7 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
-				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type], 0));
+				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type], comma_format($modSettings[$type] , 0));
 				// Show some numbers. If they exist.
 				if ($type == 'attachmentNumPerPostLimit' && $context['attachments']['quantity'] > 0)
 					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
@@ -1237,8 +1237,8 @@ function Post($post_errors = array())
 			maxFiles: '. $context['num_allowed_attachments'] .',
 			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
 			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
 		});
 	});', true);
 	}

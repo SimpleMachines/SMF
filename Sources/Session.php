@@ -34,6 +34,7 @@ function loadSession()
 	@ini_set('session.use_trans_sid', false);
 	@ini_set('arg_separator.output', '&amp;');
 
+	$cookparts = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 	if (!empty($modSettings['globalCookies']))
 	{
 		$parsed_url = parse_url($boardurl);
@@ -41,7 +42,11 @@ function loadSession()
 		if (preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
 			@ini_set('session.cookie_domain', '.' . $parts[1]);
 	}
-	// @todo Set the session cookie path?
+	else
+		@ini_set('session.cookie_domain', $cookparts[0]);
+	@ini_set('session.cookie_path', $cookparts[1]);
+	@ini_set('session.cookie_httponly', !empty($modSettings['httponlyCookies']));
+	@ini_set('session.cookie_secure', !empty($modSettings['secureCookies']));
 
 	// If it's already been started... probably best to skip this.
 	if ((ini_get('session.auto_start') == 1 && !empty($modSettings['databaseSession_enable'])) || session_id() == '')

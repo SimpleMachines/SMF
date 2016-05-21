@@ -48,7 +48,7 @@ function smf_fileUpload(oOptions)
 				$('#maxFiles_progress span').width(range_maxFile + '%');
 
 				// Show or udate the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxFilesize).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize * 0.001, 3)));
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize/1024).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize/1024), 3));
 
 				if (myDropzone.options.totalMaxSize == 0){
 					$('#maxFiles_progress').hide();
@@ -62,7 +62,7 @@ function smf_fileUpload(oOptions)
 
 			// This file has reached the max total size per post.
 			if (myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
-				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize/1024)));
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;

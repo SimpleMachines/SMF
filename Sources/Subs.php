@@ -684,6 +684,8 @@ function comma_format($number, $override_decimal_count = false)
 	global $txt;
 	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
 
+	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
+
 	// Cache these values...
 	if ($decimal_separator === null)
 	{
