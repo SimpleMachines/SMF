@@ -3451,8 +3451,8 @@ function custMinify($data, $type, $do_deferred = false)
 			if (file_exists($cTempPath . $file['fileName']))
 				$toAdd = $cTempPath . $file['fileName'];
 
-			// Perhaps the default theme has it?
-			else if (file_exists($cDefaultThemePath . $file['fileName']))
+			// Perhaps the default theme has it? only if we want to force loading the file from the default theme.
+			else if (file_exists($cDefaultThemePath . $file['fileName']) && !$file['options']['force_current'])
 				$toAdd = $cDefaultThemePath . $file['fileName'];
 
 			// The file couldn't be located so it won't be added, log this error.

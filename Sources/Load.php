@@ -1947,15 +1947,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	);
 
 	$simpleAreas = array(
-		'popup',
-		'alerts_popup',
+		'profile' => 'popup',
+		'profile' => 'alerts_popup',
 	);
 
 	$simpleSubActions = array(
-		'popup',
+		'pm' => 'popup',
 	);
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions);
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) && array_search($_REQUEST['area'], $simpleAreas) == $context['current_action']) || (in_array($context['current_subaction'], $simpleSubActions) && array_search($context['current_subaction'], $simpleSubActions) == $context['current_action']);
 
 	// Output is fully XML, so no need for the index template.
 	if (isset($_REQUEST['xml']))
