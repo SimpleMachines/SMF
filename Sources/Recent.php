@@ -1243,24 +1243,14 @@ function UnreadTopics()
 		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 		if ($topic_length > $messages_per_page)
 		{
-			$tmppages = array();
-			$tmpa = 1;
-			for ($tmpb = 0; $tmpb < $topic_length; $tmpb += $messages_per_page)
-			{
-				$tmppages[] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.' . $tmpb . ';topicseen">' . $tmpa . '</a>';
-				$tmpa++;
-			}
-			// Show links to all the pages?
-			if (count($tmppages) <= 5)
-				$pages = '&#171; ' . implode(' ', $tmppages);
-			// Or skip a few?
-			else
-				$pages = '&#171; ' . $tmppages[0] . ' ' . $tmppages[1] . ' ... ' . $tmppages[count($tmppages) - 2] . ' ' . $tmppages[count($tmppages) - 1];
+			$start = -1;
+			$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $topic_length, $messages_per_page, true, false);
 
+			// If we can use all, show all.
 			if (!empty($modSettings['enableAllMessages']) && $topic_length < $modSettings['enableAllMessages'])
 				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
-			$pages .= ' &#187;';
 		}
+
 		else
 			$pages = '';
 
