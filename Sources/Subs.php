@@ -1083,7 +1083,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'attach',
-				'type' => 'unparsed_equals_content',
+				'type' => 'unparsed_content',
 				'parameters' => array(
 					'name' => array('optional' => true),
 				),
@@ -1097,7 +1097,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = is_array($data) ? $data[0] : $data;
+					$attachID = $data;
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1106,7 +1106,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data[0] = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{
@@ -1123,7 +1123,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$returnContext .= $currentAttachment['link'];
 
 					// Gotta append what we just did.
-					$data[0] = $returnContext;
+					$data = $returnContext;
 				},
 			),
 			array(
