@@ -1456,7 +1456,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'custom_fields' => array(),
 		);
 
-	// If the set isn't minimal then load their avatar as ell.
+	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
 		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
@@ -1492,8 +1492,13 @@ function loadMemberContext($user, $display_custom_fields = false)
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
 	{
 		$memberContext[$user]['custom_fields'] = array();
+
 		if (!isset($context['display_fields']))
 			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
+
+		// Make sure json_decode returned an array.
+		if (!is_array($context['display_fields']))
+			$context['display_fields'] = array();
 
 		foreach ($context['display_fields'] as $custom)
 		{
