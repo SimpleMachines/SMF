@@ -1971,7 +1971,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
 	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
-	(isset($simpleSubActions[$context['current_action']]) && in_array($simpleSubActions[$context['current_action']], $context['current_subaction']));
+	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
 	// Output is fully XML, so no need for the index template.
 	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
