@@ -595,8 +595,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			{
 				attr_date = attrs.date;
 				tDate = new Date(attr_date * 1000);
-				tzOfs = tDate.getTimezoneOffset() * 60;
-				tDate = new Date((parseInt(attr_date) + parseInt(tzOfs)) * 1000);
 				sDay = '0' + tDate.getDate();
 				sHour = '0' + tDate.getHours();
 				sMin = '0' + tDate.getMinutes();

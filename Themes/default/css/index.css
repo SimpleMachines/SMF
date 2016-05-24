@@ -1545,6 +1545,10 @@ fieldset.merge_options {
 .login p {
 	text-align: center;
 }
+.login p > a {
+	margin-top: 10px;
+	display: inline-block;
+}
 
 /* Additional register fields */
 #registration fieldset {
@@ -3780,6 +3784,9 @@ h3.profile_hd {
 	width:32%;
 	min-height:30px;
 	vertical-align: middle;
+}
+.attach-ui {
+	margin-top: 24px;
 }
 .attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
 	display:none;

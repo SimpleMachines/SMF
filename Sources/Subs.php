@@ -374,9 +374,9 @@ function updateMemberData($members, $data)
 		elseif ($var == 'birthdate')
 			$type = 'date';
 		elseif ($var == 'member_ip')
-			$type = 'string';
+			$type = 'inet';
 		elseif ($var == 'member_ip2')
-			$type = 'string';
+			$type = 'inet';
 
 		// Doing an increment?
 		if ($type == 'int' && ($val === '+' || $val === '-'))
@@ -682,8 +682,6 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 function comma_format($number, $override_decimal_count = false)
 {
 	global $txt;
-	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
-
 	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
 
 	// Cache these values...
@@ -1090,6 +1088,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'name' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
+					'alt' => array('optional' => true),
+					'lbox' => array('optional' => true),
 				),
 				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $sourcedir, $txt)
@@ -1116,21 +1116,25 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						// width, height, alt, class set?
-						$width = $height = $alt = $class = '';
+						$width = $height = $alt = $class = $noLightbox = '';
+
+						// class for lightbox given?
 						if (isset($context['lbimage_data']['class']) && !empty($context['lbimage_data']['class']))
 							$class = ' class="'. $context['lbimage_data']['class'] .'"';
 
-						if (preg_match('/alt=(\S+|$)/', $data[1], $tempalt) && isset($tempalt[1]))
-							$alt = ' alt="'. $tempalt[1] .'"';
+						// width, height, alt set?
+						preg_match('/width=([0-9]+)/', $data[1], $tmp);
+						$width = isset($tmp[1]) ? ' width="'. $tmp[1] .'"' : '';
+						preg_match('/height=([0-9]+)/', $data[1], $tmp);
+						$height = isset($tmp[1]) ? ' height="'. $tmp[1] .'"' : '';
+						preg_match('/alt=(\S+)/', $data[1], $tmp);
+						$alt = isset($tmp[1]) ? ' alt="'. $tmp[1] .'"' : '';
+	
+						// Ligtbox disable ?
+						preg_match('/lbox=(\S+)/', $data[1], $tmp);
+						$noLightbox = isset($tmp[1]) && $tmp[1] == 'off';
 
-						if(preg_match('/width=([0-9]+)/', $data[1], $tmpwidth) >= 0 && preg_match('/height=([0-9]+)/', $data[1], $tmpheight) >= 0)
-						{
-							$width = isset($tmpwidth[1]) ? ' width="'. $tmpwidth[1] .'"' : '';
-							$height = isset($tmpheight[1]) ? ' height="'. $tmpheight[1] .'"' : '';
-						}
-
-						if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
+						if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']) || !empty($noLightbox))
 						{
 							if (!empty($modSettings['attachmentShowImages']))
 								$returnContext = '
@@ -1311,6 +1315,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'alt' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
+					'lbox' => array('optional' => true),
 				),
 				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled)
@@ -1327,20 +1332,25 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (substr($data[0], 0, 8) != 'https://' && $image_proxy_enabled)
 						$data[0] = $boardurl . '/proxy.php?request=' . urlencode($data[0]) . '&hash=' . md5($data[0] . $image_proxy_secret);
 
-					// width, height, alt, class set?
-					$width = $heigth = $alt = $class = '';
-					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
+					$width = $height = $alt = $class = $noLightbox = '';
 
-					if (preg_match('/alt=(\S+|$)/', $data[1], $tmpalt) && isset($tmpalt[1]))
-						$alt = ' alt="'. $tmpalt[1] .'"';
+					// class for lightbox given?
+					if (isset($context['lbimage_data']['class']) && !empty($context['lbimage_data']['class']))
+						$class = ' class="'. $context['lbimage_data']['class'] .'"';
 
-					if(preg_match('/width=([0-9]+)/', $data[1], $tmpwidth) >= 0 && preg_match('/height=([0-9]+)/', $data[1], $tmpheight) >= 0)
-					{
-						$width = isset($tmpwidth[1]) ? ' width="'. $tmpwidth[1] .'"' : '';
-						$height = isset($tmpheight[1]) ? ' height="'. $tmpheight[1] .'"' : '';
-					}
+					// width, height, alt set?
+					preg_match('/width=([0-9]+)/', $data[1], $tmp);
+					$width = isset($tmp[1]) ? ' width="'. $tmp[1] .'"' : '';
+					preg_match('/height=([0-9]+)/', $data[1], $tmp);
+					$height = isset($tmp[1]) ? ' height="'. $tmp[1] .'"' : '';
+					preg_match('/alt=(\S+)/', $data[1], $tmp);
+					$alt = isset($tmp[1]) ? ' alt="'. $tmp[1] .'"' : '';
+	
+					// Ligtbox disable ?
+					preg_match('/lbox=(\S+)/', $data[1], $tmp);
+					$noLightbox = isset($tmp[1]) && $tmp[1] == 'off';
 
-					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
+					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']) || !empty($noLightbox))
 						$data[0] = '<img src="'. $data[0]  .'"'. $alt . $width . $height . $class .' oncontextmenu="return false">';
 					else
 						$data[0] = '<a class="lb-link" href="'. $data[0] .'" title="'. $txt['lightbox_expand'] .'" data-lightbox="'. $context['lbimage_data']['lightbox_id'] .'" data-title="'. substr($data[0], strrpos($data[0], '/')+1) .'" oncontextmenu="return false"><img src="'. $data[0]  .'"'. $alt . $width . $height . $class .'></a>';
@@ -1365,7 +1375,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 
-					// class given?
+					// class for lightbox given?
 					$class = isset($context['lbimage_data']['class']) ? ' class="'. $context['lbimage_data']['class'] .'"' : '';
 
 					if (isset($_REQUEST['preview']) || !isset($context['lbimage_data']['lightbox_id']))
@@ -3510,8 +3520,8 @@ function custMinify($data, $type, $do_deferred = false)
 			if (file_exists($cTempPath . $file['fileName']))
 				$toAdd = $cTempPath . $file['fileName'];
 
-			// Perhaps the default theme has it?
-			else if (file_exists($cDefaultThemePath . $file['fileName']))
+			// Perhaps the default theme has it? only if we want to force loading the file from the default theme.
+			else if (file_exists($cDefaultThemePath . $file['fileName']) && !$file['options']['force_current'])
 				$toAdd = $cDefaultThemePath . $file['fileName'];
 
 			// The file couldn't be located so it won't be added, log this error.
@@ -4978,7 +4988,7 @@ function inet_dtop($bin)
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
-	$ip_address = @inet_ntop($bin);
+	$ip_address = inet_ntop($bin);
 
 	return $ip_address;
 }

@@ -1237,8 +1237,8 @@ function Post($post_errors = array())
 			maxFiles: '. $context['num_allowed_attachments'] .',
 			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
-			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
 			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
+			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
 		});
 	});', true);
 	}

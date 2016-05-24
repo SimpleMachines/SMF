@@ -1217,7 +1217,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			break;
 		case 'profile':
 			$select_columns .= ', mem.additional_groups, mem.id_theme, mem.pm_ignore_list, mem.pm_receive_from,
-			mem.time_format, mem.timezone, mem.secret_question, mem.smiley_set, mem.tfa_secret, mem.member_ip, mem.member_ip2,
+			mem.time_format, mem.timezone, mem.secret_question, mem.smiley_set, mem.tfa_secret,
 			mem.total_time_logged_in, lo.url, mem.ignore_boards, mem.password_salt, mem.pm_prefs, mem.buddy_list, mem.alerts';
 			break;
 		case 'minimal':
@@ -1496,42 +1496,45 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!isset($context['display_fields']))
 			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
 
-		foreach ($context['display_fields'] as $custom)
+		if(is_array($context['display_fields']))
 		{
-			if (!isset($custom['col_name']) || trim($custom['col_name']) == '' || empty($profile['options'][$custom['col_name']]))
-				continue;
-
-			$value = $profile['options'][$custom['col_name']];
-
-			// Don't show the "disabled" option for the "gender" field.
-			if ($custom['col_name'] == 'cust_gender' && $value == 'Disabled')
-				continue;
-
-			// BBC?
-			if ($custom['bbc'])
+			foreach ($context['display_fields'] as $custom)
 			{
-				$context['lbimage_data'] = null;
-				$value = parse_bbc($value);
+				if (!isset($custom['col_name']) || trim($custom['col_name']) == '' || empty($profile['options'][$custom['col_name']]))
+					continue;
+
+				$value = $profile['options'][$custom['col_name']];
+
+				// Don't show the "disabled" option for the "gender" field.
+				if ($custom['col_name'] == 'cust_gender' && $value == 'Disabled')
+					continue;
+
+				// BBC?
+				if ($custom['bbc'])
+				{
+					$context['lbimage_data'] = null;
+					$value = parse_bbc($value);
+				}
+				// ... or checkbox?
+				elseif (isset($custom['type']) && $custom['type'] == 'check')
+					$value = $value ? $txt['yes'] : $txt['no'];
+
+				// Enclosing the user input within some other text?
+				if (!empty($custom['enclose']))
+					$value = strtr($custom['enclose'], array(
+						'{SCRIPTURL}' => $scripturl,
+						'{IMAGES_URL}' => $settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{INPUT}' => $value,
+					));
+
+				$memberContext[$user]['custom_fields'][] = array(
+					'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
+					'col_name' => $custom['col_name'],
+					'value' => un_htmlspecialchars($value),
+					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
+				);
 			}
-			// ... or checkbox?
-			elseif (isset($custom['type']) && $custom['type'] == 'check')
-				$value = $value ? $txt['yes'] : $txt['no'];
-
-			// Enclosing the user input within some other text?
-			if (!empty($custom['enclose']))
-				$value = strtr($custom['enclose'], array(
-					'{SCRIPTURL}' => $scripturl,
-					'{IMAGES_URL}' => $settings['images_url'],
-					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => $value,
-				));
-
-			$memberContext[$user]['custom_fields'][] = array(
-				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
-				'col_name' => $custom['col_name'],
-				'value' => un_htmlspecialchars($value),
-				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
-			);
 		}
 	}
 
@@ -1954,15 +1957,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	);
 
 	$simpleAreas = array(
-		'popup',
-		'alerts_popup',
+		'profile' => 'popup',
+		'profile' => 'alerts_popup',
 	);
 
 	$simpleSubActions = array(
-		'popup',
+		'pm' => 'popup',
 	);
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions);
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) && array_search($_REQUEST['area'], $simpleAreas) == $context['current_action']) || (in_array($context['current_subaction'], $simpleSubActions) && array_search($context['current_subaction'], $simpleSubActions) == $context['current_action']);
 
 	// Output is fully XML, so no need for the index template.
 	if (isset($_REQUEST['xml']))
