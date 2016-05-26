@@ -2253,7 +2253,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$data = substr($data, 4);
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = strtr($tag['content'], array('$1' => $data));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + 3 + $tag_strlen);
@@ -2296,7 +2296,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => $data[1]));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos3 + 3 + $tag_strlen);
@@ -2325,7 +2325,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$data[0] = substr($message, $pos2 + 1, $pos3 - $pos2 - 1);
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = $tag['content'];
 			foreach ($data as $k => $d)
@@ -2343,7 +2343,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$data = explode(',', substr($message, $pos1, $pos2 - $pos1));
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			// Fix after, for disabled code mainly.
 			foreach ($data as $k => $d)
@@ -2382,7 +2382,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			// For parsed content, we must recurse to avoid security problems.
 			if ($tag['type'] != 'unparsed_equals')
