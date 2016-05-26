@@ -327,7 +327,7 @@ function template_body_above()
 					<div class="popup_window description">
 						<div class="popup_heading">', $txt['mobile_user_menu'],'
 						<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-						', template_menu(), '
+						', template_menu(true), '
 					</div>
 				</div>';
 
@@ -461,19 +461,24 @@ function theme_linktree($force_show = false)
 /**
  * Show the menu up top. Something like [home] [help] [profile] [logout]...
  */
-function template_menu()
+function template_menu($is_mobile = false)
 {
 	global $context;
 
+	if ($is_mobile == true)
+		$id_suffix = '_mobile';
+	else
+		$id_suffix = '';
+
 	echo '
-				<div id="main_menu">
-					<ul class="dropmenu" id="menu_nav">';
+				<div id="main_menu', $id_suffix, '">
+					<ul class="dropmenu" id="menu_nav', $id_suffix, '">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
+						<li id="button_', $act, $id_suffix, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
 								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
 							</a>';
