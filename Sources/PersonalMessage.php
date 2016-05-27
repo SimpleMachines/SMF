@@ -4048,8 +4048,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => json_decode($row['criteria'], true),
-			'actions' => json_decode($row['actions'], true),
+			'criteria' => smf_json_decode($row['criteria'], true),
+			'actions' => smf_json_decode($row['actions'], true),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

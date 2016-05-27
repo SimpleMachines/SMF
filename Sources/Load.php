@@ -255,7 +255,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = smf_json_decode(SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -375,7 +375,7 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = json_decode($_COOKIE[$cookiename], true);
+		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true);
 
 		if (is_null($cookie_data))
 			$cookie_data = @unserialize($_COOKIE[$cookiename]);
@@ -386,7 +386,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = json_decode($_SESSION['login_' . $cookiename]);
+		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 		if (is_null($cookie_data))
 			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
@@ -457,7 +457,7 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = json_decode($_COOKIE[$tfacookie]);
+					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
 
 					if (is_null($tfa_data))
 						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
@@ -614,7 +614,7 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$tfa_data = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			if (is_null($tfa_data))
 				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
@@ -1494,11 +1494,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		$memberContext[$user]['custom_fields'] = array();
 
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
-
-		// Make sure json_decode returned an array.
-		if (!is_array($context['display_fields']))
-			$context['display_fields'] = array();
+			$context['display_fields'] = smf_json_decode($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -3353,7 +3349,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @json_decode($value, true);
+	return empty($value) ? null : smf_json_decode($value, true);
 }
 
 /**

@@ -3105,7 +3105,7 @@ function template_header()
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
 				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
+					$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			}
 			else
@@ -3530,7 +3530,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
 	}
 	else
@@ -5231,6 +5231,73 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
+}
+
+/**
+ * Wrapper function for smf_json_decode() with error handling.
+
+ * @param string $json The string to decode.
+ * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
+ * @return array Either an empty array or the decoded data as an array.
+ */
+function smf_json_decode($json, $returnAsArray = false)
+{
+	global $txt;
+
+	// Come on...
+	if (empty($json) || !is_string($json))
+		return array();
+
+	$returnArray = array();
+	$jsonError = false;
+
+	$returnArray = @json_decode($json, $returnAsArray);
+
+	// PHP 5.3 so no json_last_error_msg()
+	switch(json_last_error())
+	{
+		case JSON_ERROR_NONE:
+			$jsonError = false;
+			break;
+		case JSON_ERROR_DEPTH:
+			$jsonError =  'JSON_ERROR_DEPTH';
+			break;
+		case JSON_ERROR_STATE_MISMATCH:
+			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
+			break;
+		case JSON_ERROR_CTRL_CHAR:
+			$jsonError = 'JSON_ERROR_CTRL_CHAR';
+			break;
+		case JSON_ERROR_SYNTAX:
+			$jsonError = 'JSON_ERROR_SYNTAX';
+			break;
+		case JSON_ERROR_UTF8:
+			$jsonError = 'JSON_ERROR_UTF8';
+			break;
+		default:
+			$jsonError = 'unknown';
+			break;
+	}
+
+	// Something went wrong!
+	if (!empty($jsonError))
+	{
+		// Being a wrapper means we lost our smf_error_handler() privileges :(
+		$jsonDebug = debug_backtrace();
+		$jsonDebug = $jsonDebug[0];
+		loadLanguage('Errors');
+
+		if (!empty($jsonDebug))
+			log_error($txt['json_'. $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
+
+		else
+			log_error($txt['json_'. $jsonError], 'critical');
+
+		// Everyone expects an array.
+		return array();
+	}
+
+	return $returnArray;
 }
 
 /**
