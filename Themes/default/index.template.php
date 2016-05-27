@@ -332,7 +332,12 @@ function template_body_above()
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	template_menu();
+	echo '
+	<div id="main_menu">';
+		template_menu();
+
+	echo '
+	</div>';
 
 	theme_linktree();
 
@@ -466,14 +471,13 @@ function template_menu()
 	global $context;
 
 	echo '
-				<div id="main_menu">
-					<ul class="dropmenu" id="menu_nav">';
+					<ul class="dropmenu menu_nav">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
+						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' :'"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
 								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
 							</a>';
@@ -519,8 +523,7 @@ function template_menu()
 	}
 
 	echo '
-					</ul>
-				</div>';
+					</ul>';
 }
 
 /**

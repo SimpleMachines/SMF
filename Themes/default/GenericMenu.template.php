@@ -72,10 +72,10 @@ function template_generic_menu (&$menu_context)
 	global $context;
 
 	echo '
-				<div id="generic_menu">';
+				<div class="generic_menu">';
 
 	echo '
-					<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
+					<ul class="dropmenu dropdown_menu_', $context['cur_menu_id'], '">';
 
 	// Main areas first.
 	foreach ($menu_context['sections'] as $section)

@@ -38,15 +38,16 @@
 	#pm_menu {
 		margin: 0 0 0 -85px;
 	}
-	#main_menu, #generic_menu {
+	#main_menu, .generic_menu {
 		display: none;
 	}
-	#mobile_user_menu #main_menu,
-	div[id^="mobile_generic_menu_"] #generic_menu {
+	#mobile_user_menu .dropmenu,
+	div[id^="mobile_generic_menu_"] .generic_menu {
 		display: block;
 	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
+	.dropmenu li a.active, .dropmenu li a.active:hover,
 	.dropmenu li ul {
 		width: 100%;
 		padding: 0;

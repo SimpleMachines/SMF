@@ -1644,7 +1644,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	border-width: 1px 0 1px 1px;
 }
 
-#generic_menu {
+.generic_menu {
 	margin: 5px 0;
 }
 /* Some lovely generic icons.
