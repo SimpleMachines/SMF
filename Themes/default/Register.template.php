@@ -634,19 +634,15 @@ function template_edit_agreement()
 	// Show the actual agreement in an oversized text box.
 	echo '
 				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
-					<p class="agreement">
-						<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
-					</p>
+					<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
 					<p>
 						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check"> ', $txt['admin_agreement'], '.</label>
 					</p>
-					<div class="flow_auto">
-						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit">
-						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '">
-						<input type="hidden" name="sa" value="agreement">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
-					</div>
+					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit">
+					<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '">
+					<input type="hidden" name="sa" value="agreement">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
 				</form>
 			</div>
 		</div>';
@@ -670,9 +666,7 @@ function template_edit_reserved_words()
 			</div>
 			<div class="windowbg2">
 				<h4>', $txt['admin_reserved_line'], '</h4>
-				<p class="reserved_names">
-					<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
-				</p>
+				<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
 				<dl class="settings">
 					<dt>
 						<label for="matchword">', $txt['admin_match_whole'], '</label>
