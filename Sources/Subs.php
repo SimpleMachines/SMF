@@ -2101,7 +2101,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += strlen($given_param_string);
 			}
 			else
+			{
 				$tag = $possible;
+				$params = array();
+			}
 			break;
 		}
 
