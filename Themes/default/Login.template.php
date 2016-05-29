@@ -76,14 +76,23 @@ function template_login()
 								method: "POST",
 								data: form.serialize(),
 								success: function(data) {
-									if (data.indexOf("<bo" + "dy") > -1)
-										document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
-									else {
-										form.parent().html($(data).find(".roundframe").html());
+									if (data.indexOf("<bo" + "dy") > -1) {
+										document.open();
+										document.write(data);
+										document.close();
 									}
+									else
+										form.parent().html($(data).find(".roundframe").html());
 								},
-								error: function() {
-									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+								error: function(xhr) {
+									var data = xhr.responseText;
+									if (data.indexOf("<bo" + "dy") > -1) {
+										document.open();
+										document.write(data);
+										document.close();
+									}
+									else
+										form.parent().html($(data).filter("#fatal_error").html());
 								}
 							});
 
