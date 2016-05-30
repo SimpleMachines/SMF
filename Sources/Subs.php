@@ -3213,8 +3213,9 @@ function template_footer()
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
  * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
+ * @param bool $skip_minify If true will skip minify process
  */
-function template_javascript($do_deferred = false)
+function template_javascript($do_deferred = false, $skip_minify = false)
 {
 	global $context, $modSettings, $settings;
 
@@ -3256,7 +3257,7 @@ function template_javascript($do_deferred = false)
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (empty($skip_minify) && !empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			if ($do_deferred && !empty($js_file['options']['defer']))
 				$toMinifyDefer[] = $js_file;
@@ -3276,9 +3277,13 @@ function template_javascript($do_deferred = false)
 
 	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
 	{
-		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
-		echo '
+		// Minify process couldn't work, retry this without minify.
+		if (empty($result))
+			template_javascript($do_deferred, true);
+		else
+			echo '
 	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
 
@@ -3313,8 +3318,10 @@ function template_javascript($do_deferred = false)
 
 /**
  * Output the CSS files
+ *
+ * @param bool $skip_minify If true will skip minify process
  */
-function template_css()
+function template_css($skip_minify = false)
 {
 	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
 
@@ -3331,7 +3338,7 @@ function template_css()
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (empty($skip_minify) && !empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			$toMinify[] = $file;
 
@@ -3346,9 +3353,13 @@ function template_css()
 
 	if (!empty($toMinify))
 	{
-		custMinify($toMinify, 'css');
+		$result = custMinify($toMinify, 'css');
 
-		echo '
+		// Minify process couldn't work, retry this without minify.
+		if (empty($result))
+			template_css(true);
+		else
+			echo '
 	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
 	}
 
@@ -3408,7 +3419,7 @@ function custMinify($data, $type, $do_deferred = false)
 		return true;
 
 	// Get all themes. Because reasons!
-	require_once $sourcedir . '/Subs-Themes.php';
+	require_once($sourcedir . '/Subs-Themes.php');
 	get_all_themes(true);
 
 	// Some globals witchcraft.
@@ -3416,14 +3427,13 @@ function custMinify($data, $type, $do_deferred = false)
 		return false;
 
 	// Yep, need a bunch of files.
-	require_once $sourcedir . '/minify/src/Minify.php';
-	require_once $sourcedir . '/minify/src/'. strtoupper($type) .'.php';
-	require_once $sourcedir . '/minify/src/Exception.php';
-	require_once $sourcedir . '/minify/src/Converter.php';
+	require_once($sourcedir . '/minify/src/Minify.php');
+	require_once($sourcedir . '/minify/src/'. strtoupper($type) .'.php');
+	require_once($sourcedir . '/minify/src/Exception.php');
+	require_once($sourcedir . '/minify/src/Converter.php');
 
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
-
 	foreach ($context['themes'] as $cTheme)
 	{
 		// Temp path.
@@ -3438,7 +3448,7 @@ function custMinify($data, $type, $do_deferred = false)
 		{
 			loadLanguage('Errors');
 			log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-			continue;
+			return false;
 		}
 
 		$minifier = new $classType();
