@@ -2976,6 +2976,8 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	// Set some specific vars.
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](un_htmlspecialchars($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
+
+	call_integration_hook('integrate_theme_context');
 }
 
 /**
