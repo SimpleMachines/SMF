@@ -17,9 +17,6 @@ function template_print_above()
 {
 	global $context, $txt, $topic, $scripturl;
 
-	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
-	$url_images = $url_text . ';images';
-
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
@@ -62,7 +59,26 @@ function template_print_above()
 			table {
 				empty-cells: show;
 			}
-			blockquote, code {
+			blockquote {
+				margin: 0 0 8px 0;
+				padding: 6px 10px;
+				font-size: small;
+				border: 1px solid #d6dfe2;
+				border-left: 2px solid #aaa;
+				border-right: 2px solid #aaa;
+			}
+			blockquote cite {
+				display: block;
+				border-bottom: 1px solid #aaa;
+				font-size: 0.9em;
+			}
+			blockquote cite:before {
+				color: #aaa;
+				font-size: 22px;
+				font-style: normal;
+				margin-right: 5px;
+			}
+			code {
 				border: 1px solid #000;
 				margin: 3px;
 				padding: 1px;
@@ -71,10 +87,7 @@ function template_print_above()
 			code {
 				font: x-small monospace;
 			}
-			blockquote {
-				font-size: x-small;
-			}
-			.smalltext, .quoteheader, .codeheader {
+			.smalltext, .codeheader {
 				font-size: x-small;
 			}
 			.largetext {
@@ -97,26 +110,19 @@ function template_print_above()
 			}
 			@media print {
 				.print_options {
-					display:none;
+					display: none;
 				}
 			}
 			@media screen {
 				.print_options {
-					margin:1em;
+					margin: 1em 0;
 				}
 			}
 		</style>
 	</head>
-	<body>
-		<div class="print_options">';
+	<body>';
 
-	// which option is set, text or text&images
-	if (isset($_REQUEST['images']))
-		echo '
-			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
-	else
-		echo '
-			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+	template_print_options();
 
 	echo '
 		</div>
@@ -185,23 +191,33 @@ function template_print_below()
 	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
 	$url_images = $url_text . ';images';
 
-	echo '
-		</div>
-		<div class="print_options">';
+	echo '</div>
+		</div>';
 
-	// Show the text / image links
-	if (isset($_GET['images']))
-		echo '
-			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
-	else
-		echo '
-			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+	template_print_options();
 
 	echo '
-		</div>
 		<div id="footer" class="smalltext">', theme_copyright(), '</div>
 	</body>
 </html>';
 }
 
+function template_print_options()
+{
+	global $scripturl, $topic, $txt;
+
+	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
+	$url_images = $url_text . ';images';
+
+	echo '
+		<div class="print_options">';
+
+	// which option is set, text or text&images
+	if (isset($_REQUEST['images']))
+		echo '
+			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
+	else
+		echo '
+			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+}
 ?>
