@@ -1685,7 +1685,4 @@ $(function()
 
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
-
-	// Resize large bbc images.
-	smc_resize('.bbc_img');
 });
