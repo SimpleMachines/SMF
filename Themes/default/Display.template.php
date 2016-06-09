@@ -624,8 +624,11 @@ function template_single_post($message)
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
 
 	if (!empty($modSettings['show_modify']) && !empty($message['modified']['name']))
-		echo $message['modified']['last_edit_text'];
-	echo '</span>';
+		echo
+										$message['modified']['last_edit_text'];
+
+	echo '
+									</span>';
 
 	echo '
 								</h5>
