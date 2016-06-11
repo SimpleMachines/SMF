@@ -69,6 +69,7 @@ function Memberlist()
 		),
 		'real_name' => array(
 			'label' => $txt['name'],
+			'class' => 'lefttext',
 			'sort' => array(
 				'down' => 'mem.real_name DESC',
 				'up' => 'mem.real_name ASC'

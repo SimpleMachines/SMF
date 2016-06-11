@@ -228,12 +228,6 @@ if (!class_exists('ftp_connection'))
 		var $connection = 'no_connection', $error = false, $last_message, $pasv = array();
 
 		// Create a new FTP connection...
-		function ftp_connection($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-		{
-			if ($ftp_server !== null)
-				$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
-		}
-
 		function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 		{
 			if (substr($ftp_server, 0, 6) == 'ftp://')
@@ -1042,6 +1036,9 @@ function WelcomeLogin()
 	$writable_files = array(
 		$boarddir . '/Settings.php',
 		$boarddir . '/Settings_bak.php',
+		$boarddir . '/db_last_error.php',
+		$modSettings['theme_dir'] . '/css/minified.css',
+		$modSettings['theme_dir'] . '/scripts/minified.js',
 	);
 
 	// Do we need to add this setting?
@@ -3529,6 +3526,9 @@ function makeFilesWritable(&$files)
 
 			if (!isset($upcontext['chmod']['username']))
 				$upcontext['chmod']['username'] = $username;
+
+			// Don't forget the login token.
+			$upcontext += createToken('login');
 
 			return false;
 		}
