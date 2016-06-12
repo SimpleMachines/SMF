@@ -44,7 +44,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 		// Legacy format
 		if (is_null($array))
-			$array = @unserialize($_COOKIE[$cookiename]);
+			$array = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
 		if (isset($array[3]) && $array[3] != $cookie_state)
