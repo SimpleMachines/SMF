@@ -103,7 +103,7 @@ function Login2()
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
-				list (, , $timeout) = @unserialize($_COOKIE[$cookiename]);
+				list (, , $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
@@ -111,7 +111,7 @@ function Login2()
 
 			// Try for old format
 			if (is_null($timeout))
-				list (, , $timeout) = @unserialize($_SESSION['login_' . $cookiename]);
+				list (, , $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
@@ -126,7 +126,7 @@ function Login2()
 
 			// If that didn't work, try unserialize instead...
 			if (is_null($tfadata))
-				$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+				$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
@@ -689,7 +689,7 @@ function Logout($internal = false, $redirect = true)
 
 		// If that failed, try the old method
 		if (is_null($tfadata))
-			$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
