@@ -499,7 +499,7 @@ function ModifyCacheSettings($return_config = false)
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
-		// we need to save the $cache_enable to $modSettings as well
+		// We need to save the $cache_enable to $modSettings as well
 		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page

@@ -21,7 +21,8 @@ if (!defined('SMF'))
  */
 function reloadSettings()
 {
-	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $sourcedir, $context;
+	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
+	global $cache_enable, $sourcedir, $context;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -57,9 +58,11 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
-		if (!empty($modSettings['cache_enable']))
+		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
 	}
+
+	$modSettings['cache_enable'] = $cache_enable;
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
