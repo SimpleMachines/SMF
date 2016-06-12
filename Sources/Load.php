@@ -21,7 +21,8 @@ if (!defined('SMF'))
  */
 function reloadSettings()
 {
-	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $sourcedir, $context;
+	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
+	global $cache_enable, $sourcedir, $context;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -57,9 +58,11 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
-		if (!empty($modSettings['cache_enable']))
+		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
 	}
+
+	$modSettings['cache_enable'] = $cache_enable;
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -255,7 +258,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = smf_json_decode(SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -375,7 +378,7 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = json_decode($_COOKIE[$cookiename], true);
+		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true);
 
 		if (is_null($cookie_data))
 			$cookie_data = @unserialize($_COOKIE[$cookiename]);
@@ -386,7 +389,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = json_decode($_SESSION['login_' . $cookiename]);
+		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 		if (is_null($cookie_data))
 			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
@@ -457,7 +460,7 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = json_decode($_COOKIE[$tfacookie]);
+					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
 
 					if (is_null($tfa_data))
 						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
@@ -614,7 +617,7 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$tfa_data = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			if (is_null($tfa_data))
 				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
@@ -1456,7 +1459,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'custom_fields' => array(),
 		);
 
-	// If the set isn't minimal then load their avatar as ell.
+	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
 		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
@@ -1492,8 +1495,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
 	{
 		$memberContext[$user]['custom_fields'] = array();
+
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
+			$context['display_fields'] = smf_json_decode($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -1942,34 +1946,47 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'findmember',
 		'helpadmin',
 		'printpage',
-		'quotefast',
 		'spellcheck',
 	);
 
+	// Parent action => array of areas
 	$simpleAreas = array(
-		'profile' => 'popup',
-		'profile' => 'alerts_popup',
+		'profile' => array('popup', 'alerts_popup',),
 	);
 
+	// Parent action => array of subactions
 	$simpleSubActions = array(
-		'pm' => 'popup',
+		'pm' => array('popup',),
 	);
-	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || (isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) && array_search($_REQUEST['area'], $simpleAreas) == $context['current_action']) || (in_array($context['current_subaction'], $simpleSubActions) && array_search($context['current_subaction'], $simpleSubActions) == $context['current_action']);
+
+	// Actions that specifically uses XML output.
+	$xmlActions = array(
+		'quotefast',
+		'jsmodify',
+		'xmlhttp',
+	);
+
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
+
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
+	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
+	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
 	// Output is fully XML, so no need for the index template.
-	if (isset($_REQUEST['xml']))
+	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');
 		$context['template_layers'] = array();
 	}
+
 	// These actions don't require the index template at all.
 	elseif (!empty($context['simple_action']))
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
 	}
+
 	else
 	{
 		// Custom templates to load, or just default?
@@ -2318,7 +2335,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
@@ -2415,7 +2432,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
@@ -3335,7 +3352,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @json_decode($value, true);
+	return empty($value) ? null : smf_json_decode($value, true);
 }
 
 /**

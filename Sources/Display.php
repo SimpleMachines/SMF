@@ -1429,6 +1429,13 @@ function prepareDisplayContext($reset = false)
 		'css_class' => $message['approved'] ? 'windowbg' : 'approvebg',
 	);
 
+	// Does the file contains any attachments? if so, change the icon.
+	if (!empty($output['attachment']))
+	{
+		$output['icon'] = 'clip';
+		$output['icon_url'] = $settings[$context['icon_sources'][$output['icon']]] . '/post/' . $output['icon'] . '.png';
+	}
+
 	// Are likes enable?
 	if (!empty($modSettings['enable_likes']))
 		$output['likes'] = array(

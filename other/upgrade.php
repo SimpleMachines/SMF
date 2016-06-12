@@ -1039,6 +1039,7 @@ function WelcomeLogin()
 		$boarddir . '/db_last_error.php',
 		$modSettings['theme_dir'] . '/css/minified.css',
 		$modSettings['theme_dir'] . '/scripts/minified.js',
+		$modSettings['theme_dir'] . '/scripts/minified_deferred.js',
 	);
 
 	// Do we need to add this setting?

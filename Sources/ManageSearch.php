@@ -528,7 +528,7 @@ function CreateMessageIndex()
 
 	if (isset($_REQUEST['resume']) && !empty($modSettings['search_custom_index_resume']))
 	{
-		$context['index_settings'] = json_decode($modSettings['search_custom_index_resume'], true);
+		$context['index_settings'] = smf_json_decode($modSettings['search_custom_index_resume'], true);
 		$context['start'] = (int) $context['index_settings']['resume_at'];
 		unset($context['index_settings']['resume_at']);
 		$context['step'] = 1;

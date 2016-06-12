@@ -3107,7 +3107,7 @@ function template_header()
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
 				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
+					$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			}
 			else
@@ -3215,9 +3215,8 @@ function template_footer()
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
  * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
- * @param bool $skip_minify If true will skip minify process
  */
-function template_javascript($do_deferred = false, $skip_minify = false)
+function template_javascript($do_deferred = false)
 {
 	global $context, $modSettings, $settings;
 
@@ -3259,7 +3258,7 @@ function template_javascript($do_deferred = false, $skip_minify = false)
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (empty($skip_minify) && !empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			if ($do_deferred && !empty($js_file['options']['defer']))
 				$toMinifyDefer[] = $js_file;
@@ -3281,9 +3280,12 @@ function template_javascript($do_deferred = false, $skip_minify = false)
 	{
 		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
-		// Minify process couldn't work, retry this without minify.
-		if (empty($result))
-			template_javascript($do_deferred, true);
+		// Minify process couldn't work, print each individual files.
+		if (!empty($result) && is_array($result))
+			foreach ($result as $minFailedFile)
+				echo '
+	<script src="', $minFailedFile['fileUrl'], '"', !empty($minFailedFile['options']['async']) ? ' async="async"' : '', '></script>';
+
 		else
 			echo '
 	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
@@ -3321,9 +3323,8 @@ function template_javascript($do_deferred = false, $skip_minify = false)
 /**
  * Output the CSS files
  *
- * @param bool $skip_minify If true will skip minify process
  */
-function template_css($skip_minify = false)
+function template_css()
 {
 	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
 
@@ -3340,7 +3341,7 @@ function template_css($skip_minify = false)
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (empty($skip_minify) && !empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			$toMinify[] = $file;
 
@@ -3357,9 +3358,12 @@ function template_css($skip_minify = false)
 	{
 		$result = custMinify($toMinify, 'css');
 
-		// Minify process couldn't work, retry this without minify.
-		if (empty($result))
-			template_css(true);
+		// Minify process couldn't work, print each individual files.
+		if (!empty($result) && is_array($result))
+			foreach ($result as $minFailedFile)
+				echo '
+	<link rel="stylesheet" href="', $minFailedFile['fileUrl'], '">';
+
 		else
 			echo '
 	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
@@ -3400,7 +3404,7 @@ function template_css($skip_minify = false)
  * @param array $data The files to minify.
  * @param string $type either css or js.
  * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
- * @return boolean
+ * @return bool|array If an array the minify process failed and the data is returned intact.
  */
 function custMinify($data, $type, $do_deferred = false)
 {
@@ -3409,24 +3413,17 @@ function custMinify($data, $type, $do_deferred = false)
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
 	$data = !empty($data) ? $data : false;
+	$minFailed = array();
 
 	if (empty($type) || empty($data))
 		return false;
 
 	// Did we already did this?
-	$toCache = cache_get_data('minimized_'. $type, 86400);
+	$toCache = cache_get_data('minimized_'. $settings['theme_id'] .'_'. $type, 86400);
 
 	// Already done?
 	if (!empty($toCache))
 		return true;
-
-	// Get all themes. Because reasons!
-	require_once($sourcedir . '/Subs-Themes.php');
-	get_all_themes(true);
-
-	// Some globals witchcraft.
-	if (empty($context['themes']))
-		return false;
 
 	// Yep, need a bunch of files.
 	require_once($sourcedir . '/minify/src/Minify.php');
@@ -3436,59 +3433,61 @@ function custMinify($data, $type, $do_deferred = false)
 
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
-	foreach ($context['themes'] as $cTheme)
+
+	// Temp path.
+	$cTempPath = $settings['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+
+	// What kind of file are we going to create?
+	$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+	// File has to exists, if it isn't try to create it.
+	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
 	{
-		// Temp path.
-		$cTempPath = $cTheme['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
-		$cDefaultThemePath = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+		loadLanguage('Errors');
+		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
 
-		// What kind of file are we going to create?
-		$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+		// The process failed so roll back to print each individual file.
+		return $data;
+	}
 
-		// File has to exists, if it isn't try to create it.
-		if (!file_exists($toCreate) && @fopen($toCreate, 'w') === false)
+	$minifier = new $classType();
+
+	foreach ($data as $file)
+	{
+		$tempFile = str_replace($file['options']['seed'], '', $file['filePath']);
+		$toAdd = file_exists($tempFile) ? $tempFile : false;
+
+		// The file couldn't be located so it won't be added, log this error.
+		if (empty($toAdd))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-			return false;
+			log_error(sprintf($txt['file_minimize_fail'], $file['fileName']), 'general');
+			continue;
 		}
 
-		$minifier = new $classType();
+		// Add this file to the list.
+		$minifier->add($toAdd);
+	}
 
-		foreach ($data as $file)
-		{
-			$toAdd = '';
+	// Create the file.
+	$minifier->minify($toCreate);
+	unset($minifier);
+	clearstatcache();
 
-			// Check if the file exists on this theme, if not use the default one.
-			if (file_exists($cTempPath . $file['fileName']))
-				$toAdd = $cTempPath . $file['fileName'];
+	// Minify process failed.
+	if (!filesize($toCreate))
+	{
+		loadLanguage('Errors');
+		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
 
-			// Perhaps the default theme has it? only if we want to force loading the file from the default theme.
-			else if (file_exists($cDefaultThemePath . $file['fileName']) && !$file['options']['force_current'])
-				$toAdd = $cDefaultThemePath . $file['fileName'];
-
-			// The file couldn't be located so it won't be added, log this error.
-			if (empty($toAdd))
-			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['file_minimize_fail'], $file['fileName']), 'general');
-				continue;
-			}
-
-			// Add this file to the list.
-			$minifier->add($toAdd);
-		}
-
-		// Create the file.
-		$minifier->minify($toCreate);
-		unset($minifier);
-
-		// Store this for the cache to know which files were created.
-		$toCache[] = $toCreate;
+		// The process failed so roll back to print each individual file.
+		return $data;
 	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_'. $type, (!empty($toCache) ? $toCache : null), 86400);
+	cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, $toCreate, 86400);
 
 	return true;
 }
@@ -3542,7 +3541,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
 	}
 	else
@@ -5243,6 +5242,73 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
+}
+
+/**
+ * Wrapper function for smf_json_decode() with error handling.
+
+ * @param string $json The string to decode.
+ * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
+ * @return array Either an empty array or the decoded data as an array.
+ */
+function smf_json_decode($json, $returnAsArray = false)
+{
+	global $txt;
+
+	// Come on...
+	if (empty($json) || !is_string($json))
+		return array();
+
+	$returnArray = array();
+	$jsonError = false;
+
+	$returnArray = @json_decode($json, $returnAsArray);
+
+	// PHP 5.3 so no json_last_error_msg()
+	switch(json_last_error())
+	{
+		case JSON_ERROR_NONE:
+			$jsonError = false;
+			break;
+		case JSON_ERROR_DEPTH:
+			$jsonError =  'JSON_ERROR_DEPTH';
+			break;
+		case JSON_ERROR_STATE_MISMATCH:
+			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
+			break;
+		case JSON_ERROR_CTRL_CHAR:
+			$jsonError = 'JSON_ERROR_CTRL_CHAR';
+			break;
+		case JSON_ERROR_SYNTAX:
+			$jsonError = 'JSON_ERROR_SYNTAX';
+			break;
+		case JSON_ERROR_UTF8:
+			$jsonError = 'JSON_ERROR_UTF8';
+			break;
+		default:
+			$jsonError = 'unknown';
+			break;
+	}
+
+	// Something went wrong!
+	if (!empty($jsonError))
+	{
+		// Being a wrapper means we lost our smf_error_handler() privileges :(
+		$jsonDebug = debug_backtrace();
+		$jsonDebug = $jsonDebug[0];
+		loadLanguage('Errors');
+
+		if (!empty($jsonDebug))
+			log_error($txt['json_'. $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
+
+		else
+			log_error($txt['json_'. $jsonError], 'critical');
+
+		// Everyone expects an array.
+		return array();
+	}
+
+	return $returnArray;
 }
 
 /**

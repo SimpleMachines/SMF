@@ -698,7 +698,7 @@ function ModifySubscription()
 			$context['sub'] = array(
 				'name' => $row['name'],
 				'desc' => $row['description'],
-				'cost' => @json_decode($row['cost'], true),
+				'cost' => smf_json_decode($row['cost'], true),
 				'span' => array(
 					'value' => $span_value,
 					'unit' => $span_unit,
@@ -1274,14 +1274,14 @@ function ModifyUserSubscription()
 		$context['pending_payments'] = array();
 		if (!empty($row['pending_details']))
 		{
-			$pending_details = @json_decode($row['pending_details'], true);
+			$pending_details = smf_json_decode($row['pending_details'], true);
 			foreach ($pending_details as $id => $pending)
 			{
 				// Only this type need be displayed.
 				if ($pending[3] == 'payback')
 				{
 					// Work out what the options were.
-					$costs = @json_decode($context['current_subscription']['real_cost'], true);
+					$costs = smf_json_decode($context['current_subscription']['real_cost'], true);
 
 					if ($context['current_subscription']['real_length'] == 'F')
 					{
@@ -1843,7 +1843,7 @@ function loadSubscriptions()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Pick a cost.
-		$costs = @json_decode($row['cost'], true);
+		$costs = smf_json_decode($row['cost'], true);
 
 		if ($row['length'] != 'F' && !empty($modSettings['paid_currency_symbol']) && !empty($costs['fixed']))
 			$cost = sprintf($modSettings['paid_currency_symbol'], $costs['fixed']);

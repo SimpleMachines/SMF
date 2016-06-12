@@ -155,7 +155,7 @@ function Who()
 	$url_data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$actions = @json_decode($row['url'], true);
+		$actions = smf_json_decode($row['url'], true);
 		if ($actions === false)
 			continue;
 
@@ -195,7 +195,7 @@ function Who()
 	$spiderContext = array();
 	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] == 2 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
 	{
-		foreach (json_decode($modSettings['spider_name_cache'], true) as $id => $name)
+		foreach (smf_json_decode($modSettings['spider_name_cache'], true) as $id => $name)
 			$spiderContext[$id] = array(
 				'id' => 0,
 				'name' => $name,
@@ -306,7 +306,7 @@ function determineActions($urls, $preferred_prefix = false)
 	foreach ($url_list as $k => $url)
 	{
 		// Get the request parameters..
-		$actions = @json_decode($url[0], true);
+		$actions = smf_json_decode($url[0], true);
 		if ($actions === false)
 			continue;
 
@@ -795,7 +795,7 @@ function Credits($in_admin = false)
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$credit_info = json_decode($row['credits'], true);
+			$credit_info = smf_json_decode($row['credits'], true);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
 			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));

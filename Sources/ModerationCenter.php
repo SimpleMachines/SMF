@@ -45,7 +45,7 @@ function ModerationMain($dont_call = false)
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 	$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -285,7 +285,7 @@ function ModerationHome()
 			$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -1425,7 +1425,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = @json_decode($search_params, true);
+		$search_params = smf_json_decode($search_params, true);
 	}
 
 	// This array houses all the valid search types.

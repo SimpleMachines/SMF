@@ -99,7 +99,7 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 		{
-			list (, , $timeout) = json_decode($_COOKIE[$cookiename], true);
+			list (, , $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
@@ -107,7 +107,7 @@ function Login2()
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
-			list (, , $timeout) = json_decode($_SESSION['login_' . $cookiename]);
+			list (, , $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 			// Try for old format
 			if (is_null($timeout))
@@ -122,7 +122,7 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			// If that didn't work, try unserialize instead...
 			if (is_null($tfadata))
@@ -685,7 +685,7 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+		$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 		// If that failed, try the old method
 		if (is_null($tfadata))

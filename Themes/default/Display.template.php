@@ -495,7 +495,7 @@ function template_single_post($message)
 	{
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+		if ((empty($modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
 
@@ -505,7 +505,7 @@ function template_single_post($message)
 								<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
 
 		// Show their personal text?
-		if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
+		if (!empty($modSettings['show_blurb']) && !empty($message['member']['blurb']))
 			echo '
 								<li class="blurb">', $message['member']['blurb'], '</li>';
 
@@ -533,7 +533,7 @@ function template_single_post($message)
 									<ol class="profile_icons">';
 
 			// Don't show an icon if they haven't specified a website.
-			if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
+			if (!empty($message['member']['website']['url']) && !isset($context['disabled_fields']['website']))
 				echo '
 										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
@@ -624,8 +624,11 @@ function template_single_post($message)
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
 
 	if (!empty($modSettings['show_modify']) && !empty($message['modified']['name']))
-		echo $message['modified']['last_edit_text'];
-	echo '</span>';
+		echo
+										$message['modified']['last_edit_text'];
+
+	echo '
+									</span>';
 
 	echo '
 								</h5>

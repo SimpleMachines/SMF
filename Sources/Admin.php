@@ -39,7 +39,7 @@ function AdminMain()
 	require_once($sourcedir . '/Subs-Menu.php');
 
 	// Some preferences.
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 
 	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
