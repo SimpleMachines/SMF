@@ -926,22 +926,6 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 ---#
 
 /******************************************************************************/
---- Adding auto increments on tables
-/******************************************************************************/
----# Adding autoincrement on themes table
-CREATE TABLE {$db_prefix}tempThemes LIKE {$db_prefix}themes;
-INSERT {$db_prefix}tempThemes SELECT * FROM {$db_prefix}themes;
-
-TRUNCATE TABLE {$db_prefix}themes;
-ALTER TABLE {$db_prefix}themes ADD id_theme id_theme TINYINT(4) PRIMARY KEY UNSIGNED AUTO_INCREMENT;
-
-INSERT {$db_prefix}themes (id_member, variable, value)
-SELECT id_member, variable, value
-FROM {$db_prefix}tempThemes;
-DROP TABLE {$db_prefix}tempThemes;
----#
-
-/******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
 ---# Adding new field_order column...
