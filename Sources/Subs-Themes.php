@@ -384,33 +384,22 @@ function theme_install($to_install = array())
 		unset($context['to_install']['based_on']);
 	}
 
-	// Find the newest id_theme.
-	$result = $smcFunc['db_query']('', '
-		SELECT MAX(id_theme)
-		FROM {db_prefix}themes',
-		array(
-		)
-	);
-	list ($id_theme) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	// This will be theme number...
-	$id_theme++;
-
-	// Last minute changes? although, the actual array is a context value you might want to use the new ID.
-	call_integration_hook('integrate_theme_install', array(&$context['to_install'], $id_theme));
+	// Last minute changes? the actual array is a context value.
+	call_integration_hook('integrate_theme_install', array());
 
 	$inserts = array();
 	foreach ($context['to_install'] as $var => $val)
-		$inserts[] = array($id_theme, $var, $val);
+		$inserts[] = array($var, $val);
 
 	if (!empty($inserts))
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}themes',
-			array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
+			array('variable' => 'string-255', 'value' => 'string-65534'),
 			$inserts,
 			array('id_theme', 'variable')
 		);
+
+	$id_theme = $smcFunc['db_insert_id']('{db_prefix}themes', 'id_theme');
 
 	// Update the known and enable Theme's settings.
 	$known = strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','));

@@ -1061,8 +1061,8 @@ CREATE TABLE {$db_prefix}subscriptions(
 #
 
 CREATE TABLE {$db_prefix}themes (
+  id_theme TINYINT(4) UNSIGNED AUTO_INCREMENT,
   id_member MEDIUMINT(8) DEFAULT '0',
-  id_theme TINYINT(4) UNSIGNED DEFAULT '1',
   variable VARCHAR(255) DEFAULT '',
   value TEXT NOT NULL,
   PRIMARY KEY (id_theme, id_member, variable(30)),
