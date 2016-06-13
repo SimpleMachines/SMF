@@ -380,8 +380,8 @@ function loadUserSettings()
 	{
 		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
 
-		if (empty($cookie_data))
-			$cookie_data = @unserialize($_COOKIE[$cookiename]);
+		if (is_null($cookie_data))
+			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
 		list ($id_member, $password) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
@@ -392,7 +392,7 @@ function loadUserSettings()
 		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 		if (is_null($cookie_data))
-			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
+			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list ($id_member, $password, $login_span) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
@@ -463,7 +463,7 @@ function loadUserSettings()
 					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
 
 					if (is_null($tfa_data))
-						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
+						$tfa_data = safe_unserialize($_COOKIE[$tfacookie]);
 
 					list ($tfamember, $tfasecret) = $tfa_data;
 
@@ -620,7 +620,7 @@ function loadUserSettings()
 			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			if (is_null($tfa_data))
-				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
+				$tfa_data = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
