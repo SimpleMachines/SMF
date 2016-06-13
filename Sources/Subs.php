@@ -5292,7 +5292,7 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 	}
 
 	// Something went wrong!
-	if (!empty($jsonError) && $log)
+	if (!empty($jsonError) && $logIt)
 	{
 		// Being a wrapper means we lost our smf_error_handler() privileges :(
 		$jsonDebug = debug_backtrace();
