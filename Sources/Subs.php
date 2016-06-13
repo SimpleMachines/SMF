@@ -5249,9 +5249,10 @@ function smf_chmod($file, $value = 0)
 
  * @param string $json The string to decode.
  * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
+ * @param bool $logIt To specify if the error will be logged if h}theres an error.
  * @return array Either an empty array or the decoded data as an array.
  */
-function smf_json_decode($json, $returnAsArray = false)
+function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 {
 	global $txt;
 
@@ -5291,7 +5292,7 @@ function smf_json_decode($json, $returnAsArray = false)
 	}
 
 	// Something went wrong!
-	if (!empty($jsonError))
+	if (!empty($jsonError) && $log)
 	{
 		// Being a wrapper means we lost our smf_error_handler() privileges :(
 		$jsonDebug = debug_backtrace();

@@ -310,30 +310,22 @@ function AddMembergroup()
 		$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-		// @todo Check for members with same name too?
-
-		$request = $smcFunc['db_query']('', '
-			SELECT MAX(id_group)
-			FROM {db_prefix}membergroups',
-			array(
-			)
-		);
-		list ($id_group) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-		$id_group++;
+		call_integration_hook('integrate_pre_add_membergroup', array());
 
 		$smcFunc['db_insert']('',
 			'{db_prefix}membergroups',
 			array(
-				'id_group' => 'int', 'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
+				'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
 				'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
 			),
 			array(
-				$id_group, '', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+				'', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
 				'1#icon.png', '', $_POST['group_type'],
 			),
 			array('id_group')
 		);
+
+		$id_group = $smcFunc['db_insert_id']('{db_prefix}membergroups', 'id_group');
 
 		call_integration_hook('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
 
