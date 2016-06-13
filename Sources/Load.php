@@ -378,7 +378,7 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true);
+		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
 
 		if (is_null($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
