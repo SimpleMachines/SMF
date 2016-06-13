@@ -272,9 +272,9 @@ function smf_db_replacement__callback($matches)
 				{
 					if ($replacement == 'null')
 						$replacement[$key] = 'null';
-					if (!isValidIP($replacement))
+					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
+					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($value)));
 				}
 
 				return implode(', ', $replacement);
