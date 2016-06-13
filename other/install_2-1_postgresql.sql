@@ -1580,15 +1580,13 @@ CREATE TABLE {$db_prefix}subscriptions(
 
 CREATE INDEX {$db_prefix}subscriptions_active ON {$db_prefix}subscriptions (active);
 
-CREATE SEQUENCE {$db_prefix}themes_seq;
-
 #
 # Table structure for table `themes`
 #
 
 CREATE TABLE {$db_prefix}themes (
-  id_theme smallint default nextval('{$db_prefix}themes_seq'),
   id_member int NOT NULL default '0',
+  id_theme smallint NOT NULL default '1',
   variable varchar(255) NOT NULL,
   value text NOT NULL,
   PRIMARY KEY (id_theme, id_member, variable)
