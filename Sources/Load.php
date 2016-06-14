@@ -380,7 +380,7 @@ function loadUserSettings()
 	{
 		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
 
-		if (is_null($cookie_data))
+		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
 		list ($id_member, $password) = $cookie_data;
@@ -391,7 +391,7 @@ function loadUserSettings()
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
 
-		if (is_null($cookie_data))
+		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list ($id_member, $password, $login_span) = $cookie_data;
