@@ -1964,6 +1964,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'quotefast',
 		'jsmodify',
 		'xmlhttp',
+		'post2',
 	);
 
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));

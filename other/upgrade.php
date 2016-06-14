@@ -757,17 +757,17 @@ function upgradeExit($fallThrough = false)
 	if (!empty($command_line) && $is_debug)
 	{
 		$active = time() - $upcontext['started'];
-		$hours = floor($active / 3600);     
-		$minutes = intval(($active / 60) % 60);        
-		$seconds = intval($active % 60);     
+		$hours = floor($active / 3600);
+		$minutes = intval(($active / 60) % 60);
+		$seconds = intval($active % 60);
 
 		$totalTime = '';
 		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
 		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
 		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
 
 		if (!empty($totalTime))
 			echo "\n" . 'Upgrade completed in ' . $totalTime . "\n";
@@ -5104,17 +5104,17 @@ function template_database_changes()
 			if ($is_debug)
 			{
 				$active = time() - $upcontext['started'];
-				$hours = floor($active / 3600);     
-				$minutes = intval(($active / 60) % 60);        
-				$seconds = intval($active % 60);     
+				$hours = floor($active / 3600);
+				$minutes = intval(($active / 60) % 60);
+				$seconds = intval($active % 60);
 
 				$totalTime = '';
 				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
 				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
 				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
 			}
 
 			if ($is_debug && !empty($totalTime))
@@ -5141,17 +5141,17 @@ function template_database_changes()
 			if (!empty($upcontext['current_debug_item_num'] == $upcontext['debug_items']))
 			{
 				$active = time() - $upcontext['started'];
-				$hours = floor($active / 3600);     
-				$minutes = intval(($active / 60) % 60);        
-				$seconds = intval($active % 60);     
+				$hours = floor($active / 3600);
+				$minutes = intval(($active / 60) % 60);
+				$seconds = intval($active % 60);
 
 				$totalTime = '';
 				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
 				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
 				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
 			}
 
 			echo '
@@ -5870,19 +5870,19 @@ function template_upgrade_complete()
 			<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
 	$active = time() - $upcontext['started'];
-	$hours = floor($active / 3600);     
-	$minutes = intval(($active / 60) % 60);        
-	$seconds = intval($active % 60);     
+	$hours = floor($active / 3600);
+	$minutes = intval(($active / 60) % 60);
+	$seconds = intval($active % 60);
 
 	if ($is_debug)
 	{
 		$totalTime = '';
 		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';        
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
 		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';        
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
 		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';        
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
 	}
 
 	if ($is_debug && !empty($totalTime))
@@ -5944,7 +5944,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 				'limit' => $limit,
 		));
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$arIp[] = $row[$oldCol]; 
+			$arIp[] = $row[$oldCol];
 		$smcFunc['db_free_result']($request);
 
 		// Special case, null ip could keep us in a loop.
@@ -5963,7 +5963,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 			$updates['ip' . $i] = trim($arIp[$i]);
 			$cases[trim($arIp[$i])] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
-			
+
 			if ($setSize > 0 && $i % $setSize === 0)
 			{
 				if (count($updates) == 1)
