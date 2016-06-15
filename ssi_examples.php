@@ -46,7 +46,7 @@ template_ssi_above();
 			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;http://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
 
 			<h2>Additional Guides &amp; FAQ</h2>
-			<p>Need more information on using SSI.php? Check out <a href="http://docs.simplemachines.org/index.php?topic=400.0">Using SSI.php article</a> or <a href="http://www.simplemachines.org/community/index.php?topic=14906.0">the SSI FAQ</a>.</p>
+			<p>Need more information on using SSI.php? Check out <a href="http://wiki.simplemachines.org/smf/Category:SSI">Using SSI.php article</a>.</p>
 
 			<div id="sidenav" class="windowbg">
 				<span class="topslice"><span></span></span>
@@ -362,8 +362,7 @@ template_ssi_above();
 
 			<div class="ssi_preview" id="ssi_fetchPosts">
 				<h2>Show Single Post</h2>
-				<p>Fetches a post with a particular IDs. By default will only show if you have permission to the see
-				the board in question. This can be overridden by passing the 2nd parameter as <pre>true</pre>.</p>
+				<p>Fetches a post with a particular IDs. By default will only show if you have permission to the see the board in question. This can be overridden by passing the 2nd parameter as true.</p>
 
 				<h3>Code</h3>
 				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php ssi_fetchPosts($postIDs, $isOverride); ?&gt;</code>
@@ -397,9 +396,9 @@ template_ssi_above();
 				ssi_recentTopics() is fetched using the array method, to allow further customizations on the output.
 
 				<h3>Code</h3>
-				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code"><?php echo htmlspecialchars(template_homepage_sample1('source')); ?></code>
+				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">Select</a></div><code class="bbc_code"><?php echo htmlspecialchars(template_homepage_sample1('source')); ?></code>
 				<h3>Result</h3>
-				<iframe src="?view=home1" width="99%" height="300"></iframe>
+				<iframe src="?view=home1" style="width:99%; height:300px;"></iframe>
 			</div>
 		</div>
 		<span class="botslice"><span></span></span>
@@ -550,7 +549,6 @@ function template_homepage_sample1($method = 'source')
 		h3 { font-size: 15px; }
 		a:link,a:visited { color: #FF9000; text-decoration: none; }
 		a:hover { text-decoration: underline; }
-
 		#container { background: #52514E; width: 100%; border: 1px solid midnightblue; line-height: 150%; margin: 0; }
 		#header,#footer { color: lightgray; background-color: #2A2825; clear: both; padding: .5em; }
 		#leftbar { background: #DF7E00; float: left; width: 160px; margin: 0; padding: 1em; }
