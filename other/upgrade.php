@@ -5138,7 +5138,7 @@ function template_database_changes()
 
 		if ($is_debug)
 		{
-			if (!empty($upcontext['current_debug_item_num'] == $upcontext['debug_items']))
+			if ($upcontext['current_debug_item_num'] == $upcontext['debug_items'])
 			{
 				$active = time() - $upcontext['started'];
 				$hours = floor($active / 3600);
