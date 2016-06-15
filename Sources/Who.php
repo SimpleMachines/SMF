@@ -439,6 +439,12 @@ function determineActions($urls, $preferred_prefix = false)
 				if (!empty($integrate_action))
 				{
 					$data[$k] = $integrate_action;
+					if (isset($actions['topic']) && isset($topic_ids[(int) $actions['topic']][$k]))
+						$topic_ids[(int) $actions['topic']][$k] = $integrate_action;
+					if (isset($actions['board']) && isset($board_ids[(int) $actions['board']][$k]))
+						$board_ids[(int) $actions['board']][$k] = $integrate_action;
+					if (isset($actions['u']) && isset($profile_ids[(int) $actions['u']][$k]))
+						$profile_ids[(int) $actions['u']][$k] = $integrate_action;
 					break;
 				}
 			}
