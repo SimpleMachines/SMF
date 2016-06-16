@@ -1315,6 +1315,7 @@ function getBoardTree()
 			b.num_posts, b.num_topics, b.deny_member_groups, c.id_cat, c.name AS cat_name, c.description AS cat_desc, c.cat_order, c.can_collapse
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
+		WHERE {query_wanna_see_board}
 		ORDER BY c.cat_order, b.child_level, b.board_order',
 		array(
 		)
