@@ -5138,7 +5138,7 @@ function template_database_changes()
 
 		if ($is_debug)
 		{
-			if (!empty($upcontext['current_debug_item_num'] == $upcontext['debug_items']))
+			if ($upcontext['current_debug_item_num'] == $upcontext['debug_items'])
 			{
 				$active = time() - $upcontext['started'];
 				$hours = floor($active / 3600);
@@ -5958,7 +5958,9 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$cases = array();
 		for ($i = 0; $i < count($arIp); $i++)
 		{
-			if (empty(trim($arIp[$i])))
+			$arIp[$i] = trim($arIp[$i]);
+
+			if (empty($arIp[$i]))
 				continue;
 
 			$updates['ip' . $i] = trim($arIp[$i]);
