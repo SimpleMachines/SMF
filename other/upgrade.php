@@ -5958,7 +5958,9 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$cases = array();
 		for ($i = 0; $i < count($arIp); $i++)
 		{
-			if (empty(trim($arIp[$i])))
+			$arIp[$i] = trim($arIp[$i]);
+
+			if (empty($arIp[$i]))
 				continue;
 
 			$updates['ip' . $i] = trim($arIp[$i]);
