@@ -4228,7 +4228,7 @@ function serialize_to_json()
 			{
 				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
 				$query = $smcFunc['db_query']('', '
-					SELECT * FROM {db_prefix}themes
+					SELECT id_member, id_theme, value FROM {db_prefix}themes
 					WHERE variable = {string:admin_prefs}',
 						array(
 							'admin_prefs' => 'admin_preferences'
@@ -4239,7 +4239,7 @@ function serialize_to_json()
 				{
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$temp = @safe_unserialize($row['admin_preferences']);
+						$temp = @safe_unserialize($row['value']);
 
 						if ($command_line)
 						{
@@ -4251,7 +4251,7 @@ function serialize_to_json()
 
 						if ($temp !== false)
 						{
-							$row['admin_preferences'] = json_encode($temp);
+							$row['value'] = json_encode($temp);
 
 							// Even though we have all values from the table, UPDATE is still faster than REPLACE
 							$smcFunc['db_query']('', '
@@ -4260,7 +4260,7 @@ function serialize_to_json()
 								WHERE id_theme = {int:theme}
 									AND id_member = {int:member}',
 								array(
-									'prefs' => $row['admin_preferences'],
+									'prefs' => $row['value'],
 									'theme' => $row['id_theme'],
 									'member' => $row['id_member']
 								)
