@@ -3179,7 +3179,7 @@ function cache_put_data($key, $value, $ttl = 120)
 {
 	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable;
+	global $cache_accelerator, $cache_enable, $cache_memcached;
 
 	if (empty($cache_enable))
 		return;
@@ -3198,7 +3198,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	{
 		case 'memcached':
 			// The simple yet efficient memcached.
-			if (function_exists('memcached_set') || function_exists('memcache_set') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			if ((function_exists('memcached_set') || function_exists('memcache_set')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
@@ -3278,8 +3278,8 @@ function cache_put_data($key, $value, $ttl = 120)
 function cache_get_data($key, $ttl = 120)
 {
 	global $boardurl, $modSettings, $memcached;
-	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable;
+	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug, $cachedir;
+	global $cache_accelerator, $cache_enable, $cache_memcached;
 
 	if (empty($cache_enable))
 		return;
@@ -3289,6 +3289,7 @@ function cache_get_data($key, $ttl = 120)
 	{
 		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'get');
 		$st = microtime();
+		$original_key = $key;
 	}
 
 	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
@@ -3297,15 +3298,18 @@ function cache_get_data($key, $ttl = 120)
 	{
 		case 'memcache':
 			// Okay, let's go for it memcached!
-			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
 					get_memcached_server();
 				if (!$memcached)
-					return null;
-
-				$value = (function_exists('memcache_get')) ? memcache_get($cache['connection'], $key) : memcached_get($cache['connection'], $key);
+				{
+					$cache_misses_count = isset($cache_misses) ? $cache_misses + 1 : 1;
+					$value = null;
+				}
+				else
+					$value = (function_exists('memcache_get')) ? memcache_get($memcached, $key) : memcached_get($memcached, $key);
 			}
 			break;
 		case 'apc':
@@ -3348,6 +3352,15 @@ function cache_get_data($key, $ttl = 120)
 	{
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
 		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
+
+		if (empty($value))
+		{
+			if (!isset($cache_misses))
+				$cache_misses = array();
+
+			$cache_count_misses = isset($cache_count_misses) ? $cache_count_misses + 1 : 1;
+			$cache_misses[$cache_count_misses] = array('k' => $original_key, 'd' => 'get');
+		}
 	}
 
 	if (function_exists('call_integration_hook') && isset($value))
