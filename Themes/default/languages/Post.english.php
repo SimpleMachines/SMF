@@ -46,6 +46,7 @@ $txt['attached'] = 'Attached';
 $txt['allowed_types'] = 'Allowed file types';
 $txt['attach_add'] = 'Add files';
 $txt['attach_drop_zone'] = 'Drag and drop your files here';
+$txt['attach_drop_unlimited'] = 'unlimited';
 $txt['attach_drop_zone_no'] = 'Your browser does not support drag and drop file uploads';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';

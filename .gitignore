@@ -15,6 +15,7 @@ attachments/
 /upgrade.php
 Themes/default/css/minified.css
 Themes/default/scripts/minified.js
+Themes/default/scripts/minified_deferred.js
 
 # Compiled source #
 ###################
