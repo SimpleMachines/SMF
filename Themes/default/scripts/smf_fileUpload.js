@@ -94,7 +94,18 @@ function smf_fileUpload(oOptions)
 		totalMaxSize: 0
 	};
 
+	if(oOptions.thumbnailHeight && oOptions.thumbnailWidth) {
+		if(oOptions.thumbnailHeight > oOptions.thumbnailWidth) {
+			oOptions.thumbnailWidth = null;
+		}
+
+		else {
+			oOptions.thumbnailHeight = null;
+		}
+	}
+
 	$.extend(true, dOptions, oOptions);
+
 
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
 
