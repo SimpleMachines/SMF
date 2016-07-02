@@ -186,7 +186,7 @@ function getReports($closed = 0)
 	// Lonely, standalone var.
 	$reports = array();
 
-	// By George, that means we in a position to get the reports, golly good.
+	// By George, that means we are in a position to get the reports, golly good.
 	if ($context['report_type'] == 'members')
 	{
 		$request = $smcFunc['db_query']('', '
@@ -198,9 +198,11 @@ function getReports($closed = 0)
 			WHERE lr.closed = {int:view_closed}
 				AND lr.id_board = 0
 			ORDER BY lr.time_updated DESC
-			LIMIT ' . $context['start'] . ', 10',
+			LIMIT {int:start}, {int:max}',
 			array(
 				'view_closed' => (int) $closed,
+				'start' => $context['start'],
+				'max' => 10,
 			)
 		);
 	}
@@ -216,9 +218,11 @@ function getReports($closed = 0)
 				AND lr.id_board != 0
 				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
 			ORDER BY lr.time_updated DESC
-			LIMIT ' . $context['start'] . ', 10',
+			LIMIT {int:start}, {int:max}',
 			array(
 				'view_closed' => (int) $closed,
+				'start' => $context['start'],
+				'max' => 10,
 			)
 		);
 	}
@@ -480,7 +484,7 @@ function getReportComments($report_id)
 				'name' => empty($row['reporter']) ? $txt['guest'] : $row['reporter'],
 				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? $txt['guest'] : $row['reporter']),
 				'href' => $row['id_member'] ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
-				'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . $scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
+				'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . $scripturl . '?action=trackip;searchip=' . inet_dtop($row['member_ip']) . '">' . inet_dtop($row['member_ip']) . '</a>' : '',
 			),
 		);
 	}

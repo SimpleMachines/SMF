@@ -198,7 +198,7 @@ function MaintainMembers()
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -566,8 +566,9 @@ function ConvertEntities()
 		$columns = array();
 		$request = $smcFunc['db_query']('', '
 			SHOW FULL COLUMNS
-			FROM {db_prefix}' . $cur_table,
+			FROM {db_prefix}{string:cur_table}',
 			array(
+				'cur_table' => $cur_table,
 			)
 		);
 		while ($column_info = $smcFunc['db_fetch_assoc']($request))
@@ -577,8 +578,9 @@ function ConvertEntities()
 		// Get the column with the (first) primary key.
 		$request = $smcFunc['db_query']('', '
 			SHOW KEYS
-			FROM {db_prefix}' . $cur_table,
+			FROM {db_prefix}{string:cur_table}',
 			array(
+				'cur_table' => $cur_table,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -600,9 +602,11 @@ function ConvertEntities()
 
 		// Get the maximum value for the primary key.
 		$request = $smcFunc['db_query']('', '
-			SELECT MAX(' . $primary_key . ')
-			FROM {db_prefix}' . $cur_table,
+			SELECT MAX({string:key})
+			FROM {db_prefix}{string:cur_table}',
 			array(
+				'key' => $primary_key,
+				'cur_table' => $cur_table,
 			)
 		);
 		list($max_value) = $smcFunc['db_fetch_row']($request);
@@ -746,7 +750,7 @@ function OptimizeTables()
 		// Continue?
 		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 10)
 		{
-			$_REQUEST['start'] = $key - 1;
+			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 			$context['continue_percent'] = round(100 * $_REQUEST['start'] / $context['num_tables']);
 			$context['sub_template'] = 'not_done';

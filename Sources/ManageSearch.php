@@ -108,7 +108,7 @@ function EditSearchSettings($return_config = false)
 	require_once($sourcedir . '/Search.php');
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'searchSettings')))
-		call_user_func_array($searchAPI->searchSettings, array(&$config_vars));
+		call_user_func_array(array($searchAPI, 'searchSettings'), array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -230,23 +230,21 @@ function EditSearchMethod()
 					'db_error_skip' => true,
 				)
 			);
-			
+
 			$request = $smcFunc['db_query']('','
 				SHOW default_text_search_config',
-				array(
-					
-				)
+				array()
 			);
-			
+
 			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 			{
 				$row = $smcFunc['db_fetch_assoc']($request);
 				$language_ftx = $row['default_text_search_config'];
 			}
-			
-			
+
+
 			$smcFunc['db_query']('', '
-				CREATE INDEX smf_messages_ftx ON smf_messages 
+				CREATE INDEX smf_messages_ftx ON smf_messages
 				USING gin(to_tsvector({string:language},body))',
 				array(
 					'language' => $language_ftx
@@ -404,11 +402,11 @@ function EditSearchMethod()
 	elseif ($db_type == 'postgresql')
 	{
 		// In order to report the sizes correctly we need to perform vacuum (optimize) on the tables we will be using.
-		db_extend();
-		$temp_tables = $smcFunc['db_list_tables']();
-		foreach ($temp_tables as $table)
-			if ($table == $db_prefix. 'messages' || $table == $db_prefix. 'log_search_words')
-				$smcFunc['db_optimize_table']($table);
+		//db_extend();
+		//$temp_tables = $smcFunc['db_list_tables']();
+		//foreach ($temp_tables as $table)
+		//	if ($table == $db_prefix. 'messages' || $table == $db_prefix. 'log_search_words')
+		//		$smcFunc['db_optimize_table']($table);
 
 		// PostGreSql has some hidden sizes.
 		$request = $smcFunc['db_query']('', '
@@ -425,7 +423,7 @@ function EditSearchMethod()
 						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid )
 				AS foo
 				ON t.tablename = foo.ctablename
-			WHERE t.schemaname= {string:schema} and ( 
+			WHERE t.schemaname= {string:schema} and (
 				indexname = {string:messages_ftx} OR indexname = {string:log_search_words} )',
 			array(
 				'messages_ftx' => $db_prefix. 'messages_ftx',
@@ -530,7 +528,7 @@ function CreateMessageIndex()
 
 	if (isset($_REQUEST['resume']) && !empty($modSettings['search_custom_index_resume']))
 	{
-		$context['index_settings'] = json_decode($modSettings['search_custom_index_resume'], true);
+		$context['index_settings'] = smf_json_decode($modSettings['search_custom_index_resume'], true);
 		$context['start'] = (int) $context['index_settings']['resume_at'];
 		unset($context['index_settings']['resume_at']);
 		$context['step'] = 1;

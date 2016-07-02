@@ -269,11 +269,12 @@ function is_not_banned($forceCheck = false)
 			WHERE bi.id_ban IN ({array_int:ban_list})
 				AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})
 				AND bg.cannot_access = {int:cannot_access}
-			LIMIT ' . count($bans),
+			LIMIT {int:limit}',
 			array(
 				'cannot_access' => 1,
 				'ban_list' => $bans,
 				'current_time' => time(),
+				'limit' => count($bans),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -504,7 +505,7 @@ function log_ban($ban_ids = array(), $email = null)
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_banned',
-		array('id_member' => 'int', 'ip' => 'string-16', 'email' => 'string', 'log_time' => 'int'),
+		array('id_member' => 'int', 'ip' => 'inet', 'email' => 'string', 'log_time' => 'int'),
 		array($user_info['id'], $user_info['ip'], ($email === null ? ($user_info['is_guest'] ? '' : $user_info['email']) : $email), time()),
 		array('id_ban_log')
 	);
@@ -910,8 +911,8 @@ function allowedTo($permission, $boards = null)
 	if ($user_info['is_admin'])
 		return true;
 
-	if (!is_array($permission))
-		$permission = array($permission);
+	// Let's ensure this is an array.
+	$permission = (array)$permission;
 
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
@@ -1169,7 +1170,7 @@ function spamProtection($error_type, $only_return_result = false)
 	// Add a new entry, deleting the old if necessary.
 	$smcFunc['db_insert']('replace',
 		'{db_prefix}log_floodcontrol',
-		array('ip' => 'string-16', 'log_time' => 'int', 'log_type' => 'string'),
+		array('ip' => 'inet', 'log_time' => 'int', 'log_type' => 'string'),
 		array($user_info['ip'], time(), $error_type),
 		array('ip', 'log_type')
 	);

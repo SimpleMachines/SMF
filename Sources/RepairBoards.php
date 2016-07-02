@@ -328,9 +328,9 @@ function loadForumTests()
 							'topics' => $topics,
 						)
 					);
-					$smcFunc['db_query']('', "
+					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_topics
-						WHERE id_topic IN ({array_int:topics})",
+						WHERE id_topic IN ({array_int:topics})',
 						array(
 							'topics' => $topics,
 						)
@@ -382,7 +382,7 @@ function loadForumTests()
 							'subject' => 'string-255',
 							'poster_name' => 'string-255',
 							'poster_email' => 'string-255',
-							'poster_ip' => 'string-16',
+							'poster_ip' => 'inet',
 							'smileys_enabled' => 'int',
 							'body' => 'string-65534',
 							'icon' => 'string-16',
@@ -518,7 +518,7 @@ function loadForumTests()
 						'subject' => 'string-255',
 						'poster_name' => 'string-255',
 						'poster_email' => 'string-255',
-						'poster_ip' => 'string-16',
+						'poster_ip' => 'inet',
 						'smileys_enabled' => 'int',
 						'body' => 'string-65534',
 						'icon' => 'string-16',

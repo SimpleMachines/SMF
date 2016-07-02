@@ -310,30 +310,22 @@ function AddMembergroup()
 		$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-		// @todo Check for members with same name too?
-
-		$request = $smcFunc['db_query']('', '
-			SELECT MAX(id_group)
-			FROM {db_prefix}membergroups',
-			array(
-			)
-		);
-		list ($id_group) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-		$id_group++;
+		call_integration_hook('integrate_pre_add_membergroup', array());
 
 		$smcFunc['db_insert']('',
 			'{db_prefix}membergroups',
 			array(
-				'id_group' => 'int', 'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
+				'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
 				'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
 			),
 			array(
-				$id_group, '', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+				'', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
 				'1#icon.png', '', $_POST['group_type'],
 			),
 			array('id_group')
 		);
+
+		$id_group = $smcFunc['db_insert_id']('{db_prefix}membergroups', 'id_group');
 
 		call_integration_hook('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
 
@@ -967,9 +959,10 @@ function EditMembergroup()
 						SELECT id_member
 						FROM {db_prefix}members
 						WHERE member_name IN ({array_string:moderators}) OR real_name IN ({array_string:moderators})
-						LIMIT ' . count($moderators),
+						LIMIT {int:count}',
 						array(
 							'moderators' => $moderators,
+							'count' => count($moderators),
 						)
 					);
 					while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1180,7 +1173,7 @@ function EditMembergroup()
 	if (!empty($context['possible_icons']))
 		loadJavascriptFile('icondropdown.js', array('validate' => true), 'smf_icondropdown');
 
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 
 	// Finally, get all the groups this could be inherited off.
 	$request = $smcFunc['db_query']('', '
@@ -1229,9 +1222,6 @@ function ModifyMembergroupsettings()
 
 	// Needed for the settings functions.
 	require_once($sourcedir . '/ManageServer.php');
-
-	// Don't allow assignment of guests.
-	$context['permissions_excluded'] = array(-1);
 
 	// Only one thing here!
 	$config_vars = array(

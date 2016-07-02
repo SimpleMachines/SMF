@@ -1306,7 +1306,7 @@ function editBuddyIgnoreLists($memID)
 		),
 	);
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['list_area']][0];
@@ -1868,7 +1868,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavascriptFile('alertSettings.js', array('default_theme' => true), 'smf_alertSettings');
+	loadJavascriptFile('alertSettings.js', array(), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -2651,10 +2651,11 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 		WHERE ln.id_member = {int:selected_member}
 			AND {query_see_board}
-		ORDER BY ' . $sort,
+		ORDER BY {raw:sort}',
 		array(
 			'current_member' => $user_info['id'],
 			'selected_member' => $memID,
+			'sort' => $sort,
 		)
 	);
 	$notification_boards = array();
@@ -2951,7 +2952,7 @@ function profileLoadSignatureData()
 
 	// Load the spell checker?
 	if ($context['show_spellchecking'])
-		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
+		loadJavascriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
 
 	return true;
 }

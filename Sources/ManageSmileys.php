@@ -156,7 +156,6 @@ function EditSmileySettings($return_config = false)
 
 	// Finish up the form...
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -1218,8 +1217,9 @@ function list_getSmileys($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_smiley, code, filename, description, smiley_row, smiley_order, hidden
 		FROM {db_prefix}smileys
-		ORDER BY ' . $sort,
+		ORDER BY {raw:sort}',
 		array(
+			'sort' => $sort,
 		)
 	);
 	$smileys = array();
@@ -1241,8 +1241,7 @@ function list_getNumSmileys()
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}smileys',
-		array(
-		)
+		array()
 	);
 	list($numSmileys) = $smcFunc['db_fetch_row'];
 	$smcFunc['db_free_result']($request);
@@ -1988,8 +1987,7 @@ function list_getMessageIcons($start, $items_per_page, $sort)
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE ({query_see_board} OR b.id_board IS NULL)
 		ORDER BY m.icon_order',
-		array(
-		)
+		array()
 	);
 
 	$message_icons = array();

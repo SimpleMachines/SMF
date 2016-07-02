@@ -1337,6 +1337,8 @@ function AdminAccount()
 	load_database();
 
 	require_once($sourcedir . '/Subs-Auth.php');
+	
+	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
@@ -1469,7 +1471,7 @@ function AdminAccount()
 					'member_name' => 'string-25', 'real_name' => 'string-25', 'passwd' => 'string', 'email_address' => 'string',
 					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int',
 					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
-					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
+					'member_ip' => 'inet', 'member_ip2' => 'inet', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'website_title' => 'string', 'website_url' => 'string',
 					'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
 					'additional_groups' => 'string', 'ignore_boards' => 'string',

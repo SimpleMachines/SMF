@@ -106,15 +106,15 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		// Insert the error into the database.
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_errors',
-			array('id_member' => 'int', 'log_time' => 'int', 'ip' => 'string-16', 'url' => 'string-65534', 'message' => 'string-65534', 'session' => 'string', 'error_type' => 'string', 'file' => 'string-255', 'line' => 'int'),
+			array('id_member' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string-65534', 'message' => 'string-65534', 'session' => 'string', 'error_type' => 'string', 'file' => 'string-255', 'line' => 'int'),
 			$error_info,
 			array('id_error')
 		);
 		$last_error = $error_info;
-	}
 
-	// Increment our error count for the menu
-	$context['num_errors']++;
+		// Increment our error count for the menu
+		$context['num_errors']++;
+	}
 
 	// Return the message to make things simpler.
 	return $error_message;
@@ -502,7 +502,7 @@ function log_error_online($error, $sprintf = array())
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = json_decode($url, true);
+		$url = smf_json_decode($url, true);
 		$url['error'] = $error;
 
 		if (!empty($sprintf))

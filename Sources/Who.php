@@ -133,7 +133,7 @@ function Who()
 	// Look for people online, provided they don't mind if you see they are.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			lo.log_time, lo.id_member, lo.url, INET_NTOA(lo.ip) AS ip, mem.real_name,
+			lo.log_time, lo.id_member, lo.url, lo.ip AS ip, mem.real_name,
 			lo.session, mg.online_color, COALESCE(mem.show_online, 1) AS show_online,
 			lo.id_spider
 		FROM {db_prefix}log_online AS lo
@@ -155,14 +155,14 @@ function Who()
 	$url_data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$actions = @json_decode($row['url'], true);
+		$actions = smf_json_decode($row['url'], true);
 		if ($actions === false)
 			continue;
 
 		// Send the information to the template.
 		$context['members'][$row['session']] = array(
 			'id' => $row['id_member'],
-			'ip' => allowedTo('moderate_forum') ? $row['ip'] : '',
+			'ip' => allowedTo('moderate_forum') ? inet_dtop($row['ip']) : '',
 			// It is *going* to be today or yesterday, so why keep that information in there?
 			'time' => strtr(timeformat($row['log_time']), array($txt['today'] => '', $txt['yesterday'] => '')),
 			'timestamp' => forum_time(true, $row['log_time']),
@@ -195,7 +195,7 @@ function Who()
 	$spiderContext = array();
 	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] == 2 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
 	{
-		foreach (json_decode($modSettings['spider_name_cache'], true) as $id => $name)
+		foreach (smf_json_decode($modSettings['spider_name_cache'], true) as $id => $name)
 			$spiderContext[$id] = array(
 				'id' => 0,
 				'name' => $name,
@@ -306,7 +306,7 @@ function determineActions($urls, $preferred_prefix = false)
 	foreach ($url_list as $k => $url)
 	{
 		// Get the request parameters..
-		$actions = @json_decode($url[0], true);
+		$actions = smf_json_decode($url[0], true);
 		if ($actions === false)
 			continue;
 
@@ -439,6 +439,12 @@ function determineActions($urls, $preferred_prefix = false)
 				if (!empty($integrate_action))
 				{
 					$data[$k] = $integrate_action;
+					if (isset($actions['topic']) && isset($topic_ids[(int) $actions['topic']][$k]))
+						$topic_ids[(int) $actions['topic']][$k] = $integrate_action;
+					if (isset($actions['board']) && isset($board_ids[(int) $actions['board']][$k]))
+						$board_ids[(int) $actions['board']][$k] = $integrate_action;
+					if (isset($actions['u']) && isset($profile_ids[(int) $actions['u']][$k]))
+						$profile_ids[(int) $actions['u']][$k] = $integrate_action;
 					break;
 				}
 			}
@@ -480,9 +486,10 @@ function determineActions($urls, $preferred_prefix = false)
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
 				AND b.id_board IN ({array_int:board_list})
-			LIMIT ' . count($board_ids),
+			LIMIT {int:limit}',
 			array(
 				'board_list' => array_keys($board_ids),
+				'limit' => count($board_ids),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -794,7 +801,7 @@ function Credits($in_admin = false)
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$credit_info = json_decode($row['credits'], true);
+			$credit_info = smf_json_decode($row['credits'], true);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
 			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));

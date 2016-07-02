@@ -402,14 +402,17 @@ function MembergroupMembers()
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		ORDER BY ' . $querySort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
-		LIMIT ' . $context['start'] . ', ' . $modSettings['defaultMaxMembers'],
+		LIMIT {int:start}, {int:max}',
 		array(
 			'group' => $_REQUEST['group'],
+			'start' => $context['start'],
+			'max' => $modSettings['defaultMaxMembers'],
 		)
 	);
 	$context['members'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$row['member_ip'] = inet_dtop($row['member_ip']);
 		$last_online = empty($row['last_login']) ? $txt['never'] : timeformat($row['last_login']);
 
 		// Italicize the online note if they aren't activated.
@@ -435,7 +438,7 @@ function MembergroupMembers()
 	createToken('mod-mgm');
 
 	if ($context['group']['assignable'])
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -731,9 +734,11 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
 		WHERE ' . $where . '
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array_merge($where_parameters, array(
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$group_requests = array();

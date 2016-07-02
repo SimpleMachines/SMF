@@ -45,7 +45,7 @@ function ModerationMain($dont_call = false)
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 	$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -248,7 +248,7 @@ function ModerationHome()
 	global $txt, $context, $options;
 
 	loadTemplate('ModerationCenter');
-	loadJavascriptFile('admin.js', array('default_theme' => true), 'smf_admin');
+	loadJavascriptFile('admin.js', array(), 'smf_admin');
 
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
@@ -285,7 +285,7 @@ function ModerationHome()
 			$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -391,16 +391,18 @@ function ModBlockNotes()
 				SELECT id_member
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:note}
-					AND comment_type = {literal:modnote}',
+					AND comment_type = {literal:modnote}
+					AND id_member = {int:user}',
 				array(
 					'note' => $_GET['delete'],
+					'user' => $user_info['id'],
 				)
 			);
 
-			$note_owner = $smcFunc['db_fetch_assoc']($get_owner)['id_member'];
+			$note_owner = $smcFunc['db_num_rows']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
 
-			if ($note_owner != $user_info['id'])
+			if(empty($note_owner))
 				fatal_lang_error('mc_notes_delete_own', false);
 		}
 
@@ -831,10 +833,12 @@ function ReportedMembers()
 		WHERE lr.closed = {int:view_closed}
 			AND lr.id_board = {int:not_a_reported_post}
 		ORDER BY lr.time_updated DESC
-		LIMIT ' . $context['start'] . ', 10',
+		LIMIT {int:limit}, {int:max}',
 		array(
 			'view_closed' => $context['view_closed'],
 			'not_a_reported_post' => 0,
+			'limit' => $context['start'],
+			'max' => 10,
 		)
 	);
 	$context['reports'] = array();
@@ -1206,10 +1210,12 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		FROM {db_prefix}members
 		WHERE warning >= {int:warning_watch}
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$watched_users = array();
@@ -1343,9 +1349,11 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 			AND {query_see_board}
 			' . $approve_query . '
 		ORDER BY m.id_msg DESC
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$member_posts = array();
@@ -1417,7 +1425,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = @json_decode($search_params, true);
+		$search_params = smf_json_decode($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -1613,10 +1621,13 @@ function list_getWarnings($start, $items_per_page, $sort)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = lc.id_recipient)
 		WHERE lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning' => 'warning',
+			'start' => $start,
+			'max' => $items_per_page,
+			'sort' => $sort,
 		)
 	);
 	$warnings = array();

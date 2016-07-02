@@ -451,7 +451,7 @@ CREATE TABLE {$db_prefix}log_actions (
   id_log smallint NOT NULL default '1',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
+  ip inet,
   action varchar(30) NOT NULL default '',
   id_board smallint NOT NULL default '0',
   id_topic int NOT NULL default '0',
@@ -498,7 +498,7 @@ CREATE SEQUENCE {$db_prefix}log_banned_seq;
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log int default nextval('{$db_prefix}log_banned_seq'),
   id_member int NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
+  ip inet,
   email varchar(255) NOT NULL,
   log_time int NOT NULL default '0',
   PRIMARY KEY (id_ban_log)
@@ -579,7 +579,7 @@ CREATE TABLE {$db_prefix}log_errors (
   id_error int default nextval('{$db_prefix}log_errors_seq'),
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
-  ip varchar(16) NOT NULL default '',
+  ip inet,
   url text NOT NULL,
   message text NOT NULL,
   session char(64) NOT NULL default '                                                                ',
@@ -602,7 +602,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 #
 
 CREATE {$unlogged} TABLE {$db_prefix}log_floodcontrol (
-  ip char(16) NOT NULL default '                ',
+  ip inet,
   log_time int NOT NULL default '0',
   log_type varchar(8) NOT NULL default 'post',
   PRIMARY KEY (ip, log_type)
@@ -693,7 +693,7 @@ CREATE {$unlogged} TABLE {$db_prefix}log_online (
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
-  ip bigint NOT NULL default '0',
+  ip inet,
   url varchar(1024) NOT NULL,
   PRIMARY KEY (session)
 );
@@ -809,7 +809,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report int NOT NULL default '0',
   id_member int NOT NULL,
   membername varchar(255) NOT NULL,
-  member_ip varchar(255) NOT NULL,
+  member_ip inet,
   comment varchar(255) NOT NULL,
   time_sent int NOT NULL,
   PRIMARY KEY (id_comment)
@@ -1084,8 +1084,8 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL,
   usertitle varchar(255) NOT NULL,
-  member_ip varchar(255) NOT NULL,
-  member_ip2 varchar(255) NOT NULL,
+  member_ip inet,
+  member_ip2 inet,
   secret_question varchar(255) NOT NULL,
   secret_answer varchar(64) NOT NULL default '',
   id_theme smallint NOT NULL default '0',
@@ -1142,8 +1142,8 @@ CREATE TABLE {$db_prefix}member_logins (
   id_login int default nextval('{$db_prefix}member_logins_seq'),
   id_member int NOT NULL default '0',
   time int NOT NULL default '0',
-  ip varchar(255) NOT NULL default '0',
-  ip2 varchar(255) NOT NULL default '0',
+  ip inet,
+  ip2 inet,
   PRIMARY KEY (id_login)
 );
 
@@ -1236,7 +1236,7 @@ CREATE TABLE {$db_prefix}messages (
   subject varchar(255) NOT NULL,
   poster_name varchar(255) NOT NULL,
   poster_email varchar(255) NOT NULL,
-  poster_ip varchar(255) NOT NULL,
+  poster_ip inet,
   smileys_enabled smallint NOT NULL default '1',
   modified_time int NOT NULL default '0',
   modified_name varchar(255) NOT NULL,
@@ -2424,7 +2424,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('censorIgnoreCase', '1'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
-	('mostDate', UNIX_TIMESTAMP()),
+	('mostDate', {$current_time}),
 	('allow_disableAnnounce', '1'),
 	('trackStats', '1'),
 	('userLanguage', '1'),

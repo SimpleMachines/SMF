@@ -373,6 +373,10 @@ function updateMemberData($members, $data)
 			$type = 'float';
 		elseif ($var == 'birthdate')
 			$type = 'date';
+		elseif ($var == 'member_ip')
+			$type = 'inet';
+		elseif ($var == 'member_ip2')
+			$type = 'inet';
 
 		// Doing an increment?
 		if ($type == 'int' && ($val === '+' || $val === '-'))
@@ -1424,7 +1428,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'quote',
-				'before' => '<div class="quoteheader">' . $txt['quote'] . '</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote'] . '</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1434,7 +1438,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)', 'quoted' => true),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': {author}</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1442,7 +1446,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'quote',
 				'type' => 'parsed_equals',
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': $1</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': $1</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'quoted' => 'optional',
@@ -1457,7 +1461,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'),
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
-				'before' => '<div class="quoteheader"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div><blockquote>',
+				'before' => '<blockquote><cite><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1467,7 +1471,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)'),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
+				'before' => '<blockquote><cite>' . $txt['quote_from'] . ': {author}</cite>',
 				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
@@ -1646,7 +1650,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Make it easier to process parameters later
 			if (!empty($code['parameters']))
 				ksort($code['parameters'], SORT_STRING);
-			
+
 			// If we are not doing every tag only do ones we are interested in.
 			if (empty($parse_tags) || in_array($code['tag'], $parse_tags))
 				$bbc_codes[substr($code['tag'], 0, 1)][] = $code;
@@ -1701,7 +1705,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
-	
+
 	foreach ($bbc_codes as $section) {
 		foreach ($section as $code) {
 			$alltags[] = $code['tag'];
@@ -2036,25 +2040,27 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
-				
+
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
 				$blobs = preg_split('~\]~i', $blob[1]);
-				
+
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
-				$blob_counter = 0;
-				while ($blob_counter <= count($blobs)) {
-					
+				$blob_counter = 1;
+				while ($blob_counter <= count($blobs))
+				{
+
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
-					
+
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
-					
+
 					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
-					
-					if ($match) $blob_counter = count($blobs) + 1;
+
+					if ($match)
+						$blob_counter = count($blobs) + 1;
 				}
 
 				// Didn't match our parameter list, try the next possible.
@@ -2095,7 +2101,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += strlen($given_param_string);
 			}
 			else
+			{
 				$tag = $possible;
+				$params = array();
+			}
 			break;
 		}
 
@@ -2247,7 +2256,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$data = substr($data, 4);
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = strtr($tag['content'], array('$1' => $data));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + 3 + $tag_strlen);
@@ -2290,7 +2299,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = strtr($tag['content'], array('$1' => $data[0], '$2' => $data[1]));
 			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos3 + 3 + $tag_strlen);
@@ -2319,7 +2328,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$data[0] = substr($message, $pos2 + 1, $pos3 - $pos2 - 1);
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			$code = $tag['content'];
 			foreach ($data as $k => $d)
@@ -2337,7 +2346,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$data = explode(',', substr($message, $pos1, $pos2 - $pos1));
 
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			// Fix after, for disabled code mainly.
 			foreach ($data as $k => $d)
@@ -2376,7 +2385,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
-				$tag['validate']($tag, $data, $disabled);
+				$tag['validate']($tag, $data, $disabled, $params);
 
 			// For parsed content, we must recurse to avoid security problems.
 			if ($tag['type'] != 'unparsed_equals')
@@ -2970,6 +2979,8 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	// Set some specific vars.
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](un_htmlspecialchars($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
+
+	call_integration_hook('integrate_theme_context');
 }
 
 /**
@@ -3099,7 +3110,7 @@ function template_header()
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
 				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
+					$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			}
 			else
@@ -3265,15 +3276,22 @@ function template_javascript($do_deferred = false)
 
 		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
 			echo '
-	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
+	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 	}
 
 	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
 	{
-		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
-		echo '
-	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
+		// Minify process couldn't work, print each individual files.
+		if (!empty($result) && is_array($result))
+			foreach ($result as $minFailedFile)
+				echo '
+	<script src="', $minFailedFile['fileUrl'], '"', !empty($minFailedFile['options']['async']) ? ' async="async"' : '', '></script>';
+
+		else
+			echo '
+	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3307,6 +3325,7 @@ function template_javascript($do_deferred = false)
 
 /**
  * Output the CSS files
+ *
  */
 function template_css()
 {
@@ -3316,6 +3335,7 @@ function template_css()
 	call_integration_hook('integrate_pre_css_output');
 
 	$toMinify = array();
+	$normal = array();
 
 	foreach ($context['css_files'] as $id => $file)
 	{
@@ -3334,25 +3354,36 @@ function template_css()
 		}
 
 		else
-			echo '
-	<link rel="stylesheet" href="', $file['filename'] ,'">';
+			$normal[] = $file['fileUrl'];
 	}
 
 	if (!empty($toMinify))
 	{
-		custMinify($toMinify, 'css');
+		$result = custMinify($toMinify, 'css');
 
-		echo '
-	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
+		// Minify process couldn't work, print each individual files.
+		if (!empty($result) && is_array($result))
+			foreach ($result as $minFailedFile)
+				echo '
+	<link rel="stylesheet" href="', $minFailedFile['fileUrl'], '">';
+
+		else
+			echo '
+	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
 	}
 
+	// Print the rest after the minified files.
+	if (!empty($normal))
+		foreach ($normal as $nf)
+			echo '
+	<link rel="stylesheet" href="', $nf ,'">';
 
 	if ($db_show_debug === true)
 	{
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
+			$context['debug']['sheets'][] = strtr($file['fileName'], $repl);
 	}
 
 	if (!empty($context['css_header']))
@@ -3376,46 +3407,90 @@ function template_css()
  * @param array $data The files to minify.
  * @param string $type either css or js.
  * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
- * @return boolean
+ * @return bool|array If an array the minify process failed and the data is returned intact.
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $smcFunc, $settings;
+	global $sourcedir, $smcFunc, $settings, $txt, $context;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
 	$data = !empty($data) ? $data : false;
+	$minFailed = array();
 
 	if (empty($type) || empty($data))
 		return false;
 
-	// What kind of file are we going to create?
-	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+	// Did we already did this?
+	$toCache = cache_get_data('minimized_'. $settings['theme_id'] .'_'. $type, 86400);
 
-	// Did we do this already?
-	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
+	// Already done?
+	if (!empty($toCache))
 		return true;
+
+	// Yep, need a bunch of files.
+	require_once($sourcedir . '/minify/src/Minify.php');
+	require_once($sourcedir . '/minify/src/'. strtoupper($type) .'.php');
+	require_once($sourcedir . '/minify/src/Exception.php');
+	require_once($sourcedir . '/minify/src/Converter.php');
 
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 
-	// Yep, need a bunch of files.
-	require_once $sourcedir . '/minify/src/Minify.php';
-	require_once $sourcedir . '/minify/src/'. strtoupper($type) .'.php';
-	require_once $sourcedir . '/minify/src/Exception.php';
-	require_once $sourcedir . '/minify/src/Converter.php';
+	// Temp path.
+	$cTempPath = $settings['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+
+	// What kind of file are we going to create?
+	$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+	// File has to exists, if it isn't try to create it.
+	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
+	{
+		loadLanguage('Errors');
+		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+
+		// The process failed so roll back to print each individual file.
+		return $data;
+	}
 
 	$minifier = new $classType();
 
 	foreach ($data as $file)
-		$minifier->add(str_replace($file['options']['seed'], '', $file['filepath']));
+	{
+		$tempFile = str_replace($file['options']['seed'], '', $file['filePath']);
+		$toAdd = file_exists($tempFile) ? $tempFile : false;
+
+		// The file couldn't be located so it won't be added, log this error.
+		if (empty($toAdd))
+		{
+			loadLanguage('Errors');
+			log_error(sprintf($txt['file_minimize_fail'], $file['fileName']), 'general');
+			continue;
+		}
+
+		// Add this file to the list.
+		$minifier->add($toAdd);
+	}
 
 	// Create the file.
 	$minifier->minify($toCreate);
 	unset($minifier);
+	clearstatcache();
+
+	// Minify process failed.
+	if (!filesize($toCreate))
+	{
+		loadLanguage('Errors');
+		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
+		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+
+		// The process failed so roll back to print each individual file.
+		return $data;
+	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_'. $type, $type, 86400);
+	cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, $toCreate, 86400);
 
 	return true;
 }
@@ -3469,7 +3544,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
 	}
 	else
@@ -3837,7 +3912,7 @@ function setupMenuContext()
 			addInlineJavascript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array('default_theme' => true), 'smf_alerts');
+			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
 		}
 	}
 
@@ -4852,6 +4927,9 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
+	if(empty($bin))
+		return '';
+
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 
@@ -5167,6 +5245,74 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
+}
+
+/**
+ * Wrapper function for smf_json_decode() with error handling.
+
+ * @param string $json The string to decode.
+ * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
+ * @param bool $logIt To specify if the error will be logged if h}theres an error.
+ * @return array Either an empty array or the decoded data as an array.
+ */
+function smf_json_decode($json, $returnAsArray = false, $logIt = true)
+{
+	global $txt;
+
+	// Come on...
+	if (empty($json) || !is_string($json))
+		return array();
+
+	$returnArray = array();
+	$jsonError = false;
+
+	$returnArray = @json_decode($json, $returnAsArray);
+
+	// PHP 5.3 so no json_last_error_msg()
+	switch(json_last_error())
+	{
+		case JSON_ERROR_NONE:
+			$jsonError = false;
+			break;
+		case JSON_ERROR_DEPTH:
+			$jsonError =  'JSON_ERROR_DEPTH';
+			break;
+		case JSON_ERROR_STATE_MISMATCH:
+			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
+			break;
+		case JSON_ERROR_CTRL_CHAR:
+			$jsonError = 'JSON_ERROR_CTRL_CHAR';
+			break;
+		case JSON_ERROR_SYNTAX:
+			$jsonError = 'JSON_ERROR_SYNTAX';
+			break;
+		case JSON_ERROR_UTF8:
+			$jsonError = 'JSON_ERROR_UTF8';
+			break;
+		default:
+			$jsonError = 'unknown';
+			break;
+	}
+
+	// Something went wrong!
+	if (!empty($jsonError) && $logIt)
+	{
+		// Being a wrapper means we lost our smf_error_handler() privileges :(
+		$jsonDebug = debug_backtrace();
+		$jsonDebug = $jsonDebug[0];
+		loadLanguage('Errors');
+
+		if (!empty($jsonDebug))
+			log_error($txt['json_'. $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
+
+		else
+			log_error($txt['json_'. $jsonError], 'critical');
+
+		// Everyone expects an array.
+		return array();
+	}
+
+	return $returnArray;
 }
 
 /**

@@ -824,6 +824,7 @@ $txt['debug_memory_use'] = 'Memory used: ';
 $txt['debug_kb'] = 'KB.';
 $txt['debug_show'] = 'show';
 $txt['debug_cache_hits'] = 'Cache hits: ';
+$txt['debug_cache_misses'] = 'Cache misses: ';
 $txt['debug_cache_seconds_bytes'] = '%1$ss - %2$s bytes';
 $txt['debug_cache_seconds_bytes_total'] = '%1$ss for %2$s bytes';
 $txt['debug_queries_used'] = 'Queries used: %1$d.';
@@ -870,4 +871,5 @@ $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
+$txt['mobile_user_menu'] = 'Mobile Main Menu';
 ?>

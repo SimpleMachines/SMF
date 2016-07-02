@@ -889,9 +889,10 @@ function MessageFolder()
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
 				WHERE pm.id_pm IN ({array_int:pm_list})
 				ORDER BY ' . implode(', ', $orderBy) . '
-				LIMIT ' . count($pms),
+				LIMIT {int:limit}',
 				array(
 					'pm_list' => $pms,
+					'limit' => count($pms),
 				)
 			);
 		}
@@ -904,11 +905,13 @@ function MessageFolder()
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})' : '') . '
 			WHERE pm.id_pm IN ({array_int:display_pms})' . ($context['folder'] == 'sent' ? '
 			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' : '') . '
-			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : $_GET['sort']) . ($descending ? ' DESC' : ' ASC') . '
-			LIMIT ' . count($display_pms),
+			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . '
+			LIMIT {int:limit}',
 			array(
 				'display_pms' => $display_pms,
 				'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
+				'limit' => count($display_pms),
+				'sort' => $_GET['sort'],
 			)
 		);
 
@@ -1527,11 +1530,15 @@ function MessageSearch2()
 			AND pm.deleted_by_sender = {int:not_deleted}') . '
 			' . $userQuery . $labelQuery . $timeQuery . '
 			AND (' . $searchQuery . ')
-		ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-		LIMIT ' . $context['start'] . ', ' . $modSettings['search_results_per_page'],
+		ORDER BY {raw:sort} {raw:sort_dir}
+		LIMIT {int:start}, {int:max}',
 		array_merge($searchq_parameters, array(
 			'current_member' => $user_info['id'],
 			'not_deleted' => 0,
+			'sort' => $search_params['sort'],
+			'sort_dir' => $search_params['sort_dir'],
+			'start' => $context['start'],
+			'max' => $modSettings['search_results_per_page'],
 		))
 	);
 	$foundMessages = array();
@@ -1643,10 +1650,13 @@ function MessageSearch2()
 			SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name
 			FROM {db_prefix}personal_messages AS pm
 			WHERE pm.id_pm IN ({array_int:message_list})
-			ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-			LIMIT ' . count($foundMessages),
+			ORDER BY {raw:sort} {raw:sort_dir}
+			LIMIT {int:limit}',
 			array(
 				'message_list' => $foundMessages,
+				'limit' => count($foundMessages),
+				'sort' => $search_params['sort'],
+				'sort_dir' => $search_params['sort_dir'],
 			)
 		);
 		$counter = 0;
@@ -1717,8 +1727,8 @@ function MessagePost()
 	loadLanguage('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
 	loadTemplate('PersonalMessage');
-	loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
@@ -1913,9 +1923,10 @@ function MessagePost()
 				SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})
-				LIMIT ' . count($_REQUEST['u']),
+				LIMIT {int:limit}',
 				array(
 					'member_list' => $_REQUEST['u'],
+					'limit' => count($_REQUEST['u']),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -2027,8 +2038,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	if (!isset($_REQUEST['xml']))
 	{
 		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';		$context['sub_template'] = 'send';
-		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 	else
 		$context['sub_template'] = 'pm';
@@ -4037,8 +4048,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => json_decode($row['criteria'], true),
-			'actions' => json_decode($row['actions'], true),
+			'criteria' => smf_json_decode($row['criteria'], true),
+			'actions' => smf_json_decode($row['actions'], true),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

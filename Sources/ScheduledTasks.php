@@ -220,11 +220,10 @@ function scheduled_approval_notification()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, id_profile, add_deny
 		FROM {db_prefix}board_permissions
-		WHERE permission = {string:approve_posts}
+		WHERE permission = {literal:approve_posts}
 			AND id_profile IN ({array_int:profile_list})',
 		array(
 			'profile_list' => $profiles,
-			'approve_posts' => 'approve_posts',
 		)
 	);
 	$perms = array();
@@ -878,8 +877,9 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
-		LIMIT ' . $number,
+		LIMIT {int:limit}',
 		array(
+			'limit' => $number,
 		)
 	);
 	$ids = array();
@@ -1617,7 +1617,7 @@ function scheduled_remove_temp_attachments()
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 
 		// Just use the current path for temp files.
 		$attach_dirs = $modSettings['attachmentUploadDir'];

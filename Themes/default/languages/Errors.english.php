@@ -421,6 +421,9 @@ $txt['search_api_not_compatible'] = 'The selected search API the forum is using 
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
 
+$txt['file_not_created'] = 'The file at "%1$s" could not be created. Please make sure the parent directory has the appropiate permissions';
+$txt['file_minimize_fail'] = 'The file "%1$s" could not be located on the current or the default theme and therefore it wasn\'t included in the minified file.';
+
 // SubActions failed attempt.
 $txt['subAction_fail'] = 'The callable %s could not be called.';
 
@@ -432,4 +435,14 @@ $txt['restore_not_found'] = 'The following messages could not be restored; the o
 
 $txt['error_invalid_dir'] = 'The directory you entered is invalid.';
 
+// json errors.
+$txt['json_JSON_ERROR_DEPTH'] = 'Json decode error: The maximum stack depth has been exceeded';
+$txt['json_JSON_ERROR_STATE_MISMATCH'] = 'Json decode error: Invalid or malformed JSON';
+$txt['json_JSON_ERROR_CTRL_CHAR'] = 'Json decode error: Control character error, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_SYNTAX'] = 'Json decode error: Syntax error, malformed JSON';
+$txt['json_JSON_ERROR_UTF8'] = 'Json decode error: Malformed UTF-8 characters, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_RECURSION'] = 'Json decode error: One or more recursive references in the value to be encoded';
+$txt['json_JSON_ERROR_INF_OR_NAN'] = 'Json decode error: One or more NAN or INF values in the value to be encoded';
+$txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'Json decode error: A value of a type that cannot be encoded was given';
+$txt['json_unknown'] = 'Unknown error';
 ?>

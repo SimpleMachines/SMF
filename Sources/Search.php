@@ -47,7 +47,7 @@ function PlushSearch1()
 	if (!isset($_REQUEST['xml']))
 	{
 		loadTemplate('Search');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 
 	// Check the user's permissions.
@@ -1699,10 +1699,14 @@ function PlushSearch2()
 			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}
-			ORDER BY ' . $search_params['sort'] . ' ' . $search_params['sort_dir'] . '
-			LIMIT ' . (int) $_REQUEST['start'] . ', ' . $modSettings['search_results_per_page'],
+			ORDER BY {raw:sort} {raw:sort_dir}
+			LIMIT {int:start}, {int:max}',
 			array(
 				'id_search' => $_SESSION['search_cache']['id_search'],
+				'sort' => $search_params['sort'],
+				'sort_dir' => $search_params['sort_dir'],
+				'start' => $_REQUEST['start'],
+				'max' => $modSettings['search_results_per_page'],
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1746,10 +1750,11 @@ function PlushSearch2()
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}
 				AND id_msg IN ({array_int:message_list})
-			LIMIT ' . count($context['topics']),
+			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,
 				'no_member' => 0,
+				'limit' => count($context['topics']),
 			)
 		);
 		$posters = array();
@@ -1806,10 +1811,11 @@ function PlushSearch2()
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:current_member}
 				GROUP BY id_topic
-				LIMIT ' . count($participants),
+				LIMIT {int:limit}',
 				array(
 					'current_member' => $user_info['id'],
 					'topic_list' => array_keys($participants),
+					'limit' => count($participants),
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -1898,7 +1904,7 @@ function prepareSearchContext($reset = false)
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
 	}
-	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
+	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
 
 	// Do the censor thang...
 	censorText($message['body']);

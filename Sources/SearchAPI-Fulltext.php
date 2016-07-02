@@ -207,9 +207,23 @@ class fulltext_search extends search_api
 		if (!empty($modSettings['search_simple_fulltext']))
 		{
 			if($smcFunc['db_title'] == "PostgreSQL")
+			{
 				//we use the default language "default_text_search_config", otherwise we had to assgine the language here
 				//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-				$query_where[] = 'to_tsvector(body) @@ to_tsquery({string:body_match})';
+				$language_ftx = 'english';
+				$request = $smcFunc['db_query']('','
+					SHOW default_text_search_config',
+					array()
+				);
+
+				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+				{
+					$row = $smcFunc['db_fetch_assoc']($request);
+					$language_ftx = $row['default_text_search_config'];
+				}
+				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:body_match})';
+				$query_params['language_ftx'] = $language_ftx;
+			}
 			else
 				$query_where[] = 'MATCH (body) AGAINST ({string:body_match})';
 			$query_params['body_match'] = implode(' ', array_diff($words['indexed_words'], $query_params['excluded_index_words']));
@@ -227,24 +241,38 @@ class fulltext_search extends search_api
 					$query_params['boolean_match'] .= ($row <> 0 ? '&' : '');
 					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
 					$row++;
-				} 
+				}
 			}
 			else
 				foreach ($words['indexed_words'] as $fulltextWord)
 					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
-					
+
 			$query_params['boolean_match'] = substr($query_params['boolean_match'], 0, -1);
 
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match']) {
 				if($smcFunc['db_title'] == "PostgreSQL")
+				{
 					//we use the default language "default_text_search_config", otherwise we had to assgine the language here
 					//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-					$query_where[] = 'to_tsvector(body) @@ to_tsquery({string:boolean_match})';
+					$language_ftx = 'english';
+					$request = $smcFunc['db_query']('','
+						SHOW default_text_search_config',
+						array()
+					);
+
+					if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+					{
+						$row = $smcFunc['db_fetch_assoc']($request);
+						$language_ftx = $row['default_text_search_config'];
+					}
+					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:boolean_match})';
+					$query_params['language_ftx'] = $language_ftx;
+				}
 				else
 					$query_where[] = 'MATCH (body) AGAINST ({string:boolean_match} IN BOOLEAN MODE)';
 			}
-				
+
 		}
 
 		$ignoreRequest = $smcFunc['db_search_query']('insert_into_log_messages_fulltext', ($smcFunc['db_support_ignore'] ? ( '

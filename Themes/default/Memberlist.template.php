@@ -80,14 +80,14 @@ function template_main()
 
 		// Group and date.
 		echo '
-					<td class="lefttext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
-					<td class="lefttext reg_date">', $member['registered_date'], '</td>';
+					<td class="centertext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
+					<td class="centertext reg_date">', $member['registered_date'], '</td>';
 
 		if (!isset($context['disabled_fields']['posts']))
 		{
 			echo '
-					<td style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
-					<td class="statsbar" style="width: 120px">';
+					<td class="centertext" style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
+					<td class="centertext statsbar" style="width: 120px">';
 
 			if (!empty($member['post_percent']))
 				echo '
@@ -104,7 +104,7 @@ function template_main()
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 				echo '
-					<td class="lefttext">', $member['options'][$key], '</td>';
+					<td class="righttext">', $member['options'][$key], '</td>';
 		}
 
 		echo '

@@ -403,10 +403,9 @@ function issueWarning($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT recipient_name AS template_title, body
 		FROM {db_prefix}log_comments
-		WHERE comment_type = {string:warntpl}
+		WHERE comment_type = {literal:warntpl}
 			AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
 		array(
-			'warntpl' => 'warntpl',
 			'generic' => 0,
 			'current_member' => $user_info['id'],
 		)
@@ -450,10 +449,9 @@ function list_getUserWarningCount($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE id_recipient = {int:selected_member}
-			AND comment_type = {string:warning}',
+			AND comment_type = {literal:warning}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
 		)
 	);
 	list ($total_warnings) = $smcFunc['db_fetch_row']($request);
@@ -481,12 +479,14 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 		WHERE lc.id_recipient = {int:selected_member}
-			AND lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+			AND lc.comment_type = {literal:warning}
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$previous_warnings = array();
@@ -734,7 +734,7 @@ function subscriptions($memID)
 	foreach ($context['subscriptions'] as $id => $sub)
 	{
 		// Work out the costs.
-		$costs = @json_decode($sub['real_cost'], true);
+		$costs = smf_json_decode($sub['real_cost'], true);
 
 		$cost_array = array();
 		if ($sub['real_length'] == 'F')
@@ -815,7 +815,7 @@ function subscriptions($memID)
 		if (isset($context['current'][$_GET['sub_id']]))
 		{
 			// What are the details like?
-			$current_pending = @json_decode($context['current'][$_GET['sub_id']]['pending_details'], true);
+			$current_pending = smf_json_decode($context['current'][$_GET['sub_id']]['pending_details'], true);
 			if (!empty($current_pending))
 			{
 				$current_pending = array_reverse($current_pending);
@@ -913,7 +913,7 @@ function subscriptions($memID)
 			// What are the details like?
 			$current_pending = array();
 			if ($context['current'][$context['sub']['id']]['pending_details'] != '')
-				$current_pending = @json_decode($context['current'][$context['sub']['id']]['pending_details'], true);
+				$current_pending = smf_json_decode($context['current'][$context['sub']['id']]['pending_details'], true);
 			// Don't get silly.
 			if (count($current_pending) > 9)
 				$current_pending = array();

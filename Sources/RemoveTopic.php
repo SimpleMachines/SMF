@@ -290,10 +290,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 				AND id_board != {int:recycle_board}
-			LIMIT ' . count($topics),
+			LIMIT {int:limit}',
 			array(
 				'recycle_board' => $recycle_board,
 				'topics' => $topics,
+				'limit' => count($topics),
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) > 0)
@@ -429,10 +430,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topics})
 			AND id_poll > {int:no_poll}
-		LIMIT ' . count($topics),
+		LIMIT {int:limit}',
 		array(
 			'no_poll' => 0,
 			'topics' => $topics,
+			'limit' => count($topics),
 		)
 	);
 	$polls = array();
@@ -476,7 +478,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	// Delete possible search index entries.
 	if (!empty($modSettings['search_custom_index_config']))
 	{
-		$customIndexSettings = json_decode($modSettings['search_custom_index_config'], true);
+		$customIndexSettings = smf_json_decode($modSettings['search_custom_index_config'], true);
 
 		$words = array();
 		$messages = array();
@@ -959,7 +961,7 @@ function removeMessage($message, $decreasePostCount = true)
 
 		if (!empty($modSettings['search_custom_index_config']))
 		{
-			$customIndexSettings = json_decode($modSettings['search_custom_index_config'], true);
+			$customIndexSettings = smf_json_decode($modSettings['search_custom_index_config'], true);
 			$words = text2words($row['body'], $customIndexSettings['bytes_per_word'], true);
 			if (!empty($words))
 				$smcFunc['db_query']('', '

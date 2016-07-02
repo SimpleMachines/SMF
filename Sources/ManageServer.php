@@ -499,7 +499,7 @@ function ModifyCacheSettings($return_config = false)
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
-		// we need to save the $cache_enable to $modSettings as well
+		// We need to save the $cache_enable to $modSettings as well
 		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
@@ -865,7 +865,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
 					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? json_decode($context['config_vars'][$config_var[1]]['value'], true) : array();
+					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? smf_json_decode($context['config_vars'][$config_var[1]]['value'], true) : array();
 				}
 
 				// If it's associative

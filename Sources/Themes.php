@@ -99,6 +99,9 @@ function ThemesMain()
 	// CRUD $subActions as needed.
 	call_integration_hook('integrate_manage_themes', array(&$subActions));
 
+	// Whatever you decide to do, clean the minify cache.
+	cache_put_data('minimized_css', null);
+
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		call_helper($subActions[$_GET['sa']]);
@@ -1580,7 +1583,7 @@ function SetJavaScript()
 	if (empty($_GET['var']) || !isset($_GET['val']))
 		redirectexit($settings['images_url'] . '/blank.png');
 
-	// Sorry, guests can't go any further than this..
+	// Sorry, guests can't go any further than this.
 	if ($user_info['is_guest'] || $user_info['id'] == 0)
 		obExit(false);
 
@@ -1620,7 +1623,7 @@ function SetJavaScript()
 	// If this is the admin preferences the passed value will just be an element of it.
 	if ($_GET['var'] == 'admin_preferences')
 	{
-		$options['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
+		$options['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
 		// New thingy...
 		if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5)
 			$options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];

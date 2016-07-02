@@ -698,7 +698,7 @@ function ModifySubscription()
 			$context['sub'] = array(
 				'name' => $row['name'],
 				'desc' => $row['description'],
-				'cost' => @json_decode($row['cost'], true),
+				'cost' => smf_json_decode($row['cost'], true),
 				'span' => array(
 					'value' => $span_value,
 					'unit' => $span_unit,
@@ -1000,13 +1000,16 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
 		WHERE ls.id_subscribe = {int:current_subscription} ' . $search_string . '
 			AND (ls.end_time != {int:no_end_time} OR ls.payments_pending != {int:no_payments_pending})
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array_merge($search_vars, array(
 			'current_subscription' => $id_sub,
 			'no_end_time' => 0,
 			'no_payments_pending' => 0,
 			'guest' => $txt['guest'],
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$subscribers = array();
@@ -1271,14 +1274,14 @@ function ModifyUserSubscription()
 		$context['pending_payments'] = array();
 		if (!empty($row['pending_details']))
 		{
-			$pending_details = @json_decode($row['pending_details'], true);
+			$pending_details = smf_json_decode($row['pending_details'], true);
 			foreach ($pending_details as $id => $pending)
 			{
 				// Only this type need be displayed.
 				if ($pending[3] == 'payback')
 				{
 					// Work out what the options were.
-					$costs = @json_decode($context['current_subscription']['real_cost'], true);
+					$costs = smf_json_decode($context['current_subscription']['real_cost'], true);
 
 					if ($context['current_subscription']['real_length'] == 'F')
 					{
@@ -1358,7 +1361,7 @@ function ModifyUserSubscription()
 		$context['sub']['end']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['sub']['end']['month'] == 12 ? 1 : $context['sub']['end']['month'] + 1, 0, $context['sub']['end']['month'] == 12 ? $context['sub']['end']['year'] + 1 : $context['sub']['end']['year']));
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -1840,7 +1843,7 @@ function loadSubscriptions()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Pick a cost.
-		$costs = @json_decode($row['cost'], true);
+		$costs = smf_json_decode($row['cost'], true);
 
 		if ($row['length'] != 'F' && !empty($modSettings['paid_currency_symbol']) && !empty($costs['fixed']))
 			$cost = sprintf($modSettings['paid_currency_symbol'], $costs['fixed']);

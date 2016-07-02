@@ -31,7 +31,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
-	global $smcFunc, $mysql_set_mode;
+	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']) || $smcFunc['db_fetch_assoc'] != 'postg_fetch_assoc')
@@ -223,6 +223,27 @@ function smf_db_replacement__callback($matches)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
 		break;
+		
+		case 'array_inet':
+			if (is_array($replacement))
+			{
+				if (empty($replacement))
+					smf_db_error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				foreach ($replacement as $key => $value)
+				{
+					if ($replacement == 'null')
+						$replacement[$key] = 'null';
+					if (inet_pton($replacement) === false)
+						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					$replacement[$key] =  sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
+				}
+
+				return implode(', ', $replacement);
+			}
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
 
 		default:
 			smf_db_error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
@@ -272,21 +293,13 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
-	global $db_unbuffered, $db_callback, $db_last_result, $db_replace_result, $modSettings;
+	global $db_callback, $db_last_result, $db_replace_result, $modSettings;
 
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
 
 	// Special queries that need processing.
 	$replacements = array(
-		'ban_suggest_error_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
-		'ban_suggest_message_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
@@ -645,7 +658,7 @@ function smf_db_unescape_string($string)
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
 {
-	global $db_replace_result, $db_in_transact, $smcFunc, $db_connection, $db_prefix;
+	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
 	

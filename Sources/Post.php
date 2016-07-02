@@ -1181,13 +1181,13 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
-		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
+		loadJavascriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		loadJavascriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		loadJavascriptFile('mentions.js', array('defer' => true), 'smf_mentions');
 	}
 
 	// quotedText.js
-	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+	loadJavascriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
 
 	// Mock files to show already attached files.
 	addInlineJavascript('
@@ -1213,7 +1213,7 @@ function Post($post_errors = array())
 		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.'. $smcFunc['htmltrim']($val);} , explode(',', $context['allowed_extensions'])));
 
 		loadJavascriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
-		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true), 'smf_fileUpload');
+		loadJavascriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
 		addInlineJavascript('
 	$(function() {
 		smf_fileUpload({
@@ -1226,19 +1226,20 @@ function Post($post_errors = array())
 			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
 			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .',
 			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) .',
+			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) .',
 			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) .',
 			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
 			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
 			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			acceptedFiles: '. JavaScriptEscape($acceptedFiles) .',
-			maxFilesize: '. ($modSettings['attachmentSizeLimit'] * 0.001) .',
-			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
-			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
-			maxFiles: '. $context['num_allowed_attachments'] .',
+			maxFilesize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : 'null') .',
+			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') .',
+			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') .',
+			maxFiles: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') .',
 			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
 			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1000 .',
-			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1000 .',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
+			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
 		});
 	});', true);
 	}
@@ -1947,9 +1948,6 @@ function Post2()
 		if ((!file_exists($settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
 			$_POST['icon'] = 'xx';
 	}
-
-	// Give an attach clip if the message contains attachments.
-	$_POST['icon'] = !empty($attachIDs) && $_POST['icon'] == 'xx' ? 'clip' : $_POST['icon'];
 
 	// Collect all parameters for the creation or modification of a post.
 	$msgOptions = array(

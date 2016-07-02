@@ -317,7 +317,7 @@ function reportPost($msg, $reason)
 			'{db_prefix}log_reported_comments',
 			array(
 				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-				'member_ip' => 'string', 'comment' => 'string', 'time_sent' => 'int',
+				'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
 			),
 			array(
 				$id_report, $user_info['id'], $user_info['name'],
@@ -439,7 +439,7 @@ function reportUser($id_member, $reason)
 			'{db_prefix}log_reported_comments',
 			array(
 				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-				'member_ip' => 'string', 'comment' => 'string', 'time_sent' => 'int',
+				'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
 			),
 			array(
 				$id_report, $user_info['id'], $user_info['name'],

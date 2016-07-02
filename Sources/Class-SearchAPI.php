@@ -132,7 +132,7 @@ interface search_api_interface
 	 * @param array $searchArray
 	 * @return mixed
 	 */
-	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array $participants, array $searchArray);
+	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray);
 }
 
 /**
@@ -221,7 +221,7 @@ abstract class search_api implements search_api_interface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array $participants, array $searchArray)
+	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray)
 	{
 	}
 }

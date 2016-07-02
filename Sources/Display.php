@@ -817,12 +817,14 @@ function Display()
 		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 		AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-		LIMIT ' . $start . ', ' . $limit),
+		LIMIT {int:start}, {int:max}'),
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'is_approved' => 1,
 			'blank_id_member' => 0,
+			'start' => $start,
+			'max' => $limit,
 		)
 	);
 
@@ -1268,24 +1270,24 @@ function Display()
 
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
-		loadJavascriptFile('drafts.js', array('default_theme' => true, 'defer' => false), 'smf_drafts');
+		loadJavascriptFile('drafts.js', array('defer' => false), 'smf_drafts');
 
 	// Spellcheck
 	if ($context['show_spellchecking'])
-		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
+		loadJavascriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
 
 	// topic.js
-	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+	loadJavascriptFile('topic.js', array('defer' => false), 'smf_topic');
 
 	// quotedText.js
-	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+	loadJavascriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
 
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
-		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
+		loadJavascriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		loadJavascriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		loadJavascriptFile('mentions.js', array('defer' => true), 'smf_mentions');
 	}
 }
 
@@ -1379,7 +1381,7 @@ function prepareDisplayContext($reset = false)
 		$memberContext[$message['id_member']]['show_email'] |= ($message['id_member'] == $user_info['id']);
 	}
 
-	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
+	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
 	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty($modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
 
 	// Do the censor thang.
@@ -1426,6 +1428,13 @@ function prepareDisplayContext($reset = false)
 		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
 		'css_class' => $message['approved'] ? 'windowbg' : 'approvebg',
 	);
+
+	// Does the file contains any attachments? if so, change the icon.
+	if (!empty($output['attachment']))
+	{
+		$output['icon'] = 'clip';
+		$output['icon_url'] = $settings[$context['icon_sources'][$output['icon']]] . '/post/' . $output['icon'] . '.png';
+	}
 
 	// Are likes enable?
 	if (!empty($modSettings['enable_likes']))
@@ -1769,11 +1778,12 @@ function QuickInTopicModeration()
 		WHERE id_msg IN ({array_int:message_list})
 			AND id_topic = {int:current_topic}' . (!$allowed_all ? '
 			AND id_member = {int:current_member}' : '') . '
-		LIMIT ' . count($messages),
+		LIMIT {int:limit}',
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'message_list' => $messages,
+			'limit' => count($messages),
 		)
 	);
 	$messages = array();

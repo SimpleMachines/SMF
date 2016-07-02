@@ -99,19 +99,19 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 		{
-			list (, , $timeout) = json_decode($_COOKIE[$cookiename], true);
+			list (, , $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
-				list (, , $timeout) = @unserialize($_COOKIE[$cookiename]);
+				list (, , $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
-			list (, , $timeout) = json_decode($_SESSION['login_' . $cookiename]);
+			list (, , $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 			// Try for old format
 			if (is_null($timeout))
-				list (, , $timeout) = @unserialize($_SESSION['login_' . $cookiename]);
+				list (, , $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
@@ -122,11 +122,11 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			// If that didn't work, try unserialize instead...
 			if (is_null($tfadata))
-				$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+				$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
@@ -615,7 +615,7 @@ function DoLogin()
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}member_logins',
 			array(
-				'id_member' => 'int', 'time' => 'int', 'ip' => 'string', 'ip2' => 'string',
+				'id_member' => 'int', 'time' => 'int', 'ip' => 'inet', 'ip2' => 'inet',
 			),
 			array(
 				$user_info['id'], time(), $user_info['ip'], $user_info['ip2']
@@ -685,11 +685,11 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		$tfadata = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+		$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 		// If that failed, try the old method
 		if (is_null($tfadata))
-			$tfadata = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
