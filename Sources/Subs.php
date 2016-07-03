@@ -3108,11 +3108,8 @@ function template_header()
 
 			// We are already checking so many files...just few more doesn't make any difference! :P
 			if (!empty($modSettings['currentAttachmentUploadDir']))
-			{
-				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-			}
+
 			else
 			{
 				$path = $modSettings['attachmentUploadDir'];
@@ -3542,11 +3539,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 
 	// Are we using multiple directories?
 	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
-	}
+
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
@@ -5248,11 +5242,11 @@ function smf_chmod($file, $value = 0)
 }
 
 /**
- * Wrapper function for smf_json_decode() with error handling.
+ * Wrapper function for json_decode() with error handling.
 
  * @param string $json The string to decode.
  * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
- * @param bool $logIt To specify if the error will be logged if h}theres an error.
+ * @param bool $logIt To specify if the error will be logged if theres any.
  * @return array Either an empty array or the decoded data as an array.
  */
 function smf_json_decode($json, $returnAsArray = false, $logIt = true)
