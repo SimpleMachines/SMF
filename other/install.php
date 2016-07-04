@@ -1666,13 +1666,6 @@ class ftp_connection
 {
 	var $connection = 'no_connection', $error = false, $last_message, $pasv = array();
 
-	// Create a new FTP connection...
-	function ftp_connection($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-	{
-		if ($ftp_server !== null)
-			$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
-	}
-
 	function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
 		if (substr($ftp_server, 0, 6) == 'ftp://')
