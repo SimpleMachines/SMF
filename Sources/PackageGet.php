@@ -653,7 +653,8 @@ function PackageUpload()
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
 	$extension = substr(strrchr(strtolower($_FILES['package']['name']), '.'), 0);
-	if(!in_array($extension, $allowext)){
+	if(!in_array($extension, $allowext))
+	{
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
 	}
 	
