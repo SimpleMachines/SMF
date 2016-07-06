@@ -1086,9 +1086,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'parameters' => array(
 					'name' => array('optional' => true),
+					'type' => array('optional' => true),
+					'alt' => array('optional' => true),
+					'title' => array('optional' => true),
+					'width' => array('optional' => true, 'match' => '(\d+)'),
+					'height' => array('optional' => true, 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
 				{
 					$returnContext = '';
 
@@ -1110,12 +1115,36 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						if ($currentAttachment['thumbnail']['has_thumb'])
+						$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt="' . $currentAttachment['name'] . '"';
+						$title = !empty($params['{title}']) ? ' title="' . $params['{alt}'] . '"' : '';
+
+						if (!empty($params['{width}']) && !empty($params['{height}']))
+						{
+							$width = ' width="' . $params['{width}'] . '"';
+							$height = ' height="' . $params['{height}'] . '"';
+						}
+						elseif (!empty($params['{width}']) && empty($params['{height}']))
+						{
+							$width = ' width="' . $params['{width}'] . '"';
+							$height = '';
+						}
+						elseif (empty($params['{width}']) && !empty($params['{height}']))
+						{
+							$width = '';
+							$height = ' height="' . $params['{height}'] . '"';
+						}
+						else
+						{
+							$width = ' width="' . $currentAttachment['width'] . '"';
+							$height = ' height="' . $currentAttachment['height'] . '"';
+						}
+
+						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
 							$returnContext .= '
-													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
+													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
 						else
 							$returnContext .= '
-													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
+													<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
 					}
 
 					// No image. Show a link.
