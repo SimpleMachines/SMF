@@ -1515,7 +1515,7 @@ VALUES
 ---# Adding the simple machines scheduled task.
 ---{
 // Randomise the time.
-$randomTime = 82800 + rand(0, 86399);
+$randomTime = 82800 + mt_rand(0, 86399);
 upgrade_query("
 	INSERT IGNORE INTO {$db_prefix}scheduled_tasks
 		(next_time, time_offset, time_regularity, time_unit, disabled, task)

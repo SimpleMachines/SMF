@@ -84,7 +84,7 @@ function loadSession()
 	if (!isset($_SESSION['session_var']))
 	{
 		$_SESSION['session_value'] = md5(session_id() . mt_rand());
-		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(mt_rand() . session_id() . mt_rand())), 0, rand(7, 12));
+		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(mt_rand() . session_id() . mt_rand())), 0, mt_rand(7, 12));
 	}
 	$sc = $_SESSION['session_value'];
 }
