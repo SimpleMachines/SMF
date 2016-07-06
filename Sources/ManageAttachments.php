@@ -197,6 +197,9 @@ function ManageAttachmentSettings($return_config = false)
 	{
 		checkSession();
 
+		if (isset($_POST['attachmentUploadDir']))
+			unset($_POST['attachmentUploadDir']);
+
 		if (!empty($_POST['use_subdirectories_for_attachments']))
 		{
 			if (isset($_POST['use_subdirectories_for_attachments']) && empty($_POST['basedirectory_for_attachments']))
