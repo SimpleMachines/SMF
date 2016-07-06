@@ -1416,6 +1416,7 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
  * Errors in $context['ban_errors']
  *
  * @param array $ban_info An array of info about the ban group. Should have name and may also have an id.
+ * @return int The ban group's ID
  */
 function updateBanGroup($ban_info = array())
 {
@@ -1466,7 +1467,7 @@ function updateBanGroup($ban_info = array())
 	}
 
 	if (!empty($context['ban_errors']))
-		return;
+		return $ban_info['id'];
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_groups
@@ -1493,6 +1494,7 @@ function updateBanGroup($ban_info = array())
 		)
 	);
 
+	return $ban_info['id'];
 }
 
 /**
