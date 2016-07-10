@@ -328,7 +328,7 @@ function isValidIPv6($ip)
 	//looking for :
 	if (strpos($ip , ':') === false )
 		return false;
-	
+
 	//check valid address
 	return inet_pton($ip);
 }

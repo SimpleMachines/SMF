@@ -1087,8 +1087,8 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
-	} 
-	else 
+	}
+	else
 	{
 		$has_innodb = false;
 	}
@@ -1105,7 +1105,7 @@ function DatabasePopulation()
 				$pg_version = $row['server_version_num'];
 			$smcFunc['db_free_result']($result);
 		}
-		
+
 		if(isset($pg_version) && $pg_version >= 90100)
 			$replaces['{$unlogged}'] = 'UNLOGGED';
 		else
@@ -1288,11 +1288,11 @@ function DatabasePopulation()
 			}
 		}
 	}
-	
-	// MySQL specific stuff 
+
+	// MySQL specific stuff
 	if (substr($db_type, 0, 5) != 'mysql')
 		return false;
-	
+
 	// Find database user privileges.
 	$privs = array();
 	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
@@ -1337,7 +1337,7 @@ function AdminAccount()
 	load_database();
 
 	require_once($sourcedir . '/Subs-Auth.php');
-	
+
 	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
