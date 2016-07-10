@@ -1407,6 +1407,7 @@ function Post2()
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
+
 			else
 				isAllowedTo('post_reply_any');
 		}
@@ -1414,6 +1415,7 @@ function Post2()
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own'))
 				$becomesApproved = false;
+
 			else
 				isAllowedTo('post_reply_own');
 		}
@@ -1423,15 +1425,18 @@ function Post2()
 			// Nothing is changed to the lock.
 			if ((empty($topic_info['locked']) && empty($_POST['lock'])) || (!empty($_POST['lock']) && !empty($topic_info['locked'])))
 				unset($_POST['lock']);
+
 			// You're have no permission to lock this topic.
 			elseif (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && $user_info['id'] != $topic_info['id_member_started']))
 				unset($_POST['lock']);
+
 			// You are allowed to (un)lock your own topic only.
 			elseif (!allowedTo('lock_any'))
 			{
 				// You cannot override a moderator lock.
 				if ($topic_info['locked'] == 1)
 					unset($_POST['lock']);
+
 				else
 					$_POST['lock'] = empty($_POST['lock']) ? 0 : 2;
 			}
