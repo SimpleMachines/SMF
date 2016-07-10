@@ -36,10 +36,10 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => create_function('&$value', '
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
+		'validate_prefix' => function(&$value) {
+			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
-		'),
+		},
 	),
 	'mysql' => array(
 		'name' => 'MySQL',
@@ -56,10 +56,10 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => create_function('&$value', '
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
+		'validate_prefix' => function(&$value){
+			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
-		'),
+		},
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
@@ -73,19 +73,19 @@ $databases = array(
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
-		'validate_prefix' => create_function('&$value', '
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
+		'validate_prefix' => function(&$value){
+			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
-			if ($value == \'pg_\')
-				return $txt[\'error_db_prefix_reserved\'];
+			if ($value == 'pg_')
+				return $txt['error_db_prefix_reserved'];
 
 			// Is the prefix numeric?
-			if (preg_match(\'~^\d~\', $value))
-				return $txt[\'error_db_prefix_numeric\'];
+			if (preg_match('~^\d~', $value))
+				return $txt['error_db_prefix_numeric'];
 
 			return true;
-		'),
+		},
 	),
 );
 
@@ -1087,8 +1087,8 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
-	} 
-	else 
+	}
+	else
 	{
 		$has_innodb = false;
 	}
@@ -1105,7 +1105,7 @@ function DatabasePopulation()
 				$pg_version = $row['server_version_num'];
 			$smcFunc['db_free_result']($result);
 		}
-		
+
 		if(isset($pg_version) && $pg_version >= 90100)
 			$replaces['{$unlogged}'] = 'UNLOGGED';
 		else
@@ -1288,11 +1288,11 @@ function DatabasePopulation()
 			}
 		}
 	}
-	
-	// MySQL specific stuff 
+
+	// MySQL specific stuff
 	if (substr($db_type, 0, 5) != 'mysql')
 		return false;
-	
+
 	// Find database user privileges.
 	$privs = array();
 	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
@@ -1337,18 +1337,18 @@ function AdminAccount()
 	load_database();
 
 	require_once($sourcedir . '/Subs-Auth.php');
-	
+
 	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		create_function('$string', '
+		function($string){
 			global $sourcedir;
-			if (function_exists(\'mb_strtolower\'))
-				return mb_strtolower($string, \'UTF-8\');
-			require_once($sourcedir . \'/Subs-Charset.php\');
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
 			return utf8_strtolower($string);
-		');
+		};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1607,13 +1607,13 @@ function DeleteInstall()
 
 	// This function is needed to do the updateStats('subject') call.
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		create_function('$string', '
+		function($string){
 			global $sourcedir;
-			if (function_exists(\'mb_strtolower\'))
-				return mb_strtolower($string, \'UTF-8\');
-			require_once($sourcedir . \'/Subs-Charset.php\');
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
 			return utf8_strtolower($string);
-		');
+		};
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg

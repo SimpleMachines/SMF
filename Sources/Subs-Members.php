@@ -897,7 +897,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 
 	// Get rid of any SQL parts of the reserved name...
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
-	
+
 	//when we got no wildcard we can use equal -> fast
 	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=' );
 
@@ -1455,7 +1455,7 @@ function populateDuplicateMembers(&$members)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$row['poster_ip'] = inet_dtop($row['poster_ip']);
-		
+
 		// Don't collect lots of the same.
 		if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']]))
 			continue;

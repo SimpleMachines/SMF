@@ -58,6 +58,9 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
+		if (!is_array($modSettings['attachmentUploadDir']))
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+
 		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
 	}
@@ -1966,6 +1969,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'xmlhttp',
 		'post2',
 		'suggest',
+		'stats',
 	);
 
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));

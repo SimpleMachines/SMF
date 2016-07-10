@@ -3137,11 +3137,8 @@ function template_header()
 
 			// We are already checking so many files...just few more doesn't make any difference! :P
 			if (!empty($modSettings['currentAttachmentUploadDir']))
-			{
-				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-			}
+
 			else
 			{
 				$path = $modSettings['attachmentUploadDir'];
@@ -3571,11 +3568,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 
 	// Are we using multiple directories?
 	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
-	}
+
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
@@ -4975,13 +4969,6 @@ function inet_dtop($bin)
  * @author anthon (dot) pang (at) gmail (dot) com
  */
 
-/*
- * Arbitrary limits for safe_unserialize()
- */
-define('MAX_SERIALIZED_INPUT_LENGTH', 4096);
-define('MAX_SERIALIZED_ARRAY_LENGTH', 256);
-define('MAX_SERIALIZED_ARRAY_DEPTH', 3);
-
 /**
  * Safe serialize() replacement. Recursive
  * - output a strict subset of PHP's native serialized representation
@@ -5054,10 +5041,6 @@ function safe_serialize($value)
  */
 function _safe_unserialize($str)
 {
-	// Input exceeds MAX_SERIALIZED_INPUT_LENGTH.
-	if(strlen($str) > MAX_SERIALIZED_INPUT_LENGTH)
-		return false;
-
 	// Input  is not a string.
 	if(empty($str) || !is_string($str))
 		return false;
@@ -5104,7 +5087,7 @@ function _safe_unserialize($str)
 			$value = substr($matches[2], 0, (int)$matches[1]);
 			$str = substr($matches[2], (int)$matches[1] + 2);
 		}
-		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches) && $matches[1] < MAX_SERIALIZED_ARRAY_LENGTH)
+		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
 		{
 			$expectedLength = (int)$matches[1];
 			$str = $matches[2];
@@ -5119,10 +5102,6 @@ function _safe_unserialize($str)
 			case 3: // In array, expecting value or another array.
 				if($type == 'a')
 				{
-					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
-					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
-						return false;
-
 					$stack[] = &$list;
 					$list[$key] = array();
 					$list = &$list[$key];
@@ -5162,10 +5141,6 @@ function _safe_unserialize($str)
 
 				if($type == 'i' || $type == 's')
 				{
-					// Array size exceeds MAX_SERIALIZED_ARRAY_LENGTH.
-					if(count($list) >= MAX_SERIALIZED_ARRAY_LENGTH)
-						return false;
-
 					// Array size exceeds expected length.
 					if(count($list) >= end($expected))
 						return false;
@@ -5182,10 +5157,6 @@ function _safe_unserialize($str)
 			case 0:
 				if($type == 'a')
 				{
-					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
-					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
-						return false;
-
 					$data = array();
 					$list = &$data;
 					$expected[] = $expectedLength;
@@ -5277,11 +5248,11 @@ function smf_chmod($file, $value = 0)
 }
 
 /**
- * Wrapper function for smf_json_decode() with error handling.
+ * Wrapper function for json_decode() with error handling.
 
  * @param string $json The string to decode.
  * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
- * @param bool $logIt To specify if the error will be logged if h}theres an error.
+ * @param bool $logIt To specify if the error will be logged if theres any.
  * @return array Either an empty array or the decoded data as an array.
  */
 function smf_json_decode($json, $returnAsArray = false, $logIt = true)

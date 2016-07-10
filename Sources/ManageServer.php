@@ -799,6 +799,9 @@ function prepareDBSettingContext(&$config_vars)
 					case 'select':
 						$value = $modSettings[$config_var[1]];
 						break;
+					case 'json':
+						$value = $smcFunc['htmlspecialchars'](json_encode($modSettings[$config_var[1]]));
+						break;
 					case 'boards':
 						$value = explode(',', $modSettings[$config_var[1]]);
 						break;
