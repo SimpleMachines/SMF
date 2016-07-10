@@ -3297,7 +3297,7 @@ function cache_get_data($key, $ttl = 120)
 
 	switch ($cache_accelerator)
 	{
-		case 'memcache':
+		case 'memcached':
 			// Okay, let's go for it memcached!
 			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
