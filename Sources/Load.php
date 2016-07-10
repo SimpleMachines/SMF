@@ -1969,6 +1969,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'xmlhttp',
 		'post2',
 		'suggest',
+		'stats',
 	);
 
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
