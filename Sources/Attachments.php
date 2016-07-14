@@ -49,8 +49,7 @@ class Attachments
 
 		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$this->_attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		$this->_attachmentUploadDir = $modSettings['attachmentUploadDir'];
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
