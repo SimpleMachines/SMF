@@ -799,9 +799,9 @@ function getEventPoster($event_id)
 
 /**
  * Consolidating the various INSERT statements into this function.
- * inserts the passed event information into the calendar table.
- * allows to either set a time span (in days) or an end_date.
- * does not check any permissions of any sort.
+ * Inserts the passed event information into the calendar table.
+ * Allows to either set a time span (in days) or an end_date.
+ * Does not check any permissions of any sort.
  *
  * @param array $eventOptions An array of event options ('title', 'span', 'start_date', 'end_date', etc.)
  */
@@ -816,14 +816,21 @@ function insertEvent(&$eventOptions)
 	$eventOptions['span'] = isset($eventOptions['span']) && $eventOptions['span'] > 0 ? (int) $eventOptions['span'] : 0;
 
 	// Make sure the start date is in ISO order.
-	// @todo $year, $month, and $day are not set
-	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
+	$start_date = date_parse($eventOptions['start_date']);
+	if ($start_date['error_count'] = 0)
+		$eventOptions['start_date'] = strftime('%F', mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']));
+	else
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
 
 	// Set the end date (if not yet given)
-	// @todo $year, $month, and $day are not set
-	if (!isset($eventOptions['end_date']))
-		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
+	if (isset($eventOptions['end_date']))
+	{
+		$end_date = date_parse($eventOptions['end_date']);
+		if ($end_date['error_count'] = 0)
+			$eventOptions['end_date'] = strftime('%F', mktime(0, 0, 0, $end_date['month'], $end_date['day'], $end_date['year']));
+	}
+	else
+		$eventOptions['end_date'] = strftime('%F', mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']) + $eventOptions['span'] * 86400);
 
 	// If no topic and board are given, they are not linked to a topic.
 	$eventOptions['board'] = isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0;
@@ -891,7 +898,10 @@ function modifyEvent($event_id, &$eventOptions)
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
 
 	// Scan the start date for validity and get its components.
-	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
+	$start_date = date_parse($eventOptions['start_date']);
+	if ($start_date['error_count'] = 0)
+		$eventOptions['start_date'] = strftime('%F', mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']));
+	else
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
 
 	// Default span to 0 days.
@@ -899,7 +909,7 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// Set the end date to the start date + span (if the end date wasn't already given).
 	if (!isset($eventOptions['end_date']))
-		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
+		$eventOptions['end_date'] = strftime('%F', mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']) + $eventOptions['span'] * 86400);
 
 	// @todo Add start_time and end_time support
 	$event_columns = array(
