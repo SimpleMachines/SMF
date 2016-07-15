@@ -157,6 +157,8 @@ CREATE TABLE {$db_prefix}calendar (
   id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   title VARCHAR(255) NOT NULL DEFAULT '',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  start_time time,
+  end_time time,
   PRIMARY KEY (id_event),
   INDEX idx_start_date (start_date),
   INDEX idx_end_date (end_date),

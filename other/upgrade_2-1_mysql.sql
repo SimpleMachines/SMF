@@ -2441,3 +2441,9 @@ if ($doChange)
 ---# Add the new log banned ip
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
+
+--# Add start_time and end_time support to the calendar
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN start_time time,
+ADD COLUMN end_time time;
+--#
