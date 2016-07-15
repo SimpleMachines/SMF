@@ -65,6 +65,9 @@ class Attachments
 		// Guest aren't welcome, sorry.
 		is_not_guest();
 
+		// Need this. For reasons...
+		loadLanguage('Post');
+
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
@@ -382,8 +385,6 @@ class Attachments
 	protected function setResponse($data = array())
 	{
 		global $txt;
-
-		loadLanguage('Post');
 
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
