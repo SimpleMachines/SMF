@@ -2164,7 +2164,7 @@ function range2ip($low, $high)
 	$low = inet_dtop($low);
 	$high = inet_dtop($high);
 
-	if ($low == '255.255.255.255') return 'unkown';
+	if ($low == '255.255.255.255') return 'unknown';
 	if ($low == $high)
 	    return $low;
 	else
