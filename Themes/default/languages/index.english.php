@@ -524,8 +524,6 @@ $txt['calendar_confirm_delete'] = 'Are you sure you want to delete this event?';
 $txt['calendar_linked_events'] = 'Linked Events';
 $txt['calendar_click_all'] = 'click to see all %1$s';
 $txt['calendar_allday'] = 'All day';
-$txt['calendar_start'] = 'Start';
-$txt['calendar_end'] = 'End';
 $txt['calendar_timezone'] = 'Time zone';
 
 $txt['movetopic_change_subject'] = 'Change the topic\'s subject';

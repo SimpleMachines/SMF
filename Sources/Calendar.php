@@ -294,7 +294,6 @@ function CalendarPost()
 		));
 
 		// No point hanging around here now...
-		// redirectexit($scripturl . '?action=calendar;month=' . $_POST['month'] . ';year=' . $_POST['year']);
 		redirectexit($scripturl . '?action=calendar');
 	}
 
@@ -484,7 +483,6 @@ function iCalDownload()
 	}
 
 	// Format the dates.
-	// @todo Add start_time and end_time support (iCalDownload)
 	$datestamp = date('Ymd\THis\Z', time());
 	$start_date = date_create($event['start_date'] . (isset($event['start_time']) ? ' ' . $event['start_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
 	$end_date = date_create($event['end_date'] . (isset($event['end_time']) ? ' ' . $event['end_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
@@ -511,7 +509,6 @@ function iCalDownload()
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
 	// @TODO - Should be the members email who created the event rather than $webmaster_email.
 	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
-	// @todo Add start_time and end_time support (iCalDownload)
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART' . (!empty($event['start_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $datestart . "\n";
 
