@@ -545,15 +545,21 @@ function Display()
 	// If we want to show event information in the topic, prepare the data.
 	if (allowedTo('calendar_view') && !empty($modSettings['cal_showInTopic']) && !empty($modSettings['cal_enabled']))
 	{
-		// First, try create a better time format, ignoring the "time" elements.
+		// First, try to create a better date format, ignoring the "time" elements.
 		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
 			$date_string = $user_info['time_format'];
 		else
 			$date_string = $matches[0];
 
+		// We want a fairly compact version of the time, but as close as possible to the user's settings.		
+		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$time_string = $user_info['time_format'];
+		else
+			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+
 		// Any calendar information for this topic?
 		$request = $smcFunc['db_query']('', '
-			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name
+			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name, cal.start_time, cal.end_time, cal.timezone
 			FROM {db_prefix}calendar AS cal
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)
 			WHERE cal.id_topic = {int:current_topic}
@@ -566,24 +572,60 @@ function Display()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// Prepare the dates for being formatted.
-			$start_date = sscanf($row['start_date'], '%04d-%02d-%02d');
-			$start_date = mktime(12, 0, 0, $start_date[1], $start_date[2], $start_date[0]);
-			$end_date = sscanf($row['end_date'], '%04d-%02d-%02d');
-			$end_date = mktime(12, 0, 0, $end_date[1], $end_date[2], $end_date[0]);
+			if (isset($row['start_time']) && isset($row['end_time']) && isset($row['timezone']))
+			{
+				$start_object = date_create($row['start_date'] . ' ' . $row['start_time'], timezone_open($row['timezone']));
+				$end_object = date_create($row['end_date'] . ' ' . $row['end_time'], timezone_open($row['timezone']));
+			}
+			else
+			{
+				$start_object = date_create($row['start_date']);
+				$end_object = date_create($row['end_date']);
+			}
 
-			$context['linked_calendar_events'][] = array(
+			$start_timestamp = date_format($start_object, 'U');
+			$end_timestamp = date_format($end_object, 'U');
+
+			$start_date_local = timeformat($start_timestamp, $date_string, 'none');
+			$start_time_local = timeformat($start_timestamp, $time_string, 'none');
+			$end_date_local = timeformat($end_timestamp, $date_string, 'none');
+			$end_time_local = timeformat($end_timestamp, $time_string, 'none');
+
+			// This is a roundabout way to do it, but it lets us use our strftime format strings, so meh...
+			$start_date_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_string, 'none');
+			$start_time_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_string, 'none');
+			$end_date_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_string, 'none');
+			$end_time_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_string, 'none');
+
+			$tz_abbrev = isset($row['timezone']) ? date_format($start_object, 'T') : null;
+
+			$linked_calendar_event = array(
 				'id' => $row['id_event'],
 				'title' => $row['title'],
 				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'modify_href' => $scripturl . '?action=post;msg=' . $context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'start_date' => timeformat($start_date, $date_string, 'none'),
-				'start_timestamp' => $start_date,
-				'end_date' => timeformat($end_date, $date_string, 'none'),
-				'end_timestamp' => $end_date,
+				'allday' => empty($row['start_time']),
+				'start_date' => $start_date_local,
+				'start_date_orig' => $start_date_orig,
+				'start_timestamp' => $start_timestamp,
+				'end_date' => $end_date_local,
+				'end_date_orig' => $end_date_orig,
+				'end_timestamp' => $end_timestamp,
 				'is_last' => false
 			);
+			if (isset($row['start_time']))
+			{
+
+				$linked_calendar_event['start_time'] = $start_time_local;
+				$linked_calendar_event['end_time'] = $end_time_local;
+				$linked_calendar_event['start_time_orig'] = $start_time_orig;
+				$linked_calendar_event['end_time_orig'] = $end_time_orig;
+				$linked_calendar_event['tz'] = $tz_abbrev;
+			}
+
+			$context['linked_calendar_events'][] = $linked_calendar_event;
 		}
 		$smcFunc['db_free_result']($request);
 

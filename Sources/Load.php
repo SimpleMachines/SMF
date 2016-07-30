@@ -2417,7 +2417,7 @@ function addInlineCss($css)
 
 /**
  * Add a Javascript file for output later
-
+ *
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:

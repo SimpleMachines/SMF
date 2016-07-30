@@ -4834,7 +4834,7 @@ function get_gravatar_url($email_address)
 }
 
 /**
- * Get a list of timezoned.
+ * Get a list of timezones.
  *
  * @return array An array of timezone info.
  */

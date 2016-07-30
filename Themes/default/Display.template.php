@@ -167,7 +167,49 @@ function template_main()
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
 					<li>
-						', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify"></span></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
+						<strong>', $event['title'], '</strong>: ';
+
+			if (!empty($event['allday']))
+			{
+				echo $event['start_date'], ($event['start_date'] != $event['end_date']) ? ' - ' . $event['end_date'] : '';
+			}
+			else
+			{
+				// Display event info relative to user's local timezone
+				echo $event['start_date'], ', ', $event['start_time'], ' - ';
+
+				if ($event['start_date'] != $event['end_date'])
+					echo $event['end_date'] . ', ';
+
+				echo $event['end_time'];
+
+				// Display event info relative to original timezone
+				if ($event['start_date'] . $event['start_time'] != $event['start_date_orig'] . $event['start_time_orig'])
+				{
+					echo ' ('; 
+					
+					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'])
+						echo $event['start_date_orig'], ', ';
+					
+					echo $event['start_time_orig'], ' - ';
+					
+					if ($event['start_date_orig'] != $event['end_date_orig'])
+						echo $event['end_date_orig'] . ', ';
+					
+					echo $event['end_time_orig'], ' ', $event['tz'], ')';
+				}
+				// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
+				else
+					echo ' ', $event['tz'];
+			}
+
+			if ($event['can_edit'])
+				echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
+
+			if ($event['can_export'])
+				echo ' <a href="' . $event['export_href'] . '"><span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+
+			echo '
 					</li>';
 
 		echo '

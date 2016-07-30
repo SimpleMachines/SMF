@@ -168,6 +168,7 @@ function template_html_above()
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
 		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">
 <div id="footerfix">';
+// echo '<pre>'; var_dump($_REQUEST); echo '</pre>';
 }
 
 /**

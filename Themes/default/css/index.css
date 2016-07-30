@@ -130,6 +130,11 @@ input.input_check, input.input_radio {
 input[disabled].input_text {
 	background: #eee;
 }
+select[disabled] {
+	background: #eee;
+	color: #999;
+	opacity: 0.6;
+}
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
 	border: none;
@@ -1421,38 +1426,59 @@ ul li.greeting {
 	padding: 6px;
 	clear: both;
 }
+div.event_options {
+    line-height: 25px;
+    margin-top: 5px;
+}
+#post_event span.label {
+	margin: 0 0.5em 0 2px;
+	min-width: 60px;
+	display: inline-block;
+}
+
+.event_options_left {
+	display: inline-block;
+	width: 45%;
+	margin-right: 1em;
+	min-width: 238px;
+}
+.event_options_right {
+	display: inline-block;
+	width: 50%;
+}
+.event_options_left div, .event_options_right div {
+    min-height: 25px;
+    margin-bottom: 5px;
+}
+
 #post_event #event_main input {
-	margin: 0 0 12px 0;
-	float: left;
+    margin: 0;
 }
-#post_event #event_main div.smalltext {
-	width: 34.6em;
-	float: right;
+#evtitle {
+    max-width: 100%;
 }
-#post_event div.event_options {
-	float: right;
+#event_time_input {
+    clear: left;
 }
-#post_event .event_main, .event_options {
-	padding: 0;
-	overflow: hidden;
+#event_time_input input[type="text"] {
+	width: 80px;
+	display: inline-block;
 }
-#post_event ul.event_main li {
-	list-style-type: none;
-	margin: 2px 0;
-	width: 49%;
-	float: left;
+#post_event input[type="checkbox"] {
+    height: auto;
+    vertical-align: baseline;
 }
-#post_event ul.event_options {
-	margin: 0;
-	padding: 0 0 8px 8px;
+#post_event input[disabled].input_text {
+	color: transparent;
 }
-#post_event ul.event_options li {
-	list-style-type: none;
-	margin: 0;
-	float: left;
+#post_event select, #event_options input[type="text"], #tz {
+    max-width: calc(100% - 75px);
 }
-#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check {
-	margin: 0 12px 0 0;
+#post_event select {
+    width: calc(100% - 75px);
+}
+#post_event .input_check + select {
+    max-width: calc(100% - 95px);
 }
 
 /* Styles for the recent messages section.
@@ -1626,7 +1652,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 
 #credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
 #registration .roundframe, #report_form .windowbg,
-#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
+#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #post_event .roundframe, #memberlist_search .roundframe,
 #profileview, #coppa, #fatal_error .windowbg {
 	margin: 0 0 10px 0 !important;
 	border-top-left-radius: 0;
