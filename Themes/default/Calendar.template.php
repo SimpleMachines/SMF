@@ -277,21 +277,28 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							elseif (!empty($event['end_time']) && $event['ends_today'] == true)
 								echo ' <span class="event_time', empty($force_multiline) ? ' floatright' : '', '">', strtolower($txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time'])), '</span>';
 
-							// If they can edit the event, show an icon they can click on....
-							if ($event['can_edit'])
+							if ($event['can_edit'] || $event['can_export'])
 							{
-								echo '
-									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
-									</a>';
-							}
-							// Exporting!
-							if ($event['can_export'])
-							{
-								echo '
-									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
-									</a>';
+								echo ' <span class="modify_event_links">';
+
+								// If they can edit the event, show an icon they can click on....
+								if ($event['can_edit'])
+								{
+									echo '
+										<a class="modify_event" href="', $event['modify_href'], '">
+											<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										</a>';
+								}
+								// Exporting!
+								if ($event['can_export'])
+								{
+									echo '
+										<a class="modify_event" href="', $event['export_href'], '">
+											<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										</a>';
+								}
+
+								echo '</span><br class="clear">';
 							}
 							
 							echo '</div>';

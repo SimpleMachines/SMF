@@ -232,7 +232,7 @@ span.hidelink {
 .modify_event:hover {
 	text-decoration: none;
 }
-.modify_event {
+.modify_event_links {
 	float: right;
 }
 .event_wrapper:not(:last-child) {
