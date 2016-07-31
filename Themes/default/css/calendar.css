@@ -242,6 +242,7 @@ span.hidelink {
 }
 .event_time {
 	display: inline-block;
+	color: #999;
 }
 .post_event_link {
 	vertical-align: middle;

@@ -266,18 +266,22 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							title, href, is_last, can_edit (are they allowed to?), and modify_href. */
 						foreach ($day['events'] as $event)
 						{
-							$force_multiline = (($event['can_edit'] || $event['can_export']) && empty($event['allday'])) ? true : false;
+							$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
 							echo '<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', '">';
 							
 							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'];
 
-							echo $force_multiline ? '<br>' : ' ';
+							echo $event_icons_needed ? '<br>' : ' ', '<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 							if (!empty($event['start_time']) && $event['starts_today'] == true)
-								echo '<span class="event_time', empty($force_multiline) ? ' floatright' : '', '">', trim(str_replace(':00 ', ' ', $event['start_time'])), '</span>';
+								echo trim(str_replace(':00 ', ' ', $event['start_time']));
 							elseif (!empty($event['end_time']) && $event['ends_today'] == true)
-								echo ' <span class="event_time', empty($force_multiline) ? ' floatright' : '', '">', strtolower($txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time'])), '</span>';
+								echo strtolower($txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time']));
+							elseif (!empty($event['allday']))
+								echo $txt['calendar_allday'];
+
+							echo '</span>';							
 
 							if ($event['can_edit'] || $event['can_export'])
 							{
@@ -442,14 +446,18 @@ function template_show_week_grid($grid_name)
 								{
 									echo '<div class="event_wrapper">';
 
-									$force_multiline = (($event['can_edit'] || $event['can_export']) && empty($event['allday'])) ? true : false;
+									$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
-									echo $event['link'], $force_multiline ? '<br>' : ' ';
+									echo $event['link'], $event_icons_needed ? '<br>' : ' ', '<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 									if (!empty($event['start_time']))
-										echo '<span class="event_time', empty($force_multiline) ? ' floatright' : '', '">', trim($event['start_time']), !empty($event['end_time']) ? ' ' . strtolower($txt['to']) . ' ' . trim($event['end_time']) : '', '</span>';
+										echo trim($event['start_time']), !empty($event['end_time']) ? ' ' . strtolower($txt['to']) . ' ' . trim($event['end_time']) : '';
+									else
+										echo $txt['calendar_allday'];
 
-									if ($event['can_edit'] || $event['can_export'])
+									echo '</span>';
+
+									if (!empty($event_icons_needed))
 									{
 										echo ' <span class="modify_event_links">';
 
