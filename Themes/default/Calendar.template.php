@@ -251,9 +251,11 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					// Any special posted events?
 					if (!empty($day['events']))
 					{
-						// Sort events so that all day events are listed first
-						usort($day['events'], function ($a, $b) {
-						    return $b['allday'] - $a['allday'];
+						// Sort events by start time (all day events will be listed first)
+						uasort($day['events'], function ($a, $b) {
+						    if ($a['start_timestamp'] == $b['start_timestamp'])
+						        return 0;
+						    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
 						});
 
 						echo '
@@ -429,9 +431,11 @@ function template_show_week_grid($grid_name)
 							// Show any events...
 							if (!empty($day['events']))
 							{
-								// Sort events so that all day events are listed first
-								usort($day['events'], function ($a, $b) {
-								    return $b['allday'] - $a['allday'];
+								// Sort events by start time (all day events will be listed first)
+								uasort($day['events'], function ($a, $b) {
+								    if ($a['start_timestamp'] == $b['start_timestamp'])
+								        return 0;
+								    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
 								});
 
 								foreach ($day['events'] as $event)
@@ -472,14 +476,14 @@ function template_show_week_grid($grid_name)
 									echo '
 									</div>';
 								}
-								// if (!empty($context['can_post']))
-								// {
+								if (!empty($context['can_post']))
+								{
 									echo '
 									<div class="week_add_event">
 										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
 									</div>
 									<br class="clear">';
-								// }
+								}
 							}
 							else
 							{
