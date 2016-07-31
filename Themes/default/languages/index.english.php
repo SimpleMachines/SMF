@@ -33,6 +33,7 @@ $txt['start'] = 'Start';
 $txt['end'] = 'End';
 $txt['starts'] = 'Starts';
 $txt['ends'] = 'Ends';
+$txt['none'] = 'None';
 
 $txt['minutes_label'] = 'Minutes';
 $txt['hours_label'] = 'Hours';

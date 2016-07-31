@@ -315,17 +315,10 @@ span.hidelink {
 		height: auto;
 		border: none !important;
 	}
-	#main_grid .calendar_week .event_col:before {
-		content: "Events: ";
-	}
-	#main_grid .calendar_week .holiday_col:before {
-		content: "Holidays: ";
-	}
+	#main_grid .calendar_week .event_col:before,
+	#main_grid .calendar_week .holiday_col:before,
 	#main_grid .calendar_week .birthday_col:before {
-		content: "Birthdays: ";
-	}
-	#main_grid .calendar_week .event_col:empty:before {
-		content: "Events: None";
+		content: attr(data-css-prefix);
 	}
 	#main_grid .calendar_week .holiday_col:empty {
 		display: none;

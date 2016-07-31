@@ -425,13 +425,19 @@ function template_show_week_grid($grid_name)
 								echo $txt['days'][$day['day_of_week']], ' - ', $day['day'];
 
 							echo '</td>
-							<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . ($context['can_post'] ? ' week_post' : '')) : ' events', ' event_col">';
+							<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . ($context['can_post'] ? ' week_post' : '')) : ' events', ' event_col" data-css-prefix="' . $txt['events'] . ' ', (empty($day['events']) && empty($context['can_post'])) ? $txt['none'] : '', '">';
 							// Show any events...
 							if (!empty($day['events']))
 							{
-								echo '<div class="event_wrapper">';
+								// Sort events so that all day events are listed first
+								usort($day['events'], function ($a, $b) {
+								    return $b['allday'] - $a['allday'];
+								});
+
 								foreach ($day['events'] as $event)
 								{
+									echo '<div class="event_wrapper">';
+
 									$force_multiline = (($event['can_edit'] || $event['can_export']) && empty($event['allday'])) ? true : false;
 
 									echo $event['link'], $force_multiline ? '<br>' : ' ';
@@ -439,31 +445,41 @@ function template_show_week_grid($grid_name)
 									if (!empty($event['start_time']))
 										echo '<span class="event_time', empty($force_multiline) ? ' floatright' : '', '">', trim($event['start_time']), !empty($event['end_time']) ? ' ' . strtolower($txt['to']) . ' ' . trim($event['end_time']) : '', '</span>';
 
-									// If they can edit the event, show a star they can click on....
-									if (!empty($event['can_edit']))
+									if ($event['can_edit'] || $event['can_export'])
 									{
-										echo '
-											<a class="modify_event" href="', $event['modify_href'], '">
-												<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
-											</a>';
+										echo ' <span class="modify_event_links">';
+
+										// If they can edit the event, show a star they can click on....
+										if (!empty($event['can_edit']))
+										{
+											echo '
+												<a class="modify_event" href="', $event['modify_href'], '">
+													<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+												</a>';
+										}
+										// Can we export? Sweet.
+										if (!empty($event['can_export']))
+										{
+											echo '
+												<a class="modify_event" href="', $event['export_href'], '">
+													<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+												</a>';
+										}
+	
+										echo '</span><br class="clear">';
 									}
-									// Can we export? Sweet.
-									if (!empty($event['can_export']))
-									{
-										echo '
-											<a class="modify_event" href="', $event['export_href'], '">
-												<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
-											</a>';
-									}
-									
-									echo $event['is_last'] ? '' : '<br>';
+
+									echo '
+									</div>';
 								}
-								echo '
-									</div>
+								// if (!empty($context['can_post']))
+								// {
+									echo '
 									<div class="week_add_event">
 										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
 									</div>
 									<br class="clear">';
+								// }
 							}
 							else
 							{
@@ -476,13 +492,13 @@ function template_show_week_grid($grid_name)
 								}
 							}
 							echo '</td>
-							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col">';
+							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col" data-css-prefix="' . $txt['calendar_prompt'] . ' ">';
 							// Show any holidays!
 							if (!empty($day['holidays']))
 								echo implode('<br>', $day['holidays']);
 
 							echo '</td>
-							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col">';
+							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col" data-css-prefix="' . $txt['birthdays'] . ' ">';
 							// Show any birthdays...
 							if (!empty($day['birthdays']))
 							{
