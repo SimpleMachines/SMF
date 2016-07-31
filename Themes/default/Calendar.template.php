@@ -516,7 +516,7 @@ function template_calendar_base($col_span = 1)
 	global $context, $scripturl, $txt;
 	echo '
 		<tr>
-			<td id="post_event" colspan="', $col_span, '">
+			<td class="calendar_base" colspan="', $col_span, '">
 				', template_button_strip($context['calendar_buttons'], 'right'), '
 				<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
 					<select name="month" id="input_month">';

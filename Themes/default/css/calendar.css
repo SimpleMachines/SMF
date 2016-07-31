@@ -170,7 +170,7 @@ td.days:hover {
 #main_grid tr:not(.days_wrapper) td {
 	height: 30px;
 }
-#post_event {
+#main_grid td.calendar_base {
 	background: #e7eaef;
 	text-align: center;
 }
