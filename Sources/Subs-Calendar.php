@@ -1008,6 +1008,18 @@ function modifyEvent($event_id, &$eventOptions)
 		)
 	);
 
+	if (!isset($start_time) || !isset($end_time) || !isset($tz))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}calendar
+			SET start_time = NULL, end_time = NULL, timezone = NULL
+			WHERE id_event = {int:id_event}',
+			array(
+				'id_event' => $real_event_id
+			)
+		);
+	}
+
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
