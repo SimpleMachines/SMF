@@ -231,6 +231,7 @@ function template_main()
 							</div>';
 			}
 
+			// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 			echo '
 						</fieldset>
 						<fieldset id="event_options">
