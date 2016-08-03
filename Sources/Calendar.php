@@ -294,7 +294,25 @@ function CalendarPost()
 		));
 
 		// No point hanging around here now...
-		redirectexit($scripturl . '?action=calendar');
+		if (isset($_POST['start_date']))
+		{
+			$d = date_parse($_POST['start_date']);
+			$year = $d['year'];
+			$month = $d['month'];
+		}
+		elseif (isset($_POST['start_datetime']))
+		{
+			$d = date_parse($_POST['start_datetime']);
+			$year = $d['year'];
+			$month = $d['month'];
+		}
+		else
+		{
+			$today = getdate();
+			$year = isset($_POST['year']) ? $_POST['year'] : $today['year'];
+			$month = isset($_POST['month']) ? $_POST['month'] : $today['mon'];
+		}
+		redirectexit($scripturl . '?action=calendar;month=' . $month . ';year=' . $year);
 	}
 
 	// If we are not enabled... we are not enabled.
