@@ -225,7 +225,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					{
 						echo '
 							<div class="smalltext">
-								<span class="birthday">', $txt['birthdays'], '</span>';
+								<span class="birthday">', $txt['birthdays'], '</span> ';
 
 						/* Each of the birthdays has:
 							id, name (person), age (if they have one set?), and is_last. (last in list?) */
