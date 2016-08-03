@@ -168,14 +168,14 @@ td.days:hover {
 }
 #main_grid tr:not(.days_wrapper) th,
 #main_grid tr:not(.days_wrapper) td {
-	height: 30px;
+    min-height: 30px;
 }
 #main_grid td.calendar_base {
 	background: #e7eaef;
 	text-align: center;
 }
 #calendar_navigation {
-	margin-top: 8px;
+    margin-top: 8px;
 }
 #main_grid .act_day {
 	font-size: 12pt;
@@ -281,10 +281,10 @@ span.hidelink {
 	#main_grid tr {
 		margin-bottom: 1em;
 	}
-	#main_grid tr:not(.days_wrapper) {
+	#main_grid tr:first-of-type {
 		display: none;
 	}
-	#main_grid .days_wrapper {
+	#main_grid tr:not(:first-of-type) {
 		display: block;
 	}
 	#main_grid td {
@@ -333,5 +333,14 @@ span.hidelink {
 	div.week_add_event > a {
 		font-size: 1em;
 		text-decoration: underline;
+	}
+	#main_grid .buttonlist {
+		margin: 2px;
+		padding: 0;
+	}
+	#calendar_navigation {
+		float: left;
+		margin: 3px 2px;
+		padding: 0;
 	}
 }

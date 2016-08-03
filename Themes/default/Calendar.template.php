@@ -555,18 +555,24 @@ function template_calendar_base($col_span = 1)
 				', template_button_strip($context['calendar_buttons'], 'right'), '
 				<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
 					<select name="month" id="input_month">';
+					
 					// Show a select box with all the months.
-					foreach ($txt['months'] as $number => $month)
+					foreach ($txt['months_short'] as $number => $month)
 					{
-						echo '<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
+						echo '
+						<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
 					}
-					echo '</select>
-											<select name="year">';
+					
+					echo '
+					</select>
+					<select name="year">';
+					
 					// Show a link for every year.....
 					for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
 					{
 						echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
 					}
+					
 					echo '</select>
 					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
 				</form>
