@@ -25,7 +25,6 @@ $txt['setting_cal_defaultboard'] = 'Default board to post events in';
 $txt['setting_cal_allow_unlinked'] = 'Allow events not linked to posts';
 $txt['setting_cal_minyear'] = 'Minimum year';
 $txt['setting_cal_maxyear'] = 'Maximum year';
-$txt['setting_cal_allowspan'] = 'Allow events to span multiple days';
 $txt['setting_cal_maxspan'] = 'Max number of days an event can span';
 $txt['setting_cal_showInTopic'] = 'Show linked events in topic display';
 

@@ -800,12 +800,10 @@ function validateEventPost()
 	// Make sure they're allowed to post...
 	isAllowedTo('calendar_post');
 
+	// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 	if (isset($_POST['span']))
 	{
-		// Make sure it's turned on and not some fool trying to trick it.
-		if (empty($modSettings['cal_allowspan']))
-			fatal_lang_error('no_span', false);
-		if ($_POST['span'] < 1 || $_POST['span'] > $modSettings['cal_maxspan'])
+		if (($_POST['span'] < 1) || (!empty($modSettings['cal_maxspan']) && $_POST['span'] > $modSettings['cal_maxspan']))
 			fatal_lang_error('invalid_days_numb', false);
 	}
 
@@ -1217,14 +1215,9 @@ function setEventStartEnd($eventOptions = array())
 	global $modSettings, $user_info;
 
 	// Set $span, in case we need it
-	if (empty($modSettings['cal_allowspan']))
-		$maxspan = 0;
-	elseif (!empty($modSettings['cal_maxspan']))
-		$maxspan = $modSettings['cal_maxspan'];
-
 	$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
 	if ($span > 0)
-		$span = isset($maxspan) ? min($maxspan, $span - 1) : $span - 1;
+		$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
 
 	// Define the timezone for this event, falling back to the default if not provided
 	if (isset($eventOptions['tz']))
@@ -1368,16 +1361,16 @@ function setEventStartEnd($eventOptions = array())
 	}
 
 	// Is $end_object too late?
-	if (isset($maxspan))
+	if (!empty($modSettings['cal_maxspan']))
 	{
 		$date_diff = date_diff($start_object, $end_object);
-		if ($date_diff->days > $maxspan)
+		if ($date_diff->days > $modSettings['cal_maxspan'])
 		{
 			// trigger_error('Given end date exceeds maximum span. Truncating event to fit.');
-			if ($maxspan > 0)
+			if ($modSettings['cal_maxspan'] > 1)
 			{
 				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
-				date_add($end_object, date_interval_create_from_date_string($maxspan . ' days'));
+				date_add($end_object, date_interval_create_from_date_string($modSettings['cal_maxspan'] . ' days'));
 			}
 			else
 				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, '11', '59', '59') . ' ' . $tz);

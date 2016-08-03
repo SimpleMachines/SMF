@@ -2442,9 +2442,33 @@ if ($doChange)
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
 
----# Add start_time and end_time support to the calendar
+/******************************************************************************/
+--- Adding support for start and end times on calendar events
+/******************************************************************************/
+---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN start_time time,
 ADD COLUMN end_time time,
 ADD COLUMN timezone VARCHAR(80);
+---#
+
+---# Update cal_maxspan and drop obsolete cal_allowspan setting
+---{
+	if (!isset($modSettings['cal_allowspan']))
+		$cal_maxspan = 0;
+	elseif ($modSettings['cal_allowspan'] == false)
+		$cal_maxspan = 1;
+	else
+		$cal_maxspan = ($modSettings['cal_maxspan'] > 1) ? $modSettings['cal_maxspan'] : 0;
+
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = '$cal_maxspan'
+		WHERE variable = 'cal_maxspan'");
+
+	if (isset($modSettings['cal_allowspan']))
+		upgrade_query("
+			DELETE FROM {$db_prefix}settings
+			WHERE variable = 'cal_allowspan'");
+---}
 ---#

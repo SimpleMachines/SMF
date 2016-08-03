@@ -666,7 +666,7 @@ function template_event_post()
 						</div>
 						<div>
 							<span class="label">', $txt['end'], '</span>
-							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', (empty($modSettings['cal_allowspan']) || $modSettings['cal_maxspan'] == 1) ? ' disabled' : '', '>
+							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
 							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 					</div>
