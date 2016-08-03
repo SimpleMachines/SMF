@@ -2158,9 +2158,9 @@ ALTER TABLE {$db_prefix}member_logins
 	ALTER ip2 TYPE inet USING migrate_inet(ip2);
 ---#
 
---# Add start_time and end_time support to the calendar
+---# Add start_time and end_time support to the calendar
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN start_time time,
 ADD COLUMN end_time time,
 ADD COLUMN timezone VARCHAR(80);
---#
+---#
