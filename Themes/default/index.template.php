@@ -102,16 +102,19 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
-	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
-	// Some Open Graph?
-	foreach ($context['open_graph'] as $og_property => $og_content)
+	// Content related meta tags, like description, keywords, Open Graph stuff, etc...
+	foreach ($context['meta_tags'] as $meta_tag)
 	{
 		echo '
-	<meta property="' . $og_property . '" content="' . $og_content . '">';
+	<meta';
+
+		foreach ($meta_tag as $meta_key => $meta_value)
+			echo ' ', $meta_key, '="', $meta_value, '"';
+
+		echo '>';
 	}
 
 	/* What is your Lollipop's color?

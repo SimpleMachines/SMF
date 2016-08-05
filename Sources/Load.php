@@ -2529,23 +2529,6 @@ function addInlineJavascript($javascript, $defer = false)
 }
 
 /**
- * Add info for an Open Graph <meta> tag to include in the HTML head
- *
- * @param string $property The value for the meta tag's property attribute
- * @param string $content The value for the meta tag's content attribute
- * @return void|bool Adds the passed values to the $context['open_graph'] array or returns if either value is empty
- */
-function addOpenGraph($property, $content)
-{
-	global $context;
-
-	if (empty($property) || empty($content))
-		return false;
-
-	$context['open_graph'][$property] = $content;
-}
-
-/**
  * Load a language file.  Tries the current and default themes as well as the user and global languages.
  *
  * @param string $template_name The name of a template file

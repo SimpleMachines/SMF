@@ -3009,16 +3009,29 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](un_htmlspecialchars($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
 
-	addOpenGraph('og:site_name', $context['forum_name']);
-	addOpenGraph('og:title', $context['page_title_html_safe']);
+	// Content related meta tags, including Open Graph
+	$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => $context['forum_name']);
+	$context['meta_tags'][] = array('property' => 'og:title', 'content' => $context['page_title_html_safe']);
+	
+	if (!empty($context['meta_keywords']))
+		$context['meta_tags'][] = array('name' => 'keywords', 'content' => $context['meta_keywords']);
+
 	if (!empty($context['canonical_url']))
-		addOpenGraph('og:url', $context['canonical_url']);
+		$context['meta_tags'][] = array('property' => 'og:url', 'content' => $context['canonical_url']);
+	
 	if (!empty($settings['og_image']))
-		addOpenGraph('og:image', $settings['og_image']);
+		$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
+	
 	if (!empty($context['meta_description']))
-		addOpenGraph('og:description', $context['meta_description']);
+	{
+		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['meta_description']);
+		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['meta_description']);
+	}
 	else
-		addOpenGraph('og:description', $context['page_title_html_safe']);
+	{
+		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['page_title_html_safe']);
+		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['page_title_html_safe']);
+	}
 
 	call_integration_hook('integrate_theme_context');
 }
