@@ -592,6 +592,17 @@ function ModifyLoadBalancingSettings($return_config = false)
 		$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
+	// Dynamic Caching
+	if (empty($modSettings['cache_enable']))
+		$disabled = true;
+
+	$config_vars = array_merge($config_vars, array('',
+		array('check', 'loadavg_dynamic_cache', 'disabled' => $disabled),
+		array('float', 'loadavg_dynamic_cache_l2', 'value' => !isset($modSettings['loadavg_dynamic_cache_l2']) ? 10.0 : $modSettings['loadavg_dynamic_cache_l2'], 'disabled' => $disabled),
+		array('float', 'loadavg_dynamic_cache_l3', 'value' => !isset($modSettings['loadavg_dynamic_cache_l3']) ? 20.0 : $modSettings['loadavg_dynamic_cache_l3'], 'disabled' => $disabled),
+		'Curent Level '.$modSettings['cache_enable'],
+	));
+
 	call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
 
 	if ($return_config)

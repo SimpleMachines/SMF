@@ -242,6 +242,16 @@ function reloadSettings()
 
 		if (!empty($modSettings['loadavg_forum']) && !empty($modSettings['load_average']) && $modSettings['load_average'] >= $modSettings['loadavg_forum'])
 			display_loadavg_error();
+
+		// Dynamic Caching
+		if (!empty($modSettings['load_average']) && !empty($modSettings['loadavg_dynamic_cache']))
+			if (!empty($modSettings['loadavg_dynamic_cache_l3']) && $modSettings['load_average'] > $modSettings['loadavg_dynamic_cache_l3'])
+				$modSettings['cache_enable'] = 3;
+			elseif (!empty($modSettings['loadavg_dynamic_cache_l2']) && $modSettings['load_average'] > $modSettings['loadavg_dynamic_cache_l2'])
+				$modSettings['cache_enable'] = 2;
+			else
+				$modSettings['cache_enable'] = 1;
+
 	}
 
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
