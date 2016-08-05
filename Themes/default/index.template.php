@@ -108,12 +108,11 @@ function template_html_above()
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
 	// Some Open Graph?
-	echo '
-	<meta property="og:site_name" content="', $mbname,'">
-	<meta property="og:title" content="', $context['page_title_html_safe'],'">
-	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'">' : '',
-	!empty($settings['og_image']) ? '<meta property="og:image" content="'. $settings['og_image'].'">' : '','
-	<meta property="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'">';
+	foreach ($context['open_graph'] as $og_property => $og_content)
+	{
+		echo '
+	<meta property="' . $og_property . '" content="' . $og_content . '">';
+	}
 
 	/* What is your Lollipop's color?
 	Theme Authors you can change here to make sure your theme's main color got visible on tab */

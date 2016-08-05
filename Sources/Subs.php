@@ -3009,6 +3009,17 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](un_htmlspecialchars($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
 
+	addOpenGraph('og:site_name', $context['forum_name']);
+	addOpenGraph('og:title', $context['page_title_html_safe']);
+	if (!empty($context['canonical_url']))
+		addOpenGraph('og:url', $context['canonical_url']);
+	if (!empty($settings['og_image']))
+		addOpenGraph('og:image', $settings['og_image']);
+	if (!empty($context['meta_description']))
+		addOpenGraph('og:description', $context['meta_description']);
+	else
+		addOpenGraph('og:description', $context['page_title_html_safe']);
+
 	call_integration_hook('integrate_theme_context');
 }
 
