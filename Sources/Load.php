@@ -306,6 +306,9 @@ function reloadSettings()
 		'bottom_poster',
 	);
 
+	// Define an array for content-related <meta> elements (e.g. description, keywords, Open Graph) for the HTML head.
+	$context['meta_tags'] = array();
+
 	// Define an array of allowed HTML tags.
 	$context['allowed_html_tags'] = array(
 		'<img>',
