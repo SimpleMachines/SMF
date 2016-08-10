@@ -4969,7 +4969,7 @@ function inet_ptod($ip_address)
 }
 
 /**
- * @param binary $bin An IP address in IPv4, IPv6
+ * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
  * @return string The IP address in presentation format or false on error
  */
 function inet_dtop($bin)
@@ -4977,7 +4977,9 @@ function inet_dtop($bin)
 	if(empty($bin))
 		return '';
 
-	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
+	global $db_type;
+	
+	if ($db_type == 'postgresql')
 		return $bin;
 
 	$ip_address = inet_ntop($bin);
