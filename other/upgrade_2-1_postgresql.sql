@@ -1070,7 +1070,7 @@ ALTER TABLE {$db_prefix}members
 		$smcFunc['db_insert']('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('displayFields', serialize($fields)),
+			array('displayFields', json_encode($fields)),
 			array('id_theme', 'id_member', 'variable')
 		);
 	}
