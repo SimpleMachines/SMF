@@ -69,6 +69,7 @@ function Memberlist()
 		),
 		'real_name' => array(
 			'label' => $txt['name'],
+			'class' => 'lefttext',
 			'sort' => array(
 				'down' => 'mem.real_name DESC',
 				'up' => 'mem.real_name ASC'
@@ -177,7 +178,7 @@ function MLAll()
 	{
 		// Maybe there's something cached already.
 		if (!empty($modSettings['memberlist_cache']))
-			$memberlist_cache = @json_decode($modSettings['memberlist_cache'], true);
+			$memberlist_cache = smf_json_decode($modSettings['memberlist_cache'], true);
 
 		// The chunk size for the cached index.
 		$cache_step_size = 500;
@@ -338,7 +339,7 @@ function MLAll()
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($query_parameters, array(
-			'sort' => $sort,
+			'sort' => $query_parameters['sort'],
 			'start' => $limit,
 			'max' => $modSettings['defaultMaxMembers'],
 		))

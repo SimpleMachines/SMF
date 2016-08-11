@@ -198,7 +198,7 @@ function MaintainMembers()
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -750,7 +750,7 @@ function OptimizeTables()
 		// Continue?
 		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 10)
 		{
-			$_REQUEST['start'] = $key - 1;
+			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 			$context['continue_percent'] = round(100 * $_REQUEST['start'] / $context['num_tables']);
 			$context['sub_template'] = 'not_done';
@@ -2130,7 +2130,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
 				$file_name = isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : ((substr($hook, -8) === '_include') ? basename($rawFunc) : $hookParsedData['hookFile']);
-				$sort[] = $$sort_options[0];
+				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,

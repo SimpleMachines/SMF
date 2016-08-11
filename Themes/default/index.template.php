@@ -102,18 +102,20 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
-	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
-	// Some Open Graph?
-	echo '
-	<meta property="og:site_name" content="', $mbname,'">
-	<meta property="og:title" content="', $context['page_title_html_safe'],'">
-	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'">' : '',
-	!empty($settings['og_image']) ? '<meta property="og:image" content="'. $settings['og_image'].'">' : '','
-	<meta property="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'">';
+	// Content related meta tags, like description, keywords, Open Graph stuff, etc...
+	foreach ($context['meta_tags'] as $meta_tag)
+	{
+		echo '
+	<meta';
+
+		foreach ($meta_tag as $meta_key => $meta_value)
+			echo ' ', $meta_key, '="', $meta_value, '"';
+
+		echo '>';
+	}
 
 	/* What is your Lollipop's color?
 	Theme Authors you can change here to make sure your theme's main color got visible on tab */
@@ -320,8 +322,24 @@ function template_body_above()
 					<hr class="clear">
 				</div>';
 
+	// Load mobile menu here
+	echo '
+				<a class="menu_icon mobile_user_menu"></a>
+				<div id="mobile_user_menu" class="popup_container">
+					<div class="popup_window description">
+						<div class="popup_heading">', $txt['mobile_user_menu'],'
+						<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+						', template_menu(), '
+					</div>
+				</div>';
+
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	template_menu();
+	echo '
+	<div id="main_menu">';
+		template_menu();
+
+	echo '
+	</div>';
 
 	theme_linktree();
 
@@ -455,14 +473,13 @@ function template_menu()
 	global $context;
 
 	echo '
-				<div id="main_menu">
-					<ul class="dropmenu" id="menu_nav">';
+					<ul class="dropmenu menu_nav">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
+						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' :'"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
 								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
 							</a>';
@@ -508,8 +525,7 @@ function template_menu()
 	}
 
 	echo '
-					</ul>
-				</div>';
+					</ul>';
 }
 
 /**

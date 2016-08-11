@@ -698,7 +698,7 @@ function MessageFolder()
 					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
 				)
 		);
-		
+
 	}
 	// This is kinda simple!
 	else
@@ -1105,7 +1105,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 				default:
 					$output['custom_fields']['standard'][] = $custom;
 			}
-	
+
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	return $output;
@@ -1701,7 +1701,7 @@ function MessageSearch2()
 		}
 		$smcFunc['db_free_result']($request);
 	}
-	
+
 	call_integration_hook('integrate_search_pm_context');
 
 	// Finish off the context.
@@ -1727,8 +1727,8 @@ function MessagePost()
 	loadLanguage('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
 	loadTemplate('PersonalMessage');
-	loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
@@ -1998,7 +1998,7 @@ function MessagePost()
 		$context['require_verification'] = create_control_verification($verificationOptions);
 		$context['visual_verification_id'] = $verificationOptions['id'];
 	}
-	
+
 	call_integration_hook('integrate_pm_post');
 
 	// Register this form and get a sequence number in $context.
@@ -2038,8 +2038,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	if (!isset($_REQUEST['xml']))
 	{
 		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';		$context['sub_template'] = 'send';
-		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 	else
 		$context['sub_template'] = 'pm';
@@ -2196,7 +2196,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	$context['to_value'] = empty($named_recipients['to']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['to']) . '&quot;';
 	$context['bcc_value'] = empty($named_recipients['bcc']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['bcc']) . '&quot;';
-	
+
 	call_integration_hook('integrate_pm_error');
 
 	// No check for the previous submission is needed.
@@ -4048,8 +4048,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => json_decode($row['criteria'], true),
-			'actions' => json_decode($row['actions'], true),
+			'criteria' => smf_json_decode($row['criteria'], true),
+			'actions' => smf_json_decode($row['actions'], true),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

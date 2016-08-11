@@ -3049,6 +3049,13 @@ function package_create_backup($id = 'backup')
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
+
+		/*
+		 * Destroying the local var tells PharData to close its internal
+		 * file pointer, enabling us to delete the uncompressed tarball.
+		 */
+		unset($a);
+		unlink($output_file);
 	}
 	catch (Exception $e)
 	{

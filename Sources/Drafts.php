@@ -208,7 +208,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 		$recipientList['bcc'] = isset($_POST['recipient_bcc']) ? explode(',', $_POST['recipient_bcc']) : array();
 	}
 	elseif (!empty($draft_info['to_list']) && empty($recipientList))
-		$recipientList = json_decode($draft_info['to_list'], true);
+		$recipientList = smf_json_decode($draft_info['to_list'], true);
 
 	// prepare the data we got from the form
 	$reply_id = empty($_POST['replied_to']) ? 0 : (int) $_POST['replied_to'];
@@ -370,7 +370,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
 			$context['id_pm_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
-			$recipients = json_decode($draft_info['to_list'], true);
+			$recipients = smf_json_decode($draft_info['to_list'], true);
 
 			// make sure we only have integers in this array
 			$recipients['to'] = array_map('intval', $recipients['to']);
@@ -783,7 +783,7 @@ function showPMDrafts($memID = -1)
 			'to' => array(),
 			'bcc' => array(),
 		);
-		$recipient_ids = (!empty($row['to_list'])) ? json_decode($row['to_list'], true) : array();
+		$recipient_ids = (!empty($row['to_list'])) ? smf_json_decode($row['to_list'], true) : array();
 
 		// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
 		// at least its only for draft PM's and only the user can see them ... so not heavily used .. still

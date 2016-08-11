@@ -215,13 +215,34 @@ function smf_db_replacement__callback($matches)
 		case 'raw':
 			return $replacement;
 		break;
-		
+
 		case 'inet':
 			if ($replacement == 'null')
 				return 'null';
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
+		break;
+
+		case 'array_inet':
+			if (is_array($replacement))
+			{
+				if (empty($replacement))
+					smf_db_error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				foreach ($replacement as $key => $value)
+				{
+					if ($replacement == 'null')
+						$replacement[$key] = 'null';
+					if (inet_pton($replacement) === false)
+						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					$replacement[$key] =  sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
+				}
+
+				return implode(', ', $replacement);
+			}
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
 
 		default:
@@ -279,14 +300,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'ban_suggest_error_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
-		'ban_suggest_message_ips' => array(
-			'~RLIKE~' => '~',
-			'~\\.~' => '\.',
-		),
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
@@ -648,7 +661,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
-	
+
 	$replace = '';
 
 	if (empty($data))
@@ -674,7 +687,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		$col_str = '';
 		static $pg_version;
 		static $replace_support;
-		
+
 		if(empty($pg_version))
 		{
 			db_extend();
@@ -689,11 +702,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 
 			$replace_support = (version_compare($pg_version,'9.5.0','>=') ? true : false);
 		}
-		
+
 		$count = 0;
 		$where = '';
 		$count_pk = 0;
-		
+
 		If($replace_support)
 		{
 			foreach ($columns as $columnName => $type)
@@ -706,14 +719,14 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 					$count_pk++;
 				}
 				else //normal field
-				{					
+				{
 					$col_str .= ($count > 0 ? ',' : '');
 					$col_str .= $columnName.' = EXCLUDED.'.$columnName;
 					$count++;
 				}
 			}
 			$replace = ' ON CONFLICT ('.$key_str.') DO UPDATE SET '.$col_str;
-		} 
+		}
 		else
 		{
 			foreach ($columns as $columnName => $type)

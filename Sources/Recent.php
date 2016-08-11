@@ -702,7 +702,7 @@ function UnreadTopics()
 	// This part is the same for each query.
 	$select_clause = '
 				ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
-				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
+				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, mems.avatar AS first_poster_avatar, mems.email_address AS first_poster_email, COALESCE(af.id_attach, 0) AS first_poster_id_attach, af.filename AS first_poster_filename, af.attachment_type AS first_poster_attach_type, COALESCE(al.id_attach, 0) AS last_poster_id_attach, al.filename AS last_poster_filename, al.attachment_type AS last_poster_attach_type,' : '') . '
 				ml.poster_time AS last_poster_time, COALESCE(mems.real_name, ms.poster_name) AS first_poster_name,
 				COALESCE(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
 				ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
@@ -867,7 +867,9 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ms.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE b.' . $query_this_board . '
@@ -953,7 +955,9 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($have_temp_table) ? '
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member} AND lt.unwatched != 1)') . '
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
@@ -1168,7 +1172,9 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
+				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.id_topic IN ({array_int:topic_list})
@@ -1237,24 +1243,14 @@ function UnreadTopics()
 		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 		if ($topic_length > $messages_per_page)
 		{
-			$tmppages = array();
-			$tmpa = 1;
-			for ($tmpb = 0; $tmpb < $topic_length; $tmpb += $messages_per_page)
-			{
-				$tmppages[] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.' . $tmpb . ';topicseen">' . $tmpa . '</a>';
-				$tmpa++;
-			}
-			// Show links to all the pages?
-			if (count($tmppages) <= 5)
-				$pages = '&#171; ' . implode(' ', $tmppages);
-			// Or skip a few?
-			else
-				$pages = '&#171; ' . $tmppages[0] . ' ' . $tmppages[1] . ' ... ' . $tmppages[count($tmppages) - 2] . ' ' . $tmppages[count($tmppages) - 1];
+			$start = -1;
+			$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $topic_length, $messages_per_page, true, false);
 
+			// If we can use all, show all.
 			if (!empty($modSettings['enableAllMessages']) && $topic_length < $modSettings['enableAllMessages'])
 				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
-			$pages .= ' &#187;';
 		}
+
 		else
 			$pages = '';
 
@@ -1347,11 +1343,19 @@ function UnreadTopics()
 			)
 		);
 		if (!empty($settings['avatars_on_indexes']))
+		{
 			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
 				'avatar' => $row['avatar'],
 				'email' => $row['email_address'],
-				'filename' => false,
+				'filename' => $row['last_poster_filename'],
 			));
+
+			$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['first_poster_avatar'],
+				'email' => $row['first_poster_email'],
+				'filename' => $row['first_poster_filename'],
+			));
+		}
 
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}

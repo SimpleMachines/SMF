@@ -30,9 +30,9 @@ function db_search_init()
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => false,
 		);
-	
+
 	db_extend();
-	
+
 	//pg 9.5 got ignore support
 	$version = $smcFunc['db_get_version']();
 	// if we got a Beta Version
@@ -41,7 +41,7 @@ function db_search_init()
 	// or RC
 	if (stripos($version, 'rc') !== false)
 		$version = substr($version, 0, stripos($version, 'rc')).'.0';
-	
+
 	if (version_compare($version,'9.5.0','>='))
 		$smcFunc['db_support_ignore'] = true;
 }

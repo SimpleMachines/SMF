@@ -887,7 +887,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Check whether we have to apply anything...
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$criteria = json_decode($row['criteria'], true);
+		$criteria = smf_json_decode($row['criteria'], true);
 		// Note we don't check the buddy status, cause deletion from buddy = madness!
 		$delete = false;
 		foreach ($criteria as $criterium)
@@ -1688,7 +1688,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$message_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (empty($modSettings['max_messageLength']) ? 'string' : 'string-65534')),
-		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'string-255',
+		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'inet',
 		'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
 	);
 

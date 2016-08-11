@@ -305,40 +305,34 @@ h3.largetext {
 	padding-left: 0.3%;
 }
 
-/* BBC */
-/* A quote, perhaps from another post. */
-.bbc_standard_quote:before, .bbc_alternate_quote:before {
-	color: #aaa;
-	font-size: 22px;
-	content: '\275D';
-	position: absolute;
-	left: 5px;
-}
-/* Remove the difference IE/Opera/Chrome/Firefox etc... */
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
-	font-size: 30px;
-}
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
-#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
-	vertical-align: middle;
-	margin: 0 5px 0 0;
-}
-.bbc_standard_quote, .bbc_alternate_quote {
+/* Blockquote stylings */
+blockquote {
 	margin: 0 0 8px 0;
-	padding: 6px 10px 6px 25px;
-	font-size: 0.9em;
+	padding: 6px 10px;
+	font-size: small;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
-	position: relative;
 }
-/* Alternate blockquote stylings */
+blockquote cite {
+	display: block;
+	border-bottom: 1px solid #aaa;
+	font-size: 0.9em;
+}
+blockquote cite:before {
+	color: #aaa;
+	font-size: 22px;
+	font-style: normal;
+	content: '\275D';
+	margin-right: 5px;
+}
 .bbc_standard_quote {
 	background-color: #e0e6f6;
 }
 .bbc_alternate_quote {
 	background-color: #ebf4f8;
 }
+
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
@@ -390,6 +384,7 @@ h3.largetext {
 .bbc_img, .atc_img {
 	border: 0;
 	max-width: 100%;
+	height: auto;
 }
 .bbc_table {
 	font: inherit;
@@ -921,7 +916,6 @@ img.sort, .sort {
 /* The extra menu rows for admin sections, etc. */
 #adm_submenus {
 	margin: 0 0 6px 0;
-	padding: 10px 15px 0 15px;
 	overflow: hidden;
 }
 
@@ -1289,6 +1283,7 @@ ul li.greeting {
 	display: inline;
 	margin: 0;
 	font-size: 0.9em;
+	height: 23px;
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -1608,11 +1603,6 @@ dl.register_form dd {
 	margin-right: 12px;
 }
 
-/* common for all admin sections */
-#admin_content {
-	clear: left;
-	padding-top: 6px;
-}
 /* Custom profile fields like to play with us some times. */
 #admin_content .custom_field {
 	margin-bottom: 15px;
@@ -1654,8 +1644,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	border-width: 1px 0 1px 1px;
 }
 
-#admin_menu .dropmenu {
-	margin: 5px 0 0 0;
+.generic_menu {
+	margin: 5px 0;
 }
 /* Some lovely generic icons.
 ------------------------------------------------- */
@@ -2887,9 +2877,13 @@ span.postby {
 	margin: -2px 0 0 23px;
 	font-size: 0.9em;
 }
+#ic_recentposts th {
+	text-align: left;
+	padding: 0 4px 0 0;
+}
 #ic_recentposts td {
 	border-top: 1px solid #eaeaea;
-	padding: 0 4px;
+	padding: 0 4px 0 0;
 	vertical-align: top;
 }
 #ic_recentposts tr:first-child td {
@@ -2961,19 +2955,23 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, 
+#topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	min-height: 4em;
+	min-height: 3.5em;
 }
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
+.icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
 	border: none;
+}
+.icons {
+	padding: 0 7px;
 }
 .moderation {
 	display: table-cell;
@@ -3405,7 +3403,9 @@ ul.post_options li {
 	margin: 6px;
 }
 /* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature, .attachments, .under_message, .custom_fields_above_signature {
+.signature, .attachments, .under_message,
+.custom_fields_above_signature,
+.custom_fields_below_signature {
 	width: 100%;
 	overflow: auto;
 	clear: right;
@@ -3418,11 +3418,6 @@ ul.post_options li {
 }
 .under_message {
 	overflow: visible;
-}
-.under_message:after {
-	clear: both;
-	content: "";
-	display: block;
 }
 /* Events */
 .edit_event {

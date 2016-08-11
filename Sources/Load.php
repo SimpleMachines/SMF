@@ -21,7 +21,8 @@ if (!defined('SMF'))
  */
 function reloadSettings()
 {
-	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $sourcedir, $context;
+	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
+	global $cache_enable, $sourcedir, $context;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -57,9 +58,14 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
-		if (!empty($modSettings['cache_enable']))
+		if (!is_array($modSettings['attachmentUploadDir']))
+			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+
+		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
 	}
+
+	$modSettings['cache_enable'] = $cache_enable;
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -255,7 +261,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = smf_json_decode(SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -299,6 +305,9 @@ function reloadSettings()
 		'above_member',
 		'bottom_poster',
 	);
+
+	// Define an array for content-related <meta> elements (e.g. description, keywords, Open Graph) for the HTML head.
+	$context['meta_tags'] = array();
 
 	// Define an array of allowed HTML tags.
 	$context['allowed_html_tags'] = array(
@@ -375,10 +384,10 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = json_decode($_COOKIE[$cookiename], true);
+		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
 
-		if (is_null($cookie_data))
-			$cookie_data = @unserialize($_COOKIE[$cookiename]);
+		if (empty($cookie_data))
+			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
 		list ($id_member, $password) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
@@ -386,10 +395,10 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = json_decode($_SESSION['login_' . $cookiename]);
+		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
 
-		if (is_null($cookie_data))
-			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
+		if (empty($cookie_data))
+			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list ($id_member, $password, $login_span) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
@@ -457,10 +466,10 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = json_decode($_COOKIE[$tfacookie]);
+					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
 
 					if (is_null($tfa_data))
-						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
+						$tfa_data = safe_unserialize($_COOKIE[$tfacookie]);
 
 					list ($tfamember, $tfasecret) = $tfa_data;
 
@@ -614,10 +623,10 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$tfa_data = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
 			if (is_null($tfa_data))
-				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
+				$tfa_data = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
@@ -1252,6 +1261,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
+			if ( isset($row['member_ip']) )
+				$row['member_ip'] = inet_dtop($row['member_ip']);
+			if ( isset($row['member_ip2']) )
+				$row['member_ip2'] = inet_dtop($row['member_ip2']);
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
@@ -1459,7 +1472,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		);
 	}
 
-	// If the set isn't minimal then load their avatar as ell.
+	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
 		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
@@ -1495,8 +1508,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
 	{
 		$memberContext[$user]['custom_fields'] = array();
+
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
+			$context['display_fields'] = smf_json_decode($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -1945,34 +1959,50 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'findmember',
 		'helpadmin',
 		'printpage',
-		'quotefast',
 		'spellcheck',
 	);
 
+	// Parent action => array of areas
 	$simpleAreas = array(
-		'popup',
-		'alerts_popup',
+		'profile' => array('popup', 'alerts_popup',),
 	);
 
+	// Parent action => array of subactions
 	$simpleSubActions = array(
-		'popup',
+		'pm' => array('popup',),
 	);
-	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
-	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions);
+
+	// Actions that specifically uses XML output.
+	$xmlActions = array(
+		'quotefast',
+		'jsmodify',
+		'xmlhttp',
+		'post2',
+		'suggest',
+		'stats',
+	);
+
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
+
+	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
+	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
+	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
 	// Output is fully XML, so no need for the index template.
-	if (isset($_REQUEST['xml']))
+	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');
 		$context['template_layers'] = array();
 	}
+
 	// These actions don't require the index template at all.
 	elseif (!empty($context['simple_action']))
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
 	}
+
 	else
 	{
 		// Custom templates to load, or just default?
@@ -2086,7 +2116,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
@@ -2096,15 +2126,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true, 'minimize' => true), 'smf_jquery_plugins');
+	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
+		loadJavascriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
 		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
+	loadJavascriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
 	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
@@ -2321,10 +2351,11 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2367,7 +2398,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['css_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
+		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2417,10 +2448,11 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
+	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2437,7 +2469,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
 		{
 			// Can't find it in this theme, how about the default?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
@@ -2466,7 +2498,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['javascript_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
+		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
 }
 
 /**
@@ -3206,7 +3238,7 @@ function cache_put_data($key, $value, $ttl = 120)
 {
 	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable;
+	global $cache_accelerator, $cache_enable, $cache_memcached;
 
 	if (empty($cache_enable))
 		return;
@@ -3225,7 +3257,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	{
 		case 'memcached':
 			// The simple yet efficient memcached.
-			if (function_exists('memcached_set') || function_exists('memcache_set') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			if ((function_exists('memcached_set') || function_exists('memcache_set')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
@@ -3305,8 +3337,8 @@ function cache_put_data($key, $value, $ttl = 120)
 function cache_get_data($key, $ttl = 120)
 {
 	global $boardurl, $modSettings, $memcached;
-	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable;
+	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug, $cachedir;
+	global $cache_accelerator, $cache_enable, $cache_memcached;
 
 	if (empty($cache_enable))
 		return;
@@ -3316,23 +3348,27 @@ function cache_get_data($key, $ttl = 120)
 	{
 		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'get');
 		$st = microtime();
+		$original_key = $key;
 	}
 
 	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
 
 	switch ($cache_accelerator)
 	{
-		case 'memcache':
+		case 'memcached':
 			// Okay, let's go for it memcached!
-			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
 					get_memcached_server();
 				if (!$memcached)
-					return null;
-
-				$value = (function_exists('memcache_get')) ? memcache_get($cache['connection'], $key) : memcached_get($cache['connection'], $key);
+				{
+					$cache_misses_count = isset($cache_misses) ? $cache_misses + 1 : 1;
+					$value = null;
+				}
+				else
+					$value = (function_exists('memcache_get')) ? memcache_get($memcached, $key) : memcached_get($memcached, $key);
 			}
 			break;
 		case 'apc':
@@ -3375,12 +3411,21 @@ function cache_get_data($key, $ttl = 120)
 	{
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
 		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
+
+		if (empty($value))
+		{
+			if (!isset($cache_misses))
+				$cache_misses = array();
+
+			$cache_count_misses = isset($cache_count_misses) ? $cache_count_misses + 1 : 1;
+			$cache_misses[$cache_count_misses] = array('k' => $original_key, 'd' => 'get');
+		}
 	}
 
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @json_decode($value, true);
+	return empty($value) ? null : smf_json_decode($value, true);
 }
 
 /**

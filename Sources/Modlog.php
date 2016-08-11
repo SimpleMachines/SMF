@@ -103,7 +103,7 @@ function ViewModlog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = @json_decode($search_params, true);
+		$search_params = smf_json_decode($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -399,7 +399,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 	$entries = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		$row['extra'] = @json_decode($row['extra'], true);
+		$row['extra'] = smf_json_decode($row['extra'], true);
 
 		// Corrupt?
 		$row['extra'] = is_array($row['extra']) ? $row['extra'] : array();

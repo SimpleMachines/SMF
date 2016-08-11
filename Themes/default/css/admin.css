@@ -357,6 +357,19 @@ pre.file_content {
 .operation {
 	padding: 0 1em;
 }
+tr[id^="operation_"] tr.windowbg {
+	border: 0;
+	border-radius: 0;
+}
+tr[id^="operation_"] .windowbg2 {
+	padding: 0;
+	background: none !important;
+}
+tr[id^="operation_"] .table_grid {
+	width: 95%;
+	float: right;
+	margin: 0;
+}
 
 /* Styles for the file permissions section. */
 .filepermissions {
@@ -566,20 +579,12 @@ dl.themes_list dd {
 	white-space: nowrap;
 }
 
-/* Styles for the registration center. */
-.agreement, .reserved_names {
-	padding: 0;
-}
-#agreement, #reserved {
-	width: 99%;
-}
-
-/* Styles for the moderation center. */
-#modcenter {
+/* Generic boxes/textboxes requires to be full-width */
+#modcenter, #agreement, #reserved {
 	display: block;
 	width: 100%;
 }
-
+/* Styles for the moderation center. */
 /* Moderation Notes */
 ul.moderation_notes {
 	margin: 0;
@@ -666,4 +671,9 @@ h3.config_hd {
 }
 #Sources .half_table, #Default .half_table, #Languages .half_table {
 	padding-left: 20px;
+}
+
+.windowbg.highlight2,
+.windowbg2.highlight2 {
+	background: #D0E7F8;
 }

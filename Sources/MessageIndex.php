@@ -348,8 +348,8 @@ function MessageIndex()
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
-				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = ml.id_member)
-				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = mf.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
 				' . (!empty($message_index_tables) ? implode("\n\t", $message_index_tables) : '') . '
@@ -744,7 +744,7 @@ function MessageIndex()
 	);
 
 	// Javascript for inline editing.
-	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+	loadJavascriptFile('topic.js', array('defer' => false), 'smf_topic');
 
 	// Allow adding new buttons easily.
 	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used

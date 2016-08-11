@@ -44,12 +44,6 @@ function ManageBoards()
 		'settings' => array('EditBoardSettings', 'admin_forum'),
 	);
 
-	// Default to sub action 'main' or 'settings' depending on permissions.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
-
-	// Have you got the proper permissions?
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['boards_and_cats'],
@@ -67,6 +61,12 @@ function ManageBoards()
 	);
 
 	call_integration_hook('integrate_manage_boards', array(&$subActions));
+
+	// Default to sub action 'main' or 'settings' depending on permissions.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
+
+	// Have you got the proper permissions?
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }
@@ -595,7 +595,7 @@ function EditBoard()
 	{
 		$context['sub_template'] = 'modify_board';
 		$context['page_title'] = $txt['boardsEdit'];
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 	else
 	{

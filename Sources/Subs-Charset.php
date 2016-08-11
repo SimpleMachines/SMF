@@ -569,7 +569,7 @@ function fix_serialized_columns()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (@unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+		if (safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_actions
 				SET extra = {string:extra}

@@ -1587,6 +1587,59 @@ function updateActionDef(optNum)
 	}
 }
 
+function smc_resize(selector)
+{
+
+	var allElements = [];
+
+	$(selector).each(function(){
+
+		$thisElement = $(this);
+
+		// Get rid of the width and height attributes.
+		$thisElement.removeAttr('width').removeAttr('height');
+
+		// Get the default vars.
+		$thisElement.basedElement = $thisElement.parent();
+		$thisElement.defaultWidth = $thisElement.width();
+		$thisElement.defaultHeight = $thisElement.height();
+		$thisElement.aspectRatio = $thisElement.defaultHeight / $thisElement.defaultWidth;
+
+		allElements.push($thisElement);
+
+	});
+
+	$(window).resize(function(){
+
+		$(allElements).each(function(){
+
+			_innerElement = this;
+
+			// Get the new width and height.
+			var newWidth = _innerElement.basedElement.width();
+			var newHeight = (newWidth * _innerElement.aspectRatio) <= _innerElement.defaultHeight ? (newWidth * _innerElement.aspectRatio) : _innerElement.defaultHeight;
+
+			// If the new width is lower than the "default width" then apply some resizing. No? then go back to our default sizes
+			var applyResize = (newWidth <= _innerElement.defaultWidth),
+				applyWidth = !applyResize ? _innerElement.defaultWidth : newWidth,
+				applyHeight = !applyResize ? _innerElement.defaultHeight : newHeight;
+
+			// Gotta check the applied width and height is actually something!
+			if (applyWidth <= 0 && applyHeight <= 0) {
+				applyWidth = _innerElement.defaultWidth;
+				applyHeight = _innerElement.defaultHeight;
+			}
+
+			// Finally resize the element!
+			_innerElement.width(applyWidth).height(applyHeight);
+		});
+
+	// Kick off one resize to fix all elements on page load.
+	}).resize();
+
+}
+
+
 $(function()
 {
 	$('.buttonlist > .dropmenu').each(function(index, item)

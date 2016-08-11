@@ -9,17 +9,16 @@
 	#notify_dropdown {
 		margin: 5px 0 0 2px;
 	}
-	.dropmenu li a {
-		width: 80%;
-	}
 }
 
 /* I have a Lumia with 480px screen... so ^^ */
 @media (max-width: 480px) {
 	/* This is general */
 	.popup_window {
-		width: 93% !important;
+		width: 90%;
 		min-height: 285px !important;
+		padding: 0;
+		margin: 0 auto;
 	}
 	.button_submit {
 		min-width: 15%;
@@ -39,18 +38,49 @@
 	#pm_menu {
 		margin: 0 0 0 -85px;
 	}
-	.dropmenu li {
-		width: 50%;
+	#main_menu, .generic_menu {
+		display: none;
 	}
-	.dropmenu li a {
-		width: 65%;
+	#mobile_user_menu .dropmenu,
+	div[id^="mobile_generic_menu_"] .generic_menu {
+		display: block;
+	}
+	.dropmenu li, .dropmenu li:hover,
+	.dropmenu li a, .dropmenu li a:hover,
+	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu li ul {
+		width: 100%;
+		padding: 0;
+		margin: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+	.dropmenu li a, .dropmenu li:hover a {
+		padding: 5px 0;
+	}
+	.dropmenu li a, .dropmenu li a:hover {
+		text-indent: 10px;
+		border-radius: 0;
+	}
+	.dropmenu li a, .dropmenu li:hover a,
+	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu ul li a:hover, .dropmenu li li a:hover,
+	.dropmenu ul li li:hover, .dropmenu li ul,
+	.dropmenu li li:hover ul, .dropmenu li li ul {
+		border-left: 0;
+		border-right: 0;
 	}
 	.dropmenu ul li a {
 		width: auto !important;
 	}
+	.dropmenu li ul,
+	.dropmenu li li:hover ul, .dropmenu li li ul {
+		position: relative;
+		border-radius: 0;
+		left: 0;
+	}
 	#footer ul {
 		width: 100%;
-		margin: 5px;
 		float: none;
 	}
 	/* MessageIndex */
@@ -237,9 +267,6 @@
 	.dropmenu li ul ul {
 		margin: 0 !important;
 	}
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		left: 1px !important;
-	}
 }
 
 @media (min-width: 481px) and (max-width: 720px) {
@@ -291,6 +318,12 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+	.menu_icon {
+		display: inline-block;
+		background: url(../images/menu_icon.svg) no-repeat;
+		height: 20px;
+		width: 20px;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -299,10 +332,13 @@
 		display: inline-block;
 	}
 	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
-		width: 95% !important;
-		padding: 5px;
+		width: 100% !important;
+		padding: 5px 0;
 		margin: 0;
 		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		text-indent: 5px;
 	}
 	#mobile_action .notify_dropdown {
 		top: 0 !important;
@@ -367,7 +403,9 @@
 		width: 100% !important;
 	}
 	#wrapper {
-		min-width: 100% !important;
+		width: 100% !important;
+		border-left: 0;
+		border-right: 0;
 	}
 	#top_section, #footer {
 		padding-left: 0;
@@ -437,7 +475,10 @@
 	}
 
 	/* Display (Topics) */
-	.user_info {
+	.user_info li {
+		display: inline-block;
+	}
+	.user_info li.avatar, .user_info li.poster_ip {
 		display: none;
 	}
 	#moderationbuttons_strip a {
@@ -497,7 +538,7 @@
 	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered,
+	#siteslogan, th.id_group, th.registered, td.reg_group, td.reg_date,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time, .hidden,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,

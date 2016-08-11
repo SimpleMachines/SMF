@@ -108,7 +108,7 @@ function EditSearchSettings($return_config = false)
 	require_once($sourcedir . '/Search.php');
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'searchSettings')))
-		call_user_func_array($searchAPI->searchSettings, array(&$config_vars));
+		call_user_func_array(array($searchAPI, 'searchSettings'), array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -402,11 +402,11 @@ function EditSearchMethod()
 	elseif ($db_type == 'postgresql')
 	{
 		// In order to report the sizes correctly we need to perform vacuum (optimize) on the tables we will be using.
-		db_extend();
-		$temp_tables = $smcFunc['db_list_tables']();
-		foreach ($temp_tables as $table)
-			if ($table == $db_prefix. 'messages' || $table == $db_prefix. 'log_search_words')
-				$smcFunc['db_optimize_table']($table);
+		//db_extend();
+		//$temp_tables = $smcFunc['db_list_tables']();
+		//foreach ($temp_tables as $table)
+		//	if ($table == $db_prefix. 'messages' || $table == $db_prefix. 'log_search_words')
+		//		$smcFunc['db_optimize_table']($table);
 
 		// PostGreSql has some hidden sizes.
 		$request = $smcFunc['db_query']('', '
@@ -528,7 +528,7 @@ function CreateMessageIndex()
 
 	if (isset($_REQUEST['resume']) && !empty($modSettings['search_custom_index_resume']))
 	{
-		$context['index_settings'] = json_decode($modSettings['search_custom_index_resume'], true);
+		$context['index_settings'] = smf_json_decode($modSettings['search_custom_index_resume'], true);
 		$context['start'] = (int) $context['index_settings']['resume_at'];
 		unset($context['index_settings']['resume_at']);
 		$context['step'] = 1;

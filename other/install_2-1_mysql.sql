@@ -236,7 +236,7 @@ CREATE TABLE {$db_prefix}log_actions (
   id_log TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip CHAR(16) NOT NULL DEFAULT '                ',
+  ip VARBINARY(16),
   action VARCHAR(30) NOT NULL DEFAULT '',
   id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -272,7 +272,7 @@ CREATE TABLE {$db_prefix}log_activity (
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip CHAR(16) NOT NULL DEFAULT '                ',
+  ip VARBINARY(16),
   email VARCHAR(255) NOT NULL DEFAULT '',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban_log),
@@ -331,7 +331,7 @@ CREATE TABLE {$db_prefix}log_errors (
   id_error MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip CHAR(16) NOT NULL DEFAULT '                ',
+  ip VARBINARY(16),
   url TEXT NOT NULL,
   message TEXT NOT NULL,
   session CHAR(64) NOT NULL DEFAULT '                                                                ',
@@ -341,7 +341,7 @@ CREATE TABLE {$db_prefix}log_errors (
   PRIMARY KEY (id_error),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member),
-  INDEX idx_ip (ip(16))
+  INDEX idx_ip (ip)
 ) ENGINE={$engine};
 
 #
@@ -349,10 +349,10 @@ CREATE TABLE {$db_prefix}log_errors (
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
-  ip CHAR(16) DEFAULT '                ',
+  ip VARBINARY(16),
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   log_type VARCHAR(8) DEFAULT 'post',
-  PRIMARY KEY (ip(16), log_type(8))
+  PRIMARY KEY (ip, log_type(8))
 ) ENGINE={$memory};
 
 #
@@ -418,7 +418,7 @@ CREATE TABLE {$db_prefix}log_online (
   log_time INT(10) NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  ip INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  ip VARBINARY(16),
   url VARCHAR(1024) NOT NULL,
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
@@ -496,7 +496,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report MEDIUMINT(8) NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) NOT NULL,
   membername VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip VARCHAR(255) NOT NULL DEFAULT '',
+  member_ip VARBINARY(16),
   comment VARCHAR(255) NOT NULL DEFAULT '',
   time_sent INT(10) NOT NULL,
   PRIMARY KEY (id_comment),
@@ -700,8 +700,8 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL DEFAULT '0',
   avatar VARCHAR(255) NOT NULL DEFAULT '',
   usertitle VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip2 VARCHAR(255) NOT NULL DEFAULT '',
+  member_ip VARBINARY(16),
+  member_ip2 VARBINARY(16),
   secret_question VARCHAR(255) NOT NULL DEFAULT '',
   secret_answer VARCHAR(64) NOT NULL DEFAULT '',
   id_theme TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
@@ -744,8 +744,8 @@ CREATE TABLE {$db_prefix}member_logins (
   id_login INT(10) AUTO_INCREMENT,
   id_member MEDIUMINT(8) NOT NULL DEFAULT '0',
   time INT(10) NOT NULL DEFAULT '0',
-  ip VARCHAR(255) NOT NULL DEFAULT '0',
-  ip2 VARCHAR(255) NOT NULL DEFAULT '0',
+  ip VARBINARY(16),
+  ip2 VARBINARY(16),
   PRIMARY KEY (id_login),
   INDEX idx_id_member (id_member),
   INDEX idx_time (time)
@@ -779,7 +779,7 @@ CREATE TABLE {$db_prefix}messages (
   subject VARCHAR(255) NOT NULL DEFAULT '',
   poster_name VARCHAR(255) NOT NULL DEFAULT '',
   poster_email VARCHAR(255) NOT NULL DEFAULT '',
-  poster_ip VARCHAR(255) NOT NULL DEFAULT '',
+  poster_ip VARBINARY(16),
   smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
   modified_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   modified_name VARCHAR(255) NOT NULL DEFAULT '',
@@ -792,7 +792,7 @@ CREATE TABLE {$db_prefix}messages (
   UNIQUE idx_id_board (id_board, id_msg),
   UNIQUE idx_id_member (id_member, id_msg),
   INDEX idx_approved (approved),
-  INDEX idx_ip_index (poster_ip(15), id_topic),
+  INDEX idx_ip_index (poster_ip, id_topic),
   INDEX idx_participation (id_member, id_topic),
   INDEX idx_show_posts (id_member, id_board),
   INDEX idx_id_member_msg (id_member, approved, id_msg),

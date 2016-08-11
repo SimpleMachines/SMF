@@ -49,8 +49,7 @@ class Attachments
 
 		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$this->_attachmentUploadDir = json_decode($modSettings['attachmentUploadDir'], true);
+		$this->_attachmentUploadDir = $modSettings['attachmentUploadDir'];
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
@@ -66,6 +65,9 @@ class Attachments
 		// Guest aren't welcome, sorry.
 		is_not_guest();
 
+		// Need this. For reasons...
+		loadLanguage('Post');
+
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
@@ -74,7 +76,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => 'attach_error_title',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
@@ -93,7 +95,7 @@ class Attachments
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
-		if (!$attachID || !is_int($attachID) || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
+		if (!$attachID || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
@@ -338,10 +340,10 @@ class Attachments
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
 					unset($attachmentOptions['id']);
 
-					$_SESSION['already_attached'][] = $attachmentOptions['attachID'];
+					$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions['attachID'];
 
 					if (!empty($attachmentOptions['thumb']))
-						$_SESSION['already_attached'][] = $attachmentOptions['thumb'];
+						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
 
 					if ($this->_msg)
 						assignAttachments($_SESSION['already_attached'], $this->_msg);
@@ -383,8 +385,6 @@ class Attachments
 	protected function setResponse($data = array())
 	{
 		global $txt;
-
-		loadLanguage('Post');
 
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
