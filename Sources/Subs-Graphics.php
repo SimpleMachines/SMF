@@ -30,7 +30,7 @@ if (!defined('SMF'))
  * - returns whether the download and resize was successful.
  *
  * @param string $url The full path to the temporary file
- * @param int $memID The ember ID
+ * @param int $memID The member ID
  * @param int $max_width The maximum allowed width for the avatar
  * @param int $max_height The maximum allowed height for the avatar
  * @return boolean Whether the download and resize was successful.

@@ -549,4 +549,5 @@ function HandleReport()
 	// Done!
 	redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 }
+
 ?>
