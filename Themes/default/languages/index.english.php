@@ -3,6 +3,9 @@
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
+// Native name, please use full HTML entities to write your language's name.
+$txt['native_name'] = 'English';
+
 // Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
 // For more information see:
 //   - http://www.php.net/function.pspell-new

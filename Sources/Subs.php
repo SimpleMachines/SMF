@@ -811,7 +811,7 @@ function un_htmlspecialchars($string)
 	// Determine the character set... Default to UTF-8
 	if (empty($context['character_set']))
 		$charset = 'UTF-8';
-	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
+	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
 	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
 		$charset = 'ISO-8859-1';
 	else
@@ -4780,7 +4780,7 @@ function fixchar__callback($matches)
 	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
 	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
 		return '';
-	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
 	elseif ($num < 0x80)
 		return chr($num);
 	// <0x800 (2048)

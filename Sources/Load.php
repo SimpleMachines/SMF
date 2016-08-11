@@ -711,7 +711,7 @@ function loadUserSettings()
 		{
 			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
 
-			// Make it permanent for memmbers.
+			// Make it permanent for members.
 			if (!empty($user_info['id']))
 				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
 			else
@@ -1364,6 +1364,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
 	global $context, $modSettings, $settings, $smcFunc;
 	static $dataLoaded = array();
+	static $loadedLanguages = array();
 
 	// If this person's data is already loaded, skip it.
 	if (isset($dataLoaded[$user]))
@@ -1419,6 +1420,11 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
+	{
+		// Go the extra mile and load the user's native language name.
+		if (empty($loadedLanguages))
+			$loadedLanguages = getLanguages();
+
 		$memberContext[$user] += array(
 			'username_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['member_name'] .'</span>',
 			'name_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['real_name'] .'</span>',
@@ -1448,7 +1454,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'link' => '<a href="' . $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
 				'label' => $txt[$profile['is_online'] ? 'online' : 'offline']
 			),
-			'language' => $smcFunc['ucwords'](strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
+			'language' => !empty($loadedLanguages[$profile['lngfile']]) && !empty($loadedLanguages[$profile['lngfile']]['name']) ? $loadedLanguages[$profile['lngfile']]['name'] : $smcFunc['ucwords'](strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
 			'is_activated' => isset($profile['is_activated']) ? $profile['is_activated'] : 1,
 			'is_banned' => isset($profile['is_activated']) ? $profile['is_activated'] >= 10 : 0,
 			'options' => $profile['options'],
@@ -1464,6 +1470,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
 			'custom_fields' => array(),
 		);
+	}
 
 	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
@@ -2780,6 +2787,12 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		// Remove any duplicates.
 		$language_directories = array_unique($language_directories);
 
+		// Get a list of languages.
+		$langList = !empty($modSettings['langList']) ? json_decode($modSettings['langList'], true) : array();
+		$langList = is_array($langList) ? $langList : false;
+
+		$catchLang = array();
+
 		foreach ($language_directories as $language_dir)
 		{
 			// Can't look in here... doesn't exist!
@@ -2793,16 +2806,54 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 				if (!preg_match('~^index\.(.+)\.php$~', $entry, $matches))
 					continue;
 
+				if (!empty($langList) && !empty($langList[$matches[1]]))
+					$langName = $langList[$matches[1]];
+
+				else
+				{
+					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+
+					// Get the line we need.
+					$fp = @fopen($language_dir .'/'. $entry);
+
+					// Yay!
+					if ($fp)
+					{
+						while (($line = fgets($fp)) !== false)
+						{
+							preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
+
+							// Set the language's name.
+							if (!empty($matchNative) && !empty($matchNative[1]))
+							{
+								$langName = un_htmlspecialchars($matchNative[1]);
+								break;
+							}
+						}
+
+						fclose($fp);
+					}
+
+					// Catch the language name.
+					$catchLang[$matches[1]] = $langName;
+				}
+
+				// Build this language entry.
 				$context['languages'][$matches[1]] = array(
-					'name' => $smcFunc['ucwords'](strtr($matches[1], array('_' => ' '))),
+					'name' => $langName,
 					'selected' => false,
 					'filename' => $matches[1],
 					'location' => $language_dir . '/index.' . $matches[1] . '.php',
 				);
 
+				$indexFile = '';
 			}
 			$dir->close();
 		}
+
+		// Do we need to store the lang list?
+		if (empty($langList))
+			updateSettings(array('langList' => json_encode($catchLang)));
 
 		// Favoring UTF8? Then prevent us from selecting non-UTF8 versions.
 		if ($favor_utf8)
