@@ -3012,16 +3012,16 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	// Content related meta tags, including Open Graph
 	$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => $context['forum_name']);
 	$context['meta_tags'][] = array('property' => 'og:title', 'content' => $context['page_title_html_safe']);
-	
+
 	if (!empty($context['meta_keywords']))
 		$context['meta_tags'][] = array('name' => 'keywords', 'content' => $context['meta_keywords']);
 
 	if (!empty($context['canonical_url']))
 		$context['meta_tags'][] = array('property' => 'og:url', 'content' => $context['canonical_url']);
-	
+
 	if (!empty($settings['og_image']))
 		$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
-	
+
 	if (!empty($context['meta_description']))
 	{
 		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['meta_description']);
@@ -4978,7 +4978,7 @@ function inet_dtop($bin)
 		return '';
 
 	global $db_type;
-	
+
 	if ($db_type == 'postgresql')
 		return $bin;
 

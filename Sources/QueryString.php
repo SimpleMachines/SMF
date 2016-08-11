@@ -22,7 +22,7 @@ if (!defined('SMF'))
  *
  * What it does:
  * - cleans the request variables (ENV, GET, POST, COOKIE, SERVER) and
- *	 makes sure the query string was parsed correctly.
+ * - makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
  * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
