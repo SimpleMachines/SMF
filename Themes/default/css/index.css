@@ -1227,6 +1227,7 @@ ul li.greeting {
 	position:absolute;
 	bottom: 0;
 	width: 100%;
+	max-height: 75px;
 }
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
