@@ -1169,26 +1169,30 @@ function getNewEventDatetimes()
 	$end_time = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second);
 	$start_datetime = isset($_REQUEST['start_datetime']) ? $_REQUEST['start_datetime'] : $start_date . ' ' . $start_time;
 	$end_datetime = isset($_REQUEST['end_datetime']) ? $_REQUEST['end_datetime'] : $end_date . ' ' . $end_time;
+
+	// In case we received conflicting input, use $start_datetime and $end_datetime as the final answer
+	$start = date_parse($start_datetime);
+	$end = date_parse($end_datetime);
 	$start_timestamp = strtotime($start_datetime . ' ' . $tz);
 	$end_timestamp = strtotime($end_datetime. ' ' . $tz);
 
 	$eventProperties = array(
-		'year' => $start_year,
-		'month' => $start_month,
-		'day' => $start_day,
-		'hour' => $start_hour,
-		'minute' => $start_minute,
-		'second' => $start_second,
-		'end_year' => $end_year,
-		'end_month' => $end_month,
-		'end_day' => $end_day,
-		'end_hour' => $end_hour,
-		'end_minute' => $end_minute,
-		'end_second' => $end_second,
-		'start_date' => $start_date,
-		'end_date' => $end_date,
-		'start_time' => $start_time,
-		'end_time' => $end_time,
+		'year' => $start['year'],
+		'month' => $start['month'],
+		'day' => $start['day'],
+		'hour' => $start['hour'],
+		'minute' => $start['minute'],
+		'second' => $start['second'],
+		'end_year' => $end['year'],
+		'end_month' => $end['month'],
+		'end_day' => $end['day'],
+		'end_hour' => $end['hour'],
+		'end_minute' => $end['minute'],
+		'end_second' => $end['second'],
+		'start_date' => sprintf('%04d-%02d-%02d', $start['year'], $start['month'], $start['day']),
+		'end_date' => sprintf('%04d-%02d-%02d', $end['year'], $end['month'], $end['day']),
+		'start_time' => sprintf('%02d:%02d:%02d', $start['hour'], $start['minute'], $start['second']),
+		'end_time' => sprintf('%02d:%02d:%02d', $end['hour'], $end['minute'], $end['second']),
 		'start_datetime' => $start_datetime,
 		'end_datetime' => $end_datetime,
 		'start_timestamp' => $start_timestamp,
