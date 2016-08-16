@@ -2118,6 +2118,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
+			cal.start_time, cal.end_time, cal.timezone,
 			cal.id_board, t.id_first_msg, t.approved
 		FROM {db_prefix}calendar AS cal
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
@@ -2161,6 +2162,10 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 			'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 			'start_date' => $row['start_date'],
 			'end_date' => $row['end_date'],
+			'start_time' => $row['start_time'],
+			'end_time' => $row['end_time'],
+			'tz' => $row['timezone'],
+			'allday' => empty($row['start_time']),
 			'is_last' => false
 		);
 
