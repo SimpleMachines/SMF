@@ -1140,12 +1140,6 @@ function getNewEventDatetimes()
 {
 	global $user_info;
 
-	// We want a fairly compact version of the time, but as close as possible to the user's settings.
-	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$time_string = $user_info['time_format'];
-	else
-		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
-
 	$today = getdate();
 
 	$tz = isset($_REQUEST['tz']) ? $_REQUEST['tz'] : getUserTimezone();
