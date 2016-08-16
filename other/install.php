@@ -502,9 +502,11 @@ function CheckFilesWritable()
 		'Smileys',
 		'Themes',
 		'agreement.txt',
-		'Settings.php',
-		'Settings_bak.php'
+		'Settings.php'
 	);
+	if (file_exists(dirname(__FILE__) . '/Settings_bak.php'))
+		$writable_files[] = 'Settings_bak.php';
+	
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
 
