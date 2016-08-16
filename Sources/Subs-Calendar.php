@@ -1207,7 +1207,7 @@ function getNewEventDatetimes()
  * Makes sure events do not exceed the maximum allowed duration (if any).
  * If passed an array that defines any time or date parameters, they will be used. Otherwise, gets the values from $_POST.
  *
- * @param array An array of optional time and date parameters (span, start_year, end_month, etc., etc.)
+ * @param array $eventOptions An array of optional time and date parameters (span, start_year, end_month, etc., etc.)
  * @return array An array containing $start_date, $end_date, $start_time, $end_time
  */
 function setEventStartEnd($eventOptions = array())
@@ -1398,7 +1398,7 @@ function setEventStartEnd($eventOptions = array())
 /**
  * Gets a member's selected timezone identifier directly from the database
  *
- * @param int The member id to look up. Default is the current user's id.
+ * @param int $id_member The member id to look up. Default is the current user's id.
  * @return string The timezone identifier string for the user's timezone.
  */
 function getUserTimezone($id_member = null)
