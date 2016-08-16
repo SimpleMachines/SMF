@@ -1113,7 +1113,7 @@ function getEventProperties($event_id)
 		'start_timestamp' => strtotime($row['start_date'] . (isset($row['start_time']) ? ' ' . $row['start_time'] . (isset($row['timezone']) ? ' ' . $row['timezone'] : '') : '')),
 		'end_timestamp' => strtotime($row['end_date'] . (isset($row['end_time']) ? ' ' . $row['end_time'] . (isset($row['timezone']) ? ' ' . $row['timezone'] : '') : '')),
 		'allday' => empty($row['start_time']) ? true : false,
-		'tz' => (empty($row['timezone']) || !empty($context['event']['allday'])) ? getUserTimezone() : $row['timezone'],
+		'tz' => $row['timezone'],
 		'title' => $row['title'],
 		'span' => 1 + $row['span'],
 		'member' => $row['id_member'],
