@@ -1970,6 +1970,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Parent action => array of subactions
 	$simpleSubActions = array(
 		'pm' => array('popup',),
+		'signup' => array('usernamecheck'),
 	);
 
 	// Actions that specifically uses XML output.
