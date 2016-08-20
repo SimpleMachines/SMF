@@ -1981,6 +1981,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'suggest',
 		'stats',
 		'notifytopic',
+		'notifyboard',
+		'signup',
 	);
 
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
