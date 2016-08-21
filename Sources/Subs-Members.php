@@ -675,6 +675,9 @@ function registerMember(&$regOptions, $return_errors = false)
 	$knownFloats = array(
 		'time_offset',
 	);
+	$knownInets = array(
+		'member_ip','member_ip2',
+	);
 
 	// Call an optional function to validate the users' input.
 	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, &$knownInts, &$knownFloats));
@@ -688,6 +691,8 @@ function registerMember(&$regOptions, $return_errors = false)
 			$type = 'int';
 		elseif (in_array($var, $knownFloats))
 			$type = 'float';
+		elseif (in_array($var, $knownInets))
+			$type = 'inet';
 		elseif ($var == 'birthdate')
 			$type = 'date';
 
