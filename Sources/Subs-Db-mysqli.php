@@ -62,13 +62,19 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (!empty($db_options['persist']))
 		$db_server = 'p:' . $db_server;
 
-	if (!empty($db_options['port']))
-		$connection = @mysqli_connect($db_server, $db_user, $db_passwd, '', $db_options['port']);
-	else
-		$connection = @mysqli_connect($db_server, $db_user, $db_passwd);
+	$connection = mysqli_init();
+	
+	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	
+	if ($connection) {
+		if (!empty($db_options['port']))
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'] , null ,$flags);
+		else
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd,'', 0, null, $flags);
+	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
-	if (!$connection)
+	if (!$connection || $success)
 	{
 		if (!empty($db_options['non_fatal']))
 			return null;
