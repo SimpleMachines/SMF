@@ -66,6 +66,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	
 	$flags = MYSQLI_CLIENT_FOUND_ROWS;
 	
+	$success = false;
+	
 	if ($connection) {
 		if (!empty($db_options['port']))
 			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'] , null ,$flags);
@@ -74,7 +76,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
-	if (!$connection || $success)
+	if ($success === false)
 	{
 		if (!empty($db_options['non_fatal']))
 			return null;
