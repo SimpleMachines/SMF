@@ -693,7 +693,7 @@ CREATE {$unlogged} TABLE {$db_prefix}log_online (
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
-  ip inet,
+  ip varbinary(16),
   url varchar(1024) NOT NULL,
   PRIMARY KEY (session)
 );
