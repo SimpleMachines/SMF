@@ -143,13 +143,32 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		// Create the DateTime objects. It's SO much easier to handle timezone differences this way.
-		if (isset($row['start_time']) && isset($row['end_time']) && isset($row['timezone']))
+		if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
 		{
+			if (!in_array($row['timezone'], timezone_identifiers_list()))
+				continue;
+
+			$d = date_parse($row['start_date'] . ' ' . $row['start_time']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				continue;
+
+			$d = date_parse($row['end_date'] . ' ' . $row['end_time']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				continue;
+
 			$start_object = date_create($row['start_date'] . ' ' . $row['start_time'], timezone_open($row['timezone']));
 			$end_object = date_create($row['end_date'] . ' ' . $row['end_time'], timezone_open($row['timezone']));
 		}
 		else
 		{
+			$d = date_parse($row['start_date']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				continue;
+
+			$d = date_parse($row['end_date']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				continue;
+
 			$start_object = date_create($row['start_date']);
 			$end_object = date_create($row['end_date']);
 		}
