@@ -1237,9 +1237,9 @@ function setEventStartEnd($eventOptions = array())
 		$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
 
 	// Define the timezone for this event, falling back to the default if not provided
-	if (in_array($eventOptions['tz'], timezone_identifiers_list()))
+	if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list()))
 		$tz = $eventOptions['tz'];
-	elseif (in_array($_POST['tz'], timezone_identifiers_list()))
+	elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list()))
 		$tz = $_POST['tz'];
 	else
 		$tz = getUserTimezone();
