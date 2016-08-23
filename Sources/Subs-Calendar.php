@@ -192,9 +192,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$starts_today = (date_format($cal_date, 'Y-m-d') == $start_date_string);
 			$ends_today = (date_format($cal_date, 'Y-m-d') == $end_date_string);
 
-			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
-			if ($use_permissions)
-				$events[date_format($cal_date, 'Y-m-d')][] = array(
+			$eventProperties = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
 					'start_date' => strftime($date_string, $start_timestamp),
@@ -208,31 +206,23 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'is_last' => false,
 					'id_board' => $row['id_board'],
 					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+					'starts_today' => $starts_today,
+					'ends_today' => $ends_today,				
+			);
+
+			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
+			if ($use_permissions)
+				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 					'can_export' => !empty($modSettings['cal_export']) ? true : false,
 					'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-					'starts_today' => $starts_today,
-					'ends_today' => $ends_today,
-				);
+				));
 			// Otherwise, this is going to be cached and the VIEWER'S permissions should apply... just put together some info.
 			else
-				$events[date_format($cal_date, 'Y-m-d')][] = array(
-					'id' => $row['id_event'],
-					'title' => $row['title'],
-					'start_date' => strftime($date_string, $start_timestamp),
-					'end_date' => strftime($date_string, $end_timestamp),
-					'start_time' => !$allday ? strftime($time_string, $start_timestamp) : null,
-					'end_time' => !$allday ? strftime($time_string, $end_timestamp) : null,
-					'start_timestamp' => $start_timestamp,
-					'end_timestamp' => $end_timestamp,
-					'allday' => $allday,
-					'tz' => !$allday ? $row['timezone'] : null,
-					'is_last' => false,
-					'id_board' => $row['id_board'],
-					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
@@ -241,9 +231,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
 					'allowed_groups' => explode(',', $row['member_groups']),
-					'starts_today' => $starts_today,
-					'ends_today' => $ends_today,
-				);
+				));
 
 			date_add($cal_date, date_interval_create_from_date_string('1 day'));
 		}
