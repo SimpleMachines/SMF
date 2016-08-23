@@ -253,7 +253,7 @@ function Post($post_errors = array())
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = $user_info['time_format'];
+			$time_string = '%k:%M';
 		else
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
@@ -310,9 +310,19 @@ function Post($post_errors = array())
 		// Find the last day of the month.
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 
-		// Adjust these to look nice on the input form
-		$context['event']['start_time'] = strftime($time_string, strtotime($context['event']['start_datetime']));
-		$context['event']['end_time'] = strftime($time_string, strtotime($context['event']['end_datetime']));
+		// An all day event? Set up some nice defaults in case the user wants to change that
+		if ($context['event']['allday'] == true)
+		{
+			$context['event']['tz'] = getUserTimezone();
+			$context['event']['start_time'] = strftime($time_string, time());
+			$context['event']['end_time'] = strftime($time_string, time() + 3600);
+		}
+		// Otherwise, just adjust these to look nice on the input form
+		else
+		{
+			$context['event']['start_time'] = strftime($time_string, strtotime($context['event']['start_datetime']));
+			$context['event']['end_time'] = strftime($time_string, strtotime($context['event']['end_datetime']));
+		}
 
 		// Need this so the user can select a timezone for the event.
 		$context['all_timezones'] = smf_list_timezones();
