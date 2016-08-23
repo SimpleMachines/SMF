@@ -1416,7 +1416,7 @@ function setEventStartEnd($eventOptions = array())
 /**
  * Gets a member's selected timezone identifier directly from the database
  *
- * @param int $id_member The member id to look up. Default is the current user's id.
+ * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
  * @return string The timezone identifier string for the user's timezone.
  */
 function getUserTimezone($id_member = null)
@@ -1439,10 +1439,9 @@ function getUserTimezone($id_member = null)
 		list($timezone) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
-	else
-	{
-		$timezone = date_default_timezone_get();
-	}
+
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list()))
+		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
 
 	return $timezone;
 }
