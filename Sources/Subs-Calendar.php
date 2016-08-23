@@ -102,6 +102,18 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$low_object = date_create($low_date);
 	$high_object = date_create($high_date);
 
+	// First, try to create a better date format, ignoring the "time" elements.
+	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$date_string = '%F';
+	else
+		$date_string = $matches[0];
+
+	// We want a fairly compact version of the time, but as close as possible to the user's settings.		
+	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$time_string = '%k:%M';
+	else
+		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+
 	// Find all the calendar info...
 	$result = $smcFunc['db_query']('', '
 		SELECT
@@ -129,18 +141,6 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
-
-		// First, try to create a better date format, ignoring the "time" elements.
-		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$date_string = '%F';
-		else
-			$date_string = $matches[0];
-
-		// We want a fairly compact version of the time, but as close as possible to the user's settings.		
-		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = '%k:%M';
-		else
-			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		// Create the DateTime objects. It's SO much easier to handle timezone differences this way.
 		$allday = false;
