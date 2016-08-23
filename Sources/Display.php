@@ -572,15 +572,36 @@ function Display()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// Prepare the dates for being formatted.
-			if (isset($row['start_time']) && isset($row['end_time']) && isset($row['timezone']))
+			if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
 			{
+				if (!in_array($row['timezone'], timezone_identifiers_list()))
+					continue;
+
+				$d = date_parse($row['start_date'] . ' ' . $row['start_time']);
+				if (!empty($d['error_count']) || !empty($d['warning_count']))
+					continue;
+
+				$d = date_parse($row['end_date'] . ' ' . $row['end_time']);
+				if (!empty($d['error_count']) || !empty($d['warning_count']))
+					continue;
+
 				$start_object = date_create($row['start_date'] . ' ' . $row['start_time'], timezone_open($row['timezone']));
 				$end_object = date_create($row['end_date'] . ' ' . $row['end_time'], timezone_open($row['timezone']));
+				$tz_abbrev = date_format($start_object, 'T');
 			}
 			else
 			{
+				$d = date_parse($row['start_date']);
+				if (!empty($d['error_count']) || !empty($d['warning_count']))
+					continue;
+
+				$d = date_parse($row['end_date']);
+				if (!empty($d['error_count']) || !empty($d['warning_count']))
+					continue;
+
 				$start_object = date_create($row['start_date']);
 				$end_object = date_create($row['end_date']);
+				$tz_abbrev = null;
 			}
 
 			$start_timestamp = date_format($start_object, 'U');
@@ -596,8 +617,6 @@ function Display()
 			$start_time_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_string, 'none');
 			$end_date_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_string, 'none');
 			$end_time_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_string, 'none');
-
-			$tz_abbrev = isset($row['timezone']) ? date_format($start_object, 'T') : null;
 
 			$linked_calendar_event = array(
 				'id' => $row['id_event'],
@@ -615,9 +634,8 @@ function Display()
 				'end_timestamp' => $end_timestamp,
 				'is_last' => false
 			);
-			if (isset($row['start_time']))
+			if (!empty($tz_abbrev))
 			{
-
 				$linked_calendar_event['start_time'] = $start_time_local;
 				$linked_calendar_event['end_time'] = $end_time_local;
 				$linked_calendar_event['start_time_orig'] = $start_time_orig;
