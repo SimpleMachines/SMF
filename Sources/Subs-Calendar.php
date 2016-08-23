@@ -143,6 +143,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		// Create the DateTime objects. It's SO much easier to handle timezone differences this way.
+		$allday = false;
 		if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
 		{
 			if (!in_array($row['timezone'], timezone_identifiers_list()))
@@ -171,6 +172,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 			$start_object = date_create($row['start_date']);
 			$end_object = date_create($row['end_date']);
+			$allday = true;
 		}
 
 		$start_timestamp = date_format($start_object, 'U');
@@ -197,12 +199,12 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'title' => $row['title'],
 					'start_date' => strftime($date_string, $start_timestamp),
 					'end_date' => strftime($date_string, $end_timestamp),
-					'start_time' => isset($row['start_time']) ? strftime($time_string, $start_timestamp) : null,
-					'end_time' => isset($row['end_time']) ? strftime($time_string, $end_timestamp) : null,
+					'start_time' => !$allday ? strftime($time_string, $start_timestamp) : null,
+					'end_time' => !$allday ? strftime($time_string, $end_timestamp) : null,
 					'start_timestamp' => $start_timestamp,
 					'end_timestamp' => $end_timestamp,
-					'allday' => empty($row['start_time']),
-					'tz' => $row['timezone'],
+					'allday' => $allday,
+					'tz' => !$allday ? $row['timezone'] : null,
 					'is_last' => false,
 					'id_board' => $row['id_board'],
 					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
@@ -222,12 +224,12 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'title' => $row['title'],
 					'start_date' => strftime($date_string, $start_timestamp),
 					'end_date' => strftime($date_string, $end_timestamp),
-					'start_time' => isset($row['start_time']) ? strftime($time_string, $start_timestamp) : null,
-					'end_time' => isset($row['end_time']) ? strftime($time_string, $end_timestamp) : null,
+					'start_time' => !$allday ? strftime($time_string, $start_timestamp) : null,
+					'end_time' => !$allday ? strftime($time_string, $end_timestamp) : null,
 					'start_timestamp' => $start_timestamp,
 					'end_timestamp' => $end_timestamp,
-					'allday' => empty($row['start_time']),
-					'tz' => $row['timezone'],
+					'allday' => $allday,
+					'tz' => !$allday ? $row['timezone'] : null,
 					'is_last' => false,
 					'id_board' => $row['id_board'],
 					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
@@ -1106,6 +1108,8 @@ function getEventProperties($event_id)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
+	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list())) ? true : false;
+
 	$return_value = array(
 		'boards' => array(),
 		'board' => $row['id_board'],
@@ -1114,25 +1118,25 @@ function getEventProperties($event_id)
 		'year' => $row['year'],
 		'month' => $row['month'],
 		'day' => $row['day'],
-		'hour' => $row['hour'],
-		'minute' => $row['minute'],
-		'second' => $row['second'],
+		'hour' => !$allday ? $row['hour'] : null,
+		'minute' => !$allday ? $row['minute'] : null,
+		'second' => !$allday ? $row['second'] : null,
 		'end_year' => $row['end_year'],
 		'end_month' => $row['end_month'],
 		'end_day' => $row['end_day'],
-		'end_hour' => $row['end_hour'],
-		'end_minute' => $row['end_minute'],
-		'end_second' => $row['end_second'],
+		'end_hour' => !$allday ? $row['end_hour'] : null,
+		'end_minute' => !$allday ? $row['end_minute'] : null,
+		'end_second' => !$allday ? $row['end_second'] : null,
 		'start_date' => $row['start_date'],
 		'end_date' => $row['end_date'],
-		'start_time' => $row['start_time'],
-		'end_time' => $row['end_time'],
-		'start_datetime' => $row['start_date'] . (isset($row['start_time']) ? ' ' . $row['start_time'] : ''),
-		'end_datetime' => $row['end_date'] . (isset($row['end_time']) ? ' ' . $row['end_time'] : ''),
-		'start_timestamp' => strtotime($row['start_date'] . (isset($row['start_time']) ? ' ' . $row['start_time'] . (isset($row['timezone']) ? ' ' . $row['timezone'] : '') : '')),
-		'end_timestamp' => strtotime($row['end_date'] . (isset($row['end_time']) ? ' ' . $row['end_time'] . (isset($row['timezone']) ? ' ' . $row['timezone'] : '') : '')),
-		'allday' => empty($row['start_time']) ? true : false,
-		'tz' => $row['timezone'],
+		'start_time' => !$allday ? $row['start_time'] : null,
+		'end_time' => !$allday ? $row['end_time'] : null,
+		'start_datetime' => $row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''),
+		'end_datetime' => $row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''),
+		'start_timestamp' => strtotime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : '')),
+		'end_timestamp' => strtotime($row['end_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : '')),
+		'allday' => $allday,
+		'tz' => !$allday ? $row['timezone'] : null,
 		'title' => $row['title'],
 		'span' => 1 + $row['span'],
 		'member' => $row['id_member'],

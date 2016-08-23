@@ -625,7 +625,7 @@ function Display()
 				'modify_href' => $scripturl . '?action=post;msg=' . $context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'allday' => empty($row['start_time']),
+				'allday' => empty($tz_abbrev),
 				'start_date' => $start_date_local,
 				'start_date_orig' => $start_date_orig,
 				'start_timestamp' => $start_timestamp,
