@@ -156,7 +156,7 @@ CREATE TABLE {$db_prefix}calendar (
   id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   title VARCHAR(255) NOT NULL DEFAULT '',
-  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   start_time time,
   end_time time,
   timezone VARCHAR(80),
