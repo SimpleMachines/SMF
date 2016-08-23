@@ -916,7 +916,7 @@ function insertEvent(&$eventOptions)
 		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
 		$start_date, $end_date, 
 	);
-	if (isset($start_time) && isset($end_time) && isset($tz))
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list()))
 	{
 		$event_columns['start_time'] = 'time';
 		$event_parameters[] = $start_time;
@@ -994,7 +994,7 @@ function modifyEvent($event_id, &$eventOptions)
 		'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
 		'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
 	);
-	if (isset($start_time) && isset($end_time) && isset($tz))
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list()))
 	{
 		$event_columns['start_time'] = '{time:start_time}';
 		$event_parameters['start_time'] = $start_time;
@@ -1025,7 +1025,7 @@ function modifyEvent($event_id, &$eventOptions)
 		)
 	);
 
-	if (!isset($start_time) || !isset($end_time) || !isset($tz))
+	if (empty($start_time) || empty($end_time) || empty($tz) || !in_array($tz, timezone_identifiers_list()))
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}calendar
