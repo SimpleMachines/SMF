@@ -2153,6 +2153,8 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		if (!empty($row['id_first_msg']) && !$row['approved'])
 			$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
 
+		$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list())) ? true : false;
+
 		$return[$date][] = array(
 			'id' => $row['id_event'],
 			'title' => $row['title'],
@@ -2162,10 +2164,10 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 			'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 			'start_date' => $row['start_date'],
 			'end_date' => $row['end_date'],
-			'start_time' => $row['start_time'],
-			'end_time' => $row['end_time'],
-			'tz' => $row['timezone'],
-			'allday' => empty($row['start_time']),
+			'start_time' => !$allday ? $row['start_time'] : null,
+			'end_time' => !$allday ? $row['end_time'] : null,
+			'tz' => !$allday ? $row['timezone'] : null,
+			'allday' => $allday,
 			'is_last' => false
 		);
 
