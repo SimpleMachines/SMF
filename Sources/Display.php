@@ -586,10 +586,10 @@ function Display()
 			$start_timestamp = date_format($start_object, 'U');
 			$end_timestamp = date_format($end_object, 'U');
 
-			$start_date_local = timeformat($start_timestamp, $date_string, 'none');
-			$start_time_local = timeformat($start_timestamp, $time_string, 'none');
-			$end_date_local = timeformat($end_timestamp, $date_string, 'none');
-			$end_time_local = timeformat($end_timestamp, $time_string, 'none');
+			$start_date_local = timeformat($start_timestamp, $date_string);
+			$start_time_local = timeformat($start_timestamp, $time_string);
+			$end_date_local = timeformat($end_timestamp, $date_string);
+			$end_time_local = timeformat($end_timestamp, $time_string);
 
 			// This is a roundabout way to do it, but it lets us use our strftime format strings, so meh...
 			$start_date_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_string, 'none');
