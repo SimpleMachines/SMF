@@ -217,8 +217,13 @@ function reloadSettings()
 	);
 
 	// Setting the timezone is a requirement for some functions.
-	if (isset($modSettings['default_timezone']))
+	if (isset($modSettings['default_timezone']) && in_array($modSettings['default_timezone'], timezone_identifiers_list()))
 		date_default_timezone_set($modSettings['default_timezone']);
+	else
+	{
+		log_error($txt['default_timezone'] . ' setting is empty. Falling back to UTC.');
+		date_default_timezone_set('UTC');
+	}
 
 	// Check the load averages?
 	if (!empty($modSettings['loadavg_enable']))
