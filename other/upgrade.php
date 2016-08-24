@@ -1111,6 +1111,10 @@ function WelcomeLogin()
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
 		return true;
+	
+	//empty upgrade done session
+	if(!empty($_SESSION['done_upgrade']))
+		$_SESSION['done_upgrade'] = null;
 
 	$upcontext += createToken('login');
 
@@ -2466,7 +2470,7 @@ function fixRelativePath($path)
 function parse_sql($filename)
 {
 	global $db_prefix, $db_collation, $boarddir, $boardurl, $command_line, $file_steps, $step_progress, $custom_warning;
-	global $upcontext, $support_js, $is_debug, $smcFunc, $databases, $db_type, $db_character_set;
+	global $upcontext, $support_js, $is_debug, $smcFunc, $databases, $db_type, $db_character_set, $modSettings;
 
 /*
 	Failure allowed on:
@@ -2574,12 +2578,25 @@ function parse_sql($filename)
 	$upcontext['current_debug_item_name'] = '';
 	// This array keeps a record of what we've done in case java is dead...
 	$upcontext['actioned_items'] = array();
+	
+	// prep partial upgrade
+	$done_upgrade = array();
+	if(!empty($_SESSION['done_upgrade']))
+		$done_upgrade = $_SESSION['done_upgrade'];
+	elseif (!empty($modSettings['smf2.1_done_upgrade']))
+	{
+		$done_upgrade = smf_json_decode($modSettings['smf2.1_done_upgrade']);
+	}
 
 	$done_something = false;
 
 	foreach ($lines as $line_number => $line)
 	{
 		$do_current = $substep >= $_GET['substep'];
+		
+		if($line_number == 2150){
+		    $asdf = true;
+		}
 
 		// Get rid of any comments in the beginning of the line...
 		if (substr(trim($line), 0, 2) === '/*')
@@ -2614,8 +2631,12 @@ function parse_sql($filename)
 
 				$last_step = htmlspecialchars(rtrim(substr($line, 4)));
 				$upcontext['current_item_num']++;
+				if (!empty($upcontext['current_item_name']))
+				{
+					$done_upgrade[] = $upcontext['current_item_name'];
+					$_SESSION['done_upgrade'] = $done_upgrade;
+				}
 				$upcontext['current_item_name'] = $last_step;
-
 				if ($do_current)
 				{
 					$upcontext['actioned_items'][] = $last_step;
@@ -2623,7 +2644,7 @@ function parse_sql($filename)
 						echo ' * ';
 				}
 			}
-			elseif ($type == '#')
+			elseif ($type == '#' && !in_array($upcontext['current_item_name'],$done_upgrade) )
 			{
 				$upcontext['step_progress'] += (100 / $upcontext['file_count']) / $file_steps;
 
@@ -2665,9 +2686,9 @@ function parse_sql($filename)
 				else
 					$substep++;
 			}
-			elseif ($type == '{')
+			elseif ($type == '{' && !in_array($upcontext['current_item_name'],$done_upgrade) )
 				$current_type = 'code';
-			elseif ($type == '}')
+			elseif ($type == '}' && !in_array($upcontext['current_item_name'],$done_upgrade) )
 			{
 				$current_type = 'sql';
 
@@ -2692,8 +2713,9 @@ function parse_sql($filename)
 			continue;
 		}
 
-		$current_data .= $line;
-		if (substr(rtrim($current_data), -1) === ';' && $current_type === 'sql')
+		if (!in_array($upcontext['current_item_name'],$done_upgrade))
+			$current_data .= $line;
+		if (substr(rtrim($current_data), -1) === ';' && $current_type === 'sql'  && !in_array($upcontext['current_item_name'],$done_upgrade))
 		{
 			if ((!$support_js || isset($_GET['xml'])))
 			{
@@ -2725,7 +2747,7 @@ function parse_sql($filename)
 			$current_data = '';
 		}
 		// If this is xml based and we're just getting the item name then that's grand.
-		elseif ($support_js && !isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current)
+		elseif ($support_js && !isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current  && !in_array($upcontext['current_item_name'],$done_upgrade))
 		{
 			restore_error_handler();
 			return false;
@@ -2744,7 +2766,21 @@ function parse_sql($filename)
 		echo ' Successful.' . "\n";
 		flush();
 	}
-
+	
+	//add the last step
+	$done_upgrade[] = $upcontext['current_item_name'];
+	
+	$done_upgrade = array_unique($done_upgrade);
+	$done_upgradejs = json_encode($done_upgrade);
+	
+	// Update the settings table with upgrade step
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('smf2.1_done_upgrade', $done_upgradejs),
+		array('variable')
+	);
+	
 	$_GET['substep'] = 0;
 	return true;
 }
