@@ -377,6 +377,23 @@ function CalendarPost()
 
 	// Need this so the user can select a timezone for the event.
 	$context['all_timezones'] = smf_list_timezones();
+	unset($context['all_timezones']['']);
+
+	// If the event's timezone is not in SMF's standard list of time zones, guess the best match
+	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
+	{
+		$event_tz_abbrev = date_format(date_create($context['event']['tz']), 'T');
+
+		foreach ($context['all_timezones'] as $tz => $display_value) {
+			$tz_abbrev = date_format(date_create($tz), 'T');
+
+			if ($tz_abbrev === $event_tz_abbrev)
+			{
+				$context['event']['tz'] = $tz;
+				break;
+			}
+		}
+	}
 
 	// Get list of boards that can be posted in.
 	$boards = boardsAllowedTo('post_new');
