@@ -221,7 +221,6 @@ function reloadSettings()
 		date_default_timezone_set($modSettings['default_timezone']);
 	else
 	{
-		log_error($txt['default_timezone'] . ' setting is not valid. Falling back to UTC.');
 		date_default_timezone_set('UTC');
 	}
 
