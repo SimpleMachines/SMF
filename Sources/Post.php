@@ -314,8 +314,8 @@ function Post($post_errors = array())
 		if ($context['event']['allday'] == true)
 		{
 			$context['event']['tz'] = getUserTimezone();
-			$context['event']['start_time'] = strftime($time_string, time());
-			$context['event']['end_time'] = strftime($time_string, time() + 3600);
+			$context['event']['start_time'] = timeformat(time(), $time_string);
+			$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
 		}
 		// Otherwise, just adjust these to look nice on the input form
 		else
