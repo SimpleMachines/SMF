@@ -10,26 +10,6 @@ CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
   'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS '
-	SELECT
-	CASE WHEN
-		$1 !~ ''^[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?$'' THEN 0
-	ELSE
-		split_part($1, ''.'', 1)::int8 * (256 * 256 * 256) +
-		split_part($1, ''.'', 2)::int8 * (256 * 256) +
-		split_part($1, ''.'', 3)::int8 * 256 +
-		split_part($1, ''.'', 4)::int8
-	END AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION INET_NTOA(bigint) RETURNS text AS '
-	SELECT
-		(($1 >> 24) & 255::int8) || ''.'' ||
-		(($1 >> 16) & 255::int8) || ''.'' ||
-		(($1 >> 8) & 255::int8) || ''.'' ||
-		($1 & 255::int8) AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
 	SELECT i AS result
 	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
@@ -55,10 +35,6 @@ CREATE OR REPLACE FUNCTION FIND_IN_SET(needle smallint, haystack text) RETURNS i
 		UNION ALL
 	SELECT 0
 	LIMIT 1'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION LEFT (text, int4) RETURNS text AS
-  'SELECT SUBSTRING($1 FROM 0 FOR $2) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION add_num_text (text, integer) RETURNS text AS
@@ -96,6 +72,7 @@ CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
   'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
+# Should be droped when pg min >= 9.1
 CREATE OR REPLACE FUNCTION CONCAT (text, text) RETURNS text AS
   'SELECT $1 || $2 AS result'
 LANGUAGE 'sql';
