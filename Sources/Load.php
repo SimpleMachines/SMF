@@ -221,7 +221,20 @@ function reloadSettings()
 		date_default_timezone_set($modSettings['default_timezone']);
 	else
 	{
-		date_default_timezone_set('UTC');
+		// Get PHP's default timezone, if set
+		if (!empty(ini_get('date.timezone')))
+			$timezone_id = ini_get('date.timezone');
+		else
+			$timezone_id = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($timezone_id, timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+		}
+		
+		date_default_timezone_set($timezone_id);
 	}
 
 	// Check the load averages?
