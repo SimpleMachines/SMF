@@ -546,8 +546,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	$buttons = array();
 	foreach ($button_strip as $key => $value)
 	{
-		// @todo this check here doesn't make much sense now (from 2.1 on), it should be moved to where the button array is generated
-		// Kept for backward compatibility
+		// As of 2.1, the 'test' for each button happens while the array is being generated. The extra 'test' check here is deprecated but kept for backward compatibility (update your mods, folks!)
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 		{
 			if (!isset($value['id']))

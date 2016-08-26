@@ -718,13 +718,20 @@ function MessageIndex()
 		unset($_SESSION['becomesUnapproved']);
 
 	// Build the message index button array.
-	$context['normal_buttons'] = array(
-		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
-		'post_poll' => array('test' => 'can_post_poll', 'text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll'),
-		'markread' => array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="'. $txt['are_sure_mark_read'] .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']),
-		'notify' => array(
+	$context['normal_buttons'] = array();
+	
+	if ($context['can_post_new'])
+		$context['normal_buttons']['new_topic'] = array('text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true);
+	
+	if ($context['can_post_poll'])
+		$context['normal_buttons']['post_poll'] = array('text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll');
+	
+	if (!$context['user']['is_logged'])
+		$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="'. $txt['are_sure_mark_read'] .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
+
+	if ($context['can_mark_notify'])
+		$context['normal_buttons']['notify'] = array(
 			'lang' => true,
-			'test' => 'can_mark_notify',
 			'text' => 'notify_board_' . $context['board_notification_mode'],
 			'sub_buttons' => array(
 				array(
@@ -740,8 +747,7 @@ function MessageIndex()
 					'url' => $scripturl . '?action=notifyboard;board=' . $board . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
 				),
 			),
-		),
-	);
+		);
 
 	// Javascript for inline editing.
 	loadJavascriptFile('topic.js', array('defer' => false), 'smf_topic');
