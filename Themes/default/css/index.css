@@ -3619,11 +3619,12 @@ p.information img {
 }
 .on {
 	background: #99FF66;
-	margin-bottom: 4px;
 }
 .off {
 	background: grey;
-	margin-bottom: 4px;
+}
+#firefox .on, #firefox .off {
+	margin: 0 0 5px 0;
 }
 #userstatus .smalltext {
 	margin: 0 0 0 5px !important;
