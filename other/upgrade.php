@@ -3922,7 +3922,7 @@ function convertUtf8()
 
 		// Get a list of table names ahead of time... This makes it easier to set our substep and such
 		db_extend();
-		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix);
+		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
 		$file_steps = $upcontext['table_count'];
