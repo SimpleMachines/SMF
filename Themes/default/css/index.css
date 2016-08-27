@@ -946,6 +946,7 @@ img.sort, .sort {
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .button {
 	font-size: 0.889em;
+	color: #346;
 }
 .button:hover {
 	color: #af6700;
@@ -1390,6 +1391,7 @@ ul li.greeting {
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
+	cursor: pointer;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -2968,9 +2970,6 @@ span.postby {
 .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
 	border: none;
 }
-.icons {
-	padding: 0 7px;
-}
 .moderation {
 	display: table-cell;
 	min-width: 35px;
@@ -3622,8 +3621,11 @@ p.information img {
 .off {
 	background: grey;
 }
+#firefox .on, #firefox .off {
+	margin: 0 0 5px 0;
+}
 #userstatus .smalltext {
-	margin: 0 0 0 20px !important;
+	margin: 0 0 0 5px !important;
 }
 
 /* Styles for print media. */
