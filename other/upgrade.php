@@ -4403,12 +4403,12 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']) && $upcontext['chmod']['ftp_error'] == 'total_mess')
 	{
 		echo '
-			<div class="error_message">
-				<div style="color: red;">The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:</div>
+			<div class="error_message red">
+				The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:<br>
 				<ul style="margin: 2.5ex; font-family: monospace;">
-				<li>' . implode('</li>
-				<li>', $upcontext['chmod']['files']). '</li>
-			</ul>
+					<li>' . implode('</li>
+					<li>', $upcontext['chmod']['files']). '</li>
+				</ul>
 			</div>';
 
 		return false;
@@ -4431,7 +4431,7 @@ function template_chmod()
 
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
-					content.write(\'<hr />\n\t\t\t\');
+					content.write(\'<hr>\n\t\t\t\');
 					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
 					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
 
@@ -4443,12 +4443,9 @@ function template_chmod()
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
-			<div class="error_message">
-				<div style="color: red;">
-					The following error was encountered when trying to connect:<br>
-					<br>
-					<code>', $upcontext['chmod']['ftp_error'], '</code>
-				</div>
+			<div class="error_message red">
+				The following error was encountered when trying to connect:<br><br>
+				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>
 			<br>';
 
@@ -4519,16 +4516,16 @@ function template_upgrade_above()
 			{
 				// What out the actual percent.
 				var width = parseInt((current / max) * 100);
-				if (document.getElementById(\'step_progress_upgrade\'))
+				if (document.getElementById(\'step_progress\'))
 				{
-					document.getElementById(\'step_progress_upgrade\').style.width = width + "%";
-					setInnerHTML(document.getElementById(\'step_text_upgrade\'), width + "%");
+					document.getElementById(\'step_progress\').style.width = width + "%";
+					setInnerHTML(document.getElementById(\'step_text\'), width + "%");
 				}
-				if (overall_weight && document.getElementById(\'overall_progress_upgrade\'))
+				if (overall_weight && document.getElementById(\'overall_progress\'))
 				{
 					overall_width = parseInt(startPercent + width * (overall_weight / 100));
-					document.getElementById(\'overall_progress_upgrade\').style.width = overall_width + "%";
-					setInnerHTML(document.getElementById(\'overall_text_upgrade\'), overall_width + "%");
+					document.getElementById(\'overall_progress\').style.width = overall_width + "%";
+					setInnerHTML(document.getElementById(\'overall_text\'), overall_width + "%");
 				}
 			}
 		</script>
@@ -4540,7 +4537,13 @@ function template_upgrade_above()
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 	<div id="wrapper">
-	<div id="upper_section">
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap">
+				</div>
+			</div>
+		</div>
+		<div id="content_section">
 		<div id="main_content_section">
 			<div id="main_steps">
 				<h2>', $txt['upgrade_progress'], '</h2>
@@ -4554,28 +4557,28 @@ function template_upgrade_above()
 					</ul>
 			</div>
 
-			<div id="progress">
-				<div id="overall_text_upgrade">', $upcontext['overall_percent'], '%</div>
-				<div id="overall_progress_upgrade" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
-				<div class="over_progress">', $txt['upgrade_overall_progress'], '</div>
+			<div id="progress_bar">
+				<div id="overall_text">', $upcontext['overall_percent'], '%</div>
+				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
+				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
 			</div>';
 
 	if (isset($upcontext['step_progress']))
 		echo '
 				<br>
 				<br>
-				<div id="progress">
-					<div id="step_text_upgrade">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress_upgrade" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
-					<div class="over_progress">', $txt['upgrade_step_progress'], '</div>
-					</div>';
+				<div id="progress_bar_step">
+					<div id="step_text">', $upcontext['step_progress'], '%</div>
+					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
+					<div class="overall_progress">', $txt['upgrade_step_progress'], '</div>
+				</div>';
 
 	echo '
 				<div id="substep_bar_div" class="smalltext" style="float: left;width: 50%;margin-top: 0.6em;display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
 				<div id="substep_bar_div2" style="float: left;font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 33%; margin: 0.6em auto 0 6em; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
 					<div id="substep_text" style="color: #000; position: absolute; margin-left: -5em;">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</div>
-				<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
-								</div>';
+					<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
+				</div>';
 
 	// How long have we been running this?
 	$elapsed = time() - $upcontext['started'];
@@ -4589,7 +4592,6 @@ function template_upgrade_above()
 	echo '
 			</div>
 			</div>
-			<div id="content_section">
 			<div id="main_screen" class="clear">
 				<h2>', $upcontext['page_title'], '</h2>
 				<div class="panel">
@@ -4634,7 +4636,6 @@ function template_upgrade_below()
 				</div>
 			</div>
 			</div>
-		</div>
 		</div>
 		<div id="footer">
 			<ul>
@@ -4693,10 +4694,8 @@ function template_error_message()
 	global $upcontext;
 
 	echo '
-	<div class="error_message">
-		<div style="color: red;">
-			', $upcontext['error_msg'], '
-		</div>
+	<div class="error_message red">
+		', $upcontext['error_msg'], '
 		<br>
 		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
 	</div>';
