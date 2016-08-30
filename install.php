@@ -18,13 +18,8 @@ $GLOBALS['required_php_version'] = '5.3.8';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
-
 // Let's pull in useful classes
-if (!defined('smf')) {
-	define('SMF', 1);
-}
-require_once('Sources/Class-Package.php');
-
+require_once($sourcedir . '/Class-Package.php');
 // Database info.
 $databases = array(
 	'mysqli' => array(
@@ -124,7 +119,6 @@ $incontext['current_step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
 
 // Loop through all the steps doing each one as required.
 $incontext['overall_percent'] = 0;
-
 foreach ($incontext['steps'] as $num => $step)
 {
 	if ($num >= $incontext['current_step'])
