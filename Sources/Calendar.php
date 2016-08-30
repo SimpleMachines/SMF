@@ -424,9 +424,9 @@ function CalendarPost()
 		'name' => $context['page_title'],
 	);
 
-	loadCSSFile('pikaday.css', array('defer' => false), 'smf_datepicker');
+	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
 	loadCSSFile('jquery.timepicker.css', array('defer' => false), 'smf_timepicker');
-	loadJavascriptFile('pikaday.min.js', array('defer' => true), 'smf_datepicker');
+	loadJavascriptFile('jquery-ui.datepicker.js', array('defer' => true), 'smf_datepicker');
 	loadJavascriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	loadJavascriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavascript('
@@ -435,37 +435,24 @@ function CalendarPost()
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
 	});
-	var start_picker = new Pikaday({
-		field: document.getElementById("start_date"),
-		defaultDate: new Date("' . str_replace('-', '/', $context['event']['start_date']) . '"),
-		setDefaultDate: true,
-		theme: ' . (!empty($settings['cal_dark']) ? '"dark-theme"' : 'null') . ',
-		yearRange: [' . $modSettings['cal_minyear'] . ',' . $modSettings['cal_maxyear'] . '],
-		minDate: new Date("' . $modSettings['cal_minyear'] . '/01/01"),
-		maxDate: new Date("' . $modSettings['cal_maxyear'] . '/12/31"),
-		i18n: {
-		    previousMonth : "' . $txt['prev_month'] . '",
-		    nextMonth     : "' . $txt['next_month'] . '",
-		    months        : ["' . implode('", "', $txt['months_titles']) . '"],
-		    weekdays      : ["' . implode('", "', $txt['days']) . '"],
-		    weekdaysShort : ["' . implode('", "', $txt['days_short']) . '"],
-		}
-	});
-	var end_picker = new Pikaday({
-		field: document.getElementById("end_date"),
-		defaultDate: new Date("' . str_replace('-', '/', $context['event']['end_date']) . '"),
-		setDefaultDate: true,
-		theme: ' . (!empty($settings['cal_dark']) ? '"dark-theme"' : 'null') . ',
-		yearRange: [' . $modSettings['cal_minyear'] . ',' . $modSettings['cal_maxyear'] . '],
-		minDate: new Date("' . $modSettings['cal_minyear'] . '/01/01"),
-		maxDate: new Date("' . $modSettings['cal_maxyear'] . '/12/31"),
-		i18n: {
-		    previousMonth : "' . $txt['prev_month'] . '",
-		    nextMonth     : "' . $txt['next_month'] . '",
-		    months        : ["' . implode('", "', $txt['months_titles']) . '"],
-		    weekdays      : ["' . implode('", "', $txt['days']) . '"],
-		    weekdaysShort : ["' . implode('", "', $txt['days_short']) . '"],
-		}
+	$( "#event_time_input .date_input" ).datepicker({
+		dateFormat: "yy-mm-dd",
+		autoSize: true,
+		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		constrainInput: true,
+		showAnim: "",
+		showButtonPanel: false,
+		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
+		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
+		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
+		hideIfNoPrevNext: true,
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"], 
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"], 
+		dayNames: ["' . implode('", "', $txt['days']) . '"], 
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"], 
+		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
+		prevText: "' . $txt['prev_month'] . '",
+		nextText: "' . $txt['next_month'] . '",
 	});
 	$(".time_input").timepicker({
 		timeFormat: "' . $js_time_string . '",
@@ -476,15 +463,15 @@ function CalendarPost()
 	var date_entry_pair = new Datepair(date_entry, {
 		timeClass: "time_input",
 		dateClass: "date_input",
-		parseDate: function(input){
-			var s = $(input).val();
-			return new Date(s);
+		parseDate: function (el) {
+		    var utc = new Date($(el).datepicker("getDate"));
+		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
 		},
-		updateDate: function(input, dateObj){
-			var s = dateObj.toISOString().substr(0,10);
-			return $(input).val(s);
+		updateDate: function (el, v) {
+		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
 		}
-	});', true);
+	});
+	', true);
 }
 
 /**
