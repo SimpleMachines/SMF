@@ -793,6 +793,7 @@ class ftp_connection
 		if (!$this->connection)
 		{
 			$this->error = 'bad_server';
+            $this->last_message = 'Invalid Server';
 			return;
 		}
 
@@ -800,6 +801,7 @@ class ftp_connection
 		if (!$this->check_response(220))
 		{
 			$this->error = 'bad_response';
+            $this->last_message = 'Bad Response';
 			return;
 		}
 
@@ -808,6 +810,7 @@ class ftp_connection
 		if (!$this->check_response(331))
 		{
 			$this->error = 'bad_username';
+            $this->last_message = 'Invalid Username';
 			return;
 		}
 
@@ -816,6 +819,7 @@ class ftp_connection
 		if (!$this->check_response(230))
 		{
 			$this->error = 'bad_password';
+            $this->last_message = 'Invalid Password';
 			return;
 		}
 	}
