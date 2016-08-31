@@ -60,30 +60,25 @@ function getXMLDocument(sUrl, funcCallback)
 	return oMyDoc;
 }
 
-// Send a post form to the server using XMLHttpRequest.
+// Send a post form to the server.
 function sendXMLDocument(sUrl, sContent, funcCallback)
 {
-	if (!window.XMLHttpRequest)
-		return false;
-
-	var oSendDoc = new window.XMLHttpRequest();
 	var oCaller = this;
-	if (typeof(funcCallback) != 'undefined')
-	{
-		oSendDoc.onreadystatechange = function () {
-			if (oSendDoc.readyState != 4)
-				return;
-
-			if (oSendDoc.responseXML != null && oSendDoc.status == 200)
-				funcCallback.call(oCaller, oSendDoc.responseXML);
-			else
-				funcCallback.call(oCaller, false);
-		};
-	}
-	oSendDoc.open('POST', sUrl, true);
-	if ('setRequestHeader' in oSendDoc)
-		oSendDoc.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	oSendDoc.send(sContent);
+	var oSendDoc = $.ajax({
+		type: 'POST',
+		url: sUrl,
+		data: sContent,
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		},
+		dataType: 'xml',
+		success: function(responseXML) {
+			if (typeof(funcCallback) != 'undefined')
+			{
+				funcCallback.call(oCaller, responseXML);
+			}
+		},
+	});
 
 	return true;
 }
