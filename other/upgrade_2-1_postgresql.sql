@@ -1960,7 +1960,7 @@ CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(rea
 ---#
 
 /******************************************************************************/
----UNLOGGED Table PG 9.1+
+--- UNLOGGED Table PG 9.1+
 /******************************************************************************/
 ---# update table
 ---{

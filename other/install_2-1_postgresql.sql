@@ -10,26 +10,6 @@ CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
   'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS '
-	SELECT
-	CASE WHEN
-		$1 !~ ''^[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?$'' THEN 0
-	ELSE
-		split_part($1, ''.'', 1)::int8 * (256 * 256 * 256) +
-		split_part($1, ''.'', 2)::int8 * (256 * 256) +
-		split_part($1, ''.'', 3)::int8 * 256 +
-		split_part($1, ''.'', 4)::int8
-	END AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION INET_NTOA(bigint) RETURNS text AS '
-	SELECT
-		(($1 >> 24) & 255::int8) || ''.'' ||
-		(($1 >> 16) & 255::int8) || ''.'' ||
-		(($1 >> 8) & 255::int8) || ''.'' ||
-		($1 & 255::int8) AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
 	SELECT i AS result
 	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
@@ -55,10 +35,6 @@ CREATE OR REPLACE FUNCTION FIND_IN_SET(needle smallint, haystack text) RETURNS i
 		UNION ALL
 	SELECT 0
 	LIMIT 1'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION LEFT (text, int4) RETURNS text AS
-  'SELECT SUBSTRING($1 FROM 0 FOR $2) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION add_num_text (text, integer) RETURNS text AS
@@ -96,6 +72,7 @@ CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
   'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
+# Should be droped when pg min >= 9.1
 CREATE OR REPLACE FUNCTION CONCAT (text, text) RETURNS text AS
   'SELECT $1 || $2 AS result'
 LANGUAGE 'sql';
@@ -139,7 +116,7 @@ CREATE TABLE {$db_prefix}admin_info_files (
 # Indexes for table `admin_info_files`
 #
 
-CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename);
+CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename varchar_pattern_ops);
 
 #
 # Table structure for table `approval_queue`
@@ -313,7 +290,7 @@ CREATE TABLE {$db_prefix}boards (
 CREATE UNIQUE INDEX {$db_prefix}boards_categories ON {$db_prefix}boards (id_cat, id_board);
 CREATE INDEX {$db_prefix}boards_id_parent ON {$db_prefix}boards (id_parent);
 CREATE INDEX {$db_prefix}boards_id_msg_updated ON {$db_prefix}boards (id_msg_updated);
-CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups);
+CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
 
 #
 # Sequence for table `calendar`
@@ -551,7 +528,7 @@ CREATE TABLE {$db_prefix}log_comments (
 
 CREATE INDEX {$db_prefix}log_comments_id_recipient ON {$db_prefix}log_comments (id_recipient);
 CREATE INDEX {$db_prefix}log_comments_log_time ON {$db_prefix}log_comments (log_time);
-CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type);
+CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type varchar_pattern_ops);
 
 #
 # Table structure for table `log_digest`
@@ -739,7 +716,7 @@ CREATE TABLE {$db_prefix}log_packages (
 # Indexes for table `log_packages`
 #
 
-CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (filename);
+CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (filename varchar_pattern_ops);
 
 #
 # Table structure for table `log_polls`
@@ -1111,21 +1088,21 @@ CREATE TABLE {$db_prefix}members (
 # Indexes for table `members`
 #
 
-CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name);
-CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name);
-CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address);
+CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);
 CREATE INDEX {$db_prefix}members_posts ON {$db_prefix}members (posts);
 CREATE INDEX {$db_prefix}members_last_login ON {$db_prefix}members (last_login);
-CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile);
+CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_id_post_group ON {$db_prefix}members (id_post_group);
 CREATE INDEX {$db_prefix}members_warning ON {$db_prefix}members (warning);
 CREATE INDEX {$db_prefix}members_total_time_logged_in ON {$db_prefix}members (total_time_logged_in);
 CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
-CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name));
-CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name));
+CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
 
 
 #
@@ -1455,7 +1432,7 @@ CREATE TABLE {$db_prefix}qanda (
 # Indexes for table `qanda`
 #
 
-CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile);
+CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 
 #
 # Sequence for table `scheduled_tasks`
@@ -1485,7 +1462,7 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
 
 CREATE INDEX {$db_prefix}scheduled_tasks_next_time ON {$db_prefix}scheduled_tasks (next_time);
 CREATE INDEX {$db_prefix}scheduled_tasks_disabled ON {$db_prefix}scheduled_tasks (disabled);
-CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task);
+CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task varchar_pattern_ops);
 
 #
 # Table structure for table `settings`

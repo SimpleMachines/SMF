@@ -641,19 +641,19 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 	// Show the number of messages selected in the button.
 	if (this.opt.bCanRemove && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_remove_button_text'), this.opt.sRemoveButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_remove_button_text'), this.opt.sRemoveButtonLabel + ' <span class="amt">' + this.iNumSelected + '</span>');
 		document.getElementById(this.opt.sSelf + '_remove_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanRestore && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button_text'), this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button_text'), this.opt.sRestoreButtonLabel + ' <span class="amt">' + this.iNumSelected + '</span>');
 		document.getElementById(this.opt.sSelf + '_restore_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanSplit && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' <span class="amt">' + this.iNumSelected + '</span>');
 		document.getElementById(this.opt.sSelf + '_split_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
