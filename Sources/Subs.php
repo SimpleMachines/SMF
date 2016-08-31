@@ -5350,4 +5350,41 @@ function isValidIP($IPString)
 	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
 }
 
+/**
+ * Outputs a response.
+ * It assumes the data is already a string.
+ * @param string $data The data to print
+ * @param string $type The content type. Defaults to Json.
+ * @return void
+ */
+function smf_serverResponse($data = '', $type = 'Content-Type: application/json')
+{
+	global $db_show_debug, $modSettings;
+
+	// Defensive programming anyone?
+	if (empty($data))
+		return false;
+
+	// Don't need extra stuff...
+	$db_show_debug = false;
+
+	// Kill anything else.
+	ob_end_clean();
+
+	if (!empty($modSettings['CompressedOutput']))
+		@ob_start('ob_gzhandler');
+
+	else
+		ob_start();
+
+	// Set the header.
+	header($type);
+
+	// Echo!
+	echo $data;
+
+	// Done
+	obExit(false);
+}
+
 ?>
