@@ -1359,6 +1359,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'iurl',
 				'type' => 'unparsed_equals',
+				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
@@ -1604,19 +1605,20 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					if (empty(parse_url($data, PHP_URL_SCHEME)))
+						$data = 'http://' . ltrim($data, ':/');
 				},
 			),
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
+				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link" target="_blank">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					if (empty(parse_url($data, PHP_URL_SCHEME)))
+						$data = 'http://' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1749,7 +1751,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	while ($pos !== false)
 	{
 		$last_pos = isset($last_pos) ? max($pos, $last_pos) : $pos;
-		$pos = strpos($message, '[', $pos + 1);
+		preg_match('~\[/?(?=' . $alltags_regex . ')~', $message, $matches, PREG_OFFSET_CAPTURE, $pos + 1);
+		$pos = !empty($matches[0][1]) ? $matches[0][1] : false;
 
 		// Failsafe.
 		if ($pos === false || $last_pos > $pos)
@@ -1767,7 +1770,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
-				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:)\S+?)\\1&gt;~i', '[url=$2]', $data);
+				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:)\S+?)\\1&gt;~i', '[url=&quot;$2&quot;]', $data);
 				$data = preg_replace('~&lt;/a&gt;~i', '[/url]', $data);
 
 				// <br> should be empty.
@@ -1847,25 +1850,73 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				if (!$no_autolink_area)
 				{
-					// Parse any URLs.... have to get rid of the @ problems some things cause... stupid email addresses.
-					if (!isset($disabled['url']) && (strpos($data, '://') !== false || strpos($data, 'www.') !== false) && strpos($data, '[url') === false)
+					// Parse any URLs
+					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						// Switch out quotes really quick because they can cause problems.
-						$data = strtr($data, array('&#039;' => '\'', '&nbsp;' => $context['utf8'] ? "\xC2\xA0" : "\xA0", '&quot;' => '>">', '"' => '<"<', '&lt;' => '<lt<'));
+						// @todo Add a cron job to download the current list of TLDs from http://data.iana.org/TLD/tlds-alpha-by-domain.txt, process it into a regex, and store it somewhere. Then replace this variable with a call of some sort to retrieve the stored regex.
+						$tld_regex = '(?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|ja|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)';
 
-						// Only do this if the preg survives.
-						if (is_string($result = preg_replace(array(
-							'~(?<=[\s>\.(;\'"]|^)((?:http|https)://[\w\-_%@:|]+(?:\.[\w\-_%]+)*(?::\d+)?(?:/[\w\-_\~%\.@!,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\]?)~i',
-							'~(?<=[\s>\.(;\'"]|^)((?:ftp|ftps)://[\w\-_%@:|]+(?:\.[\w\-_%]+)*(?::\d+)?(?:/[\w\-_\~%\.@,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\]?)~i',
-							'~(?<=[\s>(\'<]|^)(www(?:\.[\w\-_]+)+(?::\d+)?(?:/[\w\-_\~%\.@!,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\])~i'
-						), array(
-							'[url]$1[/url]',
-							'[ftp]$1[/ftp]',
-							'[url=http://$1]$1[/url]'
-						), $data)))
-							$data = $result;
+						$url_regex = '(?xi)
+\b
+(?:
+	[a-z][\w-]+:						# URL scheme and colon
+	(?:
+		/{1,3}							# 1-3 slashes
+		|								#	or
+		[a-z0-9%]						# Single letter or digit or "%"
+										# (Trying not to match e.g. "URI::Escape")
+	)
+	|									#	or
+	www\d{0,3}[.]						# "www.", "www1.", "www2." … "www999."
+	|									#	or
+	[a-z0-9.\-]+[.][a-z]{2,4}/			# looks like domain name followed by a slash
+)
+(?:										# One or more:
+	[^\s()<>]+							# Run of non-space, non-()<>
+	|									#	or
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
+)+
+(?:										# End with:
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
+	|									#	or
+	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]		# not a space or one of these punct char
+)
 
-						$data = strtr($data, array('\'' => '&#039;', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;', '>">' => '&quot;', '<"<' => '"', '<lt<' => '&lt;'));
+|										# OR, the following to match naked domains:
+(?:
+	(?<!@)								# not preceded by a @, avoid matching foo@_gmail.com_
+	[a-z0-9]+
+	(?:[.\-][a-z0-9]+)*
+	[.]
+	'. $tld_regex . '
+	\b
+	/?
+	(?!@)								# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
+)';
+
+						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
+									$url = array_shift($matches);
+
+									// If this isn't a clean URL, bail out
+									if ($url != filter_var($url, FILTER_SANITIZE_URL))
+										return $url;
+									
+									// Are we linking a naked domain name (e.g. "example.com")?
+									if (empty(parse_url($url, PHP_URL_SCHEME)))
+										$fullUrl = 'http://' . ltrim($url, ':/');
+									else
+										$fullUrl = $url;
+									
+									// Make sure that $fullUrl really is a valid URL, including a valid host name
+									if (filter_var($fullUrl, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED) === false)
+										return $url;
+
+									// Time to do the deed
+									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
+										return '[email]' . str_replace('mailto:', '', $url) . '[/email]';
+									else
+										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+								}, $data);
 					}
 
 					// Next, emails...
