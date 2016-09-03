@@ -1321,7 +1321,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . $data;
+						$data = 'http://' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1338,7 +1338,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . $data;
+						$data = 'http://' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1353,7 +1353,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					$data = strtr($data, array('<br>' => ''));
 					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . $data;
+						$data = 'http://' . ltrim($data, ':/');
 				},
 			),
 			array(
@@ -1367,7 +1367,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
 					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . $data;
+						$data = 'http://' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
