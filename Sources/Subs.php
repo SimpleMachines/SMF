@@ -1275,7 +1275,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					if (empty(parse_url($data[0], PHP_URL_SCHEME)))
 						$data[0] = 'http://' . ltrim($data[0], ':/');
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
