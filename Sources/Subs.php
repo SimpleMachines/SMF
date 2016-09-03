@@ -1913,10 +1913,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 									// Time to do the deed
 									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
-										if (!isset($disabled['email']))
-											return '[email]' . str_replace('mailto:', '', $url) . '[/email]';
+									{
+										$email_address = str_replace('mailto:', '', $url);
+										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
+											return '[email=' . $url . ']' . $url . '[/email]';
 										else
 											return $url;
+									}
 									else
 										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 								}, $data);
