@@ -41,6 +41,10 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
+/* This is specific issue on Ubuntu - Chrome */
+#chrome input {
+	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+}
 /* The following is necessary. */
 textarea, textarea.editor {
 	font-size: 1em;
