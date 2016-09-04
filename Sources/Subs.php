@@ -5383,7 +5383,7 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 	// Echo!
 	echo $data;
 
-	// Done
+	// Done.
 	obExit(false);
 }
 

@@ -34,6 +34,26 @@ if (!('getElementsByClassName' in document))
 	}
 }
 
+// Get a response from the server.
+function getServerResponse(sUrl, funcCallback, sType, sDataType)
+{
+	var oCaller = this;
+	var oMyDoc = $.ajax({
+		type: sType,
+		url: sUrl,
+		cache: false,
+		dataType: sDataType,
+		success: function(response) {
+			if (typeof(funcCallback) != 'undefined')
+			{
+				funcCallback.call(oCaller, response);
+			}
+		},
+	});
+
+	return oMyDoc;
+}
+
 // Load an XML document.
 function getXMLDocument(sUrl, funcCallback)
 {
