@@ -21,12 +21,6 @@ var is_android = ua.indexOf('android') != -1;
 
 var ajax_indicator_ele = null;
 
-// Define XMLHttpRequest for IE
-if (!('XMLHttpRequest' in window) && 'ActiveXObject' in window)
-	window.XMLHttpRequest = function () {
-		return new ActiveXObject('MSXML2.XMLHTTP');
-	};
-
 // Some older versions of Mozilla don't have this, for some reason.
 if (!('forms' in document))
 	document.forms = document.getElementsByTagName('form');
