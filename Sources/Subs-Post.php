@@ -270,7 +270,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'url',
 			'protocols' => array('http', 'https'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [url=http://...]name[/url]
@@ -284,7 +284,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'iurl',
 			'protocols' => array('http', 'https'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [iurl=http://...]name[/iurl]
@@ -298,7 +298,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'ftp',
 			'protocols' => array('ftp', 'ftps'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [ftp=ftp://...]name[/ftp]
