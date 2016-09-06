@@ -575,8 +575,6 @@ function Credits($in_admin = false)
 						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
 						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
-						'John &quot;live627&quot; Rayes',
-						'Shitiz &quot;Dragooon&quot; Garg',
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
@@ -584,7 +582,9 @@ function Credits($in_admin = false)
 						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
+						'John &quot;live627&quot; Rayes',
 						'Juan &quot;JayBachatero&quot; Hernandez',
+						'Shitiz &quot;Dragooon&quot; Garg',
 						'Karl &quot;RegularExpression&quot; Benson',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
@@ -603,29 +603,30 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'Bruno "margarett" Alves',
+						'Michele &quot;Illori&quot; Davis',
 						// Support Specialists
 						'Adam Tallon',
 						'Bigguy',
-						'Chas Large',
-						'Justyne',
+						'Bruno "margarett" Alves',
 						'Krash',
 						'Michael Colin Blaber',
-						'Storman&trade;',
-						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
-						'Yoshi',
 						// Former Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
 						'CapadY',
 						'ChalkCat',
+						'Chas Large',
 						'Duncan85',
 						'gbsothere',
 						'JimM',
+						'Justyne',
 						'Kat',
 						'Kevin &quot;greyknight17&quot; Hou',
 						'Mashby',
 						'Old Fossil',
 						'S-Ace',
+						'Storman&trade;',
+						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
+						'Yoshi',
 						'xenovanis',
 					),
 				),
@@ -633,17 +634,18 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Gary M. Gadsdon',
+
 						// Customizers
-						'Kays',
-						'Ricky.',
 						'Colin Schoen',
+						'Gary M. Gadsdon',
 						'SA™',
-						'Diego Andrés',
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
+						'Diego Andrés',
 						'Jack "akabugeyes" Thorsen',
 						'Joey &quot;Tyrsson&quot; Smith',
+						'Kays',
+						'Ricky.',
 					),
 				),
 				array(
@@ -652,23 +654,24 @@ function Credits($in_admin = false)
 						// Doc Coordinator
 						'Irisado',
 						// Doc Writers
-						'Chainy',
+
 						// Former Doc Writers
 						'AngelinaBelle',
+						'Chainy',
 						'Graeme Spence',
 						'Joshua &quot;groundup&quot; Dickerson',
-						'Michele &quot;Illori&quot; Davis',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						'Relyana',
 						// Localizers
-						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						// Former Localizers
 						'Dr. Deejay',
+						// Former Localizers
+						'Relyana',
 					),
 				),
 				array(
