@@ -578,7 +578,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 # Table structure for table `log_floodcontrol`
 #
 
-CREATE {$unlogged} TABLE {$db_prefix}log_floodcontrol (
+CREATE UNLOGGED TABLE {$db_prefix}log_floodcontrol (
   ip inet,
   log_time bigint NOT NULL default '0',
   log_type varchar(8) NOT NULL default 'post',
@@ -665,7 +665,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 # Table structure for table `log_online`
 #
 
-CREATE {$unlogged} TABLE {$db_prefix}log_online (
+CREATE UNLOGGED TABLE {$db_prefix}log_online (
   session varchar(64) NOT NULL default '',
   log_time bigint NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -1478,7 +1478,7 @@ CREATE TABLE {$db_prefix}settings (
 # Table structure for table `sessions`
 #
 
-CREATE {$unlogged} TABLE {$db_prefix}sessions (
+CREATE UNLOGGED TABLE {$db_prefix}sessions (
   session_id char(64) NOT NULL,
   last_update bigint NOT NULL,
   data text NOT NULL,
