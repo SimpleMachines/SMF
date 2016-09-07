@@ -1974,7 +1974,7 @@ if ($result !== false)
 	$smcFunc['db_free_result']($result);
 }
 
-if(isset($pg_version) && $pg_version >= 90100)
+if(isset($pg_version))
 {
 	$tables = array('log_online','log_floodcontrol','sessions');
 	foreach($tables as $tab)

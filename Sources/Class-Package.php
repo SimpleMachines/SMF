@@ -793,6 +793,7 @@ class ftp_connection
 		if (!$this->connection)
 		{
 			$this->error = 'bad_server';
+            		$this->last_message = 'Invalid Server';
 			return;
 		}
 
@@ -800,22 +801,27 @@ class ftp_connection
 		if (!$this->check_response(220))
 		{
 			$this->error = 'bad_response';
+		        $this->last_message = 'Bad Response';
 			return;
 		}
 
 		// Send the username, it should ask for a password.
 		fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
+
 		if (!$this->check_response(331))
 		{
 			$this->error = 'bad_username';
+			$this->last_message = 'Invalid Username';
 			return;
 		}
 
 		// Now send the password... and hope it goes okay.
+
 		fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
 		if (!$this->check_response(230))
 		{
 			$this->error = 'bad_password';
+			$this->last_message = 'Invalid Password';
 			return;
 		}
 	}
