@@ -565,6 +565,8 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
+						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+						// Former Project Managers
 						'Kindred',
 					),
 				),
@@ -574,7 +576,7 @@ function Credits($in_admin = false)
 						// Lead Developer
 						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
-						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
@@ -668,7 +670,6 @@ function Credits($in_admin = false)
 					'members' => array(
 						// Lead Localizer
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						'Relyana',
 						// Localizers
 						'Dr. Deejay',
 						// Former Localizers
@@ -699,7 +700,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy van Hoewijk',
+						'Liroy van Hoewijk (CoreISP)',
 					),
 				),
 			),
