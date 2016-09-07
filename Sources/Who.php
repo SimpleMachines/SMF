@@ -608,6 +608,7 @@ function Credits($in_admin = false)
 						'Adam Tallon',
 						'Bigguy',
 						'Bruno "margarett" Alves',
+						'br360',
 						'Krash',
 						'Michael Colin Blaber',
 						// Former Support Specialists
@@ -634,7 +635,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-
+						'Russell "NEND" Najar'.
 						// Customizers
 						'Colin Schoen',
 						'Gary M. Gadsdon',
