@@ -270,7 +270,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'url',
 			'protocols' => array('http', 'https'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [url=http://...]name[/url]
@@ -284,7 +284,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'iurl',
 			'protocols' => array('http', 'https'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [iurl=http://...]name[/iurl]
@@ -298,7 +298,7 @@ function fixTags(&$message)
 		array(
 			'tag' => 'ftp',
 			'protocols' => array('ftp', 'ftps'),
-			'embeddedUrl' => true,
+			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [ftp=ftp://...]name[/ftp]
@@ -412,7 +412,12 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 	$replaces = array();
 
-	if ($hasEqualSign)
+	if ($hasEqualSign && $embeddedUrl)
+	{
+		$quoted = preg_match('~\[(' . $myTag . ')=&quot;~', $message);
+		preg_match_all('~\[(' . $myTag . ')=' . ($quoted ? '&quot;(.*?)&quot;' : '([^\]]*?)') . '\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
+	}
+	elseif ($hasEqualSign)
 		preg_match_all('~\[(' . $myTag . ')=([^\]]*?)\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
 	else
 		preg_match_all('~\[(' . $myTag . ($hasExtra ? '(?:[^\]]*?)' : '') . ')\](.+?)\[/(' . $myTag . ')\]~is', $message, $matches);
@@ -453,7 +458,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
-			$replaces[$matches[0][$k]] = '[' . $this_tag . '=' . $replace . ']' . (empty($matches[4][$k]) ? '' : $matches[3][$k] . '[/' . $this_close . ']');
+			$replaces[$matches[0][$k]] = '[' . $this_tag . '=&quot;' . $replace . '&quot;]' . (empty($matches[4][$k]) ? '' : $matches[3][$k] . '[/' . $this_close . ']');
 		elseif ($hasEqualSign)
 			$replaces['[' . $matches[1][$k] . '=' . $matches[2][$k] . ']'] = '[' . $this_tag . '=' . $replace . ']';
 		elseif ($embeddedUrl)
