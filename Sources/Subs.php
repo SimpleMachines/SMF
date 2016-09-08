@@ -5046,7 +5046,7 @@ function inet_dtop($bin)
 	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
 		$ip_address = $bin;
 
-	// No valid IP address? Return an empty string.
+	// No valid IP address? Return false.
 	else
 		$ip_address = false;
 
