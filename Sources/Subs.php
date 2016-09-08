@@ -5036,15 +5036,22 @@ function inet_dtop($bin)
 	// No IP address given?
 	if(empty($bin))
 		$ip_address =  '';
-	// A IPv4 address? Just return it.
+
+	// An unencoded IPv4 address? Just return it.
 	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		$ip_address = $bin;
-	// @todo Need a smarter check for possible IPv6 addresses than just checking the database type.
-	elseif ($db_type == 'postgresql')
-		$ip_address = $bin;
-	// A binary encoding of an IP address? Convert it to a string.
-	else
+
+	// A binary encoded IPv6 address? Decode it. Need to check this first because a binary encoded IPv6 can also be a valid IPv6.
+	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
 		$ip_address = inet_ntop($bin);
+
+	// An unencoded IPv6 address? Just return it.
+	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
+		$ip_address = $bin;
+
+	// No valid IP address? Return an empty string.
+	else
+		$ip_address = '';
 
 	return $ip_address;
 }
