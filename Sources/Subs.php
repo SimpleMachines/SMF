@@ -5042,7 +5042,7 @@ function inet_dtop($bin)
 		$ip_address = $bin;
 
 	// A binary encoded IPv6 address? Decode it. Need to check this first because a binary encoded IPv6 can also be a valid IPv6.
-	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
+	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP) !== false)
 		$ip_address = inet_ntop($bin);
 
 	// An unencoded IPv6 address? Just return it.
