@@ -5033,10 +5033,16 @@ function inet_dtop($bin)
 {
 	global $db_type;
 
+	// No IP address given?
 	if(empty($bin))
 		$ip_address =  '';
-	elseif (!filter_var($bin, FILTER_VALIDATE_IP) === false || $db_type == 'postgresql')
+	// A IPv4 address? Just return it.
+	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		$ip_address = $bin;
+	// @todo Need a smarter check for possible IPv6 addresses than just checking the database type.
+	elseif ($db_type == 'postgresql')
+		$ip_address = $bin;
+	// A binary encoding of an IP address? Convert it to a string.
 	else
 		$ip_address = inet_ntop($bin);
 
