@@ -5031,15 +5031,14 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if(empty($bin))
-		return '';
-
 	global $db_type;
 
-	if ($db_type == 'postgresql')
-		return $bin;
-
-	$ip_address = inet_ntop($bin);
+	if(empty($bin))
+		$ip_address =  '';
+	elseif (!filter_var($bin, FILTER_VALIDATE_IP) === false || $db_type == 'postgresql')
+		$ip_address = $bin;
+	else
+		$ip_address = inet_ntop($bin);
 
 	return $ip_address;
 }
