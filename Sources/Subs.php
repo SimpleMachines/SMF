@@ -5033,15 +5033,12 @@ function inet_dtop($bin)
 {
 	global $db_type;
 
-	// No IP address given?
-	if(empty($bin))
-		$ip_address =  '';
-
 	// An unencoded IPv4 address? Just return it.
-	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
+	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		$ip_address = $bin;
 
-	// A binary encoded IPv6 address? Decode it. Need to check this first because a binary encoded IPv6 can also be a valid IPv6.
+	// A binary encoded address? Decode it.
+	// Need to check this first because a binary encoded IP can also be a valid IPv6.
 	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP) !== false)
 		$ip_address = inet_ntop($bin);
 
