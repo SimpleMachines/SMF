@@ -5033,22 +5033,22 @@ function inet_dtop($bin)
 {
 	global $db_type;
 
-	// An unencoded IPv4 address? Just return it.
+	// An unpacked IPv4 address? Just return it.
 	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		$ip_address = $bin;
 
-	// A binary encoded address? Decode it.
-	// Need to check this first because a binary encoded IP can also be a valid IPv6.
+	// A packed IP address? Unpack it.
+	// Need to check this first because a packed IP might take a form that validates as an IPv6.
 	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP) !== false)
 		$ip_address = inet_ntop($bin);
 
-	// An unencoded IPv6 address? Just return it.
+	// An unpacked IPv6 address? Just return it.
 	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
 		$ip_address = $bin;
 
 	// No valid IP address? Return an empty string.
 	else
-		$ip_address = '';
+		$ip_address = false;
 
 	return $ip_address;
 }
