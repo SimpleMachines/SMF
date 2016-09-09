@@ -1916,7 +1916,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									{
 										$email_address = str_replace('mailto:', '', $url);
 										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
-											return '[email=' . $url . ']' . $url . '[/email]';
+											return '[email=' . $email_address . ']' . $url . '[/email]';
 										else
 											return $url;
 									}
