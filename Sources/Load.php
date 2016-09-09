@@ -2260,10 +2260,6 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 
 	if ($loaded)
 	{
-		// For compatibility reasons, if this is the index template without new functions, include compatible stuff.
-		if (substr($template_name, 0, 5) == 'index' && !function_exists('template_button_strip'))
-			loadTemplate('Compat');
-
 		if ($db_show_debug === true)
 			$context['debug']['templates'][] = $template_name . ' (' . basename($template_dir) . ')';
 
