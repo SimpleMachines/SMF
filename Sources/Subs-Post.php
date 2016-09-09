@@ -449,7 +449,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			else
+			elseif (substr($replace, 0, 2) != '//')
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
