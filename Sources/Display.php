@@ -1407,6 +1407,13 @@ function prepareDisplayContext($reset = false)
 	censorText($message['body']);
 	censorText($message['subject']);
 
+	$start = microtime(true);
+	for($i = 0; $i < 1000; $i++){
+		$foo = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+	}
+	$time_elapsed_secs = microtime(true) - $start;
+	log_error('1000 iterations of parse_bbc took ' . $time_elapsed_secs, 'general', __FILE__, __LINE__);
+
 	// Run BBC interpreter on the message.
 	$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 

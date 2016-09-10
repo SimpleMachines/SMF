@@ -5034,26 +5034,24 @@ function inet_dtop($bin)
 	global $db_type;
 
 	if (empty($bin))
-		$ip_address = '';
+		return '';
 
 	// An unpacked IPv4 address? Just return it.
-	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
-		$ip_address = $bin;
+	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
+		return $bin;
 
 	// A packed IP address? Unpack it.
 	// Need to check this first because a packed IP might take a form that validates as an IPv6.
-	elseif (filter_var(@inet_ntop($bin), FILTER_VALIDATE_IP) !== false)
-		$ip_address = inet_ntop($bin);
+	$unpacked = @inet_ntop($bin);
+	if ($unpacked !== false)
+		return $unpacked;
 
 	// An unpacked IPv6 address? Just return it.
-	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
-		$ip_address = $bin;
+	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
+		return $bin;
 
 	// No valid IP address? Return an empty string.
-	else
-		$ip_address = '';
-
-	return $ip_address;
+	return '';
 }
 
 /**
