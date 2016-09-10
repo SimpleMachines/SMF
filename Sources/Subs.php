@@ -4982,9 +4982,31 @@ function inet_dtop($bin)
 	if ($db_type == 'postgresql')
 		return $bin;
 
-	$ip_address = inet_ntop($bin);
+	//http://stackoverflow.com/questions/1241728/can-i-try-catch-a-warning
+	set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext)
+		{
+			// error was suppressed with the @-operator
+			if (0 === error_reporting())
+			{
+				return false;
+			}
 
-	return $ip_address;
+			throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+		}
+	);
+
+	try
+	{
+	 $var = inet_ntop($bin);
+	 restore_error_handler();
+	 return $var;
+	}
+	catch(ErrorException $e)
+	{
+	    log_error($e->getMessage(),'general', $e->getFile(), $e->getLine());
+		restore_error_handler();
+		return false;
+	}
 }
 
 /**
