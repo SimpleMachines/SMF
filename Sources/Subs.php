@@ -1861,7 +1861,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	(?:									# Either:
 		\b[a-z][\w-]+:					# URL scheme and colon
 		|								#  or
-		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemaless URLs like "//example.com")
+		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
 	)						
 	(?:
 		/{1,3}							# 1-3 slashes
@@ -1908,12 +1908,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									if (empty(parse_url($url, PHP_URL_SCHEME)))
 									{
 										$fullUrl = 'http://' . ltrim($url, ':/');
-										$schemaless = true;
+										$schemeless = true;
 									}
 									else
 									{
 										$fullUrl = $url;
-										$schemaless = false;
+										$schemeless = false;
 									}
 									
 									// Make sure that $fullUrl really is a valid URL, including a valid host name
@@ -1931,7 +1931,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									}
 									else
 									{
-										if ($schemaless)
+										if ($schemeless)
 											$fullUrl = str_replace('http:', '', $fullUrl);
 
 										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
