@@ -1858,52 +1858,48 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						$url_regex = '(?xi)
 (?:
-	(?:									# Either:
-		\b[a-z][\w-]+:					# URL scheme and colon
-		|								#  or
+	(?:											# Either:
+		\b[a-z][\w-]+:							# URL scheme and colon
+		|										#  or
 		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
 	)						
 	(?:
-		/{1,3}							# 1-3 slashes
-		|								#	or
-		[a-z0-9%]						# Single letter or digit or "%"
-										# (Trying not to match e.g. "URI::Escape")
+		/{1,3}									# 1-3 slashes
+		|										#	or
+		[\p{L}\p{M}\p{N}%]						# Single letter or digit or "%"
+												# (Trying not to match e.g. "URI::Escape")
 	)
-	|									#	or
-	www\d{0,3}[.]						# "www.", "www1.", "www2." … "www999."
-	|									#	or
-	[a-z0-9.\-]+[.][a-z]{2,4}/			# looks like domain name followed by a slash
+	|											#	or
+	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
+	|											#	or
+	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,4}/	# looks like domain name followed by a slash
 )
-(?:										# One or more:
-	[^\s()<>]+							# Run of non-space, non-()<>
-	|									#	or
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
+(?:												# One or more:
+	[^\s()<>]+									# Run of non-space, non-()<>
+	|											#	or
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
 )+
-(?:										# End with:
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
-	|									#	or
-	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]		# not a space or one of these punct char
+(?:												# End with:
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
+	|											#	or
+	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]				# not a space or one of these punct char
 )
 
-|										# OR, the following to match naked domains:
+|												# OR, the following to match naked domains:
 (?:
-	(?<!@)								# not preceded by a @, avoid matching foo@_gmail.com_
-	\b[a-z0-9]+
-	(?:[.\-][a-z0-9]+)*
+	(?<!@)										# not preceded by a @, avoid matching foo@_gmail.com_
+	\b[\p{L}\p{M}\p{N}]+
+	(?:[.\-][\p{L}\p{M}\p{N}]+)*
 	[.]
 	'. $tld_regex . '
 	\b
 	/?
-	(?!@)								# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
+	(?!@)										# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
 )';
 
 						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
 									$url = array_shift($matches);
 
-									// If this isn't a clean URL, bail out
-									if ($url != filter_var($url, FILTER_SANITIZE_URL))
-										return $url;
-									
 									// Are we linking a naked domain name (e.g. "example.com")?
 									if (empty(parse_url($url, PHP_URL_SCHEME)))
 									{
@@ -1916,10 +1912,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										$schemeless = false;
 									}
 									
-									// Make sure that $fullUrl really is a valid URL, including a valid host name
-									if (filter_var($fullUrl, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED) === false)
-										return $url;
-
 									// Time to do the deed
 									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
 									{
