@@ -5033,8 +5033,11 @@ function inet_dtop($bin)
 {
 	global $db_type;
 
+	if (empty($bin))
+		$ip_address = '';
+
 	// An unpacked IPv4 address? Just return it.
-	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
+	elseif (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		$ip_address = $bin;
 
 	// A packed IP address? Unpack it.
