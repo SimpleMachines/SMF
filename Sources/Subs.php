@@ -5031,8 +5031,6 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	global $db_type;
-
 	if (empty($bin))
 		return '';
 
