@@ -4969,8 +4969,9 @@ function inet_ptod($ip_address)
 }
 
 /**
+ * Convert the ip field of a database output in a string
  * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
- * @return string The IP address in presentation format or false on error
+ * @return string The IP address in presentation format, null will be an emtpy string or false on error
  */
 function inet_dtop($bin)
 {
