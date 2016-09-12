@@ -1316,12 +1316,22 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (!server_parse(null, $socket, '220'))
 		return false;
 
+	// Try and determine the servers name, fall back to the mail servers if not found
+	$helo = false;
+	if(function_exists('gethostname') && gethostname() !== false)
+		$helo = gethostname();
+	elseif(function_exists('php_uname'))
+		$helo = php_uname('n');
+	elseif(array_key_exists('SERVER_NAME',$_SERVER) && !empty($_SERVER['SERVER_NAME']))
+		$helo = $_SERVER['SERVER_NAME'];
+
+	if(empty($helo)) 
+		$helo	= $modSettings['smtp_host'];
+
 	if ($modSettings['mail_type'] == 1 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
-		// @todo These should send the CURRENT server's name, not the mail server's!
-
 		// EHLO could be understood to mean encrypted hello...
-		if (server_parse('EHLO ' . $modSettings['smtp_host'], $socket, null) == '250')
+		if (server_parse('EHLO ' . $helo, $socket, null) == '250')
 		{
 			if (!server_parse('AUTH LOGIN', $socket, '334'))
 				return false;
@@ -1332,13 +1342,13 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 			if (!server_parse($modSettings['smtp_password'], $socket, '235'))
 				return false;
 		}
-		elseif (!server_parse('HELO ' . $modSettings['smtp_host'], $socket, '250'))
+		elseif (!server_parse('HELO ' . $helo, $socket, '250'))
 			return false;
 	}
 	else
 	{
 		// Just say "helo".
-		if (!server_parse('HELO ' . $modSettings['smtp_host'], $socket, '250'))
+		if (!server_parse('HELO ' . $helo, $socket, '250'))
 			return false;
 	}
 
