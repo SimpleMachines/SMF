@@ -637,7 +637,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Russell "NEND" Najar'.
+						'Russell "NEND" Najar',
 						// Customizers
 						'Colin Schoen',
 						'Gary M. Gadsdon',
