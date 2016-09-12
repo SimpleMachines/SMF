@@ -641,7 +641,8 @@ function Credits($in_admin = false)
 						// Customizers
 						'Colin Schoen',
 						'Gary M. Gadsdon',
-						'SA™',
+						'Jason "JBlaze" Clemons',
+						'SA&#8482;',
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
 						'Diego Andrés',
@@ -726,9 +727,12 @@ function Credits($in_admin = false)
 			array(
 				'title' => $txt['credits_groups_consultants'],
 				'members' => array(
+					'albertlast',
 					'Brett Flannigan',
+					'Jon "Sesquipedalian" Stovell',
 					'Mark Rose',
 					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
+					'tinoest',
 				),
 			),
 			array(
