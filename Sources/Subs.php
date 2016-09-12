@@ -1275,7 +1275,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
-					if (empty(parse_url($data[0], PHP_URL_SCHEME)))
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
@@ -1320,7 +1321,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
@@ -1337,7 +1339,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
@@ -1352,7 +1355,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
 			),
@@ -1366,7 +1370,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
@@ -1605,7 +1610,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
 			),
@@ -1617,7 +1623,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
@@ -1900,20 +1907,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
 									$url = array_shift($matches);
 
-									// Are we linking a naked domain name (e.g. "example.com")?
-									if (empty(parse_url($url, PHP_URL_SCHEME)))
-									{
-										$fullUrl = 'http://' . ltrim($url, ':/');
-										$schemeless = true;
-									}
-									else
-									{
-										$fullUrl = $url;
-										$schemeless = false;
-									}
-									
-									// Time to do the deed
-									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
+									$scheme = parse_url($url, PHP_URL_SCHEME);
+
+									if ($scheme == 'mailto')
 									{
 										$email_address = str_replace('mailto:', '', $url);
 										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
@@ -1921,13 +1917,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										else
 											return $url;
 									}
-									else
-									{
-										if ($schemeless)
-											$fullUrl = str_replace('http:', '', $fullUrl);
 
-										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
-									}
+									// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+									if (empty($scheme))
+										$fullUrl = '//' . ltrim($url, ':/');
+
+									return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 								}, $data);
 					}
 
