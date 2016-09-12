@@ -1391,31 +1391,29 @@ function UnreadTopics()
 	if ($is_topics)
 	{
 		$context['recent_buttons'] = array(
-			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="'.  $txt['are_sure_mark_read'] .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'custom' => 'data-confirm="'.  $txt['are_sure_mark_read'] .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
 		);
 
 		if ($context['showCheckboxes'])
 			$context['recent_buttons']['markselectread'] = array(
 				'text' => 'quick_mod_markread',
 				'image' => 'markselectedread.png',
-				'lang' => true,
 				'url' => 'javascript:document.quickModForm.submit();',
 			);
 
 		if (!empty($context['topics']) && !$context['showing_all_topics'])
-			$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
+			$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
 	}
 	elseif (!$is_topics && isset($context['topics_to_mark']))
 	{
 		$context['recent_buttons'] = array(
-			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="'. $txt['are_sure_mark_read']  .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="'. $txt['are_sure_mark_read']  .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		);
 
 		if ($context['showCheckboxes'])
 			$context['recent_buttons']['markselectread'] = array(
 				'text' => 'quick_mod_markread',
 				'image' => 'markselectedread.png',
-				'lang' => true,
 				'url' => 'javascript:document.quickModForm.submit();',
 			);
 	}
