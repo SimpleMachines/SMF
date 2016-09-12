@@ -612,7 +612,6 @@ function Credits($in_admin = false)
 						'Bruno "margarett" Alves',
 						'br360',
 						'Krash',
-						'Michael Colin Blaber',
 						// Former Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
 						'CapadY',
@@ -625,6 +624,7 @@ function Credits($in_admin = false)
 						'Kat',
 						'Kevin &quot;greyknight17&quot; Hou',
 						'Mashby',
+						'Michael Colin Blaber',
 						'Old Fossil',
 						'S-Ace',
 						'Storman&trade;',
