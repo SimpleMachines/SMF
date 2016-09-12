@@ -1370,9 +1370,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if (empty($scheme))
-						$data = '//' . ltrim($data, ':/');
+					else
+					{
+						$scheme = parse_url($data, PHP_URL_SCHEME);
+						if (empty($scheme))
+							$data = '//' . ltrim($data, ':/');
+					}
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
