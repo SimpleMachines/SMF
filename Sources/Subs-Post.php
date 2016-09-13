@@ -236,7 +236,7 @@ function un_preparsecode($message)
 	for ($i = 0, $n = count($parts); $i < $n; $i++)
 	{
 		// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
-		if ($i % 4 == 0)
+		if ($i % 4 == 2)
 		{
 			$code_tag = $parts[$i - 1] . $parts[$i] . $parts[$i + 1];
 			$substitute = $parts[$i - 1] . $i . $parts[$i + 1];
