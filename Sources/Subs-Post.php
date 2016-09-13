@@ -103,6 +103,8 @@ function preparsecode(&$message, $previewing = false)
 		}
 	}
 
+	$message = implode('', $parts);
+
 	// The regular expression non breaking space has many versions.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
