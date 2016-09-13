@@ -796,7 +796,7 @@ function Display()
 			$context['poll_buttons']['change_vote'] = array('text' => 'poll_change_vote', 'image' => 'poll_change_vote.png', 'url' => $scripturl . '?action=vote;topic=' . $context['current_topic'] . '.' . $context['start'] . ';poll=' . $context['poll']['id'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 		if ($context['allow_lock_poll'])
-			$context['poll_buttons']['lock'] = array('text' => (!$context['poll']['is_locked'] ? 'poll_lock' : 'poll_unlock'); 'image' => 'poll_lock.png', 'url' => $scripturl . '?action=lockvoting;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+			$context['poll_buttons']['lock'] = array('text' => (!$context['poll']['is_locked'] ? 'poll_lock' : 'poll_unlock'), 'image' => 'poll_lock.png', 'url' => $scripturl . '?action=lockvoting;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 		if ($context['allow_edit_poll'])
 			$context['poll_buttons']['edit'] = array('text' => 'poll_edit', 'image' => 'poll_edit.png', 'url' => $scripturl . '?action=editpoll;topic=' . $context['current_topic'] . '.' . $context['start']);
