@@ -248,8 +248,9 @@ function initialize_inputs()
 	if (function_exists('date_default_timezone_set'))
 	{
 		// Get PHP's default timezone, if set
-		if (!empty(ini_get('date.timezone')))
-			$timezone_id = ini_get('date.timezone');
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
 		else
 			$timezone_id = '';
 
@@ -1269,8 +1270,9 @@ function DatabasePopulation()
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
 		// Get PHP's default timezone, if set
-		if (!empty(ini_get('date.timezone')))
-			$timezone_id = ini_get('date.timezone');
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
 		else
 			$timezone_id = '';
 

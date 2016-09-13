@@ -222,8 +222,9 @@ function reloadSettings()
 	else
 	{
 		// Get PHP's default timezone, if set
-		if (!empty(ini_get('date.timezone')))
-			$modSettings['default_timezone'] = ini_get('date.timezone');
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$modSettings['default_timezone'] = $ini_tz;
 		else
 			$modSettings['default_timezone'] = '';
 
