@@ -69,7 +69,7 @@ $databases = array(
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
-		'version' => '8.0',
+		'version' => '9.1',
 		'function_check' => 'pg_connect',
 		'version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
 		'supported' => function_exists('pg_connect'),
