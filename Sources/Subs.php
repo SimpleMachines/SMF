@@ -1924,6 +1924,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
 									if (empty($scheme))
 										$fullUrl = '//' . ltrim($url, ':/');
+									else
+										$fullUrl = $url;
 
 									return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 								}, $data);
