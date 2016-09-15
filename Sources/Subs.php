@@ -5004,7 +5004,7 @@ function inet_dtop($bin)
 	}
 	catch(ErrorException $e)
 	{
-	    log_error($e->getMessage(),'general', $e->getFile(), $e->getLine());
+	    log_error($e->getMessage().'<br/>'.$e->getTraceAsString(),'general', $e->getFile(), $e->getLine());
 		restore_error_handler();
 		return false;
 	}
