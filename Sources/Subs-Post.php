@@ -462,7 +462,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
-			if (substr($replace, 0, 1) == '/')
+			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
 			elseif (substr($replace, 0, 1) == '?')
 				$replace = $scripturl . $replace;
@@ -472,7 +472,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			else
+			elseif (substr($replace, 0, 2) != '//')
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')

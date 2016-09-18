@@ -1275,8 +1275,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
-					if (empty(parse_url($data[0], PHP_URL_SCHEME)))
-						$data[0] = 'http://' . ltrim($data[0], ':/');
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data[0] = '//' . ltrim($data[0], ':/');
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
@@ -1320,10 +1321,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
 						$data = 'http://' . ltrim($data, ':/');
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
+					if ($scheme != 'https' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
@@ -1337,8 +1339,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1352,8 +1355,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
@@ -1366,8 +1370,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					else
+					{
+						$scheme = parse_url($data, PHP_URL_SCHEME);
+						if (empty($scheme))
+							$data = '//' . ltrim($data, ':/');
+					}
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1605,8 +1613,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
@@ -1617,8 +1626,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1857,71 +1867,67 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$tld_regex = '(?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|ja|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)';
 
 						$url_regex = '(?xi)
-\b
 (?:
-	[a-z][\w-]+:						# URL scheme and colon
+	(?:											# Either:
+		\b[a-z][\w-]+:							# URL scheme and colon
+		|										#  or
+		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
+	)						
 	(?:
-		/{1,3}							# 1-3 slashes
-		|								#	or
-		[a-z0-9%]						# Single letter or digit or "%"
-										# (Trying not to match e.g. "URI::Escape")
+		/{1,3}									# 1-3 slashes
+		|										#	or
+		[\p{L}\p{M}\p{N}%]						# Single letter or digit or "%"
+												# (Trying not to match e.g. "URI::Escape")
 	)
-	|									#	or
-	www\d{0,3}[.]						# "www.", "www1.", "www2." … "www999."
-	|									#	or
-	[a-z0-9.\-]+[.][a-z]{2,4}/			# looks like domain name followed by a slash
+	|											#	or
+	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
+	|											#	or
+	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,4}/	# looks like domain name followed by a slash
 )
-(?:										# One or more:
-	[^\s()<>]+							# Run of non-space, non-()<>
-	|									#	or
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
+(?:												# One or more:
+	[^\s()<>]+									# Run of non-space, non-()<>
+	|											#	or
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
 )+
-(?:										# End with:
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
-	|									#	or
-	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]		# not a space or one of these punct char
+(?:												# End with:
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
+	|											#	or
+	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]				# not a space or one of these punct char
 )
 
-|										# OR, the following to match naked domains:
+|												# OR, the following to match naked domains:
 (?:
-	(?<!@)								# not preceded by a @, avoid matching foo@_gmail.com_
-	[a-z0-9]+
-	(?:[.\-][a-z0-9]+)*
+	(?<!@)										# not preceded by a @, avoid matching foo@_gmail.com_
+	\b[\p{L}\p{M}\p{N}]+
+	(?:[.\-][\p{L}\p{M}\p{N}]+)*
 	[.]
 	'. $tld_regex . '
 	\b
 	/?
-	(?!@)								# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
+	(?!@)										# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
 )';
 
 						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
 									$url = array_shift($matches);
 
-									// If this isn't a clean URL, bail out
-									if ($url != filter_var($url, FILTER_SANITIZE_URL))
-										return $url;
-									
-									// Are we linking a naked domain name (e.g. "example.com")?
-									if (empty(parse_url($url, PHP_URL_SCHEME)))
-										$fullUrl = 'http://' . ltrim($url, ':/');
-									else
-										$fullUrl = $url;
-									
-									// Make sure that $fullUrl really is a valid URL, including a valid host name
-									if (filter_var($fullUrl, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED) === false)
-										return $url;
+									$scheme = parse_url($url, PHP_URL_SCHEME);
 
-									// Time to do the deed
-									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
+									if ($scheme == 'mailto')
 									{
 										$email_address = str_replace('mailto:', '', $url);
 										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
-											return '[email=' . $url . ']' . $url . '[/email]';
+											return '[email=' . $email_address . ']' . $url . '[/email]';
 										else
 											return $url;
 									}
+
+									// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+									if (empty($scheme))
+										$fullUrl = '//' . ltrim($url, ':/');
 									else
-										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+										$fullUrl = $url;
+
+									return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 								}, $data);
 					}
 
