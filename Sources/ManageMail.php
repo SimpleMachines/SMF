@@ -309,7 +309,7 @@ function ModifyMailSettings($return_config = false)
 			array('int', 'mail_quantity'),
 		'',
 			// SMTP stuff.
-			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP')),
+			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
 			array('text', 'smtp_host'),
 			array('text', 'smtp_port'),
 			array('text', 'smtp_username'),
