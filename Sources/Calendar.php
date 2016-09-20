@@ -371,8 +371,8 @@ function CalendarPost()
 	// Otherwise, just adjust these to look nice on the input form
 	else
 	{
-		$context['event']['start_time'] = strftime($time_string, strtotime($context['event']['start_datetime']));
-		$context['event']['end_time'] = strftime($time_string, strtotime($context['event']['end_datetime']));
+		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_datetime']), $time_string);
+		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_datetime']), $time_string);
 	}
 
 	// Need this so the user can select a timezone for the event.
