@@ -1200,7 +1200,7 @@ function getNewEventDatetimes()
 		$start['hour'] = $today['hours'];
 		$start['minute'] = $today['minutes'];
 		$start['second'] = $today['seconds'];
-		$start_datetime = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start['year'], $start['month'], $start['day'], $start['hour'], $start['minute'], $start['second'])
+		$start_datetime = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start['year'], $start['month'], $start['day'], $start['hour'], $start['minute'], $start['second']);
 		$start_timestamp = $today[0];
 
 		$end['year'] = $start['year'];
