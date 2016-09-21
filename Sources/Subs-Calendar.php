@@ -1149,8 +1149,6 @@ function getEventProperties($event_id)
  */
 function getNewEventDatetimes()
 {
-	global $user_info;
-
 	$today = getdate();
 
 	$tz = isset($_REQUEST['tz']) ? $_REQUEST['tz'] : getUserTimezone();
