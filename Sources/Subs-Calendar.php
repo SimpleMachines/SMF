@@ -1205,10 +1205,10 @@ function getNewEventDatetimes()
 		$end['year'] = $start['year'];
 		$end['month'] = $start['month'];
 		$end['day'] = $start['day'];
-		$end['hour'] = $start['hour'] + 1;
-		$end['minute'] = $start['minute'];
+		$end['hour'] = ($start['hour'] < 23 ? $start['hour'] + 1 : $start['hour']);
+		$end['minute'] = ($start['hour'] < 23 ? $start['minute'] : 59);
 		$end['second'] = $start['second'];
-		$end_timestamp = $start_timestamp + 3600;
+		$end_timestamp = strtotime(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $end['year'], $end['month'], $end['day'], $end['hour'], $end['minute'], $end['second']));
 	}
 
 	$eventProperties = array(
