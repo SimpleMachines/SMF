@@ -1156,6 +1156,8 @@ function getNewEventDatetimes()
 	$tz = isset($_REQUEST['tz']) ? $_REQUEST['tz'] : getUserTimezone();
 	$allday = isset($_REQUEST['allday']) ? $_REQUEST['allday'] : (isset($_REQUEST['start_time']) ? 0 : 1);
 	$span = isset($_REQUEST['span']) ? $_REQUEST['span'] : 1;
+
+	// Was the input given as individual parameters?
 	$start_year = isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'];
 	$start_month = isset($_REQUEST['month']) ? $_REQUEST['month'] : $today['mon'];
 	$start_day = isset($_REQUEST['day']) ? $_REQUEST['day'] : $today['mday'];
@@ -1168,18 +1170,46 @@ function getNewEventDatetimes()
 	$end_hour = isset($_REQUEST['end_hour']) ? $_REQUEST['end_hour'] : ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']);
 	$end_minute = isset($_REQUEST['end_minute']) ? $_REQUEST['end_minute'] : ($today['hours'] < 23 ? $today['minutes'] : 59);
 	$end_second = isset($_REQUEST['end_second']) ? $_REQUEST['end_second'] : 0;
+
+	// ... Or as date strings and time strings? ...
 	$start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : sprintf('%04d-%02d-%02d', $start_year, $start_month, $start_day);
 	$start_time = isset($_REQUEST['start_time']) ? $_REQUEST['start_time'] : sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second);
 	$end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : sprintf('%04d-%02d-%02d', $end_year, $end_month, $end_day);
 	$end_time = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second);
+
+	// ... Or as datetime strings?
 	$start_datetime = isset($_REQUEST['start_datetime']) ? $_REQUEST['start_datetime'] : $start_date . ' ' . $start_time;
 	$end_datetime = isset($_REQUEST['end_datetime']) ? $_REQUEST['end_datetime'] : $end_date . ' ' . $end_time;
 
 	// In case we received conflicting input, use $start_datetime and $end_datetime as the final answer
 	$start = date_parse($start_datetime);
 	$end = date_parse($end_datetime);
-	$start_timestamp = strtotime($start_datetime . ' ' . $tz);
-	$end_timestamp = strtotime($end_datetime. ' ' . $tz);
+
+	// Make sure everything is valid
+	if ($start['error_count'] == 0 && $start['warning_count'] == 0 && $end['error_count'] == 0 && $end['warning_count'] == 0)
+	{
+		$start_timestamp = strtotime($start_datetime . ' ' . $tz);
+		$end_timestamp = strtotime($end_datetime . ' ' . $tz);
+	}
+	// Invalid input? Just ignore it and use $today.
+	else
+	{
+		$start['year'] = $today['year'];
+		$start['month'] = $today['mon'];
+		$start['day'] = $today['mday'];
+		$start['hour'] = $today['hours'];
+		$start['minute'] = $today['minutes'];
+		$start['second'] = $today['seconds'];
+		$start_timestamp = $today[0];
+
+		$end['year'] = $start['year'];
+		$end['month'] = $start['month'];
+		$end['day'] = $start['day'];
+		$end['hour'] = $start['hour'] + 1;
+		$end['minute'] = $start['minute'];
+		$end['second'] = $start['second'];
+		$end_timestamp = $start_timestamp + 3600;
+	}
 
 	$eventProperties = array(
 		'year' => $start['year'],
