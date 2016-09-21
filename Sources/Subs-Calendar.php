@@ -1200,6 +1200,7 @@ function getNewEventDatetimes()
 		$start['hour'] = $today['hours'];
 		$start['minute'] = $today['minutes'];
 		$start['second'] = $today['seconds'];
+		$start_datetime = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start['year'], $start['month'], $start['day'], $start['hour'], $start['minute'], $start['second'])
 		$start_timestamp = $today[0];
 
 		$end['year'] = $start['year'];
@@ -1208,7 +1209,8 @@ function getNewEventDatetimes()
 		$end['hour'] = ($start['hour'] < 23 ? $start['hour'] + 1 : $start['hour']);
 		$end['minute'] = ($start['hour'] < 23 ? $start['minute'] : 59);
 		$end['second'] = $start['second'];
-		$end_timestamp = strtotime(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $end['year'], $end['month'], $end['day'], $end['hour'], $end['minute'], $end['second']));
+		$end_datetime = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $end['year'], $end['month'], $end['day'], $end['hour'], $end['minute'], $end['second']);
+		$end_timestamp = strtotime($end_datetime);
 	}
 
 	$eventProperties = array(
