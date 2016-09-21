@@ -4943,16 +4943,24 @@ function smf_list_timezones($when = 'now')
 		'Pacific/Kiritimati' => 'Kiritimati',
 	);
 
-	$timezones = array(
-		'' => '(Forum Default)',
-		'UTC' => 'UTC - Coordinated Universal Time',
-	);
-
 	foreach ($timezone_desciptions as $tz => $desc)
 	{
 		date_timezone_set($d, timezone_open($tz));
 		$timezones[$tz] = date_format($d, 'T') . ' - ' . $desc . ' [UTC' . date_format($d, 'P') . ']';
 	}
+
+	uasort($timezones, function($a, $b)
+	{
+		$a_val = strtr(substr($a, -7, 6), array(':' => ''));
+		$b_val = strtr(substr($b, -7, 6), array(':' => ''));
+
+		if ($a_val >= $b_val)
+			return 1;
+		else
+			return -1;
+	});
+
+	$timezones = array_merge(array('' => '(Forum Default)', 'UTC' => 'UTC - Coordinated Universal Time'), $timezones);
 
 	return $timezones;
 }
