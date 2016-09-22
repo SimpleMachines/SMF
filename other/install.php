@@ -20,9 +20,9 @@ $GLOBALS['required_php_version'] = '5.3.8';
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
 // Let's pull in useful classes
-if (!defined('smf')) {
+if (!defined('SMF'))
 	define('SMF', 1);
-}
+
 require_once('Sources/Class-Package.php');
 
 // Database info.
@@ -513,7 +513,7 @@ function CheckFilesWritable()
 	);
 	if (file_exists(dirname(__FILE__) . '/Settings_bak.php'))
 		$writable_files[] = 'Settings_bak.php';
-	
+
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
 
@@ -811,7 +811,9 @@ function DatabaseSettings()
 		}
 
 		// Now include it for database functions!
-		define('SMF', 1);
+		if (!defined('SMF'))
+			define('SMF', 1);
+
 		$modSettings['disableQueryCheck'] = true;
 		if (empty($smcFunc))
 			$smcFunc = array();
