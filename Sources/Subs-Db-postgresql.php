@@ -217,7 +217,7 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'inet':
-			if ($replacement == 'null')
+			if ($replacement == 'null' || $replacement == '')
 				return 'null';
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -232,7 +232,7 @@ function smf_db_replacement__callback($matches)
 
 				foreach ($replacement as $key => $value)
 				{
-					if ($replacement == 'null')
+					if ($replacement == 'null' || $replacement == '')
 						$replacement[$key] = 'null';
 					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
