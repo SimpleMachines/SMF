@@ -574,7 +574,7 @@ function Display()
 			// Prepare the dates for being formatted.
 			if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
 			{
-				if (!in_array($row['timezone'], timezone_identifiers_list()))
+				if (!in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 					continue;
 
 				$d = date_parse($row['start_date'] . ' ' . $row['start_time']);

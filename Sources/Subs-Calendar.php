@@ -146,7 +146,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		$allday = false;
 		if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
 		{
-			if (!in_array($row['timezone'], timezone_identifiers_list()))
+			if (!in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 				continue;
 
 			$d = date_parse($row['start_date'] . ' ' . $row['start_time']);
@@ -906,7 +906,7 @@ function insertEvent(&$eventOptions)
 		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
 		$start_date, $end_date, 
 	);
-	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list()))
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{
 		$event_columns['start_time'] = 'time';
 		$event_parameters[] = $start_time;
@@ -984,7 +984,7 @@ function modifyEvent($event_id, &$eventOptions)
 		'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
 		'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
 	);
-	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list()))
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{
 		$event_columns['start_time'] = '{time:start_time}';
 		$event_parameters['start_time'] = $start_time;
@@ -1015,7 +1015,7 @@ function modifyEvent($event_id, &$eventOptions)
 		)
 	);
 
-	if (empty($start_time) || empty($end_time) || empty($tz) || !in_array($tz, timezone_identifiers_list()))
+	if (empty($start_time) || empty($end_time) || empty($tz) || !in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}calendar
@@ -1096,7 +1096,7 @@ function getEventProperties($event_id)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list())) ? true : false;
+	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 	$return_value = array(
 		'boards' => array(),
@@ -1259,9 +1259,9 @@ function setEventStartEnd($eventOptions = array())
 		$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
 
 	// Define the timezone for this event, falling back to the default if not provided
-	if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list()))
+	if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$tz = $eventOptions['tz'];
-	elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list()))
+	elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$tz = $_POST['tz'];
 	else
 		$tz = getUserTimezone();
@@ -1462,7 +1462,7 @@ function getUserTimezone($id_member = null)
 		$smcFunc['db_free_result']($request);
 	}
 
-	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list()))
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
 
 	return $timezone;
