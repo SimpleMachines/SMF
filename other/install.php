@@ -785,9 +785,9 @@ function DatabaseSettings()
 		{
 			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
 			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 		}
 
 		// God I hope it saved!
