@@ -2153,7 +2153,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		if (!empty($row['id_first_msg']) && !$row['approved'])
 			$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
 
-		$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list())) ? true : false;
+		$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 		$return[$date][] = array(
 			'id' => $row['id_event'],
