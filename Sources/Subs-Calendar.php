@@ -1151,9 +1151,13 @@ function getNewEventDatetimes()
 {
 	$today = getdate();
 
-	$tz = isset($_REQUEST['tz']) ? $_REQUEST['tz'] : getUserTimezone();
-	$allday = isset($_REQUEST['allday']) ? $_REQUEST['allday'] : (isset($_REQUEST['start_time']) ? 0 : 1);
-	$span = isset($_REQUEST['span']) ? $_REQUEST['span'] : 1;
+	$allday = isset($_REQUEST['allday']) ? (int) $_REQUEST['allday'] : (isset($_REQUEST['start_time']) ? 0 : 1);
+	$span = isset($_REQUEST['span']) ? (int) $_REQUEST['span'] : 1;
+
+	if (!empty($_REQUEST['tz']) && in_array($_REQUEST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$tz = $_REQUEST['tz'];
+	else
+		$tz = getUserTimezone();
 
 	// Was the input given as individual parameters?
 	$start_year = isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'];
