@@ -49,8 +49,7 @@ class Attachments
 
 		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$this->_attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		$this->_attachmentUploadDir = $modSettings['attachmentUploadDir'];
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
@@ -65,6 +64,9 @@ class Attachments
 
 		// Guest aren't welcome, sorry.
 		is_not_guest();
+
+		// Need this. For reasons...
+		loadLanguage('Post');
 
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
@@ -383,8 +385,6 @@ class Attachments
 	protected function setResponse($data = array())
 	{
 		global $txt;
-
-		loadLanguage('Post');
 
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(

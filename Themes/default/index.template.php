@@ -102,18 +102,20 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
-	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
-	// Some Open Graph?
-	echo '
-	<meta property="og:site_name" content="', $mbname,'">
-	<meta property="og:title" content="', $context['page_title_html_safe'],'">
-	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'">' : '',
-	!empty($settings['og_image']) ? '<meta property="og:image" content="'. $settings['og_image'].'">' : '','
-	<meta property="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'">';
+	// Content related meta tags, like description, keywords, Open Graph stuff, etc...
+	foreach ($context['meta_tags'] as $meta_tag)
+	{
+		echo '
+	<meta';
+
+		foreach ($meta_tag as $meta_key => $meta_value)
+			echo ' ', $meta_key, '="', $meta_value, '"';
+
+		echo '>';
+	}
 
 	/* What is your Lollipop's color?
 	Theme Authors you can change here to make sure your theme's main color got visible on tab */
@@ -544,8 +546,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	$buttons = array();
 	foreach ($button_strip as $key => $value)
 	{
-		// @todo this check here doesn't make much sense now (from 2.1 on), it should be moved to where the button array is generated
-		// Kept for backward compatibility
+		// As of 2.1, the 'test' for each button happens while the array is being generated. The extra 'test' check here is deprecated but kept for backward compatibility (update your mods, folks!)
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 		{
 			if (!isset($value['id']))

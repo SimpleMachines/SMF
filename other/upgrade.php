@@ -220,343 +220,6 @@ if (!function_exists('md5_hmac'))
 	}
 }
 
-// http://www.faqs.org/rfcs/rfc959.html
-if (!class_exists('ftp_connection'))
-{
-	class ftp_connection
-	{
-		var $connection = 'no_connection', $error = false, $last_message, $pasv = array();
-
-		// Create a new FTP connection...
-		function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-		{
-			if (substr($ftp_server, 0, 6) == 'ftp://')
-				$ftp_server = substr($ftp_server, 6);
-			elseif (substr($ftp_server, 0, 7) == 'ftps://')
-				$ftp_server = 'ssl://' . substr($ftp_server, 7);
-			if (substr($ftp_server, 0, 7) == 'http://')
-				$ftp_server = substr($ftp_server, 7);
-			$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
-
-			// Connect to the FTP server.
-			$this->connection = @fsockopen($ftp_server, $ftp_port, $err, $err, 5);
-			if (!$this->connection)
-			{
-				$this->error = 'bad_server';
-				return;
-			}
-
-			// Get the welcome message...
-			if (!$this->check_response(220))
-			{
-				$this->error = 'bad_response';
-				return;
-			}
-
-			// Send the username, it should ask for a password.
-			fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
-			if (!$this->check_response(331))
-			{
-				$this->error = 'bad_username';
-				return;
-			}
-
-			// Now send the password... and hope it goes okay.
-			fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
-			if (!$this->check_response(230))
-			{
-				$this->error = 'bad_password';
-				return;
-			}
-		}
-
-		function chdir($ftp_path)
-		{
-			if (!is_resource($this->connection))
-				return false;
-
-			// No slash on the end, please...
-			if (substr($ftp_path, -1) == '/' && $ftp_path !== '/')
-				$ftp_path = substr($ftp_path, 0, -1);
-
-			fwrite($this->connection, 'CWD ' . $ftp_path . "\r\n");
-			if (!$this->check_response(250))
-			{
-				$this->error = 'bad_path';
-				return false;
-			}
-
-			return true;
-		}
-
-		function chmod($ftp_file, $chmod)
-		{
-			if (!is_resource($this->connection))
-				return false;
-
-			// Convert the chmod value from octal (0777) to text ("777").
-			fwrite($this->connection, 'SITE CHMOD ' . decoct($chmod) . ' ' . $ftp_file . "\r\n");
-			if (!$this->check_response(200))
-			{
-				$this->error = 'bad_file';
-				return false;
-			}
-
-			return true;
-		}
-
-		function unlink($ftp_file)
-		{
-			// We are actually connected, right?
-			if (!is_resource($this->connection))
-				return false;
-
-			// Delete file X.
-			fwrite($this->connection, 'DELE ' . $ftp_file . "\r\n");
-			if (!$this->check_response(250))
-			{
-				fwrite($this->connection, 'RMD ' . $ftp_file . "\r\n");
-
-				// Still no love?
-				if (!$this->check_response(250))
-				{
-					$this->error = 'bad_file';
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		function check_response($desired)
-		{
-			// Wait for a response that isn't continued with -, but don't wait too long.
-			$time = time();
-			do
-				$this->last_message = fgets($this->connection, 1024);
-			while (substr($this->last_message, 3, 1) != ' ' && time() - $time < 5);
-
-			// Was the desired response returned?
-			return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
-		}
-
-		function passive()
-		{
-			// We can't create a passive data connection without a primary one first being there.
-			if (!is_resource($this->connection))
-				return false;
-
-			// Request a passive connection - this means, we'll talk to you, you don't talk to us.
-			@fwrite($this->connection, 'PASV' . "\r\n");
-			$time = time();
-			do
-				$response = fgets($this->connection, 1024);
-			while (substr($response, 3, 1) != ' ' && time() - $time < 5);
-
-			// If it's not 227, we weren't given an IP and port, which means it failed.
-			if (substr($response, 0, 4) != '227 ')
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			// Snatch the IP and port information, or die horribly trying...
-			if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0)
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			// This is pretty simple - store it for later use ;).
-			$this->pasv = array('ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]);
-
-			return true;
-		}
-
-		function create_file($ftp_file)
-		{
-			// First, we have to be connected... very important.
-			if (!is_resource($this->connection))
-				return false;
-
-			// I'd like one passive mode, please!
-			if (!$this->passive())
-				return false;
-
-			// Seems logical enough, so far...
-			fwrite($this->connection, 'STOR ' . $ftp_file . "\r\n");
-
-			// Okay, now we connect to the data port.  If it doesn't work out, it's probably "file already exists", etc.
-			$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-			if (!$fp || !$this->check_response(150))
-			{
-				$this->error = 'bad_file';
-				@fclose($fp);
-				return false;
-			}
-
-			// This may look strange, but we're just closing it to indicate a zero-byte upload.
-			fclose($fp);
-			if (!$this->check_response(226))
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			return true;
-		}
-
-		function list_dir($ftp_path = '', $search = false)
-		{
-			// Are we even connected...?
-			if (!is_resource($this->connection))
-				return false;
-
-			// Passive... non-agressive...
-			if (!$this->passive())
-				return false;
-
-			// Get the listing!
-			fwrite($this->connection, 'LIST -1' . ($search ? 'R' : '') . ($ftp_path == '' ? '' : ' ' . $ftp_path) . "\r\n");
-
-			// Connect, assuming we've got a connection.
-			$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-			if (!$fp || !$this->check_response(array(150, 125)))
-			{
-				$this->error = 'bad_response';
-				@fclose($fp);
-				return false;
-			}
-
-			// Read in the file listing.
-			$data = '';
-			while (!feof($fp))
-				$data .= fread($fp, 4096);
-			fclose($fp);
-
-			// Everything go okay?
-			if (!$this->check_response(226))
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			return $data;
-		}
-
-		function locate($file, $listing = null)
-		{
-			if ($listing === null)
-				$listing = $this->list_dir('', true);
-			$listing = explode("\n", $listing);
-
-			@fwrite($this->connection, 'PWD' . "\r\n");
-			$time = time();
-			do
-				$response = fgets($this->connection, 1024);
-			while (substr($response, 3, 1) != ' ' && time() - $time < 5);
-
-			// Check for 257!
-			if (preg_match('~^257 "(.+?)" ~', $response, $match) != 0)
-				$current_dir = strtr($match[1], array('""' => '"'));
-			else
-				$current_dir = '';
-
-			for ($i = 0, $n = count($listing); $i < $n; $i++)
-			{
-				if (trim($listing[$i]) == '' && isset($listing[$i + 1]))
-				{
-					$current_dir = substr(trim($listing[++$i]), 0, -1);
-					$i++;
-				}
-
-				// Okay, this file's name is:
-				$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
-
-				if (substr($file, 0, 1) == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1))
-					return $listing[$i];
-				if (substr($file, -1) == '*' && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1))
-					return $listing[$i];
-				if (basename($listing[$i]) == $file || $listing[$i] == $file)
-					return $listing[$i];
-			}
-
-			return false;
-		}
-
-		function create_dir($ftp_dir)
-		{
-			// We must be connected to the server to do something.
-			if (!is_resource($this->connection))
-				return false;
-
-			// Make this new beautiful directory!
-			fwrite($this->connection, 'MKD ' . $ftp_dir . "\r\n");
-			if (!$this->check_response(257))
-			{
-				$this->error = 'bad_file';
-				return false;
-			}
-
-			return true;
-		}
-
-		function detect_path($filesystem_path, $lookup_file = null)
-		{
-			$username = '';
-
-			if (isset($_SERVER['DOCUMENT_ROOT']))
-			{
-				if (preg_match('~^/home[2]?/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
-				{
-					$username = $match[1];
-
-					$path = strtr($_SERVER['DOCUMENT_ROOT'], array('/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => ''));
-
-					if (substr($path, -1) == '/')
-						$path = substr($path, 0, -1);
-
-					if (strlen(dirname($_SERVER['PHP_SELF'])) > 1)
-						$path .= dirname($_SERVER['PHP_SELF']);
-				}
-				elseif (substr($filesystem_path, 0, 9) == '/var/www/')
-					$path = substr($filesystem_path, 8);
-				else
-					$path = strtr(strtr($filesystem_path, array('\\' => '/')), array($_SERVER['DOCUMENT_ROOT'] => ''));
-			}
-			else
-				$path = '';
-
-			if (is_resource($this->connection) && $this->list_dir($path) == '')
-			{
-				$data = $this->list_dir('', true);
-
-				if ($lookup_file === null)
-					$lookup_file = $_SERVER['PHP_SELF'];
-
-				$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
-				if ($found_path == false)
-					$found_path = dirname($this->locate(basename($lookup_file)));
-				if ($found_path != false)
-					$path = $found_path;
-			}
-			elseif (is_resource($this->connection))
-				$found_path = true;
-
-			return array($username, $path, isset($found_path));
-		}
-
-		function close()
-		{
-			// Goodbye!
-			fwrite($this->connection, 'QUIT' . "\r\n");
-			fclose($this->connection);
-
-			return true;
-		}
-	}
-}
-
 // Don't do security check if on Yabbse
 if (!isset($modSettings['smfVersion']))
 	$disable_security = true;
@@ -823,6 +486,7 @@ function loadEssentialData()
 
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
+	require_once($sourcedir . '/Class-Package.php');
 
 	$smcFunc['strtolower'] = 'smf_strtolower';
 
@@ -3922,7 +3586,7 @@ function convertUtf8()
 
 		// Get a list of table names ahead of time... This makes it easier to set our substep and such
 		db_extend();
-		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix);
+		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
 		$file_steps = $upcontext['table_count'];
@@ -4403,12 +4067,12 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']) && $upcontext['chmod']['ftp_error'] == 'total_mess')
 	{
 		echo '
-			<div class="error_message">
-				<div style="color: red;">The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:</div>
+			<div class="error_message red">
+				The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:<br>
 				<ul style="margin: 2.5ex; font-family: monospace;">
-				<li>' . implode('</li>
-				<li>', $upcontext['chmod']['files']). '</li>
-			</ul>
+					<li>' . implode('</li>
+					<li>', $upcontext['chmod']['files']). '</li>
+				</ul>
 			</div>';
 
 		return false;
@@ -4431,7 +4095,7 @@ function template_chmod()
 
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
-					content.write(\'<hr />\n\t\t\t\');
+					content.write(\'<hr>\n\t\t\t\');
 					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
 					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
 
@@ -4443,12 +4107,9 @@ function template_chmod()
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
-			<div class="error_message">
-				<div style="color: red;">
-					The following error was encountered when trying to connect:<br>
-					<br>
-					<code>', $upcontext['chmod']['ftp_error'], '</code>
-				</div>
+			<div class="error_message red">
+				The following error was encountered when trying to connect:<br><br>
+				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>
 			<br>';
 
@@ -4519,16 +4180,16 @@ function template_upgrade_above()
 			{
 				// What out the actual percent.
 				var width = parseInt((current / max) * 100);
-				if (document.getElementById(\'step_progress_upgrade\'))
+				if (document.getElementById(\'step_progress\'))
 				{
-					document.getElementById(\'step_progress_upgrade\').style.width = width + "%";
-					setInnerHTML(document.getElementById(\'step_text_upgrade\'), width + "%");
+					document.getElementById(\'step_progress\').style.width = width + "%";
+					setInnerHTML(document.getElementById(\'step_text\'), width + "%");
 				}
-				if (overall_weight && document.getElementById(\'overall_progress_upgrade\'))
+				if (overall_weight && document.getElementById(\'overall_progress\'))
 				{
 					overall_width = parseInt(startPercent + width * (overall_weight / 100));
-					document.getElementById(\'overall_progress_upgrade\').style.width = overall_width + "%";
-					setInnerHTML(document.getElementById(\'overall_text_upgrade\'), overall_width + "%");
+					document.getElementById(\'overall_progress\').style.width = overall_width + "%";
+					setInnerHTML(document.getElementById(\'overall_text\'), overall_width + "%");
 				}
 			}
 		</script>
@@ -4540,7 +4201,13 @@ function template_upgrade_above()
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 	<div id="wrapper">
-	<div id="upper_section">
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap">
+				</div>
+			</div>
+		</div>
+		<div id="content_section">
 		<div id="main_content_section">
 			<div id="main_steps">
 				<h2>', $txt['upgrade_progress'], '</h2>
@@ -4554,28 +4221,28 @@ function template_upgrade_above()
 					</ul>
 			</div>
 
-			<div id="progress">
-				<div id="overall_text_upgrade">', $upcontext['overall_percent'], '%</div>
-				<div id="overall_progress_upgrade" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
-				<div class="over_progress">', $txt['upgrade_overall_progress'], '</div>
+			<div id="progress_bar">
+				<div id="overall_text">', $upcontext['overall_percent'], '%</div>
+				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
+				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
 			</div>';
 
 	if (isset($upcontext['step_progress']))
 		echo '
 				<br>
 				<br>
-				<div id="progress">
-					<div id="step_text_upgrade">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress_upgrade" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
-					<div class="over_progress">', $txt['upgrade_step_progress'], '</div>
-					</div>';
+				<div id="progress_bar_step">
+					<div id="step_text">', $upcontext['step_progress'], '%</div>
+					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
+					<div class="overall_progress">', $txt['upgrade_step_progress'], '</div>
+				</div>';
 
 	echo '
 				<div id="substep_bar_div" class="smalltext" style="float: left;width: 50%;margin-top: 0.6em;display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
 				<div id="substep_bar_div2" style="float: left;font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 33%; margin: 0.6em auto 0 6em; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
 					<div id="substep_text" style="color: #000; position: absolute; margin-left: -5em;">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</div>
-				<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
-								</div>';
+					<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
+				</div>';
 
 	// How long have we been running this?
 	$elapsed = time() - $upcontext['started'];
@@ -4589,7 +4256,6 @@ function template_upgrade_above()
 	echo '
 			</div>
 			</div>
-			<div id="content_section">
 			<div id="main_screen" class="clear">
 				<h2>', $upcontext['page_title'], '</h2>
 				<div class="panel">
@@ -4634,7 +4300,6 @@ function template_upgrade_below()
 				</div>
 			</div>
 			</div>
-		</div>
 		</div>
 		<div id="footer">
 			<ul>
@@ -4693,10 +4358,8 @@ function template_error_message()
 	global $upcontext;
 
 	echo '
-	<div class="error_message">
-		<div style="color: red;">
-			', $upcontext['error_msg'], '
-		</div>
+	<div class="error_message red">
+		', $upcontext['error_msg'], '
 		<br>
 		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
 	</div>';

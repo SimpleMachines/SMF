@@ -139,8 +139,8 @@ function Memberlist()
 
 	// Build the memberlist button array.
 	$context['memberlist_buttons'] = array(
-		'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all', 'active'=> true),
-		'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search'),
+		'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'url' => $scripturl . '?action=mlist' . ';sa=all', 'active'=> true),
+		'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'url' => $scripturl . '?action=mlist' . ';sa=search'),
 	);
 
 	// Allow mods to add additional buttons here

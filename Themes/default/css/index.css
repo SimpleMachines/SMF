@@ -2,7 +2,6 @@
 /* Index */
 html {
 	background: #3e5a78;
-	height: 100%;
 }
 body {
 	background: #e9eef2;
@@ -10,8 +9,9 @@ body {
 	color: #4d4d4d;
 	margin: 0;
 	padding: 0;
-	min-height: 100%;
-	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -40,6 +40,10 @@ input, button, select, textarea, textarea.editor {
 	border-radius: 3px;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
+}
+/* This is specific issue on Ubuntu - Chrome */
+#chrome input {
+	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
 /* The following is necessary. */
 textarea, textarea.editor {
@@ -951,6 +955,7 @@ img.sort, .sort {
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .button {
 	font-size: 0.889em;
+	color: #346;
 }
 .button:hover {
 	color: #af6700;
@@ -1229,9 +1234,7 @@ ul li.greeting {
 	padding: 10px 5%;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
-	position:absolute;
-	bottom: 0;
-	width: 100%;
+	flex: none;
 }
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
@@ -1245,8 +1248,8 @@ ul li.greeting {
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
 
-#footerfix{
-	padding-bottom: 75px;
+#footerfix {
+	flex: 1 0 auto;
 }
 /* the posting icons */
 #postbuttons_upper ul li a span {
@@ -1397,6 +1400,7 @@ ul li.greeting {
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
+	cursor: pointer;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -2996,9 +3000,6 @@ span.postby {
 .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
 	border: none;
 }
-.icons {
-	padding: 0 7px;
-}
 .moderation {
 	display: table-cell;
 	min-width: 35px;
@@ -3650,8 +3651,11 @@ p.information img {
 .off {
 	background: grey;
 }
+#firefox .on, #firefox .off {
+	margin: 0 0 5px 0;
+}
 #userstatus .smalltext {
-	margin: 0 0 0 20px !important;
+	margin: 0 0 0 5px !important;
 }
 
 /* Styles for print media. */

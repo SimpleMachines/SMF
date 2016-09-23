@@ -21,12 +21,6 @@ var is_android = ua.indexOf('android') != -1;
 
 var ajax_indicator_ele = null;
 
-// Define XMLHttpRequest for IE
-if (!('XMLHttpRequest' in window) && 'ActiveXObject' in window)
-	window.XMLHttpRequest = function () {
-		return new ActiveXObject('MSXML2.XMLHTTP');
-	};
-
 // Some older versions of Mozilla don't have this, for some reason.
 if (!('forms' in document))
 	document.forms = document.getElementsByTagName('form');
@@ -40,67 +34,65 @@ if (!('getElementsByClassName' in document))
 	}
 }
 
-// Load an XML document using XMLHttpRequest.
-function getXMLDocument(sUrl, funcCallback)
+// Get a response from the server.
+function getServerResponse(sUrl, funcCallback, sType, sDataType)
 {
-	if (!window.XMLHttpRequest)
-		return null;
-
-	var oMyDoc = new XMLHttpRequest();
-	var bAsync = typeof(funcCallback) != 'undefined';
 	var oCaller = this;
-	if (bAsync)
-	{
-		oMyDoc.onreadystatechange = function () {
-			if (oMyDoc.readyState != 4)
-				return;
-
-			if (oMyDoc.responseXML != null && oMyDoc.status == 200)
+	var oMyDoc = $.ajax({
+		type: sType,
+		url: sUrl,
+		cache: false,
+		dataType: sDataType,
+		success: function(response) {
+			if (typeof(funcCallback) != 'undefined')
 			{
-				if (funcCallback.call)
-				{
-					funcCallback.call(oCaller, oMyDoc.responseXML);
-				}
-				// A primitive substitute for the call method to support IE 5.0.
-				else
-				{
-					oCaller.tmpMethod = funcCallback;
-					oCaller.tmpMethod(oMyDoc.responseXML);
-					delete oCaller.tmpMethod;
-				}
+				funcCallback.call(oCaller, response);
 			}
-		};
-	}
-	oMyDoc.open('GET', sUrl, bAsync);
-	oMyDoc.send(null);
+		},
+	});
 
 	return oMyDoc;
 }
 
-// Send a post form to the server using XMLHttpRequest.
+// Load an XML document.
+function getXMLDocument(sUrl, funcCallback)
+{
+	var oCaller = this;
+	var oMyDoc = $.ajax({
+		type: 'GET',
+		url: sUrl,
+		cache: false,
+		dataType: 'xml',
+		success: function(responseXML) {
+			if (typeof(funcCallback) != 'undefined')
+			{
+				funcCallback.call(oCaller, responseXML);
+			}
+		},
+	});
+
+	return oMyDoc;
+}
+
+// Send a post form to the server.
 function sendXMLDocument(sUrl, sContent, funcCallback)
 {
-	if (!window.XMLHttpRequest)
-		return false;
-
-	var oSendDoc = new window.XMLHttpRequest();
 	var oCaller = this;
-	if (typeof(funcCallback) != 'undefined')
-	{
-		oSendDoc.onreadystatechange = function () {
-			if (oSendDoc.readyState != 4)
-				return;
-
-			if (oSendDoc.responseXML != null && oSendDoc.status == 200)
-				funcCallback.call(oCaller, oSendDoc.responseXML);
-			else
-				funcCallback.call(oCaller, false);
-		};
-	}
-	oSendDoc.open('POST', sUrl, true);
-	if ('setRequestHeader' in oSendDoc)
-		oSendDoc.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	oSendDoc.send(sContent);
+	var oSendDoc = $.ajax({
+		type: 'POST',
+		url: sUrl,
+		data: sContent,
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		},
+		dataType: 'xml',
+		success: function(responseXML) {
+			if (typeof(funcCallback) != 'undefined')
+			{
+				funcCallback.call(oCaller, responseXML);
+			}
+		},
+	});
 
 	return true;
 }
@@ -1030,38 +1022,30 @@ function createEventListener(oTarget)
 function grabJumpToContent(elem)
 {
 	var oXMLDoc = getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=xmlhttp;sa=jumpto;xml');
-	var aBoardsAndCategories = new Array();
-	var bIE5x = !('implementation' in document);
+	var aBoardsAndCategories = [];
 
 	ajax_indicator(true);
 
-	if (oXMLDoc.responseXML)
-	{
-		var items = oXMLDoc.responseXML.getElementsByTagName('smf')[0].getElementsByTagName('item');
-		for (var i = 0, n = items.length; i < n; i++)
-		{
-			aBoardsAndCategories[aBoardsAndCategories.length] = {
-				id: parseInt(items[i].getAttribute('id')),
-				isCategory: items[i].getAttribute('type') == 'category',
-				name: items[i].firstChild.nodeValue.removeEntities(),
+	oXMLDoc.done(function(data, textStatus, jqXHR){
+
+		var items = $(data).find('item');
+			items.each(function(i) {
+			aBoardsAndCategories[i] = {
+				id: parseInt($(this).attr('id')),
+				isCategory: $(this).attr('type') == 'category',
+				name: this.firstChild.nodeValue.removeEntities(),
 				is_current: false,
-				childLevel: parseInt(items[i].getAttribute('childlevel'))
+				childLevel: parseInt($(this).attr('childlevel'))
 			}
+		});
+
+		ajax_indicator(false);
+
+		for (var i = 0, n = aJumpTo.length; i < n; i++)
+		{
+			aJumpTo[i].fillSelect(aBoardsAndCategories);
 		}
-	}
-
-	ajax_indicator(false);
-
-	for (var i = 0, n = aJumpTo.length; i < n; i++)
-		aJumpTo[i].fillSelect(aBoardsAndCategories);
-
-	if (bIE5x)
-		elem.options[iIndexPointer].selected = true;
-
-	// Internet Explorer needs this to keep the box dropped down.
-	elem.style.width = 'auto';
-	elem.focus();
-
+	});
 }
 
 // This'll contain all JumpTo objects on the page.
@@ -1073,6 +1057,11 @@ function JumpTo(oJumpToOptions)
 	this.opt = oJumpToOptions;
 	this.dropdownList = null;
 	this.showSelect();
+
+	// Register a change event after the select has been created.
+	$('#' + this.opt.sContainerId).one('mouseenter', function() {
+		grabJumpToContent(this);
+	});
 }
 
 // Show the initial select box (onload). Method of the JumpTo class.
@@ -1081,7 +1070,7 @@ JumpTo.prototype.showSelect = function ()
 	var sChildLevelPrefix = '';
 	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
 		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select" ' + ('implementation' in document ? '' : 'onmouseover="grabJumpToContent(this);" ') + ('onbeforeactivate' in document ? 'onbeforeactivate' : 'onfocus') + '="grabJumpToContent(this);"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
+	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
 	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
 }
 
@@ -1271,17 +1260,23 @@ IconList.prototype.onItemMouseDown = function (oDiv, sNewIcon)
 	{
 		ajax_indicator(true);
 		this.tmpMethod = getXMLDocument;
-		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + smf_session_var + '=' + smf_session_id + ';icon=' + sNewIcon + ';xml');
+		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + smf_session_var + '=' + smf_session_id + ';icon=' + sNewIcon + ';xml'),
+		oThis = this;
 		delete this.tmpMethod;
 		ajax_indicator(false);
 
-		var oMessage = oXMLDoc.responseXML.getElementsByTagName('smf')[0].getElementsByTagName('message')[0];
-		if (oMessage.getElementsByTagName('error').length == 0)
-		{
-			if (this.opt.bShowModify && oMessage.getElementsByTagName('modified').length != 0)
-				setInnerHTML(document.getElementById('modified_' + this.iCurMessageId), oMessage.getElementsByTagName('modified')[0].childNodes[0].nodeValue);
-			this.oClickedIcon.getElementsByTagName('img')[0].src = oDiv.getElementsByTagName('img')[0].src;
-		}
+		oXMLDoc.done(function(data, textStatus, jqXHR){
+			oMessage = $(data).find('message')
+			curMessageId = oMessage.attr('id').replace( /^\D+/g, '');
+
+			if (oMessage.find('error').length == 0)
+			{
+				if (oThis.opt.bShowModify && oMessage.find('modified').length != 0)
+					$('#modified_' + curMessageId).html(oMessage.find('modified').text());
+
+				oThis.oClickedIcon.getElementsByTagName('img')[0].src = oDiv.getElementsByTagName('img')[0].src;
+			}
+		});
 	}
 }
 

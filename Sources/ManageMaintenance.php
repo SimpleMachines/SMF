@@ -2130,7 +2130,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
 				$file_name = isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : ((substr($hook, -8) === '_include') ? basename($rawFunc) : $hookParsedData['hookFile']);
-				$sort[] = $$sort_options[0];
+				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,

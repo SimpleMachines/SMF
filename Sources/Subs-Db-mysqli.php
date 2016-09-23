@@ -62,13 +62,21 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (!empty($db_options['persist']))
 		$db_server = 'p:' . $db_server;
 
-	if (!empty($db_options['port']))
-		$connection = @mysqli_connect($db_server, $db_user, $db_passwd, '', $db_options['port']);
-	else
-		$connection = @mysqli_connect($db_server, $db_user, $db_passwd);
+	$connection = mysqli_init();
+	
+	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	
+	$success = false;
+	
+	if ($connection) {
+		if (!empty($db_options['port']))
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'] , null ,$flags);
+		else
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd,'', 0, null, $flags);
+	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
-	if (!$connection)
+	if ($success === false)
 	{
 		if (!empty($db_options['non_fatal']))
 			return null;
@@ -261,7 +269,7 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'inet':
-			if ($replacement == 'null')
+			if ($replacement == 'null' || $replacement == '')
 				return 'null';
 			if (!isValidIP($replacement))
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -277,11 +285,11 @@ function smf_db_replacement__callback($matches)
 
 				foreach ($replacement as $key => $value)
 				{
-					if ($replacement == 'null')
+					if ($replacement == 'null' || $replacement == '')
 						$replacement[$key] = 'null';
-					if (!isValidIP($replacement))
+					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
+					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($value)));
 				}
 
 				return implode(', ', $replacement);

@@ -1070,7 +1070,7 @@ ALTER TABLE {$db_prefix}members
 		$smcFunc['db_insert']('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('displayFields', serialize($fields)),
+			array('displayFields', json_encode($fields)),
 			array('id_theme', 'id_member', 'variable')
 		);
 	}
@@ -1960,7 +1960,7 @@ CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(rea
 ---#
 
 /******************************************************************************/
----UNLOGGED Table PG 9.1+
+--- UNLOGGED Table PG 9.1+
 /******************************************************************************/
 ---# update table
 ---{
@@ -1974,7 +1974,7 @@ if ($result !== false)
 	$smcFunc['db_free_result']($result);
 }
 
-if(isset($pg_version) && $pg_version >= 90100)
+if(isset($pg_version))
 {
 	$tables = array('log_online','log_floodcontrol','sessions');
 	foreach($tables as $tab)

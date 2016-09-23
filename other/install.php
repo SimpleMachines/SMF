@@ -19,6 +19,12 @@ $GLOBALS['required_php_version'] = '5.3.8';
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
+// Let's pull in useful classes
+if (!defined('SMF'))
+	define('SMF', 1);
+
+require_once('Sources/Class-Package.php');
+
 // Database info.
 $databases = array(
 	'mysqli' => array(
@@ -63,7 +69,7 @@ $databases = array(
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
-		'version' => '8.0',
+		'version' => '9.1',
 		'function_check' => 'pg_connect',
 		'version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
 		'supported' => function_exists('pg_connect'),
@@ -118,6 +124,7 @@ $incontext['current_step'] = isset($_GET['step']) ? (int) $_GET['step'] : 0;
 
 // Loop through all the steps doing each one as required.
 $incontext['overall_percent'] = 0;
+
 foreach ($incontext['steps'] as $num => $step)
 {
 	if ($num >= $incontext['current_step'])
@@ -515,9 +522,11 @@ function CheckFilesWritable()
 		'Smileys',
 		'Themes',
 		'agreement.txt',
-		'Settings.php',
-		'Settings_bak.php'
+		'Settings.php'
 	);
+	if (file_exists(dirname(__FILE__) . '/Settings_bak.php'))
+		$writable_files[] = 'Settings_bak.php';
+
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
 
@@ -789,9 +798,9 @@ function DatabaseSettings()
 		{
 			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
 			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 		}
 
 		// God I hope it saved!
@@ -815,7 +824,9 @@ function DatabaseSettings()
 		}
 
 		// Now include it for database functions!
-		define('SMF', 1);
+		if (!defined('SMF'))
+			define('SMF', 1);
+
 		$modSettings['disableQueryCheck'] = true;
 		if (empty($smcFunc))
 			$smcFunc = array();
@@ -1104,25 +1115,6 @@ function DatabasePopulation()
 	else
 	{
 		$has_innodb = false;
-	}
-
-	// PostgreSQL-specific stuff - unlogged table
-	if ($db_type == 'postgresql')
-	{
-		$result = $smcFunc['db_query']('', '
-			SHOW server_version_num'
-		);
-		if ($result !== false)
-		{
-			while ($row = $smcFunc['db_fetch_assoc']($result))
-				$pg_version = $row['server_version_num'];
-			$smcFunc['db_free_result']($result);
-		}
-
-		if(isset($pg_version) && $pg_version >= 90100)
-			$replaces['{$unlogged}'] = 'UNLOGGED';
-		else
-			$replaces['{$unlogged}'] = '';
 	}
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1686,339 +1678,6 @@ function DeleteInstall()
 	return false;
 }
 
-// http://www.faqs.org/rfcs/rfc959.html
-class ftp_connection
-{
-	var $connection = 'no_connection', $error = false, $last_message, $pasv = array();
-
-	function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
-	{
-		if (substr($ftp_server, 0, 6) == 'ftp://')
-			$ftp_server = substr($ftp_server, 6);
-		elseif (substr($ftp_server, 0, 7) == 'ftps://')
-			$ftp_server = 'ssl://' . substr($ftp_server, 7);
-		if (substr($ftp_server, 0, 7) == 'http://')
-			$ftp_server = substr($ftp_server, 7);
-		$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
-
-		// Connect to the FTP server.
-		$this->connection = @fsockopen($ftp_server, $ftp_port, $err, $err, 5);
-		if (!$this->connection)
-		{
-			$this->error = 'bad_server';
-			return;
-		}
-
-		// Get the welcome message...
-		if (!$this->check_response(220))
-		{
-			$this->error = 'bad_response';
-			return;
-		}
-
-		// Send the username, it should ask for a password.
-		fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
-		if (!$this->check_response(331))
-		{
-			$this->error = 'bad_username';
-			return;
-		}
-
-		// Now send the password... and hope it goes okay.
-		fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
-		if (!$this->check_response(230))
-		{
-			$this->error = 'bad_password';
-			return;
-		}
-	}
-
-	function chdir($ftp_path)
-	{
-		if (!is_resource($this->connection))
-			return false;
-
-		// No slash on the end, please...
-		if (substr($ftp_path, -1) == '/')
-			$ftp_path = substr($ftp_path, 0, -1);
-
-		fwrite($this->connection, 'CWD ' . $ftp_path . "\r\n");
-		if (!$this->check_response(250))
-		{
-			$this->error = 'bad_path';
-			return false;
-		}
-
-		return true;
-	}
-
-	function chmod($ftp_file, $chmod)
-	{
-		if (!is_resource($this->connection))
-			return false;
-
-		// Convert the chmod value from octal (0777) to text ("777")
-		fwrite($this->connection, 'SITE CHMOD ' . decoct($chmod) . ' ' . $ftp_file . "\r\n");
-		if (!$this->check_response(200))
-		{
-			$this->error = 'bad_file';
-			return false;
-		}
-
-		return true;
-	}
-
-	function unlink($ftp_file)
-	{
-		// We are actually connected, right?
-		if (!is_resource($this->connection))
-			return false;
-
-		// Delete file X.
-		fwrite($this->connection, 'DELE ' . $ftp_file . "\r\n");
-		if (!$this->check_response(250))
-		{
-			fwrite($this->connection, 'RMD ' . $ftp_file . "\r\n");
-
-			// Still no love?
-			if (!$this->check_response(250))
-			{
-				$this->error = 'bad_file';
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	function check_response($desired)
-	{
-		// Wait for a response that isn't continued with -, but don't wait too long.
-		$time = time();
-		do
-			$this->last_message = fgets($this->connection, 1024);
-		while (substr($this->last_message, 3, 1) != ' ' && time() - $time < 5);
-
-		// Was the desired response returned?
-		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
-	}
-
-	function passive()
-	{
-		// We can't create a passive data connection without a primary one first being there.
-		if (!is_resource($this->connection))
-			return false;
-
-		// Request a passive connection - this means, we'll talk to you, you don't talk to us.
-		@fwrite($this->connection, "PASV\r\n");
-		$time = time();
-		do
-			$response = fgets($this->connection, 1024);
-		while (substr($response, 3, 1) != ' ' && time() - $time < 5);
-
-		// If it's not 227, we weren't given an IP and port, which means it failed.
-		if (substr($response, 0, 4) != '227 ')
-		{
-			$this->error = 'bad_response';
-			return false;
-		}
-
-		// Snatch the IP and port information, or die horribly trying...
-		if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0)
-		{
-			$this->error = 'bad_response';
-			return false;
-		}
-
-		// This is pretty simple - store it for later use ;)
-		$this->pasv = array('ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]);
-
-		return true;
-	}
-
-	function create_file($ftp_file)
-	{
-		// First, we have to be connected... very important.
-		if (!is_resource($this->connection))
-			return false;
-
-		// I'd like one passive mode, please!
-		if (!$this->passive())
-			return false;
-
-		// Seems logical enough, so far...
-		fwrite($this->connection, 'STOR ' . $ftp_file . "\r\n");
-
-		// Okay, now we connect to the data port.  If it doesn't work out, it's probably "file already exists", etc.
-		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-		if (!$fp || !$this->check_response(150))
-		{
-			$this->error = 'bad_file';
-			@fclose($fp);
-			return false;
-		}
-
-		// This may look strange, but we're just closing it to indicate a zero-byte upload.
-		fclose($fp);
-		if (!$this->check_response(226))
-		{
-			$this->error = 'bad_response';
-			return false;
-		}
-
-		return true;
-	}
-
-	function list_dir($ftp_path = '', $search = false)
-	{
-		// Are we even connected...?
-		if (!is_resource($this->connection))
-			return false;
-
-		// Passive... non-agressive...
-		if (!$this->passive())
-			return false;
-
-		// Get the listing!
-		fwrite($this->connection, 'LIST -1' . ($search ? 'R' : '') . ($ftp_path == '' ? '' : ' ' . $ftp_path) . "\r\n");
-
-		// Connect, assuming we've got a connection.
-		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-		if (!$fp || !$this->check_response(array(150, 125)))
-		{
-			$this->error = 'bad_response';
-			@fclose($fp);
-			return false;
-		}
-
-		// Read in the file listing.
-		$data = '';
-		while (!feof($fp))
-			$data .= fread($fp, 4096);
-		fclose($fp);
-
-		// Everything go okay?
-		if (!$this->check_response(226))
-		{
-			$this->error = 'bad_response';
-			return false;
-		}
-
-		return $data;
-	}
-
-	function locate($file, $listing = null)
-	{
-		if ($listing === null)
-			$listing = $this->list_dir('', true);
-		$listing = explode("\n", $listing);
-
-		@fwrite($this->connection, "PWD\r\n");
-		$time = time();
-		do
-			$response = fgets($this->connection, 1024);
-		while (substr($response, 3, 1) != ' ' && time() - $time < 5);
-
-		// Check for 257!
-		if (preg_match('~^257 "(.+?)" ~', $response, $match) != 0)
-			$current_dir = strtr($match[1], array('""' => '"'));
-		else
-			$current_dir = '';
-
-		for ($i = 0, $n = count($listing); $i < $n; $i++)
-		{
-			if (trim($listing[$i]) == '' && isset($listing[$i + 1]))
-			{
-				$current_dir = substr(trim($listing[++$i]), 0, -1);
-				$i++;
-			}
-
-			// Okay, this file's name is:
-			$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
-
-			if (substr($file, 0, 1) == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1))
-				return $listing[$i];
-			if (substr($file, -1) == '*' && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1))
-				return $listing[$i];
-			if (basename($listing[$i]) == $file || $listing[$i] == $file)
-				return $listing[$i];
-		}
-
-		return false;
-	}
-
-	function create_dir($ftp_dir)
-	{
-		// We must be connected to the server to do something.
-		if (!is_resource($this->connection))
-			return false;
-
-		// Make this new beautiful directory!
-		fwrite($this->connection, 'MKD ' . $ftp_dir . "\r\n");
-		if (!$this->check_response(257))
-		{
-			$this->error = 'bad_file';
-			return false;
-		}
-
-		return true;
-	}
-
-	function detect_path($filesystem_path, $lookup_file = null)
-	{
-		$username = '';
-
-		if (isset($_SERVER['DOCUMENT_ROOT']))
-		{
-			if (preg_match('~^/home[2]?/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
-			{
-				$username = $match[1];
-
-				$path = strtr($_SERVER['DOCUMENT_ROOT'], array('/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => ''));
-
-				if (substr($path, -1) == '/')
-					$path = substr($path, 0, -1);
-
-				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1)
-					$path .= dirname($_SERVER['PHP_SELF']);
-			}
-			elseif (substr($filesystem_path, 0, 9) == '/var/www/')
-				$path = substr($filesystem_path, 8);
-			else
-				$path = strtr(strtr($filesystem_path, array('\\' => '/')), array($_SERVER['DOCUMENT_ROOT'] => ''));
-		}
-		else
-			$path = '';
-
-		if (is_resource($this->connection) && $this->list_dir($path) == '')
-		{
-			$data = $this->list_dir('', true);
-
-			if ($lookup_file === null)
-				$lookup_file = $_SERVER['PHP_SELF'];
-
-			$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
-			if ($found_path == false)
-				$found_path = dirname($this->locate(basename($lookup_file)));
-			if ($found_path != false)
-				$path = $found_path;
-		}
-		elseif (is_resource($this->connection))
-			$found_path = true;
-
-		return array($username, $path, isset($found_path));
-	}
-
-	function close()
-	{
-		// Goodbye!
-		fwrite($this->connection, "QUIT\r\n");
-		fclose($this->connection);
-
-		return true;
-	}
-}
-
 function updateSettingsFile($vars)
 {
 	// Modify Settings.php.
@@ -2280,7 +1939,7 @@ function template_welcome_message()
 		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['error_warning_notice'], '</strong><br />
+			<strong style="text-decoration: underline;">', $txt['error_warning_notice'], '</strong><br>
 			<div style="padding-left: 6ex;">
 				', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
 			</div>
@@ -2331,7 +1990,7 @@ function template_warning_divs()
 		echo '
 		<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br />
+			<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br>
 			<div style="padding-left: 6ex;">
 				', $incontext['error'], '
 			</div>
@@ -2341,7 +2000,7 @@ function template_warning_divs()
 		echo '
 		<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br />
+			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
 			<div style="padding-left: 6ex;">
 				', $incontext['warning'], '
 			</div>
@@ -2363,7 +2022,7 @@ function template_chmod_files()
 
 	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux')
 		echo '
-		<hr />
+		<hr>
 		<p>', $txt['chmod_linux_info'], '</p>
 		<tt># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</tt>';
 
@@ -2372,19 +2031,16 @@ function template_chmod_files()
 		return;
 
 	echo '
-		<hr />
+		<hr>
 		<p>', $txt['ftp_setup_info'], '</p>';
 
 	if (!empty($incontext['ftp_errors']))
 		echo '
 		<div class="error_message">
-			<div style="color: red;">
-				', $txt['error_ftp_no_connect'], '<br />
-				<br />
-				<code>', implode('<br />', $incontext['ftp_errors']), '</code>
-			</div>
+			', $txt['error_ftp_no_connect'], '<br><br>
+			<code>', implode('<br>', $incontext['ftp_errors']), '</code>
 		</div>
-		<br />';
+		<br>';
 
 	echo '
 		<form action="', $incontext['form_url'], '" method="post">
@@ -2468,7 +2124,7 @@ function template_database_settings()
 			<tr id="db_server_contain">
 				<td width="20%" valign="top" class="textbox"><label for="db_server_input">', $txt['db_settings_server'], ':</label></td>
 				<td>
-					<input type="text" name="db_server" id="db_server_input" value="', $incontext['db']['server'], '" size="30" class="input_text" /><br />
+					<input type="text" name="db_server" id="db_server_input" value="', $incontext['db']['server'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_server_info'], '</div>
 				</td>
 			</tr><tr id="db_port_contain">
@@ -2480,32 +2136,32 @@ function template_database_settings()
 			</tr><tr id="db_user_contain">
 				<td valign="top" class="textbox"><label for="db_user_input">', $txt['db_settings_username'], ':</label></td>
 				<td>
-					<input type="text" name="db_user" id="db_user_input" value="', $incontext['db']['user'], '" size="30" class="input_text" /><br />
+					<input type="text" name="db_user" id="db_user_input" value="', $incontext['db']['user'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_username_info'], '</div>
 				</td>
 			</tr><tr id="db_passwd_contain">
 				<td valign="top" class="textbox"><label for="db_passwd_input">', $txt['db_settings_password'], ':</label></td>
 				<td>
-					<input type="password" name="db_passwd" id="db_passwd_input" value="', $incontext['db']['pass'], '" size="30" class="input_password" /><br />
+					<input type="password" name="db_passwd" id="db_passwd_input" value="', $incontext['db']['pass'], '" size="30" class="input_password" /><br>
 					<div class="smalltext block">', $txt['db_settings_password_info'], '</div>
 				</td>
 			</tr><tr id="db_name_contain">
 				<td valign="top" class="textbox"><label for="db_name_input">', $txt['db_settings_database'], ':</label></td>
 				<td>
-					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30" class="input_text" /><br />
+					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_database_info'], '
 					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span></div>
 				</td>
 			</tr><tr id="db_filename_contain" style="display: none;">
 				<td valign="top" class="textbox"><label for="db_filename_input">', $txt['db_settings_database_file'], ':</label></td>
 				<td>
-					<input type="text" name="db_filename" id="db_filename_input" value="', empty($incontext['db']['name']) ? dirname(__FILE__) . '/smf_' . substr(md5(microtime()), 0, 10) : stripslashes($incontext['db']['name']), '" size="30" class="input_text" /><br />
+					<input type="text" name="db_filename" id="db_filename_input" value="', empty($incontext['db']['name']) ? dirname(__FILE__) . '/smf_' . substr(md5(microtime()), 0, 10) : stripslashes($incontext['db']['name']), '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_database_file_info'], '</div>
 				</td>
 			</tr><tr>
 				<td valign="top" class="textbox"><label for="db_prefix_input">', $txt['db_settings_prefix'], ':</label></td>
 				<td>
-					<input type="text" name="db_prefix" id="db_prefix_input" value="', $incontext['db']['prefix'], '" size="30" class="input_text" /><br />
+					<input type="text" name="db_prefix" id="db_prefix_input" value="', $incontext['db']['prefix'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_prefix_info'], '</div>
 				</td>
 			</tr>
@@ -2553,7 +2209,7 @@ function template_forum_settings()
 				</td>
 				<td>
 					<input type="text" name="boardurl" id="boardurl_input" value="', $incontext['detected_url'], '" size="65" class="input_text" />
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['install_settings_url_info'], '</div>
 				</td>
 			</tr>
@@ -2570,7 +2226,7 @@ function template_forum_settings()
 							<option value="3">', $txt['install_settings_reg_disabled'], '</option>
 						</optgroup>
 					</select>
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['install_settings_reg_mode_info'], '</div>
 				</td>
 			</tr>
@@ -2579,7 +2235,7 @@ function template_forum_settings()
 				<td>
 					<input type="checkbox" name="compress" id="compress_check" checked class="input_check" />&nbsp;
 					<label for="compress_check">', $txt['install_settings_compress_title'], '</label>
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['install_settings_compress_info'], '</div>
 				</td>
 			</tr>
@@ -2588,7 +2244,7 @@ function template_forum_settings()
 				<td>
 					<input type="checkbox" name="dbsession" id="dbsession_check" checked class="input_check" />&nbsp;
 					<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
-					<br />
+					<br>
 					<div class="smalltext block">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
 				</td>
 			</tr>
@@ -2597,7 +2253,7 @@ function template_forum_settings()
 				<td>
 					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled' : '', ' />&nbsp;
 					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['install_settings_utf8_info'], '</div>
 				</td>
 			</tr>
@@ -2606,7 +2262,7 @@ function template_forum_settings()
 				<td>
 					<input type="checkbox" name="stats" id="stats_check" class="input_check" />&nbsp;
 					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['install_settings_stats_info'], '</div>
 				</td>
 			</tr>
@@ -2615,7 +2271,7 @@ function template_forum_settings()
 				<td>
 					<input type="checkbox" name="force_ssl" id="force_ssl" class="input_check" />&nbsp;
 					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
-					<br />
+					<br>
 					<div class="smalltext block">', $txt['force_ssl_info'], '</div>
 				</td>
 			</tr>
@@ -2732,8 +2388,8 @@ function template_delete_install()
 	// Install directory still writable?
 	if ($incontext['dir_still_writable'])
 		echo '
-		<em>', $txt['still_writable'], '</em><br />
-		<br />';
+		<em>', $txt['still_writable'], '</em><br>
+		<br>';
 
 	// Don't show the box if it's like 99% sure it won't work :P.
 	if ($incontext['probably_delete_install'])
@@ -2752,11 +2408,11 @@ function template_delete_install()
 				theCheck.disabled = true;
 			}
 		</script>
-		<br />';
+		<br>';
 
 	echo '
-		', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '<br />
-		<br />
+		', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '<br>
+		<br>
 		', $txt['good_luck'];
 }
 

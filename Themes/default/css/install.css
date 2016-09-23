@@ -3,19 +3,10 @@ a:link, a:hover, a:visited {
 }
 /* These divisions wrap the forum sections when a forum width is set. */
 h1.forumtitle {
-	font-size: 2em;
-	font-family: tahoma;
-	margin: 0;
-	padding: 32px 12px 16px 12px;
-	float: left;
-	font-weight: normal;
 	color: #a85400;
 	text-shadow: -1px -1px 0 rgba(0,0,0,0.5), 1px 1px 0 #fff;
 }
-/* Tweak the SMF logo */
-img#smflogo {
-	margin: 26px 0 0 0;
-}
+
 #inner_wrap {
 	min-height: 80px;
 }
@@ -39,9 +30,6 @@ img#smflogo {
 	color: #d05800;
 }
 #main_steps ul {
-	list-style: none;
-	padding: 0 0.5em;
-	margin: 0;
 	line-height: 1.8em;
 }
 #main_steps ul li.stepdone {
@@ -54,7 +42,7 @@ img#smflogo {
 #main_steps ul li.stepwaiting {
 	color: #666;
 }
-#progress_bar {
+#progress_bar, #progress_bar_step {
 	position: relative;
 	font-size: 1.2em;
 	height: 2.3em;
@@ -73,30 +61,14 @@ img#smflogo {
 	top: 0.5em;
 	left: -3.3em;
 }
-
-#overall_text_upgrade, #step_text_upgrade {
-	z-index: 2;
-	color: #111;
-	font-weight: bold;
-	position: absolute;
-	top: .5em;
-	left: -3.3em;
-}
 #overall_progress, #step_progress {
 	height: 2.3em;
 	z-index: 1;
 	background-color: #6BB247;
-}
-
-#overall_progress_upgrade, #step_progress_upgrade {
-	height: 2.5em;
-	z-index: 1;
-	background: #6BB247;
 	margin: 0px 3px 0px 0px;
 }
-.over_progress {
-
-margin: -33px 5px 0 10px;
+.overall_progress {
+	margin: -30px 5px 0 5px;
 }
 
 #step_progress {
@@ -117,26 +89,18 @@ margin: -33px 5px 0 10px;
 	margin: 0 0 0.5em 0;
 	color: #d05800;
 }
-.panel form div{
+.panel form div {
 	max-height: 560px;
 	overflow: auto;
 }
-.panel p, .panel h3 {
-	margin: 0 0.5em 1em 0.5em;
-}
-.panel ul {
-	margin: 0 0.5em 1em 0.5em;
+.panel p, .panel h3, .panel ul {
+	margin: 0 0 1em 0;
 }
 .error_message {
-	color: red;
-	padding: 0.5em;
+	padding: 0.5em 0;
 }
 .panel .button_submit, .panel .button_link {
-	font-size: 1em;
 	font-weight: bold;
-	color: #333;
-	padding: 3px 6px;
-	text-decoration: none;
 }
 .panel .button_submit:hover, .panel .button_link:hover {
 	color: #af6700;
@@ -165,16 +129,4 @@ margin: -33px 5px 0 10px;
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	/* End [WIP] */
-}
-
-#progress {
-	position: relative;
-	font-size: 1.2em;
-	height: 2.5em;
-	border: 1px solid black;
-	border-radius: 2px;
-	background: #fff;
-	float: left;
-	margin: 0.6em 0 0 4em;
-	width: 33%;
 }

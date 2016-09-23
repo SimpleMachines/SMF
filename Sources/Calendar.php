@@ -198,9 +198,11 @@ function CalendarMain()
 		);
 
 	// Build the calendar button array.
-	$context['calendar_buttons'] = array(
-		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-	);
+	$context['calendar_buttons'] = array();
+
+	if ($context['can_post'])
+		$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_calendar_buttons');

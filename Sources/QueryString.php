@@ -22,7 +22,7 @@ if (!defined('SMF'))
  *
  * What it does:
  * - cleans the request variables (ENV, GET, POST, COOKIE, SERVER) and
- *	 makes sure the query string was parsed correctly.
+ * - makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
  * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
@@ -239,9 +239,9 @@ function cleanRequest()
 		$modSettings['proxy_ip_header'] = 'autodetect';
 
 	// Which headers are we going to check for Reverse Proxy IP headers?
-	if ($modSettings['proxy_ip_header'] = 'disabled')
+	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
-	elseif ($modSettings['proxy_ip_header'] = 'autodetect')
+	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
 		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
@@ -249,7 +249,11 @@ function cleanRequest()
 	// Find the user's IP address. (but don't let it give you 'unknown'!)
 	foreach ($reverseIPheaders as $proxyIPheader)
 	{
-		if (isset($modSettings['proxy_ip_servers']))
+		// Ignore if this is not set.
+		if (!isset($_SERVER[$proxyIPheader]))
+			continue;
+
+		if (!empty($modSettings['proxy_ip_servers']))
 		{
 			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
 				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))

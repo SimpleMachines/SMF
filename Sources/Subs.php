@@ -811,7 +811,7 @@ function un_htmlspecialchars($string)
 	// Determine the character set... Default to UTF-8
 	if (empty($context['character_set']))
 		$charset = 'UTF-8';
-	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
+	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
 	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
 		$charset = 'ISO-8859-1';
 	else
@@ -1275,8 +1275,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
-					elseif (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
-						$data[0] = 'http://' . $data[0];
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data[0] = '//' . ltrim($data[0], ':/');
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
@@ -1320,10 +1321,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = 'http://' . ltrim($data, ':/');
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
+					if ($scheme != 'https' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
@@ -1337,8 +1339,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1352,21 +1355,27 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
 				'tag' => 'iurl',
 				'type' => 'unparsed_equals',
+				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
-					elseif (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					else
+					{
+						$scheme = parse_url($data, PHP_URL_SCHEME);
+						if (empty($scheme))
+							$data = '//' . ltrim($data, ':/');
+					}
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1604,19 +1613,22 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
+				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link" target="_blank">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1749,7 +1761,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	while ($pos !== false)
 	{
 		$last_pos = isset($last_pos) ? max($pos, $last_pos) : $pos;
-		$pos = strpos($message, '[', $pos + 1);
+		preg_match('~\[/?(?=' . $alltags_regex . ')~', $message, $matches, PREG_OFFSET_CAPTURE, $pos + 1);
+		$pos = isset($matches[0][1]) ? $matches[0][1] : false;
 
 		// Failsafe.
 		if ($pos === false || $last_pos > $pos)
@@ -1767,7 +1780,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
-				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:)\S+?)\\1&gt;~i', '[url=$2]', $data);
+				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:)\S+?)\\1&gt;~i', '[url=&quot;$2&quot;]', $data);
 				$data = preg_replace('~&lt;/a&gt;~i', '[/url]', $data);
 
 				// <br> should be empty.
@@ -1847,25 +1860,75 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				if (!$no_autolink_area)
 				{
-					// Parse any URLs.... have to get rid of the @ problems some things cause... stupid email addresses.
-					if (!isset($disabled['url']) && (strpos($data, '://') !== false || strpos($data, 'www.') !== false) && strpos($data, '[url') === false)
+					// Parse any URLs
+					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						// Switch out quotes really quick because they can cause problems.
-						$data = strtr($data, array('&#039;' => '\'', '&nbsp;' => $context['utf8'] ? "\xC2\xA0" : "\xA0", '&quot;' => '>">', '"' => '<"<', '&lt;' => '<lt<'));
+						// @todo Add a cron job to download the current list of TLDs from http://data.iana.org/TLD/tlds-alpha-by-domain.txt, process it into a regex, and store it somewhere. Then replace this variable with a call of some sort to retrieve the stored regex.
+						$tld_regex = '(?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|ja|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)';
 
-						// Only do this if the preg survives.
-						if (is_string($result = preg_replace(array(
-							'~(?<=[\s>\.(;\'"]|^)((?:http|https)://[\w\-_%@:|]+(?:\.[\w\-_%]+)*(?::\d+)?(?:/[\w\-_\~%\.@!,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\]?)~i',
-							'~(?<=[\s>\.(;\'"]|^)((?:ftp|ftps)://[\w\-_%@:|]+(?:\.[\w\-_%]+)*(?::\d+)?(?:/[\w\-_\~%\.@,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\]?)~i',
-							'~(?<=[\s>(\'<]|^)(www(?:\.[\w\-_]+)+(?::\d+)?(?:/[\w\-_\~%\.@!,\?&;=#(){}+:\'\\\\]*)*[/\w\-_\~%@\?;=#}\\\\])~i'
-						), array(
-							'[url]$1[/url]',
-							'[ftp]$1[/ftp]',
-							'[url=http://$1]$1[/url]'
-						), $data)))
-							$data = $result;
+						$url_regex = '(?xi)
+(?:
+	(?:											# Either:
+		\b[a-z][\w-]+:							# URL scheme and colon
+		|										#  or
+		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
+	)						
+	(?:
+		/{1,3}									# 1-3 slashes
+		|										#	or
+		[\p{L}\p{M}\p{N}%]						# Single letter or digit or "%"
+												# (Trying not to match e.g. "URI::Escape")
+	)
+	|											#	or
+	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
+	|											#	or
+	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,4}/	# looks like domain name followed by a slash
+)
+(?:												# One or more:
+	[^\s()<>]+									# Run of non-space, non-()<>
+	|											#	or
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
+)+
+(?:												# End with:
+	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
+	|											#	or
+	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]				# not a space or one of these punct char
+)
 
-						$data = strtr($data, array('\'' => '&#039;', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;', '>">' => '&quot;', '<"<' => '"', '<lt<' => '&lt;'));
+|												# OR, the following to match naked domains:
+(?:
+	(?<!@)										# not preceded by a @, avoid matching foo@_gmail.com_
+	\b[\p{L}\p{M}\p{N}]+
+	(?:[.\-][\p{L}\p{M}\p{N}]+)*
+	[.]
+	'. $tld_regex . '
+	\b
+	/?
+	(?!@)										# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
+)';
+
+						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
+									$url = array_shift($matches);
+
+									$scheme = parse_url($url, PHP_URL_SCHEME);
+
+									if ($scheme == 'mailto')
+									{
+										$email_address = str_replace('mailto:', '', $url);
+										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
+											return '[email=' . $email_address . ']' . $url . '[/email]';
+										else
+											return $url;
+									}
+
+									// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+									if (empty($scheme))
+										$fullUrl = '//' . ltrim($url, ':/');
+									else
+										$fullUrl = $url;
+
+									return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+								}, $data);
 					}
 
 					// Next, emails...
@@ -3008,6 +3071,30 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	// Set some specific vars.
 	$context['page_title_html_safe'] = $smcFunc['htmlspecialchars'](un_htmlspecialchars($context['page_title'])) . (!empty($context['current_page']) ? ' - ' . $txt['page'] . ' ' . ($context['current_page'] + 1) : '');
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
+
+	// Content related meta tags, including Open Graph
+	$context['meta_tags'][] = array('property' => 'og:site_name', 'content' => $context['forum_name']);
+	$context['meta_tags'][] = array('property' => 'og:title', 'content' => $context['page_title_html_safe']);
+
+	if (!empty($context['meta_keywords']))
+		$context['meta_tags'][] = array('name' => 'keywords', 'content' => $context['meta_keywords']);
+
+	if (!empty($context['canonical_url']))
+		$context['meta_tags'][] = array('property' => 'og:url', 'content' => $context['canonical_url']);
+
+	if (!empty($settings['og_image']))
+		$context['meta_tags'][] = array('property' => 'og:image', 'content' => $settings['og_image']);
+
+	if (!empty($context['meta_description']))
+	{
+		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['meta_description']);
+		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['meta_description']);
+	}
+	else
+	{
+		$context['meta_tags'][] = array('property' => 'og:description', 'content' => $context['page_title_html_safe']);
+		$context['meta_tags'][] = array('name' => 'description', 'content' => $context['page_title_html_safe']);
+	}
 
 	call_integration_hook('integrate_theme_context');
 }
@@ -4756,7 +4843,7 @@ function fixchar__callback($matches)
 	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
 	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
 		return '';
-	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
 	elseif ($num < 0x80)
 		return chr($num);
 	// <0x800 (2048)
@@ -4979,7 +5066,7 @@ function inet_ptod($ip_address)
 }
 
 /**
- * @param binary $bin An IP address in IPv4, IPv6
+ * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
  * @return string The IP address in presentation format or false on error
  */
 function inet_dtop($bin)
@@ -4987,7 +5074,9 @@ function inet_dtop($bin)
 	if(empty($bin))
 		return '';
 
-	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
+	global $db_type;
+
+	if ($db_type == 'postgresql')
 		return $bin;
 
 	$ip_address = inet_ntop($bin);
@@ -5356,6 +5445,43 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 function isValidIP($IPString)
 {
 	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
+}
+
+/**
+ * Outputs a response.
+ * It assumes the data is already a string.
+ * @param string $data The data to print
+ * @param string $type The content type. Defaults to Json.
+ * @return void
+ */
+function smf_serverResponse($data = '', $type = 'Content-Type: application/json')
+{
+	global $db_show_debug, $modSettings;
+
+	// Defensive programming anyone?
+	if (empty($data))
+		return false;
+
+	// Don't need extra stuff...
+	$db_show_debug = false;
+
+	// Kill anything else.
+	ob_end_clean();
+
+	if (!empty($modSettings['CompressedOutput']))
+		@ob_start('ob_gzhandler');
+
+	else
+		ob_start();
+
+	// Set the header.
+	header($type);
+
+	// Echo!
+	echo $data;
+
+	// Done.
+	obExit(false);
 }
 
 ?>
