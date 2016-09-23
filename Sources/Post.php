@@ -355,7 +355,7 @@ function Post($post_errors = array())
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
 	});
-	$( "#event_time_input .date_input" ).datepicker({
+	$("#event_time_input .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
 		autoSize: true,
 		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',

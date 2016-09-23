@@ -187,15 +187,15 @@ function template_main()
 				if ($event['start_date'] . $event['start_time'] != $event['start_date_orig'] . $event['start_time_orig'])
 				{
 					echo ' ('; 
-					
+
 					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'])
 						echo $event['start_date_orig'], ', ';
-					
+
 					echo $event['start_time_orig'], ' - ';
-					
+
 					if ($event['start_date_orig'] != $event['end_date_orig'])
 						echo $event['end_date_orig'] . ', ';
-					
+
 					echo $event['end_time_orig'], ' ', $event['tz'], ')';
 				}
 				// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion

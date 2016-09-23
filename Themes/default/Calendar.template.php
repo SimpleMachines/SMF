@@ -269,7 +269,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
 							echo '<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', '">';
-							
+
 							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'];
 
 							echo $event_icons_needed ? '<br>' : ' ', '<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
@@ -306,7 +306,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 								echo '</span><br class="clear">';
 							}
-							
+
 							echo '</div>';
 						}
 
@@ -477,7 +477,7 @@ function template_show_week_grid($grid_name)
 													<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 												</a>';
 										}
-	
+
 										echo '</span><br class="clear">';
 									}
 
@@ -555,24 +555,24 @@ function template_calendar_base($col_span = 1)
 				', template_button_strip($context['calendar_buttons'], 'right'), '
 				<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
 					<select name="month" id="input_month">';
-					
+
 					// Show a select box with all the months.
 					foreach ($txt['months_short'] as $number => $month)
 					{
 						echo '
 						<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
 					}
-					
+
 					echo '
 					</select>
 					<select name="year">';
-					
+
 					// Show a link for every year.....
 					for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
 					{
 						echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
 					}
-					
+
 					echo '</select>
 					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
 				</form>
@@ -688,7 +688,7 @@ function template_event_post()
 						</div>
 					</div>
 				</fieldset>';
-	
+
 	echo '
 				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit">';
 	// Delete button?

@@ -234,7 +234,7 @@ function reloadSettings()
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
 			$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
 		}
-		
+
 		date_default_timezone_set($modSettings['default_timezone']);
 	}
 

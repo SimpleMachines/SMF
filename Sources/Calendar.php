@@ -435,7 +435,7 @@ function CalendarPost()
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
 	});
-	$( "#event_time_input .date_input" ).datepicker({
+	$("#event_time_input .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
 		autoSize: true,
 		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
@@ -518,7 +518,7 @@ function iCalDownload()
 	$datestamp = date('Ymd\THis\Z', time());
 	$start_date = date_create($event['start_date'] . (isset($event['start_time']) ? ' ' . $event['start_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
 	$end_date = date_create($event['end_date'] . (isset($event['end_time']) ? ' ' . $event['end_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
-	
+
 	if (!empty($event['start_time']))
 	{
 		$datestart = date_format($start_date, 'Ymd\THis');

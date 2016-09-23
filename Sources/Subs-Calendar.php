@@ -830,7 +830,7 @@ function validateEventPost()
 			if (!checkdate($_POST['month'], $_POST['day'], $_POST['year']))
 				fatal_lang_error('invalid_date', false);
 		}
-		
+
 		if (!isset($_POST['evtitle']) && !isset($_POST['subject']))
 			fatal_lang_error('event_title_missing', false);
 		elseif (!isset($_POST['evtitle']))
@@ -1292,7 +1292,7 @@ function setEventStartEnd($eventOptions = array())
 	$start_string = isset($eventOptions['start_datetime']) ? $eventOptions['start_datetime'] : (isset($_POST['start_datetime']) ? $_POST['start_datetime'] : null);
 	$end_string = isset($eventOptions['end_datetime']) ? $eventOptions['end_datetime'] : (isset($_POST['end_datetime']) ? $_POST['end_datetime'] : null);
 
-	/// ... or as date strings and time strings.
+	// ... or as date strings and time strings.
 	$start_date_string = isset($eventOptions['start_date']) ? $eventOptions['start_date'] : (isset($_POST['start_date']) ? $_POST['start_date'] : null);
 	$start_time_string = isset($eventOptions['start_time']) ? $eventOptions['start_time'] : (isset($_POST['start_time']) ? $_POST['start_time'] : null);
 	$end_date_string = isset($eventOptions['end_date']) ? $eventOptions['end_date'] : (isset($_POST['end_date']) ? $_POST['end_date'] : null);
@@ -1347,11 +1347,11 @@ function setEventStartEnd($eventOptions = array())
 	// Validate input
 	$start_date_isvalid = checkdate($start_month, $start_day, $start_year);
 	$end_date_isvalid = checkdate($end_month, $end_day, $end_year);
-	
+
 	$start_time_isset = (isset($start_hour) && isset($start_minute) && isset($start_second));
 	$d = date_parse(sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second));
 	$start_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
-	
+
 	$end_time_isset = (isset($end_hour) && isset($end_minute) && isset($end_second));
 	$d = date_parse(sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second));
 	$end_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
