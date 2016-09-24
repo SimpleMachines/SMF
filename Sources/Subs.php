@@ -4928,126 +4928,168 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
+	global $modSettings;
+	static $timezones = null, $lastwhen = null;
+
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
-		$when = '@' . $timestamp;
+		$when = $timestamp;
 
 	// A Unix timestamp?
 	elseif (is_numeric($when))
-		$when = '@' . intval($when);
+		$when = intval($when);
 
 	// Invalid value? Just get current Unix timestamp.
 	else
-		$when = '@' . time();
+		$when = time();
 
-	$d = date_create($when);
+	// No point doing this over if we already did it once
+	if (!empty($timezones) && $when == $lastwhen)
+		return $timezones;
+	else
+		$lastwhen = $when;
 
-	$timezone_desciptions = array(
-		'Pacific/Midway' => 'Midway Island, Samoa',
+	// We'll need this too
+	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
+
+	// Prefer and give custom descriptions for these time zones
+	// If the description is left empty, it will be filled in with the names of matching cities
+	$timezone_descriptions = array(
 		'America/Adak' => 'Hawaii-Aleutian',
 		'Pacific/Honolulu' => 'Hawaii',
 		'Pacific/Marquesas' => 'Marquesas Islands',
 		'Pacific/Gambier' => 'Gambier Islands',
 		'America/Anchorage' => 'Alaska',
-		'America/Ensenada' => 'Tijuana, Baja California',
 		'Pacific/Pitcairn' => 'Pitcairn Islands',
 		'America/Los_Angeles' => 'Pacific Time (USA, Canada)',
 		'America/Denver' => 'Mountain Time (USA, Canada)',
-		'America/Phoenix' => 'Arizona',
-		'America/Chihuahua' => 'Chihuahua, Mazatlan',
-		'America/Belize' => 'Saskatchewan, Central America',
-		'America/Cancun' => 'Guadalajara, Mexico City, Monterrey',
-		'Chile/EasterIsland' => 'Easter Island',
+		'America/Phoenix' => 'Mountain Time (no DST)',
 		'America/Chicago' => 'Central Time (USA, Canada)',
+		'America/Belize' => 'Central Time (no DST)',
 		'America/New_York' => 'Eastern Time (USA, Canada)',
-		'America/Havana' => 'Cuba',
-		'America/Bogota' => 'Bogota, Lima, Quito',
-		'America/Caracas' => 'Caracas',
-		'America/Santiago' => 'Santiago',
-		'America/La_Paz' => 'La Paz, San Juan, Manaus',
-		'Atlantic/Stanley' => 'Falkland Islands',
-		'America/Cuiaba' => 'Cuiaba',
-		'America/Goose_Bay' => 'Atlantic Time (Goose Bay)',
-		'America/Glace_Bay' => 'Atlantic Time (Canada)',
+		'America/Atikokan' => 'Eastern Time (no DST)',
+		'America/Halifax' => 'Atlantic Time (Canada)',
+		'America/Anguilla' => 'Atlantic Time (no DST)',
 		'America/St_Johns' => 'Newfoundland',
-		'America/Araguaina' => 'Araguaina',
-		'America/Montevideo' => 'Montevideo',
+		'America/Chihuahua' => 'Chihuahua, Mazatlan',
+		'Pacific/Easter' => 'Easter Island',
+		'Atlantic/Stanley' => 'Falkland Islands',
 		'America/Miquelon' => 'Saint Pierre and Miquelon',
 		'America/Argentina/Buenos_Aires' => 'Buenos Aires',
-		'America/Sao_Paulo' => 'Brasilia',
+		'America/Sao_Paulo' => 'Brasilia Time',
+		'America/Araguaina' => 'Brasilia Time (no DST)',
 		'America/Godthab' => 'Greenland',
 		'America/Noronha' => 'Fernando de Noronha',
-		'Atlantic/Cape_Verde' => 'Cape Verde',
-		'Atlantic/Azores' => 'Azores',
-		'Africa/Abidjan' => 'Monrovia, Reykjavik',
-		'Europe/London' => 'London, Edinburgh, Dublin, Lisbon',
-		'Europe/Brussels' => 'Central European Time',
-		'Africa/Algiers' => 'West Central Africa',
-		'Africa/Windhoek' => 'Windhoek',
-		'Africa/Cairo' => 'Cairo',
-		'Africa/Blantyre' => 'Harare, Maputo, Pretoria',
+		'Atlantic/Reykjavik' => 'Greenwich Mean Time (no DST)',
+		'Europe/London' => '',
+		'Europe/Berlin' => 'Central European Time',
+		'Europe/Helsinki' => 'Eastern European Time',
+		'Africa/Brazzaville' => 'Brazzaville, Lagos, Porto-Novo',
 		'Asia/Jerusalem' => 'Jerusalem',
-		'Europe/Minsk' => 'Minsk',
-		'Asia/Damascus' => 'Damascus, Nicosia, Gaza, Beirut',
-		'Africa/Addis_Ababa' => 'Addis Ababa, Nairobi',
-		'Asia/Tehran' => 'Tehran',
-		'Europe/Moscow' => 'Moscow, St. Petersburg, Volgograd',
-		'Asia/Dubai' => 'Abu Dhabi, Muscat',
-		'Asia/Baku' => 'Baku',
-		'Asia/Yerevan' => 'Yerevan',
-		'Asia/Kabul' => 'Kabul',
-		'Asia/Tashkent' => 'Tashkent',
-		'Asia/Kolkata' => 'Chennai, Kolkata, Mumbai, New Delhi',
-		'Asia/Katmandu' => 'Kathmandu',
+		'Europe/Moscow' => '',
+		'Africa/Khartoum' => 'Eastern Africa Time',
+		'Asia/Riyadh' => 'Arabia Time',
+		'Asia/Kolkata' => 'India, Sri Lanka',
 		'Asia/Yekaterinburg' => 'Yekaterinburg, Tyumen',
-		'Asia/Dhaka' => 'Astana, Thimphu, Dhaka',
-		'Asia/Omsk' => 'Omsk',
-		'Asia/Rangoon' => 'Yangon Rangoon',
-		'Asia/Bangkok' => 'Bangkok, Hanoi, Jakarta',
-		'Asia/Krasnoyarsk' => 'Krasnoyarsk',
-		'Asia/Hong_Kong' => 'Beijing, Chongqing, Hong Kong, Urumqi',
-		'Asia/Ulaanbaatar' => 'Ulaan Bataar',
-		'Asia/Irkutsk' => 'Irkutsk',
-		'Australia/Perth' => 'Perth',
-		'Australia/Eucla' => 'Eucla',
-		'Asia/Tokyo' => 'Tokyo, Osaka, Sapporo',
-		'Asia/Seoul' => 'Seoul',
-		'Australia/Adelaide' => 'Adelaide',
-		'Australia/Darwin' => 'Darwin',
-		'Australia/Brisbane' => 'Brisbane, Guam',
-		'Australia/Sydney' => 'Sydney, Hobart',
-		'Asia/Yakutsk' => 'Yakutsk',
+		'Asia/Dhaka' => 'Astana, Dhaka',
+		'Asia/Rangoon' => 'Yangon/Rangoon',
+		'Indian/Christmas' => 'Christmas Island',
+		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
-		'Asia/Vladivostok' => 'Vladivostok',
-		'Pacific/Noumea' => 'Solomon Islands, New Caledonia',
+		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
-		'Pacific/Auckland' => 'Auckland, Wellington',
-		'Asia/Magadan' => 'Magadan, Kamchatka, Anadyr',
-		'Pacific/Fiji' => 'Fiji',
-		'Pacific/Majuro' => 'Marshall Islands',
+		'Pacific/Noumea' => 'New Caledonia',
+		'Pacific/Auckland' => 'Auckland, McMurdo Station',
+		'Pacific/Kwajalein' => 'Marshall Islands',
 		'Pacific/Chatham' => 'Chatham Islands',
-		'Pacific/Tongatapu' => 'Nuku\'alofa',
-		'Pacific/Kiritimati' => 'Kiritimati',
 	);
 
-	foreach ($timezone_desciptions as $tz => $desc)
+	// Should we put time zones from certain countries at the top of the list?
+	$priority_countries = explode(',', $modSettings['setting_timezone_priority_countries']);
+	$priority_tzids = array();
+	foreach ($priority_countries as $country)
 	{
-		date_timezone_set($d, timezone_open($tz));
-		$timezones[$tz] = date_format($d, 'T') . ' - ' . $desc . ' [UTC' . date_format($d, 'P') . ']';
+		$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, strtoupper(trim($country)));
+		if (!empty($country_tzids))
+			$priority_tzids = array_merge($priority_tzids, $country_tzids);
 	}
 
-	uasort($timezones, function($a, $b)
+	// Process the preferred timezones first, then the rest.
+	$tzids = array_keys($timezone_descriptions) + array_diff(timezone_identifiers_list(), array_keys($timezone_descriptions));
+
+	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+	foreach ($tzids as $tzid)
 	{
-		$a_val = strtr(substr($a, -7, 6), array(':' => ''));
-		$b_val = strtr(substr($b, -7, 6), array(':' => ''));
+		// We don't want UTC right now
+		if ($tzid == 'UTC')
+			continue;
 
-		if ($a_val >= $b_val)
-			return 1;
+		// First, get the set of transition rules for this tzid
+		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
+
+		// There are a handful of time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
+		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
+		{
+			$tz_location = timezone_location_get(timezone_open($tzid));
+
+			// Kazakstan
+			if ($tz_location['country_code'] == 'KZ')
+				$tzinfo[0]['abbr'] = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tzinfo[0]['abbr']);
+
+			// Russia likes to experiment with time zones
+			if ($tz_location['country_code'] == 'RU')
+			{
+				$msk_offset = intval($tzinfo[0]['abbr']) - 3;
+				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
+				$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
+			}
+
+			// Still no good? We'll just mark it as a UTC offset
+			if (strspn($tzinfo[0]['abbr'], '+-') > 0)
+				$tzinfo[0]['abbr'] = 'UTC' . $tzinfo[0]['abbr'];
+		}
+
+		$tzkey = serialize($tzinfo);
+
+		// Don't overwrite our preferred tzids
+		if (empty($zones[$tzkey]['tzid']))
+			$zones[$tzkey]['tzid'] = $tzid;
+
+		// A time zone from a prioritized country?
+		if (in_array($tzid, $priority_tzids))
+			$priority_zones[$tzkey] = true;
+
+		// Keep track of the location and offset for this tzid
+		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop(explode('/', $tzid)));
+		$offsets[$tzkey] = $tzinfo[0]['offset'];
+	}
+
+	// Sort by offset
+	array_multisort($offsets, SORT_ASC, $zones);
+
+	// Build the final array of formatted values
+	$priority_timezones = array();
+	$timezones = array();
+	foreach ($zones as $tzkey => $tzvalue)
+	{
+		$tzinfo = unserialize($tzkey);
+
+		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
+			$desc = $timezone_descriptions[$tzvalue['tzid']];
 		else
-			return -1;
-	});
+			$desc = implode(', ', array_unique($tzvalue['locations']));
 
-	$timezones = array_merge(array('' => '(Forum Default)', 'UTC' => 'UTC - Coordinated Universal Time'), $timezones);
+		if (isset($priority_zones[$tzkey]))
+			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+		else
+			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+	}
+
+	$timezones = array_merge(
+		$priority_timezones,
+		array('' => '(Forum Default)', 'UTC' => 'UTC - Coordinated Universal Time'),
+		$timezones
+	);
 
 	return $timezones;
 }
