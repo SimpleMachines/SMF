@@ -4931,6 +4931,12 @@ function smf_list_timezones($when = 'now')
 	global $modSettings;
 	static $timezones = null, $lastwhen = null;
 
+	// No point doing this over if we already did it once
+	if (!empty($timezones) && $when == $lastwhen)
+		return $timezones;
+	else
+		$lastwhen = $when;
+
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
 		$when = $timestamp;
@@ -4942,12 +4948,6 @@ function smf_list_timezones($when = 'now')
 	// Invalid value? Just get current Unix timestamp.
 	else
 		$when = time();
-
-	// No point doing this over if we already did it once
-	if (!empty($timezones) && $when == $lastwhen)
-		return $timezones;
-	else
-		$lastwhen = $when;
 
 	// We'll need this too
 	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
