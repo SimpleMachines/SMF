@@ -5005,7 +5005,7 @@ function smf_list_timezones($when = 'now')
 	);
 
 	// Should we put time zones from certain countries at the top of the list?
-	$priority_countries = !empty($modSettings['setting_timezone_priority_countries']) ? explode(',', $modSettings['setting_timezone_priority_countries']) : array();
+	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
 	$priority_tzids = array();
 	foreach ($priority_countries as $country)
 	{
