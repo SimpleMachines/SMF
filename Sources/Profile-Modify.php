@@ -557,7 +557,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
-			'permission' => 'profile_other',
+			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
 			'input_validate' => function (&$value) use ($smcFunc)
 			{
