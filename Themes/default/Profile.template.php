@@ -3042,17 +3042,17 @@ function template_tfasetup()
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
 									<div id="basicinfo" style="width: 60%">
 										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-											<div>
+											<div class="title_top">
 												<strong>', $txt['tfa_step1'], '</strong><br />
 												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
 												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '' ,'>
 											</div>
-											<div>
+											<div class="title_top">
 												<strong>', $txt['tfa_step2'], '</strong>
 												<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
-												<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_secret'], '</div>
+												<div class="tfacode">', $context['tfa_secret'], '</div>
 											</div>
-											<div style="margin-top: 10px;">
+											<div class="title_top">
 												<strong>', $txt['tfa_step3'] , '</strong><br />
 												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
 												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '' ,'>
