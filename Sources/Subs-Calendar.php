@@ -1070,12 +1070,7 @@ function getEventProperties($event_id)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			c.id_event, c.id_board, c.id_topic, MONTH(c.start_date) AS month,
-			DAYOFMONTH(c.start_date) AS day, YEAR(c.start_date) AS year,
-			(TO_DAYS(c.end_date) - TO_DAYS(c.start_date)) AS span, c.id_member, c.title,
-			MONTH(c.end_date) AS end_month, DAYOFMONTH(c.end_date) AS end_day, YEAR(c.end_date) AS end_year,
-			HOUR(start_time) AS hour, MINUTE(start_time) AS minute, SECOND(start_time) AS second,
-			HOUR(end_time) AS end_hour, MINUTE(end_time) AS end_minute, SECOND(end_time) AS end_second, 
+			c.id_event, c.id_board, c.id_topic, c.id_member, c.title,
 			c.start_date, c.end_date, c.start_time, c.end_time, c.timezone,
 			t.id_first_msg, t.id_member_started,
 			mb.real_name, m.modified_time
@@ -1098,23 +1093,27 @@ function getEventProperties($event_id)
 
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
 
+	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
+	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
+	$span = date_interval_format(date_diff(date_create($row['start_date'], $row['end_date'])), '%d');
+
 	$return_value = array(
 		'boards' => array(),
 		'board' => $row['id_board'],
 		'new' => 0,
 		'eventid' => $event_id,
-		'year' => $row['year'],
-		'month' => $row['month'],
-		'day' => $row['day'],
-		'hour' => !$allday ? $row['hour'] : null,
-		'minute' => !$allday ? $row['minute'] : null,
-		'second' => !$allday ? $row['second'] : null,
-		'end_year' => $row['end_year'],
-		'end_month' => $row['end_month'],
-		'end_day' => $row['end_day'],
-		'end_hour' => !$allday ? $row['end_hour'] : null,
-		'end_minute' => !$allday ? $row['end_minute'] : null,
-		'end_second' => !$allday ? $row['end_second'] : null,
+		'year' => $start['year'],
+		'month' => $start['month'],
+		'day' => $start['day'],
+		'hour' => !$allday ? $start['hour'] : null,
+		'minute' => !$allday ? $start['minute'] : null,
+		'second' => !$allday ? $start['second'] : null,
+		'end_year' => $end['year'],
+		'end_month' => $end['month'],
+		'end_day' => $end['day'],
+		'end_hour' => !$allday ? $end['hour'] : null,
+		'end_minute' => !$allday ? $end['minute'] : null,
+		'end_second' => !$allday ? $end['second'] : null,
 		'start_date' => $row['start_date'],
 		'end_date' => $row['end_date'],
 		'start_time' => !$allday ? $row['start_time'] : null,
@@ -1126,7 +1125,7 @@ function getEventProperties($event_id)
 		'allday' => $allday,
 		'tz' => !$allday ? $row['timezone'] : null,
 		'title' => $row['title'],
-		'span' => 1 + $row['span'],
+		'span' => 1 + $span,
 		'member' => $row['id_member'],
 		'realname' => $row['real_name'],
 		'sequence' => $row['modified_time'],
