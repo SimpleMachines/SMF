@@ -557,7 +557,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
-			'permission' => 'profile_other',
+			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
 			'input_validate' => function (&$value) use ($smcFunc)
 			{
@@ -572,7 +572,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['website_title'],
 			'subtext' => $txt['include_website_url'],
 			'size' => 50,
-			'permission' => 'profile_other',
+			'permission' => 'profile_website',
 			'link_with' => 'website',
 		),
 		'website_url' => array(
@@ -580,7 +580,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['website_url'],
 			'subtext' => $txt['complete_url'],
 			'size' => 50,
-			'permission' => 'profile_other',
+			'permission' => 'profile_website',
 			// Fix the URL...
 			'input_validate' => function (&$value)
 			{
@@ -882,12 +882,12 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	if ($context['user']['is_owner'])
 	{
 		$changeIdentity = allowedTo(array('profile_identity_any', 'profile_identity_own', 'profile_password_any', 'profile_password_own'));
-		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_other_any', 'profile_other_own', 'profile_signature_any', 'profile_signature_own'));
+		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_website_any', 'profile_website_own', 'profile_signature_any', 'profile_signature_own'));
 	}
 	else
 	{
 		$changeIdentity = allowedTo('profile_identity_any', 'profile_signature_any');
-		$changeOther = allowedTo('profile_extra_any', 'profile_other_any', 'profile_signature_any');
+		$changeOther = allowedTo('profile_extra_any', 'profile_website_any', 'profile_signature_any');
 	}
 
 	// Arrays of all the changes - makes things easier.

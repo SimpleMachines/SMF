@@ -3867,3 +3867,10 @@ p.attached_BBC a.insertBBC
 .mobile_buttons {
 	display: none;
 }
+
+/* Two-Factor Auth code container */
+.tfacode {
+	background: #D0E7F8;
+	padding: 5px;
+	width: 20%;
+}

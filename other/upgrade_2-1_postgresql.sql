@@ -1486,7 +1486,7 @@ $request = upgrade_query("
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_other_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_website_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
 	}
 
@@ -2156,6 +2156,14 @@ ALTER TABLE {$db_prefix}member_logins
 	ALTER ip2 DROP not null,
 	ALTER ip2 DROP default,
 	ALTER ip2 TYPE inet USING migrate_inet(ip2);
+---#
+
+/******************************************************************************/
+--- Renaming the "profile_other" permission...
+/******************************************************************************/
+---# Changing the "profile_other" permission to "profile_website"
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_own' WHERE permission = 'profile_other_own';
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE permission = 'profile_other_any';
 ---#
 
 /******************************************************************************/

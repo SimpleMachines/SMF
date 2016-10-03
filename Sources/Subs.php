@@ -1434,7 +1434,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'member',
 				'type' => 'unparsed_equals',
-				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention">@',
+				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention" data-mention="$1">@',
 				'after' => '</a>',
 			),
 			array(
