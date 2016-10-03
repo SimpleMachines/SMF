@@ -40,7 +40,9 @@ function preparsecode(&$message, $previewing = false)
 	}, $message);
 
 	// Remove empty bbc.
-	while (preg_match('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', $message)) {
+	// $message = preg_replace('~\[([^\]=\s]+)[^\]]*\](?' . '>\s|(?R))*?\[/\1\]\s?~i', '', $message);
+	while (preg_match('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', $message))
+	{
 		$message = preg_replace('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 	}
 
