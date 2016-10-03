@@ -547,13 +547,13 @@ function Display()
 	{
 		// First, try to create a better date format, ignoring the "time" elements.
 		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$date_string = $user_info['time_format'];
+			$date_string = '%F';
 		else
 			$date_string = $matches[0];
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.		
 		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = $user_info['time_format'];
+			$time_string = '%k:%M';
 		else
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
