@@ -1095,7 +1095,7 @@ function getEventProperties($event_id)
 
 	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
 	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
-	$span = date_interval_format(date_diff(date_create($row['start_date'], $row['end_date'])), '%d');
+	$span = date_interval_format(date_diff(date_create($row['start_date']), date_create($row['end_date'])), '%d');
 
 	$return_value = array(
 		'boards' => array(),
