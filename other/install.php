@@ -2036,7 +2036,7 @@ function template_chmod_files()
 				</tr><tr>
 					<td width="26%" valign="top" class="textbox"><label for="ftp_password">', $txt['ftp_password'], ':</label></td>
 					<td>
-						<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password" />
+						<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password" autocomplete="off" />
 						<div class="smalltext block">', $txt['ftp_password_info'], '</div>
 					</td>
 				</tr><tr>
@@ -2117,7 +2117,7 @@ function template_database_settings()
 			</tr><tr id="db_passwd_contain">
 				<td valign="top" class="textbox"><label for="db_passwd_input">', $txt['db_settings_password'], ':</label></td>
 				<td>
-					<input type="password" name="db_passwd" id="db_passwd_input" value="', $incontext['db']['pass'], '" size="30" class="input_password" /><br>
+					<input type="password" name="db_passwd" id="db_passwd_input" value="', $incontext['db']['pass'], '" size="30" class="input_password" autocomplete="off" /><br>
 					<div class="smalltext block">', $txt['db_settings_password_info'], '</div>
 				</td>
 			</tr><tr id="db_name_contain">
@@ -2316,13 +2316,13 @@ function template_admin_account()
 			</tr><tr>
 				<td valign="top" class="textbox"><label for="password1">', $txt['user_settings_password'], ':</label></td>
 				<td>
-					<input type="password" name="password1" id="password1" size="40" class="input_password" />
+					<input type="password" name="password1" id="password1" size="40" class="input_password" autocomplete="off" />
 					<div class="smalltext block">', $txt['user_settings_password_info'], '</div>
 				</td>
 			</tr><tr>
 				<td valign="top" class="textbox"><label for="password2">', $txt['user_settings_again'], ':</label></td>
 				<td>
-					<input type="password" name="password2" id="password2" size="40" class="input_password" />
+					<input type="password" name="password2" id="password2" size="40" class="input_password" autocomplete="off" />
 					<div class="smalltext block">', $txt['user_settings_again_info'], '</div>
 				</td>
 			</tr><tr>
@@ -2346,7 +2346,7 @@ function template_admin_account()
 		<p>', $txt['user_settings_database_info'], '</p>
 
 		<div style="margin-bottom: 2ex; padding-', $txt['lang_rtl'] == false ? 'left' : 'right', ': 50px;">
-			<input type="password" name="password3" size="30" class="input_password" />
+			<input type="password" name="password3" size="30" class="input_password" autocomplete="off" />
 		</div>';
 }
 

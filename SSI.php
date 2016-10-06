@@ -1198,7 +1198,7 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
 				</tr><tr>
 					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
-					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
+					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password" autocomplete="off"></td>
 				</tr>
 				<tr>
 					<td>

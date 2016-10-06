@@ -101,7 +101,7 @@ function template_download_language()
 						<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
 					</dt>
 					<dd>
-						<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_text">
+						<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_text" autocomplete="off">
 					</dd>
 
 					<dt>
