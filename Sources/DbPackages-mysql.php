@@ -512,6 +512,41 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 {
 	// MySQL is actually the generic baseline.
+	
+	$type_name = strtolower($type_name);
+	// Generic => Specific.
+	if (!$reverse)
+	{
+		$types = array(
+			'inet' => 'varbinary',
+		);
+	}
+	else
+	{
+		$types = array(
+			'varbinary' => 'inet',
+		);
+	}
+	
+	// Got it? Change it!
+	if (isset($types[$type_name]))
+	{
+		if ($type_name == 'inet' && !$reverse)
+		{
+			$type_size = 16;
+			$type_name = 'varbinary';
+		}
+		elseif ($type_name == 'varbinary' && $reverse && $type_size == 16)
+		{
+			$type_name = 'inet';
+			$type_size = null;
+		}
+		elseif ($type_name == 'varbinary')
+			$type_name = 'varbinary';
+		else
+			$type_name = $types[$type_name];
+	}
+	
 	return array($type_name, $type_size);
 }
 

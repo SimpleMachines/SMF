@@ -660,6 +660,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'tinytext' => 'character varying',
 			'mediumtext' => 'text',
 			'largetext' => 'text',
+			'inet' => 'inet',
 		);
 	}
 	else
@@ -668,6 +669,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'character varying' => 'varchar',
 			'character' => 'char',
 			'integer' => 'int',
+			'inet' => 'inet',
 		);
 	}
 
