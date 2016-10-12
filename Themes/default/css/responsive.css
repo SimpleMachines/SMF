@@ -95,6 +95,21 @@
 		display: block;
 		width: 100%;
 	}
+	/* some new stuff for far better UX */
+	.mobile_subject {
+		display: block;
+		padding: 9px 0;
+		position: relative;
+	}
+	.mobile_subject .board_description {
+		display: block;
+		font-weight: normal;
+		font-size: 0.9em;
+		color: #222;
+	}
+	.board_description {
+		display: none;
+	}
 	/* Register Page */
 	#registration .button_submit {
 		font-size: 0.67em;
@@ -437,9 +452,6 @@
 	}
 
 	/* BoardIndex */
-	.board_icon {
-		margin-top: 10px;
-	}
 	.board_stats {
 		display: none;
 	}

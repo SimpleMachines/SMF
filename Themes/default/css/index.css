@@ -3838,7 +3838,7 @@ p.attached_BBC a.insertBBC
 }
 
 /* Hide this from desktop users sshh... our little sekrit */
-.mobile_buttons {
+.mobile_buttons, .mobile_display {
 	display: none;
 }
 
