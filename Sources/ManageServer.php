@@ -447,6 +447,8 @@ function ModifyCacheSettings($return_config = false)
 	$detected = array();
 	if (function_exists('apc_store'))
 		$detected['apc'] = $txt['apc_cache'];
+	if (function_exists('apcu_store'))
+		$detected['apcu'] = $txt['apcu_cache'];
 	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
 		$detected['zend'] = $txt['zend_cache'];
 	if (function_exists('memcache_set') || function_exists('memcached_set'))
