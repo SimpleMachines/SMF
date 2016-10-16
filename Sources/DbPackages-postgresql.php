@@ -660,6 +660,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'tinytext' => 'character varying',
 			'mediumtext' => 'text',
 			'largetext' => 'text',
+			'inet' => 'inet',
 		);
 	}
 	else
@@ -668,6 +669,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'character varying' => 'varchar',
 			'character' => 'char',
 			'integer' => 'int',
+			'inet' => 'inet',
 		);
 	}
 
@@ -678,9 +680,11 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			$type_size = 255;
 		$type_name = $types[$type_name];
 	}
-	// Numbers don't have a size.
-	if (strpos($type_name, 'int') !== false)
+	
+	// Only char fields got size
+	if (strpos($type_name, 'char') === false)
 			$type_size = null;
+	
 
 	return array($type_name, $type_size);
 }
