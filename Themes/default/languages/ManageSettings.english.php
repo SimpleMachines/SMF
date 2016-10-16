@@ -106,6 +106,7 @@ $txt['enable_mentions'] = 'Enable mentions';
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>
+	<li>APCu</li>
 	<li>Memcached</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
 	<li>XCache</li>
@@ -124,6 +125,7 @@ $txt['cache_memcached'] = 'Memcached settings';
 $txt['cache_accelerator'] = 'Caching Accelerator';
 $txt['default_cache'] = 'SMF file based caching';
 $txt['apc_cache'] = 'APC';
+$txt['apcu_cache'] = 'APCu';
 $txt['memcached_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['xcache_cache'] = 'XCache';
