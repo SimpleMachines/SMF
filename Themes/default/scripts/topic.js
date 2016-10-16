@@ -497,6 +497,12 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
 			$('#modified_' + this.sCurMessageId.substr(4)).html(message.getElementsByTagName('modified')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'));
+
+		// Show a message indicating the edit was successfully done.
+		$('<div/>',{
+			text: message.getElementsByTagName('success')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'),
+			class: 'infobox'
+		}).prependTo('#' + this.sCurMessageId).delay(5000).fadeOutAndRemove(400);
 	}
 	else if (error)
 	{
