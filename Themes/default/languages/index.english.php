@@ -80,6 +80,7 @@ $txt['subject'] = 'Subject';
 $txt['message'] = 'Message';
 $txt['redirects'] = 'Redirects';
 $txt['quick_modify'] = 'Modify Inline';
+$txt['quick_modify_message'] = 'You have successfully modified this message.';
 $txt['reason_for_edit'] = 'Reason for editing';
 
 $txt['choose_pass'] = 'Choose password';

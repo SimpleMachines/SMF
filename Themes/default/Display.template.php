@@ -347,7 +347,7 @@ function template_main()
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 							sTemplateTopSubject: ', JavaScriptEscape('%subject%'), ',
-							sTemplateReasonEdit: ', JavaScriptEscape('<input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text">)'), ',
+							sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] .': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text" style="margin-bottom: 5px;">'), ',
 							sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
 							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply']) ? ',
 							sFormRemoveAccessKeys: \'postmodify\'' : '', '

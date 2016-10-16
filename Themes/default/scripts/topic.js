@@ -365,6 +365,11 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 	sSubjectText = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 	setInnerHTML(this.oCurSubjectDiv, this.opt.sTemplateSubjectEdit.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
 
+	// Field for editing reason.
+	sReasonText = XMLDoc.getElementsByTagName('reason')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
+
+	$(this.oCurMessageDiv).prepend(this.opt.sTemplateReasonEdit.replace(/%modify_reason%/, sReasonText).replace(/\{&dollarfix;\$\}/g, '$'));
+
 	return true;
 }
 
@@ -400,7 +405,7 @@ QuickModify.prototype.modifyCancel = function ()
 	return false;
 }
 
-// The function called after a user wants to save his precious message.
+// The function called after a user wants to save her/his precious message.
 QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 {
 	// We cannot save if we weren't in edit mode.
@@ -428,15 +433,20 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	}
 
 
-	var i, x = new Array();
-	x[x.length] = 'subject=' + escape(document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B");
-	x[x.length] = 'message=' + escape(document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B");
-	x[x.length] = 'topic=' + parseInt(document.forms.quickModForm.elements['topic'].value);
-	x[x.length] = 'msg=' + parseInt(document.forms.quickModForm.elements['msg'].value);
+	var i, x = new Array(),
+		oCaller = this,
+		formData = {
+			subject : document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit(),
+			message : document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#").php_to8bit(),
+			topic : parseInt(document.forms.quickModForm.elements['topic'].value),
+			msg : parseInt(document.forms.quickModForm.elements['msg'].value),
+			modify_reason : document.forms.quickModForm.elements['modify_reason'].value.replace(/&#/g, "&#38;#").php_to8bit()
+		};
 
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", x.join("&"), this.onModifyDone);
+
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", formData, this.onModifyDone);
 
 	return false;
 }
@@ -455,6 +465,7 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 			setInnerHTML(document.getElementById('error_box'), XMLDoc.firstChild.textContent);
 		else
 			this.modifyCancel();
+
 		return;
 	}
 
@@ -485,7 +496,7 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
-			setInnerHTML(document.getElementById('modified_' + this.sCurMessageId.substr(4)), message.getElementsByTagName('modified')[0].childNodes[0].nodeValue);
+			$('#modified_' + this.sCurMessageId.substr(4)).html(message.getElementsByTagName('modified')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'));
 	}
 	else if (error)
 	{
