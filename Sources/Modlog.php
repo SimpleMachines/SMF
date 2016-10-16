@@ -472,7 +472,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		// The array to go to the template. Note here that action is set to a "default" value of the action doesn't match anything in the descriptions. Allows easy adding of logging events with basic details.
 		$entries[$row['id_action']] = array(
 			'id' => $row['id_action'],
-			'ip' => $seeIP ? $row['ip'] : $txt['logged'],
+			'ip' => $seeIP ? inet_dtop($row['ip']) : $txt['logged'],
 			'position' => empty($row['real_name']) && empty($row['group_name']) ? $txt['guest'] : $row['group_name'],
 			'moderator_link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
