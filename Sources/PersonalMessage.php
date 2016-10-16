@@ -827,7 +827,11 @@ function MessageFolder()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($context['folder'] == 'sent' || empty($row['bcc']))
+			{
 				$recipients[$row['id_pm']][empty($row['bcc']) ? 'to' : 'bcc'][] = empty($row['id_member_to']) ? $txt['guest_title'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_to'] . '">' . $row['to_name'] . '</a>';
+
+				$context['folder'] == 'sent' && $context['display_mode'] != 2 ? $context['message_replied'][$row['id_pm']] = $row['is_read'] & 2 : '';
+			}
 
 			if ($row['id_member_to'] == $user_info['id'] && $context['folder'] != 'sent')
 			{
