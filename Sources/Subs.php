@@ -1883,12 +1883,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		|										#  or
 		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
 	)						
-	(?:
-		/{1,3}									# 1-3 slashes
-		|										#	or
-		[\p{L}\p{M}\p{N}%]						# Single letter or digit or "%"
-												# (Trying not to match e.g. "URI::Escape")
-	)
+	/{1,3}										# 1-3 slashes
 	|											#	or
 	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
 	|											#	or
