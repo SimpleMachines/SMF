@@ -661,6 +661,9 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'mediumtext' => 'text',
 			'largetext' => 'text',
 			'inet' => 'inet',
+			'time' => 'time without time zone',
+			'datetime' => 'timestamp without time zone',
+			'timestamp' => 'timestamp without time zone',
 		);
 	}
 	else
@@ -670,6 +673,9 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'character' => 'char',
 			'integer' => 'int',
 			'inet' => 'inet',
+			'time without time zone' => 'time',
+			'timestamp without time zone' => 'datetime',
+			'numeric' => 'decimal',
 		);
 	}
 
