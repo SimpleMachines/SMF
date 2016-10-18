@@ -5586,9 +5586,7 @@ function index_to_regex(&$index, $depth = 0)
 			$l2 = $strlen($val2);
 		
 		if ($l1 == $l2)
-		{
 			return strcmp($substr($val1, 0, $l1), $substr($val2, 0, $l2)) > 0 ? 1 : -1;
-		}
 		else
 			return $l1 > $l2 ? -1 : 1;
 	});
