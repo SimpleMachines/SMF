@@ -5498,6 +5498,7 @@ function build_regex($strings)
  *
  * @param string $str The string we want to incorporate into the index array.
  * @param array $index The index array that we want to incorporate the string into.
+ * @param int $depth Indicates how many levels of recursion the function is currently at.
  * @return array An alphabetically keyed array that incorporates $str.
  */
 function add_string_to_index($str, $index, $depth = 0)
