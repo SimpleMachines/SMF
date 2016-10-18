@@ -5500,7 +5500,7 @@ function build_regex($strings)
  * @param array $index The index array that we want to incorporate the string into.
  * @return array An alphabetically keyed array that incorporates $str.
  */
-function add_string_to_index($str, $index)
+function add_string_to_index($str, $index, $depth = 0)
 {
 	global $smcFunc;
 
@@ -5513,7 +5513,7 @@ function add_string_to_index($str, $index)
 		$index[$first] = array();
 
 	if ($strlen($str) > 1)
-		$index[$first] = add_string_to_index($substr($str, 1), $index[$first]);
+		$index[$first] = $depth > 99 ? $substr($str, 1) : add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
 	else
 		$index[$first][''] = '';
 
