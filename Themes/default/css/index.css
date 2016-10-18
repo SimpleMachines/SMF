@@ -52,6 +52,11 @@ textarea, textarea.editor {
 .sceditor-container textarea, .sceditor-container textarea:focus  {
 	box-shadow: none;
 }
+
+#quick_edit_body_container {
+	margin-bottom: 14px;
+}
+
 #quick_edit_body_container textarea,
 .move_topic textarea,
 dd textarea {
@@ -2959,7 +2964,7 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, 
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2,
 #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
