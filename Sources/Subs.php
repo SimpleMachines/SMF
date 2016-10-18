@@ -5479,7 +5479,7 @@ function build_regex($strings)
 	global $smcFunc;
 
 	$index = array();
-	$regexes = '';
+	$regexes = array();
 	
 	foreach ($strings as $string)
 		$index = add_string_to_index($string, $index);
