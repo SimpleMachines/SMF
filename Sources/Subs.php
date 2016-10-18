@@ -5512,8 +5512,10 @@ function add_string_to_index($str, $index, $depth = 0)
 	if (empty($index[$first]))
 		$index[$first] = array();
 
-	if ($strlen($str) > 1)
-		$index[$first] = $depth > 99 ? $substr($str, 1) : add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
+	if ($strlen($str) > 1 && $depth > 99)
+		$index[$first][$substr($str, 1)] = '';
+	elseif ($strlen($str) > 1)
+		$index[$first] =  add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
 	else
 		$index[$first][''] = '';
 
