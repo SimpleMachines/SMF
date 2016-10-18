@@ -750,7 +750,7 @@ function MessageIndex()
 		);
 
 	// Javascript for inline editing.
-	loadJavascriptFile('topic.js', array('defer' => false), 'smf_topic');
+	loadJavaScriptFile('topic.js', array('defer' => false), 'smf_topic');
 
 	// Allow adding new buttons easily.
 	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
