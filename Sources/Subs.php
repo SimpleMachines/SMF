@@ -5495,7 +5495,7 @@ function build_regex($strings, $delim = null)
 		if ($strlen($str) > 1 && $depth > 99)
 			$index[$first][$substr($str, 1)] = '';
 		elseif ($strlen($str) > 1)
-			$index[$first] =  add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
+			$index[$first] =  $add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
 		else
 			$index[$first][''] = '';
 
@@ -5518,12 +5518,12 @@ function build_regex($strings, $delim = null)
 			}
 			elseif (count(array_keys($value)) == 1)
 			{
-				$sub_regex = index_to_regex($value, $depth + 1);
+				$sub_regex = $index_to_regex($value, $depth + 1);
 				$key_regex = $key . $sub_regex;
 			}
 			else
 			{
-				$sub_regex = '(?' . '>' . index_to_regex($value, $depth + 1) . ')';
+				$sub_regex = '(?' . '>' . $index_to_regex($value, $depth + 1) . ')';
 				$key_regex = $key . $sub_regex;
 			}
 
