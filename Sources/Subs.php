@@ -1660,7 +1660,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, 'sort_bbc_tags');
+			usort($codes, function ($a, $b) {
+				return strcmp($a['tag'], $b['tag']);
+			});
 			return $codes;
 		}
 
@@ -2550,17 +2552,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	return $message;
-}
-
-/**
- * Helper function for usort(), used in parse_bbc().
- * @param array $a An array containing a tag
- * @param array $b Another array containing a tag
- * @return int A number indicating whether $a is bigger than $b
- */
-function sort_bbc_tags($a, $b)
-{
-	return strcmp($a['tag'], $b['tag']);
 }
 
 /**
