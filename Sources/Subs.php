@@ -5482,7 +5482,7 @@ function build_regex($strings, $delim = null)
 	$index = array();
 	$regexes = array();
 
-	$add_string_to_index = function ($str, $index, $delim = null, $depth = 0) use ($smcFunc, &$add_string_to_index)
+	$add_string_to_index = function ($str, $index, $delim = null, $depth = 0) use (&$smcFunc, &$add_string_to_index)
 	{
 		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
@@ -5495,14 +5495,14 @@ function build_regex($strings, $delim = null)
 		if ($strlen($str) > 1 && $depth > 99)
 			$index[$first][$substr($str, 1)] = '';
 		elseif ($strlen($str) > 1)
-			$index[$first] =  $add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
+			$index[$first] = $add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
 		else
 			$index[$first][''] = '';
 
 		return $index;
 	};
 
-	$index_to_regex = function (&$index, $depth = 0) use ($smcFunc, &$index_to_regex)
+	$index_to_regex = function (&$index, $depth = 0) use (&$smcFunc, &$index_to_regex)
 	{
 		// Absolute max length is 32768, but we might need wiggle room
 		$max_length = 30000;
@@ -5542,7 +5542,7 @@ function build_regex($strings, $delim = null)
 		}
 		
 		// Sort by length (not including any subgroups) and then alphabetically
-		usort($regex, function($val1, $val2) use ($smcFunc) {
+		usort($regex, function($val1, $val2) use (&$smcFunc) {
 			$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 			$strpos = function_exists('mb_strpos') ? 'mb_strpos' : $smcFunc['strpos'];
 			$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
