@@ -5472,9 +5472,10 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
  * whatever you are trying to do with these giant regexes.)
  *
  * @param array $strings An array of strings to make a regex for.
+ * @param string $delim An optional delimiter character to pass to preg_quote().
  * @return array An array of one or more regular expressions to match any of the input strings.
  */
-function build_regex($strings)
+function build_regex($strings, $delim = null)
 {
 	global $smcFunc;
 
@@ -5482,7 +5483,7 @@ function build_regex($strings)
 	$regexes = array();
 	
 	foreach ($strings as $string)
-		$index = add_string_to_index($string, $index);
+		$index = add_string_to_index($string, $index, $delim);
 
 	while (!empty($index))
 		$regexes[] = '(?' . '>' . index_to_regex($index) . ')';
@@ -5498,17 +5499,18 @@ function build_regex($strings)
  *
  * @param string $str The string we want to incorporate into the index array.
  * @param array $index The index array that we want to incorporate the string into.
+ * @param string $delim An optional delimiter character to pass to preg_quote().
  * @param int $depth Indicates how many levels of recursion the function is currently at.
  * @return array An alphabetically keyed array that incorporates $str.
  */
-function add_string_to_index($str, $index, $depth = 0)
+function add_string_to_index($str, $index, $delim = null, $depth = 0)
 {
 	global $smcFunc;
 
 	$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 	$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
-	$first = $substr($str, 0, 1);
+	$first = preg_quote($substr($str, 0, 1), $delim);
 
 	if (empty($index[$first]))
 		$index[$first] = array();
@@ -5516,7 +5518,7 @@ function add_string_to_index($str, $index, $depth = 0)
 	if ($strlen($str) > 1 && $depth > 99)
 		$index[$first][$substr($str, 1)] = '';
 	elseif ($strlen($str) > 1)
-		$index[$first] =  add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
+		$index[$first] =  add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
 	else
 		$index[$first][''] = '';
 
