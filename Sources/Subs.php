@@ -5482,7 +5482,7 @@ function build_regex($strings, $delim = null)
 	$index = array();
 	$regexes = array();
 
-	$add_string_to_index = function ($str, $index, $delim = null, $depth = 0) use (&$smcFunc, &$add_string_to_index)
+	$add_string_to_index = function ($str, $index, $delim, $depth = 0) use (&$smcFunc, &$add_string_to_index)
 	{
 		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
