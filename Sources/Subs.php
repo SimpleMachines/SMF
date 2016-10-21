@@ -5547,9 +5547,9 @@ function build_regex($strings, $delim = null)
 			$strpos = function_exists('mb_strpos') ? 'mb_strpos' : $smcFunc['strpos'];
 			$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
-			if (($l1 = $strpos($val1, '(?' . '>')) == false)
+			if (($l1 = $strpos($val1, '(?' . '>')) === false)
 				$l1 = $strlen($val1);
-			if (($l2 = $strpos($val2, '(?' . '>')) == false)
+			if (($l2 = $strpos($val2, '(?' . '>')) === false)
 				$l2 = $strlen($val2);
 			
 			if ($l1 == $l2)
