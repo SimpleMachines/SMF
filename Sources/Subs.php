@@ -5482,12 +5482,12 @@ function build_regex($strings, $delim = null)
 	$index = array();
 	$regexes = array();
 
-	$add_string_to_index = function ($str, $index, $delim, $depth = 0) use (&$smcFunc, &$add_string_to_index)
+	$add_string_to_index = function ($str, $index, $depth = 0) use (&$smcFunc, &$add_string_to_index)
 	{
 		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
-		$first = preg_quote($substr($str, 0, 1), $delim);
+		$first = $substr($str, 0, 1);
 
 		if (empty($index[$first]))
 			$index[$first] = array();
@@ -5495,14 +5495,14 @@ function build_regex($strings, $delim = null)
 		if ($strlen($str) > 1 && $depth > 99)
 			$index[$first][$substr($str, 1)] = '';
 		elseif ($strlen($str) > 1)
-			$index[$first] = $add_string_to_index($substr($str, 1), $index[$first], $delim, $depth + 1);
+			$index[$first] = $add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
 		else
 			$index[$first][''] = '';
 
 		return $index;
 	};
 
-	$index_to_regex = function (&$index, $depth = 0) use (&$smcFunc, &$index_to_regex)
+	$index_to_regex = function (&$index, $delim, $depth = 0) use (&$smcFunc, &$index_to_regex)
 	{
 		// Absolute max length is 32768, but we might need wiggle room
 		$max_length = 30000;
@@ -5514,26 +5514,30 @@ function build_regex($strings, $delim = null)
 		{
 			if (empty($value))
 			{
-				$key_regex = $key;
+				$sub_regex = '';
+				$key_regex = preg_quote($key, $delim);
+				$new_key = $key;
 			}
 			elseif (count(array_keys($value)) == 1)
 			{
-				$sub_regex = $index_to_regex($value, $depth + 1);
-				$key_regex = $key . $sub_regex;
+				$sub_regex = $index_to_regex($value, $delim, $depth + 1);
+				$key_regex = preg_quote($key, $delim);
+				$new_key = $key . explode('(?'.'>', $sub_regex)[0];
 			}
 			else
 			{
-				$sub_regex = '(?' . '>' . $index_to_regex($value, $depth + 1) . ')';
-				$key_regex = $key . $sub_regex;
+				$sub_regex = '(?'.'>' . $index_to_regex($value, $delim, $depth + 1) . ')';
+				$key_regex = preg_quote($key, $delim);
+				$new_key = $key;
 			}
 
 			if ($depth > 0)
-				$regex[] = $key_regex;
+				$regex[$new_key] = $key_regex . $sub_regex;
 			else
 			{
 				if (($length += strlen($key_regex) + 1) < $max_length || empty($regex))
 				{
-					$regex[] = $key_regex;
+					$regex[$new_key] = $key_regex . $sub_regex;
 					unset($index[$key]);
 				}
 				else
@@ -5541,19 +5545,15 @@ function build_regex($strings, $delim = null)
 			}
 		}
 		
-		// Sort by length (not including any subgroups) and then alphabetically
-		usort($regex, function($val1, $val2) use (&$smcFunc) {
+		// Sort by key length and then alphabetically
+		uksort($regex, function($k1, $k2) use (&$smcFunc, $delim) {
 			$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
-			$strpos = function_exists('mb_strpos') ? 'mb_strpos' : $smcFunc['strpos'];
-			$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
-			if (($l1 = $strpos($val1, '(?' . '>')) === false)
-				$l1 = $strlen($val1);
-			if (($l2 = $strpos($val2, '(?' . '>')) === false)
-				$l2 = $strlen($val2);
+			$l1 = $strlen($k1);
+			$l2 = $strlen($k2);
 			
 			if ($l1 == $l2)
-				return strcmp($substr($val1, 0, $l1), $substr($val2, 0, $l2)) > 0 ? 1 : -1;
+				return strcmp($k1, $k2) > 0 ? 1 : -1;
 			else
 				return $l1 > $l2 ? -1 : 1;
 		});
@@ -5566,7 +5566,7 @@ function build_regex($strings, $delim = null)
 		$index = $add_string_to_index($string, $index, $delim);
 
 	while (!empty($index))
-		$regexes[] = '(?' . '>' . $index_to_regex($index) . ')';
+		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
 
 	return $regexes;
 }
