@@ -5482,20 +5482,20 @@ function build_regex($strings, $delim = null)
 	$index = array();
 	$regexes = array();
 
-	$add_string_to_index = function ($str, $index, $depth = 0) use (&$smcFunc, &$add_string_to_index)
+	$add_string_to_index = function ($string, $index, $depth = 0) use (&$smcFunc, &$add_string_to_index)
 	{
 		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
-		$first = $substr($str, 0, 1);
+		$first = $substr($string, 0, 1);
 
 		if (empty($index[$first]))
 			$index[$first] = array();
 
-		if ($strlen($str) > 1 && $depth > 99)
-			$index[$first][$substr($str, 1)] = '';
-		elseif ($strlen($str) > 1)
-			$index[$first] = $add_string_to_index($substr($str, 1), $index[$first], $depth + 1);
+		if ($strlen($string) > 1 && $depth > 99)
+			$index[$first][$substr($string, 1)] = '';
+		elseif ($strlen($string) > 1)
+			$index[$first] = $add_string_to_index($substr($string, 1), $index[$first], $depth + 1);
 		else
 			$index[$first][''] = '';
 
