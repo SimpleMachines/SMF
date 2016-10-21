@@ -5480,8 +5480,11 @@ function build_regex($strings, $delim = null)
 	global $smcFunc;
 
 	// This recursive function creates the index array from the strings
-	$add_string_to_index = function ($string, $index, $depth = 0) use (&$smcFunc, &$add_string_to_index)
+	$add_string_to_index = function ($string, $index) use (&$smcFunc, &$add_string_to_index)
 	{
+		static $depth = 0;
+		$depth++;
+
 		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
 		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
 
@@ -5497,17 +5500,21 @@ function build_regex($strings, $delim = null)
 				$index[$first][$substr($string, 1)] = '';
 			
 			else
-				$index[$first] = $add_string_to_index($substr($string, 1), $index[$first], $depth + 1);
+				$index[$first] = $add_string_to_index($substr($string, 1), $index[$first]);
 		}
 		else
 			$index[$first][''] = '';
 
+		$depth--;
 		return $index;
 	};
 
 	// This recursive function turns the index array into a regular expression
-	$index_to_regex = function (&$index, $delim, $depth = 0) use (&$smcFunc, &$index_to_regex)
+	$index_to_regex = function (&$index, $delim) use (&$smcFunc, &$index_to_regex)
 	{
+		static $depth = 0;
+		$depth++;
+
 		// Absolute max length for a regex is 32768, but we might need wiggle room
 		$max_length = 30000;
 
@@ -5523,7 +5530,7 @@ function build_regex($strings, $delim = null)
 				$sub_regex = '';
 			else
 			{
-				$sub_regex = $index_to_regex($value, $delim, $depth + 1);
+				$sub_regex = $index_to_regex($value, $delim);
 
 				if (count(array_keys($value)) == 1)
 					$new_key .= explode('(?'.'>', $sub_regex)[0];
@@ -5531,7 +5538,7 @@ function build_regex($strings, $delim = null)
 					$sub_regex = '(?'.'>' . $sub_regex . ')';
 			}
 
-			if ($depth > 0)
+			if ($depth > 1)
 				$regex[$new_key] = $key_regex . $sub_regex;
 			else
 			{
@@ -5558,6 +5565,7 @@ function build_regex($strings, $delim = null)
 				return $l1 > $l2 ? -1 : 1;
 		});
 
+		$depth--;
 		return implode('|', $regex);
 	};
 
