@@ -379,7 +379,7 @@ function showAlerts($memID)
 	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
-	addInlineJavascript('
+	addInlineJavaScript('
 	$(function(){
 		$(\'#select_all\').on(\'change\', function() {
 			var checkboxes = $(\'ul.quickbuttons\').find(\':checkbox\');

@@ -131,7 +131,7 @@ function ReportToModerator()
 	loadLanguage('Post');
 	loadTemplate('ReportToMod');
 
-	addInlineJavascript('
+	addInlineJavaScript('
 	var error_box = $("#error_box");
 	$("#report_comment").keyup(function() {
 		var post_too_long = $("#error_post_too_long");

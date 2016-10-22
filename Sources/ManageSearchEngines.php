@@ -146,7 +146,7 @@ function ManageSearchEngineSettings($return_config = false)
 	// Final settings...
 	$context['post_url'] = $scripturl . '?action=admin;area=sengines;save;sa=settings';
 	$context['settings_title'] = $txt['settings'];
-	addInlineJavascript($javascript_function, true);
+	addInlineJavaScript($javascript_function, true);
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);

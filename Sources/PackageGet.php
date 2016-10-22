@@ -170,7 +170,7 @@ function PackageServers()
 		}
 	}
 
-	addInlineJavascript('
+	addInlineJavaScript('
 	$(\'.new_package_content\').hide();
 	$(\'.download_new_package\').on(\'click\', function() {
 		var collapseState = $(\'.new_package_content\').css(\'display\');

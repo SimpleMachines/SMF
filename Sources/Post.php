@@ -1181,22 +1181,22 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
-		loadJavascriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
-		loadJavascriptFile('mentions.js', array('defer' => true), 'smf_mentions');
+		loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		loadJavaScriptFile('mentions.js', array('defer' => true), 'smf_mentions');
 	}
 
 	// quotedText.js
-	loadJavascriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
+	loadJavaScriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
 
 	// Mock files to show already attached files.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var current_attachments = [];', true);
 
 	if (!empty($context['current_attachments']))
 	{
 		foreach ($context['current_attachments'] as $key => $mock)
-			addInlineJavascript('
+			addInlineJavaScript('
 	current_attachments.push({
 		name: '. JavaScriptEscape($mock['name']) .',
 		size: '. $mock['size'] .',
@@ -1212,9 +1212,9 @@ function Post($post_errors = array())
 	{
 		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.'. $smcFunc['htmltrim']($val);} , explode(',', $context['allowed_extensions'])));
 
-		loadJavascriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
-		loadJavascriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
-		addInlineJavascript('
+		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
+		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
+		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
 			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
@@ -1245,7 +1245,7 @@ function Post($post_errors = array())
 	}
 
 	// Knowing the current board ID might be handy.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
 
 	// Finally, load the template.
