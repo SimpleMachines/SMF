@@ -4398,7 +4398,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	// Any files  to load?
 	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
+		$function = $file . (!empty($function) ? '|' . $function : '');
 
 	// Get the correct string.
 	$integration_call = $function;
