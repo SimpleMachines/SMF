@@ -179,8 +179,14 @@ class Mentions
 	 */
 	protected static function getPossibleMentions($body)
 	{
+		global $smcFunc;
+
 		// preparse code does a few things which might mess with our parsing
 		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?\>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+
+		// Remove quotes, we don't want to get double mentions.
+		while (preg_match('~\[quote[^\]]*\](.+?)\[\/quote\]~s', $body))
+			$body = preg_replace('~\[quote[^\]]*\](.+?)\[\/quote\]~s', '', $body);
 
 		$matches = array();
 		$string = str_split($body);
@@ -217,7 +223,7 @@ class Mentions
 			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($i = 1; $i <= count($match); $i++)
-				$names[] = htmlspecialchars(trim(implode('', array_slice($match, 0, $i))));
+				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))));
 		}
 
 		$names = array_unique($names);
