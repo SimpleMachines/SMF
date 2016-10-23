@@ -566,7 +566,7 @@ function ConvertEntities()
 		$columns = array();
 		$request = $smcFunc['db_query']('', '
 			SHOW FULL COLUMNS
-			FROM {db_prefix}{string:cur_table}',
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'cur_table' => $cur_table,
 			)
@@ -578,7 +578,7 @@ function ConvertEntities()
 		// Get the column with the (first) primary key.
 		$request = $smcFunc['db_query']('', '
 			SHOW KEYS
-			FROM {db_prefix}{string:cur_table}',
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'cur_table' => $cur_table,
 			)
@@ -603,7 +603,7 @@ function ConvertEntities()
 		// Get the maximum value for the primary key.
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX({string:key})
-			FROM {db_prefix}{string:cur_table}',
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'key' => $primary_key,
 				'cur_table' => $cur_table,

@@ -209,7 +209,7 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'identifier':
-			return '`' . strtr($replacement, array('`' => '', '.' => '')) . '`';
+			return '"' . strtr($replacement, array('`' => '', '.' => '')) . '"';
 		break;
 
 		case 'raw':

@@ -3226,6 +3226,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
  *	 memcache: http://www.php.net/memcache
  *	 APC: http://www.php.net/apc
+ *   APCu: http://www.php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
@@ -3276,6 +3277,17 @@ function cache_put_data($key, $value, $ttl = 120)
 					apc_delete($key . 'smf');
 				else
 					apc_store($key . 'smf', $value, $ttl);
+			}
+			break;
+		case 'apcu':
+			// APC User Cache
+			if (function_exists('apcu_store'))
+			{
+				// Not sure if this bug exists in APCu or not?
+				if ($value === null)
+					apcu_delete($key . 'smf');
+				else
+					apcu_store($key . 'smf', $value, $ttl);
 			}
 			break;
 		case 'zend':
@@ -3374,6 +3386,11 @@ function cache_get_data($key, $ttl = 120)
 			// This is the free APC from PECL.
 			if (function_exists('apc_fetch'))
 				$value = apc_fetch($key . 'smf');
+			break;
+		case 'apcu':
+			// APC User Cache. A continuation of the now-unsupported APC but without opcode cache
+			if (function_exists('apcu_fetch'))
+				$value = apcu_fetch($key . 'smf');
 			break;
 		case 'zend':
 			// Zend's pricey stuff.

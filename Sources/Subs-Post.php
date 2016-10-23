@@ -1301,7 +1301,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 	// Try POP3 before SMTP?
 	// @todo There's no interface for this yet.
-	if ($modSettings['mail_type'] == 2 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	if ($modSettings['mail_type'] == 3 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		$socket = fsockopen($modSettings['smtp_host'], 110, $errno, $errstr, 2);
 		if (!$socket && (substr($modSettings['smtp_host'], 0, 5) == 'smtp.' || substr($modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
@@ -1344,21 +1344,36 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 	// Try and determine the servers name, fall back to the mail servers if not found
 	$helo = false;
-	if(function_exists('gethostname') && gethostname() !== false)
+	if (function_exists('gethostname') && gethostname() !== false)
 		$helo = gethostname();
-	elseif(function_exists('php_uname'))
+	elseif (function_exists('php_uname'))
 		$helo = php_uname('n');
-	elseif(array_key_exists('SERVER_NAME',$_SERVER) && !empty($_SERVER['SERVER_NAME']))
+	elseif (array_key_exists('SERVER_NAME',$_SERVER) && !empty($_SERVER['SERVER_NAME']))
 		$helo = $_SERVER['SERVER_NAME'];
 
-	if(empty($helo)) 
+	if (empty($helo)) 
 		$helo	= $modSettings['smtp_host'];
 
-	if ($modSettings['mail_type'] == 1 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	// SMTP = 1, SMTP - STARTTLS = 2
+	if (in_array($modSettings['mail_type'], array(1,2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		// EHLO could be understood to mean encrypted hello...
-		if (server_parse('EHLO ' . $helo, $socket, null) == '250')
+		if (server_parse('EHLO ' . $helo, $socket, null, $response) == '250')
 		{
+			// Are we using STARTTLS and does the server support STARTTLS? 
+			if ($modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response)) 
+			{
+				// Send STARTTLS to enable encryption
+				if (!server_parse('STARTTLS', $socket, '220')) 
+					return false; 
+				// Enable the encryption
+				if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT))
+					return false;
+				// Send the EHLO command again
+				if (!server_parse('EHLO ' . $helo, $socket, null) == '250') 
+					return false;
+			}
+
 			if (!server_parse('AUTH LOGIN', $socket, '334'))
 				return false;
 			// Send the username and password, encoded.
@@ -1428,10 +1443,11 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  *
  * @param string $message The message to send
  * @param resource $socket Socket to send on
- * @param string $response The expected response code
+ * @param string $code The expected response code
+ * @param string $response The response from the SMTP server
  * @return bool Whether it responded as such.
  */
-function server_parse($message, $socket, $response)
+function server_parse($message, $socket, $code, &$response = null)
 {
 	global $txt;
 
@@ -1441,18 +1457,21 @@ function server_parse($message, $socket, $response)
 	// No response yet.
 	$server_response = '';
 
-	while (substr($server_response, 3, 1) != ' ')
+	while (substr($server_response, 3, 1) != ' ') 
+	{
 		if (!($server_response = fgets($socket, 256)))
 		{
 			// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
 			log_error($txt['smtp_bad_response']);
 			return false;
 		}
+		$response .= $server_response;
+	}
 
-	if ($response === null)
+	if ($code === null)
 		return substr($server_response, 0, 3);
 
-	if (substr($server_response, 0, 3) != $response)
+	if (substr($server_response, 0, 3) != $code)
 	{
 		log_error($txt['smtp_error'] . $server_response);
 		return false;
