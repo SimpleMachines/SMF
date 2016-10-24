@@ -686,11 +686,11 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			$type_size = 255;
 		$type_name = $types[$type_name];
 	}
-	
+
 	// Only char fields got size
 	if (strpos($type_name, 'char') === false)
 			$type_size = null;
-	
+
 
 	return array($type_name, $type_size);
 }

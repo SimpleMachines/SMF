@@ -3025,7 +3025,7 @@ function setupThemeContext($forceload = false)
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 	if ($context['show_pm_popup'])
-		addInlineJavascript('
+		addInlineJavaScript('
 		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
@@ -3035,7 +3035,7 @@ function setupThemeContext($forceload = false)
 		});');
 
 	// Add a generic "Are you sure?" confirmation message.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
 
 	// Now add the capping code for avatars.
@@ -3059,7 +3059,7 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
-		addJavascriptVar('smf_scripturl', $scripturl);
+		addJavaScriptVar('smf_scripturl', $scripturl);
 
 	if (!isset($context['page_title']))
 		$context['page_title'] = '';
@@ -4000,12 +4000,12 @@ function setupMenuContext()
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
 	{
-		addInlineJavascript('
+		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
 	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
 		if ($context['allow_pm'])
-			addInlineJavascript('
+			addInlineJavaScript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 
 		if (!empty($modSettings['enable_ajax_alerts']))
@@ -4015,10 +4015,10 @@ function setupMenuContext()
 			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
-			addInlineJavascript('
+			addInlineJavaScript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
+			loadJavaScriptFile('alerts.js', array(), 'smf_alerts');
 		}
 	}
 
@@ -4389,7 +4389,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	// Any files  to load?
 	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
+		$function = $file . (!empty($function) ? '|' . $function : '');
 
 	// Get the correct string.
 	$integration_call = $function;

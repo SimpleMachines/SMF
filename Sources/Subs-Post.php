@@ -1351,8 +1351,8 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	elseif (array_key_exists('SERVER_NAME',$_SERVER) && !empty($_SERVER['SERVER_NAME']))
 		$helo = $_SERVER['SERVER_NAME'];
 
-	if (empty($helo)) 
-		$helo	= $modSettings['smtp_host'];
+	if (empty($helo))
+		$helo = $modSettings['smtp_host'];
 
 	// SMTP = 1, SMTP - STARTTLS = 2
 	if (in_array($modSettings['mail_type'], array(1,2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
@@ -1360,17 +1360,17 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		// EHLO could be understood to mean encrypted hello...
 		if (server_parse('EHLO ' . $helo, $socket, null, $response) == '250')
 		{
-			// Are we using STARTTLS and does the server support STARTTLS? 
-			if ($modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response)) 
+			// Are we using STARTTLS and does the server support STARTTLS?
+			if ($modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response))
 			{
 				// Send STARTTLS to enable encryption
-				if (!server_parse('STARTTLS', $socket, '220')) 
-					return false; 
+				if (!server_parse('STARTTLS', $socket, '220'))
+					return false;
 				// Enable the encryption
 				if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT))
 					return false;
 				// Send the EHLO command again
-				if (!server_parse('EHLO ' . $helo, $socket, null) == '250') 
+				if (!server_parse('EHLO ' . $helo, $socket, null) == '250')
 					return false;
 			}
 
@@ -1457,7 +1457,7 @@ function server_parse($message, $socket, $code, &$response = null)
 	// No response yet.
 	$server_response = '';
 
-	while (substr($server_response, 3, 1) != ' ') 
+	while (substr($server_response, 3, 1) != ' ')
 	{
 		if (!($server_response = fgets($socket, 256)))
 		{
@@ -2108,17 +2108,39 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
-	require_once($sourcedir . '/Mentions.php');
 	if (!empty($modSettings['enable_mentions']))
 	{
 		require_once($sourcedir . '/Mentions.php');
-		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
-		if (!empty($mentions))
-		{
-			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
-			$msgOptions['mentioned_members'] = $mentions;
 
-			// Queue this for notification
+		$oldmentions = array();
+
+		if (!empty($msgOptions['old_body']))
+		{
+			preg_match_all('/\[member\=([0-9]+)\]([^\[]*)\[\/member\]/U', $msgOptions['old_body'], $match);
+
+			if (isset($match[1]) && isset($match[2]) && is_array($match[1]) && is_array($match[2]))
+				foreach($match[1] as $i => $oldID)
+					$oldmentions[$oldID] = array('id' => $oldID, 'real_name' => $match[2][$i]);
+
+			if (empty($modSettings['search_custom_index_config']))
+				unset($msgOptions['old_body']);
+		}
+
+		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
+		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+
+		// Remove the poster.
+		if(isset($mentions[$user_info['id']]))
+			unset($mentions[$user_info['id']]);
+
+		if(isset($oldmentions[$user_info['id']]))
+			unset($oldmentions[$user_info['id']]);
+
+		if (is_array($mentions) && is_array($oldmentions) && count(array_diff_key($mentions, $oldmentions)) > 0 && count($mentions) > count($oldmentions))
+		{
+			// Queue this for notification.
+			$msgOptions['mentioned_members'] = array_diff_key($mentions, $oldmentions);
+
 			$smcFunc['db_insert']('',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),

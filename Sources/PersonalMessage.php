@@ -1731,8 +1731,8 @@ function MessagePost()
 	loadLanguage('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
 	loadTemplate('PersonalMessage');
-	loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
-	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
@@ -2042,8 +2042,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	if (!isset($_REQUEST['xml']))
 	{
 		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';		$context['sub_template'] = 'send';
-		loadJavascriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
-		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+		loadJavaScriptFile('PersonalMessage.js', array('defer' => false), 'smf_pms');
+		loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 	else
 		$context['sub_template'] = 'pm';

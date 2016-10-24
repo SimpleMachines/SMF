@@ -634,7 +634,7 @@ function ModifyAntispamSettings($return_config = false)
 	}
 
 	// Thirdly, push some JavaScript for the form to make it work.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
 	$(".qa_link a").click(function() {
 		var id = $(this).parent().attr("id").substring(6);
@@ -2111,7 +2111,7 @@ function ModifyLogSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	addInlineJavascript('
+	addInlineJavaScript('
 	function togglePruned()
 	{
 		var newval = $("#pruningOptions").prop("checked");
