@@ -2514,7 +2514,7 @@ function QuoteFast()
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
-			m.id_board, m.id_member, m.approved
+			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
@@ -2557,6 +2557,11 @@ function QuoteFast()
 				'id' => $_REQUEST['quote'],
 				'body' => $row['body'],
 				'subject' => addcslashes($row['subject'], '"'),
+				'reason' => array(
+					'name' => $row['modified_name'],
+					'text' => $row['modified_reason'],
+					'time' => $row['modified_time'],
+				),
 			);
 
 			return;
@@ -2584,6 +2589,11 @@ function QuoteFast()
 			'id' => 0,
 			'body' => '',
 			'subject' => '',
+			'reason' => array(
+				'name' => '',
+				'text' => '',
+				'time' => '',
+			),
 		);
 	}
 	else
@@ -2823,6 +2833,7 @@ function JavaScriptModify()
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
 					'timestamp' => isset($msgOptions['modify_time']) ? forum_time(true, $msgOptions['modify_time']) : 0,
 					'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
+					'reason' => $msgOptions['modify_reason'],
 				),
 				'subject' => $msgOptions['subject'],
 				'first_in_topic' => $row['id_msg'] == $row['id_first_msg'],

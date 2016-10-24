@@ -1415,6 +1415,11 @@ ul li.greeting {
 	padding: 2px;
 }
 
+.quickModifyMargin {
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+}
+
 /* Styles for edit event section
 ---------------------------------------------------- */
 #post_event .roundframe {
@@ -2959,7 +2964,7 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, 
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2,
 #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;

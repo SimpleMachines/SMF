@@ -810,6 +810,12 @@ UPDATE {$db_prefix}members
 SET id_theme = 0;
 ---#
 
+---# Update the max year for the calendar
+UPDATE {$db_prefix}settings
+SET value = '2030'
+WHERE variable = 'cal_maxyear';
+---#
+
 /******************************************************************************/
 --- Membergroup icons changes
 /******************************************************************************/
