@@ -635,9 +635,20 @@ table.table_grid td {
 .quarter_table {
 	width: 25%;
 }
+.small_table {
+	width: 10%;
+}
+.table_icon {
+	width: 5%;
+}
 
 .title_bar th {
-	padding: 4px 3px 3px 8px;
+	padding: 4px 8px;
+}
+/* this is for checkboxes to ensure they line well same elements on the line */
+/* @to-do change all checkall checkboxes on thead's to this */
+.title_bar .checkall {
+	padding: 4px 0;
 }
 .title_bar .sort_down, .title_bar .sort_up {
 	margin: -3px 0 0 2px;

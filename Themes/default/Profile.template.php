@@ -528,8 +528,7 @@ function template_showPosts()
 		echo '
 			<div class="windowbg2">
 				', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
-			</div>
-		</div>';
+			</div>';
 
 	// Show more page numbers.
 	if (!empty($context['page_index']))
@@ -630,7 +629,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="windowbg2 centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -697,7 +696,7 @@ function template_editBuddies()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th scope="col" width="15%">', $txt['name'], '</th>
+				<th scope="col" class="quarter_table">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -716,7 +715,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 			<tr class="windowbg">
-				<td colspan="10"><strong>', $txt['no_buddies'], '</strong></td>
+				<td colspan="', allowedTo('moderate_forum') ? '10' : '9','"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
 		// Now loop through each buddy showing info on each.
@@ -755,15 +754,17 @@ function template_editBuddies()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['buddy_add'], '</h3>
 		</div>
-		<dl class="settings windowbg">
-			<dt>
-				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-			</dt>
-			<dd>
-				<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
-				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
-			</dd>
-		</dl>';
+		<div class="information">
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
+					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
+				</dd>
+			</dl>
+		</div>';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -809,7 +810,7 @@ function template_editIgnoreList()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th scope="col" width="20%">', $txt['name'], '</th>
+				<th scope="col" class="quarter_table">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -824,7 +825,7 @@ function template_editIgnoreList()
 	if (empty($context['ignore_list']))
 		echo '
 			<tr class="windowbg">
-				<td colspan="8"><strong>', $txt['no_ignore'], '</strong></td>
+				<td colspan="', allowedTo('moderate_forum') ? '4' : '3','"><strong>', $txt['no_ignore'], '</strong></td>
 			</tr>';
 
 	// Now loop through each buddy showing info on each.
@@ -853,14 +854,16 @@ function template_editIgnoreList()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['ignore_add'], '</h3>
 		</div>
-		<dl class="settings windowbg">
-			<dt>
-				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-			</dt>
-			<dd>
-				<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
-			</dd>
-		</dl>';
+		<div class="information">
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
+				</dd>
+			</dl>
+		</div>';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -1093,8 +1096,8 @@ function template_showPermissions()
 					<table class="table_grid">
 						<thead>
 							<tr class="title_bar">
-								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+								<th class="lefttext half_table">', $txt['showPermissions_permission'], '</th>
+								<th class="lefttext half_table">', $txt['showPermissions_status'], '</th>
 							</tr>
 						</thead>
 						<tbody>';
@@ -1157,8 +1160,8 @@ function template_showPermissions()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+							<th class="lefttext half_table">', $txt['showPermissions_permission'], '</th>
+							<th class="lefttext half_table">', $txt['showPermissions_status'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
