@@ -604,19 +604,19 @@ function template_subject_list()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th width="4%" class="centercol">
+			<th class="centercol table_icon">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"> <span class="generic_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 			</th>
-			<th class="lefttext" width="22%">
+			<th class="lefttext quarter_table">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=date', $context['sort_by'] == 'date' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['date'], $context['sort_by'] == 'date' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
-			<th class="lefttext" width="46%">
+			<th class="lefttext half_table">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
 			<th class="lefttext">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
-			<th width="4%" class="centercol">
+			<th class="centercol table_icon">
 				<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">
 			</th>
 		</tr>
@@ -631,8 +631,8 @@ function template_subject_list()
 	while ($message = $context['get_pmessage']('subject'))
 	{
 		echo '
-		<tr class="windowbg">
-			<td width="4%">
+		<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '','">
+			<td class="table_icon">
 			<script>
 				currentLabels[', $message['id'], '] = {';
 
@@ -654,7 +654,7 @@ function template_subject_list()
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
-			<td class="centercol" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check"></td>
+			<td class="centercol table_icon"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check"></td>
 		</tr>';
 	}
 
@@ -858,9 +858,9 @@ function template_search_results()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th class="lefttext" width="30%">', $txt['date'], '</th>
-			<th class="lefttext" width="50%">', $txt['subject'], '</th>
-			<th class="lefttext" width="20%">', $txt['from'], '</th>
+			<th class="lefttext quarter_table">', $txt['date'], '</th>
+			<th class="lefttext half_table">', $txt['subject'], '</th>
+			<th class="lefttext quarter_table">', $txt['from'], '</th>
 		</tr>
 	</thead>
 	<tbody>';
@@ -1389,7 +1389,7 @@ function template_labels()
 				<th class="lefttext">
 					', $txt['pm_label_name'], '
 				</th>
-				<th class="centertext" width="4%">';
+				<th class="centertext table_icon">';
 
 	if (count($context['labels']) > 2)
 		echo '
@@ -1417,7 +1417,7 @@ function template_labels()
 				<td>
 					<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30" class="input_text">
 				</td>
-				<td width="4%"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
+				<td class="table_icon"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
 			</tr>';
 		}
 	}
@@ -1547,7 +1547,7 @@ function template_rules()
 				<th class="lefttext">
 					', $txt['pm_rule_title'], '
 				</th>
-				<th width="4%" class="centertext">';
+				<th class="centertext table_icon">';
 
 	if (!empty($context['rules']))
 		echo '
@@ -1574,7 +1574,7 @@ function template_rules()
 				<td>
 					<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=', $rule['id'], '">', $rule['name'], '</a>
 				</td>
-				<td width="4%">
+				<td class="table_icon">
 					<input type="checkbox" name="delrule[', $rule['id'], ']" class="input_check">
 				</td>
 			</tr>';

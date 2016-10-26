@@ -2463,6 +2463,9 @@ dl.addrules dt.floatleft {
 	float:left;
 	margin-right:10px;
 }
+.unread_pm {
+	background: #CFC;
+}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
