@@ -902,7 +902,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="information">
+		<div id="tracking" class="windowbg2 noup">
 			<dl class="noborder">
 				<dt>', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
