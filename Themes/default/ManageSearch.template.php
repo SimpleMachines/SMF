@@ -333,7 +333,7 @@ function template_spider_edit()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information noup">
 				', $txt['add_spider_desc'], '
 			</div>
 			<div class="windowbg2">

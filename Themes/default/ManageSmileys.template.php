@@ -345,7 +345,7 @@ function template_setorder()
 			<div class="cat_bar">
 				<h3 class="catbg">', $location['title'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information noup">
 				', $location['description'], '
 			</div>
 			<div class="windowbg2">

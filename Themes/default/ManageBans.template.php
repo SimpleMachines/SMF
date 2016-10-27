@@ -28,7 +28,7 @@ function template_ban_edit()
 
 	if ($context['ban']['is_new'])
 		echo '
-			<div class="information winfo">', $txt['ban_add_notes'], '</div>';
+			<div class="information noup">', $txt['ban_add_notes'], '</div>';
 
 	// If there were errors creating the ban, show them.
 	if (!empty($context['error_messages']))

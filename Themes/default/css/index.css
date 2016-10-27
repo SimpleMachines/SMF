@@ -1643,15 +1643,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 #credits p {
 	font-style: italic;
 }
-
-#credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
-#registration .roundframe, #report_form .windowbg,
-#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
-#profileview, #coppa, #fatal_error .windowbg {
-	margin: 0 0 10px 0 !important;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
+/*
+#preview_section .windowbg,*/
 
 .errorfile_table {
 	background: #f0f4f7;
@@ -2169,7 +2162,7 @@ dl {
 	margin: 6px 0;
 }
 .activity_stats {
-	margin: 10px;
+	margin: 10px 0;
 	padding: 0;
 }
 .activity_stats li {
@@ -3866,4 +3859,11 @@ p.attached_BBC a.insertBBC
 	background: #D0E7F8;
 	padding: 5px;
 	width: 20%;
+}
+
+/* This was named as "winfo" before, but its better named noup */
+.noup {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin: 0 !important;
 }

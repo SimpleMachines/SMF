@@ -36,7 +36,7 @@ function template_show_list($list_id = null)
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
 		echo '
-			<div class="cat_bar clear_right">
+			<div class="cat_bar">
 				<h3 class="catbg">
 					', $cur_list['title'], '
 				</h3>
@@ -68,7 +68,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid clear" ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+			<table class="table_grid" ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);

@@ -38,7 +38,7 @@ function template_fatal_error()
 				', $context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg noup">
 			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
 		</div>
 	</div>';
@@ -62,7 +62,7 @@ function template_error_log()
 		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">';
 
 	echo '
-			<div class="cat_bar clear_right">
+			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['errlog'], '
 				</h3>
