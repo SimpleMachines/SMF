@@ -1000,115 +1000,113 @@ function template_send()
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
-		<div>
-			<div class="roundframe">
-				<br class="clear">';
+		<div class="roundframe noup">
+			<br class="clear">';
 
 	// If there were errors for sending the PM, show them.
 	echo '
-				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
-					<dl>
-						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
-						</dt>
-						<dd class="error" id="error_list">
-							', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
-						</dd>
-					</dl>
-				</div>';
+			<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+				<dl>
+					<dt>
+						<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+					</dt>
+					<dd class="error" id="error_list">
+						', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
+					</dd>
+				</dl>
+			</div>';
 
 	if (!empty($modSettings['drafts_pm_enabled']))
 		echo '
-				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
-					', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
-				</div>';
+			<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+				sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
+				', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
+			</div>';
 
 	echo '
-				<dl id="post_header">';
+			<dl id="post_header">';
 
 	// To and bcc. Include a button to search for members.
 	echo '
-					<dt>
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
-					</dt>';
+				<dt>
+					<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
+				</dt>';
 
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
-					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">';
+				<dd id="pm_to" class="clear_right">
+					<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
-						<span class="smalltext" id="bcc_link_container" style="display: none;"></span>';
+					<span class="smalltext" id="bcc_link_container" style="display: none;"></span>';
 
 	// A div that'll contain the items found by the autosuggest.
 	echo '
-						<div id="to_item_list_container"></div>';
+					<div id="to_item_list_container"></div>';
 
 	echo '
-					</dd>';
+				</dd>';
 
 	// This BCC row will be hidden by default if JavaScript is enabled.
 	echo '
-					<dt  class="clear_left" id="bcc_div">
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
-					</dt>
-					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">
-						<div id="bcc_item_list_container"></div>
-					</dd>';
+				<dt  class="clear_left" id="bcc_div">
+					<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
+				</dt>
+				<dd id="bcc_div2">
+					<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">
+					<div id="bcc_item_list_container"></div>
+				</dd>';
 
 	// The subject of the PM.
 	echo '
-					<dt class="clear_left">
-						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
-					</dt>
-					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
-					</dd>
-				</dl><hr class="clear">';
+				<dt class="clear_left">
+					<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
+				</dt>
+				<dd id="pm_subject">
+					<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
+				</dd>
+			</dl><hr>';
 
 	// Showing BBC?
 	if ($context['show_bbc'])
 	{
 		echo '
-				<div id="bbcBox_message"></div>';
+			<div id="bbcBox_message"></div>';
 	}
 
 	// What about smileys?
 	if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
 		echo '
-				<div id="smileyBox_message"></div>';
+			<div id="smileyBox_message"></div>';
 
 	// Show BBC buttons, smileys and textbox.
 	echo '
-				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
+			', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
 	{
 		echo '
-				<div class="post_verification">
-					<strong>', $txt['pm_visual_verification_label'], ':</strong>
-					', template_control_verification($context['visual_verification_id'], 'all'), '
-				</div>';
+			<div class="post_verification">
+				<strong>', $txt['pm_visual_verification_label'], ':</strong>
+				', template_control_verification($context['visual_verification_id'], 'all'), '
+			</div>';
 	}
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<hr>
-				<span id="post_confirm_strip" class="righttext">
-					', template_control_richedit_buttons($context['post_box_name']), '
-				</span>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
-				<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '">
-				<input type="hidden" name="pm_head" value="', !empty($context['quoted_message']['pm_head']) ? $context['quoted_message']['pm_head'] : 0, '">
-				<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '">
-				<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '">
-				<br class="clear_right">
-			</div>
+			<hr>
+			<span id="post_confirm_strip" class="righttext">
+				', template_control_richedit_buttons($context['post_box_name']), '
+			</span>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
+			<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '">
+			<input type="hidden" name="pm_head" value="', !empty($context['quoted_message']['pm_head']) ? $context['quoted_message']['pm_head'] : 0, '">
+			<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '">
+			<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '">
+			<br class="clear_right">
 		</div>
 	</form>';
 
