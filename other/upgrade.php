@@ -219,7 +219,7 @@ if (!function_exists('md5_hmac'))
 		return md5($k_opad . pack('H*', md5($k_ipad . $data)));
 	}
 }
-$disable_security = true;
+
 // Don't do security check if on Yabbse
 if (!isset($modSettings['smfVersion']))
 	$disable_security = true;
