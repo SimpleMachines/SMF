@@ -219,7 +219,7 @@ if (!function_exists('md5_hmac'))
 		return md5($k_opad . pack('H*', md5($k_ipad . $data)));
 	}
 }
-
+$disable_security = true;
 // Don't do security check if on Yabbse
 if (!isset($modSettings['smfVersion']))
 	$disable_security = true;
@@ -4223,8 +4223,9 @@ function template_upgrade_above()
 
 			<div id="progress_bar">
 				<div id="overall_text">', $upcontext['overall_percent'], '%</div>
-				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
-				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">
+					<span>', $txt['upgrade_overall_progress'], '</span>
+				</div>
 			</div>';
 
 	if (isset($upcontext['step_progress']))
@@ -4233,8 +4234,9 @@ function template_upgrade_above()
 				<br>
 				<div id="progress_bar_step">
 					<div id="step_text">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
-					<div class="overall_progress">', $txt['upgrade_step_progress'], '</div>
+					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">
+						<span>', $txt['upgrade_step_progress'], '</span>
+					</div>
 				</div>';
 
 	echo '
