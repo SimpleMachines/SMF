@@ -2055,15 +2055,19 @@ CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip
 --- helper function for ip convert
 /******************************************************************************/
 ---# the function migrate_inet
-CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
-AS
-$$
-BEGIN
-   RETURN (trim(val))::inet;
-EXCEPTION
-   WHEN OTHERS THEN RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
+---{
+upgrade_query("
+	CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
+	AS
+	$$
+	BEGIN
+	   RETURN (trim(val))::inet;
+	EXCEPTION
+	   WHEN OTHERS THEN RETURN NULL;
+	END;
+	$$ LANGUAGE plpgsql;"
+);
+---}
 ---#
 
 /******************************************************************************/
