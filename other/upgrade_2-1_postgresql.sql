@@ -1364,9 +1364,12 @@ CREATE TABLE {$db_prefix}qanda (
 	lngfile varchar(255) NOT NULL default '',
 	question varchar(255) NOT NULL default '',
 	answers text NOT NULL,
-	PRIMARY KEY (id_question),
-	KEY lngfile (lngfile)
+	PRIMARY KEY (id_question)
 );
+---#
+
+---# Create index on qanda
+CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 ---#
 
 ---# Moving questions and answers to the new table
