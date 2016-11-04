@@ -2174,3 +2174,42 @@ ALTER TABLE {$db_prefix}member_logins
 UPDATE {$db_prefix}permissions SET permission = 'profile_website_own' WHERE permission = 'profile_other_own';
 UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE permission = 'profile_other_any';
 ---#
+
+/******************************************************************************/
+--- Update index for like search
+/******************************************************************************/
+---# Change index for table log_packages
+DROP INDEX IF EXISTS {$db_prefix}log_packages_filename;
+CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (filename varchar_pattern_ops);
+---#
+
+---# Change index for table members
+DROP INDEX IF EXISTS {$db_prefix}members_email_address;
+CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_lngfile;
+CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_member_name;
+CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_real_name;
+CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name varchar_pattern_ops);
+---#
+
+---# Change index for table scheduled_tasks
+DROP INDEX IF EXISTS {$db_prefix}scheduled_tasks_task;
+CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task varchar_pattern_ops);
+---#
+
+---# Change index for table admin_info_files
+DROP INDEX IF EXISTS {$db_prefix}admin_info_files_filename;
+CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename varchar_pattern_ops);
+---#
+
+---# Change index for table boards 
+DROP INDEX IF EXISTS {$db_prefix}boards_member_groups;
+CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
+---#
+
+---# Change index for table log_comments 
+DROP INDEX IF EXISTS {$db_prefix}log_comments_comment_type;
+CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type varchar_pattern_ops);
+---#
