@@ -429,7 +429,7 @@ ADD COLUMN act_reason text NOT NULL;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
-DROP INDEX {$db_prefix}log_group_requests_id_member;
+DROP INDEX IF EXISTS {$db_prefix}log_group_requests_id_member;
 CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
 ---#
 
