@@ -179,14 +179,14 @@ function template_error_log()
 					</td>
 				</tr>
 			</table>
-			<div class="pagesection floatleft">
-				&nbsp;&nbsp;', $context['page_index'], '
-			</div>';
-
-	echo '
-			<div class="floatright">
-				<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
-				<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
+			<div class="pagesection">
+				<div class="floatleft">
+					', $context['page_index'], '
+				</div>
+				<div class="floatright">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
+				</div>
 			</div>
 			<br>';
 
