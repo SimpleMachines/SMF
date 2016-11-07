@@ -67,8 +67,11 @@ h1.forumtitle {
 	background-color: #6BB247;
 	margin: 0px 3px 0px 0px;
 }
-.overall_progress {
-	margin: -30px 5px 0 5px;
+#overall_progress span, #step_progress span {
+	width: 100%;
+	min-width: 150px;
+	display: inline-block;
+	padding: 7px;
 }
 
 #step_progress {

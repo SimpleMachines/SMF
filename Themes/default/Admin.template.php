@@ -778,7 +778,7 @@ function template_show_settings()
 			else
 			{
 				echo '
-							<div class="information winfo">
+							<div class="information noup">
 								', $config_var['label'], '
 							</div>';
 			}

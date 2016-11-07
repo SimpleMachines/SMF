@@ -660,11 +660,6 @@ h3.config_hd {
 .full_width {
 	width: 100%;
 }
-.winfo {
-	border-radius: 0;
-	border-bottom: 0;
-	margin: 0 !important;
-}
 
 #versions .table_grid {
 	margin: 0;

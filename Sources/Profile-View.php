@@ -1578,8 +1578,6 @@ function trackActivity($memID)
 			array(
 				'position' => 'after_title',
 				'value' => $txt['errors_desc'],
-				'class' => 'windowbg2',
-				'style' => 'padding: 1ex 2ex;',
 			),
 		),
 	);
@@ -2000,8 +1998,6 @@ function TrackIP($memID = 0)
 			array(
 				'position' => 'after_title',
 				'value' => $txt['messages_from_ip_desc'],
-				'class' => 'windowbg2',
-				'style' => 'padding: 1ex 2ex;',
 			),
 		),
 	);
@@ -2089,8 +2085,6 @@ function TrackIP($memID = 0)
 			array(
 				'position' => 'after_title',
 				'value' => $txt['errors_from_ip_desc'],
-				'class' => 'windowbg2',
-				'style' => 'padding: 1ex 2ex;',
 			),
 		),
 	);
@@ -2212,8 +2206,6 @@ function TrackLogins($memID = 0)
 			array(
 				'position' => 'after_title',
 				'value' => $txt['trackLogins_desc'],
-				'class' => 'windowbg2',
-				'style' => 'padding: 1ex 2ex;',
 			),
 		),
 	);

@@ -136,7 +136,7 @@ function template_credits()
 	{
 		if (isset($section['pretext']))
 		echo '
-		<div class="windowbg">
+		<div class="windowbg noup">
 			<p>', $section['pretext'], '</p>
 		</div>';
 
@@ -147,7 +147,7 @@ function template_credits()
 		</div>';
 
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<dl>';
 
 		foreach ($section['groups'] as $group)
@@ -190,7 +190,7 @@ function template_credits()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_software_graphics'], '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg noup">';
 
 		if (!empty($context['credits_software_graphics']['graphics']))
 			echo '
@@ -223,7 +223,7 @@ function template_credits()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_modifications'], '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg noup">';
 
 		// Display the credits.
 		if (!empty($context['credits_modifications']))
@@ -246,7 +246,7 @@ function template_credits()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_forum'],' ', $txt['credits_copyright'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg noup">
 			', $context['copyrights']['smf'], '
 		</div>
 	</div>';

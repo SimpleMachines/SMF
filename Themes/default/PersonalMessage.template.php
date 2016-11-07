@@ -604,19 +604,19 @@ function template_subject_list()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th width="4%" class="centercol">
+			<th class="centercol table_icon">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"> <span class="generic_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 			</th>
-			<th class="lefttext" width="22%">
+			<th class="lefttext quarter_table">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=date', $context['sort_by'] == 'date' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['date'], $context['sort_by'] == 'date' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
-			<th class="lefttext" width="46%">
+			<th class="lefttext half_table">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
 			<th class="lefttext">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
-			<th width="4%" class="centercol">
+			<th class="centercol table_icon">
 				<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">
 			</th>
 		</tr>
@@ -631,8 +631,8 @@ function template_subject_list()
 	while ($message = $context['get_pmessage']('subject'))
 	{
 		echo '
-		<tr class="windowbg">
-			<td width="4%">
+		<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '','">
+			<td class="table_icon">
 			<script>
 				currentLabels[', $message['id'], '] = {';
 
@@ -654,7 +654,7 @@ function template_subject_list()
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
-			<td class="centercol" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check"></td>
+			<td class="centercol table_icon"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check"></td>
 		</tr>';
 	}
 
@@ -858,9 +858,9 @@ function template_search_results()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th class="lefttext" width="30%">', $txt['date'], '</th>
-			<th class="lefttext" width="50%">', $txt['subject'], '</th>
-			<th class="lefttext" width="20%">', $txt['from'], '</th>
+			<th class="lefttext quarter_table">', $txt['date'], '</th>
+			<th class="lefttext half_table">', $txt['subject'], '</th>
+			<th class="lefttext quarter_table">', $txt['from'], '</th>
 		</tr>
 	</thead>
 	<tbody>';
@@ -982,7 +982,7 @@ function template_send()
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<div class="post" id="preview_body">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
@@ -1000,115 +1000,113 @@ function template_send()
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
-		<div>
-			<div class="roundframe">
-				<br class="clear">';
+		<div class="roundframe noup">
+			<br class="clear">';
 
 	// If there were errors for sending the PM, show them.
 	echo '
-				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
-					<dl>
-						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
-						</dt>
-						<dd class="error" id="error_list">
-							', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
-						</dd>
-					</dl>
-				</div>';
+			<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+				<dl>
+					<dt>
+						<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+					</dt>
+					<dd class="error" id="error_list">
+						', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
+					</dd>
+				</dl>
+			</div>';
 
 	if (!empty($modSettings['drafts_pm_enabled']))
 		echo '
-				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
-					', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
-				</div>';
+			<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+				sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
+				', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
+			</div>';
 
 	echo '
-				<dl id="post_header">';
+			<dl id="post_header">';
 
 	// To and bcc. Include a button to search for members.
 	echo '
-					<dt>
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
-					</dt>';
+				<dt>
+					<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
+				</dt>';
 
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
-					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">';
+				<dd id="pm_to" class="clear_right">
+					<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
-						<span class="smalltext" id="bcc_link_container" style="display: none;"></span>';
+					<span class="smalltext" id="bcc_link_container" style="display: none;"></span>';
 
 	// A div that'll contain the items found by the autosuggest.
 	echo '
-						<div id="to_item_list_container"></div>';
+					<div id="to_item_list_container"></div>';
 
 	echo '
-					</dd>';
+				</dd>';
 
 	// This BCC row will be hidden by default if JavaScript is enabled.
 	echo '
-					<dt  class="clear_left" id="bcc_div">
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
-					</dt>
-					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">
-						<div id="bcc_item_list_container"></div>
-					</dd>';
+				<dt  class="clear_left" id="bcc_div">
+					<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
+				</dt>
+				<dd id="bcc_div2">
+					<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text">
+					<div id="bcc_item_list_container"></div>
+				</dd>';
 
 	// The subject of the PM.
 	echo '
-					<dt class="clear_left">
-						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
-					</dt>
-					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
-					</dd>
-				</dl><hr class="clear">';
+				<dt class="clear_left">
+					<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
+				</dt>
+				<dd id="pm_subject">
+					<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
+				</dd>
+			</dl><hr>';
 
 	// Showing BBC?
 	if ($context['show_bbc'])
 	{
 		echo '
-				<div id="bbcBox_message"></div>';
+			<div id="bbcBox_message"></div>';
 	}
 
 	// What about smileys?
 	if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
 		echo '
-				<div id="smileyBox_message"></div>';
+			<div id="smileyBox_message"></div>';
 
 	// Show BBC buttons, smileys and textbox.
 	echo '
-				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
+			', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
 	{
 		echo '
-				<div class="post_verification">
-					<strong>', $txt['pm_visual_verification_label'], ':</strong>
-					', template_control_verification($context['visual_verification_id'], 'all'), '
-				</div>';
+			<div class="post_verification">
+				<strong>', $txt['pm_visual_verification_label'], ':</strong>
+				', template_control_verification($context['visual_verification_id'], 'all'), '
+			</div>';
 	}
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<hr>
-				<span id="post_confirm_strip" class="righttext">
-					', template_control_richedit_buttons($context['post_box_name']), '
-				</span>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
-				<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '">
-				<input type="hidden" name="pm_head" value="', !empty($context['quoted_message']['pm_head']) ? $context['quoted_message']['pm_head'] : 0, '">
-				<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '">
-				<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '">
-				<br class="clear_right">
-			</div>
+			<hr>
+			<span id="post_confirm_strip" class="righttext">
+				', template_control_richedit_buttons($context['post_box_name']), '
+			</span>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
+			<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '">
+			<input type="hidden" name="pm_head" value="', !empty($context['quoted_message']['pm_head']) ? $context['quoted_message']['pm_head'] : 0, '">
+			<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '">
+			<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '">
+			<br class="clear_right">
 		</div>
 	</form>';
 
@@ -1389,7 +1387,7 @@ function template_labels()
 				<th class="lefttext">
 					', $txt['pm_label_name'], '
 				</th>
-				<th class="centertext" width="4%">';
+				<th class="centertext table_icon">';
 
 	if (count($context['labels']) > 2)
 		echo '
@@ -1417,7 +1415,7 @@ function template_labels()
 				<td>
 					<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30" class="input_text">
 				</td>
-				<td width="4%"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
+				<td class="table_icon"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
 			</tr>';
 		}
 	}
@@ -1547,7 +1545,7 @@ function template_rules()
 				<th class="lefttext">
 					', $txt['pm_rule_title'], '
 				</th>
-				<th width="4%" class="centertext">';
+				<th class="centertext table_icon">';
 
 	if (!empty($context['rules']))
 		echo '
@@ -1574,7 +1572,7 @@ function template_rules()
 				<td>
 					<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=', $rule['id'], '">', $rule['name'], '</a>
 				</td>
-				<td width="4%">
+				<td class="table_icon">
 					<input type="checkbox" name="delrule[', $rule['id'], ']" class="input_check">
 				</td>
 			</tr>';
