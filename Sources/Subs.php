@@ -5445,4 +5445,132 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 	obExit(false);
 }
 
+/**
+ * Creates optimized regular expressions from an array of strings.
+ *
+ * An optimized regex built using this function will be much faster than a simple regex built using
+ * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ *
+ * However, the time required to build the optimized regex is approximately equal to the time it
+ * takes to execute the simple regex. Therefore, it is only worth calling this function if the
+ * resulting regex will be used more than once.
+ *
+ * Because PHP places an upper limit on the allowed length of a regex, very large arrays may be
+ * split and returned as multiple regexes. In such cases, you will need to iterate through all
+ * elements of the returned array in order to test all possible matches. (Note: if your array of
+ * alternative strings is large enough to require multiple regexes to accomodate it all, it is
+ * probably time to reconsider your coding choices. There is almost certainly a better way to do
+ * whatever you are trying to do with these giant regexes.)
+ *
+ * @param array $strings An array of strings to make a regex for.
+ * @param string $delim An optional delimiter character to pass to preg_quote().
+ * @return array An array of one or more regular expressions to match any of the input strings.
+ */
+function build_regex($strings, $delim = null)
+{
+	global $smcFunc;
+
+	// This recursive function creates the index array from the strings
+	$add_string_to_index = function ($string, $index) use (&$smcFunc, &$add_string_to_index)
+	{
+		static $depth = 0;
+		$depth++;
+
+		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
+		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
+
+		$first = $substr($string, 0, 1);
+
+		if (empty($index[$first]))
+			$index[$first] = array();
+
+		if ($strlen($string) > 1)
+		{
+			// Sanity check on recursion
+			if ($depth > 99)
+				$index[$first][$substr($string, 1)] = '';
+			
+			else
+				$index[$first] = $add_string_to_index($substr($string, 1), $index[$first]);
+		}
+		else
+			$index[$first][''] = '';
+
+		$depth--;
+		return $index;
+	};
+
+	// This recursive function turns the index array into a regular expression
+	$index_to_regex = function (&$index, $delim) use (&$smcFunc, &$index_to_regex)
+	{
+		static $depth = 0;
+		$depth++;
+
+		// Absolute max length for a regex is 32768, but we might need wiggle room
+		$max_length = 30000;
+
+		$regex = array();
+		$length = 0;
+
+		foreach ($index as $key => $value)
+		{
+			$key_regex = preg_quote($key, $delim);
+			$new_key = $key;
+
+			if (empty($value))
+				$sub_regex = '';
+			else
+			{
+				$sub_regex = $index_to_regex($value, $delim);
+
+				if (count(array_keys($value)) == 1)
+					$new_key .= explode('(?'.'>', $sub_regex)[0];
+				else
+					$sub_regex = '(?'.'>' . $sub_regex . ')';
+			}
+
+			if ($depth > 1)
+				$regex[$new_key] = $key_regex . $sub_regex;
+			else
+			{
+				if (($length += strlen($key_regex) + 1) < $max_length || empty($regex))
+				{
+					$regex[$new_key] = $key_regex . $sub_regex;
+					unset($index[$key]);
+				}
+				else
+					break;
+			}
+		}
+		
+		// Sort by key length and then alphabetically
+		uksort($regex, function($k1, $k2) use (&$smcFunc) {
+			$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
+
+			$l1 = $strlen($k1);
+			$l2 = $strlen($k2);
+			
+			if ($l1 == $l2)
+				return strcmp($k1, $k2) > 0 ? 1 : -1;
+			else
+				return $l1 > $l2 ? -1 : 1;
+		});
+
+		$depth--;
+		return implode('|', $regex);
+	};
+
+	// Now that the functions are defined, let's do this thing
+	$index = array();
+	$regexes = array();
+
+	foreach ($strings as $string)
+		$index = $add_string_to_index($string, $index);
+
+	while (!empty($index))
+		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+
+	return $regexes;
+}
+
 ?>
