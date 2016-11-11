@@ -1297,7 +1297,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $sourcedir;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1478,6 +1478,9 @@ function scheduled_weekly_maintenance()
 			'last_update' => time() - 86400,
 		)
 	);
+
+	require_once($sourcedir . '/Subs.php');
+	set_tld_regex(true);
 
 	return true;
 }
