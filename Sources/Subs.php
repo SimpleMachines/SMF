@@ -1888,7 +1888,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	|											#	or
 	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
 	|											#	or
-	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,4}/	# looks like domain name followed by a slash
+	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,63}/	# looks like domain name followed by a slash
 )
 (?:												# One or more:
 	[^\s()<>]+									# Run of non-space, non-()<>
