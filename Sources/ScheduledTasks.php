@@ -1297,7 +1297,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
