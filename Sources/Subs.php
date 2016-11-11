@@ -5688,25 +5688,28 @@ function punycode_to_unicode($input)
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
- * @param string $encoding The character encoding of the input strings. Defaults to 'UTF-8'.
  * @return array An array of one or more regular expressions to match any of the input strings.
  */
-function build_regex($strings, $delim = null, $encoding = 'UTF-8')
+function build_regex($strings, $delim = null)
 {
 	global $smcFunc;
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
-	if (function_exists('mb_internal_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
+	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
 	{
-		$current_encoding = mb_internal_encoding();
-		mb_internal_encoding($encoding);
+		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false)
+		{
+			$current_encoding = mb_internal_encoding();
+			mb_internal_encoding($string_encoding);
+		}
+
 		$strlen = 'mb_strlen';
 		$substr = 'mb_substr';
 	}
 	else
 	{
-		$strlen &= $smcFunc['strlen'];
-		$substr &= $smcFunc['substr'];
+		$strlen = $smcFunc['strlen'];
+		$substr = $smcFunc['substr'];
 	}
 
 	// This recursive function creates the index array from the strings
