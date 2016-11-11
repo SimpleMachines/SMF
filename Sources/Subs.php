@@ -5471,7 +5471,7 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
  */
 function set_tld_regex($update = false)
 {
-	global $sourcedir;
+	global $sourcedir, $smcFunc;
 
 	// We don't need to do anything if we aren't updating and we already have a valid regex
 	if (!$update && !empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -5486,6 +5486,7 @@ function set_tld_regex($update = false)
 
 	// If the update worked, clean $tlds and convert it to an array
 	if (!empty($tlds))
+	{
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line) {
 			$line = trim($line);
 			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
@@ -5494,8 +5495,11 @@ function set_tld_regex($update = false)
 				return true;
 		});
 
+		$schedule_update = false;
+	}
 	// Fall back to the 2012 list of gTLDs and ccTLDs
 	else
+	{
 		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
 			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
 			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
@@ -5518,6 +5522,9 @@ function set_tld_regex($update = false)
 			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
 			'yt', 'yu', 'za', 'zm', 'zw');
 
+		$schedule_update = true;
+	}
+
 	// Punycode is for machines, not humans
 	$tlds = array_map('punycode_to_unicode', $tlds);
 
@@ -5526,6 +5533,15 @@ function set_tld_regex($update = false)
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
+
+	// Schedule a background update if we need one
+	if ($schedule_update)
+	{
+		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+		);
+	}
 }
 
 /**
