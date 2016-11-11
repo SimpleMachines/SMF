@@ -5458,7 +5458,7 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 /**
  * Creates an optimized regex to match all known top level domains.
  *
- * The optimized regex is stored in $modSettings.
+ * The optimized regex is stored in $modSettings['tld_regex'].
  *
  * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
  * the $update parameter to true. Updating can take some time, based on network connectivity, so it
@@ -5472,9 +5472,10 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 function set_tld_regex($update = false)
 {
 	global $sourcedir, $smcFunc;
+	static $done = false;
 
-	// We don't need to do anything if we aren't updating and we already have a valid regex
-	if (!$update && !empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
+	// If we don't need to do anything, don't
+	if (!$update && $done)
 		return;
 
 	// Should we get a new copy of the official list of TLDs?
@@ -5483,8 +5484,14 @@ function set_tld_regex($update = false)
 		require_once($sourcedir . '/Subs-Package.php');
 		$tlds = fetch_web_data('http://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 	}
+	// If we aren't updating and the regex is valid, we're done
+	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
+	{
+		$done = true;
+		return;
+	}
 
-	// If the update worked, clean $tlds and convert it to an array
+	// If we successfully got an update, clean $tlds and convert it to an array
 	if (!empty($tlds))
 	{
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line) {
@@ -5497,7 +5504,7 @@ function set_tld_regex($update = false)
 
 		$schedule_update = false;
 	}
-	// Fall back to the 2012 list of gTLDs and ccTLDs
+	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
 		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
@@ -5535,13 +5542,16 @@ function set_tld_regex($update = false)
 	updateSettings(array('tld_regex' => $tld_regex));
 
 	// Schedule a background update if we need one
-	if ($schedule_update)
+	if (!empty($schedule_update))
 	{
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
 		);
 	}
+
+	// Redundant repetition is redundant
+	$done = true;
 }
 
 /**
