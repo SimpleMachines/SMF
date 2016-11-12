@@ -602,7 +602,7 @@ function ConvertEntities()
 
 		// Get the maximum value for the primary key.
 		$request = $smcFunc['db_query']('', '
-			SELECT MAX({string:key})
+			SELECT MAX({identifier:key})
 			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'key' => $primary_key,
