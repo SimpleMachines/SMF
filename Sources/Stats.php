@@ -576,7 +576,7 @@ function DisplayStats()
 				INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 			WHERE content_type = {literal:msg}
 				AND m.id_member > {int:zero}
-			GROUP BY m.id_member
+			GROUP BY m.id_member, mem.real_name
 			ORDER BY count DESC
 			LIMIT 10',
 			array(
