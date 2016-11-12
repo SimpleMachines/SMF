@@ -293,7 +293,7 @@ function MessageIndex()
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
 			WHERE t.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {string:sort}' . ($ascending ? '' : ' DESC') . '
+			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {identifier:sort}' . ($ascending ? '' : ' DESC') . '
 			LIMIT {int:start}, {int:maxindex}',
 			array(
 				'current_board' => $board,
