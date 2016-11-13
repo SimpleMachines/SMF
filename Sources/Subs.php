@@ -1877,71 +1877,144 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						$url_regex = '(?xi)
-(?:
-	(?:											# Either:
-		\b[a-z][\w-]+:							# URL scheme and colon
-		|										#  or
-		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
-	)
-	/{1,3}										# 1-3 slashes
-	|											#	or
-	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
-	|											#	or
-	[\p{L}\p{M}\p{N}.\-]+[.][\p{L}\p{M}]{2,63}/	# looks like domain name followed by a slash
-)
-(?:												# One or more:
-	[^\s()<>]+									# Run of non-space, non-()<>
-	|											#	or
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
-)+
-(?:												# End with:
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)			# balanced parens, up to 2 levels
-	|											#	or
-	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]				# not a space or one of these punct char
-)
+						$url_regex = '
+						(?:
+							# IRIs with a scheme (or at least an opening "//")
+							(?:
+								# URI scheme (or lack thereof for schemeless URLs)
+								(?:
+									# URL scheme and colon
+									\b[a-z][\w\-]+:
+									| # or
+									# A boundary followed by two slashes for schemeless URLs
+									(?<=^|\W)(?=//)
+								)
 
-|												# OR, the following to match naked domains:
-(?:
-	(?<!@)										# not preceded by a @, avoid matching foo@_gmail.com_
-	\b[\p{L}\p{M}\p{N}]+
-	(?:[.\-][\p{L}\p{M}\p{N}]+)*
-	[.]
-	'. $modSettings['tld_regex'] . '
-	\b
-	/?
-	(?!@)										# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
-)';
+								# IRI "authority" chunk
+								(?:
+									# 2 slashes for IRIs with an "authority"
+									//
+									# then a domain name
+									(?:
+										# Either the reserved "localhost" domain name
+										localhost
+										| # or
+										# a run of Unicode domain name characters and a dot
+										[\p{L}\p{M}\p{N}\-.:@]+\.
+										# and then a TLD valid in the DNS or the reserved "local" TLD
+										(?:'. $modSettings['tld_regex'] .'|local)
+									)
+									# followed by a non-domain character or end of line
+									(?=[^\p{L}\p{N}\-.]|$)
 
-						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
-									$url = array_shift($matches);
+									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
 
-									$scheme = parse_url($url, PHP_URL_SCHEME);
+									# a run of IRI characters
+									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
+									# and then a dot and a closing IRI label
+									\.[\p{L}\p{M}\p{N}\-]+
+								)
+							)
 
-									if ($scheme == 'mailto')
-									{
-										$email_address = str_replace('mailto:', '', $url);
-										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
-											return '[email=' . $email_address . ']' . $url . '[/email]';
-										else
-											return $url;
-									}
+							| # or
 
-									// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
-									if (empty($scheme))
-										$fullUrl = '//' . ltrim($url, ':/');
-									else
-										$fullUrl = $url;
+							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							(?:
+								# Preceded by start of line or a non-domain character
+								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
 
-									return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
-								}, $data);
+								# A run of Unicode domain name characters (excluding [:@])
+								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
+								# and then a dot and a valid TLD
+								\.' . $modSettings['tld_regex'] . '
+
+								# Followed by either:
+								(?=
+									# end of line or a non-domain character (excluding [.:@])
+									$|[^\p{L}\p{N}\-]
+									| # or
+									# a dot followed by end of line or a non-domain character (excluding [.:@])
+									\.(?=$|[^\p{L}\p{N}\-])
+								)
+							)
+						)
+
+						# IRI path, query, and fragment (if present)
+						(?:
+							# If any of these parts exist, must start with a /
+							/
+
+							# And then optionally:
+							(?:
+								# One or more of:
+								(?:
+									# a run of non-space, non-()<>
+									[^\s()<>]+
+									| # or
+									# balanced parens, up to 2 levels
+									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
+								)+
+
+								# End with:
+								(?:
+									# balanced parens, up to 2 levels
+									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
+									| # or
+									# not a space or one of these punct char
+									[^\s`!()\[\]{};:\'".,<>?«»“”‘’]
+								)
+							)?
+						)?
+						';
+
+						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function ($matches) {
+							$url = array_shift($matches);
+
+							$scheme = parse_url($url, PHP_URL_SCHEME);
+
+							if ($scheme == 'mailto')
+							{
+								$email_address = str_replace('mailto:', '', $url);
+								if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
+									return '[email=' . $email_address . ']' . $url . '[/email]';
+								else
+									return $url;
+							}
+
+							// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+							if (empty($scheme))
+								$fullUrl = '//' . ltrim($url, ':/');
+							else
+								$fullUrl = $url;
+
+							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+						}, $data);
 					}
 
 					// Next, emails...
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false)
 					{
-						$data = preg_replace('~(?<=[\?\s' . $non_breaking_space . '\[\]()*\\\;>]|^)([\w\-\.]{1,80}@[\w\-]+\.[\w\-\.]+[\w\-])(?=[?,\s' . $non_breaking_space . '\[\]()*\\\]|$|<br>|&nbsp;|&gt;|&lt;|&quot;|&#039;|\.(?:\.|;|&nbsp;|\s|$|<br>))~' . ($context['utf8'] ? 'u' : ''), '[email]$1[/email]', $data);
-						$data = preg_replace('~(?<=<br>)([\w\-\.]{1,80}@[\w\-]+\.[\w\-\.]+[\w\-])(?=[?\.,;\s' . $non_breaking_space . '\[\]()*\\\]|$|<br>|&nbsp;|&gt;|&lt;|&quot;|&#039;)~' . ($context['utf8'] ? 'u' : ''), '[email]$1[/email]', $data);
+						$email_regex = '
+						# Preceded by a non-domain character or start of line
+						(?<=^|[^\p{L}\p{M}\p{N}\-\.])
+
+						# An email address
+						[\p{L}\p{M}\p{N}_\-.]{1,80}
+						@
+						[\p{L}\p{M}\p{N}\-.]+
+						\.
+						'. $modSettings['tld_regex'] . '
+
+						# Followed by either:
+						(?=
+							# end of line or a non-domain character (excluding the dot)
+							$|[^\p{L}\p{M}\p{N}\-]
+							| # or
+							# a dot followed by end of line or a non-domain character
+							\.(?=$|[^\p{L}\p{M}\p{N}\-])
+						)';
+
+						$data = preg_replace('~' . $email_regex . '~xi' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
 					}
 				}
 			}
