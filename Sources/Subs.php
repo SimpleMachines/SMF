@@ -1941,7 +1941,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						# IRI path, query, and fragment (if present)
 						(?:
-							# If any of these parts exist, must start with a /
+							# If any of these parts exist, must start with a single /
 							/
 
 							# And then optionally:
@@ -1961,7 +1961,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
 									| # or
 									# not a space or one of these punct char
-									[^\s`!()\[\]{};:\'".,<>?«»“”‘’]
+									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
+									| # or
+									# a trailing slash (but not two in a row)
+									(?<!/)/
 								)
 							)?
 						)?
