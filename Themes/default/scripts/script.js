@@ -1380,11 +1380,6 @@ function addLoadEvent(fNewOnload)
 		aOnloadEvents[aOnloadEvents.length] = fNewOnload;
 }
 
-function smfFooterHighlight(element, value)
-{
-	element.src = smf_images_url + '/' + (value ? 'h_' : '') + element.id + '.png';
-}
-
 // Get the text in a code tag.
 function smfSelectText(oCurElement, bActOnElement)
 {
@@ -1631,9 +1626,7 @@ function smc_resize(selector)
 
 	// Kick off one resize to fix all elements on page load.
 	}).resize();
-
 }
-
 
 $(function()
 {

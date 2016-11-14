@@ -1818,7 +1818,7 @@ function DeleteUpgrade()
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_actions',
 		array(
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
+			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
 			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
 		),
 		array(
@@ -4223,8 +4223,9 @@ function template_upgrade_above()
 
 			<div id="progress_bar">
 				<div id="overall_text">', $upcontext['overall_percent'], '%</div>
-				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
-				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">
+					<span>', $txt['upgrade_overall_progress'], '</span>
+				</div>
 			</div>';
 
 	if (isset($upcontext['step_progress']))
@@ -4233,8 +4234,9 @@ function template_upgrade_above()
 				<br>
 				<div id="progress_bar_step">
 					<div id="step_text">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
-					<div class="overall_progress">', $txt['upgrade_step_progress'], '</div>
+					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">
+						<span>', $txt['upgrade_step_progress'], '</span>
+					</div>
 				</div>';
 
 	echo '

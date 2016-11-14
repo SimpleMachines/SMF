@@ -1322,11 +1322,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if (empty($scheme))
-						$data = 'http://' . ltrim($data, ':/');
-
-					if ($scheme != 'https' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					if ($image_proxy_enabled)
+					{
+						if (empty($scheme))
+							$data = 'http://' . ltrim($data, ':/');
+												
+						if ($scheme != 'https')
+							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					}
+					elseif (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1340,11 +1345,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if (empty($scheme))
+					if ($image_proxy_enabled)
+					{
+						if (empty($scheme))
+							$data = 'http://' . ltrim($data, ':/');
+												
+						if ($scheme != 'https')
+							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					}
+					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
-
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1650,7 +1660,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, 'sort_bbc_tags');
+			usort($codes, function ($a, $b) {
+				return strcmp($a['tag'], $b['tag']);
+			});
 			return $codes;
 		}
 
@@ -1873,12 +1885,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		|										#  or
 		(?<=^|\W)(?=//)							# A boundary followed by two slashes (for schemeless URLs like "//example.com")
 	)						
-	(?:
-		/{1,3}									# 1-3 slashes
-		|										#	or
-		[\p{L}\p{M}\p{N}%]						# Single letter or digit or "%"
-												# (Trying not to match e.g. "URI::Escape")
-	)
+	/{1,3}										# 1-3 slashes
 	|											#	or
 	www\d{0,3}[.]								# "www.", "www1.", "www2." … "www999."
 	|											#	or
@@ -2548,17 +2555,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 }
 
 /**
- * Helper function for usort(), used in parse_bbc().
- * @param array $a An array containing a tag
- * @param array $b Another array containing a tag
- * @return int A number indicating whether $a is bigger than $b
- */
-function sort_bbc_tags($a, $b)
-{
-	return strcmp($a['tag'], $b['tag']);
-}
-
-/**
  * Parse smileys in the passed message.
  *
  * The smiley parsing function which makes pretty faces appear :).
@@ -3029,7 +3025,7 @@ function setupThemeContext($forceload = false)
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 	if ($context['show_pm_popup'])
-		addInlineJavascript('
+		addInlineJavaScript('
 		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
@@ -3039,7 +3035,7 @@ function setupThemeContext($forceload = false)
 		});');
 
 	// Add a generic "Are you sure?" confirmation message.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
 
 	// Now add the capping code for avatars.
@@ -3063,7 +3059,7 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
-		addJavascriptVar('smf_scripturl', $scripturl);
+		addJavaScriptVar('smf_scripturl', $scripturl);
 
 	if (!isset($context['page_title']))
 		$context['page_title'] = '';
@@ -4004,12 +4000,12 @@ function setupMenuContext()
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
 	{
-		addInlineJavascript('
+		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
 	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
 		if ($context['allow_pm'])
-			addInlineJavascript('
+			addInlineJavaScript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 
 		if (!empty($modSettings['enable_ajax_alerts']))
@@ -4019,10 +4015,10 @@ function setupMenuContext()
 			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
-			addInlineJavascript('
+			addInlineJavaScript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
+			loadJavaScriptFile('alerts.js', array(), 'smf_alerts');
 		}
 	}
 
@@ -4393,7 +4389,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	// Any files  to load?
 	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
+		$function = $file . (!empty($function) ? '|' . $function : '');
 
 	// Get the correct string.
 	$integration_call = $function;
@@ -4444,9 +4440,8 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  *
  * @param string $hook The complete hook name.
  * @param string $function The function name. Can be a call to a method via Class::method.
- * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
+ * @param boolean $permanent Irrelevant for the function itself but need to declare it to match
  * @param string $file The filename. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
-add_integration_function
  * @param boolean $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  * @see add_integration_function
  */
@@ -5524,6 +5519,134 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 
 	// Done.
 	obExit(false);
+}
+
+/**
+ * Creates optimized regular expressions from an array of strings.
+ *
+ * An optimized regex built using this function will be much faster than a simple regex built using
+ * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ *
+ * However, the time required to build the optimized regex is approximately equal to the time it
+ * takes to execute the simple regex. Therefore, it is only worth calling this function if the
+ * resulting regex will be used more than once.
+ *
+ * Because PHP places an upper limit on the allowed length of a regex, very large arrays may be
+ * split and returned as multiple regexes. In such cases, you will need to iterate through all
+ * elements of the returned array in order to test all possible matches. (Note: if your array of
+ * alternative strings is large enough to require multiple regexes to accomodate it all, it is
+ * probably time to reconsider your coding choices. There is almost certainly a better way to do
+ * whatever you are trying to do with these giant regexes.)
+ *
+ * @param array $strings An array of strings to make a regex for.
+ * @param string $delim An optional delimiter character to pass to preg_quote().
+ * @return array An array of one or more regular expressions to match any of the input strings.
+ */
+function build_regex($strings, $delim = null)
+{
+	global $smcFunc;
+
+	// This recursive function creates the index array from the strings
+	$add_string_to_index = function ($string, $index) use (&$smcFunc, &$add_string_to_index)
+	{
+		static $depth = 0;
+		$depth++;
+
+		$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
+		$substr = function_exists('mb_substr') ? 'mb_substr' : $smcFunc['substr'];
+
+		$first = $substr($string, 0, 1);
+
+		if (empty($index[$first]))
+			$index[$first] = array();
+
+		if ($strlen($string) > 1)
+		{
+			// Sanity check on recursion
+			if ($depth > 99)
+				$index[$first][$substr($string, 1)] = '';
+			
+			else
+				$index[$first] = $add_string_to_index($substr($string, 1), $index[$first]);
+		}
+		else
+			$index[$first][''] = '';
+
+		$depth--;
+		return $index;
+	};
+
+	// This recursive function turns the index array into a regular expression
+	$index_to_regex = function (&$index, $delim) use (&$smcFunc, &$index_to_regex)
+	{
+		static $depth = 0;
+		$depth++;
+
+		// Absolute max length for a regex is 32768, but we might need wiggle room
+		$max_length = 30000;
+
+		$regex = array();
+		$length = 0;
+
+		foreach ($index as $key => $value)
+		{
+			$key_regex = preg_quote($key, $delim);
+			$new_key = $key;
+
+			if (empty($value))
+				$sub_regex = '';
+			else
+			{
+				$sub_regex = $index_to_regex($value, $delim);
+
+				if (count(array_keys($value)) == 1)
+					$new_key .= explode('(?'.'>', $sub_regex)[0];
+				else
+					$sub_regex = '(?'.'>' . $sub_regex . ')';
+			}
+
+			if ($depth > 1)
+				$regex[$new_key] = $key_regex . $sub_regex;
+			else
+			{
+				if (($length += strlen($key_regex) + 1) < $max_length || empty($regex))
+				{
+					$regex[$new_key] = $key_regex . $sub_regex;
+					unset($index[$key]);
+				}
+				else
+					break;
+			}
+		}
+		
+		// Sort by key length and then alphabetically
+		uksort($regex, function($k1, $k2) use (&$smcFunc) {
+			$strlen = function_exists('mb_strlen') ? 'mb_strlen' : $smcFunc['strlen'];
+
+			$l1 = $strlen($k1);
+			$l2 = $strlen($k2);
+			
+			if ($l1 == $l2)
+				return strcmp($k1, $k2) > 0 ? 1 : -1;
+			else
+				return $l1 > $l2 ? -1 : 1;
+		});
+
+		$depth--;
+		return implode('|', $regex);
+	};
+
+	// Now that the functions are defined, let's do this thing
+	$index = array();
+	$regexes = array();
+
+	foreach ($strings as $string)
+		$index = $add_string_to_index($string, $index);
+
+	while (!empty($index))
+		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+
+	return $regexes;
 }
 
 ?>

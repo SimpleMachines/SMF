@@ -18,13 +18,13 @@ function template_login()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
@@ -35,7 +35,7 @@ function template_login()
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
 		echo '
-					<p class="information">', $context['description'], '</p>';
+					<div class="information">', $context['description'], '</div>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
@@ -123,13 +123,13 @@ function template_login_tfa()
 	global $context, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['tfa_profile_label'] ,'
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe noup">';
 	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
 		echo '
 				<div class="error">', $txt['tfa_' . (!empty($context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '</div>';
@@ -195,7 +195,7 @@ function template_kick_guest()
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
 			</div>';
@@ -218,7 +218,7 @@ function template_kick_guest()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<dl>
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
@@ -255,14 +255,14 @@ function template_maintenance()
 	// Display the administrator's message at the top.
 	echo '
 <form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
-	<div class="tborder login" id="maintenance_mode">
+	<div class="login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
-		<p class="information">
+		<div class="information">
 			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
 			', $context['description'], '<br class="clear">
-		</p>
+		</div>
 		<div class="title_bar">
 			<h4 class="titlebg">', $txt['admin_login'], '</h4>
 		</div>
@@ -297,13 +297,13 @@ function template_admin_login()
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
 <form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-	<div class="tborder login" id="admin_login">
+	<div class="login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 			</h3>
 		</div>
-		<div class="roundframe centertext">';
+		<div class="roundframe centertext noup">';
 
 	if (!empty($context['incorrect_password']))
 		echo '

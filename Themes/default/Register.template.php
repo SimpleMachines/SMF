@@ -22,7 +22,7 @@ function template_registration_agreement()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<p>', $context['agreement'], '</p>
 			</div>
 			<div id="confirm_buttons">';
@@ -353,7 +353,7 @@ function template_coppa()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div id="coppa" class="roundframe">
+			<div id="coppa" class="roundframe noup">
 				<p>', $context['coppa']['body'], '</p>
 				<p>
 					<span><a href="', $scripturl, '?action=coppa;form;member=', $context['coppa']['id'], '" target="_blank" class="new_win">', $txt['coppa_form_link_popup'], '</a> | <a href="', $scripturl, '?action=coppa;form;dl;member=', $context['coppa']['id'], '">', $txt['coppa_form_link_download'], '</a></span>

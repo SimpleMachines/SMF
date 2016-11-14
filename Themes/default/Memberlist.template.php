@@ -158,7 +158,7 @@ function template_search()
 				</h3>
 			</div>
 			<div id="memberlist_search" class="clear">
-				<div class="roundframe">
+				<div class="roundframe noup">
 					<dl id="mlist_search" class="settings">
 						<dt>
 							<label><strong>', $txt['search_for'], ':</strong></label>

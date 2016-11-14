@@ -187,7 +187,7 @@ function ModifyGeneralSettings($return_config = false)
 	prepareServerSettingsContext($config_vars);
 
 	// Some javascript for SSL
-	addInlineJavascript('
+	addInlineJavaScript('
 $(function()
 {
 	$("#force_ssl").change(function()
@@ -291,7 +291,7 @@ function ModifyCookieSettings($return_config = false)
 		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
-	addInlineJavascript('
+	addInlineJavaScript('
 	function hideGlobalCookies()
 	{
 		var usingLocal = $("#localCookies").prop("checked");
@@ -309,7 +309,7 @@ function ModifyCookieSettings($return_config = false)
 	});', true);
 
 	if (empty($user_settings['tfa_secret']))
-		addInlineJavascript('');
+		addInlineJavaScript('');
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
 
@@ -447,6 +447,8 @@ function ModifyCacheSettings($return_config = false)
 	$detected = array();
 	if (function_exists('apc_store'))
 		$detected['apc'] = $txt['apc_cache'];
+	if (function_exists('apcu_store'))
+		$detected['apcu'] = $txt['apcu_cache'];
 	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
 		$detected['zend'] = $txt['zend_cache'];
 	if (function_exists('memcache_set') || function_exists('memcached_set'))

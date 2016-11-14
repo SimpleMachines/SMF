@@ -1881,8 +1881,9 @@ function template_install_above()
 					</div>
 					<div id="progress_bar">
 						<div id="overall_text">', $incontext['overall_percent'], '%</div>
-						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">&nbsp;</div>
-						<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">
+							<span>'. $txt['upgrade_overall_progress'], '</span>
+						</div>
 					</div>
 					<div id="main_screen" class="clear">
 						<h2>', $incontext['page_title'], '</h2>

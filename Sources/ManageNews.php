@@ -424,7 +424,7 @@ function SelectMailingMembers()
 
 	$context['can_send_pm'] = allowedTo('pm_send');
 
-	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -1087,7 +1087,7 @@ function ModifyNewsSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=news;save;sa=settings';
 
 	// Add some javascript at the bottom...
-	addInlineJavascript('
+	addInlineJavaScript('
 	document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;', true);
 
 	// Saving the settings?

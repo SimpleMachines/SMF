@@ -430,7 +430,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext" style="margin-left: 4ex;">[<a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);">' . $txt['secret_why_blank'] . '</a>]</span>',
+			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
 			'input_validate' => function (&$value)
@@ -698,7 +698,7 @@ function setupProfileContext($fields)
 	}
 
 	// Some spicy JS.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
 	'. (!empty($context['require_password']) ? '
@@ -714,11 +714,11 @@ function setupProfileContext($fields)
 
 	// Any onsubmit javascript?
 	if (!empty($context['profile_onsubmit_javascript']))
-		addInlineJavascript($context['profile_onsubmit_javascript'], true);
+		addInlineJavaScript($context['profile_onsubmit_javascript'], true);
 
 	// Any totally custom stuff?
 	if (!empty($context['profile_javascript']))
-		addInlineJavascript($context['profile_javascript'], true);
+		addInlineJavaScript($context['profile_javascript'], true);
 
 	// Free up some memory.
 	unset($profile_fields);
@@ -1306,7 +1306,7 @@ function editBuddyIgnoreLists($memID)
 		),
 	);
 
-	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['list_area']][0];
@@ -1868,7 +1868,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavascriptFile('alertSettings.js', array(), 'smf_alertSettings');
+	loadJavaScriptFile('alertSettings.js', array(), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -2952,7 +2952,7 @@ function profileLoadSignatureData()
 
 	// Load the spell checker?
 	if ($context['show_spellchecking'])
-		loadJavascriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
+		loadJavaScriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
 
 	return true;
 }

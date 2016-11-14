@@ -198,7 +198,7 @@ function MaintainMembers()
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 
-	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**
@@ -566,7 +566,7 @@ function ConvertEntities()
 		$columns = array();
 		$request = $smcFunc['db_query']('', '
 			SHOW FULL COLUMNS
-			FROM {db_prefix}{string:cur_table}',
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'cur_table' => $cur_table,
 			)
@@ -578,7 +578,7 @@ function ConvertEntities()
 		// Get the column with the (first) primary key.
 		$request = $smcFunc['db_query']('', '
 			SHOW KEYS
-			FROM {db_prefix}{string:cur_table}',
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'cur_table' => $cur_table,
 			)
@@ -602,8 +602,8 @@ function ConvertEntities()
 
 		// Get the maximum value for the primary key.
 		$request = $smcFunc['db_query']('', '
-			SELECT MAX({string:key})
-			FROM {db_prefix}{string:cur_table}',
+			SELECT MAX({identifier:key})
+			FROM {db_prefix}{raw:cur_table}',
 			array(
 				'key' => $primary_key,
 				'cur_table' => $cur_table,
@@ -1711,10 +1711,10 @@ function MaintainRecountPosts()
 
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(DISTINCT m.id_member)
-			FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
+			FROM {db_prefix}messages AS m
+			JOIN {db_prefix}boards AS b on m.id_board = b.id_board
 			WHERE m.id_member != 0
-				AND b.count_posts = 0
-				AND m.id_board = b.id_board',
+				AND b.count_posts = 0',
 			array(
 			)
 		);

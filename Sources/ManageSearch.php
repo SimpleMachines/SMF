@@ -244,7 +244,7 @@ function EditSearchMethod()
 
 
 			$smcFunc['db_query']('', '
-				CREATE INDEX smf_messages_ftx ON smf_messages
+				CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
 				USING gin(to_tsvector({string:language},body))',
 				array(
 					'language' => $language_ftx

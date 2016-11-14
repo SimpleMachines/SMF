@@ -201,8 +201,7 @@ function CalendarMain()
 	$context['calendar_buttons'] = array();
 
 	if ($context['can_post'])
-		$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-		);
+		$context['calendar_buttons']['post_event'] = array('text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_calendar_buttons');
@@ -241,8 +240,8 @@ function CalendarPost()
 		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 	$js_time_string = str_replace(
-		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'), 
-		array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'), 
+		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
+		array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
 		$time_string
 	);
 
@@ -423,7 +422,7 @@ function CalendarPost()
 	loadJavascriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	loadJavascriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavascript('
-	$("#allday").click(function(){   
+	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
@@ -439,10 +438,10 @@ function CalendarPost()
 		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
 		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
 		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"], 
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"], 
-		dayNames: ["' . implode('", "', $txt['days']) . '"], 
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"], 
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', $txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
 		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",

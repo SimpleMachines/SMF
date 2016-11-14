@@ -579,7 +579,7 @@ function BanEdit()
 		}
 	}
 
-	loadJavascriptFile('suggest.js', array(), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array(), 'smf_suggest');
 	$context['sub_template'] = 'ban_edit';
 
 }
@@ -1601,7 +1601,7 @@ function BanEditTrigger()
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
-	loadJavascriptFile('suggest.js', array(), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array(), 'smf_suggest');
 
 	if (empty($ban_id))
 	{
@@ -2103,15 +2103,17 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 {
 	global $smcFunc;
 
+	$dash = '-';
+
 	$request = $smcFunc['db_query']('', '
-		SELECT lb.id_ban_log, lb.id_member, COALESCE(lb.ip, {string:dash}) AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
+		SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 		FROM {db_prefix}log_banned AS lb
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items}',
 		array(
 			'blank_string' => '',
-			'dash' => '-',
+			'dash' => $dash,
 			'sort' => $sort,
 			'start' => $start,
 			'items' => $items_per_page,
@@ -2120,7 +2122,7 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 	$log_entries = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$row['ip'] = $row['ip'] === '-'? '-' : inet_dtop($row['ip']);
+		$row['ip'] = $row['ip'] === null? $dash : inet_dtop($row['ip']);
 		$log_entries[] = $row;
 	}
 	$smcFunc['db_free_result']($request);
