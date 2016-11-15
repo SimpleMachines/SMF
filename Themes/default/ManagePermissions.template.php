@@ -109,7 +109,7 @@ function template_permission_index()
 					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
-			<div id="permissions_panel_advanced" class="windowbg2">
+			<div id="permissions_panel_advanced" class="windowbg2 noup">
 				<fieldset>
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
@@ -287,7 +287,7 @@ function template_by_board()
 					echo '
 				</h3>
 			</div>
-			<div class="windowbg2">';
+			<div class="windowbg2 noup">';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -419,7 +419,7 @@ function template_edit_profiles()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_profile_new'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['permissions_profile_name'], ':</strong>
@@ -766,7 +766,7 @@ function template_postmod_permissions()
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
-							<div class="windowbg2">
+							<div class="windowbg2 noup">
 								<dl class="settings">
 									<dt>', $txt['permissions_post_moderation_enable'], '</dt>
 									<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked' : '', '></dd>

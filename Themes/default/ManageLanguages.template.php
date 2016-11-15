@@ -331,7 +331,7 @@ function template_add_language()
 					', $txt['add_language'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<fieldset>
 					<legend>', $txt['add_language_smf'], '</legend>
 					<label class="smalltext">', $txt['add_language_smf_browse'], '</label>

@@ -3865,3 +3865,11 @@ p.attached_BBC a.insertBBC
 	border-top-right-radius: 0;
 	margin: 0 0 10px 0 !important;
 }
+.information.noup {
+	border-radius: 0;
+	margin: 0 !important;
+	border-bottom: none;
+}
+.windowbg2.noup {
+	box-shadow: none;
+}
