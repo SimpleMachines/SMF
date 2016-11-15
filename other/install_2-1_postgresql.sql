@@ -559,7 +559,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip inet,
   url text NOT NULL,
   message text NOT NULL,
-  session char(64) NOT NULL default '                                                                ',
+  session varchar(64) NOT NULL default '                                                                ',
   error_type varchar(15) NOT NULL default 'general',
   file varchar(255) NOT NULL DEFAULT '',
   line int NOT NULL default '0',
@@ -1479,7 +1479,7 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}sessions (
-  session_id char(64) NOT NULL,
+  session_id varchar(64) NOT NULL,
   last_update bigint NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)

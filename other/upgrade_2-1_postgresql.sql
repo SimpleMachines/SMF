@@ -451,10 +451,10 @@ upgrade_query("
 	ALTER COLUMN session type varchar(64);
 
 	ALTER TABLE {$db_prefix}log_errors
-	ALTER COLUMN session type char(64);
+	ALTER COLUMN session type varchar(64);
 
 	ALTER TABLE {$db_prefix}sessions
-	ALTER COLUMN session_id type char(64);");
+	ALTER COLUMN session_id type varchar(64);");
 
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
