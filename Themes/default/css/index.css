@@ -3036,12 +3036,8 @@ span.postby {
 }
 
 /* Poll vote options */
-#poll_options ul.options {
-	padding: 12px 30px 0 25px;
-}
-#poll_options div.submitbutton {
-	clear: both;
-	padding: 0 0 12px 0;
+#poll_options ul.options li {
+	padding: 6px 0 6px 25px;
 }
 
 /* Poll results */
@@ -3099,45 +3095,14 @@ div#pollmoderation {
 	overflow: auto;
 }
 
-#poll_options .submitbutton {
-	float: right;
-	width: 100%;
-}
 /* Styles for edit poll section. */
-#edit_poll {
-	overflow: hidden;
-}
-#edit_poll fieldset {
-	padding: 6px;
-	clear: both;
-	overflow: hidden;
-}
-#edit_poll fieldset input {
-	margin-left: 7.5em;
-}
-#edit_poll ul.poll_main li {
-	padding-left: 12px;
-}
-#edit_poll ul.poll_main input {
-	margin-left: 12px;
-}
-#edit_poll ul.poll_main, dl.poll_options {
-	overflow: hidden;
-	padding: 0 0 8px 8px;
-}
-#edit_poll ul.poll_main li {
-	margin: 2px 0;
-}
 #edit_poll dl.poll_options dt {
 	width: 33%;
-	padding: 0 0 0 12px;
 }
 #edit_poll dl.poll_options dd {
 	width: 65%;
 }
-#edit_poll dl.poll_options dd input {
-	margin-left: 0;
-}
+
 /* On to the posts */
 #forumposts {
 	clear: both;
