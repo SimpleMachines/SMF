@@ -48,7 +48,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_stats'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<dl class="settings">
 				<dt><strong>', $txt['attachment_total'], ':</strong></dt><dd>', $context['num_attachments'], '</dd>
 				<dt><strong>', $txt['attachment_manager_total_avatars'], ':</strong></dt><dd>', $context['num_avatars'], '</dd>
@@ -64,43 +64,49 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
 				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button_submit">
-				<br class="clear_right">
 			</form>
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>
-		<div class="windowbg2">
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
-				', $txt['attachment_remove_old'], ' <input type="number" name="age" value="25" size="4" class="input_text"> ', $txt['days_word'], '<br>
-				', $txt['attachment_pruning_message'], ': <input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"><br>
-				<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
-				<input type="hidden" name="type" value="attachments">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="sa" value="byAge">
-				<br class="clear_right">
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
+				<dl class="settings">
+					<dt>', $txt['attachment_remove_old'], '</dt>
+					<dd><input type="number" name="age" value="25" size="4" class="input_text"> ', $txt['days_word'], '</dd>
+					<dt>', $txt['attachment_pruning_message'], '</dt>
+					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"></dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<input type="hidden" name="type" value="attachments">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="sa" value="byAge">
+				</dl>
 			</form>
-			<hr>
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
-				', $txt['attachment_remove_size'], ' <input type="number" name="size" id="size" value="100" size="4" class="input_text"> ', $txt['kilobyte'], '<br>
-				', $txt['attachment_pruning_message'], ': <input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"><br>
-				<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
-				<input type="hidden" name="type" value="attachments">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="sa" value="bySize">
-				<br class="clear_right">
+				<dl class="settings">
+					<dt>', $txt['attachment_remove_size'], '</dt>
+					<dd><input type="number" name="size" id="size" value="100" size="4" class="input_text"> ', $txt['kilobyte'], '</dd>
+					<dt>', $txt['attachment_pruning_message'], '</dt>
+					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"></dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<input type="hidden" name="type" value="attachments">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="sa" value="bySize">
+				</dl>
 			</form>
-			<hr>
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
-				', $txt['attachment_manager_avatars_older'], ' <input type="number" name="age" value="45" size="4" class="input_text"> ', $txt['days_word'], '<br>
-				<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
-				<input type="hidden" name="type" value="avatars">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="sa" value="byAge">
+				<dl class="settings">
+					<dt>', $txt['attachment_manager_avatars_older'], '</dt>
+					<dd><input type="number" name="age" value="45" size="4" class="input_text"> ', $txt['days_word'], '</dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<input type="hidden" name="type" value="avatars">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="sa" value="byAge">
+				</dl>
 			</form>
 		</div>
 	</div>';
@@ -115,7 +121,7 @@ function template_maintenance()
 			<div class="noticebox">', $context['results'], '</div>';
 
 	echo '
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['attachment_transfer_desc'], '</p>
 					<dl class="settings">
@@ -163,7 +169,6 @@ function template_maintenance()
 					<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button_submit">
 					<div id="progress_msg"></div>
 					<div id="show_progress" class="padding"></div>
-					<br class="clear_right">
 				</form>
 				<script>
 					function start_progress() {
@@ -181,8 +186,7 @@ function template_maintenance()
 					}
 
 				</script>
-			</div>
-			<br class="clear">';
+			</div>';
 }
 
 /**
@@ -200,11 +204,10 @@ function template_attachment_repair()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['repair_attachments_complete'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2 noup">
 			', $txt['repair_attachments_complete_desc'], '
 		</div>
-	</div>
-	<br class="clear">';
+	</div>';
 	}
 
 	// What about if no errors were even found?
@@ -215,11 +218,10 @@ function template_attachment_repair()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['repair_attachments_complete'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2 noup">
 			', $txt['repair_attachments_no_errors'], '
 		</div>
-	</div>
-	<br class="clear">';
+	</div>';
 	}
 	// Otherwise, I'm sad to say, we have a problem!
 	else
@@ -230,7 +232,7 @@ function template_attachment_repair()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['repair_attachments'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2 noup">
 				<p>', $txt['repair_attachments_error_desc'], '</p>';
 
 		// Loop through each error reporting the status
@@ -247,8 +249,7 @@ function template_attachment_repair()
 				<input type="submit" name="cancel" value="', $txt['repair_attachments_cancel'], '" class="button_submit">
 			</div>
 		</form>
-	</div>
-	<br class="clear">';
+	</div>';
 	}
 }
 

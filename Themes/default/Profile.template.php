@@ -1805,7 +1805,7 @@ function template_alert_configuration()
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?

@@ -48,7 +48,7 @@ function template_ban_edit()
 	}
 
 	echo '
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<dl class="settings">
 				<dt id="ban_name_label">
 					<strong>', $txt['ban_name'], ':</strong>
