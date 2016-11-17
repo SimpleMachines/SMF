@@ -162,13 +162,8 @@ function template_select()
 
 		function select(direction, msg_id)
 		{
-			if (window.XMLHttpRequest)
-			{
-				getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml", onDocReceived);
+				getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml;splitjs", onDocReceived);
 				return false;
-			}
-			else
-				return true;
 		}
 		function onDocReceived(XMLDoc)
 		{

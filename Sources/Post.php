@@ -2748,6 +2748,7 @@ function JavaScriptModify()
 			'subject' => isset($_POST['subject']) ? $_POST['subject'] : null,
 			'body' => isset($_POST['message']) ? $_POST['message'] : null,
 			'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
+			'modify_reason' => (isset($_POST['modify_reason']) ? $_POST['modify_reason'] : ''),
 		);
 		$topicOptions = array(
 			'id' => $topic,
@@ -2771,7 +2772,6 @@ function JavaScriptModify()
 			{
 				$msgOptions['modify_time'] = time();
 				$msgOptions['modify_name'] = $user_info['name'];
-				$msgOptions['modify_reason'] = isset($_POST['modify_reason']) ? $_POST['modify_reason'] : '';
 			}
 		}
 		// If nothing was changed there's no need to add an entry to the moderation log.
