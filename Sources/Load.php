@@ -27,8 +27,9 @@ function reloadSettings()
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
 		$smcFunc['db_query']('set_character_set', '
-			SET NAMES ' . $db_character_set,
+			SET NAMES {string:db_character_set}',
 			array(
+				'db_character_set' => $db_character_set,
 			)
 		);
 

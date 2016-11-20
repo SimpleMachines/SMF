@@ -321,9 +321,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
 		),
-		'set_character_set' => array(
-			'~SET\\s+NAMES\\s([a-zA-Z0-9\\-_]+)~' => 'SET NAMES \'$1\'',
-		),
 		'pm_conversation_list' => array(
 			'~ORDER\\s+BY\\s+\\{raw:sort\\}~' => 'ORDER BY ' . (isset($db_values['sort']) ? ($db_values['sort'] === 'pm.id_pm' ? 'MAX(pm.id_pm)' : $db_values['sort']) : ''),
 		),
