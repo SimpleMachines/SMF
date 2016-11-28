@@ -5707,7 +5707,8 @@ function set_tld_regex($update = false)
 	}
 
 	// build_regex() returns an array. We only need the first item.
-	$tld_regex = array_shift(build_regex($tlds));
+	$tld_regex = build_regex($tlds);
+	$tld_regex = array_shift($tld_regex);
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
