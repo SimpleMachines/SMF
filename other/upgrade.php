@@ -510,9 +510,10 @@ function loadEssentialData()
 
 		if (($db_type == 'mysql' || $db_type == 'mysqli') && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
-			SET NAMES ' . $db_character_set,
+			SET NAMES {string:db_character_set}',
 			array(
 				'db_error_skip' => true,
+				'db_character_set' => $db_character_set,
 			)
 		);
 
