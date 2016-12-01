@@ -34,7 +34,7 @@ function template_main()
 				pollOptionNum++
 				pollOptionId++
 
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<li><label for="options-\' + pollOptionId + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>: <input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255" class="input_text"></li><li id="pollMoreOptions"></li\');
+				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>:</dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255" class="input_text"></dd><p id="pollMoreOptions"></p\');
 			}
 		</script>';
 
@@ -61,18 +61,21 @@ function template_main()
 
 	echo '
 			<div>
-				<div class="roundframe">
+				<div class="roundframe noup">
 					<input type="hidden" name="poll" value="', $context['poll']['id'], '">
 					<fieldset id="poll_main">
 						<legend><span ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['poll_question'], ':</span></legend>
-						<input type="text" name="question" size="80" value="', $context['poll']['question'], '" class="input_text">
-						<ul class="poll_main">';
+						<dl class="settings poll_options">
+							<dt>', $txt['poll_question'], ':</dt>
+							<dd><input type="text" name="question" size="80" value="', $context['poll']['question'], '" class="input_text"></dd>';
 
 	foreach ($context['choices'] as $choice)
 	{
 		echo '
-							<li>
+							<dt>
 								<label for="options-', $choice['id'], '" ', (isset($context['poll_error']['poll_few']) ? ' class="error"' : ''), '>', $txt['option'], ' ', $choice['number'], '</label>:
+							</dt>
+							<dd>
 								<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" class="input_text" size="80" maxlength="255">';
 
 		// Does this option have a vote count yet, or is it new?
@@ -80,12 +83,12 @@ function template_main()
 			echo ' (', $choice['votes'], ' ', $txt['votes'], ')';
 
 		echo '
-							</li>';
+							</dd>';
 	}
 
 	echo '
-							<li id="pollMoreOptions"></li>
-						</ul>
+							<p id="pollMoreOptions"></p>
+						</dl>
 						<strong><a href="javascript:addPollOption(); void(0);">(', $txt['poll_add_option'], ')</a></strong>
 					</fieldset>
 					<fieldset id="poll_options">
@@ -144,16 +147,13 @@ function template_main()
 						<input type="checkbox" name="resetVoteCount" value="on" class="input_check"> ' . $txt['reset_votes_check'] . '
 					</fieldset>';
 	echo '
-					<div class="padding flow_auto">
-						<input type="submit" name="post" value="', $txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">
-					</div>
+					<input type="submit" name="post" value="', $txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">
 				</div>
 			</div>
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 		</form>
-	</div>
-';
+	</div>';
 }
 
 ?>

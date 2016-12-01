@@ -301,7 +301,6 @@ function ScheduledTasks()
 			array(
 				'position' => 'after_title',
 				'value' => $txt['scheduled_tasks_time_offset'],
-				'class' => 'windowbg2',
 			),
 		),
 	);
@@ -557,7 +556,6 @@ function TaskLog()
 			array(
 				'position' => 'after_title',
 				'value' => $txt['scheduled_tasks_time_offset'],
-				'class' => 'windowbg2',
 			),
 		),
 	);

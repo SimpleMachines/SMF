@@ -23,7 +23,7 @@ function template_report_type()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">';
 
 	// Go through each type of report they can run.

@@ -26,9 +26,10 @@ function reloadSettings()
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
-		$smcFunc['db_query']('set_character_set', '
-			SET NAMES ' . $db_character_set,
+		$smcFunc['db_query']('', '
+			SET NAMES {string:db_character_set}',
 			array(
+				'db_character_set' => $db_character_set,
 			)
 		);
 
@@ -1991,6 +1992,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'signup' => array('usernamecheck'),
 	);
 
+	// Extra params like ;preview ;js, etc.
+	$extraParams = array(
+		'preview',
+		'splitjs',
+	);
+
 	// Actions that specifically uses XML output.
 	$xmlActions = array(
 		'quotefast',
@@ -2003,14 +2010,20 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'notifyboard',
 	);
 
-	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$extraParams, &$xmlActions));
 
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
 	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
 	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
+	// See if theres any extra param to check.
+	$requiresXML = false;
+	foreach ($extraParams as $key => $extra)
+		if (isset($_REQUEST[$extra]))
+			$requiresXML = true;
+
 	// Output is fully XML, so no need for the index template.
-	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
+	if (isset($_REQUEST['xml']) && (in_array($context['current_action'], $xmlActions) || $requiresXML))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');

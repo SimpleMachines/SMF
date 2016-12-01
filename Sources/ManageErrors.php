@@ -42,14 +42,46 @@ function ViewErrorLog()
 
 	// You can filter by any of the following columns:
 	$filters = array(
-		'id_member' => $txt['username'],
-		'ip' => $txt['ip_address'],
-		'session' => $txt['session'],
-		'url' => $txt['error_url'],
-		'message' => $txt['error_message'],
-		'error_type' => $txt['error_type'],
-		'file' => $txt['file'],
-		'line' => $txt['line'],
+		'id_member' => array (
+			'txt' => $txt['username'],
+			'operator' => '=',
+			'datatype' => 'int',
+		),
+		'ip' => array (
+			'txt' => $txt['ip_address'],
+			'operator' => '=',
+			'datatype' => 'inet',
+		),
+		'session' => array (
+			'txt' => $txt['session'],
+			'operator' => 'LIKE',
+			'datatype' => 'string',
+		),
+		'url' => array (
+			'txt' => $txt['error_url'],
+			'operator' => 'LIKE',
+			'datatype' => 'string',
+		),
+		'message' => array (
+			'txt' => $txt['error_message'],
+			'operator' => 'LIKE',
+			'datatype' => 'string',
+		),
+		'error_type' => array (
+			'txt' => $txt['error_type'],
+			'operator' => 'LIKE',
+			'datatype' => 'string',
+		),
+		'file' => array (
+			'txt' => $txt['file'],
+			'operator' => 'LIKE',
+			'datatype' => 'string',
+		),
+		'line' => array (
+			'txt' => $txt['line'],
+			'operator' => '=',
+			'datatype' => 'int',
+		),
 	);
 
 	// Set up the filtering...
@@ -60,7 +92,7 @@ function ViewErrorLog()
 				'sql' => in_array($_GET['filter'], array('message', 'url', 'file')) ? base64_decode(strtr($_GET['value'], array(' ' => '+'))) : $smcFunc['db_escape_wildcard_string']($_GET['value']),
 			),
 			'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
-			'entity' => $filters[$_GET['filter']]
+			'entity' => $filters[$_GET['filter']]['txt']
 		);
 
 	// Deleting, are we?
@@ -71,7 +103,7 @@ function ViewErrorLog()
 	$result = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
-		WHERE ' . $filter['variable'] . ' LIKE {string:filter}' : ''),
+		WHERE ' . $filter['variable'] . ' '.$filters[$_GET['filter']]['operator'].' {'.$filters[$_GET['filter']]['datatype'].':filter}' : ''),
 		array(
 			'filter' => isset($filter) ? $filter['value']['sql'] : '',
 		)
@@ -114,7 +146,7 @@ function ViewErrorLog()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
-		WHERE ' . $filter['variable'] . ' LIKE {string:filter}' : '') . '
+		WHERE ' . $filter['variable'] . ' '.$filters[$_GET['filter']]['operator'].' {'.$filters[$_GET['filter']]['datatype'].':filter}' : '') . '
 		ORDER BY id_error ' . ($context['sort_direction'] == 'down' ? 'DESC' : '') . '
 		LIMIT {int:start}, {int:max}',
 		array(

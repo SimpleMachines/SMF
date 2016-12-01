@@ -2327,8 +2327,7 @@ function ManageAttachmentPaths()
 			empty($errors['dir']) ? array(
 				'position' => 'top_of_list',
 				'value' => $txt['attach_dir_desc'],
-				'style' => 'padding: 5px 10px;',
-				'class' => 'windowbg2 smalltext'
+				'class' => 'information'
 			) : array(
 				'position' => 'top_of_list',
 				'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
