@@ -3238,6 +3238,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It supports:
  *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
  *	 memcache: http://www.php.net/memcache
+ *   memcached: http://www.php.net/memcached
  *	 APC: http://www.php.net/apc
  *   APCu: http://www.php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
@@ -3270,7 +3271,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	{
 		case 'memcached':
 			// The simple yet efficient memcached.
-			if ((function_exists('memcached_set') || function_exists('memcache_set')) && isset($cache_memcached) && trim($cache_memcached) != '')
+			if ((class_exists('memcached') || class_exists('memcache')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
@@ -3278,7 +3279,11 @@ function cache_put_data($key, $value, $ttl = 120)
 				if (!$memcached)
 					return;
 
-				memcache_set($memcached, $key, $value, 0, $ttl);
+				// Slight difference between the two here...
+				if (class_exists('memcache'))
+					$memcached->set($key, $value, 0, $ttl);
+				elseif (class_exists('memcached'))
+					$memcached->set($key, $value, 0, $ttl);
 			}
 			break;
 		case 'apc':
@@ -3381,7 +3386,7 @@ function cache_get_data($key, $ttl = 120)
 	{
 		case 'memcached':
 			// Okay, let's go for it memcached!
-			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($cache_memcached) && trim($cache_memcached) != '')
+			if ((class_exists('memcache') || class_exists('memcached')) && isset($cache_memcached) && trim($cache_memcached) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
@@ -3392,7 +3397,7 @@ function cache_get_data($key, $ttl = 120)
 					$value = null;
 				}
 				else
-					$value = (function_exists('memcache_get')) ? memcache_get($memcached, $key) : memcached_get($memcached, $key);
+					$value = $memcached->get($key);
 			}
 			break;
 		case 'apc':
@@ -3485,26 +3490,21 @@ function get_memcached_server($level = 3)
 		$port = isset($server[1]) ? $server[1] : 11211;
 	}
 
-	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
+	$cache = (class_exists('memcache')) ? 'memcache' : ((class_exists('memcached') ? 'memcached' : ''));
 
 	// Don't try more times than we have servers!
 	$level = min(count($servers), $level);
 
 	// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
+	if ($cache === 'memcached')
+		$memcached = new Memcached();
+	elseif ($cache == 'memcache')
+		$memcached = new Memcache();
+
 	if (empty($db_persist))
-	{
-		if ($cache === 'memcached')
-			$memcached = memcached_connect($host, $port);
-		if ($cache === 'memcache')
-			$memcached = memcache_connect($host, $port);
-	}
+		$memcached->connect($host, $port);
 	else
-	{
-		if ($cache === 'memcached')
-			$memcached = memcached_pconnect($host, $port);
-		if ($cache === 'memcache')
-			$memcached = memcache_pconnect($host, $port);
-	}
+		$memcached->pconnect($host, $port);
 
 	if (!$memcached && $level > 0)
 		get_memcached_server($level - 1);
