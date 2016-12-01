@@ -1017,7 +1017,7 @@ function EditSmileys()
 						'value' => $txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($modSettings, $context, $txt, $modSettings, $smcFunc)
+						'function' => function ($rowData) use ($context, $txt, $modSettings, $smcFunc)
 						{
 							if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']))
 								return $smcFunc['htmlspecialchars']($rowData['description']);
