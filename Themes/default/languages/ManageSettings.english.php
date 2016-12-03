@@ -341,7 +341,7 @@ $txt['languages_download_info'] = '<strong>Note:</strong>
 		<li>Where a file already exists on your forum the &quot;Already Exists&quot; column will have one of two values. &quot;Identical&quot; indicates that the file already exists in an identical form and need not be overwritten. &quot;Different&quot; means that the contents vary in some way and overwriting is probably the optimum solution.</li>
 	</ul>';
 
-$txt['languages_download_main_files'] = 'Primary Files';+
+$txt['languages_download_main_files'] = 'Primary Files';
 $txt['languages_download_filename'] = 'File Name';
 $txt['languages_download_dest'] = 'Destination';
 $txt['languages_download_writable'] = 'Writable';
