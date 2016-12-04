@@ -1837,25 +1837,24 @@ function template_alert_configuration()
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>
-			<table class="table_grid">
-				<tr>
-					<td></td>
-					<td class="centercol">', $txt['receive_alert'], '</td>
-					<td class="centercol">', $txt['receive_mail'], '</td>
-				</tr>';
+			<table class="table_grid">';
 
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
 				<tr class="title_bar">
-					<th colspan="3">
-						', $txt['alert_group_' . $alert_group];
+					<th>', $txt['alert_group_' . $alert_group],'</th>
+					<th>', $txt['receive_alert'], '</th>
+					<th>', $txt['receive_mail'], '</th>
+				</tr>
+				<tr class="windowbg">';
 		if (isset($context['alert_group_options'][$alert_group]))
 		{
 			foreach ($context['alert_group_options'][$alert_group] as $opts)
 			{
 				echo '
-				<div class="smalltext">';
+				<tr class="windowbg">
+					<td colspan="3">';
 				$label = $txt['alert_opt_' . $opts[1]];
 				$label_pos = isset($opts['label']) ? $opts['label'] : '';
 				if ($label_pos == 'before')
@@ -1885,13 +1884,11 @@ function template_alert_configuration()
 					<label for="opt_', $opts[1], '">', $label, '</label>';
 
 				echo '
-				</div>';
+					</td>
+				</tr>';
 			}
 		}
 
-		echo '
-					</th>
-				</tr>';
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
