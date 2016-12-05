@@ -2309,7 +2309,6 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 		return false;
 }
 
-
 /**
  * Load a sub-template.
  * What it does:

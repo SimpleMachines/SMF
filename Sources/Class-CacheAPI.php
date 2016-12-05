@@ -191,7 +191,6 @@ abstract class cache_api implements cache_api_interface
 		return $this->keyPrefix;
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */
