@@ -56,7 +56,6 @@ class memcached_cache extends cache_api
 		$servers = explode(',', $cache_memcached);
 		$port = 0;
 
-
 		// memcached does not remove servers from the list upon completing the script under modes like FastCGI. So check to see if servers exist or not.
 		$currentServers = $this->memcached->getServerList();
 		foreach ($servers as $server)
