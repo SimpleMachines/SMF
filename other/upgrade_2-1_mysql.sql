@@ -466,13 +466,13 @@ ADD COLUMN credits VARCHAR(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 ---# Altering the session_id columns...
 ALTER TABLE {$db_prefix}log_online
-CHANGE `session` `session` VARCHAR(64) NOT NULL DEFAULT '';
+CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '';
 
 ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` CHAR(64) NOT NULL DEFAULT '                                                                ';
+CHANGE `session` `session` CHAR(128) NOT NULL DEFAULT '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` CHAR(64) NOT NULL;
+CHANGE `session_id` `session_id` CHAR(128) NOT NULL;
 ---#
 
 /******************************************************************************/
