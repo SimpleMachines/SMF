@@ -29,6 +29,7 @@ class memcache_cache extends cache_api
 	 * Checks whether we can use the cache method performed by this API.
 	 *
 	 * @access public
+	 * @param boolean $test Test if this is supported or enabled.
 	 * @return boolean Whether or not the cache is supported
 	 */
 	public function isSupported($test = false)
