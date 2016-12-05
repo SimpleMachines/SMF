@@ -441,22 +441,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $cacheAPI;
 
 	// Detect all available optimizers
-	$detected = array();
-	if (function_exists('apc_store'))
-		$detected['apc'] = $txt['apc_cache'];
-	if (function_exists('apcu_store'))
-		$detected['apcu'] = $txt['apcu_cache'];
-	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
-		$detected['zend'] = $txt['zend_cache'];
-	if (function_exists('memcache_set') || function_exists('memcached_set'))
-		$detected['memcached'] = $txt['memcached_cache'];
-	if (function_exists('xcache_set'))
-		$detected['xcache'] = $txt['xcache_cache'];
-	if (function_exists('file_put_contents'))
-		$detected['smf'] = $txt['default_cache'];
+	$detected = loadCacheAPIs();
 
 	// set our values to show what, if anything, we found
 	if (empty($detected))
@@ -477,19 +465,31 @@ function ModifyCacheSettings($return_config = false)
 		array('', $txt['cache_settings_message'], '', 'desc'),
 		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
 		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
-		array('cache_memcached', $txt['cache_memcached'], 'file', 'text', $txt['cache_memcached'], 'cache_memcached'),
-		array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir'),
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
 	$context['settings_post_javascript'] = '
-		var cache_type = document.getElementById(\'cache_accelerator\');
-		createEventListener(cache_type);
-		cache_type.addEventListener("change", toggleCache);
-		toggleCache();';
+		$(document).ready(function() {
+			$("#cache_accelerator").change();
+		});';
 
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
+	// Maybe we have some additional settings from the selected accelerator.
+	if (!empty($detected))
+	{
+		foreach ($detected as $tryCache => $dummy)
+		{
+			$cache_class_name = $tryCache . '_cache';
+
+			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
+			if (is_callable(array($cache_class_name, 'cacheSettings')))
+			{
+				$testAPI = new $cache_class_name();
+				call_user_func_array(array($testAPI, 'cacheSettings'), array(&$config_vars));
+			}
+		}
+	}
 	if ($return_config)
 		return $config_vars;
 
@@ -631,7 +631,6 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	prepareDBSettingContext($config_vars);
 }
-
 
 /**
  * Helper function, it sets up the context for the manage server settings.
@@ -1284,6 +1283,43 @@ function ShowPHPinfoSettings()
 	$context['page_title'] = $txt['admin_server_settings'];
 	$context['sub_template'] = 'php_info';
 	return;
+}
+
+/**
+ * Get the installed Cache API implementations.
+ *
+ */
+function loadCacheAPIs()
+{
+	global $sourcedir, $txt;
+
+	// Make sure our class is in session.
+	require_once($sourcedir . '/Class-CacheAPI.php');
+
+	$apis = array();
+	if ($dh = opendir($sourcedir))
+	{
+		while (($file = readdir($dh)) !== false)
+		{
+			if (is_file($sourcedir . '/' . $file) && preg_match('~^CacheAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))
+			{
+				$tryCache = strtolower($matches[1]);
+
+				require_once($sourcedir . '/' . $file);
+				$cache_class_name = $tryCache . '_cache';
+				$testAPI = new $cache_class_name();
+
+				// No Support?  NEXT!
+				if (!$testAPI->isSupported(true))
+					continue;
+
+				$apis[$tryCache] = isset($txt[$tryCache . '_cache']) ? $txt[$tryCache . '_cache'] : $tryCache;
+			}
+		}
+	}
+	closedir($dh);
+
+	return $apis;
 }
 
 ?>
