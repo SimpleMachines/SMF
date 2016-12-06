@@ -469,10 +469,10 @@ ALTER TABLE {$db_prefix}log_online
 CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '';
 
 ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` CHAR(128) NOT NULL DEFAULT '                                                                ';
+CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` CHAR(128) NOT NULL;
+CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL;
 ---#
 
 /******************************************************************************/
