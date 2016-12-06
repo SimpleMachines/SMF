@@ -2995,7 +2995,8 @@ function profileLoadAvatarData()
 			'external' => 'http://'
 		);
 		$context['member']['avatar']['href'] = empty($cur_profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $cur_profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $cur_profile['filename'];
-	}
+        $context['member']['avatar']['id_attach'] = empty($cur_profile['attachment_type']) ? '' : $cur_profile['id_attach'];
+    }
 	elseif ((stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) && $context['member']['avatar']['allow_external'])
 		$context['member']['avatar'] += array(
 			'choice' => 'external',

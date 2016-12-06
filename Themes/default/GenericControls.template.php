@@ -154,7 +154,25 @@ function template_control_richedit_buttons($editor_id)
 	elseif ($context['show_spellchecking'])
 		$tempTab++;
 
-	$tempTab++;
+	// add a cancel button for these actions
+	if(isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('post', 'calendar')))
+	{
+		$cancelLink = '';
+		if(isset($_REQUEST['msg']) || isset($_REQUEST['last_msg']))
+			$cancelLink = $scripturl . '?topic='. $_REQUEST['topic'] .'.msg'. (isset($_REQUEST['msg']) ? $_REQUEST['msg'] .'#msg'. $_REQUEST['msg'] : $_REQUEST['last_msg'] .'#msg'. $_REQUEST['last_msg']);
+		else if(isset($_REQUEST['board']))
+			$cancelLink = $scripturl . '?board='. $_REQUEST['board']; 
+		else if($_REQUEST['action'] == 'calendar')
+			$cancelLink = $scripturl . '?action='. $_REQUEST['action'];
+
+		if(!empty($cancelLink))
+		{
+			$tempTab++;
+			echo '
+		<input type="button" value="'. $txt['modify_cancel'] .'" name="'. $txt['modify_cancel'] .'" tabindex="', $tempTab, '" onclick="window.location.href=\'', $cancelLink ,'\'" accesskey="c" class="button_submit">';
+		}
+	}
+
 	$context['tabindex'] = $tempTab;
 
 	if (!empty($context['drafts_pm_save']))

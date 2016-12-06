@@ -46,7 +46,7 @@ function template_fatal_error()
 		// Show a back button (using javascript.)
 		echo '
 	<div class="centertext">
-		<a class="button_link" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
+		<a class="button_link" style="float:none" href="javascript:document.location=document.referrer.length == 0 ? smf_scripturl : document.referrer">', $txt['back'], '</a>
 	</div>';
 	}
 }
