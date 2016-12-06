@@ -334,7 +334,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip VARBINARY(16),
   url TEXT NOT NULL,
   message TEXT NOT NULL,
-  session CHAR(128) NOT NULL DEFAULT '                                                                ',
+  session VARCHAR(128) NOT NULL DEFAULT '',
   error_type CHAR(15) NOT NULL DEFAULT 'general',
   file VARCHAR(255) NOT NULL DEFAULT '',
   line MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
@@ -1001,7 +1001,7 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id CHAR(128),
+  session_id VARCHAR(128),
   last_update INT(10) UNSIGNED NOT NULL,
   data TEXT NOT NULL,
   PRIMARY KEY (session_id)
