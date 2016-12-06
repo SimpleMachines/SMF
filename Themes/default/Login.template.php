@@ -43,7 +43,7 @@ function template_login()
 						<dt>', $txt['username'], ':</dt>
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
-						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
+						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password" autocomplete="off"></dd>
 					</dl>
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
@@ -223,7 +223,7 @@ function template_kick_guest()
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
+					<dd><input type="password" name="passwrd" size="20" class="input_password" autocomplete="off"></dd>
 					<dt>', $txt['mins_logged_in'], ':</dt>
 					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
 					<dt>', $txt['always_logged_in'], ':</dt>
@@ -271,7 +271,7 @@ function template_maintenance()
 				<dt>', $txt['username'], ':</dt>
 				<dd><input type="text" name="user" size="20" class="input_text"></dd>
 				<dt>', $txt['password'], ':</dt>
-				<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
+				<dd><input type="password" name="passwrd" size="20" class="input_password" autocomplete="off"></dd>
 				<dt>', $txt['mins_logged_in'], ':</dt>
 				<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
 				<dt>', $txt['always_logged_in'], ':</dt>
@@ -311,7 +311,7 @@ function template_admin_login()
 
 	echo '
 			<strong>', $txt['password'], ':</strong>
-			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
+			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password" autocomplete="off">
 			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
@@ -385,7 +385,7 @@ function template_resend()
 					<dt>', $txt['invalid_activation_new_email'], ':</dt>
 					<dd><input type="text" name="new_email" size="40" class="input_text"></dd>
 					<dt>', $txt['invalid_activation_password'], ':</dt>
-					<dd><input type="password" name="passwd" size="30" class="input_password"></dd>
+					<dd><input type="password" name="passwd" size="30" class="input_password" autocomplete="off"></dd>
 				</dl>';
 
 	if ($context['can_activate'])

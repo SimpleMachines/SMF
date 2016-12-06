@@ -1354,7 +1354,7 @@ function template_edit_options()
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
-			<div style="position:absolute; top:-100px;"><input type="text" id="autocompleteFakeName"/><input type="password" id="autocompleteFakePassword"/></div>
+			<div style="position:absolute; top:-100px;"><input type="text" id="autocompleteFakeName"/><input type="password" id="autocompleteFakePassword" autocomplete="off"/></div>
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
 
@@ -1532,7 +1532,7 @@ function template_edit_options()
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
 					</dt>
 					<dd>
-						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password">
+						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" autocomplete="off">
 					</dd>
 				</dl>';
 
@@ -2523,7 +2523,7 @@ function template_deleteAccount()
 				<div class="alert">', $txt['own_profile_confirm'], '</div>
 				<div>
 					<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong>
-					<input type="password" name="oldpasswrd" size="20" class="input_password">&nbsp;&nbsp;&nbsp;&nbsp;
+					<input type="password" name="oldpasswrd" size="20" class="input_password" autocomplete="off">&nbsp;&nbsp;&nbsp;&nbsp;
 					<input type="submit" value="', $txt['yes'], '" class="button_submit">';
 
 		if (!empty($context['token_check']))
@@ -2605,7 +2605,7 @@ function template_profile_save()
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password">
+							<input type="password" name="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" autocomplete="off">
 						</dd>
 					</dl>';
 
@@ -3043,7 +3043,7 @@ function template_tfasetup()
 											<div class="title_top">
 												<strong>', $txt['tfa_step1'], '</strong><br />
 												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
-												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '' ,'>
+												<input type="password" name="passwd" autocomplete="off" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '' ,'>
 											</div>
 											<div class="title_top">
 												<strong>', $txt['tfa_step2'], '</strong>

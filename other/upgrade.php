@@ -4136,7 +4136,7 @@ function template_chmod()
 			</tr><tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_password">', $txt['ftp_password'], ':</label></td>
 				<td>
-					<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password">
+					<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password" autocomplete="off">
 					<div class="smalltext block">', $txt['ftp_password_info'], '</div>
 				</td>
 			</tr><tr>
@@ -4481,7 +4481,7 @@ function template_welcome_message()
 				<tr valign="top">
 					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>Password:</strong></td>
 					<td>
-						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', ' class="input_password">
+						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', ' class="input_password" autocomplete="off">
 						<input type="hidden" name="hash_passwrd" value="">';
 
 	if (!empty($upcontext['password_failed']))

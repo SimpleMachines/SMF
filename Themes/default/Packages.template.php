@@ -744,7 +744,7 @@ function template_servers()
 							<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
 						</dt>
 						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password">
+							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password" autocomplete="off">
 						</dd>
 						<dt>
 							<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
@@ -1160,7 +1160,7 @@ function template_control_chmod()
 							<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
 						</dt>
 						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 98%;" class="input_password">
+							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 98%;" class="input_password" autocomplete="off">
 						</dd>
 						<dt>
 							<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
