@@ -143,6 +143,9 @@ $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</st
 $txt['loadavg_disabled_windows'] = '<span class="error">Load balancing support is not available on Windows.</span>';
 $txt['loadavg_disabled_osx'] = '<span class="error">Load balancing support is not available on OS:X.</span>';
 $txt['loadavg_disabled_conf'] = '<span class="error">Load balancing support is disabled by your host configuration.</span>';
+$txt['loadavg_dynamic_cache'] = 'Enable Dynamic Caching';
+$txt['loadavg_dynamic_cache_l2'] = 'Threshold to enable level 2 caching';
+$txt['loadavg_dynamic_cache_l3'] = 'Threshold to enable level 3 caching';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
 $txt['setting_password_strength_low'] = 'Low - 4 character minimum';
