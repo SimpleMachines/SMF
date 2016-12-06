@@ -3196,7 +3196,7 @@ function loadDatabase()
 */
 function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI;
+	global $sourcedir, $cacheAPI, $cache_accelerator;
 
 	// Not overriding this and we have a cacheAPI, send it back.
 	if (empty($overrideCache) && is_object($cacheAPI))
@@ -3228,12 +3228,17 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 			return false;
 		}
 
+		// Connect up to the accelerator.
+		$testAPI->connect();
+
 		// Don't set this if we are overriding the cache.
 		if (is_null($overrideCache))
 		{
 			$cacheAPI = $testAPI;
 			return $cacheAPI;
 		}
+		else
+			return $testAPI;
 	}
 }
 

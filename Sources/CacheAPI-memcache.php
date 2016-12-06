@@ -61,7 +61,7 @@ class memcache_cache extends cache_api
 		$level = 0;
 
 		// We should keep trying if a server times out, but only for the amount of servers we have.
-		while (!$connected && $level > count($servers))
+		while (!$connected && $level < count($servers))
 		{
 			++$level;
 			$this->memcache = new Memcache();
