@@ -57,6 +57,7 @@ class memcached_cache extends cache_api
 		$port = 0;
 
 		// memcached does not remove servers from the list upon completing the script under modes like FastCGI. So check to see if servers exist or not.
+		$this->memcached = new Memcached;
 		$currentServers = $this->memcached->getServerList();
 		foreach ($servers as $server)
 		{
@@ -81,7 +82,7 @@ class memcached_cache extends cache_api
 
 			// Found it?
 			if (empty($foundServer))
-			$this->memcached->addServer($tempServer[0], $tempServer[1]);
+				$this->memcached->addServer($tempServer[0], $tempServer[1]);
 		}
 
 		// Best guess is this worked.
