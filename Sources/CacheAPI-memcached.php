@@ -122,7 +122,7 @@ class memcached_cache extends cache_api
 	{
 		$key = $this->keyPrefix . strtr($key, ':/', '-_');
 
-		return $this->memcached->set($key, $value, 0, $ttl);
+		return $this->memcached->set($key, $value, $ttl);
 	}
 
 	/**
