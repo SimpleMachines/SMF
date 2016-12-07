@@ -208,18 +208,15 @@ function preparsecode(&$message, $previewing = false)
 	);
 
 	require_once($sourcedir . '/Subs.php');
-	$codes = parse_bbc(false);
 
-	foreach ($codes as $code)
+	foreach (($codes = parse_bbc(false)) as $code)
 		if (!in_array($code['tag'], $allowedEmpty))
 			$alltags[] = $code['tag'];
 
 	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
 
 	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
-	{
 		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
-	}
 
 	// Restore code blocks
 	if (!empty($code_tags))
