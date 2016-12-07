@@ -39,26 +39,6 @@ function preparsecode(&$message, $previewing = false)
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
 
-	// Remove empty bbc.
-	require_once($sourcedir . '/Subs.php');
-	$codes = parse_bbc(false);
-
-	$allowedEmpty = array(
-		'anchor',
-		'td',
-	);
-
-	foreach ($codes as $code)
-		if (!in_array($code['tag'], $allowedEmpty))
-			$alltags[] = $code['tag'];
-
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
-
-	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
-	{
-		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
-	}
-
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
 
@@ -222,9 +202,24 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace(array_keys($mistake_fixes), $mistake_fixes, $message);
 
 	// Remove empty bbc from the sections outside the code tags
-	$message = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $message);
-	$message = preg_replace('~\[quote\]\s*\[/quote\]~', '', $message);
-	$message = preg_replace('~\[color=(?:#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\(\d{1,3}, ?\d{1,3}, ?\d{1,3}\))\]\s*\[/color\]~', '', $message);
+	$allowedEmpty = array(
+		'anchor',
+		'td',
+	);
+
+	require_once($sourcedir . '/Subs.php');
+	$codes = parse_bbc(false);
+
+	foreach ($codes as $code)
+		if (!in_array($code['tag'], $allowedEmpty))
+			$alltags[] = $code['tag'];
+
+	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+
+	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
+	{
+		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
+	}
 
 	// Restore code blocks
 	if (!empty($code_tags))
