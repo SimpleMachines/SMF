@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info, $modSettings, $context;
+	global $user_info, $modSettings, $context, $sourcedir;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
@@ -40,9 +40,23 @@ function preparsecode(&$message, $previewing = false)
 	}, $message);
 
 	// Remove empty bbc.
-	while (preg_match('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', $message))
+	require_once($sourcedir . '/Subs.php');
+	$codes = parse_bbc(false);
+
+	$allowedEmpty = array(
+		'anchor',
+		'td',
+	);
+
+	foreach ($codes as $code)
+		if (!in_array($code['tag'], $allowedEmpty))
+			$alltags[] = $code['tag'];
+
+	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+
+	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
 	{
-		$message = preg_replace('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
+		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 	}
 
 	// Remove \r's... they're evil!
