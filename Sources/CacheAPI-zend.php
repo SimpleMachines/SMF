@@ -60,7 +60,7 @@ class zend_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// Zend's pricey stuff.
 		if (function_exists('zend_shm_cache_fetch'))
@@ -80,7 +80,7 @@ class zend_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		if (function_exists('zend_shm_cache_store'))
 			return zend_shm_cache_store('SMF::' . $key, $value, $ttl);
