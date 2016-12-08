@@ -60,7 +60,7 @@ class apc_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		return apc_fetch($key . 'smf');
 	}
@@ -76,7 +76,7 @@ class apc_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null)

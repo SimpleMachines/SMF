@@ -99,7 +99,7 @@ class memcached_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		$value = $this->memcached->get($key);
 
@@ -120,7 +120,7 @@ class memcached_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		return $this->memcached->set($key, $value, $ttl);
 	}

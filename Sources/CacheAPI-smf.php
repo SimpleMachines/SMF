@@ -64,7 +64,7 @@ class smf_cache extends cache_api
 	{
 		global $cachedir;
 
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
@@ -102,7 +102,7 @@ class smf_cache extends cache_api
 	{
 		global $cachedir;
 
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.

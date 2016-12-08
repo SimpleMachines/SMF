@@ -60,7 +60,7 @@ class xcache_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		return xcache_get($key);
 	}
@@ -76,7 +76,7 @@ class xcache_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$key = $this->keyPrefix . strtr($key, ':/', '-_');
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		if ($value === null)
 			return xcache_unset($key);

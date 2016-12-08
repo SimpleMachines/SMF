@@ -107,6 +107,22 @@ interface cache_api_interface
 	 * @return bool Whether or not we could close connections.
 	 */
 	public function quit();
+
+	/**
+	 * Gets the latest version of SMF this is compatible with.
+	 *
+	 * @access public
+	 * @return string the value of $key.
+	 */
+	public function getCompatibleVersion();
+
+	/**
+	 * Gets the min version that we support.
+	 *
+	 * @access public
+	 * @return string the value of $key.
+	 */
+	public function getMiniumnVersion();
 }
 
 /**
@@ -117,22 +133,22 @@ abstract class cache_api implements cache_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 3';
+	protected $version_compatible = 'SMF 2.1 Beta 3';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 3';
+	protected $min_smf_version = 'SMF 2.1 Beta 3';
 
 	/**
 	 * @var string The prefix for all keys.
 	 */
-	public $keyPrefix = '';
+	protected $prefix = '';
 
 	/**
 	 * @var string The default TTL.
 	 */
-	public $ttl = 120;
+	protected $ttl = 120;
 
 	/**
 	 * Does basic setup of a cache method when we create the object but before we call connect.
@@ -176,9 +192,9 @@ abstract class cache_api implements cache_api_interface
 
 		// Set the default if no prefix was specified.
 		if (empty($prefix))
-			$this->keyPrefix = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-';
+			$this->prefix = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-';
 		else
-			$this->keyPrefix = $prefix;
+			$this->prefix = $prefix;
 
 		return true;
 	}
@@ -188,7 +204,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function getPrefix()
 	{
-		return $this->keyPrefix;
+		return $this->prefix;
 	}
 
 	/**
@@ -235,5 +251,21 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function quit()
 	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getCompatibleVersion()
+	{
+		return $this->version_compatible;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getMiniumnVersion()
+	{
+		return $this->min_smf_version;
 	}
 }
