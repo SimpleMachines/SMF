@@ -576,6 +576,7 @@ function Credits($in_admin = false)
 						// Lead Developer
 						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
+						'Colin Schoen',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -639,7 +640,6 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Russell "NEND" Najar',
 						// Customizers
-						'Colin Schoen',
 						'Gary M. Gadsdon',
 						'Jason "JBlaze" Clemons',
 						'SA&#8482;',
