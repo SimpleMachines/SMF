@@ -129,7 +129,7 @@ $txt['error_new_reply_reading'] = 'Warning - while you were reading a new reply 
 $txt['error_new_replies_reading'] = 'Warning - while you were reading %1$d new replies have been posted. You may wish to review your post.';
 
 $txt['error_topic_locked'] = 'Warning - while you were typing the topic was locked. Please check the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
-$txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was locked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was unlocked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_stickied'] = 'Warning - while you were typing the topic was stickied. Please check the "Sticky this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
 $txt['error_topic_unstickied'] = 'Warning - while you were typing the topic was unstickied. Please uncheck the "Sticky this topic" box under "Attachments and Other Options" below if you do not wish to undo this action.';
 
