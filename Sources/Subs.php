@@ -5715,7 +5715,10 @@ function build_regex($strings, $delim = null)
 				$sub_regex = $index_to_regex($value, $delim);
 
 				if (count(array_keys($value)) == 1)
-					$new_key .= explode('(?'.'>', $sub_regex)[0];
+				{
+					$new_key_array = explode('(?'.'>', $sub_regex);
+					$new_key .= $new_key_array[0];
+				}
 				else
 					$sub_regex = '(?'.'>' . $sub_regex . ')';
 			}
