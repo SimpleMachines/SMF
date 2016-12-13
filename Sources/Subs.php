@@ -5524,7 +5524,7 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
  */
 function set_tld_regex($update = false)
 {
-	global $sourcedir, $smcFunc;
+	global $sourcedir, $smcFunc, $modSettings;
 	static $done = false;
 
 	// If we don't need to do anything, don't
