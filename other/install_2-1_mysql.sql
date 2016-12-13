@@ -693,7 +693,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL DEFAULT '0001-01-01',
   website_title VARCHAR(255) NOT NULL DEFAULT '',
   website_url VARCHAR(255) NOT NULL DEFAULT '',
-  hide_email TINYINT NOT NULL DEFAULT '0',
   show_online TINYINT NOT NULL DEFAULT '1',
   time_format VARCHAR(80) NOT NULL DEFAULT '',
   signature TEXT NOT NULL,

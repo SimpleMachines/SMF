@@ -1054,7 +1054,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL default '0001-01-01',
   website_title varchar(255) NOT NULL DEFAULT '',
   website_url varchar(255) NOT NULL DEFAULT '',
-  hide_email smallint NOT NULL default '0',
   show_online smallint NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
   signature text NOT NULL,
