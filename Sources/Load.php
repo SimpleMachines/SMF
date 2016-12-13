@@ -3380,6 +3380,33 @@ function cache_get_data($key, $ttl = 120)
 }
 
 /**
+ * Empty out the cache in use as best it can
+ *
+ * It may only remove the files of a certain type (if the $type parameter is given)
+ * Type can be user, data or left blank
+ * 	- user clears out user data
+ *  - data clears out system / opcode data
+ *  - If no type is specified will perform a complete cache clearing
+ * For cache engines that do not distinguish on types, a full cache flush will be done
+ *
+ * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
+ */
+function clean_cache($type = '')
+{
+	global $cachedir, $sourcedir, $modSettings;
+
+	// If we can't get to the API, can't do this.
+	if (empty($cacheAPI))
+		return false;
+
+	// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
+	$value = $cacheAPI->cleanCache($type);
+
+	call_integration_hook('integrate_clean_cache');
+	clearstatcache();
+}
+
+/**
  * Helper function to set an array of data for an user's avatar.
  *
  * Makes assumptions based on the data provided, the following keys are required:

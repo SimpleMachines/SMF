@@ -21,17 +21,27 @@ if (!defined('SMF'))
 class smf_cache extends cache_api
 {
 	/**
-	 * Checks whether we can use the cache method performed by this API.
-	 *
-	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * @var string The path to the current $cachedir directory.
+	 */
+	private $cachedir = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		// Set our default cachedir.
+		$this->setCachedir();		
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
-		global $cachedir;
-
-		$supported = is_writable($cachedir);
+		$supported = is_writable($this->cachedir);
 
 		if ($test)
 			return $supported;
@@ -39,32 +49,12 @@ class smf_cache extends cache_api
 	}
 
 	/**
-	 * Connects to the cache method. If this fails, we return false, otherwise we return true.
-	 *
-	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
-	 */
-	public function connect()
-	{
-//		$this->setPrefix('');
-
-		// No need to do anything here.
-		return true;
-	}
-
-	/**
-	 * Gets data from the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * {@inheritDoc}
 	 */
 	public function getData($key, $ttl = null)
 	{
-		global $cachedir;
-
 		$key = $this->prefix . strtr($key, ':/', '-_');
+		$cachedir = $this->cachedir;
 
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
@@ -90,19 +80,12 @@ class smf_cache extends cache_api
 	}
 
 	/**
-	 * Saves to data the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return bool Whether or not we could save this to the cache.
+	 * {@inheritDoc}
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global $cachedir;
-
 		$key = $this->prefix . strtr($key, ':/', '-_');
+		$cachedir = $this->cachedir;
 
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.
@@ -133,22 +116,47 @@ class smf_cache extends cache_api
 	}
 
 	/**
-	 * Closes connections to the cache method.
-	 *
-	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * {@inheritDoc}
 	 */
-	public function quit()
+	public function cleanCache($type = '')
 	{
+		$cachedir = $this->cachedir;
+
+		// No directory = no game.
+		if (!is_dir($cachedir))
+			return;
+
+		// Remove the files in SMF's own disk cache, if any
+		$dh = opendir($cachedir);
+		while ($file = readdir($dh))
+		{
+			if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
+				@unlink($cachedir . '/' . $file);
+		}
+		closedir($dh);
+
+		// Make this invalid.
+		$this->invalidateCache();
+
 		return true;
 	}
 
 	/**
-	 * Specify custom settings that the cache API supports.
-	 *
-	 * @access public
-	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
-	 * @return void No return is needed.
+	 * {@inheritDoc}
+	 */
+	public function invalidateCache()
+	{
+		// We don't worry about $cachedir here, since the key is based on the real $cachedir.
+		parent::invalidateCache();
+
+		// Since SMF is file based, be sure to clear the statcache.
+		clearstatcache();
+
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
@@ -165,5 +173,34 @@ class smf_cache extends cache_api
 				var cache_type = e.currentTarget.value;
 				$("#cachedir").prop("disabled", cache_type != "smf");
 			});';
+	}
+
+	/**
+	 * Sets the $cachedir or uses the SMF default $cachedir..
+	 *
+	 * @access public
+	 * @param string $dir A valid path
+	 * @return boolean If this was successful or not.
+	 */
+	public function setCachedir($dir = null)
+	{
+		global $cachedir;
+
+		// If its invalid, use SMF's.
+		if (is_null($dir) || !is_writable($dir))
+			$this->cachedir = $cachedir;
+		else
+			$this->cachedir = $dir;
+	}
+
+	/**
+	 * Gets the current $cachedir.
+	 *
+	 * @access public
+	 * @return string the value of $ttl.
+	 */
+	public function getCachedir()
+	{
+		return $this->cachedir;
 	}
 }

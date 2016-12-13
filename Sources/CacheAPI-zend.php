@@ -21,11 +21,7 @@ if (!defined('SMF'))
 class zend_cache extends cache_api
 {
 	/**
-	 * Checks whether we can use the cache method performed by this API.
-	 *
-	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
@@ -39,24 +35,7 @@ class zend_cache extends cache_api
 	}
 
 	/**
-	 * Connects to the cache method. If this fails, we return false, otherwise we return true.
-	 *
-	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
-	 */
-	public function connect()
-	{
-		// No need to do anything here.
-		return true;
-	}
-
-	/**
-	 * Gets data from the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * {@inheritDoc}
 	 */
 	public function getData($key, $ttl = null)
 	{
@@ -70,13 +49,7 @@ class zend_cache extends cache_api
 	}
 
 	/**
-	 * Saves to data the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return bool Whether or not we could save this to the cache.
+	 * {@inheritDoc}
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
@@ -89,13 +62,12 @@ class zend_cache extends cache_api
 	}
 
 	/**
-	 * Closes connections to the cache method.
-	 *
-	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * {@inheritDoc}
 	 */
-	public function quit()
+	public function cleanCache($type = '')
 	{
-		return true;
+		$this->invalidateCache();
+
+		return zend_shm_cache_clear('SMF');
 	}
 }

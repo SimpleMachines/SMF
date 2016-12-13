@@ -21,11 +21,24 @@ if (!defined('SMF'))
 class xcache_cache extends cache_api
 {
 	/**
-	 * Checks whether we can use the cache method performed by this API.
-	 *
-	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * {@inheritDoc}
+	 */
+	public function __construct()
+	{
+		global $modSettings;
+
+		parent::__construct();
+
+		// Xcache requuires a admin username and password in order to issue a clear.
+		if (!empty($modSettings['xcache_adminuser']) || !empty($modSettings['xcache_adminpass']))
+		{
+			ini_set('xcache.admin.user', $modSettings['xcache_adminuser']);
+			ini_set('xcache.admin.pass', md5($modSettings['xcache_adminpass']));
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
@@ -39,24 +52,7 @@ class xcache_cache extends cache_api
 	}
 
 	/**
-	 * Connects to the cache method. If this fails, we return false, otherwise we return true.
-	 *
-	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
-	 */
-	public function connect()
-	{
-		// No need to do anything here.
-		return true;
-	}
-
-	/**
-	 * Gets data from the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * {@inheritDoc}
 	 */
 	public function getData($key, $ttl = null)
 	{
@@ -66,13 +62,7 @@ class xcache_cache extends cache_api
 	}
 
 	/**
-	 * Saves to data the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return bool Whether or not we could save this to the cache.
+	 * {@inheritDoc}
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
@@ -85,13 +75,51 @@ class xcache_cache extends cache_api
 	}
 
 	/**
-	 * Closes connections to the cache method.
-	 *
-	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * {@inheritDoc}
 	 */
-	public function quit()
+	public function cleanCache($type = '')
 	{
+		global $modSettings;
+
+		// Xcache requuires a admin username and password in order to issue a clear. Ideally this would log an error, but it seems like something that could fill up the error log quickly.
+		if (empty($modSettings['xcache_adminuser']) || empty($modSettings['xcache_adminpass']))
+		{
+			// We are going to at least invalidate it.
+			$this->invalidateCache();
+			return false;
+		}
+
+		// if passed a type, clear that type out
+		if ($type === '' || $type === 'user')
+			xcache_clear_cache(XC_TYPE_VAR, 0);
+		if ($type === '' || $type === 'data')
+			xcache_clear_cache(XC_TYPE_PHP, 0);
+
+		$this->invalidateCache();
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function cacheSettings(array &$config_vars)
+	{
+		global $context, $txt;
+
+		$config_vars[] = $txt['cache_xcache'];
+		$config_vars[] = array('xcache_adminuser', $txt['xcache_adminuser'], 'db', 'text', 0, 'xcache_adminuser');
+
+		// While we could md5 this when saving, this could be tricky to be sure it doesn't get corrupted on additional saves.
+		$config_vars[] = array('xcache_adminpass', $txt['xcache_adminpass'], 'db', 'text', 0);
+
+		if (!isset($context['settings_post_javascript']))
+			$context['settings_post_javascript'] = '';
+
+		$context['settings_post_javascript'] .= '
+			$("#cache_accelerator").change(function (e) {
+				var cache_type = e.currentTarget.value;
+				$("#xcache_adminuser").prop("disabled", cache_type != "xcache");
+				$("#xcache_adminpass").prop("disabled", cache_type != "xcache");
+			});';
 	}
 }
