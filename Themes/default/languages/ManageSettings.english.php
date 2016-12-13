@@ -131,6 +131,9 @@ $txt['memcache_cache'] = 'Memcache';
 $txt['memcached_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['xcache_cache'] = 'XCache';
+$txt['cache_xcache'] = 'XCache settings';
+$txt['xcache_adminuser'] = 'XCache Admin User';
+$txt['xcache_adminpass'] = 'XCache Admin Password';
 $txt['cache_memcache_servers'] = 'Memcache(d) servers';
 $txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 

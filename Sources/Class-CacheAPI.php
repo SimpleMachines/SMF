@@ -92,13 +92,19 @@ interface cache_api_interface
 	public function putData($key, $value, $ttl = null);
 
 	/**
-	 * Specify custom settings that the cache API supports.
+	 * Clean out the cache.
 	 *
-	 * @access public
-	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
-	 * @return void No return is needed.
+	 * @param string $type If supported, the type of cache to clear, blank/data or user.
+	 * @return bool Whether or not we could clean the cache.
 	 */
-	public function cacheSettings(array &$config_vars);
+	public function cleanCache($type = '');
+
+	/**
+	 * Invalidate all cached data.
+	 *
+	 * @return bool Whether or not we could invalidate the cache.
+	 */
+	public function invalidateCache();
 
 	/**
 	 * Closes connections to the cache method.
@@ -107,6 +113,15 @@ interface cache_api_interface
 	 * @return bool Whether or not we could close connections.
 	 */
 	public function quit();
+
+	/**
+	 * Specify custom settings that the cache API supports.
+	 *
+	 * @access public
+	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
+	 * @return void No return is needed.
+	 */
+	public function cacheSettings(array &$config_vars);
 
 	/**
 	 * Gets the latest version of SMF this is compatible with.
@@ -242,14 +257,38 @@ abstract class cache_api implements cache_api_interface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function cacheSettings(array &$config_vars)
+	public function cleanCache($type = '')
 	{
+	}
+
+	/**
+	 * Invalidate all cached data.
+	 *
+	 * @return bool Whether or not we could invalidate the cache.
+	 */
+	public function invalidateCache()
+	{
+		global $cachedir;
+
+		// Invalidate cache, to be sure!
+		// ... as long as index.php can be modified, anyway.
+		if (is_writable($cachedir . '/' . 'index.php'))
+			@touch($cachedir . '/' . 'index.php');
+
+		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function quit()
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function cacheSettings(array &$config_vars)
 	{
 	}
 

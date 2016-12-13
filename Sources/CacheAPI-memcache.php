@@ -26,11 +26,7 @@ class memcache_cache extends cache_api
 	private $memcache = null;
 
 	/**
-	 * Checks whether we can use the cache method performed by this API.
-	 *
-	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
@@ -44,10 +40,7 @@ class memcache_cache extends cache_api
 	}
 
 	/**
-	 * Connects to the cache method. If this fails, we return false, otherwise we return true.
-	 *
-	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
+	 * {@inheritDoc}
 	 */
 	public function connect()
 	{
@@ -88,12 +81,7 @@ class memcache_cache extends cache_api
 	}
 
 	/**
-	 * Gets data from the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * {@inheritDoc}
 	 */
 	public function getData($key, $ttl = null)
 	{
@@ -108,13 +96,7 @@ class memcache_cache extends cache_api
 	}
 
 	/**
-	 * Saves to data the cache.
-	 *
-	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
-	 * @return bool Whether or not we could save this to the cache.
+	 * {@inheritDoc}
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
@@ -124,10 +106,7 @@ class memcache_cache extends cache_api
 	}
 
 	/**
-	 * Closes connections to the cache method.
-	 *
-	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * {@inheritDoc}
 	 */
 	public function quit()
 	{
@@ -135,11 +114,16 @@ class memcache_cache extends cache_api
 	}
 
 	/**
-	 * Specify custom settings that the cache API supports.
-	 *
-	 * @access public
-	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
-	 * @return void No return is needed.
+	 * {@inheritDoc}
+	 */
+	public function cleanCache($type = '')
+	{
+		$this->invalidateCache();
+		return $this->memcache->flush();
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function cacheSettings(array &$config_vars)
 	{
