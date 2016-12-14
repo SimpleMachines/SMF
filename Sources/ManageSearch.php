@@ -236,6 +236,8 @@ function EditSearchMethod()
 				array()
 			);
 
+			$language_ftx = 'simple';
+
 			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 			{
 				$row = $smcFunc['db_fetch_assoc']($request);
