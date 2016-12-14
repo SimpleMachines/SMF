@@ -30,7 +30,7 @@ class xcache_cache extends cache_api
 		parent::__construct();
 
 		// Xcache requuires a admin username and password in order to issue a clear.
-		if (!empty($modSettings['xcache_adminuser']) || !empty($modSettings['xcache_adminpass']))
+		if (!empty($modSettings['xcache_adminuser']) && !empty($modSettings['xcache_adminpass']))
 		{
 			ini_set('xcache.admin.user', $modSettings['xcache_adminuser']);
 			ini_set('xcache.admin.pass', md5($modSettings['xcache_adminpass']));
@@ -106,11 +106,11 @@ class xcache_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_xcache'];
-		$config_vars[] = array('xcache_adminuser', $txt['xcache_adminuser'], 'db', 'text', 0, 'xcache_adminuser');
+		$config_vars[] = $txt['cache_xcache_settings'];
+		$config_vars[] = array('xcache_adminuser', $txt['cache_xcache_adminuser'], 'db', 'text', 0, 'xcache_adminuser');
 
 		// While we could md5 this when saving, this could be tricky to be sure it doesn't get corrupted on additional saves.
-		$config_vars[] = array('xcache_adminpass', $txt['xcache_adminpass'], 'db', 'text', 0);
+		$config_vars[] = array('xcache_adminpass', $txt['cache_xcache_adminpass'], 'db', 'text', 0);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
