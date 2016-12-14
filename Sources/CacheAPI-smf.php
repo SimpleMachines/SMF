@@ -162,7 +162,7 @@ class smf_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_smf'];
+		$config_vars[] = $txt['cache_smf_settings'];
 		$config_vars[] = array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
