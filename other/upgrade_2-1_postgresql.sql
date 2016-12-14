@@ -2217,3 +2217,10 @@ CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_grou
 DROP INDEX IF EXISTS {$db_prefix}log_comments_comment_type;
 CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type varchar_pattern_ops);
 ---#
+
+/******************************************************************************/
+--- drop col pm_email_notify from members
+/******************************************************************************/
+---# drop column pm_email_notify on table members
+ALTER TABLE {$db_prefix}members DROP COLUMN IF EXISTS pm_email_notify;
+---#
