@@ -186,12 +186,12 @@ function template_main()
 				// Display event info relative to original timezone
 				if ($event['start_date'] . $event['start_time'] != $event['start_date_orig'] . $event['start_time_orig'])
 				{
-					echo ' ('; 
+					echo ' (';
 
-					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'])
+					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'] || $event['start_date_orig'] != $event['end_date_orig'])
 						echo $event['start_date_orig'], ', ';
 
-					echo $event['start_time_orig'], ' - ';
+					echo trim($event['start_time_orig']), ' - ';
 
 					if ($event['start_date_orig'] != $event['end_date_orig'])
 						echo $event['end_date_orig'] . ', ';
