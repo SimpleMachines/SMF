@@ -1,4 +1,4 @@
-/*
+/**
  * SMFtooltip, Basic JQuery function to provide styled tooltips
  *
  * - will use the hoverintent plugin if available
@@ -31,14 +31,14 @@
 			tooltipSwapClass: 'smf_swaptip', // a class only used internally, change only if you have a conflict
 			tooltipContent: 'html' // display captured title text as html or text
 		};
-		
+
 		// account for any user options
 		var oSettings = $.extend({}, $.fn.SMFtooltip.oDefaultsSettings , oInstanceSettings || {});
 
 		// move passed selector titles to a hidden span, then remove the selector title to prevent any default browser actions
 		$(this).each(function()
 		{
-			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + this.title + '</span>').hide();
+			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + htmlspecialchars(this.title) + '</span>').hide();
 			$(this).append(sTitle).attr('title', '');
 		});
 		
@@ -105,6 +105,11 @@
 		// used to hide a tooltip
 		var hideTooltip = function(valueOfThis){
 			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
+		}
+		
+		function htmlspecialchars(string)
+		{ 
+			return $('<span>').text(string).html();
 		}
 		
 		// for all of the elements that match the selector on the page, lets set up some actions

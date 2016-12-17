@@ -131,10 +131,14 @@ function template_options()
 				0 => $txt['display_quick_reply1'],
 				1 => $txt['display_quick_reply2'],
 				2 => $txt['display_quick_reply3'],
-				3 => $txt['display_quick_reply4']
 			),
 			'default' => true,
 		),
+        array(
+            'id' => 'use_editor_quick_reply',
+            'label' => $txt['use_editor_quick_reply'],
+            'default' => true,
+        ),
 		array(
 			'id' => 'display_quick_mod',
 			'label' => $txt['display_quick_mod'],
