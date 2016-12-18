@@ -165,9 +165,19 @@ function template_main()
 				<ul>';
 
 		foreach ($context['linked_calendar_events'] as $event)
+		{
 			echo '
 					<li>
-						<strong>', $event['title'], '</strong>: ';
+						<strong class="event_title">', $event['title'], '</strong>';
+
+			if ($event['can_edit'])
+				echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
+
+			if ($event['can_export'])
+				echo ' <a href="' . $event['export_href'] . '"><span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+
+			echo '
+						<br>';
 
 			if (!empty($event['allday']))
 			{
@@ -211,7 +221,7 @@ function template_main()
 
 			echo '
 					</li>';
-
+		}
 		echo '
 				</ul>
 			</div>';
