@@ -1151,7 +1151,7 @@ function getNewEventDatetimes()
 	$today = getdate();
 
 	$allday = isset($_REQUEST['allday']) ? 1 : (isset($_REQUEST['start_time']) ? 0 : 1);
-	$span = filter_var($_REQUEST['span'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 0))) ? $_REQUEST['span'] : 1;
+	$span = isset($_REQUEST['span']) && filter_var($_REQUEST['span'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 0))) ? $_REQUEST['span'] : 1;
 
 	if (!empty($_REQUEST['tz']) && in_array($_REQUEST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$tz = $_REQUEST['tz'];
