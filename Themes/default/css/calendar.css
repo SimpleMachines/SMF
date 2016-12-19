@@ -240,9 +240,8 @@ span.hidelink {
 	padding-bottom: 5px;
 	border-bottom: 1px solid #ddd;
 }
-.event_time {
-	display: inline-block;
-	color: #999;
+.event_time, .event_location {
+	color: #777;
 }
 .post_event_link {
 	vertical-align: middle;

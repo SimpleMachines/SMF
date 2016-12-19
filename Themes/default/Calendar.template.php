@@ -272,7 +272,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'];
 
-							echo $event_icons_needed ? '<br>' : ' ', '<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
+							echo '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 							if (!empty($event['start_time']) && $event['starts_today'] == true)
 								echo trim(str_replace(':00 ', ' ', $event['start_time']));
@@ -282,6 +282,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								echo $txt['calendar_allday'];
 
 							echo '</span>';
+
+							if (!empty($event['location']))
+								echo '<br><span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
 							if ($event['can_edit'] || $event['can_export'])
 							{
@@ -448,7 +451,7 @@ function template_show_week_grid($grid_name)
 
 									$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
-									echo $event['link'], $event_icons_needed ? '<br>' : ' ', '<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
+									echo $event['link'], '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 									if (!empty($event['start_time']))
 										echo trim($event['start_time']), !empty($event['end_time']) ? ' ' . strtolower($txt['to']) . ' ' . trim($event['end_time']) : '';
@@ -456,6 +459,9 @@ function template_show_week_grid($grid_name)
 										echo $txt['calendar_allday'];
 
 									echo '</span>';
+
+									if (!empty($event['location']))
+										echo '<br><span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
 									if (!empty($event_icons_needed))
 									{
