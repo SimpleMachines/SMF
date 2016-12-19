@@ -2118,7 +2118,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
-			cal.start_time, cal.end_time, cal.timezone,
+			cal.start_time, cal.end_time, cal.timezone, cal.location,
 			cal.id_board, t.id_first_msg, t.approved
 		FROM {db_prefix}calendar AS cal
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
@@ -2158,6 +2158,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		$return[$date][] = array(
 			'id' => $row['id_event'],
 			'title' => $row['title'],
+			'location' => $row['location'],
 			'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 			'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 			'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
