@@ -551,7 +551,7 @@ function Display()
 		else
 			$date_string = $matches[0];
 
-		// We want a fairly compact version of the time, but as close as possible to the user's settings.		
+		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
 			$time_string = '%k:%M';
 		else
@@ -626,23 +626,34 @@ function Display()
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'allday' => empty($tz_abbrev),
+				'year' => date_format($start_object, 'Y'),
+				'month' => date_format($start_object, 'm'),
+				'day' => date_format($start_object, 'd'),
+				'hour' => !empty($tz_abbrev) ? date_format($start_object, 'H') : null,
+				'minute' => !empty($tz_abbrev) ? date_format($start_object, 'i') : null,
+				'second' => !empty($tz_abbrev) ? date_format($start_object, 's') : null,
 				'start_date' => $start_date_local,
 				'start_date_orig' => $start_date_orig,
+				'start_time' => !empty($tz_abbrev) ? $start_time_local : null,
+				'start_time_orig' => !empty($tz_abbrev) ? $start_time_orig : null,
 				'start_timestamp' => $start_timestamp,
+				'start_iso_gmdate' => gmdate('c', $start_timestamp),
+				'end_year' => date_format($end_object, 'Y'),
+				'end_month' => date_format($end_object, 'm'),
+				'end_day' => date_format($end_object, 'd'),
+				'end_hour' => !empty($tz_abbrev) ? date_format($end_object, 'H') : null,
+				'end_minute' => !empty($tz_abbrev) ? date_format($end_object, 'i') : null,
+				'end_second' => !empty($tz_abbrev) ? date_format($end_object, 's') : null,
 				'end_date' => $end_date_local,
 				'end_date_orig' => $end_date_orig,
+				'end_time' => !empty($tz_abbrev) ? $end_time_local : null,
+				'end_time_orig' => !empty($tz_abbrev) ? $end_time_orig : null,
 				'end_timestamp' => $end_timestamp,
+				'end_iso_gmdate' => gmdate('c', $end_timestamp),
+				'tz' => $tz_abbrev,
 				'location' => $row['location'],
 				'is_last' => false
 			);
-			if (!empty($tz_abbrev))
-			{
-				$linked_calendar_event['start_time'] = $start_time_local;
-				$linked_calendar_event['end_time'] = $end_time_local;
-				$linked_calendar_event['start_time_orig'] = $start_time_orig;
-				$linked_calendar_event['end_time_orig'] = $end_time_orig;
-				$linked_calendar_event['tz'] = $tz_abbrev;
-			}
 
 			$context['linked_calendar_events'][] = $linked_calendar_event;
 		}
@@ -1297,7 +1308,7 @@ function Display()
 
 	if ($context['can_print'])
 		$context['normal_buttons']['print'] = array('text' => 'print', 'image' => 'print.png', 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0');
-	
+
 	if ($context['can_set_notify'])
 		$context['normal_buttons']['notify'] = array(
 			'text' => 'notify_topic_' . $context['topic_notification_mode'],

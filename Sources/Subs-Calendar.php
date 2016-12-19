@@ -97,7 +97,8 @@ function getBirthdayRange($low_date, $high_date)
  */
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
-	global $scripturl, $modSettings, $user_info, $smcFunc, $context;
+	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
+	require_once($sourcedir . '/Subs.php');
 
 	$low_object = date_create($low_date);
 	$high_object = date_create($high_date);
@@ -195,12 +196,28 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$eventProperties = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
-					'start_date' => strftime($date_string, $start_timestamp),
-					'end_date' => strftime($date_string, $end_timestamp),
-					'start_time' => !$allday ? strftime($time_string, $start_timestamp) : null,
-					'end_time' => !$allday ? strftime($time_string, $end_timestamp) : null,
+					'year' => date_format($start_object, 'Y'),
+					'month' => date_format($start_object, 'm'),
+					'day' => date_format($start_object, 'd'),
+					'hour' => date_format($start_object, 'H'),
+					'minute' => date_format($start_object, 'i'),
+					'second' => date_format($start_object, 's'),
+					'end_year' => date_format($end_object, 'Y'),
+					'end_month' => date_format($end_object, 'm'),
+					'end_day' => date_format($end_object, 'd'),
+					'end_hour' => date_format($end_object, 'H'),
+					'end_minute' => date_format($end_object, 'i'),
+					'end_second' => date_format($end_object, 's'),
+					'start_date' => timeformat($start_timestamp, $date_string),
+					'end_date' => timeformat($end_timestamp, $date_string),
+					'start_time' => !$allday ? timeformat($start_timestamp, $time_string) : null,
+					'end_time' => !$allday ? timeformat($end_timestamp, $time_string) : null,
+					'start_datetime' => timeformat($start_timestamp, $user_info['time_format']),
+					'end_datetime' => timeformat($end_timestamp, $user_info['time_format']),
 					'start_timestamp' => $start_timestamp,
 					'end_timestamp' => $end_timestamp,
+					'start_iso_gmdate' => gmdate('c', $start_timestamp),
+					'end_iso_gmdate' => gmdate('c', $end_timestamp),
 					'allday' => $allday,
 					'tz' => !$allday ? $row['timezone'] : null,
 					'is_last' => false,
@@ -1128,6 +1145,8 @@ function getEventProperties($event_id)
 		'end_datetime' => $row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''),
 		'start_timestamp' => strtotime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : '')),
 		'end_timestamp' => strtotime($row['end_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : '')),
+		'start_iso_gmdate' => gmdate('c', strtotime($row['start_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''))),
+		'end_iso_gmdate' => gmdate('c', strtotime($row['end_date'] . (!$allday ? ' ' . $row['start_time'] . ' ' . $row['timezone'] : ''))),
 		'allday' => $allday,
 		'tz' => !$allday ? $row['timezone'] : null,
 		'title' => $row['title'],
@@ -1242,6 +1261,8 @@ function getNewEventDatetimes()
 		'end_datetime' => $end_datetime,
 		'start_timestamp' => $start_timestamp,
 		'end_timestamp' => $end_timestamp,
+		'start_iso_gmdate' => gmdate('c', $start_timestamp),
+		'end_iso_gmdate' => gmdate('c', $end_timestamp),
 		'tz' => $tz,
 		'allday' => $allday,
 		'span' => $span,

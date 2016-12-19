@@ -289,7 +289,7 @@ span.hidelink {
 	#main_grid td {
 		display: block;
 	}
-	
+
 	#main_grid .calendar_table .days {
 		margin-top: 0;
 		height: auto;
@@ -306,7 +306,7 @@ span.hidelink {
 	#main_grid .calendar_table .weeks {
 		margin-top: 0;
 	}
-	
+
 	#main_grid .calendar_week tr {
 		border: 1px solid #ddd !important;
 	}
