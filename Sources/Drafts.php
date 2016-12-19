@@ -324,7 +324,8 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 
 	// load in this draft from the DB
 	$request = $smcFunc['db_query']('', '
-		SELECT *
+		SELECT is_sticky, locked, smileys_enabled, icon, body , subject,
+			board_id, id_draft, id_reply, to_list
 		FROM {db_prefix}user_drafts
 		WHERE id_draft = {int:id_draft}' . ($check ? '
 			AND id_member = {int:id_member}' : '') . '
@@ -444,7 +445,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 
 	// load the drafts this user has available
 	$request = $smcFunc['db_query']('', '
-		SELECT *
+		SELECT subject, poster_time, id_board, id_topic, id_draft
 		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}' . ((!empty($topic) && empty($draft_type)) ? '
 			AND id_topic = {int:id_topic}' : (!empty($topic) ? '
