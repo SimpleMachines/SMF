@@ -181,12 +181,12 @@ function template_main()
 
 			if (!empty($event['allday']))
 			{
-				echo $event['start_date'], ($event['start_date'] != $event['end_date']) ? ' - ' . $event['end_date'] : '';
+				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', $event['start_date'], '</time>', ($event['start_date'] != $event['end_date']) ? ' - <time datetime="' . $event['end_iso_gmdate'] . '">' . $event['end_date'] . '</time>' : '';
 			}
 			else
 			{
 				// Display event info relative to user's local timezone
-				echo $event['start_date'], ', ', $event['start_time'], ' - ';
+				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', $event['start_date'], ', ', $event['start_time'], '</time> - <time datetime="' . $event['end_iso_gmdate'] . '">';
 
 				if ($event['start_date'] != $event['end_date'])
 					echo $event['end_date'] . ', ';
@@ -196,21 +196,21 @@ function template_main()
 				// Display event info relative to original timezone
 				if ($event['start_date'] . $event['start_time'] != $event['start_date_orig'] . $event['start_time_orig'])
 				{
-					echo ' (';
+					echo '</time> (<time datetime="' . $event['start_iso_gmdate'] . '">';
 
 					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'] || $event['start_date_orig'] != $event['end_date_orig'])
 						echo $event['start_date_orig'], ', ';
 
-					echo trim($event['start_time_orig']), ' - ';
+					echo trim($event['start_time_orig']), '</time> - <time datetime="' . $event['end_iso_gmdate'] . '">';
 
 					if ($event['start_date_orig'] != $event['end_date_orig'])
 						echo $event['end_date_orig'] . ', ';
 
-					echo $event['end_time_orig'], ' ', $event['tz'], ')';
+					echo $event['end_time_orig'], ' ', $event['tz'], '</time>)';
 				}
 				// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
 				else
-					echo ' ', $event['tz'];
+					echo ' ', $event['tz'], '</time>';
 			}
 
 			if (!empty($event['location']))
