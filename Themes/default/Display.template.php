@@ -181,7 +181,7 @@ function template_main()
 
 			if (!empty($event['allday']))
 			{
-				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date']), '</time>', ($event['start_date'] != $event['end_date']) ? ' - <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date']) . '</time>' : '';
+				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date']) . '</time>' : '';
 			}
 			else
 			{
