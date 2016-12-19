@@ -2211,6 +2211,14 @@ ADD COLUMN timezone VARCHAR(80);
 ---#
 
 /******************************************************************************/
+--- Adding location support for calendar events
+/******************************************************************************/
+---# Add location column to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
 --- Update index for like search
 /******************************************************************************/
 ---# Change index for table log_packages

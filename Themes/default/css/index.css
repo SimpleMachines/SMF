@@ -1458,13 +1458,15 @@ div.event_options {
 
 .event_options_left {
 	display: inline-block;
-	width: 45%;
-	margin-right: 1em;
+	width: 49%;
+	padding-right: 1em;
 	min-width: 238px;
+	box-sizing: border-box;
 }
 .event_options_right {
 	display: inline-block;
 	width: 50%;
+	box-sizing: border-box;
 }
 .event_options_left div, .event_options_right div {
     min-height: 25px;
@@ -1494,7 +1496,7 @@ div.event_options {
 #post_event select, #event_options input[type="text"], #tz {
     max-width: calc(100% - 75px);
 }
-#post_event select {
+#post_event select, #event_location {
     width: calc(100% - 75px);
 }
 #post_event .input_check + select {
@@ -3127,6 +3129,14 @@ div#pollmoderation {
 }
 #edit_poll dl.poll_options dd {
 	width: 65%;
+}
+
+/* Linked events */
+.event_title {
+	font-size: larger;
+}
+.event_title + a {
+	margin-left: 1em;
 }
 
 /* On to the posts */

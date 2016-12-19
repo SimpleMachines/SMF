@@ -108,7 +108,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	else
 		$date_string = $matches[0];
 
-	// We want a fairly compact version of the time, but as close as possible to the user's settings.		
+	// We want a fairly compact version of the time, but as close as possible to the user's settings.
 	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
 		$time_string = '%k:%M';
 	else
@@ -118,7 +118,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$result = $smcFunc['db_query']('', '
 		SELECT
 			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
-			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone,
+			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
 			b.member_groups, t.id_first_msg, t.approved, b.id_board
 		FROM {db_prefix}calendar AS cal
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
@@ -207,7 +207,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'id_board' => $row['id_board'],
 					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
 					'starts_today' => $starts_today,
-					'ends_today' => $ends_today,				
+					'ends_today' => $ends_today,
+					'location' => $row['location'],
 			);
 
 			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
@@ -891,6 +892,8 @@ function insertEvent(&$eventOptions)
 	// Add special chars to the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
 
+	$eventOptions['location'] = isset($eventOptions['location']) ? $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES) : '';
+
 	// Set the start and end dates and times
 	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
 
@@ -900,11 +903,11 @@ function insertEvent(&$eventOptions)
 
 	$event_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'title' => 'string-60', 'id_member' => 'int',
-		'start_date' => 'date', 'end_date' => 'date',
+		'start_date' => 'date', 'end_date' => 'date', 'location' => 'string-255',
 	);
 	$event_parameters = array(
 		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
-		$start_date, $end_date, 
+		$start_date, $end_date,
 	);
 	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{
@@ -964,8 +967,9 @@ function modifyEvent($event_id, &$eventOptions)
 {
 	global $smcFunc;
 
-	// Properly sanitize the title.
+	// Properly sanitize the title and location
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
+	$eventOptions['location'] = $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES);
 
 	// Set the new start and end dates and times
 	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
@@ -975,12 +979,14 @@ function modifyEvent($event_id, &$eventOptions)
 		'end_date' => '{date:end_date}',
 		'title' => 'SUBSTRING({string:title}, 1, 60)',
 		'id_board' => '{int:id_board}',
-		'id_topic' => '{int:id_topic}'
+		'id_topic' => '{int:id_topic}',
+		'location' => 'SUBSTRING({string:location}, 1, 255)',
 	);
 	$event_parameters = array(
 		'start_date' => $start_date,
 		'end_date' => $end_date,
 		'title' => $eventOptions['title'],
+		'location' => $eventOptions['location'],
 		'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
 		'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
 	);
@@ -1071,7 +1077,7 @@ function getEventProperties($event_id)
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			c.id_event, c.id_board, c.id_topic, c.id_member, c.title,
-			c.start_date, c.end_date, c.start_time, c.end_time, c.timezone,
+			c.start_date, c.end_date, c.start_time, c.end_time, c.timezone, c.location,
 			t.id_first_msg, t.id_member_started,
 			mb.real_name, m.modified_time
 		FROM {db_prefix}calendar AS c
@@ -1125,6 +1131,7 @@ function getEventProperties($event_id)
 		'allday' => $allday,
 		'tz' => !$allday ? $row['timezone'] : null,
 		'title' => $row['title'],
+		'location' => $row['location'],
 		'span' => 1 + $span,
 		'member' => $row['id_member'],
 		'realname' => $row['real_name'],
@@ -1238,6 +1245,7 @@ function getNewEventDatetimes()
 		'tz' => $tz,
 		'allday' => $allday,
 		'span' => $span,
+		'location' => '',
 	);
 
 	return $eventProperties;
@@ -1317,14 +1325,14 @@ function setEventStartEnd($eventOptions = array())
 			{
 				$start_year = $start_string_parsed['year'];
 				$start_month = $start_string_parsed['month'];
-				$start_day = $start_string_parsed['day'];				
+				$start_day = $start_string_parsed['day'];
 			}
 			if ($start_string_parsed['hour'] != false)
 			{
 				$start_hour = $start_string_parsed['hour'];
 				$start_minute = $start_string_parsed['minute'];
 				$start_second = $start_string_parsed['second'];
-			}		
+			}
 		}
 	}
 	if (isset($end_string))
@@ -1336,14 +1344,14 @@ function setEventStartEnd($eventOptions = array())
 			{
 				$end_year = $end_string_parsed['year'];
 				$end_month = $end_string_parsed['month'];
-				$end_day = $end_string_parsed['day'];				
+				$end_day = $end_string_parsed['day'];
 			}
 			if ($end_string_parsed['hour'] != false)
 			{
 				$end_hour = $end_string_parsed['hour'];
 				$end_minute = $end_string_parsed['minute'];
 				$end_second = $end_string_parsed['second'];
-			}		
+			}
 		}
 	}
 

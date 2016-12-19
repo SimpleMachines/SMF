@@ -313,6 +313,7 @@ CREATE TABLE {$db_prefix}calendar (
   start_time time,
   end_time time,
   timezone varchar(80),
+  location VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_event)
 );
 

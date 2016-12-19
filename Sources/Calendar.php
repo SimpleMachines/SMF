@@ -272,6 +272,7 @@ function CalendarPost()
 				'board' => 0,
 				'topic' => 0,
 				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
+				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
 				'member' => $user_info['id'],
 			);
 			insertEvent($eventOptions);
@@ -286,6 +287,7 @@ function CalendarPost()
 		{
 			$eventOptions = array(
 				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
+				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
 			);
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
@@ -333,6 +335,7 @@ function CalendarPost()
 			'new' => 1,
 			'eventid' => -1,
 			'title' => '',
+			'location' => '',
 		);
 
 		$eventDatetimes = getNewEventDatetimes();
@@ -543,6 +546,9 @@ function iCalDownload()
 	// event has changed? advance the sequence for this UID
 	if ($event['sequence'] > 0)
 		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
+
+	if (!empty($event['location']))
+		$filecontents .= 'LOCATION:' . str_replace(',', '\,', $event['location']) . "\n";
 
 	$filecontents .= 'SUMMARY:' . implode('', $title);
 	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";

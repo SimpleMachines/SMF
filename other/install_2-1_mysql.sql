@@ -160,6 +160,7 @@ CREATE TABLE {$db_prefix}calendar (
   start_time time,
   end_time time,
   timezone VARCHAR(80),
+  location VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_event),
   INDEX idx_start_date (start_date),
   INDEX idx_end_date (end_date),

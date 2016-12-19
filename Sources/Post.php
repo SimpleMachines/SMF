@@ -244,6 +244,7 @@ function Post($post_errors = array())
 		// Start loading up the event info.
 		$context['event'] = array();
 		$context['event']['title'] = isset($_REQUEST['evtitle']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['evtitle'])) : '';
+		$context['event']['location'] = isset($_REQUEST['event_location']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['event_location'])) : '';
 
 		$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
 		$context['event']['new'] = $context['event']['id'] == -1;
@@ -258,8 +259,8 @@ function Post($post_errors = array())
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		$js_time_string = str_replace(
-			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'), 
-			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'), 
+			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
+			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
 			$time_string
 		);
 
@@ -341,7 +342,7 @@ function Post($post_errors = array())
 		loadJavascriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 		loadJavascriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 		addInlineJavascript('
-	$("#allday").click(function(){   
+	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
@@ -357,10 +358,10 @@ function Post($post_errors = array())
 		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
 		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
 		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"], 
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"], 
-		dayNames: ["' . implode('", "', $txt['days']) . '"], 
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"], 
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', $txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
 		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",
@@ -2087,6 +2088,7 @@ function Post2()
 			'board' => $board,
 			'topic' => $topic,
 			'title' => $_POST['evtitle'],
+			'location' => $_POST['event_location'],
 			'member' => $user_info['id'],
 		);
 		insertEvent($eventOptions);
@@ -2135,6 +2137,7 @@ function Post2()
 				'board' => $board,
 				'topic' => $topic,
 				'title' => $_POST['evtitle'],
+				'location' => $_POST['event_location'],
 				'member' => $user_info['id'],
 			);
 			modifyEvent($_REQUEST['eventid'], $eventOptions);

@@ -2486,3 +2486,11 @@ ADD COLUMN timezone VARCHAR(80);
 			WHERE variable = 'cal_allowspan'");
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding location support for calendar events
+/******************************************************************************/
+---# Add location column to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+---#

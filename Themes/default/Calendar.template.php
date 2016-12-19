@@ -281,7 +281,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							elseif (!empty($event['allday']))
 								echo $txt['calendar_allday'];
 
-							echo '</span>';							
+							echo '</span>';
 
 							if ($event['can_edit'] || $event['can_export'])
 							{
@@ -686,6 +686,10 @@ function template_event_post()
 	echo '
 							</select>
 						</div>
+					</div>
+					<div>
+						<span class="label">', $txt['location'], '</span>
+						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '" class="input_text">
 					</div>
 				</fieldset>';
 

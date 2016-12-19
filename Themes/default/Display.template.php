@@ -213,11 +213,8 @@ function template_main()
 					echo ' ', $event['tz'];
 			}
 
-			if ($event['can_edit'])
-				echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
-
-			if ($event['can_export'])
-				echo ' <a href="' . $event['export_href'] . '"><span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+			if (!empty($event['location']))
+				echo '<br>', $event['location'];
 
 			echo '
 					</li>';

@@ -559,7 +559,7 @@ function Display()
 
 		// Any calendar information for this topic?
 		$request = $smcFunc['db_query']('', '
-			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name, cal.start_time, cal.end_time, cal.timezone
+			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name, cal.start_time, cal.end_time, cal.timezone, cal.location
 			FROM {db_prefix}calendar AS cal
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)
 			WHERE cal.id_topic = {int:current_topic}
@@ -632,6 +632,7 @@ function Display()
 				'end_date' => $end_date_local,
 				'end_date_orig' => $end_date_orig,
 				'end_timestamp' => $end_timestamp,
+				'location' => $row['location'],
 				'is_last' => false
 			);
 			if (!empty($tz_abbrev))

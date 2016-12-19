@@ -265,6 +265,10 @@ function template_main()
 									</select>
 								</div>
 							</div>
+							<div>
+								<span class="label">', $txt['location'], '</span>
+								<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+							</div>
 						</fieldset>
 					</div>';
 	}
