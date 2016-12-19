@@ -1280,7 +1280,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	if (!empty($new_loaded_ids) && $set !== 'minimal')
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT *
+			SELECT id_member, variable, value
 			FROM {db_prefix}themes
 			WHERE id_member IN ({array_int:loaded_ids})',
 			array(
