@@ -545,17 +545,7 @@ function Display()
 	// If we want to show event information in the topic, prepare the data.
 	if (allowedTo('calendar_view') && !empty($modSettings['cal_showInTopic']) && !empty($modSettings['cal_enabled']))
 	{
-		// First, try to create a better date format, ignoring the "time" elements.
-		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$date_string = '%F';
-		else
-			$date_string = $matches[0];
-
-		// We want a fairly compact version of the time, but as close as possible to the user's settings.
-		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = '%k:%M';
-		else
-			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+		require_once($sourcedir . '/Subs-Calendar.php');
 
 		// Any calendar information for this topic?
 		$request = $smcFunc['db_query']('', '
@@ -571,52 +561,12 @@ function Display()
 		$context['linked_calendar_events'] = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			// Prepare the dates for being formatted.
-			if (!empty($row['start_time']) && !empty($row['end_time']) && !empty($row['timezone']))
-			{
-				if (!in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-					continue;
+			// Get the various time and date properties for this event
+			list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
 
-				$d = date_parse($row['start_date'] . ' ' . $row['start_time']);
-				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					continue;
-
-				$d = date_parse($row['end_date'] . ' ' . $row['end_time']);
-				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					continue;
-
-				$start_object = date_create($row['start_date'] . ' ' . $row['start_time'], timezone_open($row['timezone']));
-				$end_object = date_create($row['end_date'] . ' ' . $row['end_time'], timezone_open($row['timezone']));
-				$tz_abbrev = date_format($start_object, 'T');
-			}
-			else
-			{
-				$d = date_parse($row['start_date']);
-				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					continue;
-
-				$d = date_parse($row['end_date']);
-				if (!empty($d['error_count']) || !empty($d['warning_count']))
-					continue;
-
-				$start_object = date_create($row['start_date']);
-				$end_object = date_create($row['end_date']);
-				$tz_abbrev = null;
-			}
-
-			$start_timestamp = date_format($start_object, 'U');
-			$end_timestamp = date_format($end_object, 'U');
-
-			$start_date_local = timeformat($start_timestamp, $date_string);
-			$start_time_local = timeformat($start_timestamp, $time_string);
-			$end_date_local = timeformat($end_timestamp, $date_string);
-			$end_time_local = timeformat($end_timestamp, $time_string);
-
-			// This is a roundabout way to do it, but it lets us use our strftime format strings, so meh...
-			$start_date_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_string, 'none');
-			$start_time_orig = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_string, 'none');
-			$end_date_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_string, 'none');
-			$end_time_orig = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_string, 'none');
+			// Sanity check
+			if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
+				continue;
 
 			$linked_calendar_event = array(
 				'id' => $row['id_event'],
@@ -625,32 +575,38 @@ function Display()
 				'modify_href' => $scripturl . '?action=post;msg=' . $context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'allday' => empty($tz_abbrev),
-				'year' => date_format($start_object, 'Y'),
-				'month' => date_format($start_object, 'm'),
-				'day' => date_format($start_object, 'd'),
-				'hour' => !empty($tz_abbrev) ? date_format($start_object, 'H') : null,
-				'minute' => !empty($tz_abbrev) ? date_format($start_object, 'i') : null,
-				'second' => !empty($tz_abbrev) ? date_format($start_object, 's') : null,
-				'start_date' => $start_date_local,
-				'start_date_orig' => $start_date_orig,
-				'start_time' => !empty($tz_abbrev) ? $start_time_local : null,
-				'start_time_orig' => !empty($tz_abbrev) ? $start_time_orig : null,
-				'start_timestamp' => $start_timestamp,
-				'start_iso_gmdate' => gmdate('c', $start_timestamp),
-				'end_year' => date_format($end_object, 'Y'),
-				'end_month' => date_format($end_object, 'm'),
-				'end_day' => date_format($end_object, 'd'),
-				'end_hour' => !empty($tz_abbrev) ? date_format($end_object, 'H') : null,
-				'end_minute' => !empty($tz_abbrev) ? date_format($end_object, 'i') : null,
-				'end_second' => !empty($tz_abbrev) ? date_format($end_object, 's') : null,
-				'end_date' => $end_date_local,
-				'end_date_orig' => $end_date_orig,
-				'end_time' => !empty($tz_abbrev) ? $end_time_local : null,
-				'end_time_orig' => !empty($tz_abbrev) ? $end_time_orig : null,
-				'end_timestamp' => $end_timestamp,
-				'end_iso_gmdate' => gmdate('c', $end_timestamp),
-				'tz' => $tz_abbrev,
+				'year' => $start['year'],
+				'month' => $start['month'],
+				'day' => $start['day'],
+				'hour' => !$allday ? $start['hour'] : null,
+				'minute' => !$allday ? $start['minute'] : null,
+				'second' => !$allday ? $start['second'] : null,
+				'start_date' => $row['start_date'],
+				'start_date_local' => $start['date_local'],
+				'start_date_orig' => $start['date_orig'],
+				'start_time' => !$allday ? $row['start_time'] : null,
+				'start_time_local' => !$allday ? $start['time_local'] : null,
+				'start_time_orig' => !$allday ? $start['time_orig'] : null,
+				'start_timestamp' => $start['timestamp'],
+				'start_iso_gmdate' => $start['iso_gmdate'],
+				'end_year' => $end['year'],
+				'end_month' => $end['month'],
+				'end_day' => $end['day'],
+				'end_hour' => !$allday ? $end['hour'] : null,
+				'end_minute' => !$allday ? $end['minute'] : null,
+				'end_second' => !$allday ? $end['second'] : null,
+				'end_date' => $row['end_date'],
+				'end_date_local' => $end['date_local'],
+				'end_date_orig' => $end['date_orig'],
+				'end_time' => !$allday ? $row['end_time'] : null,
+				'end_time_local' => !$allday ? $end['time_local'] : null,
+				'end_time_orig' => !$allday ? $end['time_orig'] : null,
+				'end_timestamp' => $end['timestamp'],
+				'end_iso_gmdate' => $end['iso_gmdate'],
+				'allday' => $allday,
+				'tz' => !$allday ? $row['timezone'] : null,
+				'tz_abbrev' => !$allday ? $tz_abbrev : null,
+				'span' => $span,
 				'location' => $row['location'],
 				'is_last' => false
 			);

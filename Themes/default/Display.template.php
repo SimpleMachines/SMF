@@ -181,24 +181,24 @@ function template_main()
 
 			if (!empty($event['allday']))
 			{
-				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date']) . '</time>' : '';
+				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date_local']) . '</time>' : '';
 			}
 			else
 			{
 				// Display event info relative to user's local timezone
-				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date']), ', ', trim($event['start_time']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+				echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), ', ', trim($event['start_time_local']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
 
-				if ($event['start_date'] != $event['end_date'])
-					echo trim($event['end_date']) . ', ';
+				if ($event['start_date_local'] != $event['end_date_local'])
+					echo trim($event['end_date_local']) . ', ';
 
-				echo trim($event['end_time']);
+				echo trim($event['end_time_local']);
 
 				// Display event info relative to original timezone
-				if ($event['start_date'] . $event['start_time'] != $event['start_date_orig'] . $event['start_time_orig'])
+				if ($event['start_date_local'] . $event['start_time_local'] != $event['start_date_orig'] . $event['start_time_orig'])
 				{
 					echo '</time> (<time datetime="' . $event['start_iso_gmdate'] . '">';
 
-					if ($event['start_date_orig'] != $event['start_date'] || $event['end_date_orig'] != $event['end_date'] || $event['start_date_orig'] != $event['end_date_orig'])
+					if ($event['start_date_orig'] != $event['start_date_local'] || $event['end_date_orig'] != $event['end_date_local'] || $event['start_date_orig'] != $event['end_date_orig'])
 						echo trim($event['start_date_orig']), ', ';
 
 					echo trim($event['start_time_orig']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
@@ -206,11 +206,11 @@ function template_main()
 					if ($event['start_date_orig'] != $event['end_date_orig'])
 						echo trim($event['end_date_orig']) . ', ';
 
-					echo trim($event['end_time_orig']), ' ', $event['tz'], '</time>)';
+					echo trim($event['end_time_orig']), ' ', $event['tz_abbrev'], '</time>)';
 				}
 				// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
 				else
-					echo ' ', $event['tz'], '</time>';
+					echo ' ', $event['tz_abbrev'], '</time>';
 			}
 
 			if (!empty($event['location']))

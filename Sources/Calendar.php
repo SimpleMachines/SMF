@@ -375,8 +375,8 @@ function CalendarPost()
 	// Otherwise, just adjust these to look nice on the input form
 	else
 	{
-		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_datetime']), $time_string);
-		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_datetime']), $time_string);
+		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
+		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
 	}
 
 	// Need this so the user can select a timezone for the event.
@@ -539,8 +539,8 @@ function iCalDownload()
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART' . (!empty($event['start_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $datestart . "\n";
 
-	// more than one day
-	if ($event['start_datetime'] != $event['end_datetime'])
+	// event has a duration
+	if ($event['start_iso_gmdate'] != $event['end_iso_gmdate'])
 		$filecontents .= 'DTEND' . (!empty($event['end_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $dateend . "\n";
 
 	// event has changed? advance the sequence for this UID

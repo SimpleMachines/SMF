@@ -274,10 +274,10 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 							echo '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-							if (!empty($event['start_time']) && $event['starts_today'] == true)
-								echo trim(str_replace(':00 ', ' ', $event['start_time']));
-							elseif (!empty($event['end_time']) && $event['ends_today'] == true)
-								echo strtolower($txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time']));
+							if (!empty($event['start_time_local']) && $event['starts_today'] == true)
+								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
+							elseif (!empty($event['end_time_local']) && $event['ends_today'] == true)
+								echo strtolower($txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
 							elseif (!empty($event['allday']))
 								echo $txt['calendar_allday'];
 
@@ -453,8 +453,8 @@ function template_show_week_grid($grid_name)
 
 									echo $event['link'], '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-									if (!empty($event['start_time']))
-										echo trim($event['start_time']), !empty($event['end_time']) ? ' ' . strtolower($txt['to']) . ' ' . trim($event['end_time']) : '';
+									if (!empty($event['start_time_local']))
+										echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
 									else
 										echo $txt['calendar_allday'];
 
@@ -668,12 +668,12 @@ function template_event_post()
 						<div>
 							<span class="label">', $txt['start'], '</span>
 							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
-							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 						<div>
 							<span class="label">', $txt['end'], '</span>
 							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 					</div>
 					<div class="event_options_right" id="event_time_options">

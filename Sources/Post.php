@@ -321,8 +321,8 @@ function Post($post_errors = array())
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_datetime']), $time_string);
-			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_datetime']), $time_string);
+			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
+			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
 		}
 
 		// Need this so the user can select a timezone for the event.
