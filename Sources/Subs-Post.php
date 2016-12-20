@@ -601,7 +601,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	$headers .= 'X-Mailer: SMF' . $line_break;
 
 	// Pass this to the integration before we start modifying the output -- it'll make it easier later.
-	if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers)), true))
+	if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers, &$to_array)), true))
 		return false;
 
 	// Save the original message...
