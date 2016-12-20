@@ -168,7 +168,7 @@ function template_main()
 		{
 			echo '
 					<li>
-						<strong class="event_title">', $event['title'], '</strong>';
+						<b class="event_title"><a href="', $scripturl, '?action=calendar;event=', $event['id'], '">', $event['title'], '</a></b>';
 
 			if ($event['can_edit'])
 				echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';

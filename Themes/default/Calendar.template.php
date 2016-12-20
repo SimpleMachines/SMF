@@ -268,11 +268,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 						{
 							$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
-							echo '<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', '">';
-
-							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'];
-
-							echo '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
+							echo '<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', $event['is_selected'] ? ' sel_event' : '', '">', $event['link'], '<br><span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 							if (!empty($event['start_time_local']) && $event['starts_today'] == true)
 								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
