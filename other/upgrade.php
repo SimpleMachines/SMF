@@ -3300,6 +3300,13 @@ function convertUtf8()
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array(array('global_character_set', 'UTF-8')),
+			array('variable')
+		);
+		
 		return true;
 	}
 	else
