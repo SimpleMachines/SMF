@@ -1,5 +1,5 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
-html, body, p, code:before, table {
+html, p, code:before, table {
 	margin: 0;
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -22,6 +22,8 @@ body {
 		long lines don't cause horizontal scrolling */
 	min-height: 100%;
 	word-wrap: break-word;
+    margin: 0 5px;
+    padding: 0;
 }
 
 ul, ol {
