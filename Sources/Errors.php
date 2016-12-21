@@ -218,7 +218,8 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
 	{
 		$array = debug_backtrace();
-		for ($i = 0; $i < count($array); $i++)
+		$count = count($array);
+		for ($i = 0; $i < $count; $i++)
 		{
 			if ($array[$i]['function'] != 'loadSubTemplate')
 				continue;
