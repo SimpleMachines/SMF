@@ -759,8 +759,10 @@ function smf_db_error($db_string, $connection = null)
  * @param array $keys The keys for the table
  * @param bool $disable_trans Whether to disable transactions
  * @param object $connection The connection to use (if null, $db_connection is used)
+ * @param returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @return value of the first key, behavior based on returnmode
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -812,6 +814,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		),
 		$connection
 	);
+	
+	if(!empty($keys) && (count($keys) > 0) && $method == '' && $returnmode > 0)
+	{
+		if ($returnmode == 1)
+			$return_var = smf_db_insert_id($table, $keys[0]) + count($insertRows) - 1;
+		else if ($returnmode == 2)
+		{
+			$return_var = array();
+			$count = count($insertRows);
+			$start = smf_db_insert_id($table, $keys[0]);
+			for ($i = 0; $i < $count; $i++ )
+				$return_var[] = $start + $i;
+		}
+		return $return_var;
+	}
 }
 
 /**

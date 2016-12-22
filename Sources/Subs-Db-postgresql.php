@@ -655,8 +655,10 @@ function smf_db_unescape_string($string)
  * @param array $keys The keys for the table
  * @param bool $disable_trans Whether to disable transactions
  * @param resource $connection The connection to use (if null, $db_connection is used)
+ * @param returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @return value of the first key, behavior based on returnmode
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)
 {
 	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
@@ -758,6 +760,16 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		}
 	}
 
+	$returning = '';
+	$with_returning = false;
+	// lets build the returning string, mysql allow only in normal mode
+	if(!empty($keys) && (count($keys) > 0) && $method == '' && $returnmode > 0)
+	{
+		// we only take the first key
+		$returning = ' RETURNING '.$keys[0];
+		$with_returning = true;
+	}
+
 	if (!empty($data))
 	{
 		// Create the mold for a single row insert.
@@ -780,22 +792,40 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		foreach ($data as $dataRow)
 			$insertRows[] = smf_db_quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 
-		foreach ($insertRows as $entry)
 			// Do the insert.
-			$smcFunc['db_query']('', '
+			$request = $smcFunc['db_query']('', '
 				INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
 				VALUES
-					' . $entry . $replace,
+					' . implode(',
+					', $insertRows).$replace.$returning,
 				array(
 					'security_override' => true,
 					'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',
 				),
 				$connection
 			);
+			
+			//get from the last insert the return value
+			if($with_returning && $request !== false && $row = $smcFunc['db_fetch_assoc']($request, count($insertRows) - 1))
+			{
+				if ($returnmode == 1) 
+					while($row = $smcFunc['db_fetch_assoc']($request))
+						$return_var = $row[$keys[0]];
+				elseif ($returnmode == 2)
+				{
+					$return_var = array();
+					while($row = $smcFunc['db_fetch_assoc']($request))
+						$return_var[] = $row[$keys[0]];
+				}
+			}
+			
 	}
 
 	if ($priv_trans)
 		$smcFunc['db_transaction']('commit', $connection);
+	
+	if($with_returning && !empty($return_var))
+		return $return_var; 
 }
 
 /**
