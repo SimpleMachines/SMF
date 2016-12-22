@@ -1301,7 +1301,7 @@ function BackupDatabase()
 				return upgradeExit();
 		}
 
-		if ($is_debug && $command_line)
+		if ($command_line)
 		{
 			echo "\n" . ' Successful.\'' . "\n";
 			flush();
@@ -3938,7 +3938,7 @@ function serialize_to_json()
 								)
 							);
 
-							if ($is_debug || $command_line)
+							if ($command_line)
 								echo ' done.';
 						}
 					}
