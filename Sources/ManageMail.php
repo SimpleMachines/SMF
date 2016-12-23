@@ -309,7 +309,7 @@ function ModifyMailSettings($return_config = false)
 			array('int', 'mail_quantity'),
 		'',
 			// SMTP stuff.
-			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP')),
+			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
 			array('text', 'smtp_host'),
 			array('text', 'smtp_port'),
 			array('text', 'smtp_username'),
@@ -484,5 +484,8 @@ function time_since($time_diff)
 	else
 		return sprintf($time_diff == 1 ? $txt['mq_second'] : $txt['mq_seconds'], $time_diff);
 }
+<<<<<<< HEAD
 
 ?>
+=======
+>>>>>>> 404fd5347951652624dfb72304ee38fcab98378f
