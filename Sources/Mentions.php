@@ -221,8 +221,9 @@ class Mentions
 		foreach ($matches as $match)
 		{
 			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-			for ($i = 1; $i <= count($match); $i++)
+			$count = count($match);
+			
+			for ($i = 1; $i <= $count; $i++)
 				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))));
 		}
 

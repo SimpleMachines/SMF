@@ -5629,15 +5629,16 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 		$updates = array();
 		$cases = array();
-		for ($i = 0; $i < count($arIp); $i++)
+		$count = count($arIp);
+		for ($i = 0; $i < $count; $i++)
 		{
 			$arIp[$i] = trim($arIp[$i]);
 
 			if (empty($arIp[$i]))
 				continue;
 
-			$updates['ip' . $i] = trim($arIp[$i]);
-			$cases[trim($arIp[$i])] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
+			$updates['ip' . $i] = $arIp[$i];
+			$cases[$arIp[$i]] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
 
 			if ($setSize > 0 && $i % $setSize === 0)
 			{
