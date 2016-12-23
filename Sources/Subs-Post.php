@@ -2816,7 +2816,6 @@ function user_info_callback($matches)
 
 	return $use_ref ? $ref : $matches[0];
 }
-<<<<<<< HEAD
 
 
 /**
@@ -2969,5 +2968,3 @@ function spell_suggest($dict, $word)
 }
 
 ?>
-=======
->>>>>>> 404fd5347951652624dfb72304ee38fcab98378f
