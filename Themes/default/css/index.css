@@ -66,6 +66,9 @@ input, button, select {
 input, select {
 	height: 25px;
 }
+input[type="checkbox"] {
+	height: 13px;
+}
 select {
 	padding: 2px;
 }
