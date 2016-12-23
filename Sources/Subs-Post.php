@@ -1298,7 +1298,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 	// Try POP3 before SMTP?
 	// @todo There's no interface for this yet.
-	if ($modSettings['mail_type'] == 2 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	if ($modSettings['mail_type'] == 3 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		$socket = fsockopen($modSettings['smtp_host'], 110, $errno, $errstr, 2);
 		if (!$socket && (substr($modSettings['smtp_host'], 0, 5) == 'smtp.' || substr($modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
@@ -1351,13 +1351,14 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (empty($helo)) 
 		$helo	= $modSettings['smtp_host'];
 
-	if ($modSettings['mail_type'] == 1 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	// SMTP = 1, SMTP - STARTTLS = 2
+	if (in_array($modSettings['mail_type'], array(1,2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		// EHLO could be understood to mean encrypted hello...
 		if (server_parse('EHLO ' . $helo, $socket, null, $response) == '250')
 		{
-			// Are we using port 587 and does the server support STARTTLS? 
-			if ($modSettings['smtp_port'] == 587 && preg_match("~250( |-)STARTTLS~mi", $response)) 
+			// Are we using STARTTLS and does the server support STARTTLS? 
+			if ($modSettings['mail_type'] == 2 && preg_match("~250( |-)STARTTLS~mi", $response)) 
 			{
 				// Send STARTTLS to enable encryption
 				if (!server_parse('STARTTLS', $socket, '220')) 
@@ -2790,6 +2791,7 @@ function user_info_callback($matches)
 
 	return $use_ref ? $ref : $matches[0];
 }
+<<<<<<< HEAD
 
 
 /**
@@ -2942,3 +2944,5 @@ function spell_suggest($dict, $word)
 }
 
 ?>
+=======
+>>>>>>> 404fd5347951652624dfb72304ee38fcab98378f
