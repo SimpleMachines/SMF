@@ -42,7 +42,10 @@ function template_main()
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>
 					</div>
 					<div class="info">
-						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
+						<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+							', $board['name'], '
+							<p class="board_description mobile_display">', $board['description'] , '</p>
+						</a>';
 
 			// Has it outstanding posts for approval?
 			if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
@@ -65,7 +68,7 @@ function template_main()
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</div>
-					<div class="lastpost">';
+					<div class="lastpost lpr_border">';
 
 			if (!empty($board['last_post']['id']))
 				echo '

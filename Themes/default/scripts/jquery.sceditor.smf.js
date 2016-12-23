@@ -439,6 +439,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			if (element.attr('target') !== undefined)
 				return '[url=\"' + decodeURI(url) + '\"]' + content + '[/url]';
+
+			// A mention?
+			else if (element.attr('data-mention') !== "undefined")
+			{
+				return '[member='+ element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
+			}
+
 			// Is this an attachment?
 			else if (element.attr('data-attachment') !== "undefined")
 			{
@@ -450,6 +457,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 				return '[attach'+attribs+']'+content+'[/attach]';
 			}
+
 			else
 				return '[iurl=\"' + decodeURI(url) + '\"]' + content + '[/iurl]';
 		},
@@ -623,3 +631,18 @@ $.sceditor.plugins.bbcode.bbcode.set('font', {
 		return '[font=' + font + ']' + content + '[/font]';
 	}
 });
+
+$.sceditor.plugins.bbcode.bbcode.set(
+	'member', {
+		isInline: true,
+		format: function ($element, content) {
+			return '[member='+ $element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
+		},
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+				attrs.defaultattr = content;
+
+			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@','') +'</a>';
+		}
+	}
+);

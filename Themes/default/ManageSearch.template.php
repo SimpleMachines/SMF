@@ -23,7 +23,7 @@ function template_modify_weights()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_weights'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight1_val">
@@ -108,7 +108,7 @@ function template_select_search_method()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">';
 
 	if (!empty($context['table_info']))
@@ -333,10 +333,10 @@ function template_spider_edit()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information noup">
 				', $txt['add_spider_desc'], '
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br>
@@ -383,12 +383,11 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br class="clear">
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<p>
 					', $txt['spider_logs_delete_older'], '
 					<input type="text" name="older" id="older" value="7" size="3" class="input_text">
@@ -420,7 +419,7 @@ function template_show_spider_stats()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<p>
 					', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3" class="input_text">'), '
 				</p>

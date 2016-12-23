@@ -28,7 +28,7 @@ function template_ban_edit()
 
 	if ($context['ban']['is_new'])
 		echo '
-			<div class="information winfo">', $txt['ban_add_notes'], '</div>';
+			<div class="information noup">', $txt['ban_add_notes'], '</div>';
 
 	// If there were errors creating the ban, show them.
 	if (!empty($context['error_messages']))
@@ -48,7 +48,7 @@ function template_ban_edit()
 	}
 
 	echo '
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<dl class="settings">
 				<dt id="ban_name_label">
 					<strong>', $txt['ban_name'], ':</strong>

@@ -960,6 +960,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$bbc_codes = array();
 	}
 
+	// Ensure $modSettings['tld_regex'] contains a valid regex for the autolinker
+	if (!empty($modSettings['autoLinkUrls']))
+		set_tld_regex();
+
 	// Allow mods access before entering the main parse_bbc loop
 	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
@@ -1118,33 +1122,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt="' . $currentAttachment['name'] . '"';
 						$title = !empty($params['{title}']) ? ' title="' . $params['{alt}'] . '"' : '';
 
-						if (!empty($params['{width}']) && !empty($params['{height}']))
-						{
-							$width = ' width="' . $params['{width}'] . '"';
-							$height = ' height="' . $params['{height}'] . '"';
-						}
-						elseif (!empty($params['{width}']) && empty($params['{height}']))
-						{
-							$width = ' width="' . $params['{width}'] . '"';
-							$height = '';
-						}
-						elseif (empty($params['{width}']) && !empty($params['{height}']))
-						{
-							$width = '';
-							$height = ' height="' . $params['{height}'] . '"';
-						}
-						else
+						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
+						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
+
+						if (empty($width) && empty($height))
 						{
 							$width = ' width="' . $currentAttachment['width'] . '"';
 							$height = ' height="' . $currentAttachment['height'] . '"';
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '
-													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
+							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
 						else
-							$returnContext .= '
-													<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
+							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
 					}
 
 					// No image. Show a link.
@@ -1275,8 +1265,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
-					if (empty(parse_url($data[0], PHP_URL_SCHEME)))
-						$data[0] = 'http://' . ltrim($data[0], ':/');
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data[0] = '//' . ltrim($data[0], ':/');
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
@@ -1320,11 +1311,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if ($image_proxy_enabled)
+					{
+						if (empty($scheme))
+							$data = 'http://' . ltrim($data, ':/');
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+						if ($scheme != 'https')
+							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					}
+					elseif (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1337,11 +1334,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if ($image_proxy_enabled)
+					{
+						if (empty($scheme))
+							$data = 'http://' . ltrim($data, ':/');
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+						if ($scheme != 'https')
+							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+					}
+					elseif (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1352,8 +1355,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
@@ -1366,8 +1370,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					else
+					{
+						$scheme = parse_url($data, PHP_URL_SCHEME);
+						if (empty($scheme))
+							$data = '//' . ltrim($data, ':/');
+					}
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1426,7 +1434,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'member',
 				'type' => 'unparsed_equals',
-				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention">@',
+				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention" data-mention="$1">@',
 				'after' => '</a>',
 			),
 			array(
@@ -1605,8 +1613,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 			),
 			array(
@@ -1617,8 +1626,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					if (empty(parse_url($data, PHP_URL_SCHEME)))
-						$data = 'http://' . ltrim($data, ':/');
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = '//' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1640,7 +1650,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, 'sort_bbc_tags');
+			usort($codes, function ($a, $b) {
+				return strcmp($a['tag'], $b['tag']);
+			});
 			return $codes;
 		}
 
@@ -1853,83 +1865,147 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						// @todo Add a cron job to download the current list of TLDs from http://data.iana.org/TLD/tlds-alpha-by-domain.txt, process it into a regex, and store it somewhere. Then replace this variable with a call of some sort to retrieve the stored regex.
-						$tld_regex = '(?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|ja|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)';
+						$url_regex = '
+						(?:
+							# IRIs with a scheme (or at least an opening "//")
+							(?:
+								# URI scheme (or lack thereof for schemeless URLs)
+								(?:
+									# URL scheme and colon
+									\b[a-z][\w\-]+:
+									| # or
+									# A boundary followed by two slashes for schemeless URLs
+									(?<=^|\W)(?=//)
+								)
 
-						$url_regex = '(?xi)
-\b
-(?:
-	[a-z][\w-]+:						# URL scheme and colon
-	(?:
-		/{1,3}							# 1-3 slashes
-		|								#	or
-		[a-z0-9%]						# Single letter or digit or "%"
-										# (Trying not to match e.g. "URI::Escape")
-	)
-	|									#	or
-	www\d{0,3}[.]						# "www.", "www1.", "www2." … "www999."
-	|									#	or
-	[a-z0-9.\-]+[.][a-z]{2,4}/			# looks like domain name followed by a slash
-)
-(?:										# One or more:
-	[^\s()<>]+							# Run of non-space, non-()<>
-	|									#	or
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
-)+
-(?:										# End with:
-	\(([^\s()<>]+|(\([^\s()<>]+\)))*\)	# balanced parens, up to 2 levels
-	|									#	or
-	[^\s`!()\[\]{};:\'".,<>?«»“”‘’]		# not a space or one of these punct char
-)
+								# IRI "authority" chunk
+								(?:
+									# 2 slashes for IRIs with an "authority"
+									//
+									# then a domain name
+									(?:
+										# Either the reserved "localhost" domain name
+										localhost
+										| # or
+										# a run of Unicode domain name characters and a dot
+										[\p{L}\p{M}\p{N}\-.:@]+\.
+										# and then a TLD valid in the DNS or the reserved "local" TLD
+										(?:'. $modSettings['tld_regex'] .'|local)
+									)
+									# followed by a non-domain character or end of line
+									(?=[^\p{L}\p{N}\-.]|$)
 
-|										# OR, the following to match naked domains:
-(?:
-	(?<!@)								# not preceded by a @, avoid matching foo@_gmail.com_
-	[a-z0-9]+
-	(?:[.\-][a-z0-9]+)*
-	[.]
-	'. $tld_regex . '
-	\b
-	/?
-	(?!@)								# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
-)';
+									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
 
-						$data = preg_replace_callback('~' . $url_regex . '~', function ($matches) {
-									$url = array_shift($matches);
+									# a run of IRI characters
+									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
+									# and then a dot and a closing IRI label
+									\.[\p{L}\p{M}\p{N}\-]+
+								)
+							)
 
-									// If this isn't a clean URL, bail out
-									if ($url != filter_var($url, FILTER_SANITIZE_URL))
-										return $url;
-									
-									// Are we linking a naked domain name (e.g. "example.com")?
-									if (empty(parse_url($url, PHP_URL_SCHEME)))
-										$fullUrl = 'http://' . ltrim($url, ':/');
-									else
-										$fullUrl = $url;
-									
-									// Make sure that $fullUrl really is a valid URL, including a valid host name
-									if (filter_var($fullUrl, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED) === false)
-										return $url;
+							| # or
 
-									// Time to do the deed
-									if (parse_url($fullUrl, PHP_URL_SCHEME) == 'mailto')
-									{
-										$email_address = str_replace('mailto:', '', $url);
-										if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
-											return '[email=' . $url . ']' . $url . '[/email]';
-										else
-											return $url;
-									}
-									else
-										return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
-								}, $data);
+							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							(?:
+								# Preceded by start of line or a non-domain character
+								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
+
+								# A run of Unicode domain name characters (excluding [:@])
+								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
+								# and then a dot and a valid TLD
+								\.' . $modSettings['tld_regex'] . '
+
+								# Followed by either:
+								(?=
+									# end of line or a non-domain character (excluding [.:@])
+									$|[^\p{L}\p{N}\-]
+									| # or
+									# a dot followed by end of line or a non-domain character (excluding [.:@])
+									\.(?=$|[^\p{L}\p{N}\-])
+								)
+							)
+						)
+
+						# IRI path, query, and fragment (if present)
+						(?:
+							# If any of these parts exist, must start with a single /
+							/
+
+							# And then optionally:
+							(?:
+								# One or more of:
+								(?:
+									# a run of non-space, non-()<>
+									[^\s()<>]+
+									| # or
+									# balanced parens, up to 2 levels
+									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
+								)+
+
+								# End with:
+								(?:
+									# balanced parens, up to 2 levels
+									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
+									| # or
+									# not a space or one of these punct char
+									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
+									| # or
+									# a trailing slash (but not two in a row)
+									(?<!/)/
+								)
+							)?
+						)?
+						';
+
+						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function ($matches) {
+							$url = array_shift($matches);
+
+							$scheme = parse_url($url, PHP_URL_SCHEME);
+
+							if ($scheme == 'mailto')
+							{
+								$email_address = str_replace('mailto:', '', $url);
+								if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
+									return '[email=' . $email_address . ']' . $url . '[/email]';
+								else
+									return $url;
+							}
+
+							// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+							if (empty($scheme))
+								$fullUrl = '//' . ltrim($url, ':/');
+							else
+								$fullUrl = $url;
+
+							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+						}, $data);
 					}
 
 					// Next, emails...
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false)
 					{
-						$data = preg_replace('~(?<=[\?\s' . $non_breaking_space . '\[\]()*\\\;>]|^)([\w\-\.]{1,80}@[\w\-]+\.[\w\-\.]+[\w\-])(?=[?,\s' . $non_breaking_space . '\[\]()*\\\]|$|<br>|&nbsp;|&gt;|&lt;|&quot;|&#039;|\.(?:\.|;|&nbsp;|\s|$|<br>))~' . ($context['utf8'] ? 'u' : ''), '[email]$1[/email]', $data);
-						$data = preg_replace('~(?<=<br>)([\w\-\.]{1,80}@[\w\-]+\.[\w\-\.]+[\w\-])(?=[?\.,;\s' . $non_breaking_space . '\[\]()*\\\]|$|<br>|&nbsp;|&gt;|&lt;|&quot;|&#039;)~' . ($context['utf8'] ? 'u' : ''), '[email]$1[/email]', $data);
+						$email_regex = '
+						# Preceded by a non-domain character or start of line
+						(?<=^|[^\p{L}\p{M}\p{N}\-\.])
+
+						# An email address
+						[\p{L}\p{M}\p{N}_\-.]{1,80}
+						@
+						[\p{L}\p{M}\p{N}\-.]+
+						\.
+						'. $modSettings['tld_regex'] . '
+
+						# Followed by either:
+						(?=
+							# end of line or a non-domain character (excluding the dot)
+							$|[^\p{L}\p{M}\p{N}\-]
+							| # or
+							# a dot followed by end of line or a non-domain character
+							\.(?=$|[^\p{L}\p{M}\p{N}\-])
+						)';
+
+						$data = preg_replace('~' . $email_regex . '~xi' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
 					}
 				}
 			}
@@ -2542,17 +2618,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 }
 
 /**
- * Helper function for usort(), used in parse_bbc().
- * @param array $a An array containing a tag
- * @param array $b Another array containing a tag
- * @return int A number indicating whether $a is bigger than $b
- */
-function sort_bbc_tags($a, $b)
-{
-	return strcmp($a['tag'], $b['tag']);
-}
-
-/**
  * Parse smileys in the passed message.
  *
  * The smiley parsing function which makes pretty faces appear :).
@@ -3023,7 +3088,7 @@ function setupThemeContext($forceload = false)
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 	if ($context['show_pm_popup'])
-		addInlineJavascript('
+		addInlineJavaScript('
 		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
@@ -3033,7 +3098,7 @@ function setupThemeContext($forceload = false)
 		});');
 
 	// Add a generic "Are you sure?" confirmation message.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
 
 	// Now add the capping code for avatars.
@@ -3057,7 +3122,7 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
-		addJavascriptVar('smf_scripturl', $scripturl);
+		addJavaScriptVar('smf_scripturl', $scripturl);
 
 	if (!isset($context['page_title']))
 		$context['page_title'] = '';
@@ -3998,12 +4063,12 @@ function setupMenuContext()
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
 	{
-		addInlineJavascript('
+		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
 	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
 		if ($context['allow_pm'])
-			addInlineJavascript('
+			addInlineJavaScript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 
 		if (!empty($modSettings['enable_ajax_alerts']))
@@ -4013,10 +4078,10 @@ function setupMenuContext()
 			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
-			addInlineJavascript('
+			addInlineJavaScript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
+			loadJavaScriptFile('alerts.js', array(), 'smf_alerts');
 		}
 	}
 
@@ -4387,7 +4452,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 	// Any files  to load?
 	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
+		$function = $file . (!empty($function) ? '|' . $function : '');
 
 	// Get the correct string.
 	$integration_call = $function;
@@ -4438,9 +4503,8 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  *
  * @param string $hook The complete hook name.
  * @param string $function The function name. Can be a call to a method via Class::method.
- * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
+ * @param boolean $permanent Irrelevant for the function itself but need to declare it to match
  * @param string $file The filename. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
-add_integration_function
  * @param boolean $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  * @see add_integration_function
  */
@@ -5442,6 +5506,355 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
 
 	// Done.
 	obExit(false);
+}
+
+/**
+ * Creates an optimized regex to match all known top level domains.
+ *
+ * The optimized regex is stored in $modSettings['tld_regex'].
+ *
+ * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
+ * the $update parameter to true. Updating can take some time, based on network connectivity, so it
+ * should normally only be done by calling this function from a background or scheduled task.
+ *
+ * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
+ * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ *
+ * @param bool $update If true, fetch and process the latest offical list of TLDs from iana.org.
+ */
+function set_tld_regex($update = false)
+{
+	global $sourcedir, $smcFunc, $modSettings;
+	static $done = false;
+
+	// If we don't need to do anything, don't
+	if (!$update && $done)
+		return;
+
+	// Should we get a new copy of the official list of TLDs?
+	if ($update)
+	{
+		require_once($sourcedir . '/Subs-Package.php');
+		$tlds = fetch_web_data('http://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+	}
+	// If we aren't updating and the regex is valid, we're done
+	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
+	{
+		$done = true;
+		return;
+	}
+
+	// If we successfully got an update, process the list into an array
+	if (!empty($tlds))
+	{
+		// Clean $tlds and convert it to an array
+		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line) {
+			$line = trim($line);
+			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+				return false;
+			else
+				return true;
+		});
+
+		// Convert Punycode to Unicode
+		$tlds = array_map(function ($input) {
+			$prefix = 'xn--';
+			$safe_char = 0xFFFC;
+			$base = 36;
+			$tmin = 1;
+			$tmax = 26;
+			$skew = 38;
+			$damp = 700;
+			$output_parts = array();
+
+			$input = str_replace(strtoupper($prefix), $prefix, $input);
+
+			$enco_parts = (array) explode('.', $input);
+
+			foreach ($enco_parts as $encoded)
+			{
+				if (strpos($encoded,$prefix) !== 0 || strlen(trim(str_replace($prefix,'',$encoded))) == 0)
+				{
+					$output_parts[] = $encoded;
+					continue;
+				}
+
+				$is_first = true;
+				$bias = 72;
+				$idx = 0;
+				$char = 0x80;
+				$decoded = array();
+				$output='';
+				$delim_pos = strrpos($encoded, '-');
+
+				if ($delim_pos > strlen($prefix))
+				{
+					for ($k = strlen($prefix); $k < $delim_pos; ++$k)
+					{
+						$decoded[] = ord($encoded{$k});
+					}
+				}
+
+				$deco_len = count($decoded);
+				$enco_len = strlen($encoded);
+
+				for ($enco_idx = $delim_pos ? ($delim_pos + 1) : 0; $enco_idx < $enco_len; ++$deco_len)
+				{
+					for ($old_idx = $idx, $w = 1, $k = $base; 1 ; $k += $base)
+					{
+						$cp = ord($encoded{$enco_idx++});
+						$digit = ($cp - 48 < 10) ? $cp - 22 : (($cp - 65 < 26) ? $cp - 65 : (($cp - 97 < 26) ? $cp - 97 : $base));
+						$idx += $digit * $w;
+						$t = ($k <= $bias) ? $tmin : (($k >= $bias + $tmax) ? $tmax : ($k - $bias));
+
+						if ($digit < $t)
+							break;
+
+						$w = (int) ($w * ($base - $t));
+					}
+
+					$delta = $idx - $old_idx;
+					$delta = intval($is_first ? ($delta / $damp) : ($delta / 2));
+					$delta += intval($delta / ($deco_len + 1));
+
+					for ($k = 0; $delta > (($base - $tmin) * $tmax) / 2; $k += $base)
+						$delta = intval($delta / ($base - $tmin));
+
+					$bias = intval($k + ($base - $tmin + 1) * $delta / ($delta + $skew));
+					$is_first = false;
+					$char += (int) ($idx / ($deco_len + 1));
+					$idx %= ($deco_len + 1);
+
+					if ($deco_len > 0)
+					{
+						for ($i = $deco_len; $i > $idx; $i--)
+							$decoded[$i] = $decoded[($i - 1)];
+					}
+					$decoded[$idx++] = $char;
+				}
+
+				foreach ($decoded as $k => $v)
+				{
+					// 7bit are transferred literally
+					if ($v < 128)
+						$output .= chr($v);
+
+					// 2 bytes
+					elseif ($v < (1 << 11))
+						$output .= chr(192+($v >> 6)) . chr(128+($v & 63));
+
+					// 3 bytes
+					elseif ($v < (1 << 16))
+						$output .= chr(224+($v >> 12)) . chr(128+(($v >> 6) & 63)) . chr(128+($v & 63));
+
+					// 4 bytes
+					elseif ($v < (1 << 21))
+						$output .= chr(240+($v >> 18)) . chr(128+(($v >> 12) & 63)) . chr(128+(($v >> 6) & 63)) . chr(128+($v & 63));
+
+					//  'Conversion from UCS-4 to UTF-8 failed: malformed input at byte '.$k
+					else
+						$output .= $safe_char;
+				}
+
+				$output_parts[] = $output;
+			}
+
+			return implode('.', $output_parts);
+		}, $tlds);
+
+		$schedule_update = false;
+	}
+	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
+	else
+	{
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
+			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
+			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
+			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
+			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
+			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
+			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
+			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
+			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
+			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
+			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
+			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
+			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
+			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
+			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
+			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
+			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
+			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
+			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
+			'yt', 'yu', 'za', 'zm', 'zw');
+
+		$schedule_update = true;
+	}
+
+	// build_regex() returns an array. We only need the first item.
+	$tld_regex = build_regex($tlds);
+	$tld_regex = array_shift($tld_regex);
+
+	// Remember the new regex in $modSettings
+	updateSettings(array('tld_regex' => $tld_regex));
+
+	// Schedule a background update if we need one
+	if (!empty($schedule_update))
+	{
+		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+		);
+	}
+
+	// Redundant repetition is redundant
+	$done = true;
+}
+
+/**
+ * Creates optimized regular expressions from an array of strings.
+ *
+ * An optimized regex built using this function will be much faster than a simple regex built using
+ * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ *
+ * However, the time required to build the optimized regex is approximately equal to the time it
+ * takes to execute the simple regex. Therefore, it is only worth calling this function if the
+ * resulting regex will be used more than once.
+ *
+ * Because PHP places an upper limit on the allowed length of a regex, very large arrays may be
+ * split and returned as multiple regexes. In such cases, you will need to iterate through all
+ * elements of the returned array in order to test all possible matches. (Note: if your array of
+ * alternative strings is large enough to require multiple regexes to accomodate it all, it is
+ * probably time to reconsider your coding choices. There is almost certainly a better way to do
+ * whatever you are trying to do with these giant regexes.)
+ *
+ * @param array $strings An array of strings to make a regex for.
+ * @param string $delim An optional delimiter character to pass to preg_quote().
+ * @return array An array of one or more regular expressions to match any of the input strings.
+ */
+function build_regex($strings, $delim = null)
+{
+	global $smcFunc;
+
+	// The mb_* functions are faster than the $smcFunc ones, but may not be available
+	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
+	{
+		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false)
+		{
+			$current_encoding = mb_internal_encoding();
+			mb_internal_encoding($string_encoding);
+		}
+
+		$strlen = 'mb_strlen';
+		$substr = 'mb_substr';
+	}
+	else
+	{
+		$strlen = $smcFunc['strlen'];
+		$substr = $smcFunc['substr'];
+	}
+
+	// This recursive function creates the index array from the strings
+	$add_string_to_index = function ($string, $index) use (&$strlen, &$substr, &$add_string_to_index)
+	{
+		static $depth = 0;
+		$depth++;
+
+		$first = $substr($string, 0, 1);
+
+		if (empty($index[$first]))
+			$index[$first] = array();
+
+		if ($strlen($string) > 1)
+		{
+			// Sanity check on recursion
+			if ($depth > 99)
+				$index[$first][$substr($string, 1)] = '';
+
+			else
+				$index[$first] = $add_string_to_index($substr($string, 1), $index[$first]);
+		}
+		else
+			$index[$first][''] = '';
+
+		$depth--;
+		return $index;
+	};
+
+	// This recursive function turns the index array into a regular expression
+	$index_to_regex = function (&$index, $delim) use (&$strlen, &$index_to_regex)
+	{
+		static $depth = 0;
+		$depth++;
+
+		// Absolute max length for a regex is 32768, but we might need wiggle room
+		$max_length = 30000;
+
+		$regex = array();
+		$length = 0;
+
+		foreach ($index as $key => $value)
+		{
+			$key_regex = preg_quote($key, $delim);
+			$new_key = $key;
+
+			if (empty($value))
+				$sub_regex = '';
+			else
+			{
+				$sub_regex = $index_to_regex($value, $delim);
+
+				if (count(array_keys($value)) == 1)
+					$new_key .= explode('(?'.'>', $sub_regex)[0];
+				else
+					$sub_regex = '(?'.'>' . $sub_regex . ')';
+			}
+
+			if ($depth > 1)
+				$regex[$new_key] = $key_regex . $sub_regex;
+			else
+			{
+				if (($length += strlen($key_regex) + 1) < $max_length || empty($regex))
+				{
+					$regex[$new_key] = $key_regex . $sub_regex;
+					unset($index[$key]);
+				}
+				else
+					break;
+			}
+		}
+
+		// Sort by key length and then alphabetically
+		uksort($regex, function($k1, $k2) use (&$strlen) {
+			$l1 = $strlen($k1);
+			$l2 = $strlen($k2);
+
+			if ($l1 == $l2)
+				return strcmp($k1, $k2) > 0 ? 1 : -1;
+			else
+				return $l1 > $l2 ? -1 : 1;
+		});
+
+		$depth--;
+		return implode('|', $regex);
+	};
+
+	// Now that the functions are defined, let's do this thing
+	$index = array();
+	$regexes = array();
+
+	foreach ($strings as $string)
+		$index = $add_string_to_index($string, $index);
+
+	while (!empty($index))
+		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+
+	// Restore PHP's internal character encoding to whatever it was originally
+	if (!empty($current_encoding))
+		mb_internal_encoding($current_encoding);
+
+	return $regexes;
 }
 
 ?>

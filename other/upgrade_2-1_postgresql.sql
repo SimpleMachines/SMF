@@ -9,7 +9,7 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 ---#
 
 ---# Creating login history table.
-CREATE TABLE {$db_prefix}member_logins (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
 	id_member int NOT NULL,
 	time int NOT NULL,
@@ -429,7 +429,7 @@ ADD COLUMN act_reason text NOT NULL;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
-DROP INDEX {$db_prefix}log_group_requests_id_member;
+DROP INDEX IF EXISTS {$db_prefix}log_group_requests_id_member;
 CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
 ---#
 
@@ -451,10 +451,10 @@ upgrade_query("
 	ALTER COLUMN session type varchar(64);
 
 	ALTER TABLE {$db_prefix}log_errors
-	ALTER COLUMN session type char(64);
+	ALTER COLUMN session type varchar(64);
 
 	ALTER TABLE {$db_prefix}sessions
-	ALTER COLUMN session_id type char(64);");
+	ALTER COLUMN session_id type varchar(64);");
 
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
@@ -548,7 +548,7 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 ---#
 
 ---# Adding the table
-CREATE TABLE {$db_prefix}background_tasks (
+CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 	id_task int default nextval('{$db_prefix}background_tasks_seq'),
 	task_file varchar(255) NOT NULL default '',
 	task_class varchar(255) NOT NULL default '',
@@ -660,7 +660,7 @@ ADD COLUMN alerts int NOT NULL default '0';
 ---# Adding the new table for alerts.
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	id_alert int default nextval('{$db_prefix}user_alerts_seq'),
 	alert_time int NOT NULL default '0',
 	id_member int NOT NULL default '0',
@@ -679,7 +679,7 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE {$db_prefix}user_alerts_prefs (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	id_member int NOT NULL default '0',
 	alert_pref varchar(32) NOT NULL default '',
 	alert_value smallint NOT NULL default '0',
@@ -807,6 +807,12 @@ SET id_theme = 0;
 
 UPDATE {$db_prefix}members
 SET id_theme = 0;
+---#
+
+---# Update the max year for the calendar
+UPDATE {$db_prefix}settings
+SET value = '2030'
+WHERE variable = 'cal_maxyear';
 ---#
 
 /******************************************************************************/
@@ -1083,7 +1089,7 @@ ALTER TABLE {$db_prefix}members
 ---# Creating drafts table.
 CREATE SEQUENCE {$db_prefix}user_drafts_seq;
 
-CREATE TABLE {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft int NOT NULL default nextval('{$db_prefix}user_drafts_seq'),
 	id_topic int NOT NULL default '0',
 	id_board smallint NOT NULL default '0',
@@ -1167,7 +1173,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	id_member int NOT NULL default '0',
 	content_type char(6) default '',
 	content_id int NOT NULL default '0',
@@ -1205,7 +1211,7 @@ CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table
-CREATE TABLE {$db_prefix}moderator_groups (
+CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 	id_board smallint NOT NULL default '0',
 	id_group smallint NOT NULL default '0',
 	PRIMARY KEY (id_board, id_group)
@@ -1353,14 +1359,17 @@ $smcFunc['db_free_result']($file_check);
 ---# Creating qanda table
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
-CREATE TABLE {$db_prefix}qanda (
+CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
 	lngfile varchar(255) NOT NULL default '',
 	question varchar(255) NOT NULL default '',
 	answers text NOT NULL,
-	PRIMARY KEY (id_question),
-	KEY lngfile (lngfile)
+	PRIMARY KEY (id_question)
 );
+---#
+
+---# Create index on qanda
+CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 ---#
 
 ---# Moving questions and answers to the new table
@@ -1486,7 +1495,7 @@ $request = upgrade_query("
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_other_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_website_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
 	}
 
@@ -1515,7 +1524,7 @@ CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 ---#
 
 ---# Adding pm_labels table...
-CREATE TABLE {$db_prefix}pm_labels (
+CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 	id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
 	id_member int NOT NULL default '0',
 	name varchar(30) NOT NULL default '',
@@ -1524,7 +1533,7 @@ CREATE TABLE {$db_prefix}pm_labels (
 ---#
 
 ---# Adding pm_labeled_messages table...
-CREATE TABLE {$db_prefix}pm_labeled_messages (
+CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 	id_label int NOT NULL default '0',
 	id_pm int NOT NULL default '0',
 	PRIMARY KEY (id_label, id_pm)
@@ -1589,7 +1598,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minusone}, labels)',
+			WHERE FIND_IN_SET({int:minusone}, labels) > 0',
 			array(
 				'in_inbox' => 1,
 				'minusone' => -1,
@@ -1955,8 +1964,8 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 /******************************************************************************/
 
 ---# ADD INDEX to members
-CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name));
-CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name));
+CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
 ---#
 
 /******************************************************************************/
@@ -2046,15 +2055,19 @@ CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip
 --- helper function for ip convert
 /******************************************************************************/
 ---# the function migrate_inet
-CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
-AS
-$$
-BEGIN
-   RETURN (trim(val))::inet;
-EXCEPTION
-   WHEN OTHERS THEN RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
+---{
+upgrade_query("
+	CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
+	AS
+	$$
+	BEGIN
+	   RETURN (trim(val))::inet;
+	EXCEPTION
+	   WHEN OTHERS THEN RETURN NULL;
+	END;
+	$$ LANGUAGE plpgsql;"
+);
+---}
 ---#
 
 /******************************************************************************/
@@ -2156,4 +2169,51 @@ ALTER TABLE {$db_prefix}member_logins
 	ALTER ip2 DROP not null,
 	ALTER ip2 DROP default,
 	ALTER ip2 TYPE inet USING migrate_inet(ip2);
+---#
+
+/******************************************************************************/
+--- Renaming the "profile_other" permission...
+/******************************************************************************/
+---# Changing the "profile_other" permission to "profile_website"
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_own' WHERE permission = 'profile_other_own';
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE permission = 'profile_other_any';
+---#
+
+/******************************************************************************/
+--- Update index for like search
+/******************************************************************************/
+---# Change index for table log_packages
+DROP INDEX IF EXISTS {$db_prefix}log_packages_filename;
+CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (filename varchar_pattern_ops);
+---#
+
+---# Change index for table members
+DROP INDEX IF EXISTS {$db_prefix}members_email_address;
+CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_lngfile;
+CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_member_name;
+CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name varchar_pattern_ops);
+DROP INDEX IF EXISTS {$db_prefix}members_real_name;
+CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name varchar_pattern_ops);
+---#
+
+---# Change index for table scheduled_tasks
+DROP INDEX IF EXISTS {$db_prefix}scheduled_tasks_task;
+CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task varchar_pattern_ops);
+---#
+
+---# Change index for table admin_info_files
+DROP INDEX IF EXISTS {$db_prefix}admin_info_files_filename;
+CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename varchar_pattern_ops);
+---#
+
+---# Change index for table boards 
+DROP INDEX IF EXISTS {$db_prefix}boards_member_groups;
+CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
+---#
+
+---# Change index for table log_comments 
+DROP INDEX IF EXISTS {$db_prefix}log_comments_comment_type;
+CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type varchar_pattern_ops);
 ---#

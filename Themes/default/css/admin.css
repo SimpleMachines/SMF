@@ -6,13 +6,6 @@
 	margin: 5px 0 5px 0;
 	box-shadow: none;
 }
-#admin_content .windowbg2 {
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	margin: 0 0 10px 0;
-	box-shadow: none;
-	background: #f0f4f7;
-}
 .action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;
@@ -28,12 +21,9 @@
 	margin-top: 0;
 	margin-bottom: 0;
 }
-a.help .icon {
-	margin: 0;
-	padding: 0 4px 0 0;
-}
-.catbg a.help .icon {
+a.help span {
 	margin: -4px 0 0 0;
+	padding: 0 4px 0 0;
 }
 .table_caption, tr.table_caption td {
 	color: #000;
@@ -659,11 +649,6 @@ h3.config_hd {
 }
 .full_width {
 	width: 100%;
-}
-.winfo {
-	border-radius: 0;
-	border-bottom: 0;
-	margin: 0 !important;
 }
 
 #versions .table_grid {

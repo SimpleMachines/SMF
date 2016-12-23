@@ -10,26 +10,7 @@ function QuickModifyTopic(oOptions)
 	this.oTopicModHandle = document;
 	this.bInEditMode = false;
 	this.bMouseOnDiv = false;
-	this.bXmlHttpCapable = this.isXmlHttpCapable();
 	this.init();
-}
-
-// @todo Determine if this is even needed anymore opera meh
-// Ajax supported?
-QuickModifyTopic.prototype.isXmlHttpCapable = function ()
-{
-	if (typeof(window.XMLHttpRequest) == 'undefined')
-		return false;
-
-	// Opera didn't always support POST requests. So test it first.
-	if ('opera' in window)
-	{
-		var oTest = new XMLHttpRequest();
-		if (!('setRequestHeader' in oTest))
-			return false;
-	}
-
-	return true;
 }
 
 // Used to initialise the object event handlers
@@ -58,6 +39,7 @@ QuickModifyTopic.prototype.modify_topic = function (topic_id, first_msg_id)
 		// same message then just return, otherwise drop out of this edit.
 		if (this.iCurTopicId == topic_id)
 			return;
+
 		else
 			this.modify_topic_cancel();
 	}
@@ -307,42 +289,12 @@ function QuickModify(oOptions)
 	this.oCurSubjectDiv = null;
 	this.sMessageBuffer = '';
 	this.sSubjectBuffer = '';
-	this.bXmlHttpCapable = this.isXmlHttpCapable();
 	this.aAccessKeys = new Array();
-
-	// Show the edit buttons
-	if (this.bXmlHttpCapable)
-	{
-		var aShowQuickModify = document.getElementsByClassName(this.opt.sClassName);
-		for (var i = 0, length = aShowQuickModify.length; i < length; i++) {
-			aShowQuickModify[i].style.display = "inline";
-		}
-	}
-}
-
-// Determine whether the quick modify can actually be used.
-QuickModify.prototype.isXmlHttpCapable = function ()
-{
-	if (typeof(window.XMLHttpRequest) == 'undefined')
-		return false;
-
-	// Opera didn't always support POST requests. So test it first.
-	if ('opera' in window)
-	{
-		var oTest = new XMLHttpRequest();
-		if (!('setRequestHeader' in oTest))
-			return false;
-	}
-
-	return true;
 }
 
 // Function called when a user presses the edit button.
 QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 {
-	if (!this.bXmlHttpCapable)
-		return;
-
 	// Add backwards compatibility with old themes.
 	if (typeof(sSessionVar) == 'undefined')
 		sSessionVar = 'sesc';
@@ -376,7 +328,7 @@ QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml', '', this.onMessageReceived);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
 }
 
 // The callback function used for the XMLhttp request retrieving the message.
@@ -413,6 +365,11 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 	sSubjectText = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 	setInnerHTML(this.oCurSubjectDiv, this.opt.sTemplateSubjectEdit.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
 
+	// Field for editing reason.
+	sReasonText = XMLDoc.getElementsByTagName('reason')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
+
+	$(this.oCurMessageDiv).prepend(this.opt.sTemplateReasonEdit.replace(/%modify_reason%/, sReasonText).replace(/\{&dollarfix;\$\}/g, '$'));
+
 	return true;
 }
 
@@ -448,7 +405,7 @@ QuickModify.prototype.modifyCancel = function ()
 	return false;
 }
 
-// The function called after a user wants to save his precious message.
+// The function called after a user wants to save her/his precious message.
 QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 {
 	// We cannot save if we weren't in edit mode.
@@ -476,15 +433,20 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	}
 
 
-	var i, x = new Array();
-	x[x.length] = 'subject=' + escape(document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B");
-	x[x.length] = 'message=' + escape(document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B");
-	x[x.length] = 'topic=' + parseInt(document.forms.quickModForm.elements['topic'].value);
-	x[x.length] = 'msg=' + parseInt(document.forms.quickModForm.elements['msg'].value);
+	var i, x = new Array(),
+		oCaller = this,
+		formData = {
+			subject : document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit(),
+			message : document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#").php_to8bit(),
+			topic : parseInt(document.forms.quickModForm.elements['topic'].value),
+			msg : parseInt(document.forms.quickModForm.elements['msg'].value),
+			modify_reason : document.forms.quickModForm.elements['modify_reason'].value.replace(/&#/g, "&#38;#").php_to8bit()
+		};
 
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", x.join("&"), this.onModifyDone);
+
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", formData, this.onModifyDone);
 
 	return false;
 }
@@ -503,6 +465,7 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 			setInnerHTML(document.getElementById('error_box'), XMLDoc.firstChild.textContent);
 		else
 			this.modifyCancel();
+
 		return;
 	}
 
@@ -533,7 +496,13 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
-			setInnerHTML(document.getElementById('modified_' + this.sCurMessageId.substr(4)), message.getElementsByTagName('modified')[0].childNodes[0].nodeValue);
+			$('#modified_' + this.sCurMessageId.substr(4)).html(message.getElementsByTagName('modified')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'));
+
+		// Show a message indicating the edit was successfully done.
+		$('<div/>',{
+			text: message.getElementsByTagName('success')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}'),
+			class: 'infobox'
+		}).prependTo('#' + this.sCurMessageId).delay(5000).fadeOutAndRemove(400);
 	}
 	else if (error)
 	{

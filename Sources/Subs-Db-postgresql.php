@@ -209,7 +209,7 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'identifier':
-			return '`' . strtr($replacement, array('`' => '', '.' => '')) . '`';
+			return '"' . strtr($replacement, array('`' => '', '.' => '')) . '"';
 		break;
 
 		case 'raw':
@@ -217,12 +217,11 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'inet':
-			if ($replacement == 'null')
+			if ($replacement == 'null' || $replacement == '')
 				return 'null';
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
-		break;
 
 		case 'array_inet':
 			if (is_array($replacement))
@@ -232,7 +231,7 @@ function smf_db_replacement__callback($matches)
 
 				foreach ($replacement as $key => $value)
 				{
-					if ($replacement == 'null')
+					if ($replacement == 'null' || $replacement == '')
 						$replacement[$key] = 'null';
 					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -320,9 +319,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
-		),
-		'set_character_set' => array(
-			'~SET\\s+NAMES\\s([a-zA-Z0-9\\-_]+)~' => 'SET NAMES \'$1\'',
 		),
 		'pm_conversation_list' => array(
 			'~ORDER\\s+BY\\s+\\{raw:sort\\}~' => 'ORDER BY ' . (isset($db_values['sort']) ? ($db_values['sort'] === 'pm.id_pm' ? 'MAX(pm.id_pm)' : $db_values['sort']) : ''),
@@ -418,7 +414,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 				$pos2 = strpos($db_string, '\\', $pos + 1);
 				if ($pos1 === false)
 					break;
-				elseif ($pos2 == false || $pos2 > $pos1)
+				elseif ($pos2 === false || $pos2 > $pos1)
 				{
 					$pos = $pos1;
 					break;

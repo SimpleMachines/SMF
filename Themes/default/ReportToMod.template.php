@@ -40,7 +40,7 @@ function template_main()
 				<span>', $txt['preview'], '</span>
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg noup">
 			<div class="post" id="preview_body">
 				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 			</div>
@@ -54,7 +54,7 @@ function template_main()
 				<div class="cat_bar">
 					<h3 class="catbg">', $context['page_title'], '</h3>
 				</div>
-				<div class="windowbg">';
+				<div class="windowbg noup">';
 
 	if (!empty($context['post_errors']))
 	{

@@ -30,7 +30,7 @@ function AdminMain()
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin');
-	loadJavascriptFile('admin.js', array(), 'smf_admin');
+	loadJavaScriptFile('admin.js', array(), 'smf_admin');
 	loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// No indexing evil stuff.
@@ -572,7 +572,7 @@ function AdminHome()
 	);
 
 	if ($context['admin_area'] == 'admin')
-		loadJavascriptFile('admin.js', array('defer' => false), 'smf_admin');
+		loadJavaScriptFile('admin.js', array('defer' => false), 'smf_admin');
 }
 
 /**

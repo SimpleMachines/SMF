@@ -587,7 +587,7 @@ function template_edit_censored()
 									', $txt['admin_censored_words'], '
 								</h3>
 							</div>
-							<div class="windowbg2">
+							<div class="windowbg2 noup">
 								<p>', $txt['admin_censored_where'], '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
@@ -630,8 +630,7 @@ function template_edit_censored()
 									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit">
-							</div>
-							<br>';
+							</div>';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
 	echo '
@@ -640,7 +639,7 @@ function template_edit_censored()
 									', $txt['censor_test'], '
 								</h3>
 							</div>
-							<div class="windowbg2">
+							<div class="windowbg2 noup">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '" class="input_text">
 									<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit">
@@ -667,7 +666,7 @@ function template_not_done()
 								', $txt['not_done_title'], '
 							</h3>
 						</div>
-						<div class="windowbg">
+						<div class="windowbg2 noup">
 							', $txt['not_done_reason'];
 
 	if (!empty($context['continue_percent']))
@@ -778,7 +777,7 @@ function template_show_settings()
 			else
 			{
 				echo '
-							<div class="information winfo">
+							<div class="information noup">
 								', $config_var['label'], '
 							</div>';
 			}
@@ -791,7 +790,7 @@ function template_show_settings()
 		{
 			$is_open = true;
 			echo '
-							<div class="windowbg2">
+							<div class="windowbg2 noup">
 								<dl class="settings">';
 		}
 
@@ -831,7 +830,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-							<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ';
+							<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
@@ -1068,7 +1067,7 @@ function template_edit_profile_field()
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
 							</div>
-							<div class="windowbg">
+							<div class="windowbg2 noup">
 								<fieldset>
 									<legend>', $txt['custom_edit_general'], '</legend>
 
@@ -1589,7 +1588,7 @@ function template_clean_cache_button_below()
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 					</div>
-					<div class="windowbg">
+					<div class="windowbg2 noup">
 						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
 							<p>', $txt['maintain_cache_info'], '</p>
 							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit"></span>

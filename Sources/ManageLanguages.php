@@ -670,7 +670,7 @@ function ModifyLanguages()
 	);
 
 	// We want to highlight the selected language. Need some Javascript for this.
-	addInlineJavascript('
+	addInlineJavaScript('
 	function highlightSelected(box)
 	{
 		$("tr.highlight2").removeClass("highlight2");

@@ -1181,22 +1181,22 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
-		loadJavascriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
-		loadJavascriptFile('mentions.js', array('defer' => true), 'smf_mentions');
+		loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		loadJavaScriptFile('mentions.js', array('defer' => true), 'smf_mentions');
 	}
 
 	// quotedText.js
-	loadJavascriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
+	loadJavaScriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
 
 	// Mock files to show already attached files.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var current_attachments = [];', true);
 
 	if (!empty($context['current_attachments']))
 	{
 		foreach ($context['current_attachments'] as $key => $mock)
-			addInlineJavascript('
+			addInlineJavaScript('
 	current_attachments.push({
 		name: '. JavaScriptEscape($mock['name']) .',
 		size: '. $mock['size'] .',
@@ -1212,9 +1212,9 @@ function Post($post_errors = array())
 	{
 		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.'. $smcFunc['htmltrim']($val);} , explode(',', $context['allowed_extensions'])));
 
-		loadJavascriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
-		loadJavascriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
-		addInlineJavascript('
+		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
+		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
+		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
 			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
@@ -1245,7 +1245,7 @@ function Post($post_errors = array())
 	}
 
 	// Knowing the current board ID might be handy.
-	addInlineJavascript('
+	addInlineJavaScript('
 	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
 
 	// Finally, load the template.
@@ -2514,7 +2514,7 @@ function QuoteFast()
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
-			m.id_board, m.id_member, m.approved
+			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
@@ -2557,6 +2557,11 @@ function QuoteFast()
 				'id' => $_REQUEST['quote'],
 				'body' => $row['body'],
 				'subject' => addcslashes($row['subject'], '"'),
+				'reason' => array(
+					'name' => $row['modified_name'],
+					'text' => $row['modified_reason'],
+					'time' => $row['modified_time'],
+				),
 			);
 
 			return;
@@ -2584,6 +2589,11 @@ function QuoteFast()
 			'id' => 0,
 			'body' => '',
 			'subject' => '',
+			'reason' => array(
+				'name' => '',
+				'text' => '',
+				'time' => '',
+			),
 		);
 	}
 	else
@@ -2738,6 +2748,7 @@ function JavaScriptModify()
 			'subject' => isset($_POST['subject']) ? $_POST['subject'] : null,
 			'body' => isset($_POST['message']) ? $_POST['message'] : null,
 			'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
+			'modify_reason' => (isset($_POST['modify_reason']) ? $_POST['modify_reason'] : ''),
 		);
 		$topicOptions = array(
 			'id' => $topic,
@@ -2761,7 +2772,6 @@ function JavaScriptModify()
 			{
 				$msgOptions['modify_time'] = time();
 				$msgOptions['modify_name'] = $user_info['name'];
-				$msgOptions['modify_reason'] = isset($_POST['modify_reason']) ? $_POST['modify_reason'] : '';
 			}
 		}
 		// If nothing was changed there's no need to add an entry to the moderation log.
@@ -2823,6 +2833,7 @@ function JavaScriptModify()
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
 					'timestamp' => isset($msgOptions['modify_time']) ? forum_time(true, $msgOptions['modify_time']) : 0,
 					'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
+					'reason' => $msgOptions['modify_reason'],
 				),
 				'subject' => $msgOptions['subject'],
 				'first_in_topic' => $row['id_msg'] == $row['id_first_msg'],

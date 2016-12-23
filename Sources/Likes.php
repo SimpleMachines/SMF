@@ -309,6 +309,7 @@ class Likes
 		$content = $this->_content;
 		$user = $this->_user;
 		$time = time();
+
 		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
 
 		// Insert the like.
@@ -604,20 +605,6 @@ class Likes
 	 */
 	protected function jsonResponse()
 	{
-		global $modSettings;
-
-		// Kill anything else.
-		ob_end_clean();
-
-		if (!empty($modSettings['CompressedOutput']))
-			@ob_start('ob_gzhandler');
-
-		else
-			ob_start();
-
-		// Send the header.
-		header('Content-Type: application/json');
-
 		$print = array(
 			'data' => $this->_data,
 		);
@@ -635,7 +622,7 @@ class Likes
 		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
-		echo json_encode($print);
+		smf_serverResponse(json_encode($print));
 		die;
 	}
 }

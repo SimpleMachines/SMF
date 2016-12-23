@@ -22,7 +22,7 @@ function template_registration_agreement()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<p>', $context['agreement'], '</p>
 			</div>
 			<div id="confirm_buttons">';
@@ -353,7 +353,7 @@ function template_coppa()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div id="coppa" class="roundframe">
+			<div id="coppa" class="roundframe noup">
 				<p>', $context['coppa']['body'], '</p>
 				<p>
 					<span><a href="', $scripturl, '?action=coppa;form;member=', $context['coppa']['id'], '" target="_blank" class="new_win">', $txt['coppa_form_link_popup'], '</a> | <a href="', $scripturl, '?action=coppa;form;dl;member=', $context['coppa']['id'], '">', $txt['coppa_form_link_download'], '</a></span>
@@ -482,7 +482,7 @@ function template_admin_register()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
 				</div>
-				<div id="register_screen" class="windowbg2">';
+				<div id="register_screen" class="windowbg2 noup">';
 
 	if (!empty($context['registration_done']))
 		echo '
@@ -599,7 +599,7 @@ function template_edit_agreement()
 			<p class="error">', $context['warning'], '</p>';
 
 	echo '
-			<div class="windowbg2" id="registration_agreement">';
+			<div class="windowbg2 noup" id="registration_agreement">';
 
 	// Is there more than one language to choose from?
 	if (count($context['editable_agreements']) > 1)
@@ -664,7 +664,7 @@ function template_edit_reserved_words()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<h4>', $txt['admin_reserved_line'], '</h4>
 				<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
 				<dl class="settings">

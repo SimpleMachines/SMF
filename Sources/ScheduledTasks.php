@@ -1479,6 +1479,12 @@ function scheduled_weekly_maintenance()
 		)
 	);
 
+	// Update the regex of top level domains with the IANA's latest official list
+	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+	);
+
 	return true;
 }
 

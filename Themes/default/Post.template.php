@@ -54,7 +54,7 @@ function template_main()
 				pollOptionNum++
 				pollOptionId++
 
-				setOuterHTML(document.getElementById(\'pollMoreOptions\'), ', JavaScriptEscape('<li><label for="options-'), ' + pollOptionId + ', JavaScriptEscape('">' . $txt['option'] . ' '), ' + pollOptionNum + ', JavaScriptEscape('</label>: <input type="text" name="options['), ' + pollOptionId + ', JavaScriptEscape(']" id="options-'), ' + pollOptionId + ', JavaScriptEscape('" value="" size="80" maxlength="255" tabindex="'), ' + pollTabIndex + ', JavaScriptEscape('" class="input_text"></li><li id="pollMoreOptions"></li>'), ');
+				setOuterHTML(document.getElementById(\'pollMoreOptions\'), ', JavaScriptEscape('<dt><label for="options-'), ' + pollOptionId + ', JavaScriptEscape('">' . $txt['option'] . ' '), ' + pollOptionNum + ', JavaScriptEscape('</label>:</dt><dd><input type="text" name="options['), ' + pollOptionId + ', JavaScriptEscape(']" id="options-'), ' + pollOptionId + ', JavaScriptEscape('" value="" size="80" maxlength="255" tabindex="'), ' + pollTabIndex + ', JavaScriptEscape('" class="input_text"></dd><p id="pollMoreOptions"></p>'), ');
 			}';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
@@ -75,7 +75,7 @@ function template_main()
 						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
-				<div id="preview_body" class="windowbg">
+				<div id="preview_body" class="windowbg noup">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div><br>';
@@ -90,7 +90,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe">', isset($context['current_topic']) ? '
+				<div class="roundframe noup">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
@@ -300,22 +300,25 @@ function template_main()
 					<div id="edit_poll">
 						<fieldset id="poll_main">
 							<legend><span ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['poll_question'], '</span></legend>
-							<input type="text" name="question" value="', isset($context['question']) ? $context['question'] : '', '" tabindex="', $context['tabindex']++, '" size="80" class="input_text">
-							<ul class="poll_main">';
+							<dl class="settings poll_options">
+								<dt>', $txt['poll_question'], '</dt>
+								<dd><input type="text" name="question" value="', isset($context['question']) ? $context['question'] : '', '" tabindex="', $context['tabindex']++, '" size="80" class="input_text"></dd>';
 
 		// Loop through all the choices and print them out.
 		foreach ($context['choices'] as $choice)
 		{
 			echo '
-								<li>
+								<dt>
 									<label for="options-', $choice['id'], '">', $txt['option'], ' ', $choice['number'], '</label>:
+								</dt>
+								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="255" class="input_text">
-								</li>';
+								</dd>';
 		}
 
 		echo '
-								<li id="pollMoreOptions"></li>
-							</ul>
+								<p id="pollMoreOptions"></p>
+							</dl>
 							<strong><a href="javascript:addPollOption(); void(0);">(', $txt['poll_add_option'], ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">

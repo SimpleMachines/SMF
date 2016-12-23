@@ -700,6 +700,7 @@ function Display()
 			'options' => array(),
 			'lock' => allowedTo('poll_lock_any') || ($context['user']['started'] && allowedTo('poll_lock_own')),
 			'edit' => allowedTo('poll_edit_any') || ($context['user']['started'] && allowedTo('poll_edit_own')),
+			'remove' => allowedTo('poll_remove_any') || ($context['user']['started'] && allowedTo('poll_remove_own')),
 			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
@@ -712,9 +713,10 @@ function Display()
 			)
 		);
 
-		// Make the lock and edit permissions defined above more directly accessible.
+		// Make the lock, edit and remove permissions defined above more directly accessible.
 		$context['allow_lock_poll'] = $context['poll']['lock'];
 		$context['allow_edit_poll'] = $context['poll']['edit'];
+		$context['can_remove_poll'] = $context['poll']['remove'];
 
 		// You're allowed to vote if:
 		// 1. the poll did not expire, and
@@ -1299,24 +1301,24 @@ function Display()
 
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
-		loadJavascriptFile('drafts.js', array('defer' => false), 'smf_drafts');
+		loadJavaScriptFile('drafts.js', array('defer' => false), 'smf_drafts');
 
 	// Spellcheck
 	if ($context['show_spellchecking'])
-		loadJavascriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
+		loadJavaScriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
 
 	// topic.js
-	loadJavascriptFile('topic.js', array('defer' => false), 'smf_topic');
+	loadJavaScriptFile('topic.js', array('defer' => false), 'smf_topic');
 
 	// quotedText.js
-	loadJavascriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
+	loadJavaScriptFile('quotedText.js', array('defer' => true), 'smf_quotedText');
 
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
-		loadJavascriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
-		loadJavascriptFile('mentions.js', array('defer' => true), 'smf_mentions');
+		loadJavaScriptFile('jquery.atwho.min.js', array('defer' => true), 'smf_atwho');
+		loadJavaScriptFile('jquery.caret.min.js', array('defer' => true), 'smf_caret');
+		loadJavaScriptFile('mentions.js', array('defer' => true), 'smf_mentions');
 	}
 }
 

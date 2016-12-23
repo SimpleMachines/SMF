@@ -126,7 +126,7 @@ function ModifySubscriptionSettings($return_config = false)
 		$context['settings_title'] = $txt['settings'];
 
 		// We want javascript for our currency options.
-		addInlineJavascript('
+		addInlineJavaScript('
 		function toggleOther()
 		{
 			var otherOn = document.getElementById("paid_currency").value == \'other\';
@@ -1361,7 +1361,7 @@ function ModifyUserSubscription()
 		$context['sub']['end']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['sub']['end']['month'] == 12 ? 1 : $context['sub']['end']['month'] + 1, 0, $context['sub']['end']['month'] == 12 ? $context['sub']['end']['year'] + 1 : $context['sub']['end']['year']));
 	}
 
-	loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 }
 
 /**

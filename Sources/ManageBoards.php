@@ -595,7 +595,7 @@ function EditBoard()
 	{
 		$context['sub_template'] = 'modify_board';
 		$context['page_title'] = $txt['boardsEdit'];
-		loadJavascriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+		loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
 	}
 	else
 	{
@@ -874,7 +874,7 @@ function EditBoardSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 
 	// Add some javascript stuff for the recycle box.
-	addInlineJavascript('
+	addInlineJavaScript('
 	document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 	// Warn the admin against selecting the recycle topic without selecting a board.

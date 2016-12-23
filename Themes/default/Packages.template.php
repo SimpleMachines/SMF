@@ -104,7 +104,7 @@ function template_view_package()
 	if ($context['uninstalling'] && !empty($context['database_changes']))
 	{
 		echo '
-			<div class="windowbg2 winfo">
+			<div class="windowbg2 noup">
 				<label for="do_db_changes"><input type="checkbox" name="do_db_changes" id="do_db_changes" class="input_check">', $txt['package_db_uninstall'], '</label> [<a href="#" onclick="return swap_database_changes();">', $txt['package_db_uninstall_details'], '</a>]
 				<div id="db_changes_div">
 					', $txt['package_db_uninstall_actions'], ':
@@ -529,7 +529,7 @@ function template_browse()
 					', $txt['packages_adding_title'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="information">
 				', $txt['packages_adding'], '
 			</div>
 
@@ -603,7 +603,7 @@ function template_browse()
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
-				<div id="advanced_panel_div" class="windowbg2">
+				<div id="advanced_panel_div" class="windowbg2 noup">
 					<p>
 						', $txt['package_emulate_desc'], '
 					</p>
@@ -691,7 +691,7 @@ function template_servers()
 		<div class="cat_bar">
 			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" style="margin-bottom: 0;">
 				<dl class="settings">
 					<dt>
@@ -705,7 +705,6 @@ function template_servers()
 				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 			</form>
 		</div>
-		<br>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a class="download_new_package">
@@ -762,7 +761,7 @@ function template_servers()
 	}
 
 	echo '
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<fieldset>
 					<legend>' . $txt['package_servers'] . '</legend>
 					<ul class="package_servers">';
@@ -817,9 +816,7 @@ function template_servers()
 								<span class="smalltext">', $txt['package_download_filename_info'], '</span>
 							</dd>
 						</dl>
-						<div class="righttext">
-							<input type="submit" value="', $txt['download'], '" class="button_submit">
-						</div>
+						<input type="submit" value="', $txt['download'], '" class="button_submit">
 					</form>
 				</fieldset>
 			</div>
@@ -839,7 +836,7 @@ function template_package_confirm()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2 noup">
 			<p>', $context['confirm_message'], '</p>
 			<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
 		</div>
@@ -1021,7 +1018,7 @@ function template_downloaded()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2 noup">
 			<p>', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '</p>
 			<ul>
 				<li><span class="floatleft"><strong>', $context['package']['name'], '</strong></span>
@@ -1051,11 +1048,10 @@ function template_install_options()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_install_options'], '</h3>
 		</div>
-		<div class="information">
+		<div class="information noup">
 			', $txt['package_install_options_ftp_why'], '
 		</div>
-
-		<div class="windowbg">
+		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1127,7 +1123,7 @@ function template_control_chmod()
 
 		if (!$context['server']['is_windows'])
 			echo '
-				<hr />
+				<hr>
 				', $txt['package_chmod_linux'], '<br />
 				<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
 
@@ -1579,7 +1575,7 @@ function template_file_permissions()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_file_perms_change'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<fieldset>
 				<dl>
 					<dt>

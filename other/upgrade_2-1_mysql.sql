@@ -810,6 +810,12 @@ UPDATE {$db_prefix}members
 SET id_theme = 0;
 ---#
 
+---# Update the max year for the calendar
+UPDATE {$db_prefix}settings
+SET value = '2030'
+WHERE variable = 'cal_maxyear';
+---#
+
 /******************************************************************************/
 --- Membergroup icons changes
 /******************************************************************************/
@@ -1468,7 +1474,7 @@ $request = upgrade_query("
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_other_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_website_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
 	}
 
@@ -2440,4 +2446,12 @@ if ($doChange)
 
 ---# Add the new log banned ip
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- Renaming the "profile_other" permission...
+/******************************************************************************/
+---# Changing the "profile_other" permission to "profile_website"
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_own' WHERE permission = 'profile_other_own';
+UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE permission = 'profile_other_any';
 ---#

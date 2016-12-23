@@ -26,9 +26,10 @@ function reloadSettings()
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
-		$smcFunc['db_query']('set_character_set', '
-			SET NAMES ' . $db_character_set,
+		$smcFunc['db_query']('', '
+			SET NAMES {string:db_character_set}',
 			array(
+				'db_character_set' => $db_character_set,
 			)
 		);
 
@@ -1973,6 +1974,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'signup' => array('usernamecheck'),
 	);
 
+	// Extra params like ;preview ;js, etc.
+	$extraParams = array(
+		'preview',
+		'splitjs',
+	);
+
 	// Actions that specifically uses XML output.
 	$xmlActions = array(
 		'quotefast',
@@ -1985,14 +1992,20 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'notifyboard',
 	);
 
-	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$xmlActions));
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$extraParams, &$xmlActions));
 
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
 	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
 	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
+	// See if theres any extra param to check.
+	$requiresXML = false;
+	foreach ($extraParams as $key => $extra)
+		if (isset($_REQUEST[$extra]))
+			$requiresXML = true;
+
 	// Output is fully XML, so no need for the index template.
-	if (isset($_REQUEST['xml']) && in_array($context['current_action'], $xmlActions))
+	if (isset($_REQUEST['xml']) && (in_array($context['current_action'], $xmlActions) || $requiresXML))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');
@@ -2116,29 +2129,29 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
+		loadJavaScriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
+	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
+		loadJavaScriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
 		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
-	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
+	loadJavaScriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
+	loadJavaScriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
@@ -2159,7 +2172,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$type = empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() ? 'task' : 'mailq';
 			$ts = $type == 'mailq' ? $modSettings['mail_next_send'] : $modSettings['next_task_time'];
 
-			addInlineJavascript('
+			addInlineJavaScript('
 		function smfAutoTask()
 		{
 			$.get(smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '");
@@ -2442,7 +2455,7 @@ function addInlineCss($css)
  *
  * @param string $id An ID to stick on the end of the filename
  */
-function loadJavascriptFile($fileName, $params = array(), $id = '')
+function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
@@ -2508,7 +2521,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
  * @param string $value The value
  * @param bool $escape Whether or not to escape the value
  */
-function addJavascriptVar($key, $value, $escape = false)
+function addJavaScriptVar($key, $value, $escape = false)
 {
 	global $context;
 
@@ -2527,7 +2540,7 @@ function addJavascriptVar($key, $value, $escape = false)
  * @param bool $defer Whether the script should load in <head> or before the closing <html> tag
  * @return void|bool Adds the code to one of the $context['javascript_inline'] arrays or returns if no JS was specified
  */
-function addInlineJavascript($javascript, $defer = false)
+function addInlineJavaScript($javascript, $defer = false)
 {
 	global $context;
 
@@ -3226,6 +3239,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
  *	 memcache: http://www.php.net/memcache
  *	 APC: http://www.php.net/apc
+ *   APCu: http://www.php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
@@ -3276,6 +3290,17 @@ function cache_put_data($key, $value, $ttl = 120)
 					apc_delete($key . 'smf');
 				else
 					apc_store($key . 'smf', $value, $ttl);
+			}
+			break;
+		case 'apcu':
+			// APC User Cache
+			if (function_exists('apcu_store'))
+			{
+				// Not sure if this bug exists in APCu or not?
+				if ($value === null)
+					apcu_delete($key . 'smf');
+				else
+					apcu_store($key . 'smf', $value, $ttl);
 			}
 			break;
 		case 'zend':
@@ -3374,6 +3399,11 @@ function cache_get_data($key, $ttl = 120)
 			// This is the free APC from PECL.
 			if (function_exists('apc_fetch'))
 				$value = apc_fetch($key . 'smf');
+			break;
+		case 'apcu':
+			// APC User Cache. A continuation of the now-unsupported APC but without opcode cache
+			if (function_exists('apcu_fetch'))
+				$value = apcu_fetch($key . 'smf');
 			break;
 		case 'zend':
 			// Zend's pricey stuff.

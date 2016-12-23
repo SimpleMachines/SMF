@@ -20,9 +20,9 @@ $GLOBALS['required_php_version'] = '5.3.8';
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
 // Let's pull in useful classes
-if (!defined('smf')) {
+if (!defined('SMF'))
 	define('SMF', 1);
-}
+
 require_once('Sources/Class-Package.php');
 
 // Database info.
@@ -513,7 +513,7 @@ function CheckFilesWritable()
 	);
 	if (file_exists(dirname(__FILE__) . '/Settings_bak.php'))
 		$writable_files[] = 'Settings_bak.php';
-	
+
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
 
@@ -785,9 +785,9 @@ function DatabaseSettings()
 		{
 			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
 			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
-				$vars['db_port'] == (int) $_POST['db_port'];
+				$vars['db_port'] = (int) $_POST['db_port'];
 		}
 
 		// God I hope it saved!
@@ -811,7 +811,9 @@ function DatabaseSettings()
 		}
 
 		// Now include it for database functions!
-		define('SMF', 1);
+		if (!defined('SMF'))
+			define('SMF', 1);
+
 		$modSettings['disableQueryCheck'] = true;
 		if (empty($smcFunc))
 			$smcFunc = array();
@@ -1027,7 +1029,7 @@ function DatabasePopulation()
 	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
 	if (!empty($db_character_set) && $db_character_set == 'utf8' && !empty($databases[$db_type]['utf8_support']))
 		$smcFunc['db_query']('', '
-			SET NAMES {'. ($db_type == 'postgresql' ? 'string' : 'raw') . ':utf8}',
+			SET NAMES {string:utf8}',
 			array(
 				'db_error_skip' => true,
 				'utf8' => 'utf8',
@@ -1525,7 +1527,7 @@ function DeleteInstall()
 
 	if (!empty($db_character_set) && !empty($databases[$db_type]['utf8_support']))
 		$smcFunc['db_query']('', '
-			SET NAMES {raw:db_character_set}',
+			SET NAMES {string:db_character_set}',
 			array(
 				'db_character_set' => $db_character_set,
 				'db_error_skip' => true,
@@ -1854,8 +1856,9 @@ function template_install_above()
 					</div>
 					<div id="progress_bar">
 						<div id="overall_text">', $incontext['overall_percent'], '%</div>
-						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">&nbsp;</div>
-						<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">
+							<span>'. $txt['upgrade_overall_progress'], '</span>
+						</div>
 					</div>
 					<div id="main_screen" class="clear">
 						<h2>', $incontext['page_title'], '</h2>

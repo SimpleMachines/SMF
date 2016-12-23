@@ -45,19 +45,19 @@ function template_permission_index()
 				<thead>
 					<tr class="title_bar">
 						<th>', $txt['membergroups_name'], '</th>
-						<th width="10%" style="text-align:center">', $txt['membergroups_members_top'], '</th>';
+						<th class="small_table">', $txt['membergroups_members_top'], '</th>';
 
 			if (empty($modSettings['permission_enable_deny']))
 				echo '
-						<th width="16%" style="text-align:center">', $txt['membergroups_permissions'], '</th>';
+						<th class="small_table">', $txt['membergroups_permissions'], '</th>';
 			else
 				echo '
-						<th width="8%" style="text-align:center">', $txt['permissions_allowed'], '</th>
-						<th width="8%" style="text-align:center">', $txt['permissions_denied'], '</th>';
+						<th class="small_table">', $txt['permissions_allowed'], '</th>
+						<th class="small_table">', $txt['permissions_denied'], '</th>';
 
 			echo '
-						<th width="10%" style="text-align:center">', $context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view'], '</th>
-						<th width="4%" style="text-align: center">
+						<th class="small_table">', $context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view'], '</th>
+						<th class="table_icon centercol">
 							', $context['can_modify'] ? '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'group\');">' : '', '
 						</th>
 					</tr>
@@ -82,15 +82,15 @@ function template_permission_index()
 
 		if (empty($modSettings['permission_enable_deny']))
 			echo '
-						<td width="16%">', $group['num_permissions']['allowed'], '</td>';
+						<td>', $group['num_permissions']['allowed'], '</td>';
 		else
 			echo '
-						<td width="8%"', $group['id'] == 1 ? ' style="font-style: italic;"' : '', '>', $group['num_permissions']['allowed'], '</td>
-						<td width="8%"', $group['id'] == 1 || $group['id'] == -1 ? ' style="font-style: italic;"' : (!empty($group['num_permissions']['denied']) ? ' class="red"' : ''), '>', $group['num_permissions']['denied'], '</td>';
+						<td ', $group['id'] == 1 ? ' style="font-style: italic;"' : '', '>', $group['num_permissions']['allowed'], '</td>
+						<td ', $group['id'] == 1 || $group['id'] == -1 ? ' style="font-style: italic;"' : (!empty($group['num_permissions']['denied']) ? ' class="red"' : ''), '>', $group['num_permissions']['denied'], '</td>';
 
 		echo '
 						<td>', $group['allow_modify'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty($context['profile']) ? '' : ';pid=' . $context['profile']['id']) . '">' . ($context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view']). '</a>' : '', '</td>
-						<td>', $group['allow_modify'] && $context['can_modify'] ? '<input type="checkbox" name="group[]" value="' . $group['id'] . '" class="input_check">' : '', '</td>
+						<td class="centercol">', $group['allow_modify'] && $context['can_modify'] ? '<input type="checkbox" name="group[]" value="' . $group['id'] . '" class="input_check">' : '', '</td>
 					</tr>';
 	}
 
@@ -109,7 +109,7 @@ function template_permission_index()
 					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
-			<div id="permissions_panel_advanced" class="windowbg2">
+			<div id="permissions_panel_advanced" class="windowbg2 noup">
 				<fieldset>
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
@@ -287,7 +287,7 @@ function template_by_board()
 					echo '
 				</h3>
 			</div>
-			<div class="windowbg2">';
+			<div class="windowbg2 noup">';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -370,7 +370,7 @@ function template_edit_profiles()
 					<tr class="title_bar">
 						<th>', $txt['permissions_profile_name'], '</th>
 						<th>', $txt['permissions_profile_used_by'], '</th>
-						<th', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', ' width="5%">', $txt['delete'], '</th>
+						<th class="table_icon"', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '>', $txt['delete'], '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -419,7 +419,7 @@ function template_edit_profiles()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_profile_new'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['permissions_profile_name'], ':</strong>
@@ -573,7 +573,7 @@ function template_modify_group_display($type)
 				{
 					echo '
 						<tr class="title_bar">
-							<th width="10"></th>
+							<th></th>
 							<th', $context['group']['id'] == -1 ? ' colspan="2"' : '', ' class="smalltext">', $permissionGroup['name'], '</th>';
 
 					if ($context['group']['id'] != -1)
@@ -592,7 +592,7 @@ function template_modify_group_display($type)
 				{
 					echo '
 						<tr class="windowbg">
-							<td width="10">
+							<td>
 								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">', $permission['name'], '</td><td>';
@@ -766,7 +766,7 @@ function template_postmod_permissions()
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
-							<div class="windowbg2">
+							<div class="windowbg2 noup">
 								<dl class="settings">
 									<dt>', $txt['permissions_post_moderation_enable'], '</dt>
 									<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked' : '', '></dd>
@@ -827,7 +827,7 @@ function template_postmod_permissions()
 		echo '
 									</tr>
 									<tr class="windowbg">
-										<th width="30%">
+										<th class="quarter_table">
 											', $txt['permissions_post_moderation_group'], '
 										</th>
 										<th><span class="generic_icons post_moderation_allow"></span></th>
@@ -855,7 +855,7 @@ function template_postmod_permissions()
 		{
 			echo '
 									<tr class="windowbg">
-										<td width="40%">
+										<td class="half_table">
 											<span ', ($group['color'] ? 'style="color: ' . $group['color'] . '"' : ''), '>', $group['name'], '</span>';
 				if (!empty($group['children']))
 					echo '

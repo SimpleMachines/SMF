@@ -693,7 +693,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL DEFAULT '0001-01-01',
   website_title VARCHAR(255) NOT NULL DEFAULT '',
   website_url VARCHAR(255) NOT NULL DEFAULT '',
-  hide_email TINYINT NOT NULL DEFAULT '0',
   show_online TINYINT NOT NULL DEFAULT '1',
   time_format VARCHAR(80) NOT NULL DEFAULT '',
   signature TEXT NOT NULL,
@@ -1717,8 +1716,8 @@ VALUES ('xx', 'Standard', '0'),
 #
 
 INSERT INTO {$db_prefix}messages
-	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
-VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
+	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, modified_name, body, icon)
+VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '', '{$default_topic_message}', 'xx');
 # --------------------------------------------------------
 
 #
@@ -1762,7 +1761,7 @@ VALUES (-1, 'search_posts'),
 	(0, 'profile_blurb_own'),
 	(0, 'profile_displayed_name_own'),
 	(0, 'profile_signature_own'),
-	(0, 'profile_other_own'),
+	(0, 'profile_website_own'),
 	(0, 'profile_forum_own'),
 	(0, 'profile_extra_own'),
 	(0, 'profile_remove_own'),
@@ -1784,7 +1783,7 @@ VALUES (-1, 'search_posts'),
 	(2, 'profile_blurb_own'),
 	(2, 'profile_displayed_name_own'),
 	(2, 'profile_signature_own'),
-	(2, 'profile_other_own'),
+	(2, 'profile_website_own'),
 	(2, 'profile_forum_own'),
 	(2, 'profile_extra_own'),
 	(2, 'profile_remove_own'),
@@ -1864,7 +1863,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('onlineEnable', '0'),
 	('cal_enabled', '0'),
 	('cal_showInTopic', '1'),
-	('cal_maxyear', '2020'),
+	('cal_maxyear', '2030'),
 	('cal_minyear', '2008'),
 	('cal_daysaslink', '0'),
 	('cal_defaultboard', ''),

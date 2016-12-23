@@ -1485,7 +1485,7 @@ function MergeExecute($topics = array())
 		SELECT id_member, MIN(id_msg) AS new_id_msg, unwatched
 		FROM {db_prefix}log_topics
 		WHERE id_topic IN ({array_int:topics})
-		GROUP BY id_member',
+		GROUP BY id_member, unwatched',
 		array(
 			'topics' => $topics,
 		)

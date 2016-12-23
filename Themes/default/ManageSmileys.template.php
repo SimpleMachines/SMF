@@ -52,7 +52,7 @@ function template_modifyset()
 		}
 
 		echo '
-			<div class="windowbg">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong><label for="smiley_sets_name">', $txt['smiley_sets_name'], '</label>: </strong>
@@ -102,7 +102,6 @@ function template_modifyset()
 
 		echo '
 				</dl>
-				<hr>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -345,7 +344,7 @@ function template_setorder()
 			<div class="cat_bar">
 				<h3 class="catbg">', $location['title'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information noup">
 				', $location['description'], '
 			</div>
 			<div class="windowbg2">

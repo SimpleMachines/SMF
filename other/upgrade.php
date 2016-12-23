@@ -510,9 +510,10 @@ function loadEssentialData()
 
 		if (($db_type == 'mysql' || $db_type == 'mysqli') && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
-			SET NAMES ' . $db_character_set,
+			SET NAMES {string:db_character_set}',
 			array(
 				'db_error_skip' => true,
+				'db_character_set' => $db_character_set,
 			)
 		);
 
@@ -1300,7 +1301,7 @@ function BackupDatabase()
 				return upgradeExit();
 		}
 
-		if ($is_debug && $command_line)
+		if ($command_line)
 		{
 			echo "\n" . ' Successful.\'' . "\n";
 			flush();
@@ -1818,7 +1819,7 @@ function DeleteUpgrade()
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_actions',
 		array(
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
+			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
 			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
 		),
 		array(
@@ -3299,6 +3300,13 @@ function convertUtf8()
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array(array('global_character_set', 'UTF-8')),
+			array('variable')
+		);
+		
 		return true;
 	}
 	else
@@ -3930,7 +3938,7 @@ function serialize_to_json()
 								)
 							);
 
-							if ($is_debug || $command_line)
+							if ($command_line)
 								echo ' done.';
 						}
 					}
@@ -4223,8 +4231,9 @@ function template_upgrade_above()
 
 			<div id="progress_bar">
 				<div id="overall_text">', $upcontext['overall_percent'], '%</div>
-				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
-				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+				<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">
+					<span>', $txt['upgrade_overall_progress'], '</span>
+				</div>
 			</div>';
 
 	if (isset($upcontext['step_progress']))
@@ -4233,8 +4242,9 @@ function template_upgrade_above()
 				<br>
 				<div id="progress_bar_step">
 					<div id="step_text">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
-					<div class="overall_progress">', $txt['upgrade_step_progress'], '</div>
+					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">
+						<span>', $txt['upgrade_step_progress'], '</span>
+					</div>
 				</div>';
 
 	echo '
@@ -5619,15 +5629,16 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 		$updates = array();
 		$cases = array();
-		for ($i = 0; $i < count($arIp); $i++)
+		$count = count($arIp);
+		for ($i = 0; $i < $count; $i++)
 		{
 			$arIp[$i] = trim($arIp[$i]);
 
 			if (empty($arIp[$i]))
 				continue;
 
-			$updates['ip' . $i] = trim($arIp[$i]);
-			$cases[trim($arIp[$i])] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
+			$updates['ip' . $i] = $arIp[$i];
+			$cases[$arIp[$i]] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
 
 			if ($setSize > 0 && $i % $setSize === 0)
 			{

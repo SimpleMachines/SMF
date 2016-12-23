@@ -154,7 +154,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto">
+	<div id="profileview" class="roundframe flow_auto noup">
 		<div id="basicinfo">';
 
 	// Are there any custom profile fields for above the name?
@@ -528,8 +528,7 @@ function template_showPosts()
 		echo '
 			<div class="windowbg2">
 				', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
-			</div>
-		</div>';
+			</div>';
 
 	// Show more page numbers.
 	if (!empty($context['page_index']))
@@ -630,7 +629,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="windowbg2 centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -697,7 +696,7 @@ function template_editBuddies()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th scope="col" width="15%">', $txt['name'], '</th>
+				<th scope="col" class="quarter_table">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -716,7 +715,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 			<tr class="windowbg">
-				<td colspan="10"><strong>', $txt['no_buddies'], '</strong></td>
+				<td colspan="', allowedTo('moderate_forum') ? '10' : '9','"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
 		// Now loop through each buddy showing info on each.
@@ -755,15 +754,17 @@ function template_editBuddies()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['buddy_add'], '</h3>
 		</div>
-		<dl class="settings windowbg">
-			<dt>
-				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-			</dt>
-			<dd>
-				<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
-				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
-			</dd>
-		</dl>';
+		<div class="information">
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
+					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
+				</dd>
+			</dl>
+		</div>';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -809,7 +810,7 @@ function template_editIgnoreList()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th scope="col" width="20%">', $txt['name'], '</th>
+				<th scope="col" class="quarter_table">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -824,7 +825,7 @@ function template_editIgnoreList()
 	if (empty($context['ignore_list']))
 		echo '
 			<tr class="windowbg">
-				<td colspan="8"><strong>', $txt['no_ignore'], '</strong></td>
+				<td colspan="', allowedTo('moderate_forum') ? '4' : '3','"><strong>', $txt['no_ignore'], '</strong></td>
 			</tr>';
 
 	// Now loop through each buddy showing info on each.
@@ -853,14 +854,16 @@ function template_editIgnoreList()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['ignore_add'], '</h3>
 		</div>
-		<dl class="settings windowbg">
-			<dt>
-				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-			</dt>
-			<dd>
-				<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
-			</dd>
-		</dl>';
+		<div class="information">
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
+				</dd>
+			</dl>
+		</div>';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -899,7 +902,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="windowbg2">
+		<div id="tracking" class="windowbg2 noup">
 			<dl class="noborder">
 				<dt>', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
@@ -934,8 +937,7 @@ function template_trackActivity()
 					', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
 				</dd>
 			</dl>
-		</div>
-		<br>';
+		</div>';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -951,11 +953,10 @@ function template_trackIP()
 	// This function always defaults to the last IP used by a member but can be set to track any IP.
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
 	echo '
-	<div class="tborder">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg2 noup">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -968,7 +969,6 @@ function template_trackIP()
 				<input type="submit" value="', $txt['trackIP'], '" class="button_submit">
 			</form>
 		</div>
-	</div>
 	<br>';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
@@ -978,7 +978,7 @@ function template_trackIP()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 			</div>
-			<div class="windowbg2">';
+			<div class="windowbg2 noup">';
 			foreach ($context['whois_servers'] as $server)
 			echo '
 				<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
@@ -1058,12 +1058,12 @@ function template_showPermissions()
 	if ($context['member']['has_all_permissions'])
 	{
 		echo '
-		<p class="information">', $txt['showPermissions_all'], '</p>';
+		<div class="information">', $txt['showPermissions_all'], '</div>';
 	}
 	else
 	{
 		echo '
-		<p class="information">',$txt['showPermissions_help'],'</p>
+		<div class="information">',$txt['showPermissions_help'],'</div>
 		<div id="permissions" class="flow_hidden">';
 
 		if (!empty($context['no_access_boards']))
@@ -1093,8 +1093,8 @@ function template_showPermissions()
 					<table class="table_grid">
 						<thead>
 							<tr class="title_bar">
-								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+								<th class="lefttext half_table">', $txt['showPermissions_permission'], '</th>
+								<th class="lefttext half_table">', $txt['showPermissions_status'], '</th>
 							</tr>
 						</thead>
 						<tbody>';
@@ -1126,72 +1126,71 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg2 description">', $txt['showPermissions_none_general'], '</p>';
+			<p class="windowbg2">', $txt['showPermissions_none_general'], '</p>';
 
 		// Board permission section.
 		echo '
-			<div class="tborder">
-				<form action="' . $scripturl . '?action=profile;u=', $context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', $context['character_set'], '">
-					<div class="cat_bar">
-						<h3 class="catbg">
-							<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
-							<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
-								<option value="0"', $context['board'] == 0 ? ' selected' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
+			<form action="' . $scripturl . '?action=profile;u=', $context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', $context['character_set'], '">
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
+						<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
+							<option value="0"', $context['board'] == 0 ? ' selected' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
 				if (!empty($context['boards']))
 					echo '
-								<option value="" disabled>---------------------------</option>';
+							<option value="" disabled>---------------------------</option>';
 
 				// Fill the box with any local permission boards.
 				foreach ($context['boards'] as $board)
 					echo '
-								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
+							<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
 
 				echo '
-							</select>
-						</h3>
-					</div>
-				</form>';
+						</select>
+					</h3>
+				</div>
+			</form>';
 		if (!empty($context['member']['permissions']['board']))
 		{
 			echo '
-				<table class="table_grid">
-					<thead>
-						<tr class="title_bar">
-							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
-						</tr>
-					</thead>
-					<tbody>';
+			<table class="table_grid">
+				<thead>
+					<tr class="title_bar">
+						<th class="lefttext half_table">', $txt['showPermissions_permission'], '</th>
+						<th class="lefttext half_table">', $txt['showPermissions_status'], '</th>
+					</tr>
+				</thead>
+				<tbody>';
 			foreach ($context['member']['permissions']['board'] as $permission)
 			{
 				echo '
-						<tr class="windowbg">
-							<td title="', $permission['id'], '">
-								', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
-							</td>
-							<td class="smalltext">';
+					<tr class="windowbg">
+						<td title="', $permission['id'], '">
+							', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
+						</td>
+						<td class="smalltext">';
 
 				if ($permission['is_denied'])
 				{
 					echo '
-								<span class="alert">', $txt['showPermissions_denied'], ':&nbsp;', implode(', ', $permission['groups']['denied']), '</span>';
+							<span class="alert">', $txt['showPermissions_denied'], ':&nbsp;', implode(', ', $permission['groups']['denied']), '</span>';
 				}
 				else
 				{
 					echo '
-								', $txt['showPermissions_given'], ': &nbsp;', implode(', ', $permission['groups']['allowed']);
+							', $txt['showPermissions_given'], ': &nbsp;', implode(', ', $permission['groups']['allowed']);
 				}
 				echo '
-							</td>
-						</tr>';
+						</td>
+					</tr>';
 			}
 			echo '
-					</tbody>
-				</table>';
+				</tbody>
+			</table>';
 		}
 		else
 			echo '
-			<p class="windowbg2 description">', $txt['showPermissions_none_board'], '</p>';
+			<p class="windowbg2">', $txt['showPermissions_none_board'], '</p>';
 	echo '
 			</div>
 		</div>';
@@ -1235,7 +1234,7 @@ function template_statPanel()
 	// If they haven't post at all, don't draw the graph.
 	if (empty($context['posts_by_time']))
 		echo '
-			<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
+			<p class="centertext padding">', $txt['statPanel_noPosts'], '</p>';
 	// Otherwise do!
 	else
 	{
@@ -1262,7 +1261,6 @@ function template_statPanel()
 	}
 
 	echo '
-			<span class="clear">
 		</div>';
 
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
@@ -1277,7 +1275,7 @@ function template_statPanel()
 
 	if (empty($context['popular_boards']))
 		echo '
-				<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
+				<p class="centertext padding">', $txt['statPanel_noPosts'], '</p>';
 
 	else
 	{
@@ -1312,7 +1310,7 @@ function template_statPanel()
 
 	if (empty($context['board_activity']))
 		echo '
-				<span>', $txt['statPanel_noPosts'], '</span>';
+				<p class="centertext padding">', $txt['statPanel_noPosts'], '</p>';
 	else
 	{
 		echo '
@@ -1807,7 +1805,7 @@ function template_alert_configuration()
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
@@ -1839,25 +1837,24 @@ function template_alert_configuration()
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>
-			<table class="table_grid">
-				<tr>
-					<td></td>
-					<td class="centercol">', $txt['receive_alert'], '</td>
-					<td class="centercol">', $txt['receive_mail'], '</td>
-				</tr>';
+			<table class="table_grid">';
 
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
 				<tr class="title_bar">
-					<th colspan="3">
-						', $txt['alert_group_' . $alert_group];
+					<th>', $txt['alert_group_' . $alert_group],'</th>
+					<th>', $txt['receive_alert'], '</th>
+					<th>', $txt['receive_mail'], '</th>
+				</tr>
+				<tr class="windowbg">';
 		if (isset($context['alert_group_options'][$alert_group]))
 		{
 			foreach ($context['alert_group_options'][$alert_group] as $opts)
 			{
 				echo '
-				<div class="smalltext">';
+				<tr class="windowbg">
+					<td colspan="3">';
 				$label = $txt['alert_opt_' . $opts[1]];
 				$label_pos = isset($opts['label']) ? $opts['label'] : '';
 				if ($label_pos == 'before')
@@ -1887,18 +1884,16 @@ function template_alert_configuration()
 					<label for="opt_', $opts[1], '">', $label, '</label>';
 
 				echo '
-				</div>';
+					</td>
+				</tr>';
 			}
 		}
 
-		echo '
-					</th>
-				</tr>';
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
 				<tr class="windowbg">
-					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="generic_icons help" title="'. $txt['help'].'"></span>' : '', '</td>';
+					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '', '</td>';
 
 			foreach ($context['alert_bits'] as $type => $bitmask)
 			{
@@ -2665,7 +2660,7 @@ function template_profile_group_manage()
 	echo '
 							<dt>
 								<strong>', $txt['primary_membergroup'], ': </strong><br>
-								<span class="smalltext">[<a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);">', $txt['moderator_why_missing'], '</a>]</span>
+								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
 							</dt>
 							<dd>
 								<select name="id_group" ', ($context['user']['is_owner'] && $context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . $txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
@@ -2767,7 +2762,7 @@ function template_profile_signature_modify()
 
 	if (!empty($context['show_preview_button']))
 		echo '
-						<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit">';
+								<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit">';
 
 	if ($context['signature_warning'])
 		echo '
@@ -2824,7 +2819,7 @@ function template_profile_avatar_select()
 									<div>
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
-									<div><img name="avatar" id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing"></div>
+									<div><img id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing"></div>
 									<script>
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
 										var avatar = document.getElementById("avatar");
@@ -3042,17 +3037,17 @@ function template_tfasetup()
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
 									<div id="basicinfo" style="width: 60%">
 										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-											<div>
+											<div class="title_top">
 												<strong>', $txt['tfa_step1'], '</strong><br />
 												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
 												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '' ,'>
 											</div>
-											<div>
+											<div class="title_top">
 												<strong>', $txt['tfa_step2'], '</strong>
 												<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
-												<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_secret'], '</div>
+												<div class="tfacode">', $context['tfa_secret'], '</div>
 											</div>
-											<div style="margin-top: 10px;">
+											<div class="title_top">
 												<strong>', $txt['tfa_step3'] , '</strong><br />
 												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
 												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '' ,'>

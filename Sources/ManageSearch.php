@@ -236,6 +236,8 @@ function EditSearchMethod()
 				array()
 			);
 
+			$language_ftx = 'simple';
+
 			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 			{
 				$row = $smcFunc['db_fetch_assoc']($request);
@@ -244,7 +246,7 @@ function EditSearchMethod()
 
 
 			$smcFunc['db_query']('', '
-				CREATE INDEX smf_messages_ftx ON smf_messages
+				CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
 				USING gin(to_tsvector({string:language},body))',
 				array(
 					'language' => $language_ftx

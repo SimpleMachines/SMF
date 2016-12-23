@@ -66,6 +66,9 @@ input, button, select {
 input, select {
 	height: 25px;
 }
+input[type="checkbox"] {
+	height: 13px;
+}
 select {
 	padding: 2px;
 }
@@ -635,9 +638,20 @@ table.table_grid td {
 .quarter_table {
 	width: 25%;
 }
+.small_table {
+	width: 10%;
+}
+.table_icon {
+	width: 5%;
+}
 
 .title_bar th {
-	padding: 4px 3px 3px 8px;
+	padding: 4px 8px;
+}
+/* this is for checkboxes to ensure they line well same elements on the line */
+/* @to-do change all checkall checkboxes on thead's to this */
+.title_bar .checkall {
+	padding: 4px 0;
 }
 .title_bar .sort_down, .title_bar .sort_up {
 	margin: -3px 0 0 2px;
@@ -1415,6 +1429,11 @@ ul li.greeting {
 	padding: 2px;
 }
 
+.quickModifyMargin {
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+}
+
 /* Styles for edit event section
 ---------------------------------------------------- */
 #post_event .roundframe {
@@ -1626,15 +1645,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 #credits p {
 	font-style: italic;
-}
-
-#credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
-#registration .roundframe, #report_form .windowbg,
-#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
-#profileview, #coppa, #fatal_error .windowbg {
-	margin: 0 0 10px 0 !important;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
 }
 
 .errorfile_table {
@@ -2153,7 +2163,7 @@ dl {
 	margin: 6px 0;
 }
 .activity_stats {
-	margin: 10px;
+	margin: 10px 0;
 	padding: 0;
 }
 .activity_stats li {
@@ -2457,6 +2467,9 @@ dl.addrules dt.floatleft {
 #to_item_list_container div, #bcc_item_list_container div {
 	float:left;
 	margin-right:10px;
+}
+.unread_pm {
+	background: #CFC;
 }
 
 /* Styles for the memberlist section.
@@ -2959,7 +2972,7 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, 
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2,
 #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
@@ -3026,12 +3039,8 @@ span.postby {
 }
 
 /* Poll vote options */
-#poll_options ul.options {
-	padding: 12px 30px 0 25px;
-}
-#poll_options div.submitbutton {
-	clear: both;
-	padding: 0 0 12px 0;
+#poll_options ul.options li {
+	padding: 6px 0 6px 25px;
 }
 
 /* Poll results */
@@ -3089,45 +3098,14 @@ div#pollmoderation {
 	overflow: auto;
 }
 
-#poll_options .submitbutton {
-	float: right;
-	width: 100%;
-}
 /* Styles for edit poll section. */
-#edit_poll {
-	overflow: hidden;
-}
-#edit_poll fieldset {
-	padding: 6px;
-	clear: both;
-	overflow: hidden;
-}
-#edit_poll fieldset input {
-	margin-left: 7.5em;
-}
-#edit_poll ul.poll_main li {
-	padding-left: 12px;
-}
-#edit_poll ul.poll_main input {
-	margin-left: 12px;
-}
-#edit_poll ul.poll_main, dl.poll_options {
-	overflow: hidden;
-	padding: 0 0 8px 8px;
-}
-#edit_poll ul.poll_main li {
-	margin: 2px 0;
-}
 #edit_poll dl.poll_options dt {
 	width: 33%;
-	padding: 0 0 0 12px;
 }
 #edit_poll dl.poll_options dd {
 	width: 65%;
 }
-#edit_poll dl.poll_options dd input {
-	margin-left: 0;
-}
+
 /* On to the posts */
 #forumposts {
 	clear: both;
@@ -3838,6 +3816,28 @@ p.attached_BBC a.insertBBC
 }
 
 /* Hide this from desktop users sshh... our little sekrit */
-.mobile_buttons {
+.mobile_buttons, .mobile_display {
 	display: none;
+}
+
+/* Two-Factor Auth code container */
+.tfacode {
+	background: #D0E7F8;
+	padding: 5px;
+	width: 20%;
+}
+
+/* This was named as "winfo" before, but its better named noup */
+.noup {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	margin: 0 0 10px 0 !important;
+}
+.information.noup {
+	border-radius: 0;
+	margin: 0 !important;
+	border-bottom: none;
+}
+.windowbg2.noup {
+	box-shadow: none;
 }
