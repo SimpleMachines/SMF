@@ -701,7 +701,7 @@ function smf_db_error($db_string, $connection = null)
  * @param array $keys The keys for the table
  * @param bool $disable_trans Whether to disable transactions
  * @param resource $connection The connection to use (if null, $db_connection is used)
- * @param returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
  * @return value of the first key, behavior based on returnmode
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)

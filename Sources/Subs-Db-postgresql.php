@@ -655,7 +655,7 @@ function smf_db_unescape_string($string)
  * @param array $keys The keys for the table
  * @param bool $disable_trans Whether to disable transactions
  * @param resource $connection The connection to use (if null, $db_connection is used)
- * @param returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
  * @return value of the first key, behavior based on returnmode
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)
@@ -792,39 +792,46 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		foreach ($data as $dataRow)
 			$insertRows[] = smf_db_quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 
-			// Do the insert.
-			$request = $smcFunc['db_query']('', '
-				INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
-				VALUES
-					' . implode(',
-					', $insertRows).$replace.$returning,
-				array(
-					'security_override' => true,
-					'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',
-				),
-				$connection
-			);
-			
-			//get from the last insert the return value
-			if($with_returning && $request !== false && $row = $smcFunc['db_fetch_assoc']($request, count($insertRows) - 1))
+		// Do the insert.
+		$request = $smcFunc['db_query']('', '
+			INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
+			VALUES
+				' . implode(',
+				', $insertRows).$replace.$returning,
+			array(
+				'security_override' => true,
+				'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',
+			),
+			$connection
+		);
+
+		if ($with_returning && $request !== false)
+		{
+			if ($returnmode === 2)
+				$return_var = array();
+
+			while($row = $smcFunc['db_fetch_assoc']($request) && $with_returning)
 			{
-				if ($returnmode == 1) 
-					while($row = $smcFunc['db_fetch_assoc']($request))
-						$return_var = $row[$keys[0]];
-				elseif ($returnmode == 2)
+				if (is_int($row[$keys[0]])) // try to emulate mysql limitation
 				{
-					$return_var = array();
-					while($row = $smcFunc['db_fetch_assoc']($request))
+					if ($returnmode === 1)
+						$return_var = $row[$keys[0]];
+					elseif ($returnmode === 2)
 						$return_var[] = $row[$keys[0]];
 				}
+				else
+				{
+					$with_returning = false;
+					trigger_error('trying to returning ID Field which is not a Int field', E_USER_ERROR);
+				}
 			}
-			
+		}
 	}
 
 	if ($priv_trans)
 		$smcFunc['db_transaction']('commit', $connection);
 	
-	if($with_returning && !empty($return_var))
+	if ($with_returning && !empty($return_var))
 		return $return_var; 
 }
 
