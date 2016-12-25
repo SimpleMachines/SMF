@@ -3954,7 +3954,7 @@ function clean_cache($type = '')
 	switch ($cache_accelerator)
 	{
 		case 'memcached':
-			if (function_exists('memcache_flush') || function_exists('memcached_flush') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			if (class_exists('memcache') || class_exists('memcached') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
 			{
 				// Not connected yet?
 				if (empty($memcached))
@@ -3963,10 +3963,7 @@ function clean_cache($type = '')
 					return;
 
 				// clear it out
-				if (function_exists('memcache_flush'))
-					memcache_flush($memcached);
-				else
-					memcached_flush($memcached);
+				$memcached->flush();
 			}
 			break;
 		case 'apc':
