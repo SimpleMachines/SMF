@@ -161,7 +161,7 @@ abstract class cache_api implements cache_api_interface
 	protected $prefix = '';
 
 	/**
-	 * @var string The default TTL.
+	 * @var int The default TTL.
 	 */
 	protected $ttl = 120;
 
