@@ -33,6 +33,9 @@ function reloadSettings()
 			)
 		);
 
+	// We need some caching support, maybe.
+	loadCacheAccelerator();
+
 	// Try to load it from the cache first; it'll never get cached if the setting is off.
 	if (($modSettings = cache_get_data('modSettings', 90)) == null)
 	{
@@ -2306,7 +2309,6 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 		return false;
 }
 
-
 /**
  * Load a sub-template.
  * What it does:
@@ -3186,6 +3188,61 @@ function loadDatabase()
 }
 
 /**
+ * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
+ *
+ * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
+ * @param string $fallbackSMF Use the default SMF method if the accelerator fails.
+ * @return object A object of $cacheAPI.
+*/
+function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
+{
+	global $sourcedir, $cacheAPI, $cache_accelerator;
+
+	// Not overriding this and we have a cacheAPI, send it back.
+	if (empty($overrideCache) && is_object($cacheAPI))
+		return $cacheAPI;
+	elseif (is_null($cacheAPI))
+		$cacheAPI = false;
+
+	// Make sure our class is in session.
+	require_once($sourcedir . '/Class-CacheAPI.php');
+
+	// What accelerator we are going to try.
+	$tryAccelerator = !empty($overrideCache) ? $overrideCache : !empty($cache_accelerator) ? $cache_accelerator : 'smf';
+	$tryAccelerator = strtolower($tryAccelerator);
+
+	// Do some basic tests.
+	if (file_exists($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php'))
+	{
+		require_once($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php');
+
+		$cache_class_name = $tryAccelerator . '_cache';
+		$testAPI = new $cache_class_name();
+
+		// No Support?  NEXT!
+		if (!$testAPI->isSupported())
+		{
+			// Can we save ourselves?
+			if (!empty($fallbackSMF) && is_null($overrideCache) && $tryAccelerator != 'smf')
+				return loadCacheAccelerator(null, false);
+			return false;
+		}
+
+		// Connect up to the accelerator.
+		$testAPI->connect();
+
+		// Don't set this if we are overriding the cache.
+		if (is_null($overrideCache))
+		{
+			$cacheAPI = $testAPI;
+			return $cacheAPI;
+		}
+		else
+			return $testAPI;
+	}
+}
+
+/**
  * Try to retrieve a cache entry. On failure, call the appropriate function.
  *
  * @param string $key The key for this entry
@@ -3249,11 +3306,10 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $modSettings, $memcached;
-	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable, $cache_memcached;
+	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $cache_hits, $cache_count, $db_show_debug;
 
-	if (empty($cache_enable))
+	if (empty($cache_enable) || empty($cacheAPI))
 		return;
 
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
@@ -3263,90 +3319,15 @@ function cache_put_data($key, $value, $ttl = 120)
 		$st = microtime();
 	}
 
-	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
+	// The API will handle the rest.
 	$value = $value === null ? null : json_encode($value);
-
-	switch ($cache_accelerator)
-	{
-		case 'memcached':
-			// The simple yet efficient memcached.
-			if ((function_exists('memcached_set') || function_exists('memcache_set')) && isset($cache_memcached) && trim($cache_memcached) != '')
-			{
-				// Not connected yet?
-				if (empty($memcached))
-					get_memcached_server();
-				if (!$memcached)
-					return;
-
-				memcache_set($memcached, $key, $value, 0, $ttl);
-			}
-			break;
-		case 'apc':
-			// Alternative PHP Cache, ahoy!
-			if (function_exists('apc_store'))
-			{
-				// An extended key is needed to counteract a bug in APC.
-				if ($value === null)
-					apc_delete($key . 'smf');
-				else
-					apc_store($key . 'smf', $value, $ttl);
-			}
-			break;
-		case 'apcu':
-			// APC User Cache
-			if (function_exists('apcu_store'))
-			{
-				// Not sure if this bug exists in APCu or not?
-				if ($value === null)
-					apcu_delete($key . 'smf');
-				else
-					apcu_store($key . 'smf', $value, $ttl);
-			}
-			break;
-		case 'zend':
-			// Zend Platform/ZPS/etc.
-			if (function_exists('zend_shm_cache_store'))
-				zend_shm_cache_store('SMF::' . $key, $value, $ttl);
-			elseif (function_exists('output_cache_put'))
-				output_cache_put($key, $value);
-			break;
-		case 'xcache':
-			if (function_exists('xcache_set') && ini_get('xcache.var_size') > 0)
-			{
-				if ($value === null)
-					xcache_unset($key);
-				else
-					xcache_set($key, $value, $ttl);
-			}
-			break;
-		default:
-			// Otherwise custom cache?
-			if ($value === null)
-				@unlink($cachedir . '/data_' . $key . '.php');
-			else
-			{
-				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
-
-				// Write out the cache file, check that the cache write was successful; all the data must be written
-				// If it fails due to low diskspace, or other, remove the cache file
-				if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
-					@unlink($cachedir . '/data_' . $key . '.php');
-			}
-			break;
-	}
+	$result = $cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
-
-	// Invalidate the opcode cache
-	if (function_exists('opcache_invalidate'))
-   		opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
-
-	if (function_exists('apc_delete_file'))
-   		@apc_delete_file($cachedir . '/data_' . $key . '.php');
 }
 
 /**
@@ -3360,11 +3341,10 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $modSettings, $memcached;
-	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug, $cachedir;
-	global $cache_accelerator, $cache_enable, $cache_memcached;
+	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
-	if (empty($cache_enable))
+	if (empty($cache_enable) || empty($cacheAPI))
 		return;
 
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
@@ -3375,66 +3355,8 @@ function cache_get_data($key, $ttl = 120)
 		$original_key = $key;
 	}
 
-	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
-
-	switch ($cache_accelerator)
-	{
-		case 'memcached':
-			// Okay, let's go for it memcached!
-			if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($cache_memcached) && trim($cache_memcached) != '')
-			{
-				// Not connected yet?
-				if (empty($memcached))
-					get_memcached_server();
-				if (!$memcached)
-				{
-					$cache_misses_count = isset($cache_misses) ? $cache_misses + 1 : 1;
-					$value = null;
-				}
-				else
-					$value = (function_exists('memcache_get')) ? memcache_get($memcached, $key) : memcached_get($memcached, $key);
-			}
-			break;
-		case 'apc':
-			// This is the free APC from PECL.
-			if (function_exists('apc_fetch'))
-				$value = apc_fetch($key . 'smf');
-			break;
-		case 'apcu':
-			// APC User Cache. A continuation of the now-unsupported APC but without opcode cache
-			if (function_exists('apcu_fetch'))
-				$value = apcu_fetch($key . 'smf');
-			break;
-		case 'zend':
-			// Zend's pricey stuff.
-			if (function_exists('zend_shm_cache_fetch'))
-				$value = zend_shm_cache_fetch('SMF::' . $key);
-			elseif (function_exists('output_cache_get'))
-				$value = output_cache_get($key, $ttl);
-			break;
-		case 'xcache':
-			if (function_exists('xcache_get') && ini_get('xcache.var_size') > 0)
-				$value = xcache_get($key);
-			break;
-		default:
-			// Otherwise it's SMF data!
-			if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
-			{
-				// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
-				// causing newer files to take effect a while later.
-				if (function_exists('opcache_invalidate'))
-					opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
-
-				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-				@include($cachedir . '/data_' . $key . '.php');
-				if (!empty($expired) && isset($value))
-				{
-					@unlink($cachedir . '/data_' . $key . '.php');
-					unset($value);
-				}
-			}
-			break;
-	}
+	// Ask the API to get the data.
+	$value = $cacheAPI->getData($key, $ttl);
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
@@ -3443,7 +3365,7 @@ function cache_get_data($key, $ttl = 120)
 
 		if (empty($value))
 		{
-			if (!isset($cache_misses))
+			if (!is_array($cache_misses))
 				$cache_misses = array();
 
 			$cache_count_misses = isset($cache_count_misses) ? $cache_count_misses + 1 : 1;
@@ -3458,56 +3380,30 @@ function cache_get_data($key, $ttl = 120)
 }
 
 /**
- * Get memcache servers.
+ * Empty out the cache in use as best it can
  *
- * - This function is used by cache_get_data() and cache_put_data().
- * - It attempts to connect to a random server in the cache_memcached setting.
- * - It recursively calls itself up to $level times.
+ * It may only remove the files of a certain type (if the $type parameter is given)
+ * Type can be user, data or left blank
+ * 	- user clears out user data
+ *  - data clears out system / opcode data
+ *  - If no type is specified will perform a complete cache clearing
+ * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param int $level The maximum number of times to call this function recursively
+ * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
  */
-function get_memcached_server($level = 3)
+function clean_cache($type = '')
 {
-	global $memcached, $db_persist, $cache_memcached;
+	global $cachedir, $sourcedir, $modSettings;
 
-	$servers = explode(',', $cache_memcached);
-	$server = trim($servers[array_rand($servers)]);
+	// If we can't get to the API, can't do this.
+	if (empty($cacheAPI))
+		return false;
 
-	$port = 0;
+	// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
+	$value = $cacheAPI->cleanCache($type);
 
-	// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
-	if(strpos($server,'/') !== false)
-		$host = $server;
-	else
-	{
-		$server = explode(':', $server);
-		$host = $server[0];
-		$port = isset($server[1]) ? $server[1] : 11211;
-	}
-
-	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
-
-	// Don't try more times than we have servers!
-	$level = min(count($servers), $level);
-
-	// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
-	if (empty($db_persist))
-	{
-		if ($cache === 'memcached')
-			$memcached = memcached_connect($host, $port);
-		if ($cache === 'memcache')
-			$memcached = memcache_connect($host, $port);
-	}
-	else
-	{
-		if ($cache === 'memcached')
-			$memcached = memcached_pconnect($host, $port);
-		if ($cache === 'memcache')
-			$memcached = memcache_pconnect($host, $port);
-	}
-
-	if (!$memcached && $level > 0)
-		get_memcached_server($level - 1);
+	call_integration_hook('integrate_clean_cache');
+	clearstatcache();
 }
 
 /**
