@@ -3393,7 +3393,7 @@ function cache_get_data($key, $ttl = 120)
  */
 function clean_cache($type = '')
 {
-	global $cachedir, $sourcedir, $modSettings;
+	global $cachedir, $sourcedir, $modSettings, $cacheAPI;
 
 	// If we can't get to the API, can't do this.
 	if (empty($cacheAPI))
