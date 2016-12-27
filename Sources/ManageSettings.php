@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * @param array $subActions An array containing all possible subactions.
  * @param string $defaultAction The default action to be called if no valid subaction was found.
  */
-function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
+function loadGeneralSettingParameters($subActions = array(), $defaultAction = null)
 {
 	global $context, $sourcedir;
 
@@ -38,8 +38,11 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
 
 	$context['sub_template'] = 'show_settings';
 
-	// By default do the basic settings.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop($temp = array_keys($subActions)));
+	// If no fallback was specified, use the first subaction.
+	$defaultAction = $defaultAction ?: key($subActions);
+
+	// I want...
+	$_REQUEST['sa'] = isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $defaultAction;
 	$context['sub_action'] = $_REQUEST['sa'];
 }
 

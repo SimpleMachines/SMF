@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info, $modSettings, $context;
+	global $user_info, $modSettings, $context, $sourcedir;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
@@ -38,12 +38,6 @@ function preparsecode(&$message, $previewing = false)
 	{
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
-
-	// Remove empty bbc.
-	while (preg_match('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', $message))
-	{
-		$message = preg_replace('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
-	}
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -208,9 +202,21 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace(array_keys($mistake_fixes), $mistake_fixes, $message);
 
 	// Remove empty bbc from the sections outside the code tags
-	$message = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $message);
-	$message = preg_replace('~\[quote\]\s*\[/quote\]~', '', $message);
-	$message = preg_replace('~\[color=(?:#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\(\d{1,3}, ?\d{1,3}, ?\d{1,3}\))\]\s*\[/color\]~', '', $message);
+	$allowedEmpty = array(
+		'anchor',
+		'td',
+	);
+
+	require_once($sourcedir . '/Subs.php');
+
+	foreach (($codes = parse_bbc(false)) as $code)
+		if (!in_array($code['tag'], $allowedEmpty))
+			$alltags[] = $code['tag'];
+
+	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+
+	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
+		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 
 	// Restore code blocks
 	if (!empty($code_tags))
@@ -601,7 +607,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	$headers .= 'X-Mailer: SMF' . $line_break;
 
 	// Pass this to the integration before we start modifying the output -- it'll make it easier later.
-	if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers)), true))
+	if (in_array(false, call_integration_hook('integrate_outgoing_email', array(&$subject, &$message, &$headers, &$to_array)), true))
 		return false;
 
 	// Save the original message...

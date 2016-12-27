@@ -123,14 +123,21 @@ $txt['cache_off'] = 'No caching';
 $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
-$txt['cache_memcached'] = 'Memcached settings';
 $txt['cache_accelerator'] = 'Caching Accelerator';
-$txt['default_cache'] = 'SMF file based caching';
+$txt['smf_cache'] = 'SMF file based caching';
 $txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
+$txt['memcache_cache'] = 'Memcache';
 $txt['memcached_cache'] = 'Memcached';
-$txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['xcache_cache'] = 'XCache';
+$txt['zend_cache'] = 'Zend Platform/Performance Suite';
+$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_memcache_settings'] = 'Memcache(d) settings';
+$txt['cache_memcache_servers'] = 'Memcache(d) servers';
+$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_xcache_settings'] = 'XCache settings';
+$txt['cache_xcache_adminuser'] = 'XCache Admin User';
+$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
 
 $txt['loadavg_warning'] = '<span class="error">Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong></span>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -343,7 +350,7 @@ $txt['languages_download_info'] = '<strong>Note:</strong>
 		<li>Where a file already exists on your forum the &quot;Already Exists&quot; column will have one of two values. &quot;Identical&quot; indicates that the file already exists in an identical form and need not be overwritten. &quot;Different&quot; means that the contents vary in some way and overwriting is probably the optimum solution.</li>
 	</ul>';
 
-$txt['languages_download_main_files'] = 'Primary Files';+
+$txt['languages_download_main_files'] = 'Primary Files';
 $txt['languages_download_filename'] = 'File Name';
 $txt['languages_download_dest'] = 'Destination';
 $txt['languages_download_writable'] = 'Writable';

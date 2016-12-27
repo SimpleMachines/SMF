@@ -1301,7 +1301,7 @@ function BackupDatabase()
 				return upgradeExit();
 		}
 
-		if ($is_debug && $command_line)
+		if ($command_line)
 		{
 			echo "\n" . ' Successful.\'' . "\n";
 			flush();
@@ -3300,6 +3300,13 @@ function convertUtf8()
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array(array('global_character_set', 'UTF-8')),
+			array('variable')
+		);
+		
 		return true;
 	}
 	else
@@ -3931,7 +3938,7 @@ function serialize_to_json()
 								)
 							);
 
-							if ($is_debug || $command_line)
+							if ($command_line)
 								echo ' done.';
 						}
 					}
@@ -5622,15 +5629,16 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 		$updates = array();
 		$cases = array();
-		for ($i = 0; $i < count($arIp); $i++)
+		$count = count($arIp);
+		for ($i = 0; $i < $count; $i++)
 		{
 			$arIp[$i] = trim($arIp[$i]);
 
 			if (empty($arIp[$i]))
 				continue;
 
-			$updates['ip' . $i] = trim($arIp[$i]);
-			$cases[trim($arIp[$i])] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
+			$updates['ip' . $i] = $arIp[$i];
+			$cases[$arIp[$i]] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
 
 			if ($setSize > 0 && $i % $setSize === 0)
 			{

@@ -466,13 +466,13 @@ ADD COLUMN credits VARCHAR(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 ---# Altering the session_id columns...
 ALTER TABLE {$db_prefix}log_online
-CHANGE `session` `session` VARCHAR(64) NOT NULL DEFAULT '';
+CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '';
 
 ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` CHAR(64) NOT NULL DEFAULT '                                                                ';
+CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` CHAR(64) NOT NULL;
+CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -2454,6 +2454,13 @@ ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---# Changing the "profile_other" permission to "profile_website"
 UPDATE {$db_prefix}permissions SET permission = 'profile_website_own' WHERE permission = 'profile_other_own';
 UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE permission = 'profile_other_any';
+---#
+
+/******************************************************************************/
+--- drop col pm_email_notify from members
+/******************************************************************************/
+---# drop column pm_email_notify on table members
+ALTER TABLE {$db_prefix}members DROP COLUMN pm_email_notify;
 ---#
 
 /******************************************************************************/

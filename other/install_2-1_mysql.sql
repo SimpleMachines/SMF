@@ -338,7 +338,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip VARBINARY(16),
   url TEXT NOT NULL,
   message TEXT NOT NULL,
-  session CHAR(64) NOT NULL DEFAULT '                                                                ',
+  session VARCHAR(128) NOT NULL DEFAULT '',
   error_type CHAR(15) NOT NULL DEFAULT 'general',
   file VARCHAR(255) NOT NULL DEFAULT '',
   line MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
@@ -418,7 +418,7 @@ CREATE TABLE {$db_prefix}log_notify (
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session VARCHAR(64) DEFAULT '',
+  session VARCHAR(128) DEFAULT '',
   log_time INT(10) NOT NULL DEFAULT '0',
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT UNSIGNED NOT NULL DEFAULT '0',
@@ -697,7 +697,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL DEFAULT '0001-01-01',
   website_title VARCHAR(255) NOT NULL DEFAULT '',
   website_url VARCHAR(255) NOT NULL DEFAULT '',
-  hide_email TINYINT NOT NULL DEFAULT '0',
   show_online TINYINT NOT NULL DEFAULT '1',
   time_format VARCHAR(80) NOT NULL DEFAULT '',
   signature TEXT NOT NULL,
@@ -1006,7 +1005,7 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id CHAR(64),
+  session_id VARCHAR(128),
   last_update INT(10) UNSIGNED NOT NULL,
   data TEXT NOT NULL,
   PRIMARY KEY (session_id)

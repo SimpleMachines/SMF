@@ -575,17 +575,6 @@ function select_in_category(cat_id, elem, brd_list)
 }
 
 /*
-* Server Settings > Caching
-*/
-function toggleCache ()
-{
-	var memcache = document.getElementById('cache_memcached');
-	var cachedir = document.getElementById('cachedir');
-	memcache.disabled = cache_type.value != "memcached";
-	cachedir.disabled = cache_type.value != "smf";
-}
-
-/*
 * Attachments Settings
 */
 function toggleSubDir ()

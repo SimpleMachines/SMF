@@ -1122,33 +1122,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt="' . $currentAttachment['name'] . '"';
 						$title = !empty($params['{title}']) ? ' title="' . $params['{alt}'] . '"' : '';
 
-						if (!empty($params['{width}']) && !empty($params['{height}']))
-						{
-							$width = ' width="' . $params['{width}'] . '"';
-							$height = ' height="' . $params['{height}'] . '"';
-						}
-						elseif (!empty($params['{width}']) && empty($params['{height}']))
-						{
-							$width = ' width="' . $params['{width}'] . '"';
-							$height = '';
-						}
-						elseif (empty($params['{width}']) && !empty($params['{height}']))
-						{
-							$width = '';
-							$height = ' height="' . $params['{height}'] . '"';
-						}
-						else
+						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
+						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
+
+						if (empty($width) && empty($height))
 						{
 							$width = ' width="' . $currentAttachment['width'] . '"';
 							$height = ' height="' . $currentAttachment['height'] . '"';
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '
-													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
+							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="' . $currentAttachment['name'] . '" id="thumb_'. $currentAttachment['id']. '"></a>';
 						else
-							$returnContext .= '
-													<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
+							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image" alt="' . $currentAttachment['name'] . '"' . $width . $height . '/>';
 					}
 
 					// No image. Show a link.
@@ -3950,97 +3936,6 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 }
 
 /**
- * Empty out the cache in use as best it can
- *
- * It may only remove the files of a certain type (if the $type parameter is given)
- * Type can be user, data or left blank
- * 	- user clears out user data
- *  - data clears out system / opcode data
- *  - If no type is specified will perform a complete cache clearing
- * For cache engines that do not distinguish on types, a full cache flush will be done
- *
- * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
- */
-function clean_cache($type = '')
-{
-	global $cachedir, $sourcedir, $cache_accelerator, $modSettings, $memcached;
-
-	switch ($cache_accelerator)
-	{
-		case 'memcached':
-			if (function_exists('memcache_flush') || function_exists('memcached_flush') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
-			{
-				// Not connected yet?
-				if (empty($memcached))
-					get_memcached_server();
-				if (!$memcached)
-					return;
-
-				// clear it out
-				if (function_exists('memcache_flush'))
-					memcache_flush($memcached);
-				else
-					memcached_flush($memcached);
-			}
-			break;
-		case 'apc':
-			if (function_exists('apc_clear_cache'))
-			{
-				// if passed a type, clear that type out
-				if ($type === '' || $type === 'data')
-				{
-					apc_clear_cache('user');
-					apc_clear_cache('system');
-				}
-				elseif ($type === 'user')
-					apc_clear_cache('user');
-			}
-			break;
-		case 'zend':
-			if (function_exists('zend_shm_cache_clear'))
-				zend_shm_cache_clear('SMF');
-			break;
-		case 'xcache':
-			if (function_exists('xcache_clear_cache'))
-			{
-				//
-				if ($type === '')
-				{
-					xcache_clear_cache(XC_TYPE_VAR, 0);
-					xcache_clear_cache(XC_TYPE_PHP, 0);
-				}
-				if ($type === 'user')
-					xcache_clear_cache(XC_TYPE_VAR, 0);
-				if ($type === 'data')
-					xcache_clear_cache(XC_TYPE_PHP, 0);
-			}
-			break;
-		default:
-			// No directory = no game.
-			if (!is_dir($cachedir))
-				return;
-
-			// Remove the files in SMF's own disk cache, if any
-			$dh = opendir($cachedir);
-			while ($file = readdir($dh))
-			{
-				if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
-					@unlink($cachedir . '/' . $file);
-			}
-			closedir($dh);
-			break;
-	}
-
-	// Invalidate cache, to be sure!
-	// ... as long as index.php can be modified, anyway.
-	if (empty($type))
-		@touch($cachedir . '/' . 'index.php');
-
-	call_integration_hook('integrate_clean_cache');
-	clearstatcache();
-}
-
-/**
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
@@ -5614,7 +5509,7 @@ function smf_serverResponse($data = '', $type = 'Content-Type: application/json'
  */
 function set_tld_regex($update = false)
 {
-	global $sourcedir, $smcFunc;
+	global $sourcedir, $smcFunc, $modSettings;
 	static $done = false;
 
 	// If we don't need to do anything, don't
@@ -5896,7 +5791,10 @@ function build_regex($strings, $delim = null)
 				$sub_regex = $index_to_regex($value, $delim);
 
 				if (count(array_keys($value)) == 1)
-					$new_key .= explode('(?'.'>', $sub_regex)[0];
+				{
+					$new_key_array = explode('(?'.'>', $sub_regex);
+					$new_key .= $new_key_array[0];
+				}
 				else
 					$sub_regex = '(?'.'>' . $sub_regex . ')';
 			}
