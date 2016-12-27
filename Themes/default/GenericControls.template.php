@@ -240,7 +240,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 		$verify_context['tracking'] = 0;
 
 	// How many items are there to display in total.
-	$total_items = count($verify_context['questions']) + ($verify_context['show_visual'] ? 1 : 0);
+	$total_items = count($verify_context['questions']) + ($verify_context['show_visual'] || $verify_context['can_recaptcha'] ? 1 : 0);
 
 	// If we've gone too far, stop.
 	if ($verify_context['tracking'] > $total_items)
@@ -266,14 +266,23 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				</div>
 				<br>';
 
-		// Do the actual stuff - image first?
-		if ($i == 0 && $verify_context['show_visual'])
+		// Do the actual stuff
+		if ($i == 0)
 		{
-			if ($context['use_graphic_library'])
+			if ($verify_context['can_recaptcha'])
+			{
 				echo '
+				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_public_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
+				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
+			}
+
+			if ($verify_context['show_visual'])
+			{
+				if ($context['use_graphic_library'])
+					echo '
 				<img src="', $verify_context['image_href'], '" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '">';
-			else
-				echo '
+				else
+					echo '
 				<img src="', $verify_context['image_href'], ';letter=1" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_1">
 				<img src="', $verify_context['image_href'], ';letter=2" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_2">
 				<img src="', $verify_context['image_href'], ';letter=3" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_3">
@@ -281,12 +290,13 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				<img src="', $verify_context['image_href'], ';letter=5" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_5">
 				<img src="', $verify_context['image_href'], ';letter=6" alt="', $txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_6">';
 
-			echo '
+				echo '
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
 					<a href="', $verify_context['image_href'], ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', $txt['visual_verification_sound'], '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', $txt['visual_verification_request_new'], '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
 					', $txt['visual_verification_description'], ':', $display_type != 'quick_reply' ? '<br>' : '', '
 					<input type="text" name="', $verify_id, '_vv[code]" value="', !empty($verify_context['text_value']) ? $verify_context['text_value'] : '', '" size="30" tabindex="', $context['tabindex']++, '" class="input_text" required>
 				</div>';
+			}
 		}
 		else
 		{
