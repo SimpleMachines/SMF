@@ -310,6 +310,10 @@ CREATE TABLE {$db_prefix}calendar (
   id_topic int NOT NULL default '0',
   title varchar(255) NOT NULL default '',
   id_member int NOT NULL default '0',
+  start_time time,
+  end_time time,
+  timezone varchar(80),
+  location VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_event)
 );
 
@@ -2419,7 +2423,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cal_showholidays', '1'),
 	('cal_showbdays', '1'),
 	('cal_showevents', '1'),
-	('cal_maxspan', '7'),
+	('cal_maxspan', '0'),
 	('cal_highlight_events', '3'),
 	('cal_highlight_holidays', '3'),
 	('cal_highlight_birthdays', '3'),

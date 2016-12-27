@@ -183,6 +183,7 @@ function ModifyBasicSettings($return_config = false)
 			array('text', 'time_format'),
 			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours'], 'step' => 0.25, 'min' => -23.5, 'max' => 23.5),
 			'default_timezone' => array('select', 'default_timezone', array()),
+			array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 			// Who's online?
 			array('check', 'who_enabled'),

@@ -97,18 +97,18 @@ function getBirthdayRange($low_date, $high_date)
  */
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
-	global $scripturl, $modSettings, $user_info, $smcFunc, $context;
+	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
+	require_once($sourcedir . '/Subs.php');
 
-	$low_date_time = sscanf($low_date, '%04d-%02d-%02d');
-	$low_date_time = mktime(0, 0, 0, $low_date_time[1], $low_date_time[2], $low_date_time[0]);
-	$high_date_time = sscanf($high_date, '%04d-%02d-%02d');
-	$high_date_time = mktime(0, 0, 0, $high_date_time[1], $high_date_time[2], $high_date_time[0]);
+	$low_object = date_create($low_date);
+	$high_object = date_create($high_date);
 
 	// Find all the calendar info...
 	$result = $smcFunc['db_query']('', '
 		SELECT
-			cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
-			cal.id_board, b.member_groups, t.id_first_msg, t.approved, b.id_board
+			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
+			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
+			b.member_groups, t.id_first_msg, t.approved, b.id_board
 		FROM {db_prefix}calendar AS cal
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
 			LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)
@@ -131,47 +131,89 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
 
-		$start_date = sscanf($row['start_date'], '%04d-%02d-%02d');
-		$start_date = max(mktime(0, 0, 0, $start_date[1], $start_date[2], $start_date[0]), $low_date_time);
-		$end_date = sscanf($row['end_date'], '%04d-%02d-%02d');
-		$end_date = min(mktime(0, 0, 0, $end_date[1], $end_date[2], $end_date[0]), $high_date_time);
+		$tz = !empty($row['timezone']) ? $row['timezone'] : getUserTimezone();
 
-		$lastDate = '';
-		for ($date = $start_date; $date <= $end_date; $date += 86400)
+		// Get the various time and date properties for this event
+		list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+
+		// Sanity check
+		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
+			continue;
+
+		// Get set up for the loop
+		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($tz));
+		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($tz));
+		date_timezone_set($start_object, timezone_open(date_default_timezone_get()));
+		date_timezone_set($end_object, timezone_open(date_default_timezone_get()));
+		date_time_set($start_object, 0, 0, 0);
+		date_time_set($end_object, 0, 0, 0);
+		$start_date_string = date_format($start_object, 'Y-m-d');
+		$end_date_string = date_format($end_object, 'Y-m-d');
+
+		$cal_date = ($start_object >= $low_object) ? $start_object : $low_object;
+		while ($cal_date <= $end_object && $cal_date <= $high_object)
 		{
-			// Attempt to avoid DST problems.
-			// @todo Resolve this properly at some point.
-			if (strftime('%Y-%m-%d', $date) == $lastDate)
-				$date += 3601;
-			$lastDate = strftime('%Y-%m-%d', $date);
+			$starts_today = (date_format($cal_date, 'Y-m-d') == $start_date_string);
+			$ends_today = (date_format($cal_date, 'Y-m-d') == $end_date_string);
 
-			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
-			if ($use_permissions)
-				$events[strftime('%Y-%m-%d', $date)][] = array(
+			$eventProperties = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
+					'year' => $start['year'],
+					'month' => $start['month'],
+					'day' => $start['day'],
+					'hour' => !$allday ? $start['hour'] : null,
+					'minute' => !$allday ? $start['minute'] : null,
+					'second' => !$allday ? $start['second'] : null,
 					'start_date' => $row['start_date'],
+					'start_date_local' => $start['date_local'],
+					'start_date_orig' => $start['date_orig'],
+					'start_time' => !$allday ? $row['start_time'] : null,
+					'start_time_local' => !$allday ? $start['time_local'] : null,
+					'start_time_orig' => !$allday ? $start['time_orig'] : null,
+					'start_timestamp' => $start['timestamp'],
+					'start_datetime' => $start['datetime'],
+					'start_iso_gmdate' => $start['iso_gmdate'],
+					'end_year' => $end['year'],
+					'end_month' => $end['month'],
+					'end_day' => $end['day'],
+					'end_hour' => !$allday ? $end['hour'] : null,
+					'end_minute' => !$allday ? $end['minute'] : null,
+					'end_second' => !$allday ? $end['second'] : null,
 					'end_date' => $row['end_date'],
+					'end_date_local' => $end['date_local'],
+					'end_date_orig' => $end['date_orig'],
+					'end_time' => !$allday ? $row['end_time'] : null,
+					'end_time_local' => !$allday ? $end['time_local'] : null,
+					'end_time_orig' => !$allday ? $end['time_orig'] : null,
+					'end_timestamp' => $end['timestamp'],
+					'end_datetime' => $end['datetime'],
+					'end_iso_gmdate' => $end['iso_gmdate'],
+					'allday' => $allday,
+					'tz' => !$allday ? $row['timezone'] : null,
+					'tz_abbrev' => !$allday ? $tz_abbrev : null,
+					'span' => $span,
 					'is_last' => false,
 					'id_board' => $row['id_board'],
 					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+					'starts_today' => $starts_today,
+					'ends_today' => $ends_today,
+					'location' => $row['location'],
+			);
+
+			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
+			if ($use_permissions)
+				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 					'can_export' => !empty($modSettings['cal_export']) ? true : false,
 					'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				);
+				));
 			// Otherwise, this is going to be cached and the VIEWER'S permissions should apply... just put together some info.
 			else
-				$events[strftime('%Y-%m-%d', $date)][] = array(
-					'id' => $row['id_event'],
-					'title' => $row['title'],
-					'start_date' => $row['start_date'],
-					'end_date' => $row['end_date'],
-					'is_last' => false,
-					'id_board' => $row['id_board'],
-					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+				$events[date_format($cal_date, 'Y-m-d')][] = array_merge($eventProperties, array(
 					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
@@ -180,7 +222,9 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
 					'allowed_groups' => explode(',', $row['member_groups']),
-				);
+				));
+
+			date_add($cal_date, date_interval_create_from_date_string('1 day'));
 		}
 	}
 	$smcFunc['db_free_result']($result);
@@ -715,45 +759,73 @@ function validateEventPost()
 
 	if (!isset($_POST['deleteevent']))
 	{
-		// No month?  No year?
-		if (!isset($_POST['month']))
-			fatal_lang_error('event_month_missing', false);
-		if (!isset($_POST['year']))
-			fatal_lang_error('event_year_missing', false);
+		// The 2.1 way
+		if (isset($_POST['start_date']))
+		{
+			$d = date_parse($_POST['start_date']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				fatal_lang_error('invalid_date', false);
+			if (empty($d['year']))
+				fatal_lang_error('event_year_missing', false);
+			if (empty($d['month']))
+				fatal_lang_error('event_month_missing', false);
+		}
+		elseif (isset($_POST['start_datetime']))
+		{
+			$d = date_parse($_POST['start_datetime']);
+			if (!empty($d['error_count']) || !empty($d['warning_count']))
+				fatal_lang_error('invalid_date', false);
+			if (empty($d['year']))
+				fatal_lang_error('event_year_missing', false);
+			if (empty($d['month']))
+				fatal_lang_error('event_month_missing', false);
+		}
+		// The 2.0 way
+		else
+		{
+			// No month?  No year?
+			if (!isset($_POST['month']))
+				fatal_lang_error('event_month_missing', false);
+			if (!isset($_POST['year']))
+				fatal_lang_error('event_year_missing', false);
 
-		// Check the month and year...
-		if ($_POST['month'] < 1 || $_POST['month'] > 12)
-			fatal_lang_error('invalid_month', false);
-		if ($_POST['year'] < $modSettings['cal_minyear'] || $_POST['year'] > $modSettings['cal_maxyear'])
-			fatal_lang_error('invalid_year', false);
+			// Check the month and year...
+			if ($_POST['month'] < 1 || $_POST['month'] > 12)
+				fatal_lang_error('invalid_month', false);
+			if ($_POST['year'] < $modSettings['cal_minyear'] || $_POST['year'] > $modSettings['cal_maxyear'])
+				fatal_lang_error('invalid_year', false);
+		}
 	}
 
 	// Make sure they're allowed to post...
 	isAllowedTo('calendar_post');
 
+	// If they want to us to calculate an end date, make sure it will fit in an acceptable range.
 	if (isset($_POST['span']))
 	{
-		// Make sure it's turned on and not some fool trying to trick it.
-		if (empty($modSettings['cal_allowspan']))
-			fatal_lang_error('no_span', false);
-		if ($_POST['span'] < 1 || $_POST['span'] > $modSettings['cal_maxspan'])
+		if (($_POST['span'] < 1) || (!empty($modSettings['cal_maxspan']) && $_POST['span'] > $modSettings['cal_maxspan']))
 			fatal_lang_error('invalid_days_numb', false);
 	}
 
 	// There is no need to validate the following values if we are just deleting the event.
 	if (!isset($_POST['deleteevent']))
 	{
-		// No day?
-		if (!isset($_POST['day']))
-			fatal_lang_error('event_day_missing', false);
+		// If we're doing things the 2.0 way, check the day
+		if (empty($_POST['start_date']) && empty($_POST['start_datetime']))
+		{
+			// No day?
+			if (!isset($_POST['day']))
+				fatal_lang_error('event_day_missing', false);
+
+			// Bad day?
+			if (!checkdate($_POST['month'], $_POST['day'], $_POST['year']))
+				fatal_lang_error('invalid_date', false);
+		}
+
 		if (!isset($_POST['evtitle']) && !isset($_POST['subject']))
 			fatal_lang_error('event_title_missing', false);
 		elseif (!isset($_POST['evtitle']))
 			$_POST['evtitle'] = $_POST['subject'];
-
-		// Bad day?
-		if (!checkdate($_POST['month'], $_POST['day'], $_POST['year']))
-			fatal_lang_error('invalid_date', false);
 
 		// No title?
 		if ($smcFunc['htmltrim']($_POST['evtitle']) === '')
@@ -797,9 +869,9 @@ function getEventPoster($event_id)
 
 /**
  * Consolidating the various INSERT statements into this function.
- * inserts the passed event information into the calendar table.
- * allows to either set a time span (in days) or an end_date.
- * does not check any permissions of any sort.
+ * Inserts the passed event information into the calendar table.
+ * Allows to either set a time span (in days) or an end_date.
+ * Does not check any permissions of any sort.
  *
  * @param array $eventOptions An array of event options ('title', 'span', 'start_date', 'end_date', etc.)
  */
@@ -810,18 +882,10 @@ function insertEvent(&$eventOptions)
 	// Add special chars to the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
 
-	// Add some sanity checking to the span.
-	$eventOptions['span'] = isset($eventOptions['span']) && $eventOptions['span'] > 0 ? (int) $eventOptions['span'] : 0;
+	$eventOptions['location'] = isset($eventOptions['location']) ? $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES) : '';
 
-	// Make sure the start date is in ISO order.
-	// @todo $year, $month, and $day are not set
-	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
-		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
-
-	// Set the end date (if not yet given)
-	// @todo $year, $month, and $day are not set
-	if (!isset($eventOptions['end_date']))
-		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
+	// Set the start and end dates and times
+	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
 
 	// If no topic and board are given, they are not linked to a topic.
 	$eventOptions['board'] = isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0;
@@ -829,12 +893,21 @@ function insertEvent(&$eventOptions)
 
 	$event_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'title' => 'string-60', 'id_member' => 'int',
-		'start_date' => 'date', 'end_date' => 'date',
+		'start_date' => 'date', 'end_date' => 'date', 'location' => 'string-255',
 	);
 	$event_parameters = array(
 		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
-		$eventOptions['start_date'], $eventOptions['end_date'],
+		$start_date, $end_date,
 	);
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+	{
+		$event_columns['start_time'] = 'time';
+		$event_parameters[] = $start_time;
+		$event_columns['end_time'] = 'time';
+		$event_parameters[] = $end_time;
+		$event_columns['timezone'] = 'string';
+		$event_parameters[] = $tz;
+	}
 
 	call_integration_hook('integrate_create_event', array(&$eventOptions, &$event_columns, &$event_parameters));
 
@@ -884,34 +957,38 @@ function modifyEvent($event_id, &$eventOptions)
 {
 	global $smcFunc;
 
-	// Properly sanitize the title.
+	// Properly sanitize the title and location
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
+	$eventOptions['location'] = $smcFunc['htmlspecialchars']($eventOptions['location'], ENT_QUOTES);
 
-	// Scan the start date for validity and get its components.
-	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
-		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
-
-	// Default span to 0 days.
-	$eventOptions['span'] = isset($eventOptions['span']) ? (int) $eventOptions['span'] : 0;
-
-	// Set the end date to the start date + span (if the end date wasn't already given).
-	if (!isset($eventOptions['end_date']))
-		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
+	// Set the new start and end dates and times
+	list($start_date, $end_date, $start_time, $end_time, $tz) = setEventStartEnd($eventOptions);
 
 	$event_columns = array(
 		'start_date' => '{date:start_date}',
 		'end_date' => '{date:end_date}',
 		'title' => 'SUBSTRING({string:title}, 1, 60)',
 		'id_board' => '{int:id_board}',
-		'id_topic' => '{int:id_topic}'
+		'id_topic' => '{int:id_topic}',
+		'location' => 'SUBSTRING({string:location}, 1, 255)',
 	);
 	$event_parameters = array(
-		'start_date' => $eventOptions['start_date'],
-		'end_date' => $eventOptions['end_date'],
+		'start_date' => $start_date,
+		'end_date' => $end_date,
 		'title' => $eventOptions['title'],
+		'location' => $eventOptions['location'],
 		'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
 		'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
 	);
+	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+	{
+		$event_columns['start_time'] = '{time:start_time}';
+		$event_parameters['start_time'] = $start_time;
+		$event_columns['end_time'] = '{time:end_time}';
+		$event_parameters['end_time'] = $end_time;
+		$event_columns['timezone'] = '{string:timezone}';
+		$event_parameters['timezone'] = $tz;
+	}
 
 	// This is to prevent hooks to modify the id of the event
 	$real_event_id = $event_id;
@@ -933,6 +1010,18 @@ function modifyEvent($event_id, &$eventOptions)
 			)
 		)
 	);
+
+	if (empty($start_time) || empty($end_time) || empty($tz) || !in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}calendar
+			SET start_time = NULL, end_time = NULL, timezone = NULL
+			WHERE id_event = {int:id_event}',
+			array(
+				'id_event' => $real_event_id
+			)
+		);
+	}
 
 	updateSettings(array(
 		'calendar_updated' => time(),
@@ -977,9 +1066,8 @@ function getEventProperties($event_id)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			c.id_event, c.id_board, c.id_topic, MONTH(c.start_date) AS month,
-			DAYOFMONTH(c.start_date) AS day, YEAR(c.start_date) AS year,
-			(TO_DAYS(c.end_date) - TO_DAYS(c.start_date)) AS span, c.id_member, c.title,
+			c.id_event, c.id_board, c.id_topic, c.id_member, c.title,
+			c.start_date, c.end_date, c.start_time, c.end_time, c.timezone, c.location,
 			t.id_first_msg, t.id_member_started,
 			mb.real_name, m.modified_time
 		FROM {db_prefix}calendar AS c
@@ -999,16 +1087,53 @@ function getEventProperties($event_id)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
+	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+
+	// Sanity check
+	if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
+		return false;
+
 	$return_value = array(
 		'boards' => array(),
 		'board' => $row['id_board'],
 		'new' => 0,
 		'eventid' => $event_id,
-		'year' => $row['year'],
-		'month' => $row['month'],
-		'day' => $row['day'],
+		'year' => $start['year'],
+		'month' => $start['month'],
+		'day' => $start['day'],
+		'hour' => !$allday ? $start['hour'] : null,
+		'minute' => !$allday ? $start['minute'] : null,
+		'second' => !$allday ? $start['second'] : null,
+		'start_date' => $row['start_date'],
+		'start_date_local' => $start['date_local'],
+		'start_date_orig' => $start['date_orig'],
+		'start_time' => !$allday ? $row['start_time'] : null,
+		'start_time_local' => !$allday ? $start['time_local'] : null,
+		'start_time_orig' => !$allday ? $start['time_orig'] : null,
+		'start_timestamp' => $start['timestamp'],
+		'start_datetime' => $start['datetime'],
+		'start_iso_gmdate' => $start['iso_gmdate'],
+		'end_year' => $end['year'],
+		'end_month' => $end['month'],
+		'end_day' => $end['day'],
+		'end_hour' => !$allday ? $end['hour'] : null,
+		'end_minute' => !$allday ? $end['minute'] : null,
+		'end_second' => !$allday ? $end['second'] : null,
+		'end_date' => $row['end_date'],
+		'end_date_local' => $end['date_local'],
+		'end_date_orig' => $end['date_orig'],
+		'end_time' => !$allday ? $row['end_time'] : null,
+		'end_time_local' => !$allday ? $end['time_local'] : null,
+		'end_time_orig' => !$allday ? $end['time_orig'] : null,
+		'end_timestamp' => $end['timestamp'],
+		'end_datetime' => $end['datetime'],
+		'end_iso_gmdate' => $end['iso_gmdate'],
+		'allday' => $allday,
+		'tz' => !$allday ? $row['timezone'] : null,
+		'tz_abbrev' => !$allday ? $tz_abbrev : null,
+		'span' => $span,
 		'title' => $row['title'],
-		'span' => 1 + $row['span'],
+		'location' => $row['location'],
 		'member' => $row['id_member'],
 		'realname' => $row['real_name'],
 		'sequence' => $row['modified_time'],
@@ -1022,6 +1147,407 @@ function getEventProperties($event_id)
 	$return_value['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $return_value['month'] == 12 ? 1 : $return_value['month'] + 1, 0, $return_value['month'] == 12 ? $return_value['year'] + 1 : $return_value['year']));
 
 	return $return_value;
+}
+
+/**
+ * Gets an initial set of date and time values for creating a new event.
+ *
+ * @return array An array containing an initial set of date and time values for an event.
+ */
+function getNewEventDatetimes()
+{
+	$today = getdate();
+
+	$allday = isset($_REQUEST['allday']) ? 1 : (isset($_REQUEST['start_time']) ? 0 : 1);
+	$span = isset($_REQUEST['span']) && filter_var($_REQUEST['span'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 0))) ? $_REQUEST['span'] : 1;
+
+	if (!empty($_REQUEST['tz']) && in_array($_REQUEST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$tz = $_REQUEST['tz'];
+	else
+		$tz = getUserTimezone();
+
+	// Was the input given as individual parameters?
+	$start_year = isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'];
+	$start_month = isset($_REQUEST['month']) ? $_REQUEST['month'] : $today['mon'];
+	$start_day = isset($_REQUEST['day']) ? $_REQUEST['day'] : $today['mday'];
+	$start_hour = isset($_REQUEST['hour']) ? $_REQUEST['hour'] : $today['hours'];
+	$start_minute = isset($_REQUEST['minute']) ? $_REQUEST['minute'] : $today['minutes'];
+	$start_second = isset($_REQUEST['second']) ? $_REQUEST['second'] : $today['seconds'];
+	$end_year = isset($_REQUEST['end_year']) ? $_REQUEST['end_year'] : $today['year'];
+	$end_month = isset($_REQUEST['end_month']) ? $_REQUEST['end_month'] : $today['mon'];
+	$end_day = isset($_REQUEST['end_day']) ? $_REQUEST['end_day'] : $today['mday'];
+	$end_hour = isset($_REQUEST['end_hour']) ? $_REQUEST['end_hour'] : ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']);
+	$end_minute = isset($_REQUEST['end_minute']) ? $_REQUEST['end_minute'] : ($today['hours'] < 23 ? $today['minutes'] : 59);
+	$end_second = isset($_REQUEST['end_second']) ? $_REQUEST['end_second'] : 0;
+
+	// ... Or as date strings and time strings? ...
+	$start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : sprintf('%04d-%02d-%02d', $start_year, $start_month, $start_day);
+	$start_time = isset($_REQUEST['start_time']) ? $_REQUEST['start_time'] : sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second);
+	$end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : sprintf('%04d-%02d-%02d', $end_year, $end_month, $end_day);
+	$end_time = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second);
+
+	// ... Or as datetime strings?
+	$start_datetime = isset($_REQUEST['start_datetime']) ? $_REQUEST['start_datetime'] : $start_date . ' ' . $start_time;
+	$end_datetime = isset($_REQUEST['end_datetime']) ? $_REQUEST['end_datetime'] : $end_date . ' ' . $end_time;
+
+	// In case we received conflicting input, use $start_datetime and $end_datetime as the final answer
+	$start = date_parse($start_datetime);
+	$end = date_parse($end_datetime);
+
+	// Make sure everything is valid
+	if ($start['error_count'] == 0 && $start['warning_count'] == 0 && $end['error_count'] == 0 && $end['warning_count'] == 0)
+	{
+		$row = array(
+			'start_date' => sprintf('%04d-%02d-%02d', $start['year'], $start['month'], $start['day']),
+			'start_time' => sprintf('%02d:%02d:%02d', $start['hour'], $start['minute'], $start['second']),
+			'end_date' => sprintf('%04d-%02d-%02d', $end['year'], $end['month'], $end['day']),
+			'end_time' => sprintf('%02d:%02d:%02d', $end['hour'], $end['minute'], $end['second']),
+			'timezone' => $tz,
+		);
+	}
+	// Invalid input? Just ignore it and use $today.
+	else
+	{
+		$row = array(
+			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
+			'start_time' => sprintf('%02d:%02d:%02d', $today['hours'], $today['minutes'], $today['seconds']),
+			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
+			'end_time' => sprintf('%02d:%02d:%02d', ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']), ($today['hours'] < 23 ? $today['minutes'] : 59), $end['second']),
+			'timezone' => $tz,
+		);
+	}
+
+	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+
+	// Default theme only uses some of this info, but others might want it all
+	$eventProperties = array(
+		'year' => $start['year'],
+		'month' => $start['month'],
+		'day' => $start['day'],
+		'hour' => !$allday ? $start['hour'] : null,
+		'minute' => !$allday ? $start['minute'] : null,
+		'second' => !$allday ? $start['second'] : null,
+		'start_date' => $row['start_date'],
+		'start_date_local' => $start['date_local'],
+		'start_date_orig' => $start['date_orig'],
+		'start_time' => !$allday ? $row['start_time'] : null,
+		'start_time_local' => !$allday ? $start['time_local'] : null,
+		'start_time_orig' => !$allday ? $start['time_orig'] : null,
+		'start_timestamp' => $start['timestamp'],
+		'start_datetime' => $start['datetime'],
+		'start_iso_gmdate' => $start['iso_gmdate'],
+		'end_year' => $end['year'],
+		'end_month' => $end['month'],
+		'end_day' => $end['day'],
+		'end_hour' => !$allday ? $end['hour'] : null,
+		'end_minute' => !$allday ? $end['minute'] : null,
+		'end_second' => !$allday ? $end['second'] : null,
+		'end_date' => $row['end_date'],
+		'end_date_local' => $end['date_local'],
+		'end_date_orig' => $end['date_orig'],
+		'end_time' => !$allday ? $row['end_time'] : null,
+		'end_time_local' => !$allday ? $end['time_local'] : null,
+		'end_time_orig' => !$allday ? $end['time_orig'] : null,
+		'end_timestamp' => $end['timestamp'],
+		'end_datetime' => $end['datetime'],
+		'end_iso_gmdate' => $end['iso_gmdate'],
+		'allday' => $allday,
+		'tz' => $tz,
+		'tz_abbrev' => !$allday ? $tz_abbrev : null,
+		'span' => $span,
+	);
+
+	return $eventProperties;
+}
+
+/**
+ * Set the start and end dates and times for a posted event for insertion into the database.
+ * Validates all date and times given to it.
+ * Makes sure events do not exceed the maximum allowed duration (if any).
+ * If passed an array that defines any time or date parameters, they will be used. Otherwise, gets the values from $_POST.
+ *
+ * @param array $eventOptions An array of optional time and date parameters (span, start_year, end_month, etc., etc.)
+ * @return array An array containing $start_date, $end_date, $start_time, $end_time
+ */
+function setEventStartEnd($eventOptions = array())
+{
+	global $modSettings, $user_info;
+
+	// Set $span, in case we need it
+	$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
+	if ($span > 0)
+		$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
+
+	// Define the timezone for this event, falling back to the default if not provided
+	if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$tz = $eventOptions['tz'];
+	elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$tz = $_POST['tz'];
+	else
+		$tz = getUserTimezone();
+
+	// Is this supposed to be an all day event, or should it have specific start and end times?
+	if (isset($eventOptions['allday']))
+		$allday = $eventOptions['allday'];
+	elseif (empty($_POST['allday']))
+		$allday = false;
+	else
+		$allday = true;
+
+	// Input might come as individual parameters...
+	$start_year = isset($eventOptions['year']) ? $eventOptions['year'] : (isset($_POST['year']) ? $_POST['year'] : null);
+	$start_month = isset($eventOptions['month']) ? $eventOptions['month'] : (isset($_POST['month']) ? $_POST['month'] : null);
+	$start_day = isset($eventOptions['day']) ? $eventOptions['day'] : (isset($_POST['day']) ? $_POST['day'] : null);
+	$start_hour = isset($eventOptions['hour']) ? $eventOptions['hour'] : (isset($_POST['hour']) ? $_POST['hour'] : null);
+	$start_minute = isset($eventOptions['minute']) ? $eventOptions['minute'] : (isset($_POST['minute']) ? $_POST['minute'] : null);
+	$start_second = isset($eventOptions['second']) ? $eventOptions['second'] : (isset($_POST['second']) ? $_POST['second'] : null);
+	$end_year = isset($eventOptions['end_year']) ? $eventOptions['end_year'] : (isset($_POST['end_year']) ? $_POST['end_year'] : null);
+	$end_month = isset($eventOptions['end_month']) ? $eventOptions['end_month'] : (isset($_POST['end_month']) ? $_POST['end_month'] : null);
+	$end_day = isset($eventOptions['end_day']) ? $eventOptions['end_day'] : (isset($_POST['end_day']) ? $_POST['end_day'] : null);
+	$end_hour = isset($eventOptions['end_hour']) ? $eventOptions['end_hour'] : (isset($_POST['end_hour']) ? $_POST['end_hour'] : null);
+	$end_minute = isset($eventOptions['end_minute']) ? $eventOptions['end_minute'] : (isset($_POST['end_minute']) ? $_POST['end_minute'] : null);
+	$end_second = isset($eventOptions['end_second']) ? $eventOptions['end_second'] : (isset($_POST['end_second']) ? $_POST['end_second'] : null);
+
+	// ... or as datetime strings ...
+	$start_string = isset($eventOptions['start_datetime']) ? $eventOptions['start_datetime'] : (isset($_POST['start_datetime']) ? $_POST['start_datetime'] : null);
+	$end_string = isset($eventOptions['end_datetime']) ? $eventOptions['end_datetime'] : (isset($_POST['end_datetime']) ? $_POST['end_datetime'] : null);
+
+	// ... or as date strings and time strings.
+	$start_date_string = isset($eventOptions['start_date']) ? $eventOptions['start_date'] : (isset($_POST['start_date']) ? $_POST['start_date'] : null);
+	$start_time_string = isset($eventOptions['start_time']) ? $eventOptions['start_time'] : (isset($_POST['start_time']) ? $_POST['start_time'] : null);
+	$end_date_string = isset($eventOptions['end_date']) ? $eventOptions['end_date'] : (isset($_POST['end_date']) ? $_POST['end_date'] : null);
+	$end_time_string = isset($eventOptions['end_time']) ? $eventOptions['end_time'] : (isset($_POST['end_time']) ? $_POST['end_time'] : null);
+
+	// If the date and time were given in separate strings, combine them
+	if (empty($start_string) && isset($start_date_string))
+		$start_string = $start_date_string . (isset($start_time_string) ? ' ' . $start_time_string : '');
+	if (empty($end_string) && isset($end_date_string))
+		$end_string = $end_date_string . (isset($end_time_string) ? ' ' . $end_time_string : '');
+
+	// If some form of string input was given, override individually defined options with it
+	if (isset($start_string))
+	{
+		$start_string_parsed = date_parse($start_string);
+		if (empty($start_string_parsed['error_count']) && empty($start_string_parsed['warning_count']))
+		{
+			if ($start_string_parsed['year'] != false)
+			{
+				$start_year = $start_string_parsed['year'];
+				$start_month = $start_string_parsed['month'];
+				$start_day = $start_string_parsed['day'];
+			}
+			if ($start_string_parsed['hour'] != false)
+			{
+				$start_hour = $start_string_parsed['hour'];
+				$start_minute = $start_string_parsed['minute'];
+				$start_second = $start_string_parsed['second'];
+			}
+		}
+	}
+	if (isset($end_string))
+	{
+		$end_string_parsed = date_parse($end_string);
+		if (empty($end_string_parsed['error_count']) && empty($end_string_parsed['warning_count']))
+		{
+			if ($end_string_parsed['year'] != false)
+			{
+				$end_year = $end_string_parsed['year'];
+				$end_month = $end_string_parsed['month'];
+				$end_day = $end_string_parsed['day'];
+			}
+			if ($end_string_parsed['hour'] != false)
+			{
+				$end_hour = $end_string_parsed['hour'];
+				$end_minute = $end_string_parsed['minute'];
+				$end_second = $end_string_parsed['second'];
+			}
+		}
+	}
+
+	// Validate input
+	$start_date_isvalid = checkdate($start_month, $start_day, $start_year);
+	$end_date_isvalid = checkdate($end_month, $end_day, $end_year);
+
+	$start_time_isset = (isset($start_hour) && isset($start_minute) && isset($start_second));
+	$d = date_parse(sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second));
+	$start_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
+
+	$end_time_isset = (isset($end_hour) && isset($end_minute) && isset($end_second));
+	$d = date_parse(sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second));
+	$end_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
+
+	// Uh-oh...
+	if ($start_date_isvalid == false)
+	{
+		fatal_lang_error('invalid_date', false);
+	}
+
+	// Make sure we use valid values for everything
+	if ($end_date_isvalid == false)
+	{
+		$end_year = $start_year;
+		$end_month = $start_month;
+		$end_day = $start_day;
+	}
+
+	if ($allday == true || $start_time_isset == false || $start_time_isvalid == false)
+	{
+		$allday = true;
+		$start_hour = 0;
+		$start_minute = 0;
+		$start_second = 0;
+	}
+
+	if ($allday == true || $end_time_isvalid == false || $end_time_isset == false)
+	{
+		$end_hour = $start_hour;
+		$end_minute = $start_minute;
+		$end_second = $start_second;
+	}
+
+	// Now create our datetime objects
+	$start_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
+	$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $end_year, $end_month, $end_day, $end_hour, $end_minute, $end_second) . ' ' . $tz);
+
+	// Is $end_object too early?
+	if ($start_object >= $end_object)
+	{
+		$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
+		if ($span > 0)
+			date_add($end_object, date_interval_create_from_date_string($span . ' days'));
+		else
+			date_add($end_object, date_interval_create_from_date_string('1 hour'));
+	}
+
+	// Is $end_object too late?
+	if (!empty($modSettings['cal_maxspan']))
+	{
+		$date_diff = date_diff($start_object, $end_object);
+		if ($date_diff->days > $modSettings['cal_maxspan'])
+		{
+			// trigger_error('Given end date exceeds maximum span. Truncating event to fit.');
+			if ($modSettings['cal_maxspan'] > 1)
+			{
+				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
+				date_add($end_object, date_interval_create_from_date_string($modSettings['cal_maxspan'] . ' days'));
+			}
+			else
+				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, '11', '59', '59') . ' ' . $tz);
+		}
+	}
+
+	// Finally, make our strings
+	$start_date = date_format($start_object, 'Y-m-d');
+	$end_date = date_format($end_object, 'Y-m-d');
+
+	if ($allday == true)
+	{
+		$start_time = null;
+		$end_time = null;
+		$tz = null;
+	}
+	else
+	{
+		$start_time = date_format($start_object, 'H:i:s');
+		$end_time = date_format($end_object, 'H:i:s');
+	}
+
+	return array($start_date, $end_date, $start_time, $end_time, $tz);
+}
+
+/**
+ * Helper function for getEventRange, getEventProperties, getNewEventDatetimes, etc.
+ *
+ * @param array $row A database row representing an event from the calendar table
+ * @param string $date_format Tells timeformat() how to format the date values for display to the user
+ * @param string $time_format Tells timeformat() how to format the time values for display to the user
+ * @return array An array containing the start and end date and time properties for the event
+ */
+function buildEventDatetimes($row)
+{
+	global $sourcedir, $user_info;
+	require_once($sourcedir . '/Subs.php');
+
+	// First, try to create a better date format, ignoring the "time" elements.
+	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$date_format = '%F';
+	else
+		$date_format = $matches[0];
+
+	if (empty($row['timezone']))
+		$row['timezone'] = getUserTimezone();
+
+	// We want a fairly compact version of the time, but as close as possible to the user's settings.
+	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$time_format = '%k:%M';
+	else
+		$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+
+	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
+
+	$span = 1 + date_interval_format(date_diff(date_create($row['start_date']), date_create($row['end_date'])), '%d');
+
+	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
+	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
+
+	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($row['timezone']));
+	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($row['timezone']));
+
+	$start['timestamp'] = date_format($start_object, 'U');
+	$end['timestamp'] = date_format($end_object, 'U');
+
+	$start['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
+	$end['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
+
+	$start['iso_gmdate'] = gmdate('c', $start['timestamp']);
+	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
+
+	$start['date_local'] = timeformat($start['timestamp'], $date_format);
+	$start['time_local'] = timeformat($start['timestamp'], $time_format);
+	$end['date_local'] = timeformat($end['timestamp'], $date_format);
+	$end['time_local'] = timeformat($end['timestamp'], $time_format);
+
+	$start['date_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format, 'none');
+	$start['time_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_format, 'none');
+	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
+	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
+
+	$tz_abbrev = date_format($start_object, 'T');
+
+	return array($start, $end, $allday, $span, $tz_abbrev);
+}
+
+/**
+ * Gets a member's selected timezone identifier directly from the database
+ *
+ * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+ * @return string The timezone identifier string for the user's timezone.
+ */
+function getUserTimezone($id_member = null)
+{
+	global $smcFunc, $context, $sourcedir, $user_info;
+
+	if (is_null($id_member) && $user_info['is_guest'] == false)
+		$id_member = $context['user']['id'];
+
+	if (isset($id_member))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+
+	return $timezone;
 }
 
 /**

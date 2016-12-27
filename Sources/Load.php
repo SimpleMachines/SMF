@@ -221,8 +221,26 @@ function reloadSettings()
 	);
 
 	// Setting the timezone is a requirement for some functions.
-	if (isset($modSettings['default_timezone']))
+	if (isset($modSettings['default_timezone']) && in_array($modSettings['default_timezone'], timezone_identifiers_list()))
 		date_default_timezone_set($modSettings['default_timezone']);
+	else
+	{
+		// Get PHP's default timezone, if set
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$modSettings['default_timezone'] = $ini_tz;
+		else
+			$modSettings['default_timezone'] = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($modSettings['default_timezone'], timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
+		}
+
+		date_default_timezone_set($modSettings['default_timezone']);
+	}
 
 	// Check the load averages?
 	if (!empty($modSettings['loadavg_enable']))
@@ -2441,7 +2459,7 @@ function addInlineCss($css)
 
 /**
  * Add a Javascript file for output later
-
+ *
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:

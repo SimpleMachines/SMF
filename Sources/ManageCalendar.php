@@ -355,8 +355,7 @@ function ModifyCalendarSettings($return_config = false)
 				array('int', 'cal_maxyear'),
 			'',
 				// Calendar spanning...
-				array('check', 'cal_allowspan'),
-				array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word']),
+				array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_for_no_limit']),
 			'',
 				// A comment is like a dog marking its territory. ;)
 				array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),

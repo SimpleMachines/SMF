@@ -199,96 +199,77 @@ function template_main()
 					<hr class="clear">
 					<div id="post_event">
 						<fieldset id="event_main">
-							<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', ' id="caption_evtitle">', $txt['calendar_event_title'], '</span></legend>
-							<input type="text" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '" class="input_text">
-							<div class="smalltext" style="white-space: nowrap;">
-								<input type="hidden" name="calendar" value="1">', $txt['calendar_year'], '
-								<select name="year" id="year" tabindex="', $context['tabindex']++, '" onchange="generateDays();">';
-
-		// Show a list of all the years we allow...
-		for ($year = $modSettings['cal_minyear']; $year <= $modSettings['cal_maxyear']; $year++)
-			echo '
-									<option value="', $year, '"', $year == $context['event']['year'] ? ' selected' : '', '>', $year, '&nbsp;</option>';
-
-		echo '
-								</select>
-								', $txt['calendar_month'], '
-								<select name="month" id="month" onchange="generateDays();">';
-
-		// There are 12 months per year - ensure that they all get listed.
-		for ($month = 1; $month <= 12; $month++)
-			echo '
-									<option value="', $month, '"', $month == $context['event']['month'] ? ' selected' : '', '>', $txt['months'][$month], '&nbsp;</option>';
-
-		echo '
-								</select>
-								', $txt['calendar_day'], '
-								<select name="day" id="day">';
-
-		// This prints out all the days in the current month - this changes dynamically as we switch months.
-		for ($day = 1; $day <= $context['event']['last_day']; $day++)
-			echo '
-									<option value="', $day, '"', $day == $context['event']['day'] ? ' selected' : '', '>', $day, '&nbsp;</option>';
-
-		echo '
-								</select>
-							</div>
-						</fieldset>';
-
-		if (!empty($modSettings['cal_allowspan']) || ($context['event']['new'] && $context['is_new_post']))
-		{
-			echo '
-						<fieldset id="event_options">
-							<legend>', $txt['calendar_event_options'], '</legend>
-							<div class="event_options smalltext">
-								<ul class="event_options">';
-
-			// If events can span more than one day then allow the user to select how long it should last.
-			if (!empty($modSettings['cal_allowspan']))
-			{
-				echo '
-									<li>
-										', $txt['calendar_numb_days'], '
-										<select name="span">';
-
-				for ($days = 1; $days <= $modSettings['cal_maxspan']; $days++)
-					echo '
-											<option value="', $days, '"', $days == $context['event']['span'] ? ' selected' : '', '>', $days, '&nbsp;</option>';
-
-				echo '
-										</select>
-									</li>';
-			}
+							<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
+							<input type="hidden" name="calendar" value="1">
+							<div class="event_options_left" id="event_title">
+								<div>
+									<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+								</div>
+							</div>';
 
 			// If this is a new event let the user specify which board they want the linked post to be put into.
 			if ($context['event']['new'] && $context['is_new_post'])
 			{
 				echo '
-									<li>
-										', $txt['calendar_post_in'], '
-										<select name="board">';
+							<div class="event_options_right" id="event_board">
+								<div>
+									<span class="label">', $txt['calendar_post_in'], '</span>
+									<select name="board">';
 				foreach ($context['event']['categories'] as $category)
 				{
 					echo '
-											<optgroup label="', $category['name'], '">';
+										<optgroup label="', $category['name'], '">';
 					foreach ($category['boards'] as $board)
 						echo '
-												<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 					echo '
-											</optgroup>';
+										</optgroup>';
 				}
 				echo '
-										</select>
-									</li>';
+									</select>
+								</div>
+							</div>';
 			}
 
+			// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 			echo '
-								</ul>
+						</fieldset>
+						<fieldset id="event_options">
+							<legend>', $txt['calendar_event_options'], '</legend>
+							<div class="event_options_left" id="event_time_input">
+								<div>
+									<span class="label">', $txt['start'], '</span>
+									<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
+									<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								</div>
+								<div>
+									<span class="label">', $txt['end'], '</span>
+									<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+									<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								</div>
 							</div>
-						</fieldset>';
-		}
+							<div class="event_options_right" id="event_time_options">
+								<div id="event_allday">
+									<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
+									<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+								</div>
+								<div id="event_timezone">
+									<span class="label">', $txt['calendar_timezone'], '</span>
+									<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
 
-		echo '
+			foreach ($context['all_timezones'] as $tz => $tzname)
+				echo '
+										<option value="', $tz, '"', $tz == $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+
+			echo '
+									</select>
+								</div>
+							</div>
+							<div>
+								<span class="label">', $txt['location'], '</span>
+								<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+							</div>
+						</fieldset>
 					</div>';
 	}
 

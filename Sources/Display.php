@@ -545,15 +545,11 @@ function Display()
 	// If we want to show event information in the topic, prepare the data.
 	if (allowedTo('calendar_view') && !empty($modSettings['cal_showInTopic']) && !empty($modSettings['cal_enabled']))
 	{
-		// First, try create a better time format, ignoring the "time" elements.
-		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$date_string = $user_info['time_format'];
-		else
-			$date_string = $matches[0];
+		require_once($sourcedir . '/Subs-Calendar.php');
 
 		// Any calendar information for this topic?
 		$request = $smcFunc['db_query']('', '
-			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name
+			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name, cal.start_time, cal.end_time, cal.timezone, cal.location
 			FROM {db_prefix}calendar AS cal
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)
 			WHERE cal.id_topic = {int:current_topic}
@@ -565,25 +561,57 @@ function Display()
 		$context['linked_calendar_events'] = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			// Prepare the dates for being formatted.
-			$start_date = sscanf($row['start_date'], '%04d-%02d-%02d');
-			$start_date = mktime(12, 0, 0, $start_date[1], $start_date[2], $start_date[0]);
-			$end_date = sscanf($row['end_date'], '%04d-%02d-%02d');
-			$end_date = mktime(12, 0, 0, $end_date[1], $end_date[2], $end_date[0]);
+			// Get the various time and date properties for this event
+			list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
 
-			$context['linked_calendar_events'][] = array(
+			// Sanity check
+			if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
+				continue;
+
+			$linked_calendar_event = array(
 				'id' => $row['id_event'],
 				'title' => $row['title'],
 				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'modify_href' => $scripturl . '?action=post;msg=' . $context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'start_date' => timeformat($start_date, $date_string, 'none'),
-				'start_timestamp' => $start_date,
-				'end_date' => timeformat($end_date, $date_string, 'none'),
-				'end_timestamp' => $end_date,
+				'year' => $start['year'],
+				'month' => $start['month'],
+				'day' => $start['day'],
+				'hour' => !$allday ? $start['hour'] : null,
+				'minute' => !$allday ? $start['minute'] : null,
+				'second' => !$allday ? $start['second'] : null,
+				'start_date' => $row['start_date'],
+				'start_date_local' => $start['date_local'],
+				'start_date_orig' => $start['date_orig'],
+				'start_time' => !$allday ? $row['start_time'] : null,
+				'start_time_local' => !$allday ? $start['time_local'] : null,
+				'start_time_orig' => !$allday ? $start['time_orig'] : null,
+				'start_timestamp' => $start['timestamp'],
+				'start_iso_gmdate' => $start['iso_gmdate'],
+				'end_year' => $end['year'],
+				'end_month' => $end['month'],
+				'end_day' => $end['day'],
+				'end_hour' => !$allday ? $end['hour'] : null,
+				'end_minute' => !$allday ? $end['minute'] : null,
+				'end_second' => !$allday ? $end['second'] : null,
+				'end_date' => $row['end_date'],
+				'end_date_local' => $end['date_local'],
+				'end_date_orig' => $end['date_orig'],
+				'end_time' => !$allday ? $row['end_time'] : null,
+				'end_time_local' => !$allday ? $end['time_local'] : null,
+				'end_time_orig' => !$allday ? $end['time_orig'] : null,
+				'end_timestamp' => $end['timestamp'],
+				'end_iso_gmdate' => $end['iso_gmdate'],
+				'allday' => $allday,
+				'tz' => !$allday ? $row['timezone'] : null,
+				'tz_abbrev' => !$allday ? $tz_abbrev : null,
+				'span' => $span,
+				'location' => $row['location'],
 				'is_last' => false
 			);
+
+			$context['linked_calendar_events'][] = $linked_calendar_event;
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -1236,7 +1264,7 @@ function Display()
 
 	if ($context['can_print'])
 		$context['normal_buttons']['print'] = array('text' => 'print', 'image' => 'print.png', 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0');
-	
+
 	if ($context['can_set_notify'])
 		$context['normal_buttons']['notify'] = array(
 			'text' => 'notify_topic_' . $context['topic_notification_mode'],

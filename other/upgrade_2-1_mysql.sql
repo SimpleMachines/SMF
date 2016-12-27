@@ -2462,3 +2462,42 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 ---# drop column pm_email_notify on table members
 ALTER TABLE {$db_prefix}members DROP COLUMN pm_email_notify;
 ---#
+
+/******************************************************************************/
+--- Adding support for start and end times on calendar events
+/******************************************************************************/
+---# Add start_time end_time, and timezone columns to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN start_time time,
+ADD COLUMN end_time time,
+ADD COLUMN timezone VARCHAR(80);
+---#
+
+---# Update cal_maxspan and drop obsolete cal_allowspan setting
+---{
+	if (!isset($modSettings['cal_allowspan']))
+		$cal_maxspan = 0;
+	elseif ($modSettings['cal_allowspan'] == false)
+		$cal_maxspan = 1;
+	else
+		$cal_maxspan = ($modSettings['cal_maxspan'] > 1) ? $modSettings['cal_maxspan'] : 0;
+
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = '$cal_maxspan'
+		WHERE variable = 'cal_maxspan'");
+
+	if (isset($modSettings['cal_allowspan']))
+		upgrade_query("
+			DELETE FROM {$db_prefix}settings
+			WHERE variable = 'cal_allowspan'");
+---}
+---#
+
+/******************************************************************************/
+--- Adding location support for calendar events
+/******************************************************************************/
+---# Add location column to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+---#

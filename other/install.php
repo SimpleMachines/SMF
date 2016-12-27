@@ -254,8 +254,21 @@ function initialize_inputs()
 	// PHP 5 might cry if we don't do this now.
 	if (function_exists('date_default_timezone_set'))
 	{
-		$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
-		date_default_timezone_set('Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600));
+		// Get PHP's default timezone, if set
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
+		else
+			$timezone_id = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($timezone_id, timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+		}
+
+		date_default_timezone_set($timezone_id);
 	}
 
 	// Force an integer step, defaulting to 0.
@@ -1245,11 +1258,23 @@ function DatabasePopulation()
 	if (!empty($_POST['force_ssl']))
 		$newSettings[] = array('force_ssl', 2);
 
-	// As of PHP 5.1, setting a timezone is required.
+	// Setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
-		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
-		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
+		// Get PHP's default timezone, if set
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
+		else
+			$timezone_id = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($timezone_id, timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+		}
+
 		if (date_default_timezone_set($timezone_id))
 			$newSettings[] = array('default_timezone', $timezone_id);
 	}

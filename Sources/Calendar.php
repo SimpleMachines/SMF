@@ -220,17 +220,30 @@ function CalendarMain()
 function CalendarPost()
 {
 	global $context, $txt, $user_info, $sourcedir, $scripturl;
-	global $modSettings, $topic, $smcFunc;
+	global $modSettings, $topic, $smcFunc, $settings;
 
 	// Well - can they?
 	isAllowedTo('calendar_post');
 
-	// We need this for all kinds of useful functions.
+	// We need these for all kinds of useful functions.
 	require_once($sourcedir . '/Subs-Calendar.php');
+	require_once($sourcedir . '/Subs.php');
 
 	// Cast this for safety...
 	if (isset($_REQUEST['eventid']))
 		$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
+
+	// We want a fairly compact version of the time, but as close as possible to the user's settings.
+	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$time_string = '%k:%M';
+	else
+		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+
+	$js_time_string = str_replace(
+		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
+		array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
+		$time_string
+	);
 
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))
@@ -259,9 +272,8 @@ function CalendarPost()
 				'board' => 0,
 				'topic' => 0,
 				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
+				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
 				'member' => $user_info['id'],
-				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
-				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 			);
 			insertEvent($eventOptions);
 		}
@@ -275,10 +287,8 @@ function CalendarPost()
 		{
 			$eventOptions = array(
 				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
-				'span' => empty($modSettings['cal_allowspan']) || empty($_POST['span']) || $_POST['span'] == 1 || empty($modSettings['cal_maxspan']) || $_POST['span'] > $modSettings['cal_maxspan'] ? 0 : min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1),
-				'start_date' => strftime('%Y-%m-%d', mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year'])),
+				'location' => $smcFunc['substr']($_REQUEST['event_location'], 0, 255),
 			);
-
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
 
@@ -287,7 +297,25 @@ function CalendarPost()
 		));
 
 		// No point hanging around here now...
-		redirectexit($scripturl . '?action=calendar;month=' . $_POST['month'] . ';year=' . $_POST['year']);
+		if (isset($_POST['start_date']))
+		{
+			$d = date_parse($_POST['start_date']);
+			$year = $d['year'];
+			$month = $d['month'];
+		}
+		elseif (isset($_POST['start_datetime']))
+		{
+			$d = date_parse($_POST['start_datetime']);
+			$year = $d['year'];
+			$month = $d['month'];
+		}
+		else
+		{
+			$today = getdate();
+			$year = isset($_POST['year']) ? $_POST['year'] : $today['year'];
+			$month = isset($_POST['month']) ? $_POST['month'] : $today['mon'];
+		}
+		redirectexit($scripturl . '?action=calendar;month=' . $month . ';year=' . $year);
 	}
 
 	// If we are not enabled... we are not enabled.
@@ -301,19 +329,18 @@ function CalendarPost()
 	// New?
 	if (!isset($_REQUEST['eventid']))
 	{
-		$today = getdate();
-
 		$context['event'] = array(
 			'boards' => array(),
 			'board' => 0,
 			'new' => 1,
 			'eventid' => -1,
-			'year' => isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'],
-			'month' => isset($_REQUEST['month']) ? $_REQUEST['month'] : $today['mon'],
-			'day' => isset($_REQUEST['day']) ? $_REQUEST['day'] : $today['mday'],
 			'title' => '',
-			'span' => 1,
+			'location' => '',
 		);
+
+		$eventDatetimes = getNewEventDatetimes();
+		$context['event'] = array_merge($context['event'], $eventDatetimes);
+
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 	}
 	else
@@ -336,6 +363,31 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_any');
 		elseif (!allowedTo('calendar_edit_any'))
 			isAllowedTo('calendar_edit_own');
+	}
+
+	// An all day event? Set up some nice defaults in case the user wants to change that
+	if ($context['event']['allday'] == true)
+	{
+		$context['event']['tz'] = getUserTimezone();
+		$context['event']['start_time'] = timeformat(time(), $time_string);
+		$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
+	}
+	// Otherwise, just adjust these to look nice on the input form
+	else
+	{
+		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
+		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+	}
+
+	// Need this so the user can select a timezone for the event.
+	$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
+	unset($context['all_timezones']['']);
+
+	// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
+	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
+	{
+		$d = date_create($context['event']['tz']);
+		$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 	}
 
 	// Get list of boards that can be posted in.
@@ -366,6 +418,55 @@ function CalendarPost()
 	$context['linktree'][] = array(
 		'name' => $context['page_title'],
 	);
+
+	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
+	loadCSSFile('jquery.timepicker.css', array('defer' => false), 'smf_timepicker');
+	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
+	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
+	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+	addInlineJavaScript('
+	$("#allday").click(function(){
+		$("#start_time").attr("disabled", this.checked);
+		$("#end_time").attr("disabled", this.checked);
+		$("#tz").attr("disabled", this.checked);
+	});
+	$("#event_time_input .date_input").datepicker({
+		dateFormat: "yy-mm-dd",
+		autoSize: true,
+		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		constrainInput: true,
+		showAnim: "",
+		showButtonPanel: false,
+		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
+		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
+		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
+		hideIfNoPrevNext: true,
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', $txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
+		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
+		prevText: "' . $txt['prev_month'] . '",
+		nextText: "' . $txt['next_month'] . '",
+	});
+	$(".time_input").timepicker({
+		timeFormat: "' . $js_time_string . '",
+		showDuration: true,
+		maxTime: "23:59:59",
+	});
+	var date_entry = document.getElementById("event_time_input");
+	var date_entry_pair = new Datepair(date_entry, {
+		timeClass: "time_input",
+		dateClass: "date_input",
+		parseDate: function (el) {
+		    var utc = new Date($(el).datepicker("getDate"));
+		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+		},
+		updateDate: function (el, v) {
+		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+		}
+	});
+	', true);
 }
 
 /**
@@ -410,35 +511,44 @@ function iCalDownload()
 
 	// Format the dates.
 	$datestamp = date('Ymd\THis\Z', time());
-	$datestart = $event['year'] . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']);
+	$start_date = date_create($event['start_date'] . (isset($event['start_time']) ? ' ' . $event['start_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
+	$end_date = date_create($event['end_date'] . (isset($event['end_time']) ? ' ' . $event['end_time'] : '') . (isset($event['tz']) ? ' ' . $event['tz'] : ''));
 
-	// Do we have a event that spans several days?
-	if ($event['span'] > 1)
+	if (!empty($event['start_time']))
 	{
-		$dateend = strtotime($event['year'] . '-' . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . '-' . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']));
-		$dateend += ($event['span'] - 1) * 86400;
-		$dateend = date('Ymd', $dateend);
+		$datestart = date_format($start_date, 'Ymd\THis');
+		$dateend = date_format($end_date, 'Ymd\THis');
+	}
+	else
+	{
+		$datestart = date_format($start_date, 'Ymd');
+
+		date_add($end_date, date_interval_create_from_date_string('1 day'));
+		$dateend = date_format($end_date, 'Ymd');
 	}
 
 	// This is what we will be sending later
 	$filecontents = '';
 	$filecontents .= 'BEGIN:VCALENDAR' . "\n";
 	$filecontents .= 'METHOD:PUBLISH' . "\n";
-	$filecontents .= 'PRODID:-//SimpleMachines//SMF ' . (empty($forum_version) ? 2.0 : strtr($forum_version, array('SMF ' => ''))) . '//EN' . "\n";
+	$filecontents .= 'PRODID:-//SimpleMachines//SMF ' . (empty($forum_version) ? 2.1 : strtr($forum_version, array('SMF ' => ''))) . '//EN' . "\n";
 	$filecontents .= 'VERSION:2.0' . "\n";
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
 	// @TODO - Should be the members email who created the event rather than $webmaster_email.
 	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
-	$filecontents .= 'DTSTART;VALUE=DATE:' . $datestart . "\n";
+	$filecontents .= 'DTSTART' . (!empty($event['start_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $datestart . "\n";
 
-	// more than one day
-	if ($event['span'] > 1)
-		$filecontents .= 'DTEND;VALUE=DATE:' . $dateend . "\n";
+	// event has a duration
+	if ($event['start_iso_gmdate'] != $event['end_iso_gmdate'])
+		$filecontents .= 'DTEND' . (!empty($event['end_time']) ? ';TZID=' . $event['tz'] : ';VALUE=DATE') . ':' . $dateend . "\n";
 
 	// event has changed? advance the sequence for this UID
 	if ($event['sequence'] > 0)
 		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
+
+	if (!empty($event['location']))
+		$filecontents .= 'LOCATION:' . str_replace(',', '\,', $event['location']) . "\n";
 
 	$filecontents .= 'SUMMARY:' . implode('', $title);
 	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";

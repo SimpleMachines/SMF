@@ -244,12 +244,25 @@ function Post($post_errors = array())
 		// Start loading up the event info.
 		$context['event'] = array();
 		$context['event']['title'] = isset($_REQUEST['evtitle']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['evtitle'])) : '';
+		$context['event']['location'] = isset($_REQUEST['event_location']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['event_location'])) : '';
 
 		$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
 		$context['event']['new'] = $context['event']['id'] == -1;
 
 		// Permissions check!
 		isAllowedTo('calendar_post');
+
+		// We want a fairly compact version of the time, but as close as possible to the user's settings.
+		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$time_string = '%k:%M';
+		else
+			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+
+		$js_time_string = str_replace(
+			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
+			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
+			$time_string
+		);
 
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
@@ -262,46 +275,16 @@ function Post($post_errors = array())
 			}
 
 			// Get the current event information.
-			$request = $smcFunc['db_query']('', '
-				SELECT
-					id_member, title, MONTH(start_date) AS month, DAYOFMONTH(start_date) AS day,
-					YEAR(start_date) AS year, (TO_DAYS(end_date) - TO_DAYS(start_date)) AS span
-				FROM {db_prefix}calendar
-				WHERE id_event = {int:id_event}
-				LIMIT 1',
-				array(
-					'id_event' => $context['event']['id'],
-				)
-			);
-			$row = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
-
-			// Make sure the user is allowed to edit this event.
-			if ($row['id_member'] != $user_info['id'])
-				isAllowedTo('calendar_edit_any');
-			elseif (!allowedTo('calendar_edit_any'))
-				isAllowedTo('calendar_edit_own');
-
-			$context['event']['month'] = $row['month'];
-			$context['event']['day'] = $row['day'];
-			$context['event']['year'] = $row['year'];
-			$context['event']['title'] = $row['title'];
-			$context['event']['span'] = $row['span'] + 1;
+			require_once($sourcedir . '/Subs-Calendar.php');
+			$eventProperties = getEventProperties($context['event']['id']);
+			$context['event'] = array_merge($context['event'], $eventProperties);
 		}
 		else
 		{
-			$today = getdate();
-
-			// You must have a month and year specified!
-			if (!isset($_REQUEST['month']))
-				$_REQUEST['month'] = $today['mon'];
-			if (!isset($_REQUEST['year']))
-				$_REQUEST['year'] = $today['year'];
-
-			$context['event']['month'] = (int) $_REQUEST['month'];
-			$context['event']['year'] = (int) $_REQUEST['year'];
-			$context['event']['day'] = isset($_REQUEST['day']) ? $_REQUEST['day'] : ($_REQUEST['month'] == $today['mon'] ? $today['mday'] : 0);
-			$context['event']['span'] = isset($_REQUEST['span']) ? $_REQUEST['span'] : 1;
+			// Get the current event information.
+			require_once($sourcedir . '/Subs-Calendar.php');
+			$eventProperties = getNewEventDatetimes();
+			$context['event'] = array_merge($context['event'], $eventProperties);
 
 			// Make sure the year and month are in the valid range.
 			if ($context['event']['month'] < 1 || $context['event']['month'] > 12)
@@ -327,6 +310,80 @@ function Post($post_errors = array())
 
 		// Find the last day of the month.
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
+
+		// An all day event? Set up some nice defaults in case the user wants to change that
+		if ($context['event']['allday'] == true)
+		{
+			$context['event']['tz'] = getUserTimezone();
+			$context['event']['start_time'] = timeformat(time(), $time_string);
+			$context['event']['end_time'] = timeformat(time() + 3600, $time_string);
+		}
+		// Otherwise, just adjust these to look nice on the input form
+		else
+		{
+			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
+			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+		}
+
+		// Need this so the user can select a timezone for the event.
+		$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
+		unset($context['all_timezones']['']);
+
+		// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
+		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
+		{
+			$d = date_create($context['event']['tz']);
+			$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+		}
+
+		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
+		loadCSSFile('jquery.timepicker.css', array('defer' => false), 'smf_timepicker');
+		loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
+		loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
+		loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+		addInlineJavaScript('
+	$("#allday").click(function(){
+		$("#start_time").attr("disabled", this.checked);
+		$("#end_time").attr("disabled", this.checked);
+		$("#tz").attr("disabled", this.checked);
+	});
+	$("#event_time_input .date_input").datepicker({
+		dateFormat: "yy-mm-dd",
+		autoSize: true,
+		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		constrainInput: true,
+		showAnim: "",
+		showButtonPanel: false,
+		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
+		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
+		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
+		hideIfNoPrevNext: true,
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', $txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
+		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
+		prevText: "' . $txt['prev_month'] . '",
+		nextText: "' . $txt['next_month'] . '",
+	});
+	$(".time_input").timepicker({
+		timeFormat: "' . $js_time_string . '",
+		showDuration: true,
+		maxTime: "23:59:59",
+	});
+	var date_entry = document.getElementById("event_time_input");
+	var date_entry_pair = new Datepair(date_entry, {
+		timeClass: "time_input",
+		dateClass: "date_input",
+		parseDate: function (el) {
+		    var utc = new Date($(el).datepicker("getDate"));
+		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+		},
+		updateDate: function (el, v) {
+		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+		}
+	});
+	', true);
 
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
 		$context['event']['topic'] = !empty($topic) ? $topic : 0;
@@ -943,7 +1000,7 @@ function Post($post_errors = array())
 					break;
 				}
 
-				// Show any errors which might of occured.
+				// Show any errors which might have occured.
 				if (!empty($attachment['errors']))
 				{
 					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
@@ -2031,9 +2088,8 @@ function Post2()
 			'board' => $board,
 			'topic' => $topic,
 			'title' => $_POST['evtitle'],
+			'location' => $_POST['event_location'],
 			'member' => $user_info['id'],
-			'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
-			'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 		);
 		insertEvent($eventOptions);
 	}
@@ -2081,11 +2137,9 @@ function Post2()
 				'board' => $board,
 				'topic' => $topic,
 				'title' => $_POST['evtitle'],
+				'location' => $_POST['event_location'],
 				'member' => $user_info['id'],
-				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
-				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 			);
-
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
 	}
