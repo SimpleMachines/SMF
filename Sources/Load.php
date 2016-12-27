@@ -3321,7 +3321,7 @@ function cache_put_data($key, $value, $ttl = 120)
 
 	// The API will handle the rest.
 	$value = $value === null ? null : json_encode($value);
-	$result = $cacheAPI->putData($key, $value, $ttl);
+	$cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
@@ -3393,7 +3393,7 @@ function cache_get_data($key, $ttl = 120)
  */
 function clean_cache($type = '')
 {
-	global $cachedir, $sourcedir, $modSettings;
+	global $cachedir, $sourcedir, $modSettings, $cacheAPI;
 
 	// If we can't get to the API, can't do this.
 	if (empty($cacheAPI))

@@ -21,9 +21,9 @@ if (!defined('SMF'))
 class memcached_cache extends cache_api
 {
 	/**
-	 * @var string The memcache instance.
+	 * @var \Memcached The memcache instance.
 	 */
-	private $memcache = null;
+	private $memcached = null;
 
 	/**
 	 * {@inheritDoc}
