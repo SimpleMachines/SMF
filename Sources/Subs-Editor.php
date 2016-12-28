@@ -2055,7 +2055,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
 			'text_value' => '',
 			'questions' => array(),
-			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && $modSettings['recaptcha_enabled'] == 1 && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
+			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
 
@@ -2154,7 +2154,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			// Was there a reCAPTCHA response?
 			if (isset($_POST['g-recaptcha-response']))
 			{
-				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
 
 				if (!$resp->isSuccess())
 					$verification_errors[] = 'wrong_verification_code';
