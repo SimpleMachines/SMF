@@ -272,7 +272,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			if ($verify_context['can_recaptcha'])
 			{
 				echo '
-				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_public_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
+				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
 				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
 			}
 
