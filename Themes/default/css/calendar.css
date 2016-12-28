@@ -8,6 +8,7 @@
 	box-shadow: none;
 	border-radius: 0;
 	box-sizing: content-box;
+	margin: 0;
 }
 /* Used to indicate the current day in the grid. */
 #main_grid .calendar_today span.day_text,
@@ -168,14 +169,17 @@ td.days:hover {
 }
 #main_grid tr:not(.days_wrapper) th,
 #main_grid tr:not(.days_wrapper) td {
-    min-height: 30px;
+	min-height: 30px;
 }
-#main_grid td.calendar_base {
-	background: #e7eaef;
-	text-align: center;
+.calendar_top .input_text {
+	width: 80px;
 }
+#calendar_range,
 #calendar_navigation {
-    margin-top: 8px;
+	padding: 5px 0;
+	text-align: center;
+	max-width: 50%;
+	margin: auto;
 }
 #main_grid .act_day {
 	font-size: 12pt;
@@ -209,10 +213,12 @@ span.hidelink {
 }
 #view_button {
 	margin-top: -2px;
+	margin-left: inherit;
 }
-/* Cheat and match this to the submit button. */
+#main_grid .buttonrow,
 #main_grid .buttonlist {
-	margin: 0 12px 0 0;
+	margin: 5px 0;
+	padding: 0
 }
 #month_grid .compact {
 	padding: 2px;
@@ -333,13 +339,26 @@ span.hidelink {
 		font-size: 1em;
 		text-decoration: underline;
 	}
-	#main_grid .buttonlist {
-		margin: 2px;
-		padding: 0;
+}
+
+@media (max-width: 639px) {
+	.calendar_top {
+		padding: 12px 8px;
 	}
+	#calendar_range,
 	#calendar_navigation {
-		float: left;
-		margin: 3px 2px;
-		padding: 0;
+		max-width: none;
+	}
+}
+@media (max-width: 539px) {
+	#calendar_range {
+		clear: both;
+		padding: 10px 0 0;
+	}
+}
+@media (max-width: 479px) {
+	#calendar_navigation {
+		clear: both;
+		padding: 10px 0 0;
 	}
 }

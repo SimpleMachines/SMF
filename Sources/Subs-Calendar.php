@@ -75,6 +75,8 @@ function getBirthdayRange($low_date, $high_date)
 	}
 	$smcFunc['db_free_result']($result);
 
+	ksort($bday);
+
 	// Set is_last, so the themes know when to stop placing separators.
 	foreach ($bday as $mday => $array)
 		$bday[$mday][count($array) - 1]['is_last'] = true;
@@ -236,6 +238,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$events[$mday][count($array) - 1]['is_last'] = true;
 	}
 
+	ksort($events);
+
 	return $events;
 }
 
@@ -283,6 +287,8 @@ function getHolidayRange($low_date, $high_date)
 		$holidays[$event_year . substr($row['event_date'], 4)][] = $row['title'];
 	}
 	$smcFunc['db_free_result']($result);
+
+	ksort($holidays);
 
 	return $holidays;
 }
@@ -480,8 +486,8 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 	$calendarGrid['shift'] = $nShift;
 
 	// Set the previous and the next month's links.
-	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'];
-	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'];
+	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'];
+	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'];
 
 	return $calendarGrid;
 }
@@ -601,6 +607,108 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 	// Set the previous and the next week's links.
 	$calendarGrid['previous_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['previous_week']['year'] . ';month=' . $calendarGrid['previous_week']['month'] . ';day=' . $calendarGrid['previous_week']['day'];
 	$calendarGrid['next_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
+
+	return $calendarGrid;
+}
+
+
+/**
+ * Returns the information needed to show a list of upcoming events, birthdays, and holidays on the calendar.
+ * @param int $start_date The start of a date range
+ * @param int $end_date The end of a date range
+ * @param array $calendarOptions An array of calendar options
+ * @return array An array of information needed to display a list of upcoming events, etc., on the calendar
+ */
+function getCalendarList($start_date, $end_date, $calendarOptions)
+{
+	global $scripturl, $modSettings, $user_info, $txt, $context, $sourcedir;
+	require_once($sourcedir . '/Subs.php');
+
+	// DateTime objects make life easier
+	$start_object = date_create($start_date);
+	$end_object = date_create($end_date);
+
+	$calendarGrid = array(
+		'start_date' => $start_date,
+		'start_year' => date_format($start_object, 'Y'),
+		'start_month' => date_format($start_object, 'm'),
+		'start_day' => date_format($start_object, 'd'),
+		'end_date' => $end_date,
+		'end_year' => date_format($end_object, 'Y'),
+		'end_month' => date_format($end_object, 'm'),
+		'end_day' => date_format($end_object, 'd'),
+	);
+
+	$calendarGrid['birthdays'] = $calendarOptions['show_birthdays'] ? getBirthdayRange($start_date, $end_date) : array();
+	$calendarGrid['holidays'] = $calendarOptions['show_holidays'] ? getHolidayRange($start_date, $end_date) : array();
+	$calendarGrid['events'] = $calendarOptions['show_events'] ? getEventRange($start_date, $end_date) : array();
+
+	// Get rid of duplicate events
+	$temp = array();
+	foreach ($calendarGrid['events'] as $date => $date_events)
+	{
+		foreach ($date_events as $event_key => $event_val)
+		{
+			if (in_array($event_val['id'], $temp))
+				unset($calendarGrid['events'][$date][$event_key]);
+			else
+				$temp[] = $event_val['id'];
+		}
+	}
+
+	// Give birthdays and holidays a friendly format, without the year
+	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+		$date_format = '%b %d';
+	else
+		$date_format = str_replace(array('%Y', '%y', '%G', '%g', '%C', '%c', '%D'), array('', '', '', '', '', '%b %d', '%m/%d'), $matches[0]);
+
+	foreach (array('birthdays', 'holidays') as $type)
+	{
+		foreach ($calendarGrid[$type] as $date => $date_content)
+		{
+			$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), $date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+
+			$calendarGrid[$type][$date]['date_local'] = $date_local;
+		}
+	}
+
+	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
+	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
+	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
+	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+	addInlineJavaScript('
+	$("#event_time_input .date_input").datepicker({
+		dateFormat: "yy-mm-dd",
+		autoSize: true,
+		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
+		constrainInput: true,
+		showAnim: "",
+		showButtonPanel: false,
+		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
+		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
+		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
+		hideIfNoPrevNext: true,
+		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
+		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
+		dayNames: ["' . implode('", "', $txt['days']) . '"],
+		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
+		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
+		prevText: "' . $txt['prev_month'] . '",
+		nextText: "' . $txt['next_month'] . '",
+	});
+	var date_entry = document.getElementById("event_time_input");
+	var date_entry_pair = new Datepair(date_entry, {
+		dateClass: "date_input",
+		autoclose: true,
+		parseDate: function (el) {
+		    var utc = new Date($(el).datepicker("getDate"));
+		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+		},
+		updateDate: function (el, v) {
+		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+		}
+	});
+	', true);
 
 	return $calendarGrid;
 }
