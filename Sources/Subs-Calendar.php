@@ -1377,20 +1377,20 @@ function setEventStartEnd($eventOptions = array())
 	$end_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
 
 	// Uh-oh...
-	if ($start_date_isvalid == false)
+	if ($start_date_isvalid === false)
 	{
 		fatal_lang_error('invalid_date', false);
 	}
 
 	// Make sure we use valid values for everything
-	if ($end_date_isvalid == false)
+	if ($end_date_isvalid === false)
 	{
 		$end_year = $start_year;
 		$end_month = $start_month;
 		$end_day = $start_day;
 	}
 
-	if ($allday == true || $start_time_isset == false || $start_time_isvalid == false)
+	if ($allday === true || $start_time_isset === false || $start_time_isvalid === false)
 	{
 		$allday = true;
 		$start_hour = 0;
@@ -1398,7 +1398,7 @@ function setEventStartEnd($eventOptions = array())
 		$start_second = 0;
 	}
 
-	if ($allday == true || $end_time_isvalid == false || $end_time_isset == false)
+	if ($allday === true || $end_time_isvalid === false || $end_time_isset === false)
 	{
 		$end_hour = $start_hour;
 		$end_minute = $start_minute;
@@ -1425,7 +1425,6 @@ function setEventStartEnd($eventOptions = array())
 		$date_diff = date_diff($start_object, $end_object);
 		if ($date_diff->days > $modSettings['cal_maxspan'])
 		{
-			// trigger_error('Given end date exceeds maximum span. Truncating event to fit.');
 			if ($modSettings['cal_maxspan'] > 1)
 			{
 				$end_object = date_create(sprintf('%04d-%02d-%02d %02d:%02d:%02d', $start_year, $start_month, $start_day, $start_hour, $start_minute, $start_second) . ' ' . $tz);
@@ -1459,8 +1458,6 @@ function setEventStartEnd($eventOptions = array())
  * Helper function for getEventRange, getEventProperties, getNewEventDatetimes, etc.
  *
  * @param array $row A database row representing an event from the calendar table
- * @param string $date_format Tells timeformat() how to format the date values for display to the user
- * @param string $time_format Tells timeformat() how to format the time values for display to the user
  * @return array An array containing the start and end date and time properties for the event
  */
 function buildEventDatetimes($row)
@@ -1525,7 +1522,7 @@ function buildEventDatetimes($row)
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $context, $sourcedir, $user_info;
+	global $smcFunc, $context, $sourcedir, $user_info, $modSettings;
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
