@@ -447,8 +447,7 @@ class gif_image
 					$len = 0;
 					if (!($this->m_data = $this->m_lzw->decompress($data, $len)))
 						return false;
-
-					$data = substr($data, $len);
+					
 					$datLen += $len;
 
 					if ($this->m_gih->m_bInterlace)
