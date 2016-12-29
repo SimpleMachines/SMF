@@ -673,7 +673,7 @@ function Credits($in_admin = false)
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						// Localizers
 						'Dr. Deejay',
-                        'd3vcho',
+                        			'd3vcho',
 						// Former Localizers
 						'Relyana',
 					),
