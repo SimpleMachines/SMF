@@ -471,10 +471,7 @@ function Welcome()
 				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
 			}
 			else
-			{
-				$db_type = $key;
 				$incontext['supported_databases'][] = $db;
-			}
 		}
 	}
 
