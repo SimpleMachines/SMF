@@ -215,7 +215,7 @@ function BoardReport()
 			'text_none' => $txt['none'],
 		)
 	);
-	$boards = array(0 => array('name' => $txt['global_boards']));
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Each board has it's own table.
@@ -444,9 +444,6 @@ function BoardPermissionsReport()
 		// Here cycle through all the detected permissions.
 		foreach ($permissions as $ID_PERM => $perm_info)
 		{
-			// Is this identical to the global?
-			$identicalGlobal = $board == 0 ? false : true;
-
 			// Default data for this row.
 			$curData = array('col' => $perm_info['title']);
 
