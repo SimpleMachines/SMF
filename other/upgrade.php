@@ -5576,6 +5576,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 {
 	global $smcFunc, $step_progress;
 
+	$current_substep = $_GET['substep'];
+
 	$step_progress['name'] = 'Converting ips';
 	$step_progress['current'] = $_GET['a'];
 
@@ -5601,7 +5603,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	$is_done = false;
 	while (!$is_done)
 	{
-		nextSubStep($substep);
+		// Keep looping at the current step.
+		nextSubStep($current_substep);
 
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
