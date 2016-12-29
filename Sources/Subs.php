@@ -1749,15 +1749,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 
+	$alltags = array();
 	foreach ($bbc_codes as $section) {
 		foreach ($section as $code) {
 			$alltags[] = $code['tag'];
 		}
 	}
 	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
-
-	// The non-breaking-space looks a bit different each time.
-	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
 	$pos = -1;
 	while ($pos !== false)
@@ -3170,7 +3168,6 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
 function setMemoryLimit($needed, $in_use = false)
 {
 	// everything in bytes
-	$memory_used = 0;
 	$memory_current = memoryReturnBytes(ini_get('memory_limit'));
 	$memory_needed = memoryReturnBytes($needed);
 
@@ -3286,10 +3283,8 @@ function template_header()
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
 			else
-			{
 				$path = $modSettings['attachmentUploadDir'];
-				$id_folder_thumb = 1;
-			}
+
 			secureDirectory($path, true);
 			secureDirectory($cachedir);
 
@@ -3583,12 +3578,11 @@ function template_css()
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $smcFunc, $settings, $txt, $context;
+	global $sourcedir, $settings, $txt;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
 	$data = !empty($data) ? $data : false;
-	$minFailed = array();
 
 	if (empty($type) || empty($data))
 		return false;
@@ -4493,9 +4487,6 @@ function call_helper($string, $return = false)
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
 
-	// The soon to be populated var.
-	$func = false;
-
 	// Is there a file to load?
 	$string = load_file($string);
 
@@ -5395,9 +5386,6 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 	// Come on...
 	if (empty($json) || !is_string($json))
 		return array();
-
-	$returnArray = array();
-	$jsonError = false;
 
 	$returnArray = @json_decode($json, $returnAsArray);
 
