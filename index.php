@@ -189,8 +189,6 @@ function smf_main()
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
 		{
-			$defaultAction = false;
-
 			if (!empty($modSettings['integrate_default_action']))
 			{
 				$defaultAction = explode(',', $modSettings['integrate_default_action']);
