@@ -50,7 +50,6 @@ namespace {
 			if (PasswordCompat\binary\_strlen($password) > 72) {
 				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
-			$resultLength = 0;
 			switch ($algo) {
 				case PASSWORD_BCRYPT:
 					// Note that this is a C constant, but not exposed to PHP, so we don't define it here.

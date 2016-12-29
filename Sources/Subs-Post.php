@@ -825,8 +825,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Make sure the PM language file is loaded, we might need something out of it.
 	loadLanguage('PersonalMessage');
 
-	$onBehalf = $from !== null;
-
 	// Initialize log array.
 	$log = array(
 		'failed' => array(),
@@ -929,7 +927,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		$delete = false;
 		foreach ($criteria as $criterium)
 		{
-			$match = false;
 			if (($criterium['t'] == 'mid' && $criterium['v'] == $from['id']) || ($criterium['t'] == 'gid' && in_array($criterium['v'], $user_info['groups'])) || ($criterium['t'] == 'sub' && strpos($subject, $criterium['v']) !== false) || ($criterium['t'] == 'msg' && strpos($message, $criterium['v']) !== false))
 				$delete = true;
 			// If we're adding and one criteria don't match then we stop!
@@ -1867,7 +1864,6 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'id_topic' => $topicOptions['id'],
 			'counter_increment' => 1,
 		);
-		$topics_columns = array();
 		if ($msgOptions['approved'])
 			$topics_columns = array(
 				'id_member_updated = {int:poster_id}',

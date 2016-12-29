@@ -689,7 +689,6 @@ function html_to_bbc($text)
 		$end_pos = $start_pos + strlen($matches[0]);
 
 		$params = '';
-		$had_params = array();
 		$src = '';
 
 		$attrs = fetchTagAttributes($matches[1]);
@@ -988,7 +987,6 @@ function fetchTagAttributes($text)
 {
 	$attribs = array();
 	$key = $value = '';
-	$strpos = 0;
 	$tag_state = 0; // 0 = key, 1 = attribute with no string, 2 = attribute with string
 	for ($i = 0; $i < strlen($text); $i++)
 	{
@@ -1052,13 +1050,6 @@ function legalise_bbc($text)
 	if (strlen($text) < 3)
 		return $text;
 
-	// We are going to cycle through the BBC and keep track of tags as they arise - in order. If get to a block level tag we're going to make sure it's not in a non-block level tag!
-	// This will keep the order of tags that are open.
-	$current_tags = array();
-
-	// This will quickly let us see if the tag is active.
-	$active_tags = array();
-
 	// A list of tags that's disabled by the admin.
 	$disabled = empty($modSettings['disabledBBC']) ? array() : array_flip(explode(',', strtolower($modSettings['disabledBBC'])));
 
@@ -1077,9 +1068,6 @@ function legalise_bbc($text)
 		if (isset($tag['type']) && $tag['type'] == 'closed')
 			$self_closing_tags[] = $tag['tag'];
 	}
-
-	// Don't worry if we're in a code/nobbc.
-	$in_code_nobbc = false;
 
 	// Right - we're going to start by going through the whole lot to make sure we don't have align stuff crossed as this happens load and is stupid!
 	$align_tags = array('left', 'center', 'right', 'pre');
@@ -1144,16 +1132,9 @@ function legalise_bbc($text)
 		'size',
 	);
 
-	// In case things changed above set these back to normal.
-	$in_code_nobbc = false;
-	$new_text_offset = 0;
-
 	// These keep track of where we are!
 	if (count($parts = preg_split(sprintf('~(\\[)(/?)(%1$s)((?:[\\s=][^\\]\\[]*)?\\])~', implode('|', array_keys($valid_tags))), $text, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1)
 	{
-		// Start with just text.
-		$isTag = false;
-
 		// Start outside [nobbc] or [code] blocks.
 		$inCode = false;
 		$inNoBbc = false;

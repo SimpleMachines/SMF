@@ -2416,8 +2416,6 @@ function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = arr
 		}
 	}
 
-	// Anything above $counter must be for custom themes.
-	$custom_template_begin = $counter;
 	// Reference for what theme ID this action belongs to.
 	$theme_id_ref = array();
 

@@ -535,8 +535,6 @@ function getCommentModDetails($comment_id)
 {
 	global $smcFunc, $user_info;
 
-	$comment = array();
-
 	if (empty($comment_id))
 		return false;
 

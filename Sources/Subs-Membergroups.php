@@ -693,8 +693,6 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
 	global $scripturl, $context, $settings, $smcFunc, $user_info;
 
-	$groups = array();
-
 	$request = $smcFunc['db_query']('substring_membergroups', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts, mg.description, mg.group_type, mg.online_color, mg.hidden,
 			mg.icons, COALESCE(gm.id_member, 0) AS can_moderate, 0 AS num_members

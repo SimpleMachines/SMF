@@ -487,12 +487,9 @@ function smf_db_affected_rows($result = null)
  */
 function smf_db_insert_id($table, $field = null, $connection = null)
 {
-	global $db_connection, $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix;
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-
-	if ($connection === false)
-		$connection = $db_connection;
 
 	// Try get the last ID for the auto increment field.
 	$request = $smcFunc['db_query']('', 'SELECT CURRVAL(\'' . $table . '_seq\') AS insertID',

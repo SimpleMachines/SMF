@@ -272,7 +272,6 @@ function theme_install($to_install = array())
 	// OK, is this a newer version of an already installed theme?
 	if (!empty($context['to_install']['version']))
 	{
-		$to_update = array();
 		$request = $smcFunc['db_query']('', '
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
