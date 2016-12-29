@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadProfileFields($force_reload = false)
 {
-	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
+	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
 	global $sourcedir, $profile_vars;
 
 	// Don't load this twice!
@@ -881,14 +881,10 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	// Permissions...
 	if ($context['user']['is_owner'])
 	{
-		$changeIdentity = allowedTo(array('profile_identity_any', 'profile_identity_own', 'profile_password_any', 'profile_password_own'));
 		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_website_any', 'profile_website_own', 'profile_signature_any', 'profile_signature_own'));
 	}
 	else
-	{
-		$changeIdentity = allowedTo('profile_identity_any', 'profile_signature_any');
-		$changeOther = allowedTo('profile_extra_any', 'profile_website_any', 'profile_signature_any');
-	}
+		$changeOther = allowedTo(array('profile_extra_any', 'profile_website_any', 'profile_signature_any'));
 
 	// Arrays of all the changes - makes things easier.
 	$profile_bools = array();
@@ -1245,7 +1241,6 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 	}
 	$smcFunc['db_free_result']($request);
 
-	$hook_errors = array();
 	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
 
 	if (!empty($hook_errors) && is_array($hook_errors))
@@ -2158,7 +2153,6 @@ function alert_mark($memID, $toMark, $read = 0)
 		return false;
 
 	$toMark = (array) $toMark;
-	$count = 0;
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}user_alerts
@@ -2228,8 +2222,6 @@ function alert_count($memID, $unread = false)
 
 	if (empty($memID))
 		return false;
-
-	$count = 0;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert
