@@ -1165,7 +1165,7 @@ function getNewEventDatetimes()
 
 	// Set the basic values for the new event
 	$row_keys = array('start_date', 'end_date', 'start_time', 'end_time', 'timezone');
-	$row = array_combine($row_keys, setEventStartEnd(array()));
+	$row = array_combine($row_keys, setEventStartEnd());
 
 	// And now set the full suite of values
 	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
