@@ -186,9 +186,7 @@ function template_main()
  */
 function template_print_below()
 {
-	global $topic, $txt, $scripturl;
-
-	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
+	global $topic, $scripturl;
 
 	echo '</div>
 		</div>';
