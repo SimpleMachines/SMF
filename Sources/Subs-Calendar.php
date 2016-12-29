@@ -188,8 +188,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'end_datetime' => $end['datetime'],
 					'end_iso_gmdate' => $end['iso_gmdate'],
 					'allday' => $allday,
-					'tz' => $tz,
-					'tz_abbrev' => $tz_abbrev,
+					'tz' => !$allday ? $tz : null,
+					'tz_abbrev' => !$allday ? $tz_abbrev : null,
 					'span' => $span,
 					'is_last' => false,
 					'id_board' => $row['id_board'],
@@ -1127,8 +1127,8 @@ function getEventProperties($event_id)
 		'end_datetime' => $end['datetime'],
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
-		'tz' => $tz,
-		'tz_abbrev' => $tz_abbrev,
+		'tz' => !$allday ? $tz : null,
+		'tz_abbrev' => !$allday ? $tz_abbrev : null,
 		'span' => $span,
 		'title' => $row['title'],
 		'location' => $row['location'],
@@ -1203,8 +1203,8 @@ function getNewEventDatetimes()
 		'end_datetime' => $end['datetime'],
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
-		'tz' => $tz,
-		'tz_abbrev' => $tz_abbrev,
+		'tz' => !$allday ? $tz : null,
+		'tz_abbrev' => !$allday ? $tz_abbrev : null,
 		'span' => $span,
 	);
 
@@ -1470,11 +1470,9 @@ function buildEventDatetimes($row)
 	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
 	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
 
-	// We only want the time zone if this isn't an all day event
-	$tz = empty($allday) ? $row['timezone'] : null;
-
-	// The time zone abbreviation (e.g. 'GMT', 'EST', etc.)
-	$tz_abbrev = empty($allday) ? date_format($start_object, 'T') : null;
+	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
+	$tz = date_format($start_object, 'e');
+	$tz_abbrev = date_format($start_object, 'T');
 
 	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 	if (strspn($tz_abbrev, '+-') > 0)
