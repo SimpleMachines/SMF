@@ -388,7 +388,6 @@ function ConvertMsgBody()
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
 
 		return;
-		redirectexit('action=admin;area=maintain;sa=database');
 	}
 	elseif ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont'])))
 	{
@@ -712,9 +711,6 @@ function OptimizeTables()
 
 	ignore_user_abort(true);
 	db_extend();
-
-	// Start with no tables optimized.
-	$opttab = 0;
 
 	$context['page_title'] = $txt['database_optimize'];
 	$context['sub_template'] = 'optimize';
@@ -2129,7 +2125,6 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				$hookParsedData = get_hook_info_from_raw($rawFunc);
 
 				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
-				$file_name = isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : ((substr($hook, -8) === '_include') ? basename($rawFunc) : $hookParsedData['hookFile']);
 				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(
