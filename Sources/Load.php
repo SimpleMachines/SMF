@@ -2877,8 +2877,6 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 					'filename' => $matches[1],
 					'location' => $language_dir . '/index.' . $matches[1] . '.php',
 				);
-
-				$indexFile = '';
 			}
 			$dir->close();
 		}
@@ -3411,14 +3409,14 @@ function cache_get_data($key, $ttl = 120)
  */
 function clean_cache($type = '')
 {
-	global $cachedir, $sourcedir, $modSettings, $cacheAPI;
+	global $cacheAPI;
 
 	// If we can't get to the API, can't do this.
 	if (empty($cacheAPI))
-		return false;
+		return;
 
 	// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
-	$value = $cacheAPI->cleanCache($type);
+	$cacheAPI->cleanCache($type);
 
 	call_integration_hook('integrate_clean_cache');
 	clearstatcache();
