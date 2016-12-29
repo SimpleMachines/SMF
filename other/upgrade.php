@@ -16,7 +16,6 @@ define('SMF_VERSION', '2.1 Beta 3');
 define('SMF_LANG_VERSION', '2.1 Beta 3');
 
 $GLOBALS['required_php_version'] = '5.3.8';
-$GLOBALS['required_mysql_version'] = '5.0.3';
 
 $databases = array(
 	'mysqli' => array(
