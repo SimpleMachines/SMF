@@ -99,19 +99,19 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 		{
-			list (, , $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
+			list (,, $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
-				list (, , $timeout) = safe_unserialize($_COOKIE[$cookiename]);
+				list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
-			list (, , $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
+			list (,, $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 			// Try for old format
 			if (is_null($timeout))
-				list (, , $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+				list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);

@@ -34,7 +34,7 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function ($a)
+	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function($a)
 	{
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
@@ -116,7 +116,7 @@ function preparsecode(&$message, $previewing = false)
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
 		if (allowedTo('admin_forum'))
-			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function ($m) {
+			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m) {
 				return '[html]' . strtr(un_htmlspecialchars($m), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
 			}, $message);
 
@@ -129,17 +129,17 @@ function preparsecode(&$message, $previewing = false)
 	}
 
 	// Let's look at the time tags...
-	$message = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function ($m) use ($modSettings, $user_info)
+	$message = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function($m) use ($modSettings, $user_info)
 	{
 		return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
 	}, $message);
 
 	// Change the color specific tags to [color=the color].
-	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message);  // First do the opening tags.
-	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message);   // And now do the closing tags
+	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
+	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
 
 	// Make sure all tags are lowercase.
-	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function ($m)
+	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function($m)
 	{
 		return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
 	}, $message);
@@ -258,13 +258,13 @@ function un_preparsecode($message)
 
 	$message = implode('', $parts);
 
-	$message = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function ($m) use ($smcFunc)
+	$message = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function($m) use ($smcFunc)
 	{
 		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 	}, $message);
 
 	// Attempt to un-parse the time to something less awful.
-	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function ($m)
+	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function($m)
 	{
 		return "[time]" . timeformat("$m[1]", false) . "[/time]";
 	}, $message);
@@ -355,7 +355,7 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', function ($m)
+	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', function($m)
 	{
 		return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
 	}, $message);
@@ -541,7 +541,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	$to_array = is_array($to) ? $to : array($to);
 
 	// Make sure we actually have email addresses to send this to
-	foreach($to_array as $k => $v)
+	foreach ($to_array as $k => $v)
 	{
 		// This should never happen, but better safe than sorry
 		if (trim($v) == '')
@@ -1217,7 +1217,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		unset($matches);
 
 		if ($simple)
-			$string = preg_replace_callback('~&#(\d{3,8});~', function ($m)
+			$string = preg_replace_callback('~&#(\d{3,8});~', function($m)
 			{
 				return chr("$m[1]");
 			}, $string);
@@ -1248,7 +1248,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 				$string = $newstring;
 		}
 
-		$entityConvert = function ($m)
+		$entityConvert = function($m)
 		{
 			$c = $m[1];
 			if (strlen($c) === 1 && ord($c[0]) <= 0x7F)
@@ -1354,14 +1354,14 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		$helo = gethostname();
 	elseif (function_exists('php_uname'))
 		$helo = php_uname('n');
-	elseif (array_key_exists('SERVER_NAME',$_SERVER) && !empty($_SERVER['SERVER_NAME']))
+	elseif (array_key_exists('SERVER_NAME', $_SERVER) && !empty($_SERVER['SERVER_NAME']))
 		$helo = $_SERVER['SERVER_NAME'];
 
 	if (empty($helo))
 		$helo = $modSettings['smtp_host'];
 
 	// SMTP = 1, SMTP - STARTTLS = 2
-	if (in_array($modSettings['mail_type'], array(1,2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
+	if (in_array($modSettings['mail_type'], array(1, 2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		// EHLO could be understood to mean encrypted hello...
 		if (server_parse('EHLO ' . $helo, $socket, null, $response) == '250')
@@ -2125,7 +2125,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			preg_match_all('/\[member\=([0-9]+)\]([^\[]*)\[\/member\]/U', $msgOptions['old_body'], $match);
 
 			if (isset($match[1]) && isset($match[2]) && is_array($match[1]) && is_array($match[2]))
-				foreach($match[1] as $i => $oldID)
+				foreach ($match[1] as $i => $oldID)
 					$oldmentions[$oldID] = array('id' => $oldID, 'real_name' => $match[2][$i]);
 
 			if (empty($modSettings['search_custom_index_config']))
@@ -2136,10 +2136,10 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
 
 		// Remove the poster.
-		if(isset($mentions[$user_info['id']]))
+		if (isset($mentions[$user_info['id']]))
 			unset($mentions[$user_info['id']]);
 
-		if(isset($oldmentions[$user_info['id']]))
+		if (isset($oldmentions[$user_info['id']]))
 			unset($oldmentions[$user_info['id']]);
 
 		if (is_array($mentions) && is_array($oldmentions) && count(array_diff_key($mentions, $oldmentions)) > 0 && count($mentions) > count($oldmentions))
@@ -2954,7 +2954,7 @@ function spell_suggest($dict, $word)
 			$suggestions = enchant_dict_suggest($dict, $word);
 
 			// Go through the suggestions and convert them back to the proper character set
-			foreach($suggestions as $index => $suggestion)
+			foreach ($suggestions as $index => $suggestion)
 			{
 				// //TRANSLIT makes it use similar-looking characters for incompatible ones...
 				$suggestions[$index] = iconv('UTF-8', $txt['lang_character_set'] . '//TRANSLIT', $suggestion);

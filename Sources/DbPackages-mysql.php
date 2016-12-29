@@ -125,7 +125,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// Righty - let's do the damn thing!
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
 	foreach ($columns as $column)
-		$table_query .= "\n\t" . smf_db_create_query_column($column)  . ',';
+		$table_query .= "\n\t" . smf_db_create_query_column($column) . ',';
 
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
@@ -744,7 +744,7 @@ function smf_db_create_query_column($column)
 		$type = $type . '(' . $size . ')';
 
 	// Now just put it together!
-	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
+	return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
 }
 
 ?>

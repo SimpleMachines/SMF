@@ -62,7 +62,7 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => function(&$value){
+		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
 		},
@@ -79,7 +79,7 @@ $databases = array(
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
-		'validate_prefix' => function(&$value){
+		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
@@ -754,7 +754,7 @@ function DatabaseSettings()
 	if (isset($_POST['db_user']))
 	{
 		$incontext['db']['user'] = $_POST['db_user'];
-		$incontext['db']['name'] =  $_POST['db_name'];
+		$incontext['db']['name'] = $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 
@@ -1157,7 +1157,7 @@ function DatabasePopulation()
 		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), $db_connection) === false)
 		{
 			// Use the appropriate function based on the DB type
-			if ($db_type == 'mysql' || $db_type =='mysqli')
+			if ($db_type == 'mysql' || $db_type == 'mysqli')
 				$db_errorno = $db_type . '_errno';
 
 			// Error 1050: Table already exists!
@@ -1358,8 +1358,7 @@ function AdminAccount()
 	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string){
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string) {
 			global $sourcedir;
 			if (function_exists('mb_strtolower'))
 				return mb_strtolower($string, 'UTF-8');
@@ -1652,7 +1651,7 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version;  // The variable is usually defined in index.php so lets just use our variable to do it for us.
+		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
@@ -1826,7 +1825,7 @@ function template_install_above()
 		<title>', $txt['smf_installer'], '</title>
 		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
 
 		<script src="Themes/default/scripts/jquery-2.1.4.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>

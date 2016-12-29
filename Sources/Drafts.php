@@ -85,7 +85,7 @@ function SaveDraft(&$post_errors)
 				locked = {int:locked},
 				is_sticky = {int:is_sticky}
 			WHERE id_draft = {int:id_draft}',
-			array (
+			array(
 				'id_topic' => $topic_id,
 				'id_board' => $board,
 				'poster_time' => time(),
@@ -411,7 +411,7 @@ function DeleteDraft($id_draft, $check = true)
 		DELETE FROM {db_prefix}user_drafts
 		WHERE id_draft IN ({array_int:id_draft})' . ($check ? '
 			AND  id_member = {int:id_member}' : ''),
-		array (
+		array(
 			'id_draft' => $id_draft,
 			'id_member' => empty($user_info['id']) ? -1 : $user_info['id'],
 		)
@@ -472,7 +472,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 			$context['drafts'][] = array(
 				'subject' => censorText(shorten_subject(stripslashes($row['subject']), 24)),
 				'poster_time' => timeformat($row['poster_time']),
-				'link' => '<a href="' . $scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic='. $row['id_topic'] .'.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
+				'link' => '<a href="' . $scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
 		// PM drafts
 		elseif ($draft_type === 1)

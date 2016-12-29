@@ -101,7 +101,7 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						// Since the moderator group has no explicit members, no link is needed.
 						if ($rowData['id_group'] == 3)
@@ -144,7 +144,7 @@ function MembergroupIndex()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// No explicit members for the moderator group.
 						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
@@ -210,7 +210,7 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						$colorStyle = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 						return sprintf('<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $colorStyle, $rowData['group_name']);

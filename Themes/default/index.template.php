@@ -85,7 +85,7 @@ function template_html_above()
 
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '' , '>
+	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '', '>
 <head>
 	<meta charset="', $context['character_set'], '">';
 
@@ -210,7 +210,7 @@ function template_body_above()
 		// Thirdly, alerts
 		echo '
 			<li>
-				<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'] ,'"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+				<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
 				<div id="alerts_menu" class="top_menu scrollable"></div>
 			</li>';
 
@@ -327,7 +327,7 @@ function template_body_above()
 				<a class="menu_icon mobile_user_menu"></a>
 				<div id="mobile_user_menu" class="popup_container">
 					<div class="popup_window description">
-						<div class="popup_heading">', $txt['mobile_user_menu'],'
+						<div class="popup_heading">', $txt['mobile_user_menu'], '
 						<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 						', template_menu(), '
 					</div>
@@ -374,7 +374,7 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 		echo '
 		<ul>
-			<li class="floatright"><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="'. $scripturl. '?action=help;sa=rules">'. $txt['terms_and_rules']. '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
+			<li class="floatright"><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="' . $scripturl . '?action=help;sa=rules">' . $txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
 			<li class="copyright">', theme_copyright(), '</li>
 		</ul>';
 
@@ -479,9 +479,9 @@ function template_menu()
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' :'"', '>
+						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
+								', $button['icon'], '<span class="textmenu">', $button['title'], '</span>
 							</a>';
 
 		if (!empty($button['sub_buttons']))
@@ -492,8 +492,8 @@ function template_menu()
 			foreach ($button['sub_buttons'] as $childbutton)
 			{
 				echo '
-								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' :'', '>
-									<a href="', $childbutton['href'], '"' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '', '>
+									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
 										', $childbutton['title'], '
 									</a>';
 				// 3rd level menus :)
@@ -505,7 +505,7 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 										<li>
-											<a href="', $grandchildbutton['href'], '"' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
 												', $grandchildbutton['title'], '
 											</a>
 										</li>';
@@ -553,7 +553,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' '. $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="'. $value['url'] .'"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -587,7 +587,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		return;
 
 	echo '
-		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"': ''), '>
+		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
 			',implode('', $buttons), '
 		</div>';
 }

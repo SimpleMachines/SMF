@@ -32,7 +32,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
 				$("#', $editor_id, '").sceditor({
-					',( $editor_id != 'quickReply' ? 'autofocus : true,' : '' ),'
+					',($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
@@ -159,7 +159,7 @@ function template_control_richedit_buttons($editor_id)
 
 	if (!empty($context['drafts_pm_save']))
 		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="',  --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
 		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
 
 	if (!empty($context['drafts_save']))
@@ -186,7 +186,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
@@ -207,7 +207,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',

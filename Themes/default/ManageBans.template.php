@@ -134,7 +134,7 @@ function template_ban_edit()
 							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text">
 						</dd>
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', !empty($context['ban_suggestions']['user']) ||  isset($context['ban']['from_user']) ? ' checked' : '', '>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', !empty($context['ban_suggestions']['user']) || isset($context['ban']['from_user']) ? ' checked' : '', '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
@@ -156,10 +156,10 @@ function template_ban_edit()
 					foreach ($ban_ips as $ip)
 						echo '
 						<dt>
-							<input type="checkbox" id="suggestions_', $key ,'_', $count, '" name="ban_suggestions[', $key ,'][]"', !empty($context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, $context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '" class="input_check">
+							<input type="checkbox" id="suggestions_', $key, '_', $count, '" name="ban_suggestions[', $key, '][]"', !empty($context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, $context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '" class="input_check">
 						</dt>
 						<dd>
-							<label for="suggestions_', $key ,'_', $count++, '">', $ip, '</label>
+							<label for="suggestions_', $key, '_', $count++, '">', $ip, '</label>
 						</dd>';
 
 					echo '

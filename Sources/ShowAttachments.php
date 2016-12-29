@@ -71,11 +71,11 @@ function showAttachment()
 	}
 
 	// Use cache when possible.
-	if (($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
+	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
 		list($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
-	if(empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
+	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
 	{
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;
@@ -144,8 +144,8 @@ function showAttachment()
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
 		$filePath = pathinfo($file['filePath']);
-		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension'])+1)) : $file['filePath'];
-		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
+		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
+		$file['etag'] = '"' . md5_file($file['filePath']) . '"';
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -171,13 +171,13 @@ function showAttachment()
 
 				// set filePath and ETag time
 				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
-				$thumbFile['etag'] = '"'. md5_file($thumbFile['filePath']) .'"';
+				$thumbFile['etag'] = '"' . md5_file($thumbFile['filePath']) . '"';
 			}
 		}
 
 		// Cache it.
-		if(!empty($file) || !empty($thumbFile))
-			cache_put_data('attachment_lookup_id-'. $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
+		if (!empty($file) || !empty($thumbFile))
+			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
 	// Update the download counter (unless it's a thumbnail).
@@ -289,17 +289,17 @@ function showAttachment()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file['fileext'], array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
 			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r", $buffer);
 			};
 		else
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\n", $buffer);
 			};

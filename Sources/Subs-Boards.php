@@ -760,7 +760,7 @@ function modifyBoard($board_id, &$boardOptions)
 					array(
 						'visible' => 0,
 						'negative_one' => -1,
-						'invalid_groups' => array(1,3),
+						'invalid_groups' => array(1, 3),
 						'moderator_group_list' => $moderator_groups,
 						'limit' => count($moderator_groups),
 					)
@@ -838,7 +838,7 @@ function createBoard($boardOptions)
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
-		$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
+		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
 		'-1,0', '',
 	);
 

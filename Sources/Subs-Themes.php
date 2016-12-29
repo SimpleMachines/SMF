@@ -54,8 +54,8 @@ function get_single_theme($id)
 	);
 
 	// Make our known/enable themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
-	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',',$modSettings['enableThemes']) : array();
+	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
+	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
@@ -102,8 +102,8 @@ function get_all_themes($enable_only = false)
 	global $modSettings, $context, $smcFunc;
 
 	// Make our known/enable themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
-	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',',$modSettings['enableThemes']) : array();
+	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
+	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
 
 	// List of all possible themes values.
 	$themeValues = array(
@@ -284,7 +284,7 @@ function theme_install($to_install = array())
 				'no_member' => 0,
 				'name' => 'name',
 				'version' => 'version',
-				'name_value' => '%'. $context['to_install']['name'] .'%',
+				'name_value' => '%' . $context['to_install']['name'] . '%',
 			)
 		);
 
@@ -439,11 +439,11 @@ function remove_dir($path)
 		foreach ($objects as $object)
 			if ($object != '.' && $object != '..')
 			{
-				if (filetype($path .'/'. $object) == 'dir')
-					remove_dir($path .'/'.$object);
+				if (filetype($path . '/' . $object) == 'dir')
+					remove_dir($path . '/' . $object);
 
 				else
-					unlink($path .'/'. $object);
+					unlink($path . '/' . $object);
 			}
 	}
 

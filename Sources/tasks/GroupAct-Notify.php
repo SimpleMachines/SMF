@@ -103,7 +103,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_'. $pref_name] : 0;
+				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
 				if ($pref & 0x01)

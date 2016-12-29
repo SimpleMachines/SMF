@@ -187,7 +187,7 @@ function ReportDetails()
 	// Get the report details.
 	$report = getReportDetails($report_id);
 
-	if(!$report)
+	if (!$report)
 		fatal_lang_error('mc_no_modreport_found');
 
 	// Build the report data - basic details first, then extra stuff based on the type
@@ -250,7 +250,7 @@ function ReportDetails()
 	if ($context['report_type'] == 'members')
 	{
 		// Find their ID in the serialized action string...
-		$user_id_length = strlen((string)$context['report']['user']['id']);
+		$user_id_length = strlen((string) $context['report']['user']['id']);
 		$member = 's:6:"member";s:' . $user_id_length . ':"' . $context['report']['user']['id'] . '";}';
 
 		$params = array(
@@ -529,7 +529,7 @@ function HandleReport()
 	// What are we gonna do?
 	$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
-	validateToken('mod-report-'. $action, 'get');
+	validateToken('mod-report-' . $action, 'get');
 
 	// Are we ignore or "un-ignore"? "un-ignore" that's a funny word!
 	$value = (int) $_GET[$action];

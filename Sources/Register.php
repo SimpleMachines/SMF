@@ -501,7 +501,7 @@ function Register2()
 	{
 		call_integration_hook('integrate_activate', array($regOptions['username']));
 
-		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, hash_salt($regOptions['register_vars']['passwd'],  $regOptions['register_vars']['password_salt']));
+		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, hash_salt($regOptions['register_vars']['passwd'], $regOptions['register_vars']['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $memberID, $context['server']['needs_login_fix']);
 	}

@@ -360,7 +360,7 @@ function SplitSelectTopics()
 		)
 	);
 	$context['messages'] = array();
-	for ($counter = 0; $row = $smcFunc['db_fetch_assoc']($request); $counter ++)
+	for ($counter = 0; $row = $smcFunc['db_fetch_assoc']($request); $counter++)
 	{
 		censorText($row['subject']);
 		censorText($row['body']);
@@ -400,7 +400,7 @@ function SplitSelectTopics()
 			)
 		);
 		$context['messages'] = array();
-		for ($counter = 0; $row = $smcFunc['db_fetch_assoc']($request); $counter ++)
+		for ($counter = 0; $row = $smcFunc['db_fetch_assoc']($request); $counter++)
 		{
 			censorText($row['subject']);
 			censorText($row['body']);
@@ -1098,7 +1098,7 @@ function MergeExecute($topics = array())
 			$firstTopic = $row['id_topic'];
 
 		// Lowest topic id gets selected as surviving topic id. We need to store this board so we can adjust the topic count (This one will not have a redirect topic)
-		if($row['id_topic'] < $lowestTopicId || empty($lowestTopicId) )
+		if ($row['id_topic'] < $lowestTopicId || empty($lowestTopicId))
 		{
 			$lowestTopicId = $row['id_topic'];
 			$lowestTopicBoard = $row['id_board'];
@@ -1404,7 +1404,7 @@ function MergeExecute($topics = array())
 			}
 
 			// Update subject search index
-			updateStats('subject',$this_old_topic,$redirect_subject);
+			updateStats('subject', $this_old_topic, $redirect_subject);
 		}
 	}
 

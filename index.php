@@ -25,7 +25,7 @@ $software_year = '2016';
 
 // Get everything started up...
 define('SMF', 1);
-if (function_exists('set_magic_quotes_runtime') && strnatcmp(phpversion(),'5.3.0') < 0)
+if (function_exists('set_magic_quotes_runtime') && strnatcmp(phpversion(), '5.3.0') < 0)
 	@set_magic_quotes_runtime(0);
 error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : E_ALL);
 $time_start = microtime();
@@ -90,7 +90,7 @@ require_once($sourcedir . '/Class-BrowserDetect.php');
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 {
 	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') >=  1 || ini_get('output_handler') == 'ob_gzhandler')
+	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
 	else
 	{

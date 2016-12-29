@@ -80,7 +80,7 @@ function template_download_language()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<p>', $txt['package_ftp_why'],'</p>
+				<p>', $txt['package_ftp_why'], '</p>
 				<dl class="settings">
 					<dt
 						<label for="ftp_server">', $txt['package_ftp_server'], ':</label>

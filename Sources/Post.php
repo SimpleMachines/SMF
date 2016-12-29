@@ -855,7 +855,7 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function ($m)
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
 						{
 							return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
 						}, $parts[$i]);
@@ -952,7 +952,7 @@ function Post($post_errors = array())
 				{
 					// Since, they don't belong here. Let's inform the user that they exist..
 					if (!empty($topic))
-						$delete_url = $scripturl . '?action=post' .(!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
+						$delete_url = $scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
 					else
 						$delete_url = $scripturl . '?action=post;board=' . $board . ';delete_temp';
 
@@ -960,7 +960,7 @@ function Post($post_errors = array())
 					$file_list = array();
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 						if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
-							$file_list[] =  $attachment['name'];
+							$file_list[] = $attachment['name'];
 
 					$_SESSION['temp_attachments']['post']['files'] = $file_list;
 					$file_list = '<div class="attachments">' . implode('<br>', $file_list) . '</div>';
@@ -968,7 +968,7 @@ function Post($post_errors = array())
 					if (!empty($_SESSION['temp_attachments']['post']['msg']))
 					{
 						// We have a message id, so we can link back to the old topic they were trying to edit..
-						$goback_url = $scripturl . '?action=post' .(!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
+						$goback_url = $scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
 						$post_errors[] = array('temp_attachments_found', array($delete_url, $goback_url, $file_list));
 						$context['ignore_temp_attachments'] = true;
@@ -1255,55 +1255,55 @@ function Post($post_errors = array())
 		foreach ($context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({
-		name: '. JavaScriptEscape($mock['name']) .',
-		size: '. $mock['size'] .',
-		attachID: '. $mock['attachID'] .',
-		approved: '. $mock['approved'] .',
-		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') .',
-		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) .'
+		name: '. JavaScriptEscape($mock['name']) . ',
+		size: '. $mock['size'] . ',
+		attachID: '. $mock['attachID'] . ',
+		approved: '. $mock['approved'] . ',
+		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
+		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
 	});', true);
 	}
 
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.'. $smcFunc['htmltrim']($val);} , explode(',', $context['allowed_extensions'])));
+		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.' . $smcFunc['htmltrim']($val); } , explode(',', $context['allowed_extensions'])));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
 		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true), 'smf_fileUpload');
 		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
-			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
-			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
-			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
-			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
-			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) .',
-			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
-			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
-			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .',
-			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) .',
-			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) .',
-			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) .',
-			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
-			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
-			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
-			acceptedFiles: '. JavaScriptEscape($acceptedFiles) .',
-			maxFilesize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : 'null') .',
-			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') .',
-			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') .',
-			maxFiles: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') .',
-			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
-			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 .',
-			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 .',
+			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) . ',
+			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) . ',
+			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) . ',
+			genericError: '. JavaScriptEscape($txt['attach_php_error']) . ',
+			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) . ',
+			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) . ',
+			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) . ',
+			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) . ',
+			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) . ',
+			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) . ',
+			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) . ',
+			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
+			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
+			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			acceptedFiles: '. JavaScriptEscape($acceptedFiles) . ',
+			maxFilesize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : 'null') . ',
+			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
+			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
+			maxFiles: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
+			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) . ',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
+			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 . ',
 		});
 	});', true);
 	}
 
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
-	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
+	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
@@ -1721,7 +1721,7 @@ function Post2()
 	}
 
 	// Coming from the quickReply?
-	if(isset($_POST['quickReply']))
+	if (isset($_POST['quickReply']))
 		$_POST['message'] = $_POST['quickReply'];
 
 	// Check the subject and message.
@@ -2510,7 +2510,7 @@ function getTopic()
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . (isset($_REQUEST['msg']) ? '
-			AND m.id_msg < {int:id_msg}' : '') .(!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			AND m.id_msg < {int:id_msg}' : '') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND m.approved = {int:approved}') . '
 		ORDER BY m.id_msg DESC' . $limit,
 		array(
