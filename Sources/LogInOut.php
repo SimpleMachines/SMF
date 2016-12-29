@@ -237,6 +237,14 @@ function Login2()
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
 	}
 
+
+	// Are we using any sort of integration to validate the login?
+	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, $modSettings['cookieTime'])), true))
+	{
+		$context['login_errors'] = array($txt['incorrect_password']);
+		return;
+	}
+
 	// Load the data up!
 	$request = $smcFunc['db_query']('', '
 		SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
