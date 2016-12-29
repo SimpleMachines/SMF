@@ -85,6 +85,10 @@ else
 // Load this now just because we can.
 require_once($upgrade_path . '/Settings.php');
 
+// Check if we have to update our $db_type value to mysqli.
+$upcontext['update_db_type_to_mysqli'] = $db_type == 'mysql';
+$db_type = $db_type == 'mysql' ? 'mysqli' : $db_type;
+
 // Are we logged in?
 if (isset($upgradeData))
 {
@@ -953,6 +957,10 @@ function UpgradeOptions()
 
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
+
+	// Should we update the $db_type value?
+	if ($upcontext['update_db_type_to_mysqli'])
+		updateSettingsFile(array('db_type' => '\'mysqli\''));
 
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
