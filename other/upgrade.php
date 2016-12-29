@@ -167,31 +167,19 @@ if (!function_exists('text2words'))
 	}
 }
 
-if (!function_exists('clean_cache'))
+function upgrade_clean_cache()
 {
-	// Empty out the cache folder.
-	function clean_cache($type = '')
+	global $cacheAPI, $sourcedir;
+
+	// Initialize the cache API if it does not have an instance yet.
+	if (empty($cacheAPI))
 	{
-		global $cachedir, $sourcedir;
-
-		// No directory = no game.
-		if (!is_dir($cachedir))
-			return;
-
-		// Remove the files in SMF's own disk cache, if any
-		$dh = opendir($cachedir);
-		while ($file = readdir($dh))
-		{
-			if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
-				@unlink($cachedir . '/' . $file);
-		}
-		closedir($dh);
-
-		// Invalidate cache, to be sure!
-		// ... as long as index.php can be modified, anyway.
-		@touch($cachedir . '/' . 'index.php');
-		clearstatcache();
+		require_once($sourcedir . '/Load.php');
+		loadCacheAccelerator();
 	}
+
+	// Just fall back to Load.php's clean_cache function.
+	clean_cache();
 }
 
 // MD5 Encryption.
@@ -1786,7 +1774,7 @@ function DeleteUpgrade()
 	changeSettings($changes);
 
 	// Clean any old cache files away.
-	clean_cache();
+	upgrade_clean_cache();
 
 	// Can we delete the file?
 	$upcontext['can_delete_script'] = is_writable(dirname(__FILE__)) || is_writable(__FILE__);
