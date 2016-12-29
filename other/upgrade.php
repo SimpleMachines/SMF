@@ -27,15 +27,6 @@ $databases = array(
 		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
 		'alter_support' => true,
 	),
-	'mysql' => array(
-		'name' => 'MySQL',
-		'version' => '5.0.3',
-		'version_check' => 'return min(mysql_get_server_info(), mysql_get_client_info());',
-		'utf8_support' => true,
-		'utf8_version' => '5.0.3',
-		'utf8_version_check' => 'return mysql_get_server_info();',
-		'alter_support' => true,
-	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
 		'version' => '8.0',
@@ -2430,9 +2421,9 @@ function upgrade_query($string, $unbuffered = false)
 
 	$db_error_message = $smcFunc['db_error']($db_connection);
 	// If MySQL we do something more clever.
-	if ($db_type == 'mysql' || $db_type == 'mysqli')
+	if ($db_type == 'mysqli')
 	{
-		$mysql_errno = ($db_type == 'mysqli') ? mysqli_errno($db_connection) : mysql_errno($db_connection);
+		$mysqli_errno = mysqli_errno($db_connection);
 		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
 
 		// Error numbers:
@@ -2448,58 +2439,37 @@ function upgrade_query($string, $unbuffered = false)
 		//    1146: Table doesn't exist.
 		//    2013: Lost connection to server during query.
 
-		if ($mysql_errno == 1016)
+		if ($mysqli_errno == 1016)
 		{
 			if (preg_match('~\'([^\.\']+)~', $db_error_message, $match) != 0 && !empty($match[1]))
 			{
-				if ($db_type == 'mysql')
-				{
-					mysql_query('REPAIR TABLE `' . $match[1] . '`');
-					$result = mysql_query($string);
-				}
-				else
-				{
-					mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
-					$result = mysqli_query($db_connection, $string);
-				}
+				mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
+				$result = mysqli_query($db_connection, $string);
 				if ($result !== false)
 					return $result;
 			}
 		}
-		elseif ($mysql_errno == 2013)
+		elseif ($mysqli_errno == 2013)
 		{
-			$db_connection = mysql_connect($db_server, $db_user, $db_passwd);
-			if ($db_type == 'mysql')
+			$db_connection = mysqli_connect($db_server, $db_user, $db_passwd);
+			mysqli_select_db($db_connection, $db_name);
+			if ($db_connection)
 			{
-				mysql_select_db($db_name, $db_connection);
-				if ($db_connection)
-				{
-					$result = mysql_query($string);
-					if ($result !== false)
-						return $result;
-				}
-			}
-			else
-			{
-				mysqli_select_db($db_connection, $db_name);
-				if ($db_connection)
-				{
-					$result = mysqli_query($db_connection, $string);
-					if ($result !== false)
-						return $result;
-				}
+				$result = mysqli_query($db_connection, $string);
+				if ($result !== false)
+					return $result;
 			}
 		}
 		// Duplicate column name... should be okay ;).
-		elseif (in_array($mysql_errno, array(1060, 1061, 1068, 1091)))
+		elseif (in_array($mysqli_errno, array(1060, 1061, 1068, 1091)))
 			return false;
 		// Duplicate insert... make sure it's the proper type of query ;).
-		elseif (in_array($mysql_errno, array(1054, 1062, 1146)) && $error_query)
+		elseif (in_array($mysqli_errno, array(1054, 1062, 1146)) && $error_query)
 			return false;
 		// Creating an index on a non-existent column.
-		elseif ($mysql_errno == 1072)
+		elseif ($mysqli_errno == 1072)
 			return false;
-		elseif ($mysql_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
+		elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
 			return false;
 	}
 	// If a table already exists don't go potty.
@@ -2560,38 +2530,33 @@ function upgrade_query($string, $unbuffered = false)
 
 function smf_mysql_fetch_assoc($rs)
 {
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_fetch_assoc($rs) : mysqli_fetch_assoc($rs);
+	return mysqli_fetch_assoc($rs);
 }
 
 function smf_mysql_fetch_row($rs)
 {
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_fetch_row($rs) : mysqli_fetch_row($rs);
+	return mysqli_fetch_row($rs);
 }
 
 function smf_mysql_free_result($rs)
 {
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_free_result($rs) : mysqli_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 function smf_mysql_insert_id($rs)
 {
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_insert_id($rs) : mysqli_insert_id($rs);
+	return mysqli_insert_id($rs);
 }
 
 function smf_mysql_num_rows($rs)
 {
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_num_rows($rs) : mysqli_num_rows($rs);
+	return mysqli_num_rows($rs);
 }
 
 function smf_mysql_real_escape_string($string)
 {
-	global $db_type, $db_connection;
-	return ($db_type == 'mysql') ? mysql_real_escape_string($string, $db_connection) : mysqli_real_escape_string($db_connection, $string);
+	global $db_connection;
+	mysqli_real_escape_string($db_connection, $string);
 }
 
 // This performs a table alter, but does it unbuffered so the script can time out professionally.
