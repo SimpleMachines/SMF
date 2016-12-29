@@ -131,10 +131,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
 
-		$tz = !empty($row['timezone']) ? $row['timezone'] : getUserTimezone();
-
 		// Get the various time and date properties for this event
-		list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 		// Sanity check
 		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -190,8 +188,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'end_datetime' => $end['datetime'],
 					'end_iso_gmdate' => $end['iso_gmdate'],
 					'allday' => $allday,
-					'tz' => !$allday ? $row['timezone'] : null,
-					'tz_abbrev' => !$allday ? $tz_abbrev : null,
+					'tz' => $tz,
+					'tz_abbrev' => $tz_abbrev,
 					'span' => $span,
 					'is_last' => false,
 					'id_board' => $row['id_board'],
@@ -1087,7 +1085,7 @@ function getEventProperties($event_id)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 	// Sanity check
 	if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -1129,8 +1127,8 @@ function getEventProperties($event_id)
 		'end_datetime' => $end['datetime'],
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
-		'tz' => !$allday ? $row['timezone'] : null,
-		'tz_abbrev' => !$allday ? $tz_abbrev : null,
+		'tz' => $tz,
+		'tz_abbrev' => $tz_abbrev,
 		'span' => $span,
 		'title' => $row['title'],
 		'location' => $row['location'],
@@ -1156,74 +1154,21 @@ function getEventProperties($event_id)
  */
 function getNewEventDatetimes()
 {
-	$today = getdate();
+	// Ensure setEventStartEnd() has something to work with
+	$now = date_create();
+	$_POST['year'] = !empty($_POST['year']) ? $_POST['year'] : date_format($now, 'Y');
+	$_POST['month'] = !empty($_POST['month']) ? $_POST['month'] : date_format($now, 'm');
+	$_POST['day'] = !empty($_POST['day']) ? $_POST['day'] : date_format($now, 'd');
+	$_POST['hour'] = !empty($_POST['hour']) ? $_POST['hour'] : date_format($now, 'H');
+	$_POST['minute'] = !empty($_POST['minute']) ? $_POST['minute'] : date_format($now, 'i');
+	$_POST['second'] = !empty($_POST['second']) ? $_POST['second'] : date_format($now, 's');
 
-	$allday = isset($_REQUEST['allday']) ? 1 : (isset($_REQUEST['start_time']) ? 0 : 1);
-	$span = isset($_REQUEST['span']) && filter_var($_REQUEST['span'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 0))) ? $_REQUEST['span'] : 1;
+	// Set the basic values for the new event
+	$row_keys = array('start_date', 'end_date', 'start_time', 'end_time', 'timezone');
+	$row = array_combine($row_keys, setEventStartEnd(array()));
 
-	if (!empty($_REQUEST['tz']) && in_array($_REQUEST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-		$tz = $_REQUEST['tz'];
-	else
-		$tz = getUserTimezone();
-
-	// Was the input given as individual parameters?
-	$start_year = isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'];
-	$start_month = isset($_REQUEST['month']) ? $_REQUEST['month'] : $today['mon'];
-	$start_day = isset($_REQUEST['day']) ? $_REQUEST['day'] : $today['mday'];
-	$start_hour = isset($_REQUEST['hour']) ? $_REQUEST['hour'] : $today['hours'];
-	$start_minute = isset($_REQUEST['minute']) ? $_REQUEST['minute'] : $today['minutes'];
-	$start_second = isset($_REQUEST['second']) ? $_REQUEST['second'] : $today['seconds'];
-	$end_year = isset($_REQUEST['end_year']) ? $_REQUEST['end_year'] : $today['year'];
-	$end_month = isset($_REQUEST['end_month']) ? $_REQUEST['end_month'] : $today['mon'];
-	$end_day = isset($_REQUEST['end_day']) ? $_REQUEST['end_day'] : $today['mday'];
-	$end_hour = isset($_REQUEST['end_hour']) ? $_REQUEST['end_hour'] : ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']);
-	$end_minute = isset($_REQUEST['end_minute']) ? $_REQUEST['end_minute'] : ($today['hours'] < 23 ? $today['minutes'] : 59);
-	$end_second = isset($_REQUEST['end_second']) ? $_REQUEST['end_second'] : 0;
-
-	// ... Or as date strings and time strings? ...
-	$start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : sprintf('%04d-%02d-%02d', $start_year, $start_month, $start_day);
-	$start_time = isset($_REQUEST['start_time']) ? $_REQUEST['start_time'] : sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second);
-	$end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : sprintf('%04d-%02d-%02d', $end_year, $end_month, $end_day);
-	$end_time = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second);
-
-	// ... Or as datetime strings?
-	$start_datetime = isset($_REQUEST['start_datetime']) ? $_REQUEST['start_datetime'] : $start_date . ' ' . $start_time;
-	$end_datetime = isset($_REQUEST['end_datetime']) ? $_REQUEST['end_datetime'] : $end_date . ' ' . $end_time;
-
-	// In case we received conflicting input, use $start_datetime and $end_datetime as the final answer
-	$start = date_parse($start_datetime);
-	$end = date_parse($end_datetime);
-
-	// Make sure everything is valid
-	if ($start['error_count'] == 0 && $start['warning_count'] == 0 && $end['error_count'] == 0 && $end['warning_count'] == 0)
-	{
-		$row = array(
-			'start_date' => sprintf('%04d-%02d-%02d', $start['year'], $start['month'], $start['day']),
-			'end_date' => sprintf('%04d-%02d-%02d', $end['year'], $end['month'], $end['day']),
-			'timezone' => $tz,
-		);
-		if (empty($allday))
-		{
-			$row['start_time'] = sprintf('%02d:%02d:%02d', $start['hour'], $start['minute'], $start['second']);
-			$row['end_time'] = sprintf('%02d:%02d:%02d', $end['hour'], $end['minute'], $end['second']);
-		}
-	}
-	// Invalid input? Just ignore it and use $today.
-	else
-	{
-		$row = array(
-			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
-			'end_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
-			'timezone' => $tz,
-		);
-		if (empty($allday))
-		{
-			$row['start_time'] = sprintf('%02d:%02d:%02d', $today['hours'], $today['minutes'], $today['seconds']);
-			$row['end_time'] = sprintf('%02d:%02d:%02d', ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']), ($today['hours'] < 23 ? $today['minutes'] : 59), $today['seconds']);
-		}
-	}
-
-	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+	// And now set the full suite of values
+	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 	// Default theme only uses some of this info, but others might want it all
 	$eventProperties = array(
@@ -1259,7 +1204,7 @@ function getNewEventDatetimes()
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
 		'tz' => $tz,
-		'tz_abbrev' => !$allday ? $tz_abbrev : null,
+		'tz_abbrev' => $tz_abbrev,
 		'span' => $span,
 	);
 
@@ -1525,8 +1470,11 @@ function buildEventDatetimes($row)
 	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
 	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
 
+	// We only want the time zone if this isn't an all day event
+	$tz = empty($allday) ? $row['timezone'] : null;
+
 	// The time zone abbreviation (e.g. 'GMT', 'EST', etc.)
-	$tz_abbrev = date_format($start_object, 'T');
+	$tz_abbrev = empty($allday) ? date_format($start_object, 'T') : null;
 
 	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 	if (strspn($tz_abbrev, '+-') > 0)
@@ -1550,7 +1498,7 @@ function buildEventDatetimes($row)
 			$tz_abbrev = 'UTC' . $tz_abbrev;
 	}
 
-	return array($start, $end, $allday, $span, $tz_abbrev);
+	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
 
 /**
