@@ -358,9 +358,6 @@ function DownloadLanguage()
 			// Add the context data to the main set.
 			$context['files']['lang'][] = $context_data;
 		}
-		elseif (in_array($extension, array('jpg', 'gif', 'jpeg', 'png'))) {
-		    $context['files']['images'][] = $context_data;
-        }
 		elseif ($extension == '.txt' && stripos($filename, 'agreement') !== false)
 		{
 			// Registration agreement is a primary file
