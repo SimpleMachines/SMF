@@ -1024,7 +1024,6 @@ function AdminApprove()
 	loadLanguage('Login');
 
 	// Sort out where we are going...
-	$browse_type = isset($_REQUEST['type']) ? $_REQUEST['type'] : (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? 'activate' : 'approve');
 	$current_filter = (int) $_REQUEST['orig_filter'];
 
 	// If we are applying a filter do just that - then redirect.
@@ -1237,7 +1236,6 @@ function AdminApprove()
 	if (!empty($modSettings['modlog_enabled']) && in_array($_POST['todo'], array('ok', 'okemail', 'require_activation', 'remind')))
 	{
 		$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
-		$log_inserts = array();
 
 		require_once($sourcedir . '/Logging.php');
 		foreach ($member_info as $member)
