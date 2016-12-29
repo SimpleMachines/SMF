@@ -186,8 +186,6 @@ function template_main()
  */
 function template_print_below()
 {
-	global $topic, $scripturl;
-
 	echo '</div>
 		</div>';
 
