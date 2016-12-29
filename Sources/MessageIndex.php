@@ -667,7 +667,6 @@ function MessageIndex()
 			)
 		);
 		$context['is_marked_notify'] = false; // this is for the *board* only
-		$notify = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if (!empty($row['id_board']))
