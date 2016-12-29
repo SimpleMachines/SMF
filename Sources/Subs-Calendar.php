@@ -1200,12 +1200,12 @@ function getNewEventDatetimes()
 		$row = array(
 			'start_date' => sprintf('%04d-%02d-%02d', $start['year'], $start['month'], $start['day']),
 			'end_date' => sprintf('%04d-%02d-%02d', $end['year'], $end['month'], $end['day']),
+			'timezone' => $tz,
 		);
 		if (empty($allday))
 		{
 			$row['start_time'] = sprintf('%02d:%02d:%02d', $start['hour'], $start['minute'], $start['second']);
 			$row['end_time'] = sprintf('%02d:%02d:%02d', $end['hour'], $end['minute'], $end['second']);
-			$row['timezone'] = $tz;
 		}
 	}
 	// Invalid input? Just ignore it and use $today.
@@ -1214,12 +1214,12 @@ function getNewEventDatetimes()
 		$row = array(
 			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
 			'end_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
+			'timezone' => $tz,
 		);
 		if (empty($allday))
 		{
 			$row['start_time'] = sprintf('%02d:%02d:%02d', $today['hours'], $today['minutes'], $today['seconds']);
 			$row['end_time'] = sprintf('%02d:%02d:%02d', ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']), ($today['hours'] < 23 ? $today['minutes'] : 59), $today['seconds']);
-			$row['timezone'] = $tz;
 		}
 	}
 
