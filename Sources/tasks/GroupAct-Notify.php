@@ -43,7 +43,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		$affected_users = array();
 		$members = array();
 		$alert_rows = array();
-		$group_changes = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$members[] = $row['id_member'];
