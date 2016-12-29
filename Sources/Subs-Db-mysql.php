@@ -258,7 +258,7 @@ function smf_db_replacement__callback($matches)
 						$replacement[$key] = 'null';
 					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($value)));
+					$replacement[$key] = sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($value)));
 				}
 
 				return implode(', ', $replacement);
@@ -817,7 +817,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
  * @param bool $translate_human_wildcards If true, turns human readable wildcards into SQL wildcards.
  * @return string The escaped string
  */
-function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false)
+function smf_db_escape_wildcard_string($string, $translate_human_wildcards = false)
 {
 	$replacements = array(
 		'%' => '\%',

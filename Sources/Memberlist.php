@@ -510,7 +510,7 @@ function MLSearch()
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' .
 				(empty($customJoin) ? '' : implode('
 				', $customJoin)) . '
-			WHERE (' . implode( ' ' . $query . ' OR ', $fields) . ' ' . $query . ')
+			WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
 				AND mem.is_activated = {int:is_activated}',
 			$query_parameters
 		);
@@ -527,7 +527,7 @@ function MLSearch()
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' .
 				(empty($customJoin) ? '' : implode('
 				', $customJoin)) . '
-			WHERE (' . implode( ' ' . $query . ' OR ', $fields) . ' ' . $query . ')
+			WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
 				AND mem.is_activated = {int:is_activated}
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
@@ -700,7 +700,7 @@ function getCustFieldsMList()
 				'up' => 't' . $row['col_name'] . '.value ASC'
 			);
 
-		$cpf['join'][$row['col_name']] = 'LEFT JOIN {db_prefix}themes AS t' .  $row['col_name'] . ' ON (t' .  $row['col_name'] . '.variable = {literal:' .  $row['col_name'] . '} AND t' .  $row['col_name'] . '.id_theme = 1 AND t' .  $row['col_name'] . '.id_member = mem.id_member)';
+		$cpf['join'][$row['col_name']] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {literal:' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
 	}
 	$smcFunc['db_free_result']($request);
 

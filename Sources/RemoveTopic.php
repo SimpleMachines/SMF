@@ -398,7 +398,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	}
 	$smcFunc['db_free_result']($request);
 
-	if($updateBoardCount)
+	if ($updateBoardCount)
 	{
 		// Decrease the posts/topics...
 		foreach ($adjustBoards as $stats)

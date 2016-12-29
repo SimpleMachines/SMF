@@ -182,7 +182,7 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  * Path to the tasks directory.
  * @var string
  */
-$tasksdir = $sourcedir .'/tasks';
+$tasksdir = $sourcedir . '/tasks';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.

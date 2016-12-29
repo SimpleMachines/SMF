@@ -425,40 +425,40 @@ class gif_image
 			switch ($b)
 			{
 			// Extension...
-			case 0x21:
-				$len = 0;
-				if (!$this->skipExt($data, $len))
+				case 0x21:
+					$len = 0;
+					if (!$this->skipExt($data, $len))
+						return false;
+
+					$datLen += $len;
+					break;
+
+				// Image...
+				case 0x2C:
+					// Load the header and color table.
+					$len = 0;
+					if (!$this->m_gih->load($data, $len))
+						return false;
+
+					$data = substr($data, $len);
+					$datLen += $len;
+
+					// Decompress the data, and ride on home ;).
+					$len = 0;
+					if (!($this->m_data = $this->m_lzw->decompress($data, $len)))
+						return false;
+
+					$data = substr($data, $len);
+					$datLen += $len;
+
+					if ($this->m_gih->m_bInterlace)
+						$this->deInterlace();
+
+					return true;
+
+				case 0x3B: // EOF
+				default:
 					return false;
-
-				$datLen += $len;
-				break;
-
-			// Image...
-			case 0x2C:
-				// Load the header and color table.
-				$len = 0;
-				if (!$this->m_gih->load($data, $len))
-					return false;
-
-				$data = substr($data, $len);
-				$datLen += $len;
-
-				// Decompress the data, and ride on home ;).
-				$len = 0;
-				if (!($this->m_data = $this->m_lzw->decompress($data, $len)))
-					return false;
-
-				$data = substr($data, $len);
-				$datLen += $len;
-
-				if ($this->m_gih->m_bInterlace)
-					$this->deInterlace();
-
-				return true;
-
-			case 0x3B: // EOF
-			default:
-				return false;
 			}
 		}
 		return false;
@@ -475,27 +475,27 @@ class gif_image
 		switch ($b)
 		{
 		// Graphic Control...
-		case 0xF9:
-			$b = ord($data[1]);
-			$this->m_disp   = ($b & 0x1C) >> 2;
-			$this->m_bUser  = ($b & 0x02) ? true : false;
-			$this->m_bTrans = ($b & 0x01) ? true : false;
-			list ($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
-			$this->m_nTrans = ord($data[4]);
-			break;
+			case 0xF9:
+				$b = ord($data[1]);
+				$this->m_disp   = ($b & 0x1C) >> 2;
+				$this->m_bUser  = ($b & 0x02) ? true : false;
+				$this->m_bTrans = ($b & 0x01) ? true : false;
+				list ($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
+				$this->m_nTrans = ord($data[4]);
+				break;
 
-		// Comment...
-		case 0xFE:
-			$this->m_lpComm = substr($data, 1, ord($data[0]));
-			break;
+			// Comment...
+			case 0xFE:
+				$this->m_lpComm = substr($data, 1, ord($data[0]));
+				break;
 
-		// Plain text...
-		case 0x01:
-			break;
+			// Plain text...
+			case 0x01:
+				break;
 
-		// Application...
-		case 0xFF:
-			break;
+			// Application...
+			case 0xFF:
+				break;
 		}
 
 		// Skip default as defs may change.
@@ -521,25 +521,25 @@ class gif_image
 		{
 			switch ($i)
 			{
-			case 0:
-				$s = 8;
-				$y = 0;
-				break;
+				case 0:
+					$s = 8;
+					$y = 0;
+					break;
 
-			case 1:
-				$s = 8;
-				$y = 4;
-				break;
+				case 1:
+					$s = 8;
+					$y = 4;
+					break;
 
-			case 2:
-				$s = 4;
-				$y = 2;
-				break;
+				case 2:
+					$s = 4;
+					$y = 2;
+					break;
 
-			case 3:
-				$s = 2;
-				$y = 1;
-				break;
+				case 3:
+					$s = 2;
+					$y = 1;
+					break;
 			}
 
 			for (; $y < $this->m_gih->m_nHeight; $y += $s)

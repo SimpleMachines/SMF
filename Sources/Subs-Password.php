@@ -48,7 +48,7 @@ namespace {
 				return null;
 			}
 			if (PasswordCompat\binary\_strlen($password) > 72) {
-				$password = PasswordCompat\binary\_substr($password, 0,72);
+				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
 			$resultLength = 0;
 			switch ($algo) {
@@ -236,7 +236,7 @@ namespace {
 				return false;
 			}
 			if (PasswordCompat\binary\_strlen($password) > 72) {
-				$password = PasswordCompat\binary\_substr($password, 0,72);
+				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
 			$ret = crypt($password, $hash);
 			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != PasswordCompat\binary\_strlen($hash) || PasswordCompat\binary\_strlen($ret) <= 13) {

@@ -76,15 +76,15 @@ function reloadSettings()
 
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
-	$ent_check = empty($modSettings['disableEntityCheck']) ? function ($string)
+	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
 		{
 			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
 			return $string;
-		} : function ($string)
+		} : function($string)
 		{
 			return $string;
 		};
-	$fix_utf8mb4 = function ($string) use ($utf8)
+	$fix_utf8mb4 = function($string) use ($utf8)
 	{
 		if (!$utf8)
 			return $string;
@@ -102,21 +102,21 @@ function reloadSettings()
 			}
 			elseif ($ord < 224)
 			{
-				$new_string .= $string[$i] . $string[$i+1];
+				$new_string .= $string[$i] . $string[$i + 1];
 				$i += 2;
 			}
 			elseif ($ord < 240)
 			{
-				$new_string .= $string[$i] . $string[$i+1] . $string[$i+2];
+				$new_string .= $string[$i] . $string[$i + 1] . $string[$i + 2];
 				$i += 3;
 			}
 			elseif ($ord < 248)
 			{
 				// Magic happens.
 				$val = (ord($string[$i]) & 0x07) << 18;
-				$val += (ord($string[$i+1]) & 0x3F) << 12;
-				$val += (ord($string[$i+2]) & 0x3F) << 6;
-				$val += (ord($string[$i+3]) & 0x3F);
+				$val += (ord($string[$i + 1]) & 0x3F) << 12;
+				$val += (ord($string[$i + 2]) & 0x3F) << 6;
+				$val += (ord($string[$i + 3]) & 0x3F);
 				$new_string .= '&#' . $val . ';';
 				$i += 4;
 			}
@@ -129,24 +129,24 @@ function reloadSettings()
 
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
-		'entity_fix' => function ($string)
+		'entity_fix' => function($string)
 		{
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
 		{
 			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
-		'htmltrim' => function ($string) use ($utf8, $space_chars, $ent_check)
+		'htmltrim' => function($string) use ($utf8, $space_chars, $ent_check)
 		{
 			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
 		},
-		'strlen' => function ($string) use ($ent_list, $utf8, $ent_check)
+		'strlen' => function($string) use ($ent_list, $utf8, $ent_check)
 		{
 			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
 		},
-		'strpos' => function ($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $modSettings)
+		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $modSettings)
 		{
 			$haystack_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -171,12 +171,12 @@ function reloadSettings()
 				return false;
 			}
 		},
-		'substr' => function ($string, $start, $length = null) use ($utf8, $ent_check, $modSettings)
+		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $modSettings)
 		{
 			$ent_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
-		'strtolower' => $utf8 ? function ($string) use ($sourcedir)
+		'strtolower' => $utf8 ? function($string) use ($sourcedir)
 		{
 			if (!function_exists('mb_strtolower'))
 			{
@@ -186,7 +186,7 @@ function reloadSettings()
 
 			return mb_strtolower($string, 'UTF-8');
 		} : 'strtolower',
-		'strtoupper' => $utf8 ? function ($string)
+		'strtoupper' => $utf8 ? function($string)
 		{
 			global $sourcedir;
 
@@ -201,17 +201,17 @@ function reloadSettings()
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
 			$string = $ent_check($string);
-			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
+			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~' . ($utf8 ? 'u' : ''), $string, $matches);
 			$string = $matches[0];
 			while (strlen($string) > $length)
-				$string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
+				$string = preg_replace('~(?:' . $ent_list . '|.)$~' . ($utf8 ? 'u' : ''), '', $string);
 			return $string;
 		},
-		'ucfirst' => $utf8 ? function ($string) use (&$smcFunc)
+		'ucfirst' => $utf8 ? function($string) use (&$smcFunc)
 		{
 			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
 		} : 'ucfirst',
-		'ucwords' => $utf8 ? function ($string) use (&$smcFunc)
+		'ucwords' => $utf8 ? function($string) use (&$smcFunc)
 		{
 			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 			for ($i = 0, $n = count($words); $i < $n; $i += 2)
@@ -628,7 +628,7 @@ function loadUserSettings()
 		else
 		{
 			// !!! Compatibility.
-			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 :$user_settings['time_offset'];
+			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 : $user_settings['time_offset'];
 		}
 	}
 	// If the user is a guest, initialize all the critical user settings.
@@ -1283,9 +1283,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
-			if ( isset($row['member_ip']) )
+			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
-			if ( isset($row['member_ip2']) )
+			if (isset($row['member_ip2']))
 				$row['member_ip2'] = inet_dtop($row['member_ip2']);
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
@@ -1433,7 +1433,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'name' => $profile['real_name'],
 		'id' => $profile['id_member'],
 		'href' => $scripturl . '?action=profile;u=' . $profile['id_member'],
-		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" '. (!empty($modSettings['onlineEnable']) ? 'class="pm_icon"' : '').'>' . $profile['real_name'] . '</a>',
+		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" ' . (!empty($modSettings['onlineEnable']) ? 'class="pm_icon"' : '') . '>' . $profile['real_name'] . '</a>',
 		'email' => $profile['email_address'],
 		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
 		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
@@ -1448,9 +1448,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 			$loadedLanguages = getLanguages();
 
 		$memberContext[$user] += array(
-			'username_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['member_name'] .'</span>',
-			'name_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['real_name'] .'</span>',
-			'link_color' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>' . $profile['real_name'] . '</a>',
+			'username_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['member_name'] . '</span>',
+			'name_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</span>',
+			'link_color' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</a>',
 			'is_buddy' => $profile['buddy'],
 			'is_reverse_buddy' => in_array($user_info['id'], $buddy_list),
 			'buddies' => $buddy_list,
@@ -1520,7 +1520,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="avatar_'. $profile['member_name'].'">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="avatar_' . $profile['member_name'] . '">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -2846,7 +2846,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 					// Get the line we need.
-					$fp = @fopen($language_dir .'/'. $entry);
+					$fp = @fopen($language_dir . '/' . $entry);
 
 					// Yay!
 					if ($fp)

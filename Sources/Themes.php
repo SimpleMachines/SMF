@@ -837,7 +837,7 @@ function RemoveTheme()
 		remove_dir($theme_info['theme_dir']);
 
 	// Go back to the list page.
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing');
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] . ';done=removing');
 }
 
 /**
@@ -871,7 +871,7 @@ function EnableTheme()
 	updateSettings(array('enableThemes' => $enableThemes));
 
 	// Done!
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done='. (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] . ';done=' . (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
 }
 
 /**
@@ -1106,7 +1106,7 @@ function PickTheme()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Figure out which theme it is they are REALLY using.
-		if (!empty($modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',',$modSettings['knownThemes'])))
+		if (!empty($modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', $modSettings['knownThemes'])))
 			$row['id_theme'] = $guest_theme;
 		elseif (empty($modSettings['theme_allow']))
 			$row['id_theme'] = $guest_theme;
@@ -1254,10 +1254,10 @@ function ThemeInstall()
 		$action = $smcFunc['htmlspecialchars'](trim($_GET['do']));
 
 		// Got any info from the specific form?
-		if (!isset($_POST['save_'. $action]))
+		if (!isset($_POST['save_' . $action]))
 			fatal_lang_error('theme_install_no_action', false);
 
-		validateToken('admin-t-'. $action);
+		validateToken('admin-t-' . $action);
 
 		// Hopefully the themes directory is writable, or we might have a problem.
 		if (!is_writable($themedir))
@@ -1291,7 +1291,7 @@ function InstallFile()
 	global $themedir, $themeurl, $context;
 
 	// Set a temp dir for dumping all required files on it.
-	$dirtemp = $themedir .'/temp';
+	$dirtemp = $themedir . '/temp';
 
 	// Make sure the temp dir doesn't already exist
 	if (file_exists($dirtemp))
@@ -1317,7 +1317,7 @@ function InstallFile()
 
 	// Another error check layer, something went wrong with the upload.
 	if (isset($_FILES['theme_gz']['error']) && $_FILES['theme_gz']['error'] != 0)
-		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
+		fatal_lang_error('theme_install_error_file_' . $_FILES['theme_gz']['error'], false);
 
 	// Get the theme's name.
 	$name = pathinfo($_FILES['theme_gz']['name'], PATHINFO_FILENAME);
@@ -1373,7 +1373,7 @@ function InstallCopy()
 	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 	// Is there a theme already named like this?
-	if (file_exists($themedir .'/'. $name))
+	if (file_exists($themedir . '/' . $name))
 		fatal_lang_error('theme_install_already_dir', false);
 
 	// This is a brand new theme so set all possible values.
@@ -1383,7 +1383,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);
@@ -1454,7 +1454,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] .'" />
+<install for="'. $context['to_install']['install_for'] . '" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->

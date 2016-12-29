@@ -572,7 +572,7 @@ function getPackageInfo($gzfilename)
 
 	// Don't want to mess with code...
 	$types = array('install', 'uninstall', 'upgrade');
-	foreach($types as $type)
+	foreach ($types as $type)
 	{
 		if (isset($package[$type]['code']))
 		{
@@ -697,7 +697,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_cur_status'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($txt)
+						'function' => function($rowData) use ($txt)
 						{
 							$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? $txt['package_restore_permissions_pre_change'] : $txt['package_restore_permissions_post_change'];
 							return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
@@ -725,7 +725,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_result'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($txt)
+						'function' => function($rowData) use ($txt)
 						{
 							return $txt['package_restore_permissions_action_' . $rowData['result']];
 						},
@@ -1195,7 +1195,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				if ($action->exists('@lang'))
 				{
 					// Auto-select the language based on either request variable or current language.
-					if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (isset($_REQUEST['license']) && $action->fetch('@lang') == $_REQUEST['license']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == $language)	|| (!isset($_REQUEST['license']) && $action->fetch('@lang') == $language))
+					if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (isset($_REQUEST['license']) && $action->fetch('@lang') == $_REQUEST['license']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == $language) || (!isset($_REQUEST['license']) && $action->fetch('@lang') == $language))
 					{
 						// In case the user put the blocks in the wrong order.
 						if (isset($context[$type]['selected']) && $context[$type]['selected'] == 'default')
@@ -1243,7 +1243,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'redirect_url' => $action->exists('@url') ? $action->fetch('@url') : '',
 				'redirect_timeout' => $action->exists('@timeout') ? (int) $action->fetch('@timeout') : '',
 				'parse_bbc' => $action->exists('@parsebbc') && $action->fetch('@parsebbc') == 'true',
-				'language' => (($actionType == 'readme' || $actionType == 'license')  && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
+				'language' => (($actionType == 'readme' || $actionType == 'license') && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
 			);
 
 			continue;

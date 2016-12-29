@@ -90,7 +90,7 @@ function template_main()
 
 	echo '
 					</dl>
-					<input type="submit" name="preview" value="', $txt['preview'] , '" class="button_submit">
+					<input type="submit" name="preview" value="', $txt['preview'], '" class="button_submit">
 					<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>

@@ -247,7 +247,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] );
+		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Fill the config array.
@@ -272,7 +272,7 @@ function ModifyCookieSettings($return_config = false)
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
-		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies',  'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
+		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
 		// Sessions

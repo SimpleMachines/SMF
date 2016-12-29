@@ -126,7 +126,7 @@ function template_login_tfa()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['tfa_profile_label'] ,'
+					', $txt['tfa_profile_label'], '
 				</h3>
 			</div>
 			<div class="roundframe noup">';
@@ -312,7 +312,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><br>
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';

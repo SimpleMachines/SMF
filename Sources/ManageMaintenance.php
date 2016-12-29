@@ -742,7 +742,7 @@ function OptimizeTables()
 
 	// For each table....
 	$_SESSION['optimized_tables'] = !empty($_SESSION['optimized_tables']) ? $_SESSION['optimized_tables'] : array();
-	for ($key=$_REQUEST['start']; $context['num_tables']-1; $key++)
+	for ($key = $_REQUEST['start']; $context['num_tables'] - 1; $key++)
 	{
 		if (empty($tables[$key]))
 			break;
@@ -1905,10 +1905,10 @@ function list_integration_hooks()
 					'value' => $txt['hooks_field_function_name'],
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt)
+					'function' => function($data) use ($txt)
 					{
 						// Show a nice icon to indicate this is an instance.
-						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="'. $txt['hooks_field_function_method'] .'"></span> ' : '');
+						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']))
 							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
@@ -1940,7 +1940,7 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt, $scripturl, $context)
+					'function' => function($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
 
@@ -1977,7 +1977,7 @@ function list_integration_hooks()
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => function ($data) use ($txt, $scripturl, $context)
+			'function' => function($data) use ($txt, $scripturl, $context)
 			{
 				if (!$data['hook_exists'])
 					return '
@@ -2113,7 +2113,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		$context['insert_after_template'] .= '
 		<script>
 			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
 		</script>';
 
 	$temp_data = array();

@@ -104,14 +104,14 @@ function ManageAttachmentSettings($return_config = false)
 	$context['valid_upload_dir'] = is_dir($context['attachmentUploadDir']) && is_writable($context['attachmentUploadDir']);
 
 	if (!empty($modSettings['automanage_attachments']))
-		$context['valid_basedirectory'] =  !empty($modSettings['basedirectory_for_attachments']) && is_writable($modSettings['basedirectory_for_attachments']);
+		$context['valid_basedirectory'] = !empty($modSettings['basedirectory_for_attachments']) && is_writable($modSettings['basedirectory_for_attachments']);
 
 	else
 		$context['valid_basedirectory'] = true;
 
 	// A bit of razzle dazzle with the $txt strings. :)
 	$txt['attachment_path'] = $context['attachmentUploadDir'];
-	$txt['basedirectory_for_attachments_path']= isset($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
+	$txt['basedirectory_for_attachments_path'] = isset($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
 	$txt['use_subdirectories_for_attachments_note'] = empty($modSettings['attachment_basedirectories']) || empty($modSettings['use_subdirectories_for_attachments']) ? $txt['use_subdirectories_for_attachments_note'] : '';
 	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
 	$txt['attach_current_dir'] = empty($modSettings['automanage_attachments']) ? $txt['attach_current_dir'] : $txt['attach_last_dir'];
@@ -136,7 +136,7 @@ function ManageAttachmentSettings($return_config = false)
 			array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
 			array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
 			(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : $txt['basedirectory_for_attachments_warning']))),
-			empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1	? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
+			empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
 			array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
@@ -349,16 +349,16 @@ function ManageAvatarSettings($return_config = false)
 
 		// These settings cannot be left empty!
 		if (empty($_POST['custom_avatar_dir']))
-			$_POST['custom_avatar_dir'] = $boarddir .'/custom_avatar';
+			$_POST['custom_avatar_dir'] = $boarddir . '/custom_avatar';
 
 		if (empty($_POST['custom_avatar_url']))
-			$_POST['custom_avatar_url'] = $boardurl .'/custom_avatar';
+			$_POST['custom_avatar_url'] = $boardurl . '/custom_avatar';
 
 		if (empty($_POST['avatar_directory']))
-			$_POST['avatar_directory'] = $boarddir .'/avatars';
+			$_POST['avatar_directory'] = $boarddir . '/avatars';
 
 		if (empty($_POST['avatar_url']))
-			$_POST['avatar_url'] = $boardurl .'/avatars';
+			$_POST['avatar_url'] = $boardurl . '/avatars';
 
 		call_integration_hook('integrate_save_avatar_settings');
 
@@ -422,7 +422,7 @@ function BrowseFiles()
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
-		'no_items_label' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ( $context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
+		'no_items_label' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ($context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
 		'get_items' => array(
 			'function' => 'list_getFiles',
 			'params' => array(
@@ -441,7 +441,7 @@ function BrowseFiles()
 					'value' => $txt['attachment_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($modSettings, $context, $scripturl, $smcFunc)
+					'function' => function($rowData) use ($modSettings, $context, $scripturl, $smcFunc)
 					{
 						$link = '<a href="';
 
@@ -482,7 +482,7 @@ function BrowseFiles()
 					'value' => $txt['attachment_file_size'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), $txt['kilobyte']);
 					},
@@ -497,7 +497,7 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $smcFunc)
+					'function' => function($rowData) use ($scripturl, $smcFunc)
 					{
 						// In case of an attachment, return the poster of the attachment.
 						if (empty($rowData['id_member']))
@@ -518,7 +518,7 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt, $context, $scripturl)
+					'function' => function($rowData) use ($txt, $context, $scripturl)
 					{
 						// The date the message containing the attachment was posted or the owner of the avatar was active.
 						$date = empty($rowData['poster_time']) ? $txt['never'] : timeformat($rowData['poster_time']);
@@ -1336,7 +1336,7 @@ function RepairAttachments()
 					if (!empty($modSettings['currentAttachmentUploadDir']))
 					{
 						// Get the attachment name with out the folder.
-						$attachment_name = $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
+						$attachment_name = $row['id_attach'] . '_' . $row['file_hash'] . '.dat';
 
 						// Loop through the other folders.
 						foreach ($modSettings['attachmentUploadDir'] as $id => $dir)
@@ -1952,7 +1952,7 @@ function ManageAttachmentPaths()
 				if (automanage_attachments_create_directory($path))
 					$_POST['current_dir'] = $modSettings['currentAttachmentUploadDir'];
 				else
-					$errors[] =  $path . ': ' . $txt[$context['dir_creation_error']];
+					$errors[] = $path . ': ' . $txt[$context['dir_creation_error']];
 			}
 
 			// Changing a directory name?
@@ -2074,7 +2074,7 @@ function ManageAttachmentPaths()
 		}
 
 		// If the user wishes to go back, update the last_dir array
-		if ($_POST['current_dir'] !=  $modSettings['currentAttachmentUploadDir']&& !empty($modSettings['last_attachments_directory']) && (isset($modSettings['last_attachments_directory'][$_POST['current_dir']]) || isset($modSettings['last_attachments_directory'][0])))
+		if ($_POST['current_dir'] != $modSettings['currentAttachmentUploadDir'] && !empty($modSettings['last_attachments_directory']) && (isset($modSettings['last_attachments_directory'][$_POST['current_dir']]) || isset($modSettings['last_attachments_directory'][0])))
 		{
 			if (!is_array($modSettings['last_attachments_directory']))
 				$modSettings['last_attachments_directory'] = smf_json_decode($modSettings['last_attachments_directory'], true);
@@ -2087,7 +2087,7 @@ function ManageAttachmentPaths()
 				$use_subdirectories_for_attachments = 0;
 				if (!empty($modSettings['attachment_basedirectories']))
 					foreach ($modSettings['attachment_basedirectories'] as $bid => $base)
-						if (strpos($modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !==false)
+						if (strpos($modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false)
 						{
 							$use_subdirectories_for_attachments = 1;
 							break;
@@ -2263,7 +2263,7 @@ function ManageAttachmentPaths()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . ' class="input_radio">';
 					},
@@ -2276,7 +2276,7 @@ function ManageAttachmentPaths()
 					'value' => $txt['attach_path'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' class="input_text" style="width: 100%">';
 					},
@@ -2355,7 +2355,7 @@ function ManageAttachmentPaths()
 						'class' => 'centercol',
 					),
 					'data' => array(
-						'function' => function ($rowData)
+						'function' => function($rowData)
 						{
 							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . ' class="input_radio">';
 						},
@@ -2726,7 +2726,7 @@ function TransferAttachments()
 					$dir_size += !empty($row['size']) ? $row['size'] : filesize($source);
 
 					// If we've reached a limit. Do something.
-					if (!empty($modSettings['attachmentDirSizeLimit']) && $dir_size > $modSettings['attachmentDirSizeLimit'] * 1024 || (!empty($modSettings['attachmentDirFileLimit']) && $dir_files >  $modSettings['attachmentDirFileLimit']))
+					if (!empty($modSettings['attachmentDirSizeLimit']) && $dir_size > $modSettings['attachmentDirSizeLimit'] * 1024 || (!empty($modSettings['attachmentDirFileLimit']) && $dir_files > $modSettings['attachmentDirFileLimit']))
 					{
 						if (!empty($_POST['auto']))
 						{

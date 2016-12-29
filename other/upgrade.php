@@ -426,11 +426,11 @@ function upgradeExit($fallThrough = false)
 
 		$totalTime = '';
 		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
 		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
 		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
 
 		if (!empty($totalTime))
 			echo "\n" . 'Upgrade completed in ' . $totalTime . "\n";
@@ -710,14 +710,14 @@ function WelcomeLogin()
 	// Do we need to add this setting?
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
 
-	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
-	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl .'/custom_avatar';
+	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] . '/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl . '/custom_avatar';
 
 	// This little fellow has to cooperate...
 	quickFileWritable($custom_av_dir);
 
 	// Are we good now?
-	if(!is_writable($custom_av_dir))
+	if (!is_writable($custom_av_dir))
 		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
 	elseif ($need_settings_update)
 	{
@@ -913,7 +913,7 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = mt_rand(0,60000);
+			$upcontext['user']['pass'] = mt_rand(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
@@ -1124,7 +1124,7 @@ function UpgradeOptions()
 		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
-	elseif(!empty($db_port))
+	elseif (!empty($db_port))
 	{
 		// If db_port is set and is the same as the default, set it to ''
 		if ($db_type == 'mysql' || $db_type == 'mysqli')
@@ -1728,7 +1728,7 @@ function CleanupMods()
 		}
 
 		if (!empty($deletes))
-			upgrade_query( '
+			upgrade_query('
 				UPDATE ' . $db_prefix . 'log_packages
 				SET install_state = 0
 				WHERE id_install IN (' . implode(',', $deletes) . ')');
@@ -1807,7 +1807,7 @@ function DeleteUpgrade()
 	else
 	{
 		require_once($sourcedir . '/ScheduledTasks.php');
-		$forum_version = SMF_VERSION;  // The variable is usually defined in index.php so lets just use the constant to do it for us.
+		$forum_version = SMF_VERSION; // The variable is usually defined in index.php so lets just use the constant to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 	}
 
@@ -2625,7 +2625,7 @@ function protected_alter($change, $substep, $is_test = false)
 	}
 	elseif ($change['type'] === 'index')
 	{
-		$request = upgrade_query( '
+		$request = upgrade_query('
 			SHOW INDEX
 			FROM ' . $db_prefix . $change['table']);
 		if ($request !== false)
@@ -3272,7 +3272,7 @@ function quickFileWritable($file)
 	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
 	$chmod_values = array(0755, 0775, 0777);
 
-	foreach($chmod_values as $val)
+	foreach ($chmod_values as $val)
 	{
 		// If it's writable, break out of the loop
 		if (is_writable($file))
@@ -3599,7 +3599,7 @@ function convertUtf8()
 		$upcontext['table_count'] = count($queryTables);
 		$file_steps = $upcontext['table_count'];
 
-		for($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
 		{
 			$table = $queryTables[$_GET['substep']];
 
@@ -3827,7 +3827,7 @@ function serialize_to_json()
 	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 	$file_steps = $upcontext['table_count'];
 
-	foreach($keys as $id => $table)
+	foreach ($keys as $id => $table)
 		if ($id < $_GET['substep'])
 			$upcontext['previous_tables'][] = $table;
 
@@ -3842,7 +3842,7 @@ function serialize_to_json()
 			$upcontext['cur_table_name'] = isset($keys[$substep + 1]) ? $keys[$substep + 1] : $keys[$substep];
 			$upcontext['cur_table_num'] = $substep + 1;
 
-			$upcontext['step_progress'] = (int)(($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
 			// Do we need to pause?
 			nextSubstep($substep);
@@ -4079,7 +4079,7 @@ function template_chmod()
 				The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:<br>
 				<ul style="margin: 2.5ex; font-family: monospace;">
 					<li>' . implode('</li>
-					<li>', $upcontext['chmod']['files']). '</li>
+					<li>', $upcontext['chmod']['files']) . '</li>
 				</ul>
 			</div>';
 
@@ -4175,7 +4175,7 @@ function template_upgrade_above()
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '', '
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script>
@@ -4783,11 +4783,11 @@ function template_database_changes()
 
 				$totalTime = '';
 				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
 				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
 				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
 			}
 
 			if ($is_debug && !empty($totalTime))
@@ -4820,11 +4820,11 @@ function template_database_changes()
 
 				$totalTime = '';
 				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
+					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
 				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
+					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
 				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
+					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
 			}
 
 			echo '
@@ -5551,11 +5551,11 @@ function template_upgrade_complete()
 	{
 		$totalTime = '';
 		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's':'') . ' ';
+			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
 		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's':'') . ' ';
+			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
 		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's':'') . ' ';
+			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
 	}
 
 	if ($is_debug && !empty($totalTime))

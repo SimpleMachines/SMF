@@ -39,7 +39,7 @@ function template_main()
 	echo '
 		<div id="display_head" class="information">
 			<h2 class="display_title"><span id="top_subject">', $context['subject'], '</span>', ($context['is_locked']) ? ' <span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? ' <span class="generic_icons sticky"></span>' : '', '</h2>
-			<p>',$txt['started_by'],' ', $context['topic_poster_name'],', ', $context['topic_started_time'],'</p>';
+			<p>',$txt['started_by'], ' ', $context['topic_poster_name'], ', ', $context['topic_started_time'], '</p>';
 
 	// Next - Prev
 	echo '
@@ -74,7 +74,7 @@ function template_main()
 			<div id="poll">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="generic_icons poll"></span>', $context['poll']['is_locked'] ? '<span class="generic_icons lock"></span>' : '' ,' ', $context['poll']['question'], '
+						<span class="generic_icons poll"></span>', $context['poll']['is_locked'] ? '<span class="generic_icons lock"></span>' : '', ' ', $context['poll']['question'], '
 					</h3>
 				</div>
 				<div class="windowbg noup">
@@ -237,8 +237,8 @@ function template_main()
 	// Mobile action - moderation buttons (top)
 	echo '
 			<div class="mobile_buttons floatright">
-				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				<a class="button mobile_act">', $txt['mobile_action'], '</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 			</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -262,8 +262,8 @@ function template_main()
 	// Mobile action - moderation buttons (bottom)
 	echo '
 			<div class="mobile_buttons floatright">
-				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				<a class="button mobile_act">', $txt['mobile_action'], '</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 			</div>';
 
 	// Show the page index... "Pages: [1]".
@@ -297,7 +297,7 @@ function template_main()
 	echo '
 			<div id="mobile_action" class="popup_container">
 				<div class="popup_window description">
-					<div class="popup_heading">', $txt['mobile_action'],'
+					<div class="popup_heading">', $txt['mobile_action'], '
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					', template_button_strip($context['normal_buttons']), '
 				</div>
@@ -308,7 +308,7 @@ function template_main()
 		echo '
 			<div id="mobile_moderation" class="popup_container">
 				<div class="popup_window description">
-					<div class="popup_heading">', $txt['mobile_moderation'],'
+					<div class="popup_heading">', $txt['mobile_moderation'], '
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					<div id="moderationbuttons_mobile">
 						', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip_mobile')), '
@@ -396,7 +396,7 @@ function template_main()
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 							sTemplateTopSubject: ', JavaScriptEscape('%subject%'), ',
-							sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] .': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text quickModifyMargin">'), ',
+							sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text quickModifyMargin">'), ',
 							sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
 							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply']) ? ',
 							sFormRemoveAccessKeys: \'postmodify\'' : '', '
@@ -469,7 +469,7 @@ function template_single_post($message)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['css_class'] ,'">', $message['id'] != $context['first_message'] ? '
+				<div class="', $message['css_class'], '">', $message['id'] != $context['first_message'] ? '
 					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 
@@ -486,7 +486,7 @@ function template_single_post($message)
 
 		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 		echo '
 								</ul>
@@ -522,7 +522,7 @@ function template_single_post($message)
 	if (!empty($message['custom_fields']['below_avatar']))
 		foreach ($message['custom_fields']['below_avatar'] as $custom)
 			echo '
-								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 	// Show the post group icons, but not for guests.
 	if (!$message['member']['is_guest'])
@@ -567,7 +567,7 @@ function template_single_post($message)
 
 			foreach ($message['custom_fields']['icons'] as $custom)
 				echo '
-										<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+										<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 			echo '
 									</ol>
@@ -605,7 +605,7 @@ function template_single_post($message)
 		if (!empty($message['custom_fields']['standard']))
 			foreach ($message['custom_fields']['standard'] as $custom)
 				echo '
-								<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
 
 	}
 	// Otherwise, show the guest's email.
@@ -643,7 +643,7 @@ function template_single_post($message)
 	if (!empty($message['custom_fields']['bottom_poster']))
 		foreach ($message['custom_fields']['bottom_poster'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 	// Poster info ends.
 	echo '
@@ -830,7 +830,7 @@ function template_single_post($message)
 			$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 			echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
 		}
 
 		echo '
@@ -847,7 +847,7 @@ function template_single_post($message)
 		if ($context['can_quote'])
 			echo '
 									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
-									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>';
+									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>';
 
 		// Can the user modify the contents of this post? Show the modify inline image.
 		if ($message['can_modify'])
@@ -869,10 +869,10 @@ function template_single_post($message)
 		// How about... even... remove it entirely?!
 		if ($context['can_delete'] && ($context['topic_first_message'] == $message['id']))
 			echo '
-											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['are_sure_remove_topic'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove_topic'],'</a></li>';
+											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['are_sure_remove_topic'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove_topic'], '</a></li>';
 		elseif ($message['can_remove'] && ($context['topic_first_message'] != $message['id']))
 			echo '
-											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message_question'] ,'" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
+											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message_question'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
 
 		// What about splitting it off the rest of the topic?
 		if ($context['can_split'] && !empty($context['real_num_replies']))
@@ -930,7 +930,7 @@ function template_single_post($message)
 
 		foreach ($message['custom_fields']['above_signature'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 		echo '
 								</ul>
@@ -952,7 +952,7 @@ function template_single_post($message)
 
 		foreach ($message['custom_fields']['below_signature'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 		echo '
 								</ul>
@@ -1053,7 +1053,7 @@ function template_quickreply()
 	echo '
 				<br class="clear_right">
 				<span id="post_confirm_buttons">
-					', template_control_richedit_buttons($context['post_box_name']) ,'
+					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>';
 		echo '
 					</form>
@@ -1096,7 +1096,7 @@ function template_quickreply()
 						sJumpAnchor: "quickreply",
 						bIsFull: true
 					});
-					var oEditorID = "', $context['post_box_name'] ,'";
+					var oEditorID = "', $context['post_box_name'], '";
 					var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 					var oJumpAnchor = "quickreply";
 				</script>';

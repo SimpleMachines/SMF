@@ -159,7 +159,7 @@ function Display()
 			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
-			' . (!empty($topic_selects) ? (', '. implode(', ', $topic_selects)) : '') . '
+			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
 			' . (!$user_info['is_guest'] ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -388,7 +388,7 @@ function Display()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_id_group' => 0,
-				'in_url_string' => '"topic":'.$topic,
+				'in_url_string' => '"topic":' . $topic,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
@@ -457,8 +457,8 @@ function Display()
 		$context['links'] = array(
 			'first' => $_REQUEST['start'] >= $context['messages_per_page'] ? $scripturl . '?topic=' . $topic . '.0' : '',
 			'prev' => $_REQUEST['start'] >= $context['messages_per_page'] ? $scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] - $context['messages_per_page']) : '',
-			'next' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic. '.' . ($_REQUEST['start'] + $context['messages_per_page']) : '',
-			'last' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic. '.' . (floor($context['total_visible_posts'] / $context['messages_per_page']) * $context['messages_per_page']) : '',
+			'next' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] + $context['messages_per_page']) : '',
+			'last' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic . '.' . (floor($context['total_visible_posts'] / $context['messages_per_page']) * $context['messages_per_page']) : '',
 			'up' => $scripturl . '?board=' . $board . '.0'
 		);
 	}
@@ -1065,7 +1065,7 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? (', '. implode(', ', $msg_selects)) : '') . '
+				' . (!empty($msg_selects) ? (', ' . implode(', ', $msg_selects)) : '') . '
 			FROM {db_prefix}messages
 				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
@@ -1709,17 +1709,17 @@ function Download()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
 			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r", $buffer);
 			};
 		else
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\n", $buffer);
 			};
@@ -1800,7 +1800,7 @@ function QuickInTopicModeration()
 		list($subname) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		$_SESSION['split_selection'][$topic] = $messages;
-		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' .urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' . urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Allowed to delete any message?

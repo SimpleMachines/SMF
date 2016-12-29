@@ -515,7 +515,7 @@ function TaskLog()
 					'value' => $txt['scheduled_log_time_run'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return timeformat($rowData['time_run'], true);
 					},

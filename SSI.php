@@ -1557,7 +1557,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 		echo '
 				</dl>', ($return['allow_view_results'] ? '
-				<strong>'. $txt['poll_total_voters'] .': '. $return['total_votes'] .'</strong>' : ''), '
+				<strong>'. $txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
 			</div>';
 	}
 }
@@ -2083,7 +2083,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 				echo '
-						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
 			}
 
 			echo '
@@ -2295,7 +2295,7 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 			),
 			'file' => array(
 				'filename' => $filename,
-				'filesize' => round($row['filesize'] /1024, 2) . $txt['kilobyte'],
+				'filesize' => round($row['filesize'] / 1024, 2) . $txt['kilobyte'],
 				'downloads' => $row['downloads'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
 				'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',

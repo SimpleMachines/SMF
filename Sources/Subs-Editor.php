@@ -40,7 +40,7 @@ function bbc_to_html($text, $compat_mode = false)
 	// @todo Tie in with bbc permissions ?
 	foreach (array('code', 'php', 'nobbc') as $code)
 	{
-		if (strpos($text, '['. $code) !== false)
+		if (strpos($text, '[' . $code) !== false)
 		{
 			$parts = preg_split('~(\[/' . $code . '\]|\[' . $code . '(?:=[^\]]+)?\])~i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -77,7 +77,7 @@ function bbc_to_html($text, $compat_mode = false)
 	// Parse unique ID's and disable javascript into the smileys - using the double space.
 	$i = 1;
 	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~',
-		function ($m) use (&$i)
+		function($m) use (&$i)
 		{
 			return '<' . stripslashes($m[1]) . 'alt="" title="" onresizestart="return false;" id="smiley_' . $i++ . '_' . $m[2] . '" style="padding: 0 3px 0 3px;">';
 		}, $text);
@@ -605,10 +605,10 @@ function html_to_bbc($text)
 								// Inject closure for this list item first.
 								// The content of $parts[$i] is left as is!
 								array_splice($parts, $i + 1, 0, array(
-									'',				// $i + 1
-									'[/li]' . "\n",	// $i + 2
-									'',				// $i + 3
-									'',				// $i + 4
+									'', // $i + 1
+									'[/li]' . "\n", // $i + 2
+									'', // $i + 3
+									'', // $i + 4
 								));
 								$numParts = count($parts) - 1;
 
@@ -726,167 +726,167 @@ function html_to_bbc($text)
 
 	// The final bits are the easy ones - tags which map to tags which map to tags - etc etc.
 	$tags = array(
-		'~<b(\s(.)*?)*?' . '>~i' => function ()
+		'~<b(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[b]';
 		},
-		'~</b>~i' => function ()
+		'~</b>~i' => function()
 		{
 			return '[/b]';
 		},
-		'~<i(\s(.)*?)*?' . '>~i' => function ()
+		'~<i(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[i]';
 		},
-		'~</i>~i' => function ()
+		'~</i>~i' => function()
 		{
 			return '[/i]';
 		},
-		'~<u(\s(.)*?)*?' . '>~i' => function ()
+		'~<u(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[u]';
 		},
-		'~</u>~i' => function ()
+		'~</u>~i' => function()
 		{
 			return '[/u]';
 		},
-		'~<strong(\s(.)*?)*?' . '>~i' => function ()
+		'~<strong(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[b]';
 		},
-		'~</strong>~i' => function ()
+		'~</strong>~i' => function()
 		{
 			return '[/b]';
 		},
-		'~<em(\s(.)*?)*?' . '>~i' => function ()
+		'~<em(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[i]';
 		},
-		'~</em>~i' => function ()
+		'~</em>~i' => function()
 		{
 			return '[i]';
 		},
-		'~<s(\s(.)*?)*?' . '>~i' => function ()
+		'~<s(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "[s]";
 		},
-		'~</s>~i' => function ()
+		'~</s>~i' => function()
 		{
 			return "[/s]";
 		},
-		'~<strike(\s(.)*?)*?' . '>~i' => function ()
+		'~<strike(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[s]';
 		},
-		'~</strike>~i' => function ()
+		'~</strike>~i' => function()
 		{
 			return '[/s]';
 		},
-		'~<del(\s(.)*?)*?' . '>~i' => function ()
+		'~<del(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[s]';
 		},
-		'~</del>~i' => function ()
+		'~</del>~i' => function()
 		{
 			return '[/s]';
 		},
-		'~<center(\s(.)*?)*?' . '>~i' => function ()
+		'~<center(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[center]';
 		},
-		'~</center>~i' => function ()
+		'~</center>~i' => function()
 		{
 			return '[/center]';
 		},
-		'~<pre(\s(.)*?)*?' . '>~i' => function ()
+		'~<pre(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[pre]';
 		},
-		'~</pre>~i' => function ()
+		'~</pre>~i' => function()
 		{
 			return '[/pre]';
 		},
-		'~<sub(\s(.)*?)*?' . '>~i' => function ()
+		'~<sub(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[sub]';
 		},
-		'~</sub>~i' => function ()
+		'~</sub>~i' => function()
 		{
 			return '[/sub]';
 		},
-		'~<sup(\s(.)*?)*?' . '>~i' => function ()
+		'~<sup(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[sup]';
 		},
-		'~</sup>~i' => function ()
+		'~</sup>~i' => function()
 		{
 			return '[/sup]';
 		},
-		'~<tt(\s(.)*?)*?' . '>~i' => function ()
+		'~<tt(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[tt]';
 		},
-		'~</tt>~i' => function ()
+		'~</tt>~i' => function()
 		{
 			return '[/tt]';
 		},
-		'~<table(\s(.)*?)*?' . '>~i' => function ()
+		'~<table(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[table]';
 		},
-		'~</table>~i' => function ()
+		'~</table>~i' => function()
 		{
 			return '[/table]';
 		},
-		'~<tr(\s(.)*?)*?' . '>~i' => function ()
+		'~<tr(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[tr]';
 		},
-		'~</tr>~i' => function ()
+		'~</tr>~i' => function()
 		{
 			return '[/tr]';
 		},
-		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function ($matches)
+		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function($matches)
 		{
 			return str_repeat('[td][/td]', $matches[2] - 1) . '[td]';
 		},
-		'~<(td|th)(\s(.)*?)*?' . '>~i' => function ()
+		'~<(td|th)(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[td]';
 		},
-		'~</(td|th)>~i' => function ()
+		'~</(td|th)>~i' => function()
 		{
 			return '[/td]';
 		},
-		'~<br(?:\s[^<>]*?)?' . '>~i' => function ()
+		'~<br(?:\s[^<>]*?)?' . '>~i' => function()
 		{
 			return "\n";
 		},
-		'~<hr[^<>]*>(\n)?~i' => function ($matches)
+		'~<hr[^<>]*>(\n)?~i' => function($matches)
 		{
-			return "[hr]\n". $matches[0];
+			return "[hr]\n" . $matches[0];
 		},
-		'~(\n)?\\[hr\\]~i' => function ()
+		'~(\n)?\\[hr\\]~i' => function()
 		{
 			return "\n[hr]";
 		},
-		'~^\n\\[hr\\]~i' => function ()
+		'~^\n\\[hr\\]~i' => function()
 		{
 			return "[hr]";
 		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function ()
+		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function()
 		{
 			return "&lt;blockquote&gt;";
 		},
-		'~</blockquote>~i' => function ()
+		'~</blockquote>~i' => function()
 		{
 			return "&lt;/blockquote&gt;";
 		},
-		'~<ins(\s(.)*?)*?' . '>~i' => function ()
+		'~<ins(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "&lt;ins&gt;";
 		},
-		'~</ins>~i' => function ()
+		'~</ins>~i' => function()
 		{
 			return "&lt;/ins&gt;";
 		},
@@ -2391,7 +2391,7 @@ function AutoSuggest_Search_MemberGroups()
 		array(
 			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,
-			'invalid_groups' => array(1,3),
+			'invalid_groups' => array(1, 3),
 			'hidden' => 2,
 			'search' => $_REQUEST['search'],
 		)

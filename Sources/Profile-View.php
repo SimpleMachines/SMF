@@ -368,7 +368,7 @@ function showAlerts($memID)
 	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
-	$count =  alert_count($memID);
+	$count = alert_count($memID);
 
 	// Get the alerts.
 	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
@@ -833,7 +833,7 @@ function showAttachments($memID)
 			),
 		),
 		'data_check' => array(
-			'class' => function ($data)
+			'class' => function($data)
 			{
 				return $data['approved'] ? '' : 'approvebg';
 			}
@@ -1536,7 +1536,7 @@ function trackActivity($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . $memID. '">%1$s</a>',
+						'format' => '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . $memID . '">%1$s</a>',
 						'params' => array(
 							'ip' => false,
 						),

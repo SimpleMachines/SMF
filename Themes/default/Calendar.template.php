@@ -172,23 +172,23 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// Additional classes are given for events, holidays, and birthdays.
 				if (!empty($day['events']) && !empty($calendar_data['highlight']['events']))
 				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['events'], array(1,3)))
+					if ($is_mini === true && in_array($calendar_data['highlight']['events'], array(1, 3)))
 						$classes[] = 'events';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['events'], array(2,3)))
+					elseif ($is_mini === false && in_array($calendar_data['highlight']['events'], array(2, 3)))
 						$classes[] = 'events';
 				}
 				if (!empty($day['holidays']) && !empty($calendar_data['highlight']['holidays']))
 				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['holidays'], array(1,3)))
+					if ($is_mini === true && in_array($calendar_data['highlight']['holidays'], array(1, 3)))
 						$classes[] = 'holidays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['holidays'], array(2,3)))
+					elseif ($is_mini === false && in_array($calendar_data['highlight']['holidays'], array(2, 3)))
 						$classes[] = 'holidays';
 				}
 				if (!empty($day['birthdays']) && !empty($calendar_data['highlight']['birthdays']))
 				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['birthdays'], array(1,3)))
+					if ($is_mini === true && in_array($calendar_data['highlight']['birthdays'], array(1, 3)))
 						$classes[] = 'birthdays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['birthdays'], array(2,3)))
+					elseif ($is_mini === false && in_array($calendar_data['highlight']['birthdays'], array(2, 3)))
 						$classes[] = 'birthdays';
 				}
 			}
@@ -252,7 +252,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['events']))
 					{
 						// Sort events by start time (all day events will be listed first)
-						uasort($day['events'], function ($a, $b) {
+						uasort($day['events'], function($a, $b) {
 						    if ($a['start_timestamp'] == $b['start_timestamp'])
 						        return 0;
 						    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
@@ -318,7 +318,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			elseif ($is_mini === false)
 			{
 				if (empty($current_month_started) && !empty($context['calendar_grid_prev']))
-					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_prev']['current_year'], ';month=', $context['calendar_grid_prev']['current_month'], '">', $context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- + 1, '</a>';
+					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_prev']['current_year'], ';month=', $context['calendar_grid_prev']['current_month'], '">', $context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- +1, '</a>';
 				elseif (!empty($current_month_started) && !empty($context['calendar_grid_next']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_next']['current_year'], ';month=', $context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? $txt['months_short'][$context['calendar_grid_next']['current_month']] . ' ' : $txt['months_titles'][$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
 			}
@@ -435,7 +435,7 @@ function template_show_week_grid($grid_name)
 							if (!empty($day['events']))
 							{
 								// Sort events by start time (all day events will be listed first)
-								uasort($day['events'], function ($a, $b) {
+								uasort($day['events'], function($a, $b) {
 								    if ($a['start_timestamp'] == $b['start_timestamp'])
 								        return 0;
 								    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
@@ -638,7 +638,7 @@ function template_event_post()
 						<div>
 							<span class="label">', $txt['calendar_post_in'], '</span>
 							<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
-							<select name="board"', empty($context['event']['board']) ? ' disabled' : '' , '>';
+							<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
 		foreach ($context['event']['categories'] as $category)
 		{
 			echo '

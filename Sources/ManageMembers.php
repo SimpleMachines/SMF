@@ -357,9 +357,9 @@ function ViewMemberlist()
 				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
 
 				if ($smcFunc['db_case_sensitive'])
-					$query_parts[] = '(LOWER(' . implode( ') LIKE {string:' . $param_name . '_normal} OR LOWER(', $param_info['db_fields']) . ') LIKE {string:' . $param_name . '_normal})';
+					$query_parts[] = '(LOWER(' . implode(') LIKE {string:' . $param_name . '_normal} OR LOWER(', $param_info['db_fields']) . ') LIKE {string:' . $param_name . '_normal})';
 				else
-					$query_parts[] = '(' . implode( ' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
+					$query_parts[] = '(' . implode(' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
 				$where_params[$param_name . '_normal'] = '%' . $parameter . '%';
 			}
 		}
@@ -518,7 +518,7 @@ function ViewMemberlist()
 					'value' => $txt['viewmembers_online'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// Calculate number of days since last online.
 						if (empty($rowData['last_login']))
@@ -572,7 +572,7 @@ function ViewMemberlist()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($user_info)
+					'function' => function($rowData) use ($user_info)
 					{
 						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '" class="input_check"' . ($rowData['id_member'] == $user_info['id'] || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
 					},
@@ -877,7 +877,7 @@ function MembersAwaitingActivation()
 					'value' => $txt['hostname'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return host_from_ip(inet_dtop($rowData['member_ip']));
 					},
@@ -889,7 +889,7 @@ function MembersAwaitingActivation()
 					'value' => $context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($context)
+					'function' => function($rowData) use ($context)
 					{
 						return timeformat($rowData['' . ($context['current_filter'] == 4 ? 'last_login' : 'date_registered') . '']);
 					},
@@ -906,7 +906,7 @@ function MembersAwaitingActivation()
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						$member_links = array();
 						foreach ($rowData['duplicate_members'] as $member)
@@ -916,7 +916,7 @@ function MembersAwaitingActivation()
 							else
 								$member_links[] = $member['name'] . ' (' . $txt['guest'] . ')';
 						}
-						return implode (', ', $member_links);
+						return implode(', ', $member_links);
 					},
 					'class' => 'smalltext',
 				),

@@ -302,7 +302,7 @@ function issueWarning($memID)
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function ($warning)
+					'function' => function($warning)
 					{
 						return $warning['issuer']['link'];
 					},
@@ -330,7 +330,7 @@ function issueWarning($memID)
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function ($warning) use ($scripturl, $txt)
+					'function' => function($warning) use ($scripturl, $txt)
 					{
 						$ret = '
 						<div class="floatleft">

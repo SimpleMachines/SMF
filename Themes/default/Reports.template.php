@@ -148,7 +148,7 @@ function template_print_above()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'], '">
 	</head>
 	<body>';
 }

@@ -393,7 +393,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	// This ensures you can't search someones email address if you can't see it.
 	if (($use_wildcards || $maybe_email) && allowedTo('moderate_forum'))
 		$email_condition = '
-			OR (email_address ' . $comparison . ' \'' . implode( '\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
+			OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
 	else
 		$email_condition = '';
 
@@ -412,8 +412,8 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 		LIMIT {int:limit}',
 		array(
 			'buddy_list' => $user_info['buddies'],
-			'member_name_search' => $member_name . ' ' . $comparison . ' \'' . implode( '\' OR ' . $member_name . ' ' . $comparison . ' \'', $names) . '\'',
-			'real_name_search' => $real_name . ' ' . $comparison . ' \'' . implode( '\' OR ' . $real_name . ' ' . $comparison . ' \'', $names) . '\'',
+			'member_name_search' => $member_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $member_name . ' ' . $comparison . ' \'', $names) . '\'',
+			'real_name_search' => $real_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $real_name . ' ' . $comparison . ' \'', $names) . '\'',
 			'email_condition' => $email_condition,
 			'limit' => $max,
 		)
