@@ -614,7 +614,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
-	global $smcFunc, $db_type, $databases, $txt, $boardurl;
+	global $smcFunc, $db_type, $databases, $boardurl;
 
 	$upcontext['sub_template'] = 'welcome_message';
 
@@ -1216,7 +1216,7 @@ if (!isset($db_last_error))
 // Backup the database - why not...
 function BackupDatabase()
 {
-	global $upcontext, $db_prefix, $command_line, $is_debug, $support_js, $file_steps, $smcFunc;
+	global $upcontext, $db_prefix, $command_line, $support_js, $file_steps, $smcFunc;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'backup_xml' : 'backup_database';
 	$upcontext['page_title'] = 'Backup Database';
@@ -1297,7 +1297,7 @@ function BackupDatabase()
 // Backup one table...
 function backupTable($table)
 {
-	global $is_debug, $command_line, $db_prefix, $smcFunc;
+	global $command_line, $db_prefix, $smcFunc;
 
 	if ($command_line)
 	{
@@ -1314,7 +1314,7 @@ function backupTable($table)
 // Step 2: Everything.
 function DatabaseChanges()
 {
-	global $db_prefix, $modSettings, $command_line, $smcFunc;
+	global $db_prefix, $modSettings, $smcFunc;
 	global $upcontext, $support_js, $db_type;
 
 	// Have we just completed this?
@@ -2538,8 +2538,8 @@ function nextSubstep($substep)
 
 function cmdStep0()
 {
-	global $boarddir, $sourcedir, $language, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $language, $is_debug;
+	global $boarddir, $sourcedir, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
+	global $is_debug;
 	$start_time = time();
 
 	ob_end_clean();
@@ -2920,7 +2920,7 @@ function smf_strtolower($string)
  */
 function convertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js, $is_debug;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
@@ -3220,7 +3220,6 @@ function convertUtf8()
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
-		$file_steps = $upcontext['table_count'];
 
 		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
 		{
@@ -3404,7 +3403,7 @@ function convertUtf8()
 
 function serialize_to_json()
 {
-	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
@@ -3448,7 +3447,6 @@ function serialize_to_json()
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-	$file_steps = $upcontext['table_count'];
 
 	foreach ($keys as $id => $table)
 		if ($id < $_GET['substep'])
@@ -4760,7 +4758,7 @@ function template_database_changes()
 
 function template_database_xml()
 {
-	global $is_debug, $upcontext, $txt;
+	global $is_debug, $upcontext;
 
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
@@ -5119,7 +5117,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 			{
 				foreach ($updates as $key => $ip)
 				{
-					$request = $smcFunc['db_query']('', '
+					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}' . $targetTable . '
 						SET ' . $newCol . ' = {inet:ip}
 						WHERE ' . $oldCol . ' = {string:ip}',
@@ -5131,7 +5129,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 			else
 			{
 				$updates['whereSet'] = array_values($updates);
-				$request = $smcFunc['db_query']('', '
+				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}' . $targetTable . '
 					SET ' . $newCol . ' = CASE ' .
 					implode('
