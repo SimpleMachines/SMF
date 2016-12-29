@@ -252,10 +252,6 @@ function reportPost($msg, $reason)
 	$message = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$poster_name = un_htmlspecialchars($message['real_name']) . ($message['real_name'] != $message['poster_name'] ? ' (' . $message['poster_name'] . ')' : '');
-	$reporterName = un_htmlspecialchars($user_info['name']) . ($user_info['name'] != $user_info['username'] && $user_info['username'] != '' ? ' (' . $user_info['username'] . ')' : '');
-	$subject = un_htmlspecialchars($message['subject']);
-
 	$request = $smcFunc['db_query']('', '
 		SELECT id_report, ignore_all
 		FROM {db_prefix}log_reported
@@ -377,7 +373,6 @@ function reportUser($id_member, $reason)
 	$smcFunc['db_free_result']($request);
 
 	$user_name = un_htmlspecialchars($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
-	$reporterName = un_htmlspecialchars($user_info['name']) . ($user_info['name'] != $user_info['username'] && $user_info['username'] != '' ? ' (' . $user_info['username'] . ')' : '');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_report, ignore_all
