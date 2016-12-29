@@ -620,7 +620,7 @@ function template_event_post()
 	}
 
 	echo '
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<fieldset id="event_main">
 					<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
 					<input type="hidden" name="calendar" value="1">
