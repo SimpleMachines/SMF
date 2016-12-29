@@ -860,7 +860,6 @@ function banEdit2()
 
 	if (isset($_POST['ban_items']))
 	{
-		$items_ids = array();
 		$ban_group_id = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
 		array_map('intval', $_POST['ban_items']);
 
@@ -898,7 +897,6 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
 			'id' => $member,
 		)
 	);
-	$ban_triggers = array();
 
 	foreach ($suggestions as $key => $value)
 	{
