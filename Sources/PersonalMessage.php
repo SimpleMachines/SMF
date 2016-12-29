@@ -342,9 +342,6 @@ function messageIndexBar($area)
 
 	require_once($sourcedir . '/Subs-Menu.php');
 
-	// What page is this, again?
-	$current_page = $scripturl . '?action=pm' . (!empty($_REQUEST['sa']) ? ';sa=' . $_REQUEST['sa'] : '') . (!empty($context['folder']) ? ';f=' . $context['folder'] : '') . (!empty($context['current_label_id']) ? ';l=' . $context['current_label_id'] : '');
-
 	// Set a few options for the menu.
 	$menuOptions = array(
 		'current_area' => $area,
@@ -2561,7 +2558,6 @@ function MessageActionsApply()
 
 	$to_delete = array();
 	$to_label = array();
-	$to_unlabel = array();
 	$label_type = array();
 	$labels = array();
 	foreach ($_REQUEST['pm_actions'] as $pm => $action)
@@ -2598,8 +2594,6 @@ function MessageActionsApply()
 	// Are we labeling anything?
 	if (!empty($to_label) && $context['folder'] == 'inbox')
 	{
-		$updateErrors = 0;
-
 		// Are we dealing with conversation view? If so, get all the messages in each conversation
 		if ($context['display_mode'] == 2)
 		{
