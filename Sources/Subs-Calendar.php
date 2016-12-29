@@ -1528,6 +1528,28 @@ function buildEventDatetimes($row)
 	// The time zone abbreviation (e.g. 'GMT', 'EST', etc.)
 	$tz_abbrev = date_format($start_object, 'T');
 
+	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		$tz_location = timezone_location_get(timezone_open($row['timezone']));
+
+		// Kazakstan
+		if ($tz_location['country_code'] == 'KZ')
+			$tz_abbrev = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tz_abbrev);
+
+		// Russia likes to experiment with time zones
+		if ($tz_location['country_code'] == 'RU')
+		{
+			$msk_offset = intval($tz_abbrev) - 3;
+			$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
+			$tz_abbrev = 'MSK' . $msk_offset;
+		}
+
+		// Still no good? We'll just mark it as a UTC offset
+		if (strspn($tz_abbrev, '+-') > 0)
+			$tz_abbrev = 'UTC' . $tz_abbrev;
+	}
+
 	return array($start, $end, $allday, $span, $tz_abbrev);
 }
 
