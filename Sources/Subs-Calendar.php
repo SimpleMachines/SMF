@@ -897,7 +897,7 @@ function insertEvent(&$eventOptions)
 	);
 	$event_parameters = array(
 		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
-		$start_date, $end_date,
+		$start_date, $end_date, $eventOptions['location'],
 	);
 	if (!empty($start_time) && !empty($end_time) && !empty($tz) && in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 	{

@@ -5027,7 +5027,8 @@ function smf_list_timezones($when = 'now')
 			$priority_zones[$tzkey] = true;
 
 		// Keep track of the location and offset for this tzid
-		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop(explode('/', $tzid)));
+		$tzid_parts = explode('/', $tzid);
+		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 	}
 
