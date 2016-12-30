@@ -5036,7 +5036,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	$current_substep = $_GET['substep'];
 
 	$step_progress['name'] = 'Converting ips';
-	$step_progress['current'] = $_GET['a'];
+	$step_progress['current'] = !empty($_GET['a']) ? $_GET['a'] : 0;
 
 	// Skip this if we don't have the column
 	$request = $smcFunc['db_query']('', '
