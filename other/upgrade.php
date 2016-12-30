@@ -3454,7 +3454,7 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
-	$upcontext['table_count'] = 13;
+	$upcontext['table_count'] = count($keys);
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
