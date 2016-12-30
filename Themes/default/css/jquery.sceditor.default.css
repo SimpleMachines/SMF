@@ -62,24 +62,34 @@ code:before, code {
 }
 
 blockquote {
-	position: relative;
-	background: #fff6c7;
-	margin: .25em 0;
-	border: 1px solid #aaa;
-	padding: .25em;
+	margin: 0 0 8px 0;
+	padding: 6px 10px;
+	font-size: small;
+	border: 1px solid #d6dfe2;
+	border-left: 2px solid #aaa;
+	border-right: 2px solid #aaa;
+	background-color: #e0e6f6;
 }
 blockquote cite {
-	font-weight: bold;
 	display: block;
-	font-size: 1em;
 	border-bottom: 1px solid #aaa;
+	font-size: 0.9em;
 }
 
-h1, h2, h3, h4, h5, h6 {
-	padding: 0; margin: 0;
+blockquote cite:before {
+	color: #aaa;
+	font-size: 22px;
+	font-style: normal;
+	content: '\275D';
+	margin-right: 5px;
+	vertical-align: middle;
 }
 
 /* Prevent empty paragraphs from collapsing */
 div, p {
 	min-height: 1.25em;
+}
+h1,h2,h3,h4,h5,h6 {
+	padding: 0;
+	margin: 0;
 }
