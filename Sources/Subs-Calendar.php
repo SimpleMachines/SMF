@@ -131,10 +131,8 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
 
-		$tz = !empty($row['timezone']) ? $row['timezone'] : getUserTimezone();
-
 		// Get the various time and date properties for this event
-		list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 		// Sanity check
 		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -190,7 +188,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'end_datetime' => $end['datetime'],
 					'end_iso_gmdate' => $end['iso_gmdate'],
 					'allday' => $allday,
-					'tz' => !$allday ? $row['timezone'] : null,
+					'tz' => !$allday ? $tz : null,
 					'tz_abbrev' => !$allday ? $tz_abbrev : null,
 					'span' => $span,
 					'is_last' => false,
@@ -1087,7 +1085,7 @@ function getEventProperties($event_id)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 	// Sanity check
 	if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -1129,7 +1127,7 @@ function getEventProperties($event_id)
 		'end_datetime' => $end['datetime'],
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
-		'tz' => !$allday ? $row['timezone'] : null,
+		'tz' => !$allday ? $tz : null,
 		'tz_abbrev' => !$allday ? $tz_abbrev : null,
 		'span' => $span,
 		'title' => $row['title'],
@@ -1156,68 +1154,21 @@ function getEventProperties($event_id)
  */
 function getNewEventDatetimes()
 {
-	$today = getdate();
+	// Ensure setEventStartEnd() has something to work with
+	$now = date_create();
+	$_POST['year'] = !empty($_POST['year']) ? $_POST['year'] : date_format($now, 'Y');
+	$_POST['month'] = !empty($_POST['month']) ? $_POST['month'] : date_format($now, 'm');
+	$_POST['day'] = !empty($_POST['day']) ? $_POST['day'] : date_format($now, 'd');
+	$_POST['hour'] = !empty($_POST['hour']) ? $_POST['hour'] : date_format($now, 'H');
+	$_POST['minute'] = !empty($_POST['minute']) ? $_POST['minute'] : date_format($now, 'i');
+	$_POST['second'] = !empty($_POST['second']) ? $_POST['second'] : date_format($now, 's');
 
-	$allday = isset($_REQUEST['allday']) ? 1 : (isset($_REQUEST['start_time']) ? 0 : 1);
-	$span = isset($_REQUEST['span']) && filter_var($_REQUEST['span'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 0))) ? $_REQUEST['span'] : 1;
+	// Set the basic values for the new event
+	$row_keys = array('start_date', 'end_date', 'start_time', 'end_time', 'timezone');
+	$row = array_combine($row_keys, setEventStartEnd());
 
-	if (!empty($_REQUEST['tz']) && in_array($_REQUEST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-		$tz = $_REQUEST['tz'];
-	else
-		$tz = getUserTimezone();
-
-	// Was the input given as individual parameters?
-	$start_year = isset($_REQUEST['year']) ? $_REQUEST['year'] : $today['year'];
-	$start_month = isset($_REQUEST['month']) ? $_REQUEST['month'] : $today['mon'];
-	$start_day = isset($_REQUEST['day']) ? $_REQUEST['day'] : $today['mday'];
-	$start_hour = isset($_REQUEST['hour']) ? $_REQUEST['hour'] : $today['hours'];
-	$start_minute = isset($_REQUEST['minute']) ? $_REQUEST['minute'] : $today['minutes'];
-	$start_second = isset($_REQUEST['second']) ? $_REQUEST['second'] : $today['seconds'];
-	$end_year = isset($_REQUEST['end_year']) ? $_REQUEST['end_year'] : $today['year'];
-	$end_month = isset($_REQUEST['end_month']) ? $_REQUEST['end_month'] : $today['mon'];
-	$end_day = isset($_REQUEST['end_day']) ? $_REQUEST['end_day'] : $today['mday'];
-	$end_hour = isset($_REQUEST['end_hour']) ? $_REQUEST['end_hour'] : ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']);
-	$end_minute = isset($_REQUEST['end_minute']) ? $_REQUEST['end_minute'] : ($today['hours'] < 23 ? $today['minutes'] : 59);
-	$end_second = isset($_REQUEST['end_second']) ? $_REQUEST['end_second'] : 0;
-
-	// ... Or as date strings and time strings? ...
-	$start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : sprintf('%04d-%02d-%02d', $start_year, $start_month, $start_day);
-	$start_time = isset($_REQUEST['start_time']) ? $_REQUEST['start_time'] : sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second);
-	$end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : sprintf('%04d-%02d-%02d', $end_year, $end_month, $end_day);
-	$end_time = isset($_REQUEST['end_time']) ? $_REQUEST['end_time'] : sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second);
-
-	// ... Or as datetime strings?
-	$start_datetime = isset($_REQUEST['start_datetime']) ? $_REQUEST['start_datetime'] : $start_date . ' ' . $start_time;
-	$end_datetime = isset($_REQUEST['end_datetime']) ? $_REQUEST['end_datetime'] : $end_date . ' ' . $end_time;
-
-	// In case we received conflicting input, use $start_datetime and $end_datetime as the final answer
-	$start = date_parse($start_datetime);
-	$end = date_parse($end_datetime);
-
-	// Make sure everything is valid
-	if ($start['error_count'] == 0 && $start['warning_count'] == 0 && $end['error_count'] == 0 && $end['warning_count'] == 0)
-	{
-		$row = array(
-			'start_date' => sprintf('%04d-%02d-%02d', $start['year'], $start['month'], $start['day']),
-			'start_time' => sprintf('%02d:%02d:%02d', $start['hour'], $start['minute'], $start['second']),
-			'end_date' => sprintf('%04d-%02d-%02d', $end['year'], $end['month'], $end['day']),
-			'end_time' => sprintf('%02d:%02d:%02d', $end['hour'], $end['minute'], $end['second']),
-			'timezone' => $tz,
-		);
-	}
-	// Invalid input? Just ignore it and use $today.
-	else
-	{
-		$row = array(
-			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
-			'start_time' => sprintf('%02d:%02d:%02d', $today['hours'], $today['minutes'], $today['seconds']),
-			'start_date' => sprintf('%04d-%02d-%02d', $today['year'], $today['mon'], $today['mday']),
-			'end_time' => sprintf('%02d:%02d:%02d', ($today['hours'] < 23 ? $today['hours'] + 1 : $today['hours']), ($today['hours'] < 23 ? $today['minutes'] : 59), $end['second']),
-			'timezone' => $tz,
-		);
-	}
-
-	list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+	// And now set the full suite of values
+	list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 	// Default theme only uses some of this info, but others might want it all
 	$eventProperties = array(
@@ -1252,7 +1203,7 @@ function getNewEventDatetimes()
 		'end_datetime' => $end['datetime'],
 		'end_iso_gmdate' => $end['iso_gmdate'],
 		'allday' => $allday,
-		'tz' => $tz,
+		'tz' => !$allday ? $tz : null,
 		'tz_abbrev' => !$allday ? $tz_abbrev : null,
 		'span' => $span,
 	);
@@ -1471,47 +1422,81 @@ function buildEventDatetimes($row)
 	else
 		$date_format = $matches[0];
 
-	if (empty($row['timezone']))
-		$row['timezone'] = getUserTimezone();
-
 	// We want a fairly compact version of the time, but as close as possible to the user's settings.
 	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
 		$time_format = '%k:%M';
 	else
 		$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
+	// Should this be an all day event?
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
 
+	// How many days does this event span?
 	$span = 1 + date_interval_format(date_diff(date_create($row['start_date']), date_create($row['end_date'])), '%d');
 
+	// We need to have a defined timezone in the steps below
+	if (empty($row['timezone']))
+		$row['timezone'] = getUserTimezone();
+
+	// Get most of the standard date information for the start and end datetimes
 	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
 	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
 
+	// But we also want more info, so make some DateTime objects we can use
 	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($row['timezone']));
 	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($row['timezone']));
 
+	// Unix timestamps are good
 	$start['timestamp'] = date_format($start_object, 'U');
 	$end['timestamp'] = date_format($end_object, 'U');
 
+	// Datetime string without timezone  (e.g. '2016-12-28 22:45:30')
 	$start['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
 	$end['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
 
+	// ISO formatted datetime string, relative to UTC (e.g. '2016-12-29T05:45:30+00:00')
 	$start['iso_gmdate'] = gmdate('c', $start['timestamp']);
 	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
 
+	// Strings showing the datetimes in the user's preferred format, relative to the user's time zone
 	$start['date_local'] = timeformat($start['timestamp'], $date_format);
 	$start['time_local'] = timeformat($start['timestamp'], $time_format);
 	$end['date_local'] = timeformat($end['timestamp'], $date_format);
 	$end['time_local'] = timeformat($end['timestamp'], $time_format);
 
+	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
 	$start['date_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format, 'none');
 	$start['time_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_format, 'none');
 	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
 	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
 
+	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
+	$tz = date_format($start_object, 'e');
 	$tz_abbrev = date_format($start_object, 'T');
 
-	return array($start, $end, $allday, $span, $tz_abbrev);
+	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		$tz_location = timezone_location_get(timezone_open($row['timezone']));
+
+		// Kazakstan
+		if ($tz_location['country_code'] == 'KZ')
+			$tz_abbrev = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tz_abbrev);
+
+		// Russia likes to experiment with time zones
+		if ($tz_location['country_code'] == 'RU')
+		{
+			$msk_offset = intval($tz_abbrev) - 3;
+			$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
+			$tz_abbrev = 'MSK' . $msk_offset;
+		}
+
+		// Still no good? We'll just mark it as a UTC offset
+		if (strspn($tz_abbrev, '+-') > 0)
+			$tz_abbrev = 'UTC' . $tz_abbrev;
+	}
+
+	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
 
 /**

@@ -562,7 +562,7 @@ function Display()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// Get the various time and date properties for this event
-			list($start, $end, $allday, $span, $tz_abbrev) = buildEventDatetimes($row);
+			list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 			// Sanity check
 			if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -604,7 +604,7 @@ function Display()
 				'end_timestamp' => $end['timestamp'],
 				'end_iso_gmdate' => $end['iso_gmdate'],
 				'allday' => $allday,
-				'tz' => !$allday ? $row['timezone'] : null,
+				'tz' => !$allday ? $tz : null,
 				'tz_abbrev' => !$allday ? $tz_abbrev : null,
 				'span' => $span,
 				'location' => $row['location'],
