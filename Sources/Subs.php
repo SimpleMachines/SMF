@@ -1119,7 +1119,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt="' . $currentAttachment['name'] . '"';
+						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
 
 						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
