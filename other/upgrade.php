@@ -620,6 +620,9 @@ function WelcomeLogin()
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
 	global $smcFunc, $db_type, $databases, $boardurl;
 
+	// We global $txt here so that the language files can add to them. This variable is NOT unused.
+	global $txt;
+
 	$upcontext['sub_template'] = 'welcome_message';
 
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
