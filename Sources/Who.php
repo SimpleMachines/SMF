@@ -577,6 +577,7 @@ function Credits($in_admin = false)
 						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
 						'Colin Schoen',
+						'John &quot;live627&quot; Rayes',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -585,7 +586,6 @@ function Credits($in_admin = false)
 						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
-						'John &quot;live627&quot; Rayes',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Shitiz &quot;Dragooon&quot; Garg',
 						'Karl &quot;RegularExpression&quot; Benson',
@@ -673,6 +673,7 @@ function Credits($in_admin = false)
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						// Localizers
 						'Dr. Deejay',
+                        			'd3vcho',
 						// Former Localizers
 						'Relyana',
 					),
