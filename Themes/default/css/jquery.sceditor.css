@@ -262,6 +262,37 @@ body.sceditor-maximize {
   border-radius: 0;
   background-clip: padding-box;
 }
+div.sceditor-smileyPopup, div.sceditor-dropdown {
+	border: 1px solid #ccc;
+	background: #fff;
+	color: #333;
+	z-index: 4000;
+	padding: 10px;
+	line-height: 1;
+	border-radius: 2px;
+	background-clip: padding-box;
+	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
+}
+@media screen and (min-width: 1024px) {
+	div.sceditor-smileyPopup {
+		height: 50%;
+		width: 50%;
+		position: fixed;
+	}
+	#sceditor-popup {
+		height: 100%;
+	}
+	#sceditor-popup-smiley {
+		height: 90%;
+		overflow: auto;
+	}
+}
+@media screen and (max-width: 1024px) {
+	div.sceditor-smileyPopup {
+		width: 90%;
+		position: absolute;
+	}
+}
 /**
 	 * Dropdown styleing
 	 */
@@ -377,6 +408,26 @@ div.sceditor-color-picker {
   height: 10px;
   width: 10px;
   overflow: hidden;
+	display: inline-block;
+	border: 1px solid #fff;
+}
+@media screen and (min-width: 1024px) {
+	.sceditor-color-option {
+		height: 24px;
+		width: 24px;
+	}
+	.sceditor-color-picker {
+		width: 131px;
+	}
+}
+@media screen and (max-width: 1024px) {
+	.sceditor-color-option {
+		height: 48px;
+		width: 48px;
+	}
+	.sceditor-color-picker {
+		width: 251px;
+	}
 }
 .sceditor-color-option:hover {
   border: 1px solid #333;
