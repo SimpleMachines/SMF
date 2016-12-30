@@ -3236,7 +3236,8 @@ function convertUtf8()
 
 		$upcontext['table_count'] = count($queryTables);
 
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		// We want to start at the first table.
+		for ($substep = ($_GET['substep'] == 0 ? 1 : $_GET['substep']); $substep <= $upcontext['table_count']; $substep++)
 		{
 			$table = $queryTables[$_GET['substep']];
 
