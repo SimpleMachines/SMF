@@ -376,13 +376,16 @@ div.sceditor-color-picker {
   cursor: pointer;
   margin: 2px;
 }
+.sceditor-insertemoticon {
+  padding: 4px !important;
+}
 .sceditor-more {
   border-top: 1px solid #bbb;
-  display: block;
-  text-align: center;
+  display: inline-block;
   cursor: pointer;
   font-weight: bold;
-  padding: 6px 0;
+  padding: 0 4px !important;
+  margin-top: 4px !important;
 }
 .sceditor-dropdown a:hover {
   background: #eee;
