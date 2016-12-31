@@ -522,6 +522,7 @@ function initialize_inputs()
 		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
 		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
 		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
 		while ($file = readdir($dh))
