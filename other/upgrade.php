@@ -26,8 +26,8 @@ $GLOBALS['required_php_version'] = '5.3.8';
  * @var array
  */
 $databases = array(
-	'mysqli' => array(
-		'name' => 'MySQLi',
+	'mysql' => array(
+		'name' => 'MySQL',
 		'version' => '5.0.3',
 		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'utf8_support' => true,
@@ -118,10 +118,6 @@ else
 
 // Load this now just because we can.
 require_once($upgrade_path . '/Settings.php');
-
-// Check if we have to update our $db_type value to mysqli.
-$upcontext['update_db_type_to_mysqli'] = $db_type == 'mysql';
-$db_type = $db_type == 'mysql' ? 'mysqli' : $db_type;
 
 // Are we logged in?
 if (isset($upgradeData))
@@ -445,7 +441,7 @@ function loadEssentialData()
 
 	// Get the database going!
 	if (empty($db_type))
-		$db_type = 'mysqli';
+		$db_type = 'mysql';
 	if (file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
 	{
 		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
@@ -457,7 +453,7 @@ function loadEssentialData()
 		if ($db_connection === null)
 			die('Unable to connect to database - please check username and password are correct in Settings.php');
 
-		if (($db_type == 'mysql' || $db_type == 'mysqli') && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
+		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
 			SET NAMES {string:db_character_set}',
 			array(
@@ -515,13 +511,11 @@ function initialize_inputs()
 	{
 		@unlink(__FILE__);
 
-		$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-
 		// And the extra little files ;).
 		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
 		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
 		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
@@ -587,8 +581,6 @@ function WelcomeLogin()
 	global $txt;
 
 	$upcontext['sub_template'] = 'welcome_message';
-
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
@@ -747,7 +739,7 @@ function checkLogin()
 
 		// Before 2.0 these column names were different!
 		$oldDB = false;
-		if (empty($db_type) || $db_type == 'mysqli')
+		if (empty($db_type) || $db_type == 'mysql')
 		{
 			$request = $smcFunc['db_query']('', '
 				SHOW COLUMNS
@@ -928,10 +920,6 @@ function UpgradeOptions()
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
 
-	// Should we update the $db_type value?
-	if ($upcontext['update_db_type_to_mysqli'])
-		updateSettingsFile(array('db_type' => '\'mysqli\''));
-
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
 	{
@@ -1062,28 +1050,24 @@ function UpgradeOptions()
 	if (empty($db_type))
 		$changes['db_type'] = 'mysql';
 
-	// For now we offer a option, this may change in future versions when mysql is completely removed.
-	if (!empty($_POST['convertMysql']) && $db_type == 'mysql')
-		$changes['db_type'] = '\'mysqli\'';
-
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
-	if (strpos($db_server, ':') !== false && ($db_type == 'mysql' || $db_type == 'mysqli'))
+	if (strpos($db_server, ':') !== false && $db_type == 'mysql')
 	{
-		list($db_server, $db_port) = explode(':', $db_server);
+		list ($db_server, $db_port) = explode(':', $db_server);
 
 		$changes['db_server'] = '\'' . $db_server . '\'';
 
 		// Only set this if we're not using the default port
-		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+		if ($db_port != ini_get('mysqli.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
 	elseif (!empty($db_port))
 	{
 		// If db_port is set and is the same as the default, set it to ''
-		if ($db_type == 'mysql' || $db_type == 'mysqli')
+		if ($db_type == 'mysql')
 		{
-			if ($db_port == ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+			if ($db_port == ini_get('mysqli.default_port'))
 				$changes['db_port'] = '\'\'';
 			elseif ($db_type == 'postgresql' && $db_port == 5432)
 				$changes['db_port'] = '\'\'';
@@ -1302,15 +1286,13 @@ function DatabaseChanges()
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = 'Database Changes';
 
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-
 	// All possible files.
-	// Name, <version, insert_on_complete
+	// Name, < version, insert_on_complete
 	$files = array(
 		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
 		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
+		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
 	);
 
 	// How many files are there in total?
@@ -1461,7 +1443,7 @@ function DeleteUpgrade()
 
 	// Save the current database version.
 	$server_version = $smcFunc['db_server_info']();
-	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
+	if ($db_type == 'mysql' && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
 		updateSettings(array('db_mysql_group_by_fix' => '1'));
 
 	if ($command_line)
@@ -2022,7 +2004,7 @@ function upgrade_query($string, $unbuffered = false)
 
 	$db_error_message = $smcFunc['db_error']($db_connection);
 	// If MySQL we do something more clever.
-	if ($db_type == 'mysqli')
+	if ($db_type == 'mysql')
 	{
 		$mysqli_errno = mysqli_errno($db_connection);
 		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
@@ -2319,7 +2301,7 @@ function checkChange(&$change)
 	if (empty($database_version))
 	{
 		$database_version = $databases[$db_type]['version_check'];
-		$where_field_support = ($db_type == 'mysql' || $db_type == 'mysqli') && version_compare('5.0', $database_version, '<=');
+		$where_field_support = $db_type == 'mysql' && version_compare('5.0', $database_version, '<=');
 	}
 
 	// Not a column we need to check on?
@@ -2589,7 +2571,7 @@ function convertUtf8()
 			array(array('global_character_set', 'UTF-8')),
 			array('variable')
 		);
-		
+
 		return true;
 	}
 	else
@@ -3858,7 +3840,7 @@ function template_upgrade_options()
 				<table>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
+							<input type="checkbox" name="backup" id="backup" value="1" class="input_check">
 						</td>
 						<td width="100%">
 							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label> (recommended!)
@@ -3877,22 +3859,7 @@ function template_upgrade_options()
 								<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 							</div>
 						</td>
-					</tr>';
-
-	// Offer mysql users to switch to mysqli
-	if ($db_type == 'mysql' && function_exists('mysqli_query'))
-		echo '
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="convertMysql" id="convertMysql" value="1" checked class="input_check">
-						</td>
-						<td width="100%">
-							<label for="convertMysql">Use MySQLi functionality (MySQL compatible).</span>
-							<strong class="smalltext"><a href="http://wiki.simplemachines.org/smf/Upgrading-MySQLi-Functionality" target="_blank">More information about MySQLi</a></strong><br>
-						</td>
-					</tr>';
-
-	echo '
+					</tr>
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="debug" id="debug" value="1" class="input_check">
