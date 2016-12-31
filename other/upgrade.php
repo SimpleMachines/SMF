@@ -747,7 +747,7 @@ function checkLogin()
 
 		// Before 2.0 these column names were different!
 		$oldDB = false;
-		if (empty($db_type) || $db_type == 'mysql' || $db_type == 'mysqli')
+		if (empty($db_type) || $db_type == 'mysqli')
 		{
 			$request = $smcFunc['db_query']('', '
 				SHOW COLUMNS
@@ -4109,7 +4109,7 @@ function template_upgrade_options()
 				<table>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
+							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
 						</td>
 						<td width="100%">
 							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label> (recommended!)
