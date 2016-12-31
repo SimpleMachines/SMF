@@ -15,8 +15,16 @@
 define('SMF_VERSION', '2.1 Beta 3');
 define('SMF_LANG_VERSION', '2.1 Beta 3');
 
+/**
+ * The minimum required PHP version.
+ * @var string
+ */
 $GLOBALS['required_php_version'] = '5.3.8';
 
+/**
+ * A list of supported database systems.
+ * @var array
+ */
 $databases = array(
 	'mysqli' => array(
 		'name' => 'MySQLi',
@@ -35,15 +43,41 @@ $databases = array(
 	),
 );
 
-// General options for the script.
+/**
+ * The maximum time a single substep may take, in seconds.
+ * @var int
+ */
 $timeLimitThreshold = 3;
+
+/**
+ * The current path to the upgrade.php file.
+ * @var string
+ */
 $upgrade_path = dirname(__FILE__);
+
+/**
+ * The URL of the current page.
+ * @var string
+ */
 $upgradeurl = $_SERVER['PHP_SELF'];
-// Where the SMF images etc are kept.
+
+/**
+ * The base URL for the external SMF resources.
+ * @var string
+ */
 $smfsite = 'http://www.simplemachines.org/smf';
-// Disable the need for admins to login?
+
+/**
+ * Flag to disable the required administrator login.
+ * @var bool
+ */
 $disable_security = false;
-// How long, in seconds, must admin be inactive to allow someone else to run?
+
+/**
+ * The amount of seconds allowed between logins.
+ * If the first user to login is inactive for this amount of seconds, a second login is allowed.
+ * @var int
+ */
 $upcontext['inactive_timeout'] = 10;
 
 // All the steps in detail.
