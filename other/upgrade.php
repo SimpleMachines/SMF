@@ -2848,11 +2848,7 @@ function quickFileWritable($file)
  */
 function smf_strtolower($string)
 {
-	global $sourcedir;
-	if (function_exists('mb_strtolower'))
-		return mb_strtolower($string, 'UTF-8');
-	require_once($sourcedir . '/Subs-Charset.php');
-	return utf8_strtolower($string);
+	return mb_strtolower($string, 'UTF-8');
 }
 
 /**
