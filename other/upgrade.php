@@ -2236,54 +2236,45 @@ function protected_alter($change, $substep, $is_test = false)
 // Alter a text column definition preserving its character set.
 function textfield_alter($change, $substep)
 {
-	global $db_prefix, $databases, $db_type, $smcFunc;
+	global $db_prefix, $smcFunc;
 
-	// Versions of MySQL < 4.1 wouldn't benefit from character set detection.
-	if (empty($databases[$db_type]['utf8_support']) || version_compare($databases[$db_type]['utf8_version'], eval($databases[$db_type]['utf8_version_check']), '>'))
-	{
-		$column_fix = true;
-		$null_fix = !$change['null_allowed'];
-	}
-	else
+	$request = $smcFunc['db_query']('', '
+		SHOW FULL COLUMNS
+		FROM {db_prefix}' . $change['table'] . '
+		LIKE {string:column}',
+		array(
+			'column' => $change['column'],
+			'db_error_skip' => true,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) === 0)
+		die('Unable to find column ' . $change['column'] . ' inside table ' . $db_prefix . $change['table']);
+	$table_row = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+
+	// If something of the current column definition is different, fix it.
+	$column_fix = $table_row['Type'] !== $change['type'] || (strtolower($table_row['Null']) === 'yes') !== $change['null_allowed'] || ($table_row['Default'] === null) !== !isset($change['default']) || (isset($change['default']) && $change['default'] !== $table_row['Default']);
+
+	// Columns that previously allowed null, need to be converted first.
+	$null_fix = strtolower($table_row['Null']) === 'yes' && !$change['null_allowed'];
+
+	// Get the character set that goes with the collation of the column.
+	if ($column_fix && !empty($table_row['Collation']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SHOW FULL COLUMNS
-			FROM {db_prefix}' . $change['table'] . '
-			LIKE {string:column}',
+			SHOW COLLATION
+			LIKE {string:collation}',
 			array(
-				'column' => $change['column'],
+				'collation' => $table_row['Collation'],
 				'db_error_skip' => true,
 			)
 		);
+		// No results? Just forget it all together.
 		if ($smcFunc['db_num_rows']($request) === 0)
-			die('Unable to find column ' . $change['column'] . ' inside table ' . $db_prefix . $change['table']);
-		$table_row = $smcFunc['db_fetch_assoc']($request);
+			unset($table_row['Collation']);
+		else
+			$collation_info = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
-
-		// If something of the current column definition is different, fix it.
-		$column_fix = $table_row['Type'] !== $change['type'] || (strtolower($table_row['Null']) === 'yes') !== $change['null_allowed'] || ($table_row['Default'] === null) !== !isset($change['default']) || (isset($change['default']) && $change['default'] !== $table_row['Default']);
-
-		// Columns that previously allowed null, need to be converted first.
-		$null_fix = strtolower($table_row['Null']) === 'yes' && !$change['null_allowed'];
-
-		// Get the character set that goes with the collation of the column.
-		if ($column_fix && !empty($table_row['Collation']))
-		{
-			$request = $smcFunc['db_query']('', '
-				SHOW COLLATION
-				LIKE {string:collation}',
-				array(
-					'collation' => $table_row['Collation'],
-					'db_error_skip' => true,
-				)
-			);
-			// No results? Just forget it all together.
-			if ($smcFunc['db_num_rows']($request) === 0)
-				unset($table_row['Collation']);
-			else
-				$collation_info = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
-		}
 	}
 
 	if ($column_fix)
