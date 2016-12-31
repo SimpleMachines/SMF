@@ -136,73 +136,8 @@ if (isset($_GET['ssi']))
 	loadPermissions();
 }
 
-if (!function_exists('un_htmlspecialchars'))
-{
-	function un_htmlspecialchars($string)
-	{
-		return strtr($string, array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' '));
-	}
-}
-
-if (!function_exists('text2words'))
-{
-	function text2words($text)
-	{
-		// Step 1: Remove entities/things we don't consider words:
-		$words = preg_replace('~(?:[\x0B\0\xA0\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~', ' ', $text);
-
-		// Step 2: Entities we left to letters, where applicable, lowercase.
-		$words = preg_replace('~([^&\d]|^)[#;]~', '$1 ', un_htmlspecialchars(strtolower($words)));
-
-		// Step 3: Ready to split apart and index!
-		$words = explode(' ', $words);
-		$returned_words = array();
-		foreach ($words as $word)
-		{
-			$word = trim($word, '-_\'');
-
-			if ($word != '')
-				$returned_words[] = substr($word, 0, 20);
-		}
-
-		return array_unique($returned_words);
-	}
-}
-
-function upgrade_clean_cache()
-{
-	global $cacheAPI, $sourcedir;
-
-	// Initialize the cache API if it does not have an instance yet.
-	if (empty($cacheAPI))
-	{
-		require_once($sourcedir . '/Load.php');
-		loadCacheAccelerator();
-	}
-
-	// Just fall back to Load.php's clean_cache function.
-	clean_cache();
-}
-
-// MD5 Encryption.
-if (!function_exists('md5_hmac'))
-{
-	function md5_hmac($data, $key)
-	{
-		if (strlen($key) > 64)
-			$key = pack('H*', md5($key));
-		$key = str_pad($key, 64, chr(0x00));
-
-		$k_ipad = $key ^ str_repeat(chr(0x36), 64);
-		$k_opad = $key ^ str_repeat(chr(0x5c), 64);
-
-		return md5($k_opad . pack('H*', md5($k_ipad . $data)));
-	}
-}
-
-// Don't do security check if on Yabbse
-if (!isset($modSettings['smfVersion']))
-	$disable_security = true;
+// Include our helper functions.
+require_once($upgrade_path . '/upgrade-helper.php');
 
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
@@ -1748,44 +1683,6 @@ function db_version_check()
 	return version_compare($databases[$db_type]['version'], $curver, '<=');
 }
 
-function getMemberGroups()
-{
-	global $smcFunc;
-	static $member_groups = array();
-
-	if (!empty($member_groups))
-		return $member_groups;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT group_name, id_group
-		FROM {db_prefix}membergroups
-		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-		array(
-			'admin_group' => 1,
-			'old_group' => 7,
-			'db_error_skip' => true,
-		)
-	);
-	if ($request === false)
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT membergroup, id_group
-			FROM {db_prefix}membergroups
-			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-			array(
-				'admin_group' => 1,
-				'old_group' => 7,
-				'db_error_skip' => true,
-			)
-		);
-	}
-	while ($row = $smcFunc['db_fetch_row']($request))
-		$member_groups[trim($row[0])] = $row[1];
-	$smcFunc['db_free_result']($request);
-
-	return $member_groups;
-}
-
 function fixRelativePath($path)
 {
 	global $install_path;
@@ -2202,37 +2099,6 @@ function upgrade_query($string, $unbuffered = false)
 		</div>';
 
 	upgradeExit();
-}
-
-function smf_mysql_fetch_assoc($rs)
-{
-	return mysqli_fetch_assoc($rs);
-}
-
-function smf_mysql_fetch_row($rs)
-{
-	return mysqli_fetch_row($rs);
-}
-
-function smf_mysql_free_result($rs)
-{
-	mysqli_free_result($rs);
-}
-
-function smf_mysql_insert_id($rs)
-{
-	return mysqli_insert_id($rs);
-}
-
-function smf_mysql_num_rows($rs)
-{
-	return mysqli_num_rows($rs);
-}
-
-function smf_mysql_real_escape_string($string)
-{
-	global $db_connection;
-	mysqli_real_escape_string($db_connection, $string);
 }
 
 // This performs a table alter, but does it unbuffered so the script can time out professionally.
