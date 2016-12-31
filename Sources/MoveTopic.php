@@ -170,22 +170,9 @@ function MoveTopic2()
 	if (!allowedTo('move_any'))
 	{
 		if ($id_member_started == $user_info['id'])
-		{
 			isAllowedTo('move_own');
-			$boards = array_merge(boardsAllowedTo('move_own'), boardsAllowedTo('move_any'));
-		}
 		else
 			isAllowedTo('move_any');
-	}
-	else
-		$boards = boardsAllowedTo('move_any');
-
-	// If this topic isn't approved don't let them move it if they can't approve it!
-	if ($modSettings['postmod_active'] && !$context['is_approved'] && !allowedTo('approve_posts'))
-	{
-		// Only allow them to move it to other boards they can't approve it in.
-		$can_approve = boardsAllowedTo('approve_posts');
-		$boards = array_intersect($boards, $can_approve);
 	}
 
 	checkSession();
@@ -395,7 +382,7 @@ function moveTopics($topics, $toBoard)
 	// Only a single topic.
 	if (is_numeric($topics))
 		$topics = array($topics);
-	$num_topics = count($topics);
+
 	$fromBoards = array();
 
 	// Destination board empty or equal to 0?

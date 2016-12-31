@@ -252,8 +252,6 @@ function warning_preview()
 	loadLanguage('Errors');
 	loadLanguage('ModerationCenter');
 
-	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
-
 	$context['post_error']['messages'] = array();
 	if (allowedTo('issue_warning'))
 	{

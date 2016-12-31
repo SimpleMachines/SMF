@@ -44,10 +44,9 @@ class memcached_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $db_persist, $cache_memcached;
+		global $cache_memcached;
 
 		$servers = explode(',', $cache_memcached);
-		$port = 0;
 
 		// memcached does not remove servers from the list upon completing the script under modes like FastCGI. So check to see if servers exist or not.
 		$this->memcached = new Memcached;

@@ -174,7 +174,7 @@ function Login2()
 
 	// Are you guessing with a script?
 	checkSession();
-	$tk = validateToken('login');
+	validateToken('login');
 	spamProtection('login');
 
 	// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -566,7 +566,6 @@ function DoLogin()
 	call_integration_hook('integrate_login', array($user_settings['member_name'], null, $modSettings['cookieTime']));
 
 	// Get ready to set the cookie...
-	$username = $user_settings['member_name'];
 	$user_info['id'] = $user_settings['id_member'];
 
 	// Bam!  Cookie set.  A session too, just in case.
@@ -762,7 +761,6 @@ function phpBB3_password_check($passwd, $passwd_hash)
 	// Tests
 	$strpos = strpos($range, $passwd_hash[3]);
 	$count = 1 << $strpos;
-	$count2 = $count;
 	$salt = substr($passwd_hash, 4, 8);
 
 	$hash = md5($salt . $passwd, true);

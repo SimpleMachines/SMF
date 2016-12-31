@@ -547,10 +547,6 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 	// An adjustment value to apply to all calculated week numbers.
 	if (!empty($calendarOptions['show_week_num']))
 	{
-		$first_day_of_year = (int) strftime('%w', mktime(0, 0, 0, 1, 1, $year));
-		$first_day_of_next_year = (int) strftime('%w', mktime(0, 0, 0, 1, 1, $year + 1));
-		$last_day_of_last_year = (int) strftime('%w', mktime(0, 0, 0, 12, 31, $year - 1));
-
 		$timestamp = mktime(0, 0, 0, $month, $day, $year);
 		$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], date('F', $timestamp), date('j', $timestamp), date('Y', $timestamp));
 	}

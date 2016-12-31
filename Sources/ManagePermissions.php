@@ -1539,7 +1539,6 @@ function loadAllPermissions()
 	// Some permissions are hidden if features are off.
 	$hiddenPermissions = array();
 	$relabelPermissions = array(); // Permissions to apply a different label to.
-	$relabelGroups = array(); // As above but for groups.
 	if (empty($modSettings['cal_enabled']))
 	{
 		$hiddenPermissions[] = 'calendar_view';

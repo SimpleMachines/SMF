@@ -1246,7 +1246,6 @@ function ShowPHPinfoSettings()
 {
 	global $context, $txt;
 
-	$info_lines = array();
 	$category = $txt['phpinfo_settings'];
 
 	// get the data

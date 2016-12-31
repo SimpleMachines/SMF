@@ -82,7 +82,6 @@ class custom_search extends search_api
 			// All other methods, too bad dunno you.
 			default:
 				return false;
-			return;
 		}
 	}
 

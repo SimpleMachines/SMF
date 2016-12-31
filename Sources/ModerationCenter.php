@@ -1453,7 +1453,6 @@ function ViewWarningLog()
 	else
 		$search_params_type = $search_params['type'];
 
-	$search_params_column = $searchTypes[$search_params_type]['sql'];
 	$search_params = array(
 		'string' => $search_params_string,
 		'type' => $search_params_type,
@@ -2031,9 +2030,7 @@ function ModerationSettings()
 		'description' => $txt['mc_prefs_desc']
 	);
 
-	$mod_blocks = '';
 	$pref_binary = 5;
-	$show_reports = 0;
 
 	// Are we saving?
 	if (isset($_POST['save']))

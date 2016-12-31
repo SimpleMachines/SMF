@@ -349,7 +349,6 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 	$smcFunc['db_free_result']($request);
 
 	// Load it up for the templates as well
-	$recipients = array();
 	if (!empty($load))
 	{
 		if ($type === 0)

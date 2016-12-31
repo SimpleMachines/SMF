@@ -2779,7 +2779,6 @@ function TransferAttachments()
 				);
 			}
 
-			$moved = array();
 			$new_dir = $modSettings['currentAttachmentUploadDir'];
 
 			// Create the progress bar.

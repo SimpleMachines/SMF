@@ -848,7 +848,7 @@ function EditMembergroup()
 				updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
 
 			// Sorry, but post groups can't moderate boards
-			$request = $smcFunc['db_query']('', '
+			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}moderator_groups
 				WHERE id_group = {int:current_group}',
 				array(
@@ -1133,10 +1133,6 @@ function EditMembergroup()
 			// Include a list of boards per category for easy toggling.
 			$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 		}
-
-		$max_boards = ceil(count($temp_boards) / 2);
-		if ($max_boards == 1)
-			$max_boards = 2;
 	}
 
 	// Get a list of all the image formats we can select.

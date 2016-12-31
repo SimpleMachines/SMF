@@ -260,7 +260,7 @@ function smf_db_table_sql($tableName)
 			'table' => $tableName,
 		)
 	);
-	$indexes = array();
+	
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		if ($row['is_primary'])

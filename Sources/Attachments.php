@@ -118,8 +118,6 @@ class Attachments
 
 	public function add()
 	{
-		$result = array();
-
 		// You gotta be able to post attachments.
 		if (!$this->_canPostAttachment)
 			return $this->setResponse(array(
@@ -313,8 +311,6 @@ class Attachments
 	protected function createAtttach()
 	{
 		global $txt, $user_info, $modSettings;
-
-		$attachIDs = array();
 
 		// Create an empty session var to keep track of all the files we attached.
 		$SESSION['already_attached'] = array();

@@ -174,9 +174,6 @@ function ReportDetails()
 {
 	global $context, $sourcedir, $scripturl, $txt;
 
-	$report = array();
-	$reportComments = array();
-
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -392,8 +389,6 @@ function HandleComment()
 {
 	global $smcFunc, $scripturl, $user_info, $context;
 
-	$comment = array();
-
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -459,8 +454,6 @@ function HandleComment()
 function EditComment()
 {
 	global $smcFunc, $context, $txt, $scripturl, $user_info;
-
-	$comment = array();
 
 	checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 

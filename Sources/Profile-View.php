@@ -580,7 +580,6 @@ function showPosts($memID)
 	list ($min_msg_member, $max_msg_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$reverse = false;
 	$range_limit = '';
 
 	if ($context['is_topics'])

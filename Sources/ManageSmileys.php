@@ -1432,7 +1432,6 @@ function InstallSmileySet()
 	{
 		$base_name = strtr(basename($_REQUEST['set_gz']), ':/', '-_');
 		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['set_gz']), '.'));
-		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 		$context['filename'] = $base_name;
 
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
@@ -1452,13 +1451,12 @@ function InstallSmileySet()
 	{
 		$base_name = basename($_REQUEST['package']);
 		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['package']), '.'));
-		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 		$context['filename'] = $base_name;
 
 		$destination = $packagesdir . '/' . basename($_REQUEST['package']);
 	}
 
-	if (!file_exists($destination))
+	if (empty($destination) || !file_exists($destination))
 		fatal_lang_error('package_no_file', false);
 
 	// Make sure temp directory exists and is empty.

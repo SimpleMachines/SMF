@@ -861,7 +861,6 @@ function template_show_settings()
 				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
 				elseif ($config_var['type'] == 'boards')
 				{
-					$board_list = true;
 					$first = true;
 					echo '
 										<a href="#" class="board_selector">[ ', $txt['select_boards_from_list'], ' ]</a>

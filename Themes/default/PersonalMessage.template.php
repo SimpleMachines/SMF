@@ -1918,11 +1918,6 @@ function template_showPMDrafts()
 			<span>', $context['page_index'], '</span>
 		</div>';
 
-	// Button shortcuts
-	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
-
-
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '

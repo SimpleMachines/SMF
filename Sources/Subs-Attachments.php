@@ -47,7 +47,6 @@ function automanage_attachments_check_directory()
 
 	$year = date('Y');
 	$month = date('m');
-	$day = date('d');
 
 	$rand = md5(mt_rand());
 	$rand1 = $rand[1];
@@ -873,10 +872,8 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
+	global $board, $modSettings, $context, $scripturl, $smcFunc;
 
-	$attachContext = array();
-	$allAttachments = array();
 	$externalParse = false;
 
 	// Meh...
@@ -905,7 +902,6 @@ function parseAttachBBC($attachID = 0)
 		if (empty($allAttachments[0][$attachID]))
 			return 'attachments_no_data_loaded';
 
-		$attachContext = $allAttachments[0][$attachID];
 		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
