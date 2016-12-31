@@ -2233,7 +2233,12 @@ function protected_alter($change, $substep, $is_test = false)
 	nextSubstep($substep);
 }
 
-// Alter a text column definition preserving its character set.
+/**
+ * Alter a text column definition preserving its character set.
+ *
+ * @param array $change
+ * @param int $substep
+ */
 function textfield_alter($change, $substep)
 {
 	global $db_prefix, $smcFunc;
