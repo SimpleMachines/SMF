@@ -505,13 +505,6 @@ function initialize_inputs()
 
 	umask(0);
 
-	// Fun.  Low PHP version...
-	if (!isset($_GET))
-	{
-		$GLOBALS['_GET']['step'] = 0;
-		return;
-	}
-
 	ob_start();
 
 	// Better to upgrade cleanly and fall apart than to screw everything up if things take too long.
