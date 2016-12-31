@@ -2838,6 +2838,8 @@ function quickFileWritable($file)
 		else
 			@chmod($file, $val);
 	}
+
+	return is_writable($file);
 }
 
 /**
