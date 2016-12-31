@@ -207,7 +207,7 @@ if (!isset($settings['default_theme_dir']))
 
 $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && !empty($modSettings['totalMessages']) && $modSettings['totalMessages'] > 75000;
 // Default title...
-$upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SMF Install!' : 'Upgrading from YaBB SE!';
+$upcontext['page_title'] = 'Updating Your SMF Installation!';
 
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
