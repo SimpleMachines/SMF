@@ -2577,6 +2577,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	$upcontext['current_step'] = 1;
 }
 
+/**
+ * Prints an error to stderr.
+ *
+ * @param $message
+ * @param bool $fatal
+ */
 function print_error($message, $fatal = false)
 {
 	static $fp = null;
@@ -2590,6 +2596,12 @@ function print_error($message, $fatal = false)
 		exit;
 }
 
+/**
+ * Throws a graphical error message.
+ *
+ * @param $message
+ * @return bool
+ */
 function throw_error($message)
 {
 	global $upcontext;
@@ -2601,6 +2613,12 @@ function throw_error($message)
 }
 
 // Check files are writable - make them writable if necessary...
+/**
+ * Make files writable. First try to use regular chmod, but if that fails, try to use FTP.
+ *
+ * @param $files
+ * @return bool
+ */
 function makeFilesWritable(&$files)
 {
 	global $upcontext, $boarddir;
@@ -2796,6 +2814,12 @@ function makeFilesWritable(&$files)
 	return false;
 }
 
+/**
+ * The quick version of makeFilesWritable, which does not support FTP.
+ *
+ * @param string $file
+ * @return bool
+ */
 function quickFileWritable($file)
 {
 	if (is_writable($file))
@@ -2815,6 +2839,13 @@ function quickFileWritable($file)
 			@chmod($file, $val);
 	}
 }
+
+/**
+ * UTF-8 aware strtolower function.
+ * 
+ * @param $string
+ * @return string
+ */
 function smf_strtolower($string)
 {
 	global $sourcedir;
