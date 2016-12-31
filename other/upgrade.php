@@ -476,7 +476,7 @@ function loadEssentialData()
 
 	// Get the database going!
 	if (empty($db_type))
-		$db_type = 'mysql';
+		$db_type = 'mysqli';
 	if (file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
 	{
 		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
