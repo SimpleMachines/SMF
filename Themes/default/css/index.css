@@ -3877,3 +3877,9 @@ p.attached_BBC a.insertBBC
 .windowbg2.noup {
 	box-shadow: none;
 }
+
+/* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
+.g-recaptcha
+{
+	display: inline-block;
+}

@@ -586,7 +586,14 @@ function ModifyAntispamSettings($return_config = false)
 			// Visual verification.
 			array('title', 'configure_verification_means'),
 			array('desc', 'configure_verification_means_desc'),
-				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext'=> $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
+				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext' => $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
+			// reCAPTCHA
+			array('title', 'recaptcha_configure'),
+			array('desc', 'recaptcha_configure_desc', 'class' => 'windowbg'),
+				array('check', 'recaptcha_enabled', 'subtext' => $txt['recaptcha_enable_desc']),
+				array('text', 'recaptcha_site_key', 'subtext' => $txt['recaptcha_site_key_desc']),
+				array('text', 'recaptcha_secret_key', 'subtext' => $txt['recaptcha_secret_key_desc']),
+				array('select', 'recaptcha_theme', array('light' => $txt['recaptcha_theme_light'], 'dark' => $txt['recaptcha_theme_dark'])),
 			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
 			array('title', 'setup_verification_questions'),
 			array('desc', 'setup_verification_questions_desc'),
