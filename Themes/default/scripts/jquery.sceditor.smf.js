@@ -143,7 +143,7 @@
 				content.append(line);
 			$(".sceditor-toolbar").append(content);
 			if (typeof moreButton !== "undefined")
-				content.append(moreButton);
+				content.append($('<center/>').append(moreButton));
 		}
 	};
 
