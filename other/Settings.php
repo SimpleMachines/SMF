@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -182,7 +182,7 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  * Path to the tasks directory.
  * @var string
  */
-$tasksdir = $sourcedir .'/tasks';
+$tasksdir = $sourcedir . '/tasks';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.

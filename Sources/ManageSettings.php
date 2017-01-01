@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * @param array $subActions An array containing all possible subactions.
  * @param string $defaultAction The default action to be called if no valid subaction was found.
  */
-function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
+function loadGeneralSettingParameters($subActions = array(), $defaultAction = null)
 {
 	global $context, $sourcedir;
 
@@ -38,8 +38,11 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
 
 	$context['sub_template'] = 'show_settings';
 
-	// By default do the basic settings.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop($temp = array_keys($subActions)));
+	// If no fallback was specified, use the first subaction.
+	$defaultAction = $defaultAction ?: key($subActions);
+
+	// I want...
+	$_REQUEST['sa'] = isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $defaultAction;
 	$context['sub_action'] = $_REQUEST['sa'];
 }
 
@@ -180,6 +183,7 @@ function ModifyBasicSettings($return_config = false)
 			array('text', 'time_format'),
 			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours'], 'step' => 0.25, 'min' => -23.5, 'max' => 23.5),
 			'default_timezone' => array('select', 'default_timezone', array()),
+			array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 			// Who's online?
 			array('check', 'who_enabled'),
@@ -582,7 +586,14 @@ function ModifyAntispamSettings($return_config = false)
 			// Visual verification.
 			array('title', 'configure_verification_means'),
 			array('desc', 'configure_verification_means_desc'),
-				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext'=> $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
+				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext' => $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
+			// reCAPTCHA
+			array('title', 'recaptcha_configure'),
+			array('desc', 'recaptcha_configure_desc', 'class' => 'windowbg'),
+				array('check', 'recaptcha_enabled', 'subtext' => $txt['recaptcha_enable_desc']),
+				array('text', 'recaptcha_site_key', 'subtext' => $txt['recaptcha_site_key_desc']),
+				array('text', 'recaptcha_secret_key', 'subtext' => $txt['recaptcha_secret_key_desc']),
+				array('select', 'recaptcha_theme', array('light' => $txt['recaptcha_theme_light'], 'dark' => $txt['recaptcha_theme_dark'])),
 			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
 			array('title', 'setup_verification_questions'),
 			array('desc', 'setup_verification_questions_desc'),

@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -111,7 +111,7 @@ function newspreview()
 	require_once($sourcedir . '/Subs-Post.php');
 
 	$errors = array();
-	$news = !isset($_POST['news'])? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);
+	$news = !isset($_POST['news']) ? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);
 	if (empty($news))
 		$errors[] = array('value' => 'no_news');
 	else
@@ -251,8 +251,6 @@ function warning_preview()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Errors');
 	loadLanguage('ModerationCenter');
-
-	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 
 	$context['post_error']['messages'] = array();
 	if (allowedTo('issue_warning'))

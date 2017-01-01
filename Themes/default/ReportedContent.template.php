@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -22,7 +22,7 @@ function template_reported_posts()
 	{
 		echo '
 			<div class="infobox">
-				', $txt['report_action_'. $context['report_post_action']], '
+				', $txt['report_action_' . $context['report_post_action']], '
 			</div>';
 	}
 
@@ -65,18 +65,18 @@ function template_reported_posts()
 			<br>
 			<ul class="quickbuttons">
 				<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" ', (!$report['ignore'] ? ' class="you_sure" data-confirm="'. $txt['mc_reportedp_ignore_confirm'] .'"' : '') ,'>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" ', (!$report['ignore'] ? ' class="you_sure" data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
 				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
 
 		// Delete message button.
 		if (!$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards'])))
 			echo '
-				<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,';modcenter;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['mc_reportedp_delete_confirm'] ,'" class="you_sure">', $delete_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'], '.0;msg=', $report['topic']['id_msg'], ';modcenter;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['mc_reportedp_delete_confirm'], '" class="you_sure">', $delete_button, '</a></li>';
 
 		// Ban this user button.
 		if (!$report['closed'] && !empty($context['report_manage_bans']))
 			echo '
-				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u=' . $report['author']['id'] : ';msg=' . $report['topic']['id_msg']), ';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		if (!$context['view_closed'])
 			echo '
@@ -96,9 +96,9 @@ function template_reported_posts()
 
 	echo '
 		<div class="pagesection">
-			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">'. $context['page_index']. '</div>' : '' ,'
+			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">' . $context['page_index'] . '</div>' : '', '
 			<div class="floatright">', !$context['view_closed'] ? '
-				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] .'" value="'. $context['mod-report-close-all_token'] .'">
+				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
 				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
 			</div>
 		</div>
@@ -188,7 +188,7 @@ function template_viewmodreport()
 	{
 		echo '
 			<div class="infobox">
-				', $txt['report_action_'. $context['report_post_action']], '
+				', $txt['report_action_' . $context['report_post_action']], '
 			</div>';
 	}
 
@@ -213,7 +213,7 @@ function template_viewmodreport()
 		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
 		echo '
-						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : '') ,'"', (!$context['report']['ignore'] ? ' data-confirm="'. $txt['mc_reportedp_ignore_confirm'] .'"' : '') ,'>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
+						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : ''), '"', (!$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
 						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '"  class="button">', $close_button, '</a>
 					</span>
 				</h3>
@@ -250,7 +250,7 @@ function template_viewmodreport()
 	{
 		echo '
 					<div class="title_bar">
-						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';'. $context['session_var'] .'='. $context['session_id'] .'"  class="button">'. $txt['mc_reportedp_comment_edit'] .'</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;'. $context['session_var'] .'='. $context['session_id']. ';'. $context['mod-reportC-delete_token_var'] .'='. $context['mod-reportC-delete_token'] .'"  class="button">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</h3>
+						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
 					</div>';
 
 		echo '
@@ -292,17 +292,17 @@ function template_edit_comment()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'] ,';save" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">';
 
 	echo '
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'] ,'</h3>
+				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'], '</h3>
 			</div>
 			<div class="windowbg2">';
 
 	echo '
-				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'] ,'</textarea>
+				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'], '</textarea>
 				<div>
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 				</div>
@@ -393,11 +393,11 @@ function template_reported_members()
 	global $context, $txt, $scripturl;
 
 	// Let them know the action was a success.
-	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
+	if (!empty($context['report_post_action']) && !empty($txt['report_action_' . $context['report_post_action']]))
 	{
 		echo '
 			<div class="infobox">
-				', $txt['report_action_'. $context['report_post_action']], '
+				', $txt['report_action_' . $context['report_post_action']], '
 			</div>';
 	}
 
@@ -440,13 +440,13 @@ function template_reported_members()
 			<hr>
 			<ul class="quickbuttons">
 				<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-				<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" ', (!$report['ignore'] ? ' class="you_sure"  data-confirm="'. $txt['mc_reportedp_ignore_confirm'] .'"' : '') ,'>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" ', (!$report['ignore'] ? ' class="you_sure"  data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
 				<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
 
 		// Ban this user button.
 		if (!$report['closed'] && !empty($context['report_manage_bans']) && !empty($report['user']['id']))
 			echo '
-				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		if (!$context['view_closed'])
 			echo '
@@ -487,7 +487,7 @@ function template_viewmemberreport()
 	{
 		echo '
 			<div class="infobox">
-				', $txt['report_action_'. $context['report_post_action']], '
+				', $txt['report_action_' . $context['report_post_action']], '
 			</div>';
 	}
 
@@ -512,7 +512,7 @@ function template_viewmemberreport()
 		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
 		echo '
-						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : '') ,'"', (!$context['report']['ignore'] ? ' data-confirm="'. $txt['mc_reportedp_ignore_confirm'] .'"' : '') ,'>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
+						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : ''), '"', (!$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
 						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '"  class="button">', $close_button, '</a>
 					</span>
 				</h3>
@@ -546,7 +546,7 @@ function template_viewmemberreport()
 	{
 		echo '
 					<div class="title_bar">
-						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';'. $context['session_var'] .'='. $context['session_id'] .'"  class="button">'. $txt['mc_reportedp_comment_edit'] .'</a> <a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;'. $context['session_var'] .'='. $context['session_id']. ';'. $context['mod-reportC-delete_token_var'] .'='. $context['mod-reportC-delete_token'] .'"  class="button you_sure" data-confirm="'. $txt['mc_reportedp_delete_confirm'] .'">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</h3>
+						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a> <a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button you_sure" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
 					</div>';
 
 		echo '

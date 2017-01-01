@@ -23,6 +23,8 @@ $txt['time_format'] = 'Default time format';
 $txt['setting_time_offset'] = 'Overall time offset';
 $txt['setting_time_offset_note'] = '(added to the member specific option)';
 $txt['setting_default_timezone'] = 'Server timezone';
+$txt['setting_timezone_priority_countries'] = 'Show time zones from these countries first';
+$txt['setting_timezone_priority_countries_note'] = 'A comma separated list of two character ISO country codes.';
 $txt['failed_login_threshold'] = 'Failed login threshold';
 $txt['loginHistoryDays'] = 'Days to keep login history';
 $txt['lastActive'] = 'User online time threshold';
@@ -121,14 +123,21 @@ $txt['cache_off'] = 'No caching';
 $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
-$txt['cache_memcached'] = 'Memcached settings';
 $txt['cache_accelerator'] = 'Caching Accelerator';
-$txt['default_cache'] = 'SMF file based caching';
+$txt['smf_cache'] = 'SMF file based caching';
 $txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
+$txt['memcache_cache'] = 'Memcache';
 $txt['memcached_cache'] = 'Memcached';
-$txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['xcache_cache'] = 'XCache';
+$txt['zend_cache'] = 'Zend Platform/Performance Suite';
+$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_memcache_settings'] = 'Memcache(d) settings';
+$txt['cache_memcache_servers'] = 'Memcache(d) servers';
+$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_xcache_settings'] = 'XCache settings';
+$txt['cache_xcache_adminuser'] = 'XCache Admin User';
+$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
 
 $txt['loadavg_warning'] = '<span class="error">Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong></span>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -173,6 +182,22 @@ $txt['setting_image_verification_medium'] = 'Medium - Overlapping colored letter
 $txt['setting_image_verification_high'] = 'High - Angled letters, considerable noise/lines';
 $txt['setting_image_verification_extreme'] = 'Extreme - Angled letters, noise, lines and blocks';
 $txt['setting_image_verification_sample'] = 'Sample';
+
+// reCAPTCHA
+$txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
+$txt['recaptcha_configure_desc'] = 'Configurre the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
+$txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
+$txt['recaptcha_theme'] = 'reCAPTCHA Theme';
+$txt['recaptcha_theme_light'] = 'Light';
+$txt['recaptcha_theme_dark'] = 'Dark';
+$txt['recaptcha_site_key'] = 'Site Key';
+$txt['recaptcha_site_key_desc'] = 'This will be set in the HTML code your site serves to users.';
+$txt['recaptcha_secret_key'] = 'Secret Key';
+$txt['recaptcha_secret_key_desc'] = 'This is for communication between your site and Google. Be sure to keep it a secret.';
+$txt['recaptcha_no_key_question'] = 'Don\'t have a key for reCAPTCHA?';
+$txt['recaptcha_get_key'] = 'Get your reCAPTCHA key here.';
+
 $txt['setting_image_verification_nogd'] = '<strong>Note:</strong> as this server does not have the GD library installed the different complexity settings will have no effect.';
 $txt['setup_verification_questions'] = 'Verification Questions';
 $txt['setup_verification_questions_desc'] = '<span class="smalltext">If you want users to answer verification questions in order to stop spam bots, you should setup a number of questions in the table below. You should choose questions which relate to the subject of your forum. Genuine users will be able to answer these questions, while spam bots will not. Answers are not case sensitive. You may use BBC in the questions for formatting. To remove a question simply delete the contents of that line.</span>';
@@ -341,7 +366,7 @@ $txt['languages_download_info'] = '<strong>Note:</strong>
 		<li>Where a file already exists on your forum the &quot;Already Exists&quot; column will have one of two values. &quot;Identical&quot; indicates that the file already exists in an identical form and need not be overwritten. &quot;Different&quot; means that the contents vary in some way and overwriting is probably the optimum solution.</li>
 	</ul>';
 
-$txt['languages_download_main_files'] = 'Primary Files';+
+$txt['languages_download_main_files'] = 'Primary Files';
 $txt['languages_download_filename'] = 'File Name';
 $txt['languages_download_dest'] = 'Destination';
 $txt['languages_download_writable'] = 'Writable';

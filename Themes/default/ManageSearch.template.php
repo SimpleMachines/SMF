@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -26,7 +26,7 @@ function template_modify_weights()
 			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight1_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight1_val">
 						', $txt['search_weight_frequency'], ':</label>
 					</dt>
 					<dd>
@@ -34,7 +34,7 @@ function template_modify_weights()
 						<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight2_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight2_val">
 						', $txt['search_weight_age'], ':</label>
 					</dt>
 					<dd>
@@ -42,7 +42,7 @@ function template_modify_weights()
 						<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight3_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight3_val">
 						', $txt['search_weight_length'], ':</label>
 					</dt>
 					<dd>
@@ -50,7 +50,7 @@ function template_modify_weights()
 						<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight4_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight4_val">
 						', $txt['search_weight_subject'], ':</label>
 					</dt>
 					<dd>
@@ -58,7 +58,7 @@ function template_modify_weights()
 						<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight5_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight5_val">
 						', $txt['search_weight_first_message'], ':</label>
 					</dt>
 					<dd>
@@ -66,7 +66,7 @@ function template_modify_weights()
 						<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight6_val">
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight6_val">
 						', $txt['search_weight_sticky'], ':</label>
 					</dt>
 					<dd>
@@ -140,7 +140,7 @@ function template_select_search_method()
 	{
 		echo '
 						<dt>
-							<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"': '', ' class="input_radio">
+							<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"' : '', ' class="input_radio">
 							', $txt['search_method_fulltext_index'], '
 						</dt>
 						<dd>
@@ -191,7 +191,7 @@ function template_select_search_method()
 		echo '
 						<dt>
 							<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty($modSettings['search_index']) && $modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', ' class="input_radio">
-							', $api['label'] ,'
+							', $api['label'], '
 						</dt>';
 
 	if ($api['desc'])

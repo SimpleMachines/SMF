@@ -66,6 +66,9 @@ input, button, select {
 input, select {
 	height: 25px;
 }
+input[type="checkbox"] {
+	height: 13px;
+}
 select {
 	padding: 2px;
 }
@@ -133,6 +136,11 @@ input.input_check, input.input_radio {
 /* Give disabled text input elements a different background color. */
 input[disabled].input_text {
 	background: #eee;
+}
+select[disabled] {
+	background: #eee;
+	color: #999;
+	opacity: 0.6;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -1441,38 +1449,61 @@ ul li.greeting {
 	padding: 6px;
 	clear: both;
 }
-#post_event #event_main input {
-	margin: 0 0 12px 0;
-	float: left;
+div.event_options {
+    line-height: 25px;
+    margin-top: 5px;
 }
-#post_event #event_main div.smalltext {
-	width: 34.6em;
-	float: right;
+#post_event span.label {
+	margin: 0 0.5em 0 2px;
+	min-width: 60px;
+	display: inline-block;
 }
-#post_event div.event_options {
-	float: right;
-}
-#post_event .event_main, .event_options {
-	padding: 0;
-	overflow: hidden;
-}
-#post_event ul.event_main li {
-	list-style-type: none;
-	margin: 2px 0;
+
+.event_options_left {
+	display: inline-block;
 	width: 49%;
-	float: left;
+	padding-right: 1em;
+	min-width: 238px;
+	box-sizing: border-box;
 }
-#post_event ul.event_options {
-	margin: 0;
-	padding: 0 0 8px 8px;
+.event_options_right {
+	display: inline-block;
+	width: 50%;
+	box-sizing: border-box;
 }
-#post_event ul.event_options li {
-	list-style-type: none;
-	margin: 0;
-	float: left;
+.event_options_left div, .event_options_right div {
+    min-height: 25px;
+    margin-bottom: 5px;
 }
-#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check {
-	margin: 0 12px 0 0;
+
+#post_event #event_main input {
+    margin: 0;
+}
+#evtitle {
+    max-width: 100%;
+}
+#event_time_input {
+    clear: left;
+}
+#event_time_input input[type="text"] {
+	width: 80px;
+	display: inline-block;
+}
+#post_event input[type="checkbox"] {
+    height: auto;
+    vertical-align: baseline;
+}
+#post_event input[disabled].input_text {
+	color: transparent;
+}
+#post_event select, #event_options input[type="text"], #tz {
+    max-width: calc(100% - 75px);
+}
+#post_event select, #event_location {
+    width: calc(100% - 75px);
+}
+#post_event .input_check + select {
+    max-width: calc(100% - 95px);
 }
 
 /* Styles for the recent messages section.
@@ -3103,6 +3134,14 @@ div#pollmoderation {
 	width: 65%;
 }
 
+/* Linked events */
+.event_title {
+	font-size: larger;
+}
+.event_title + a {
+	margin-left: 1em;
+}
+
 /* On to the posts */
 #forumposts {
 	clear: both;
@@ -3837,4 +3876,10 @@ p.attached_BBC a.insertBBC
 }
 .windowbg2.noup {
 	box-shadow: none;
+}
+
+/* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
+.g-recaptcha
+{
+	display: inline-block;
 }

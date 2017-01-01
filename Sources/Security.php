@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -52,7 +52,7 @@ function validateSession($type = 'admin')
 	require_once($sourcedir . '/Subs-Auth.php');
 
 	// Posting the password... check it.
-	if (isset($_POST[$type. '_pass']))
+	if (isset($_POST[$type . '_pass']))
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
@@ -179,7 +179,7 @@ function is_not_banned($forceCheck = false)
 		{
 			if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
 				continue;
-			$ban_query[] = ' {inet:'.$ip_number.'} BETWEEN bi.ip_low and bi.ip_high';
+			$ban_query[] = ' {inet:' . $ip_number . '} BETWEEN bi.ip_low and bi.ip_high';
 			$ban_query_vars[$ip_number] = $user_info[$ip_number];
 			// IP was valid, maybe there's also a hostname...
 			if (empty($modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
@@ -187,8 +187,8 @@ function is_not_banned($forceCheck = false)
 				$hostname = host_from_ip($user_info[$ip_number]);
 				if (strlen($hostname) > 0)
 				{
-					$ban_query[] = '({string:hostname'.$ip_number.'} LIKE bi.hostname)';
-					$ban_query_vars['hostname'.$ip_number] = $hostname;
+					$ban_query[] = '({string:hostname' . $ip_number . '} LIKE bi.hostname)';
+					$ban_query_vars['hostname' . $ip_number] = $hostname;
 				}
 			}
 		}
@@ -912,7 +912,7 @@ function allowedTo($permission, $boards = null)
 		return true;
 
 	// Let's ensure this is an array.
-	$permission = (array)$permission;
+	$permission = (array) $permission;
 
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)

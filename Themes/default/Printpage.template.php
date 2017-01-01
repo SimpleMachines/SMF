@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -186,11 +186,6 @@ function template_main()
  */
 function template_print_below()
 {
-	global $topic, $txt, $scripturl;
-
-	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
-	$url_images = $url_text . ';images';
-
 	echo '</div>
 		</div>';
 

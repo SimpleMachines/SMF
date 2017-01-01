@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -368,7 +368,7 @@ function showAlerts($memID)
 	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
-	$count =  alert_count($memID);
+	$count = alert_count($memID);
 
 	// Get the alerts.
 	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
@@ -580,7 +580,6 @@ function showPosts($memID)
 	list ($min_msg_member, $max_msg_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$reverse = false;
 	$range_limit = '';
 
 	if ($context['is_topics'])
@@ -833,7 +832,7 @@ function showAttachments($memID)
 			),
 		),
 		'data_check' => array(
-			'class' => function ($data)
+			'class' => function($data)
 			{
 				return $data['approved'] ? '' : 'approvebg';
 			}
@@ -1536,7 +1535,7 @@ function trackActivity($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . $memID. '">%1$s</a>',
+						'format' => '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . $memID . '">%1$s</a>',
 						'params' => array(
 							'ip' => false,
 						),

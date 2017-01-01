@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -24,7 +24,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 		<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>
+			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
 			', $txt['themeadmin_title'], '
 		</h3>
 		</div>
@@ -192,7 +192,7 @@ function template_list_themes()
 	if (isset($_GET['done']))
 		echo '
 	<div class="infobox">
-		', $txt['theme_confirmed_'. $_GET['done']] ,'
+		', $txt['theme_confirmed_' . $_GET['done']], '
 	</div>';
 
 	echo '
@@ -218,7 +218,7 @@ function template_list_themes()
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">
-						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="'. $scripturl .'?action=admin;area=theme;th='. $theme['id'] .';'. $context['session_var'] .'='. $context['session_id'] .';sa=list">'. $theme['name'] .'</a>' : $theme['name'] ),'', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
+						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=list">' . $theme['name'] . '</a>' : $theme['name']), '', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
 					</span>';
 
 			// You *cannot* disable/enable/delete the default theme. It's important!
@@ -229,7 +229,7 @@ function template_list_themes()
 
 				// Enable/Disable.
 				echo '
-					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : '') ,'" data-confirm="', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable') .'_confirm'], '" class="you_sure"><span class="generic_icons ',!empty($theme['enable']) ? 'disable' : 'enable','" title="', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable')] ,'"></span></a>';
+					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="generic_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
 
 				// Deleting.
 				echo '
@@ -456,7 +456,7 @@ function template_set_settings()
 		<form action="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['theme_settings']['theme_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
+					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>
 			<br>';
@@ -625,7 +625,7 @@ function template_set_settings()
 			echo '
 					</dt>
 					<dd>
-						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '','options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
+						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
                 echo '
                 			</dd>';
 		}
@@ -809,14 +809,14 @@ function template_installed()
 	if (!empty($context['error_message']))
 		echo '
 			<p>
-				', $context['error_message'] ,'
+				', $context['error_message'], '
 			</p>';
 
 	// Not much to show except a link back...
 	else
 		echo '
 			<p>
-				<a href="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['installed_theme']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $context['installed_theme']['name'], '</a> ', $txt['theme_'. (isset($context['installed_theme']['updated']) ? 'updated' : 'installed') .'_message'], '
+				<a href="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['installed_theme']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $context['installed_theme']['name'], '</a> ', $txt['theme_' . (isset($context['installed_theme']['updated']) ? 'updated' : 'installed') . '_message'], '
 			</p>
 			<p>
 				<a href="', $scripturl, '?action=admin;area=theme;sa=admin;', $context['session_var'], '=', $context['session_id'], '">', $txt['back'], '</a>
@@ -1156,7 +1156,7 @@ function template_edit_template()
 		echo '
 				<label for="on_line', $part['line'], '">', $txt['themeadmin_edit_on_line'], ' ', $part['line'], '</label>:<br>
 				<div class="centertext">
-					<textarea id="on_line', $part['line'] ,'" name="entire_file[]" cols="80" rows="', $part['lines'] > 14 ? '14' : $part['lines'], '" class="edit_file">', $part['data'], '</textarea>
+					<textarea id="on_line', $part['line'], '" name="entire_file[]" cols="80" rows="', $part['lines'] > 14 ? '14' : $part['lines'], '" class="edit_file">', $part['data'], '</textarea>
 				</div>';
 
 	echo '

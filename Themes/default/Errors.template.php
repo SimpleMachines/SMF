@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -64,7 +64,7 @@ function template_error_log()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['errlog'], '
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
@@ -72,8 +72,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
-					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button_submit you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button_submit you_sure">
 				</div>
 			</div>
 			<table class="table_grid" id="error_log">
@@ -184,8 +184,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
-					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button_submit you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button_submit you_sure">
 				</div>
 			</div>
 			<br>';
@@ -215,7 +215,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 	</head>
 	<body>
 		<table class="errorfile_table">';
@@ -225,8 +225,8 @@ function template_show_file()
 		$is_target = $line_num == $context['file_data']['target'];
 		echo '
 			<tr>
-				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num , ':</td>
-				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;':'','">', $line, '</td>
+				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
+				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;' : '', '">', $line, '</td>
 			</tr>';
 	}
 	echo '

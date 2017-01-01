@@ -251,6 +251,17 @@
 	#admincenter select, #quick_search select {
 		width: 90%;
 	}
+	
+	/* Calendar */
+	.event_options_left, .event_options_right {
+		width: 100%;
+	}
+	#event_title, #event_board {
+		width: 100%;
+	}
+	#evtitle {
+		width: 98%;
+	}
 
 	/* Menu tests */
 	#adm_submenus {
@@ -524,7 +535,7 @@
 		margin: 0 0 5px 0; /* For UX */
 	}
 	/* Post Screen */
-	form#postmodify .roundframe {
+	form#postmodify .roundframe, #post_event .roundframe {
 		padding: 5px !important;
 	}
 	#post_header input {
@@ -543,10 +554,6 @@
 	ul.post_options li {
 		margin: 2px 5px 0 0;
 		width: 48%;
-	}
-	/* Calendar */
-	#event_main .input_text {
-		width: 60%;
 	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
@@ -577,6 +584,33 @@
 		padding-bottom: 3px;
 	}
 }
+
+@media (min-width: 480px) and (max-width: 560px) {
+	/* Calendar */
+	#event_time_options {
+		width: 40%;
+	}
+	#event_title, #event_board {
+		width: 100%;
+	}
+	#evtitle {
+		width: 98%;
+	}
+}
+
+@media (min-width: 720px) and (max-width: 799px) {
+	/* Calendar */
+	#event_time_options {
+		width: 44%;
+	}
+	#event_title, #event_board {
+		width: 100%;
+	}
+	#evtitle {
+		width: 98%;
+	}
+}
+
 /* Still not enough data or people to test this... */
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
 @media (min-width: 721px) and (max-width: 855px) {

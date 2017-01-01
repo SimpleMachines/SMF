@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -152,7 +152,7 @@ function EditNews()
 					'value' => $txt['admin_edit_news'],
 				),
 				'data' => array(
-					'function' => function ($news)
+					'function' => function($news)
 					{
 						if (is_numeric($news['id']))
 							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
@@ -168,7 +168,7 @@ function EditNews()
 					'value' => $txt['preview'],
 				),
 				'data' => array(
-					'function' => function ($news)
+					'function' => function($news)
 					{
 						return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
 					},
@@ -181,7 +181,7 @@ function EditNews()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($news)
+					'function' => function($news)
 					{
 						if (is_numeric($news['id']))
 							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
@@ -431,7 +431,7 @@ function SelectMailingMembers()
  * Prepare subject and message of an email for the preview box
  * Used in ComposeMailing and RetrievePreview (Xml.php)
  */
-function prepareMailingForPreview ()
+function prepareMailingForPreview()
 {
 	global $context, $modSettings, $scripturl, $user_info, $txt;
 	loadLanguage('Errors');
@@ -635,7 +635,7 @@ function ComposeMailing()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member
 			FROM {db_prefix}members
-			WHERE email_address IN(' . implode(', ', $condition_array) .')',
+			WHERE email_address IN(' . implode(', ', $condition_array) . ')',
 			$condition_array_params
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))

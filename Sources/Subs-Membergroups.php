@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -692,8 +692,6 @@ function cache_getMembergroupList()
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
 	global $scripturl, $context, $settings, $smcFunc, $user_info;
-
-	$groups = array();
 
 	$request = $smcFunc['db_query']('substring_membergroups', '
 		SELECT mg.id_group, mg.group_name, mg.min_posts, mg.description, mg.group_type, mg.online_color, mg.hidden,

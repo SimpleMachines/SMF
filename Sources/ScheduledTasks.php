@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -644,7 +644,6 @@ function scheduled_daily_digest()
 	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
 
 	// Right - send out the silly things - this will take quite some space!
-	$emails = array();
 	foreach ($members as $mid => $member)
 	{
 		$frequency = !empty($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 1;
@@ -1092,9 +1091,7 @@ function next_time($regularity, $unit, $offset)
 	if ($regularity == 0)
 		$regularity = 2;
 
-	$curHour = date('H', time());
 	$curMin = date('i', time());
-	$next_time = 9999999999;
 
 	// If the unit is minutes only check regularity in minutes.
 	if ($unit == 'm')

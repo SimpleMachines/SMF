@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -262,7 +262,7 @@ function ViewSubscriptions()
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
-			'function' => function ($start, $items_per_page) use ($context)
+			'function' => function($start, $items_per_page) use ($context)
 			{
 				$subscriptions = array();
 				$counter = 0;
@@ -281,7 +281,7 @@ function ViewSubscriptions()
 			},
 		),
 		'get_count' => array(
-			'function' => function () use ($context)
+			'function' => function() use ($context)
 			{
 				return count($context['subscriptions']);
 			},
@@ -294,7 +294,7 @@ function ViewSubscriptions()
 					'style' => 'width: 35%;',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
 					},
@@ -305,7 +305,7 @@ function ViewSubscriptions()
 					'value' => $txt['paid_cost'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return $rowData['flexible'] ? '<em>' . $txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
 					},
@@ -348,7 +348,7 @@ function ViewSubscriptions()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? $txt['yes'] : $txt['no']) . '</span>';
 					},
@@ -357,7 +357,7 @@ function ViewSubscriptions()
 			),
 			'modify' => array(
 				'data' => array(
-					'function' => function ($rowData) use ($txt, $scripturl)
+					'function' => function($rowData) use ($txt, $scripturl)
 					{
 						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
 					},
@@ -366,7 +366,7 @@ function ViewSubscriptions()
 			),
 			'delete' => array(
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . $txt['delete'] . '</a>';
 					},
@@ -823,7 +823,7 @@ function ViewSubscribedUsers()
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						return $rowData['id_member'] == 0 ? $txt['guest'] : '<a href="' . $scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
 					},
@@ -893,7 +893,7 @@ function ViewSubscribedUsers()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
 					},
@@ -906,7 +906,7 @@ function ViewSubscribedUsers()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="checkbox" name="delsub[' . $rowData['id'] . ']" class="input_check">';
 					},
@@ -1950,7 +1950,7 @@ function loadPaymentGateways()
 	{
 		while (($file = readdir($dh)) !== false)
 		{
-			if (is_file($sourcedir .'/'. $file) && preg_match('~^Subscriptions-([A-Za-z\d]+)\.php$~', $file, $matches))
+			if (is_file($sourcedir . '/' . $file) && preg_match('~^Subscriptions-([A-Za-z\d]+)\.php$~', $file, $matches))
 			{
 				// Check this is definitely a valid gateway!
 				$fp = fopen($sourcedir . '/' . $file, 'rb');

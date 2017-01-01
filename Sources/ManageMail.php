@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -114,7 +114,7 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_subject'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($smcFunc)
+					'function' => function($rowData) use ($smcFunc)
 					{
 						return $smcFunc['strlen']($rowData['subject']) > 50 ? sprintf('%1$s...', $smcFunc['htmlspecialchars']($smcFunc['substr']($rowData['subject'], 0, 47))) : $smcFunc['htmlspecialchars']($rowData['subject']);
 					},
@@ -148,7 +148,7 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_priority'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// We probably have a text label with your priority.
 						$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
@@ -168,7 +168,7 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_age'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return time_since(time() - $rowData['time_sent']);
 					},
@@ -184,7 +184,7 @@ function BrowseMailQueue()
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '" class="input_check">';
 					},

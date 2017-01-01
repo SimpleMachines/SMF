@@ -11,7 +11,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -157,7 +157,7 @@ function sessionWrite($session_id, $data)
 		return false;
 
 	// First try to update an existing row...
-	$result = $smcFunc['db_query']('', '
+	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}sessions
 		SET data = {string:data}, last_update = {int:last_update}
 		WHERE session_id = {string:session_id}',
@@ -170,7 +170,7 @@ function sessionWrite($session_id, $data)
 
 	// If that didn't work, try inserting a new one.
 	if ($smcFunc['db_affected_rows']() == 0)
-		$result = $smcFunc['db_insert']('ignore',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}sessions',
 			array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
 			array($session_id, $data, time()),

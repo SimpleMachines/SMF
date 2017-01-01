@@ -166,7 +166,6 @@ $txt['missing_topic_id'] = 'Topic ID is missing.';
 $txt['topic_doesnt_exist'] = 'Topic doesn\'t exist.';
 $txt['not_your_topic'] = 'You are not the owner of this topic.';
 $txt['board_doesnt_exist'] = 'The board does not exist.';
-$txt['no_span'] = 'The span feature is currently disabled.';
 $txt['invalid_days_numb'] = 'Invalid number of days to span.';
 
 $txt['moveto_noboards'] = 'There are no boards to move this topic to!';

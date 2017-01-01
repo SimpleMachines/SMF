@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -42,42 +42,42 @@ function ViewErrorLog()
 
 	// You can filter by any of the following columns:
 	$filters = array(
-		'id_member' => array (
+		'id_member' => array(
 			'txt' => $txt['username'],
 			'operator' => '=',
 			'datatype' => 'int',
 		),
-		'ip' => array (
+		'ip' => array(
 			'txt' => $txt['ip_address'],
 			'operator' => '=',
 			'datatype' => 'inet',
 		),
-		'session' => array (
+		'session' => array(
 			'txt' => $txt['session'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
-		'url' => array (
+		'url' => array(
 			'txt' => $txt['error_url'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
-		'message' => array (
+		'message' => array(
 			'txt' => $txt['error_message'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
-		'error_type' => array (
+		'error_type' => array(
 			'txt' => $txt['error_type'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
-		'file' => array (
+		'file' => array(
 			'txt' => $txt['file'],
 			'operator' => 'LIKE',
 			'datatype' => 'string',
 		),
-		'line' => array (
+		'line' => array(
 			'txt' => $txt['line'],
 			'operator' => '=',
 			'datatype' => 'int',
@@ -103,7 +103,7 @@ function ViewErrorLog()
 	$result = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
-		WHERE ' . $filter['variable'] . ' '.$filters[$_GET['filter']]['operator'].' {'.$filters[$_GET['filter']]['datatype'].':filter}' : ''),
+		WHERE ' . $filter['variable'] . ' ' . $filters[$_GET['filter']]['operator'] . ' {' . $filters[$_GET['filter']]['datatype'] . ':filter}' : ''),
 		array(
 			'filter' => isset($filter) ? $filter['value']['sql'] : '',
 		)
@@ -146,7 +146,7 @@ function ViewErrorLog()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
-		WHERE ' . $filter['variable'] . ' '.$filters[$_GET['filter']]['operator'].' {'.$filters[$_GET['filter']]['datatype'].':filter}' : '') . '
+		WHERE ' . $filter['variable'] . ' ' . $filters[$_GET['filter']]['operator'] . ' {' . $filters[$_GET['filter']]['datatype'] . ':filter}' : '') . '
 		ORDER BY id_error ' . ($context['sort_direction'] == 'down' ? 'DESC' : '') . '
 		LIMIT {int:start}, {int:max}',
 		array(
@@ -158,7 +158,7 @@ function ViewErrorLog()
 	$context['errors'] = array();
 	$members = array();
 
-	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i ++)
+	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$search_message = preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '%', $smcFunc['db_escape_wildcard_string']($row['message']));
 		if ($search_message == $filter['value']['sql'])
@@ -184,7 +184,7 @@ function ViewErrorLog()
 			'id' => $row['id_error'],
 			'error_type' => array(
 				'type' => $row['error_type'],
-				'name' => isset($txt['errortype_'.$row['error_type']]) ? $txt['errortype_'.$row['error_type']] : $row['error_type'],
+				'name' => isset($txt['errortype_' . $row['error_type']]) ? $txt['errortype_' . $row['error_type']] : $row['error_type'],
 			),
 			'file' => array(),
 		);
@@ -412,7 +412,7 @@ function ViewFile()
 	// We don't want to slice off too many so lets make sure we stop at the last one
 	$max = min($max, max(array_keys($file_data)));
 
-	$file_data = array_slice($file_data, $min-1, $max - $min);
+	$file_data = array_slice($file_data, $min - 1, $max - $min);
 
 	$context['file_data'] = array(
 		'contents' => $file_data,

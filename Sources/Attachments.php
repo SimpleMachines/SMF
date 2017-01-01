@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -118,8 +118,6 @@ class Attachments
 
 	public function add()
 	{
-		$result = array();
-
 		// You gotta be able to post attachments.
 		if (!$this->_canPostAttachment)
 			return $this->setResponse(array(
@@ -313,8 +311,6 @@ class Attachments
 	protected function createAtttach()
 	{
 		global $txt, $user_info, $modSettings;
-
-		$attachIDs = array();
 
 		// Create an empty session var to keep track of all the files we attached.
 		$SESSION['already_attached'] = array();

@@ -310,6 +310,10 @@ CREATE TABLE {$db_prefix}calendar (
   id_topic int NOT NULL default '0',
   title varchar(255) NOT NULL default '',
   id_member int NOT NULL default '0',
+  start_time time,
+  end_time time,
+  timezone varchar(80),
+  location VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_event)
 );
 
@@ -559,7 +563,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip inet,
   url text NOT NULL,
   message text NOT NULL,
-  session varchar(64) NOT NULL default '                                                                ',
+  session varchar(128) NOT NULL default '                                                                ',
   error_type varchar(15) NOT NULL default 'general',
   file varchar(255) NOT NULL DEFAULT '',
   line int NOT NULL default '0',
@@ -666,7 +670,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}log_online (
-  session varchar(64) NOT NULL default '',
+  session varchar(128) NOT NULL default '',
   log_time bigint NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
@@ -1054,7 +1058,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL default '0001-01-01',
   website_title varchar(255) NOT NULL DEFAULT '',
   website_url varchar(255) NOT NULL DEFAULT '',
-  hide_email smallint NOT NULL default '0',
   show_online smallint NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
   signature text NOT NULL,
@@ -1479,7 +1482,7 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}sessions (
-  session_id varchar(64) NOT NULL,
+  session_id varchar(128) NOT NULL,
   last_update bigint NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)
@@ -2420,7 +2423,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cal_showholidays', '1'),
 	('cal_showbdays', '1'),
 	('cal_showevents', '1'),
-	('cal_maxspan', '7'),
+	('cal_maxspan', '0'),
 	('cal_highlight_events', '3'),
 	('cal_highlight_holidays', '3'),
 	('cal_highlight_birthdays', '3'),

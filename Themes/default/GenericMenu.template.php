@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -52,7 +52,7 @@ function template_generic_menu_mobile(&$menu_context)
 		<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
 		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
-				<div class="popup_heading">', $txt['mobile_user_menu'],'
+				<div class="popup_heading">', $txt['mobile_user_menu'], '
 				<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 				', template_generic_menu($menu_context), '
 			</div>
@@ -67,7 +67,7 @@ function template_generic_menu_mobile(&$menu_context)
 		</script>';
 }
 
-function template_generic_menu (&$menu_context)
+function template_generic_menu(&$menu_context)
 {
 	global $context;
 
@@ -81,7 +81,7 @@ function template_generic_menu (&$menu_context)
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
+						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], '</a>
 							<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
@@ -220,7 +220,7 @@ function template_generic_menu_tabs(&$menu_context)
 				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
-				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>';
+				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}

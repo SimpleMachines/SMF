@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -125,7 +125,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// Righty - let's do the damn thing!
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
 	foreach ($columns as $column)
-		$table_query .= "\n\t" . smf_db_create_query_column($column)  . ',';
+		$table_query .= "\n\t" . smf_db_create_query_column($column) . ',';
 
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
@@ -257,13 +257,6 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 
 	// Get the specifics...
 	$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
-	list ($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
-
-	// Allow unsigned integers (mysql only)
-	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
-
-	if ($size !== null)
-		$type = $type . '(' . $size . ')';
 
 	// Now add the thing!
 	$query = '
@@ -744,7 +737,7 @@ function smf_db_create_query_column($column)
 		$type = $type . '(' . $size . ')';
 
 	// Now just put it together!
-	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
+	return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
 }
 
 ?>

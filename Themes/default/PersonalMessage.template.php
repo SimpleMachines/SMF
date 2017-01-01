@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -1917,11 +1917,6 @@ function template_showPMDrafts()
 		<div class="pagesection">
 			<span>', $context['page_index'], '</span>
 		</div>';
-
-	// Button shortcuts
-	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
-
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))

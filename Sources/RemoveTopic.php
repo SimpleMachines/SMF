@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -398,7 +398,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	}
 	$smcFunc['db_free_result']($request);
 
-	if($updateBoardCount)
+	if ($updateBoardCount)
 	{
 		// Decrease the posts/topics...
 		foreach ($adjustBoards as $stats)

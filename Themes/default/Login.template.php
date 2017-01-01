@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -47,7 +47,7 @@ function template_login()
 					</dl>
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
-						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1" max="525600"></dd>
+						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
 						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
 	// If they have deleted their account, give them a chance to change their mind.
@@ -126,7 +126,7 @@ function template_login_tfa()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['tfa_profile_label'] ,'
+					', $txt['tfa_profile_label'], '
 				</h3>
 			</div>
 			<div class="roundframe noup">';
@@ -312,7 +312,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><br>
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';

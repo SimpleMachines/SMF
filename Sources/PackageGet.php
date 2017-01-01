@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -641,7 +641,7 @@ function PackageUpload()
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
-
+	$allowext = array('.zip','.tgz','.gz');
 	// @todo Use FTP if the Packages directory is not writable.
 
 	// Check the file was even sent!
@@ -652,12 +652,15 @@ function PackageUpload()
 
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
-
-	if (strtolower(substr($_FILES['package']['name'], -4)) != '.zip' && strtolower(substr($_FILES['package']['name'], -4)) != '.tgz' && strtolower(substr($_FILES['package']['name'], -7)) != '.tar.gz')
+	$extension = substr(strrchr(strtolower($_FILES['package']['name']), '.'), 0);
+	if(!in_array($extension, $allowext))
+	{
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
-
+	}
+	
 	// We only need the filename...
-	$packageName = basename($_FILES['package']['name']);
+	$extension = ($extension == '.gz') ? '.tar.gz' : $extension ;
+	$packageName = time() . $extension;
 
 	// Setup the destination and throw an error if the file is already there!
 	$destination = $packagesdir . '/' . $packageName;

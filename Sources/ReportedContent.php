@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -174,9 +174,6 @@ function ReportDetails()
 {
 	global $context, $sourcedir, $scripturl, $txt;
 
-	$report = array();
-	$reportComments = array();
-
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -187,7 +184,7 @@ function ReportDetails()
 	// Get the report details.
 	$report = getReportDetails($report_id);
 
-	if(!$report)
+	if (!$report)
 		fatal_lang_error('mc_no_modreport_found');
 
 	// Build the report data - basic details first, then extra stuff based on the type
@@ -250,7 +247,7 @@ function ReportDetails()
 	if ($context['report_type'] == 'members')
 	{
 		// Find their ID in the serialized action string...
-		$user_id_length = strlen((string)$context['report']['user']['id']);
+		$user_id_length = strlen((string) $context['report']['user']['id']);
 		$member = 's:6:"member";s:' . $user_id_length . ':"' . $context['report']['user']['id'] . '";}';
 
 		$params = array(
@@ -392,8 +389,6 @@ function HandleComment()
 {
 	global $smcFunc, $scripturl, $user_info, $context;
 
-	$comment = array();
-
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -459,8 +454,6 @@ function HandleComment()
 function EditComment()
 {
 	global $smcFunc, $context, $txt, $scripturl, $user_info;
-
-	$comment = array();
 
 	checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 
@@ -529,7 +522,7 @@ function HandleReport()
 	// What are we gonna do?
 	$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
-	validateToken('mod-report-'. $action, 'get');
+	validateToken('mod-report-' . $action, 'get');
 
 	// Are we ignore or "un-ignore"? "un-ignore" that's a funny word!
 	$value = (int) $_GET[$action];

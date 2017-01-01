@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -1017,7 +1017,7 @@ function EditSmileys()
 						'value' => $txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($modSettings, $context, $txt, $modSettings, $smcFunc)
+						'function' => function ($rowData) use ($context, $txt, $modSettings, $smcFunc)
 						{
 							if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']))
 								return $smcFunc['htmlspecialchars']($rowData['description']);
@@ -1432,7 +1432,6 @@ function InstallSmileySet()
 	{
 		$base_name = strtr(basename($_REQUEST['set_gz']), ':/', '-_');
 		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['set_gz']), '.'));
-		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 		$context['filename'] = $base_name;
 
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
@@ -1452,13 +1451,12 @@ function InstallSmileySet()
 	{
 		$base_name = basename($_REQUEST['package']);
 		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['package']), '.'));
-		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 		$context['filename'] = $base_name;
 
 		$destination = $packagesdir . '/' . basename($_REQUEST['package']);
 	}
 
-	if (!file_exists($destination))
+	if (empty($destination) || !file_exists($destination))
 		fatal_lang_error('package_no_file', false);
 
 	// Make sure temp directory exists and is empty.

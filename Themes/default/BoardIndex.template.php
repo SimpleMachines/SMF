@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -34,14 +34,14 @@ function template_newsfader()
 		foreach ($context['news_lines'] as $news)
 		{
 			echo '
-			<li>', $news,'</li>';
+			<li>', $news, '</li>';
 		}
 
 		echo '
 		</ul>
 		<script>
 			jQuery("#smf_slider").slippry({
-				pause: ', $settings['newsfader_time'],',
+				pause: ', $settings['newsfader_time'], ',
 				adaptiveHeight: 0,
 				captions: 0,
 				controls: 0,
@@ -78,14 +78,14 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? $txt['hide_category'] : $txt['show_category'] ,'" style="display: none;"></span>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? $txt['hide_category'] : $txt['show_category'], '" style="display: none;"></span>';
 
 		echo '
 					', $category['link'], '
 				</h3>', !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
-			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="'. $category['css_class'] .'"') : '') ,'>';
+			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), '>';
 
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
@@ -94,14 +94,14 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
+				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
 					<div class="board_icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>
 					</div>
 					<div class="info">
 						<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
 							', $board['name'], '
-							<p class="board_description mobile_display">', $board['description'] , '</p>
+							<p class="board_description mobile_display">', $board['description'], '</p>
 						</a>';
 
 				// Has it outstanding posts for approval?
@@ -110,7 +110,7 @@ function template_main()
 						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 				echo '
-						<p class="board_description">', $board['description'] , '</p>';
+						<p class="board_description">', $board['description'], '</p>';
 
 				// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 				if (!empty($board['link_moderators']))
@@ -125,7 +125,7 @@ function template_main()
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</div>
-					<div class="lastpost ',!empty($board['last_post']['id']) ? 'lpr_border' : 'hidden','">';
+					<div class="lastpost ',!empty($board['last_post']['id']) ? 'lpr_border' : 'hidden', '">';
 
 				if (!empty($board['last_post']['id']))
 					echo '
@@ -374,7 +374,7 @@ function template_ic_block_stats()
 				</h4>
 			</div>
 			<p class="inline">
-				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - ' . $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
 				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  (' . $context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>
 			</p>';
@@ -422,7 +422,7 @@ function template_ic_block_online()
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
 			echo '
-				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']). '</span>';
+				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']) . '</span>';
 	}
 
 	echo '

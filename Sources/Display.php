@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -159,7 +159,7 @@ function Display()
 			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
-			' . (!empty($topic_selects) ? (', '. implode(', ', $topic_selects)) : '') . '
+			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
 			' . (!$user_info['is_guest'] ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -388,7 +388,7 @@ function Display()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_id_group' => 0,
-				'in_url_string' => '"topic":'.$topic,
+				'in_url_string' => '"topic":' . $topic,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
@@ -457,8 +457,8 @@ function Display()
 		$context['links'] = array(
 			'first' => $_REQUEST['start'] >= $context['messages_per_page'] ? $scripturl . '?topic=' . $topic . '.0' : '',
 			'prev' => $_REQUEST['start'] >= $context['messages_per_page'] ? $scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] - $context['messages_per_page']) : '',
-			'next' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic. '.' . ($_REQUEST['start'] + $context['messages_per_page']) : '',
-			'last' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic. '.' . (floor($context['total_visible_posts'] / $context['messages_per_page']) * $context['messages_per_page']) : '',
+			'next' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic . '.' . ($_REQUEST['start'] + $context['messages_per_page']) : '',
+			'last' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic . '.' . (floor($context['total_visible_posts'] / $context['messages_per_page']) * $context['messages_per_page']) : '',
 			'up' => $scripturl . '?board=' . $board . '.0'
 		);
 	}
@@ -545,15 +545,11 @@ function Display()
 	// If we want to show event information in the topic, prepare the data.
 	if (allowedTo('calendar_view') && !empty($modSettings['cal_showInTopic']) && !empty($modSettings['cal_enabled']))
 	{
-		// First, try create a better time format, ignoring the "time" elements.
-		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$date_string = $user_info['time_format'];
-		else
-			$date_string = $matches[0];
+		require_once($sourcedir . '/Subs-Calendar.php');
 
 		// Any calendar information for this topic?
 		$request = $smcFunc['db_query']('', '
-			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name
+			SELECT cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, mem.real_name, cal.start_time, cal.end_time, cal.timezone, cal.location
 			FROM {db_prefix}calendar AS cal
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = cal.id_member)
 			WHERE cal.id_topic = {int:current_topic}
@@ -565,25 +561,57 @@ function Display()
 		$context['linked_calendar_events'] = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			// Prepare the dates for being formatted.
-			$start_date = sscanf($row['start_date'], '%04d-%02d-%02d');
-			$start_date = mktime(12, 0, 0, $start_date[1], $start_date[2], $start_date[0]);
-			$end_date = sscanf($row['end_date'], '%04d-%02d-%02d');
-			$end_date = mktime(12, 0, 0, $end_date[1], $end_date[2], $end_date[0]);
+			// Get the various time and date properties for this event
+			list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
-			$context['linked_calendar_events'][] = array(
+			// Sanity check
+			if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
+				continue;
+
+			$linked_calendar_event = array(
 				'id' => $row['id_event'],
 				'title' => $row['title'],
 				'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'modify_href' => $scripturl . '?action=post;msg=' . $context['topicinfo']['id_first_msg'] . ';topic=' . $topic . '.0;calendar;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'can_export' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 				'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'start_date' => timeformat($start_date, $date_string, 'none'),
-				'start_timestamp' => $start_date,
-				'end_date' => timeformat($end_date, $date_string, 'none'),
-				'end_timestamp' => $end_date,
+				'year' => $start['year'],
+				'month' => $start['month'],
+				'day' => $start['day'],
+				'hour' => !$allday ? $start['hour'] : null,
+				'minute' => !$allday ? $start['minute'] : null,
+				'second' => !$allday ? $start['second'] : null,
+				'start_date' => $row['start_date'],
+				'start_date_local' => $start['date_local'],
+				'start_date_orig' => $start['date_orig'],
+				'start_time' => !$allday ? $row['start_time'] : null,
+				'start_time_local' => !$allday ? $start['time_local'] : null,
+				'start_time_orig' => !$allday ? $start['time_orig'] : null,
+				'start_timestamp' => $start['timestamp'],
+				'start_iso_gmdate' => $start['iso_gmdate'],
+				'end_year' => $end['year'],
+				'end_month' => $end['month'],
+				'end_day' => $end['day'],
+				'end_hour' => !$allday ? $end['hour'] : null,
+				'end_minute' => !$allday ? $end['minute'] : null,
+				'end_second' => !$allday ? $end['second'] : null,
+				'end_date' => $row['end_date'],
+				'end_date_local' => $end['date_local'],
+				'end_date_orig' => $end['date_orig'],
+				'end_time' => !$allday ? $row['end_time'] : null,
+				'end_time_local' => !$allday ? $end['time_local'] : null,
+				'end_time_orig' => !$allday ? $end['time_orig'] : null,
+				'end_timestamp' => $end['timestamp'],
+				'end_iso_gmdate' => $end['iso_gmdate'],
+				'allday' => $allday,
+				'tz' => !$allday ? $tz : null,
+				'tz_abbrev' => !$allday ? $tz_abbrev : null,
+				'span' => $span,
+				'location' => $row['location'],
 				'is_last' => false
 			);
+
+			$context['linked_calendar_events'][] = $linked_calendar_event;
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -700,6 +728,7 @@ function Display()
 			'options' => array(),
 			'lock' => allowedTo('poll_lock_any') || ($context['user']['started'] && allowedTo('poll_lock_own')),
 			'edit' => allowedTo('poll_edit_any') || ($context['user']['started'] && allowedTo('poll_edit_own')),
+			'remove' => allowedTo('poll_remove_any') || ($context['user']['started'] && allowedTo('poll_remove_own')),
 			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
@@ -712,9 +741,10 @@ function Display()
 			)
 		);
 
-		// Make the lock and edit permissions defined above more directly accessible.
+		// Make the lock, edit and remove permissions defined above more directly accessible.
 		$context['allow_lock_poll'] = $context['poll']['lock'];
 		$context['allow_edit_poll'] = $context['poll']['edit'];
+		$context['can_remove_poll'] = $context['poll']['remove'];
 
 		// You're allowed to vote if:
 		// 1. the poll did not expire, and
@@ -1035,7 +1065,7 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? (', '. implode(', ', $msg_selects)) : '') . '
+				' . (!empty($msg_selects) ? (', ' . implode(', ', $msg_selects)) : '') . '
 			FROM {db_prefix}messages
 				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
@@ -1234,7 +1264,7 @@ function Display()
 
 	if ($context['can_print'])
 		$context['normal_buttons']['print'] = array('text' => 'print', 'image' => 'print.png', 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0');
-	
+
 	if ($context['can_set_notify'])
 		$context['normal_buttons']['notify'] = array(
 			'text' => 'notify_topic_' . $context['topic_notification_mode'],
@@ -1679,17 +1709,17 @@ function Download()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
 			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\r", $buffer);
 			};
 		else
-			$callback = function ($buffer)
+			$callback = function($buffer)
 			{
 				return preg_replace('~[\r]?\n~', "\n", $buffer);
 			};
@@ -1770,7 +1800,7 @@ function QuickInTopicModeration()
 		list($subname) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		$_SESSION['split_selection'][$topic] = $messages;
-		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' .urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' . urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Allowed to delete any message?

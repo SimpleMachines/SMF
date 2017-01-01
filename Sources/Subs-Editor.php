@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -40,7 +40,7 @@ function bbc_to_html($text, $compat_mode = false)
 	// @todo Tie in with bbc permissions ?
 	foreach (array('code', 'php', 'nobbc') as $code)
 	{
-		if (strpos($text, '['. $code) !== false)
+		if (strpos($text, '[' . $code) !== false)
 		{
 			$parts = preg_split('~(\[/' . $code . '\]|\[' . $code . '(?:=[^\]]+)?\])~i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -77,7 +77,7 @@ function bbc_to_html($text, $compat_mode = false)
 	// Parse unique ID's and disable javascript into the smileys - using the double space.
 	$i = 1;
 	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~',
-		function ($m) use (&$i)
+		function($m) use (&$i)
 		{
 			return '<' . stripslashes($m[1]) . 'alt="" title="" onresizestart="return false;" id="smiley_' . $i++ . '_' . $m[2] . '" style="padding: 0 3px 0 3px;">';
 		}, $text);
@@ -605,10 +605,10 @@ function html_to_bbc($text)
 								// Inject closure for this list item first.
 								// The content of $parts[$i] is left as is!
 								array_splice($parts, $i + 1, 0, array(
-									'',				// $i + 1
-									'[/li]' . "\n",	// $i + 2
-									'',				// $i + 3
-									'',				// $i + 4
+									'', // $i + 1
+									'[/li]' . "\n", // $i + 2
+									'', // $i + 3
+									'', // $i + 4
 								));
 								$numParts = count($parts) - 1;
 
@@ -689,7 +689,6 @@ function html_to_bbc($text)
 		$end_pos = $start_pos + strlen($matches[0]);
 
 		$params = '';
-		$had_params = array();
 		$src = '';
 
 		$attrs = fetchTagAttributes($matches[1]);
@@ -726,167 +725,167 @@ function html_to_bbc($text)
 
 	// The final bits are the easy ones - tags which map to tags which map to tags - etc etc.
 	$tags = array(
-		'~<b(\s(.)*?)*?' . '>~i' => function ()
+		'~<b(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[b]';
 		},
-		'~</b>~i' => function ()
+		'~</b>~i' => function()
 		{
 			return '[/b]';
 		},
-		'~<i(\s(.)*?)*?' . '>~i' => function ()
+		'~<i(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[i]';
 		},
-		'~</i>~i' => function ()
+		'~</i>~i' => function()
 		{
 			return '[/i]';
 		},
-		'~<u(\s(.)*?)*?' . '>~i' => function ()
+		'~<u(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[u]';
 		},
-		'~</u>~i' => function ()
+		'~</u>~i' => function()
 		{
 			return '[/u]';
 		},
-		'~<strong(\s(.)*?)*?' . '>~i' => function ()
+		'~<strong(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[b]';
 		},
-		'~</strong>~i' => function ()
+		'~</strong>~i' => function()
 		{
 			return '[/b]';
 		},
-		'~<em(\s(.)*?)*?' . '>~i' => function ()
+		'~<em(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[i]';
 		},
-		'~</em>~i' => function ()
+		'~</em>~i' => function()
 		{
 			return '[i]';
 		},
-		'~<s(\s(.)*?)*?' . '>~i' => function ()
+		'~<s(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "[s]";
 		},
-		'~</s>~i' => function ()
+		'~</s>~i' => function()
 		{
 			return "[/s]";
 		},
-		'~<strike(\s(.)*?)*?' . '>~i' => function ()
+		'~<strike(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[s]';
 		},
-		'~</strike>~i' => function ()
+		'~</strike>~i' => function()
 		{
 			return '[/s]';
 		},
-		'~<del(\s(.)*?)*?' . '>~i' => function ()
+		'~<del(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[s]';
 		},
-		'~</del>~i' => function ()
+		'~</del>~i' => function()
 		{
 			return '[/s]';
 		},
-		'~<center(\s(.)*?)*?' . '>~i' => function ()
+		'~<center(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[center]';
 		},
-		'~</center>~i' => function ()
+		'~</center>~i' => function()
 		{
 			return '[/center]';
 		},
-		'~<pre(\s(.)*?)*?' . '>~i' => function ()
+		'~<pre(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[pre]';
 		},
-		'~</pre>~i' => function ()
+		'~</pre>~i' => function()
 		{
 			return '[/pre]';
 		},
-		'~<sub(\s(.)*?)*?' . '>~i' => function ()
+		'~<sub(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[sub]';
 		},
-		'~</sub>~i' => function ()
+		'~</sub>~i' => function()
 		{
 			return '[/sub]';
 		},
-		'~<sup(\s(.)*?)*?' . '>~i' => function ()
+		'~<sup(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[sup]';
 		},
-		'~</sup>~i' => function ()
+		'~</sup>~i' => function()
 		{
 			return '[/sup]';
 		},
-		'~<tt(\s(.)*?)*?' . '>~i' => function ()
+		'~<tt(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[tt]';
 		},
-		'~</tt>~i' => function ()
+		'~</tt>~i' => function()
 		{
 			return '[/tt]';
 		},
-		'~<table(\s(.)*?)*?' . '>~i' => function ()
+		'~<table(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[table]';
 		},
-		'~</table>~i' => function ()
+		'~</table>~i' => function()
 		{
 			return '[/table]';
 		},
-		'~<tr(\s(.)*?)*?' . '>~i' => function ()
+		'~<tr(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[tr]';
 		},
-		'~</tr>~i' => function ()
+		'~</tr>~i' => function()
 		{
 			return '[/tr]';
 		},
-		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function ($matches)
+		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function($matches)
 		{
 			return str_repeat('[td][/td]', $matches[2] - 1) . '[td]';
 		},
-		'~<(td|th)(\s(.)*?)*?' . '>~i' => function ()
+		'~<(td|th)(\s(.)*?)*?' . '>~i' => function()
 		{
 			return '[td]';
 		},
-		'~</(td|th)>~i' => function ()
+		'~</(td|th)>~i' => function()
 		{
 			return '[/td]';
 		},
-		'~<br(?:\s[^<>]*?)?' . '>~i' => function ()
+		'~<br(?:\s[^<>]*?)?' . '>~i' => function()
 		{
 			return "\n";
 		},
-		'~<hr[^<>]*>(\n)?~i' => function ($matches)
+		'~<hr[^<>]*>(\n)?~i' => function($matches)
 		{
-			return "[hr]\n". $matches[0];
+			return "[hr]\n" . $matches[0];
 		},
-		'~(\n)?\\[hr\\]~i' => function ()
+		'~(\n)?\\[hr\\]~i' => function()
 		{
 			return "\n[hr]";
 		},
-		'~^\n\\[hr\\]~i' => function ()
+		'~^\n\\[hr\\]~i' => function()
 		{
 			return "[hr]";
 		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function ()
+		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function()
 		{
 			return "&lt;blockquote&gt;";
 		},
-		'~</blockquote>~i' => function ()
+		'~</blockquote>~i' => function()
 		{
 			return "&lt;/blockquote&gt;";
 		},
-		'~<ins(\s(.)*?)*?' . '>~i' => function ()
+		'~<ins(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "&lt;ins&gt;";
 		},
-		'~</ins>~i' => function ()
+		'~</ins>~i' => function()
 		{
 			return "&lt;/ins&gt;";
 		},
@@ -988,7 +987,6 @@ function fetchTagAttributes($text)
 {
 	$attribs = array();
 	$key = $value = '';
-	$strpos = 0;
 	$tag_state = 0; // 0 = key, 1 = attribute with no string, 2 = attribute with string
 	for ($i = 0; $i < strlen($text); $i++)
 	{
@@ -1052,13 +1050,6 @@ function legalise_bbc($text)
 	if (strlen($text) < 3)
 		return $text;
 
-	// We are going to cycle through the BBC and keep track of tags as they arise - in order. If get to a block level tag we're going to make sure it's not in a non-block level tag!
-	// This will keep the order of tags that are open.
-	$current_tags = array();
-
-	// This will quickly let us see if the tag is active.
-	$active_tags = array();
-
 	// A list of tags that's disabled by the admin.
 	$disabled = empty($modSettings['disabledBBC']) ? array() : array_flip(explode(',', strtolower($modSettings['disabledBBC'])));
 
@@ -1077,9 +1068,6 @@ function legalise_bbc($text)
 		if (isset($tag['type']) && $tag['type'] == 'closed')
 			$self_closing_tags[] = $tag['tag'];
 	}
-
-	// Don't worry if we're in a code/nobbc.
-	$in_code_nobbc = false;
 
 	// Right - we're going to start by going through the whole lot to make sure we don't have align stuff crossed as this happens load and is stupid!
 	$align_tags = array('left', 'center', 'right', 'pre');
@@ -1144,16 +1132,9 @@ function legalise_bbc($text)
 		'size',
 	);
 
-	// In case things changed above set these back to normal.
-	$in_code_nobbc = false;
-	$new_text_offset = 0;
-
 	// These keep track of where we are!
 	if (count($parts = preg_split(sprintf('~(\\[)(/?)(%1$s)((?:[\\s=][^\\]\\[]*)?\\])~', implode('|', array_keys($valid_tags))), $text, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1)
 	{
-		// Start with just text.
-		$isTag = false;
-
 		// Start outside [nobbc] or [code] blocks.
 		$inCode = false;
 		$inNoBbc = false;
@@ -2021,7 +2002,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $sourcedir;
 	global $context, $user_info, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
@@ -2055,8 +2036,25 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
 			'text_value' => '',
 			'questions' => array(),
+			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
+
+	// Is there actually going to be anything?
+	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']) && empty($thisVerification['can_recaptcha']))
+		return false;
+	elseif (!$isNew && !$do_test)
+		return true;
+
+	// Sanitize reCAPTCHA fields?
+	if ($thisVerification['can_recaptcha'])
+	{
+		// Only allow 40 alphanumeric, underscore and dash characters.
+		$thisVerification['recaptcha_site_key'] = preg_replace('/(0-9a-zA-Z_){40}/', '$1', $modSettings['recaptcha_site_key']);
+
+		// Light or dark theme...
+		$thisVerification['recaptcha_theme'] = preg_replace('/(light|dark)/', '$1', $modSettings['recaptcha_theme']);
+	}
 
 	// Add javascript for the object.
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'])
@@ -2064,12 +2062,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			<script>
 				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
 			</script>';
-
-	// Is there actually going to be anything?
-	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']))
-		return false;
-	elseif (!$isNew && !$do_test)
-		return true;
 
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
@@ -2134,6 +2126,23 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		if ($thisVerification['empty_field'] && !empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']) && !empty($_REQUEST[$_SESSION[$verificationOptions['id'] . '_vv']['empty_field']]))
 			$verification_errors[] = 'wrong_verification_answer';
 
+		if ($thisVerification['can_recaptcha'])
+		{
+			require_once($sourcedir . '/ReCaptcha/autoload.php');
+
+			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key']);
+
+			// Was there a reCAPTCHA response?
+			if (isset($_POST['g-recaptcha-response']))
+			{
+				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
+
+				if (!$resp->isSuccess())
+					$verification_errors[] = 'wrong_verification_code';
+			}
+			else
+				$verification_errors[] = 'wrong_verification_code';
+		}
 		if ($thisVerification['show_visual'] && (empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) || empty($_SESSION[$verificationOptions['id'] . '_vv']['code']) || strtoupper($_REQUEST[$verificationOptions['id'] . '_vv']['code']) !== $_SESSION[$verificationOptions['id'] . '_vv']['code']))
 			$verification_errors[] = 'wrong_verification_code';
 		if ($thisVerification['number_questions'])
@@ -2391,7 +2400,7 @@ function AutoSuggest_Search_MemberGroups()
 		array(
 			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,
-			'invalid_groups' => array(1,3),
+			'invalid_groups' => array(1, 3),
 			'hidden' => 2,
 			'search' => $_REQUEST['search'],
 		)

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -244,7 +244,7 @@ function template_credits()
 	// SMF itself
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['credits_forum'],' ', $txt['credits_copyright'], '</h3>
+			<h3 class="catbg">', $txt['credits_forum'], ' ', $txt['credits_copyright'], '</h3>
 		</div>
 		<div class="windowbg noup">
 			', $context['copyrights']['smf'], '

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -325,7 +325,7 @@ function template_notes()
 	{
 		echo '
 			<div class="infobox">
-				', $txt['report_action_'. $context['report_post_action']], '
+				', $txt['report_action_' . $context['report_post_action']], '
 			</div>';
 	}
 
@@ -346,7 +346,7 @@ function template_notes()
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-							<li class="smalltext">', ($note['can_delete'] ? '<a href="'. $note['delete_href'] .';'. $context['mod-modnote-del_token_var'] .'='. $context['mod-modnote-del_token'] .'" data-confirm="'. $txt['mc_reportedp_delete_confirm'] .'" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+							<li class="smalltext">', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
 						</ul>
@@ -479,7 +479,7 @@ function template_user_watch_post_callback($post)
 
 	if ($post['can_delete'])
 		$output_html .= '
-							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="'. $txt['mc_watched_users_delete_post'] . '" class="you_sure">' . $delete_button . '</a>
+							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mc_watched_users_delete_post'] . '" class="you_sure">' . $delete_button . '</a>
 							<input type="checkbox" name="delete[]" value="' . $post['id'] . '" class="input_check">';
 
 	$output_html .= '
@@ -546,7 +546,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 	</head>
 	<body>
 		<div class="cat_bar">
@@ -590,7 +590,7 @@ function template_warn_template()
 				<div class="errorbox"', empty($context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty($context['warning_errors']) ? '' : implode('<br>', $context['warning_errors']), '
@@ -600,7 +600,7 @@ function template_warn_template()
 				<div id="box_preview"', !empty($context['template_preview']) ? '' : ' style="display:none"', '>
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['preview'] , '</strong>
+							<strong>', $txt['preview'], '</strong>
 						</dt>
 						<dd id="template_preview">
 							', !empty($context['template_preview']) ? $context['template_preview'] : '', '

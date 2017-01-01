@@ -6,7 +6,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -221,8 +221,9 @@ class Mentions
 		foreach ($matches as $match)
 		{
 			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-			for ($i = 1; $i <= count($match); $i++)
+			$count = count($match);
+			
+			for ($i = 1; $i <= $count; $i++)
 				$names[] = $smcFunc['htmlspecialchars']($smcFunc['htmltrim'](implode('', array_slice($match, 0, $i))));
 		}
 

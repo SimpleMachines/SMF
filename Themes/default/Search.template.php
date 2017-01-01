@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -297,7 +297,7 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">';
 				echo '
 				</span>
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -316,7 +316,7 @@ function template_results()
 		{
 
 			echo '
-			<div class="', $topic['css_class'] ,'">
+			<div class="', $topic['css_class'], '">
 				<div class="flow_auto">';
 
 			foreach ($topic['matches'] as $message)
@@ -325,7 +325,7 @@ function template_results()
 					<div class="topic_details floatleft" style="width: 94%">
 						<div class="counter">', $message['counter'], '</div>
 						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-						<span class="smalltext">&#171;&nbsp;',$txt['by'],'&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;',$txt['on'],'&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+						<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
 					</div>';
 
 				if (!empty($options['display_quick_mod']))
@@ -342,11 +342,11 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
@@ -354,7 +354,7 @@ function template_results()
 
 						if ($topic['quick_mod']['sticky'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 						if ($topic['quick_mod']['move'])
 							echo '
@@ -393,7 +393,7 @@ function template_results()
 			foreach ($context['qmod_actions'] as $qmod_action)
 				if ($context['can_' . $qmod_action])
 					echo '
-							<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+							<option value="' . $qmod_action . '">' . $txt['quick_mod_' . $qmod_action] . '</option>';
 
 			echo '
 					</select>';
@@ -421,7 +421,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -437,7 +437,7 @@ function template_results()
 			foreach ($topic['matches'] as $message)
 			{
 				echo '
-				<div class="', $topic['css_class'] ,'">
+				<div class="', $topic['css_class'], '">
 					<div class="counter">', $message['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>

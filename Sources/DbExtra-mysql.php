@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -27,7 +27,6 @@ function db_extra_init()
 		$smcFunc += array(
 			'db_backup_table' => 'smf_db_backup_table',
 			'db_optimize_table' => 'smf_db_optimize_table',
-			'db_insert_sql' => 'smf_db_insert_sql',
 			'db_table_sql' => 'smf_db_table_sql',
 			'db_list_tables' => 'smf_db_list_tables',
 			'db_get_version' => 'smf_db_get_version',
@@ -248,83 +247,6 @@ function smf_db_list_tables($db = false, $filter = false)
 }
 
 /**
- * Gets all the necessary INSERTs for the table named table_name.
- * It goes in 250 row segments.
- *
- * @param string $tableName The table to create the inserts for.
- * @param boolean $new_table Whether or not this is a new table (resets $start and $limit)
- * @return string The query to insert the data back in, or an empty string if the table was empty.
- */
-function smf_db_insert_sql($tableName, $new_table = false)
-{
-	global $smcFunc, $db_prefix;
-	static $start = 0, $num_rows, $fields, $limit;
-
-	if ($new_table)
-	{
-		$limit = strstr($tableName, 'log_') !== false ? 500 : 250;
-		$start = 0;
-	}
-
-	$data = '';
-	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
-
-	// This will be handy...
-	$crlf = "\r\n";
-
-	$result = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ *
-		FROM `' . $tableName . '`
-		LIMIT ' . $start . ', ' . $limit,
-		array(
-			'security_override' => true,
-		)
-	);
-
-	// The number of rows, just for record keeping and breaking INSERTs up.
-	$num_rows = $smcFunc['db_num_rows']($result);
-
-	if ($num_rows == 0)
-		return '';
-
-	if ($new_table)
-	{
-		$fields = array_keys($smcFunc['db_fetch_assoc']($result));
-		$smcFunc['db_data_seek']($result, 0);
-	}
-
-	// Start it off with the basic INSERT INTO.
-	$data = 'INSERT INTO `' . $tableName . '`' . $crlf . "\t" . '(`' . implode('`, `', $fields) . '`)' . $crlf . 'VALUES ';
-
-	// Loop through each row.
-	while ($row = $smcFunc['db_fetch_assoc']($result))
-	{
-		// Get the fields in this row...
-		$field_list = array();
-
-		foreach ($row as $item)
-		{
-			// Try to figure out the type of each field. (NULL, number, or 'string'.)
-			if (!isset($item))
-				$field_list[] = 'NULL';
-			elseif (is_numeric($item) && (int) $item == $item)
-				$field_list[] = $item;
-			else
-				$field_list[] = '\'' . $smcFunc['db_escape_string']($item) . '\'';
-		}
-
-		$data .= '(' . implode(', ', $field_list) . ')' . ',' . $crlf . "\t";
-	}
-
-	$smcFunc['db_free_result']($result);
-	$data = substr(trim($data), 0, -1) . ';' . $crlf . $crlf;
-
-	$start += $limit;
-
-	return $data;
-}
-
-/**
  * Dumps the schema (CREATE) for a table.
  * @todo why is this needed for?
  * @param string $tableName The name of the table
@@ -443,7 +365,7 @@ function smf_db_get_version()
 {
 	static $ver;
 
-	if(!empty($ver))
+	if (!empty($ver))
 		return $ver;
 
 	global $smcFunc;

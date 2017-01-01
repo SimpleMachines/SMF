@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -43,7 +43,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		$affected_users = array();
 		$members = array();
 		$alert_rows = array();
-		$group_changes = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$members[] = $row['id_member'];
@@ -103,7 +102,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_'. $pref_name] : 0;
+				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
 				if ($pref & 0x01)

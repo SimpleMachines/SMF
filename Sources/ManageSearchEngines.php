@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -239,7 +239,7 @@ function ViewSpiders()
 					'value' => $txt['spider_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($smcFunc, $scripturl)
+					'function' => function($rowData) use ($smcFunc, $scripturl)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', $scripturl, $rowData['id_spider'], $smcFunc['htmlspecialchars']($rowData['spider_name']));
 					},
@@ -254,7 +254,7 @@ function ViewSpiders()
 					'value' => $txt['spider_last_seen'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($context, $txt)
+					'function' => function($rowData) use ($context, $txt)
 					{
 						return isset($context['spider_last_seen'][$rowData['id_spider']]) ? timeformat($context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
 					},
@@ -690,7 +690,7 @@ function SpiderLogs()
 
 		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
 		{
-			$deleteTime = time() - (((int)$_POST['older']) * 24 * 60 * 60);
+			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
 			// Delete the entires.
 			$smcFunc['db_query']('', '
@@ -742,7 +742,7 @@ function SpiderLogs()
 					'value' => $txt['spider_time'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return timeformat($rowData['log_time']);
 					},

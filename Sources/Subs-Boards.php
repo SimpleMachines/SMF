@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -645,7 +645,7 @@ function modifyBoard($board_id, &$boardOptions)
 
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
-		$request = $smcFunc['db_query']('', '
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}boards
 			SET
 				' . implode(',
@@ -760,7 +760,7 @@ function modifyBoard($board_id, &$boardOptions)
 					array(
 						'visible' => 0,
 						'negative_one' => -1,
-						'invalid_groups' => array(1,3),
+						'invalid_groups' => array(1, 3),
 						'moderator_group_list' => $moderator_groups,
 						'limit' => count($moderator_groups),
 					)
@@ -838,7 +838,7 @@ function createBoard($boardOptions)
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
-		$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
+		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
 		'-1,0', '',
 	);
 

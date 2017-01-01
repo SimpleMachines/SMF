@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadProfileFields($force_reload = false)
 {
-	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
+	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
 	global $sourcedir, $profile_vars;
 
 	// Don't load this twice!
@@ -86,7 +86,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'birthdate',
 			'permission' => 'profile_extra',
-			'preload' => function () use ($cur_profile, &$context)
+			'preload' => function() use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
 				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] == '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
@@ -98,7 +98,7 @@ function loadProfileFields($force_reload = false)
 
 				return true;
 			},
-			'input_validate' => function (&$value) use (&$cur_profile, &$profile_vars)
+			'input_validate' => function(&$value) use (&$cur_profile, &$profile_vars)
 			{
 				if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0)
 				{
@@ -120,7 +120,7 @@ function loadProfileFields($force_reload = false)
 		'birthdate' => array(
 			'type' => 'hidden',
 			'permission' => 'profile_extra',
-			'input_validate' => function (&$value) use ($cur_profile)
+			'input_validate' => function(&$value) use ($cur_profile)
 			{
 				// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 				if (preg_match('/(\d{4})[\-\., ](\d{2})[\-\., ](\d{2})/', $value, $dates) === 1)
@@ -141,7 +141,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['date_registered'],
 			'log_change' => true,
 			'permission' => 'moderate_forum',
-			'input_validate' => function (&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
+			'input_validate' => function(&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
 			{
 				// Bad date!  Go try again - please?
 				if (($value = strtotime($value)) === -1)
@@ -167,13 +167,13 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. $cur_profile['email_address'] .'")
+		if (this.email_address.value != "'. $cur_profile['email_address'] . '")
 		{
-			alert('. JavaScriptEscape($txt['email_change_logout']) .');
+			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				global $context, $old_profile, $profile_vars, $sourcedir, $modSettings;
 
@@ -209,7 +209,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_pick',
 			'permission' => 'profile_extra',
 			'enabled' => $modSettings['theme_allow'] || allowedTo('admin_forum'),
-			'preload' => function () use ($smcFunc, &$context, $cur_profile, $txt)
+			'preload' => function() use ($smcFunc, &$context, $cur_profile, $txt)
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT value
@@ -230,7 +230,7 @@ function loadProfileFields($force_reload = false)
 				);
 				return true;
 			},
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				$value = (int) $value;
 				return true;
@@ -238,7 +238,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'lngfile' => array(
 			'type' => 'select',
-			'options' => function () use (&$context)
+			'options' => function() use (&$context)
 			{
 				return $context['profile_languages'];
 			},
@@ -247,7 +247,7 @@ function loadProfileFields($force_reload = false)
 			'preload' => 'profileLoadLanguages',
 			'enabled' => !empty($modSettings['userLanguage']),
 			'value' => empty($cur_profile['lngfile']) ? $language : $cur_profile['lngfile'],
-			'input_validate' => function (&$value) use (&$context, $cur_profile)
+			'input_validate' => function(&$value) use (&$context, $cur_profile)
 			{
 				// Load the languages.
 				profileLoadLanguages();
@@ -273,7 +273,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_identity',
 			'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . $txt['username_warning'] . '</div>' : '',
-			'input_validate' => function (&$value) use ($sourcedir, $context, $user_info, $cur_profile)
+			'input_validate' => function(&$value) use ($sourcedir, $context, $user_info, $cur_profile)
 			{
 				if (allowedTo('admin_forum'))
 				{
@@ -309,7 +309,7 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_password',
 			'save_key' => 'passwd',
 			// Note this will only work if passwrd2 also exists!
-			'input_validate' => function (&$value) use ($sourcedir, $user_info, $smcFunc, $cur_profile)
+			'input_validate' => function(&$value) use ($sourcedir, $user_info, $smcFunc, $cur_profile)
 			{
 				// If we didn't try it then ignore it!
 				if ($value == '')
@@ -348,7 +348,7 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'profile_blurb',
-			'input_validate' => function (&$value) use ($smcFunc)
+			'input_validate' => function(&$value) use ($smcFunc)
 			{
 				if ($smcFunc['strlen']($value) > 50)
 					return 'personal_text_too_long';
@@ -361,14 +361,14 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'pm_settings',
 			'permission' => 'pm_read',
-			'preload' => function () use (&$context, $cur_profile)
+			'preload' => function() use (&$context, $cur_profile)
 			{
 				$context['display_mode'] = $cur_profile['pm_prefs'] & 3;
 				$context['receive_from'] = !empty($cur_profile['pm_receive_from']) ? $cur_profile['pm_receive_from'] : 0;
 
 				return true;
 			},
-			'input_validate' => function (&$value) use (&$cur_profile, &$profile_vars)
+			'input_validate' => function(&$value) use (&$cur_profile, &$profile_vars)
 			{
 				// Simple validate and apply the two "sub settings"
 				$value = max(min($value, 2), 0);
@@ -384,7 +384,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'size' => 7,
 			'permission' => 'moderate_forum',
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				if (!is_numeric($value))
 					return 'digits_only';
@@ -401,7 +401,7 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="60"'),
 			'permission' => 'profile_displayed_name',
 			'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
-			'input_validate' => function (&$value) use ($context, $smcFunc, $sourcedir, $cur_profile)
+			'input_validate' => function(&$value) use ($context, $smcFunc, $sourcedir, $cur_profile)
 			{
 				$value = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $value));
 
@@ -433,7 +433,7 @@ function loadProfileFields($force_reload = false)
 			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				$value = $value != '' ? md5($value) : '';
 				return true;
@@ -458,7 +458,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function () use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
@@ -476,7 +476,7 @@ function loadProfileFields($force_reload = false)
 				}
 				return true;
 			},
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				global $modSettings;
 
@@ -492,7 +492,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_settings',
 			'permission' => 'profile_extra',
 			'is_dummy' => true,
-			'preload' => function () use (&$context, $user_info, $modSettings)
+			'preload' => function() use (&$context, $user_info, $modSettings)
 			{
 				loadLanguage('Settings');
 
@@ -519,7 +519,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeformat_modify',
 			'permission' => 'profile_extra',
-			'preload' => function () use (&$context, $user_info, $txt, $cur_profile, $modSettings)
+			'preload' => function() use (&$context, $user_info, $txt, $cur_profile, $modSettings)
 			{
 				$context['easy_timeformats'] = array(
 					array('format' => '', 'title' => $txt['timeformat_default']),
@@ -542,7 +542,7 @@ function loadProfileFields($force_reload = false)
 			'options' => smf_list_timezones(),
 			'permission' => 'profile_extra',
 			'label' => $txt['timezone'],
-			'input_validate' => function ($value)
+			'input_validate' => function($value)
 			{
 				$tz = smf_list_timezones();
 				if (!isset($tz[$value]))
@@ -559,7 +559,7 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
-			'input_validate' => function (&$value) use ($smcFunc)
+			'input_validate' => function(&$value) use ($smcFunc)
 			{
 				if ($smcFunc['strlen']($value) > 50)
 					return 'user_title_too_long';
@@ -582,7 +582,7 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_website',
 			// Fix the URL...
-			'input_validate' => function (&$value)
+			'input_validate' => function(&$value)
 			{
 				if (strlen(trim($value)) > 0 && strpos($value, '://') === false)
 					$value = 'http://' . $value;
@@ -707,7 +707,7 @@ function setupProfileContext($fields)
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert('. (JavaScriptEscape($txt['required_security_reasons'])) .');
+			alert('. (JavaScriptEscape($txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -881,14 +881,10 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	// Permissions...
 	if ($context['user']['is_owner'])
 	{
-		$changeIdentity = allowedTo(array('profile_identity_any', 'profile_identity_own', 'profile_password_any', 'profile_password_own'));
 		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_website_any', 'profile_website_own', 'profile_signature_any', 'profile_signature_own'));
 	}
 	else
-	{
-		$changeIdentity = allowedTo('profile_identity_any', 'profile_signature_any');
-		$changeOther = allowedTo('profile_extra_any', 'profile_website_any', 'profile_signature_any');
-	}
+		$changeOther = allowedTo(array('profile_extra_any', 'profile_website_any', 'profile_signature_any'));
 
 	// Arrays of all the changes - makes things easier.
 	$profile_bools = array();
@@ -906,7 +902,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	if (isset($_POST['ignore_brd']))
 	{
 		if (!is_array($_POST['ignore_brd']))
-			$_POST['ignore_brd'] = array ($_POST['ignore_brd']);
+			$_POST['ignore_brd'] = array($_POST['ignore_brd']);
 
 		foreach ($_POST['ignore_brd'] as $k => $d)
 		{
@@ -1245,7 +1241,6 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 	}
 	$smcFunc['db_free_result']($request);
 
-	$hook_errors = array();
 	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
 
 	if (!empty($hook_errors) && is_array($hook_errors))
@@ -1872,7 +1867,7 @@ function alert_configuration($memID)
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs($memID,  '', $memID != 0);
+	$prefs = getNotifyPrefs($memID, '', $memID != 0);
 
 	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
@@ -2158,7 +2153,6 @@ function alert_mark($memID, $toMark, $read = 0)
 		return false;
 
 	$toMark = (array) $toMark;
-	$count = 0;
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}user_alerts
@@ -2171,7 +2165,7 @@ function alert_mark($memID, $toMark, $read = 0)
 	);
 
 	// Gotta know how many unread alerts are left.
-	$count =  alert_count($memID, true);
+	$count = alert_count($memID, true);
 
 	updateMemberData($memID, array('alerts' => $count));
 
@@ -2206,7 +2200,7 @@ function alert_delete($toDelete, $memID = false)
 	// Gotta know how many unread alerts are left.
 	if ($memID)
 	{
-		$count =  alert_count($memID, true);
+		$count = alert_count($memID, true);
 
 		updateMemberData($memID, array('alerts' => $count));
 
@@ -2229,8 +2223,6 @@ function alert_count($memID, $unread = false)
 	if (empty($memID))
 		return false;
 
-	$count = 0;
-
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert
 		FROM {db_prefix}user_alerts
@@ -2242,7 +2234,7 @@ function alert_count($memID, $unread = false)
 		)
 	);
 
-	$count =  $smcFunc['db_num_rows']($request);
+	$count = $smcFunc['db_num_rows']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $count;
@@ -2302,7 +2294,7 @@ function alert_notifications_topics($memID)
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function ($topic) use ($txt)
+					'function' => function($topic) use ($txt)
 					{
 						$link = $topic['link'];
 
@@ -2357,7 +2349,7 @@ function alert_notifications_topics($memID)
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function ($topic) use ($txt)
+					'function' => function($topic) use ($txt)
 					{
 						$pref = $topic['notify_pref'];
 						$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
@@ -2454,7 +2446,7 @@ function alert_notifications_boards($memID)
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function ($board) use ($txt)
+					'function' => function($board) use ($txt)
 					{
 						$link = $board['link'];
 
@@ -2475,7 +2467,7 @@ function alert_notifications_boards($memID)
 					'class' => 'lefttext',
 				),
 				'data' => array(
-					'function' => function ($board) use ($txt)
+					'function' => function($board) use ($txt)
 					{
 						$pref = $board['notify_pref'];
 						$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);

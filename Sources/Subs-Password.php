@@ -10,7 +10,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -48,9 +48,8 @@ namespace {
 				return null;
 			}
 			if (PasswordCompat\binary\_strlen($password) > 72) {
-				$password = PasswordCompat\binary\_substr($password, 0,72);
+				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
-			$resultLength = 0;
 			switch ($algo) {
 				case PASSWORD_BCRYPT:
 					// Note that this is a C constant, but not exposed to PHP, so we don't define it here.
@@ -236,7 +235,7 @@ namespace {
 				return false;
 			}
 			if (PasswordCompat\binary\_strlen($password) > 72) {
-				$password = PasswordCompat\binary\_substr($password, 0,72);
+				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
 			$ret = crypt($password, $hash);
 			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != PasswordCompat\binary\_strlen($hash) || PasswordCompat\binary\_strlen($ret) <= 13) {

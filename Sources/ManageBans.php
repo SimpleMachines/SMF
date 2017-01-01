@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -183,7 +183,7 @@ function BanList()
 					'value' => $txt['ban_added'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($context)
+					'function' => function($rowData) use ($context)
 					{
 						return timeformat($rowData['ban_time'], empty($context['ban_time_format']) ? true : $context['ban_time_format']);
 					},
@@ -198,7 +198,7 @@ function BanList()
 					'value' => $txt['ban_expires'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// This ban never expires...whahaha.
 						if ($rowData['expire_time'] === null)
@@ -401,7 +401,7 @@ function BanEdit()
 							'style' => 'width: 60%;text-align: left;',
 						),
 						'data' => array(
-							'function' => function ($ban_item) use ($txt)
+							'function' => function($ban_item) use ($txt)
 							{
 								if (in_array($ban_item['type'], array('ip', 'hostname', 'email')))
 									return '<strong>' . $txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
@@ -429,7 +429,7 @@ function BanEdit()
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => function ($ban_item) use ($txt, $context, $scripturl)
+							'function' => function($ban_item) use ($txt, $context, $scripturl)
 							{
 								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
 							},
@@ -554,7 +554,7 @@ function BanEdit()
 			}
 
 			// We come from the mod center.
-			elseif(isset($_GET['msg']) && !empty($_GET['msg']))
+			elseif (isset($_GET['msg']) && !empty($_GET['msg']))
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT poster_name, poster_ip, poster_email
@@ -860,7 +860,6 @@ function banEdit2()
 
 	if (isset($_POST['ban_items']))
 	{
-		$items_ids = array();
 		$ban_group_id = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
 		array_map('intval', $_POST['ban_items']);
 
@@ -898,7 +897,6 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
 			'id' => $member,
 		)
 	);
-	$ban_triggers = array();
 
 	foreach ($suggestions as $key => $value)
 	{
@@ -1429,7 +1427,7 @@ function updateBanGroup($ban_info = array())
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
-	if(!empty($ban_info['id']))
+	if (!empty($ban_info['id']))
 	{
 		// Verify the ban group exists.
 		$request = $smcFunc['db_query']('', '
@@ -1447,7 +1445,7 @@ function updateBanGroup($ban_info = array())
 		$smcFunc['db_free_result']($request);
 	}
 
-	if(!empty($ban_info['name']))
+	if (!empty($ban_info['name']))
 	{
 		// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
 		$request = $smcFunc['db_query']('', '
@@ -1516,7 +1514,7 @@ function insertBanGroup($ban_info = array())
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
-	if(!empty($ban_info['name']))
+	if (!empty($ban_info['name']))
 	{
 		// Check whether a ban with this name already exists.
 		$request = $smcFunc['db_query']('', '
@@ -1795,7 +1793,7 @@ function BanBrowseTriggers()
 	if ($context['selected_entity'] === 'ip')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function ($rowData)
+			'function' => function($rowData)
 			{
 				return range2ip(
 					$rowData['ip_low']
@@ -1812,7 +1810,7 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'hostname')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function ($rowData) use ($smcFunc)
+			'function' => function($rowData) use ($smcFunc)
 			{
 				return strtr($smcFunc['htmlspecialchars']($rowData['hostname']), array('%' => '*'));
 			},
@@ -1825,7 +1823,7 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'email')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function ($rowData) use ($smcFunc)
+			'function' => function($rowData) use ($smcFunc)
 			{
 				return strtr($smcFunc['htmlspecialchars']($rowData['email_address']), array('%' => '*'));
 			},
@@ -2032,7 +2030,7 @@ function BanLog()
 					'value' => $txt['ban_log_date'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return timeformat($rowData['log_time']);
 					},
@@ -2122,7 +2120,7 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 	$log_entries = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$row['ip'] = $row['ip'] === null? $dash : inet_dtop($row['ip']);
+		$row['ip'] = $row['ip'] === null ? $dash : inet_dtop($row['ip']);
 		$log_entries[] = $row;
 	}
 	$smcFunc['db_free_result']($request);
@@ -2170,7 +2168,7 @@ function range2ip($low, $high)
 	if ($low == $high)
 	    return $low;
 	else
-	    return $low . '-'.$high;
+	    return $low . '-' . $high;
 }
 
 /**
@@ -2286,7 +2284,7 @@ function updateBanMembers()
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.is_activated
 			FROM {db_prefix}members AS mem
-			WHERE ' . implode( ' OR ', $queryPart),
+			WHERE ' . implode(' OR ', $queryPart),
 			$queryValues
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))

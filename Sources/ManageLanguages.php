@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -240,7 +240,8 @@ function DownloadLanguage()
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			$archive_content = read_tgz_file('http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			read_tgz_file('http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+
 			// Make sure the files aren't stuck in the cache.
 			package_flush_cache();
 			$context['install_complete'] = sprintf($txt['languages_download_complete_desc'], $scripturl . '?action=admin;area=languages');
@@ -374,71 +375,6 @@ function DownloadLanguage()
 			$context['make_writable'][] = $context_data['destination'];
 	}
 
-	// So, I'm a perfectionist - let's get the theme names.
-	$theme_indexes = array();
-	foreach ($context['files']['images'] as $k => $dummy)
-		$indexes[] = $k;
-
-	$context['theme_names'] = array();
-	if (!empty($indexes))
-	{
-		$value_data = array(
-			'query' => array(),
-			'params' => array(),
-		);
-
-		foreach ($indexes as $k => $index)
-		{
-			$value_data['query'][] = 'value LIKE {string:value_' . $k . '}';
-			$value_data['params']['value_' . $k] = '%' . $index;
-		}
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_theme, value
-			FROM {db_prefix}themes
-			WHERE id_member = {int:no_member}
-				AND variable = {string:theme_dir}
-				AND (' . implode(' OR ', $value_data['query']) . ')',
-			array_merge($value_data['params'], array(
-				'no_member' => 0,
-				'theme_dir' => 'theme_dir',
-				'index_compare_explode' => 'value LIKE \'%' . implode('\' OR value LIKE \'%', $indexes) . '\'',
-			))
-		);
-		$themes = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			// Find the right one.
-			foreach ($indexes as $index)
-				if (strpos($row['value'], $index) !== false)
-					$themes[$row['id_theme']] = $index;
-		}
-		$smcFunc['db_free_result']($request);
-
-		if (!empty($themes))
-		{
-			// Now we have the id_theme we can get the pretty description.
-			$request = $smcFunc['db_query']('', '
-				SELECT id_theme, value
-				FROM {db_prefix}themes
-				WHERE id_member = {int:no_member}
-					AND variable = {string:name}
-					AND id_theme IN ({array_int:theme_list})',
-				array(
-					'theme_list' => array_keys($themes),
-					'no_member' => 0,
-					'name' => 'name',
-				)
-			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				// Now we have it...
-				$context['theme_names'][$themes[$row['id_theme']]] = $row['value'];
-			}
-			$smcFunc['db_free_result']($request);
-		}
-	}
-
 	// Before we go to far can we make anything writable, eh, eh?
 	if (!empty($context['make_writable']))
 	{
@@ -474,7 +410,7 @@ function DownloadLanguage()
 		'id' => 'lang_main_files_list',
 		'title' => $txt['languages_download_main_files'],
 		'get_items' => array(
-			'function' => function () use ($context)
+			'function' => function() use ($context)
 			{
 				return $context['files']['lang'];
 			},
@@ -485,7 +421,7 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_filename'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . $txt['languages_download_dest'] . ': ' . $rowData['destination'] . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . $txt['languages_download_older'] : '');
 					},
@@ -496,7 +432,7 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_writable'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . ($rowData['writable'] ? $txt['yes'] : $txt['no']) . '</span>';
 					},
@@ -507,7 +443,7 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_version'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return '<span style="color: ' . ($rowData['version_compare'] == 'older' ? 'red' : ($rowData['version_compare'] == 'same' ? 'orange' : 'green')) . ';">' . $rowData['version'] . '</span>';
 					},
@@ -518,7 +454,7 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_exists'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return $rowData['exists'] ? ($rowData['exists'] == 'same' ? $txt['languages_download_exists_same'] : $txt['languages_download_exists_different']) : $txt['no'];
 					},
@@ -530,7 +466,7 @@ function DownloadLanguage()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="checkbox" name="copy_file[]" value="' . $rowData['generaldest'] . '"' . ($rowData['default_copy'] ? ' checked' : '') . ' class="input_check">';
 					},
@@ -609,7 +545,7 @@ function ModifyLanguages()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="radio" name="def_language" value="' . $rowData['id'] . '"' . ($rowData['default'] ? ' checked' : '') . ' onclick="highlightSelected(\'list_language_list_' . $rowData['id'] . '\');" class="input_radio">';
 					},
@@ -622,7 +558,7 @@ function ModifyLanguages()
 					'value' => $txt['languages_lang_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
 					},
@@ -676,7 +612,7 @@ function ModifyLanguages()
 		$("tr.highlight2").removeClass("highlight2");
 		$("#" + box).addClass("highlight2");
 	}
-	highlightSelected("list_language_list_' . ($language == '' ? 'english' : $language). '");', true);
+	highlightSelected("list_language_list_' . ($language == '' ? 'english' : $language) . '");', true);
 
 	// Display a warning if we cannot edit the default setting.
 	if (!is_writable($boarddir . '/Settings.php'))
@@ -931,7 +867,7 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
-		usort($context['possible_files'][$theme]['files'], function ($val1, $val2)
+		usort($context['possible_files'][$theme]['files'], function($val1, $val2)
 		{
 			return strcmp($val1['name'], $val2['name']);
 		});

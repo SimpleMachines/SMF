@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -531,14 +531,14 @@ function PackageInstallTest()
 
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
-				'action' => sprintf($txt['execute_hook_action'. ($action['reverse'] ? '_inverse' : '')],  $smcFunc['htmlspecialchars']($action['hook'])),
+				'action' => sprintf($txt['execute_hook_action' . ($action['reverse'] ? '_inverse' : '')], $smcFunc['htmlspecialchars']($action['hook'])),
 			);
 		}
 		elseif ($action['type'] == 'credits')
 		{
 			$thisAction = array(
 				'type' => $txt['execute_credits_add'],
-				'action' => sprintf($txt['execute_credits_action'],  $smcFunc['htmlspecialchars']($action['title'])),
+				'action' => sprintf($txt['execute_credits_action'], $smcFunc['htmlspecialchars']($action['title'])),
 			);
 		}
 		elseif ($action['type'] == 'requires')
@@ -654,7 +654,7 @@ function PackageInstallTest()
 			if ($context['uninstalling'])
 				$file = in_array($action['type'], array('remove-dir', 'remove-file')) ? $action['filename'] : $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
 			else
-				$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
+				$file = $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
 		}
 
 		// Don't fail if a file/directory we're trying to create doesn't exist...
@@ -758,7 +758,7 @@ function PackageInstallTest()
 		$context['ftp_needed'] = !empty($ftp_status['files']['notwritable']) && !empty($context['package_ftp']);
 	}
 
-	$context['post_url'] = $scripturl .'?action=admin;area=packages;sa=' . ($context['uninstalling'] ? 'uninstall' : 'install') . ($context['ftp_needed'] ? '' : '2') . ';package=' . $context['filename'] . ';pid=' . $context['install_id'];
+	$context['post_url'] = $scripturl . '?action=admin;area=packages;sa=' . ($context['uninstalling'] ? 'uninstall' : 'install') . ($context['ftp_needed'] ? '' : '2') . ';package=' . $context['filename'] . ';pid=' . $context['install_id'];
 	checkSubmitOnce('register');
 }
 
@@ -1180,7 +1180,7 @@ function PackageInstall()
 				'{db_prefix}log_packages',
 				array(
 					'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
-					'id_member_installed' => 'int', 'member_installed' => 'string','time_installed' => 'int',
+					'id_member_installed' => 'int', 'member_installed' => 'string', 'time_installed' => 'int',
 					'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
 					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 				),
@@ -1383,7 +1383,7 @@ function PackageBrowse()
 						'style' => 'width: 40px;',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type, &$context)
+						'function' => function($package_md5) use ($type, &$context)
 						{
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['sort_id'];
@@ -1400,7 +1400,7 @@ function PackageBrowse()
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type, &$context)
+						'function' => function($package_md5) use ($type, &$context)
 						{
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['name'];
@@ -1416,7 +1416,7 @@ function PackageBrowse()
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type, &$context)
+						'function' => function($package_md5) use ($type, &$context)
 						{
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['version'];
@@ -1432,7 +1432,7 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type, $txt, &$context)
+						'function' => function($package_md5) use ($type, $txt, &$context)
 						{
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return !empty($context['available_' . $type . ''][$package_md5]['time_installed']) ? timeformat($context['available_' . $type . ''][$package_md5]['time_installed']) : $txt['not_applicable'];
@@ -1449,7 +1449,7 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type, &$context, $scripturl, $txt)
+						'function' => function($package_md5) use ($type, &$context, $scripturl, $txt)
 						{
 							if (!isset($context['available_' . $type . ''][$package_md5]))
 								return '';
@@ -1734,7 +1734,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				{
 					$sort_id['modification']++;
 					$sort_id['mod']++;
-					$packages['modification'][strtolower($packageInfo[$sort]) .  '_' . $sort_id['mod']] = md5($package);
+					$packages['modification'][strtolower($packageInfo[$sort]) . '_' . $sort_id['mod']] = md5($package);
 					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.

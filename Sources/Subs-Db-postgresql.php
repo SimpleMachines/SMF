@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -63,7 +63,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	if (!empty($db_options['persist']))
 		$connection = @pg_pconnect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 	else
-		$connection = @pg_connect( 'host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
+		$connection = @pg_connect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
 	if (!$connection)
@@ -87,7 +87,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
  *
  * @param string $type Indicates which additional file to load. ('extra', 'packages')
  */
-function db_extend ($type = 'extra')
+function db_extend($type = 'extra')
 {
 	global $sourcedir, $db_type;
 
@@ -103,7 +103,7 @@ function db_extend ($type = 'extra')
  * @param string $db_prefix The database prefix
  * @param string $db_name The database name
  */
-function db_fix_prefix (&$db_prefix, $db_name)
+function db_fix_prefix(&$db_prefix, $db_name)
 {
 	return;
 }
@@ -202,6 +202,13 @@ function smf_db_replacement__callback($matches)
 				smf_db_error_backtrace('Wrong value type sent to the database. Date expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
 
+		case 'time':
+			if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1)
+				return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]);
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
+
 		case 'float':
 			if (!is_numeric($replacement))
 				smf_db_error_backtrace('Wrong value type sent to the database. Floating point number expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -222,7 +229,6 @@ function smf_db_replacement__callback($matches)
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
-		break;
 
 		case 'array_inet':
 			if (is_array($replacement))
@@ -236,7 +242,7 @@ function smf_db_replacement__callback($matches)
 						$replacement[$key] = 'null';
 					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-					$replacement[$key] =  sprintf('\'%1$s\'::inet', pg_escape_string($value));
+					$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($value));
 				}
 
 				return implode(', ', $replacement);
@@ -320,9 +326,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
-		),
-		'set_character_set' => array(
-			'~SET\\s+NAMES\\s([a-zA-Z0-9\\-_]+)~' => 'SET NAMES \'$1\'',
 		),
 		'pm_conversation_list' => array(
 			'~ORDER\\s+BY\\s+\\{raw:sort\\}~' => 'ORDER BY ' . (isset($db_values['sort']) ? ($db_values['sort'] === 'pm.id_pm' ? 'MAX(pm.id_pm)' : $db_values['sort']) : ''),
@@ -418,7 +421,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 				$pos2 = strpos($db_string, '\\', $pos + 1);
 				if ($pos1 === false)
 					break;
-				elseif ($pos2 == false || $pos2 > $pos1)
+				elseif ($pos2 === false || $pos2 > $pos1)
 				{
 					$pos = $pos1;
 					break;
@@ -484,12 +487,9 @@ function smf_db_affected_rows($result = null)
  */
 function smf_db_insert_id($table, $field = null, $connection = null)
 {
-	global $db_connection, $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix;
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-
-	if ($connection === false)
-		$connection = $db_connection;
 
 	// Try get the last ID for the auto increment field.
 	$request = $smcFunc['db_query']('', 'SELECT CURRVAL(\'' . $table . '_seq\') AS insertID',
@@ -552,7 +552,7 @@ function smf_db_error($db_string, $connection = null)
 
 	// Log the error.
 	if (function_exists('log_error'))
-		log_error($txt['database_error'] . ': ' . $query_error . (!empty($modSettings['enableErrorQueryLogging']) ? "\n\n" .$db_string : ''), 'database', $file, $line);
+		log_error($txt['database_error'] . ': ' . $query_error . (!empty($modSettings['enableErrorQueryLogging']) ? "\n\n" . $db_string : ''), 'database', $file, $line);
 
 	// Nothing's defined yet... just die with it.
 	if (empty($context) || empty($txt))
@@ -688,31 +688,31 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		static $pg_version;
 		static $replace_support;
 
-		if(empty($pg_version))
+		if (empty($pg_version))
 		{
 			db_extend();
 			//pg 9.5 got replace support
 			$pg_version = $smcFunc['db_get_version']();
 			// if we got a Beta Version
 			if (stripos($pg_version, 'beta') !== false)
-				$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')).'.0';
+				$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')) . '.0';
 			// or RC
 			if (stripos($pg_version, 'rc') !== false)
-				$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')).'.0';
+				$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')) . '.0';
 
-			$replace_support = (version_compare($pg_version,'9.5.0','>=') ? true : false);
+			$replace_support = (version_compare($pg_version, '9.5.0', '>=') ? true : false);
 		}
 
 		$count = 0;
 		$where = '';
 		$count_pk = 0;
 
-		If($replace_support)
+		If ($replace_support)
 		{
 			foreach ($columns as $columnName => $type)
 			{
 				//check pk fiel
-				IF(in_array($columnName, $keys))
+				IF (in_array($columnName, $keys))
 				{
 					$key_str .= ($count_pk > 0 ? ',' : '');
 					$key_str .= $columnName;
@@ -721,11 +721,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 				else //normal field
 				{
 					$col_str .= ($count > 0 ? ',' : '');
-					$col_str .= $columnName.' = EXCLUDED.'.$columnName;
+					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
 					$count++;
 				}
 			}
-			$replace = ' ON CONFLICT ('.$key_str.') DO UPDATE SET '.$col_str;
+			$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
 		}
 		else
 		{
@@ -785,7 +785,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			$smcFunc['db_query']('', '
 				INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
 				VALUES
-					' . $entry.$replace,
+					' . $entry . $replace,
 				array(
 					'security_override' => true,
 					'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',
@@ -880,7 +880,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
  * @param bool $translate_human_wildcards If true, turns human readable wildcards into SQL wildcards.
  * @return string The escaped string
  */
-function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false)
+function smf_db_escape_wildcard_string($string, $translate_human_wildcards = false)
 {
 	$replacements = array(
 		'%' => '\%',

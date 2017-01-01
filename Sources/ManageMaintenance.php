@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -388,7 +388,6 @@ function ConvertMsgBody()
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
 
 		return;
-		redirectexit('action=admin;area=maintain;sa=database');
 	}
 	elseif ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont'])))
 	{
@@ -713,9 +712,6 @@ function OptimizeTables()
 	ignore_user_abort(true);
 	db_extend();
 
-	// Start with no tables optimized.
-	$opttab = 0;
-
 	$context['page_title'] = $txt['database_optimize'];
 	$context['sub_template'] = 'optimize';
 	$context['continue_post_data'] = '';
@@ -742,7 +738,7 @@ function OptimizeTables()
 
 	// For each table....
 	$_SESSION['optimized_tables'] = !empty($_SESSION['optimized_tables']) ? $_SESSION['optimized_tables'] : array();
-	for ($key=$_REQUEST['start']; $context['num_tables']-1; $key++)
+	for ($key = $_REQUEST['start']; $context['num_tables'] - 1; $key++)
 	{
 		if (empty($tables[$key]))
 			break;
@@ -1905,10 +1901,10 @@ function list_integration_hooks()
 					'value' => $txt['hooks_field_function_name'],
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt)
+					'function' => function($data) use ($txt)
 					{
 						// Show a nice icon to indicate this is an instance.
-						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="'. $txt['hooks_field_function_method'] .'"></span> ' : '');
+						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']))
 							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
@@ -1940,7 +1936,7 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt, $scripturl, $context)
+					'function' => function($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
 
@@ -1977,7 +1973,7 @@ function list_integration_hooks()
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => function ($data) use ($txt, $scripturl, $context)
+			'function' => function($data) use ($txt, $scripturl, $context)
 			{
 				if (!$data['hook_exists'])
 					return '
@@ -2113,7 +2109,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		$context['insert_after_template'] .= '
 		<script>
 			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
 		</script>';
 
 	$temp_data = array();
@@ -2129,7 +2125,6 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				$hookParsedData = get_hook_info_from_raw($rawFunc);
 
 				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
-				$file_name = isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : ((substr($hook, -8) === '_include') ? basename($rawFunc) : $hookParsedData['hookFile']);
 				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(

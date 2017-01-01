@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -99,19 +99,19 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 		{
-			list (, , $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
+			list (,, $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
-				list (, , $timeout) = safe_unserialize($_COOKIE[$cookiename]);
+				list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
-			list (, , $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
+			list (,, $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
 
 			// Try for old format
 			if (is_null($timeout))
-				list (, , $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+				list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
@@ -174,7 +174,7 @@ function Login2()
 
 	// Are you guessing with a script?
 	checkSession();
-	$tk = validateToken('login');
+	validateToken('login');
 	spamProtection('login');
 
 	// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -235,6 +235,14 @@ function Login2()
 	{
 		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
+	}
+
+
+	// Are we using any sort of integration to validate the login?
+	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, $modSettings['cookieTime'])), true))
+	{
+		$context['login_errors'] = array($txt['incorrect_password']);
+		return;
 	}
 
 	// Load the data up!
@@ -558,7 +566,6 @@ function DoLogin()
 	call_integration_hook('integrate_login', array($user_settings['member_name'], null, $modSettings['cookieTime']));
 
 	// Get ready to set the cookie...
-	$username = $user_settings['member_name'];
 	$user_info['id'] = $user_settings['id_member'];
 
 	// Bam!  Cookie set.  A session too, just in case.
@@ -754,7 +761,6 @@ function phpBB3_password_check($passwd, $passwd_hash)
 	// Tests
 	$strpos = strpos($range, $passwd_hash[3]);
 	$count = 1 << $strpos;
-	$count2 = $count;
 	$salt = substr($passwd_hash, 4, 8);
 
 	$hash = md5($salt . $passwd, true);

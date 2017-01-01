@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -402,7 +402,7 @@ function ModBlockNotes()
 			$note_owner = $smcFunc['db_num_rows']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
 
-			if(empty($note_owner))
+			if (empty($note_owner))
 				fatal_lang_error('mc_notes_delete_own', false);
 		}
 
@@ -585,7 +585,7 @@ function ModBlockGroupRequests()
 			'status_open' => 0,
 		)
 	);
-	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i ++)
+	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$context['group_requests'][] = array(
 			'id' => $row['id_request'],
@@ -735,7 +735,7 @@ function ReportedMembers()
 		$smcFunc['db_free_result']($request);
 
 		// Stick this in string format for consistency
-		$extra['member'] = (string)$extra['member'];
+		$extra['member'] = (string) $extra['member'];
 
 		// Tell the user about it.
 		$context['report_member_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
@@ -777,7 +777,7 @@ function ReportedMembers()
 					'extra' => array(
 						'report' => $reports['id_report'],
 						'membername' => $reports['membername'],
-						'member' => (string)$reports['id_member'],
+						'member' => (string) $reports['id_member'],
 					),
 				);
 			}
@@ -1073,7 +1073,7 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_warning'],
 				),
 				'data' => array(
-					'function' => function ($member) use ($scripturl)
+					'function' => function($member) use ($scripturl)
 					{
 						return allowedTo('issue_warning') ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
 					},
@@ -1118,7 +1118,7 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
-					'function' => function ($member) use ($scripturl)
+					'function' => function($member) use ($scripturl)
 					{
 						if ($member['last_post_id'])
 							return '<a href="' . $scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
@@ -1153,7 +1153,7 @@ function ViewWatchedUsers()
 		$listOptions['columns'] = array(
 			'posts' => array(
 				'data' => array(
-					'function' => function ($post)
+					'function' => function($post)
 					{
 						return template_user_watch_post_callback($post);
 					},
@@ -1393,7 +1393,7 @@ function ViewWarnings()
 
 	call_integration_hook('integrate_warning_log_actions', array(&$subActions));
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && (empty($subActions[$_REQUEST['sa']][1]) || allowedTo($subActions[$_REQUEST['sa']]))? $_REQUEST['sa'] : 'log';
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && (empty($subActions[$_REQUEST['sa']][1]) || allowedTo($subActions[$_REQUEST['sa']])) ? $_REQUEST['sa'] : 'log';
 
 	// Some of this stuff is overseas, so to speak.
 	loadTemplate('ModerationCenter');
@@ -1453,13 +1453,12 @@ function ViewWarningLog()
 	else
 		$search_params_type = $search_params['type'];
 
-	$search_params_column = $searchTypes[$search_params_type]['sql'];
 	$search_params = array(
 		'string' => $search_params_string,
 		'type' => $search_params_type,
 	);
 
-	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort='.  $context['order'];
+	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort=' . $context['order'];
 
 	// Setup the search context.
 	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(json_encode($search_params));
@@ -1528,7 +1527,7 @@ function ViewWarningLog()
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl, $txt)
+					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						$output = '
 							<div class="floatleft">
@@ -1564,7 +1563,7 @@ function ViewWarningLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					' . $txt['modlog_search'] .':
+					' . $txt['modlog_search'] . ':
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit">',
 				'class' => 'floatright',
@@ -1766,7 +1765,7 @@ function ViewWarningTemplates()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
 					},
@@ -2031,9 +2030,7 @@ function ModerationSettings()
 		'description' => $txt['mc_prefs_desc']
 	);
 
-	$mod_blocks = '';
 	$pref_binary = 5;
-	$show_reports = 0;
 
 	// Are we saving?
 	if (isset($_POST['save']))

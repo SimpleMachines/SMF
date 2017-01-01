@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -576,6 +576,8 @@ function Credits($in_admin = false)
 						// Lead Developer
 						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
+						'Colin Schoen',
+						'John &quot;live627&quot; Rayes',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -584,7 +586,6 @@ function Credits($in_admin = false)
 						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
-						'John &quot;live627&quot; Rayes',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Shitiz &quot;Dragooon&quot; Garg',
 						'Karl &quot;RegularExpression&quot; Benson',
@@ -639,7 +640,6 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Russell "NEND" Najar',
 						// Customizers
-						'Colin Schoen',
 						'Gary M. Gadsdon',
 						'Jason "JBlaze" Clemons',
 						'SA&#8482;',
@@ -673,6 +673,7 @@ function Credits($in_admin = false)
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						// Localizers
 						'Dr. Deejay',
+                        			'd3vcho',
 						// Former Localizers
 						'Relyana',
 					),

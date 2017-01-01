@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -47,7 +47,6 @@ function automanage_attachments_check_directory()
 
 	$year = date('Y');
 	$month = date('m');
-	$day = date('d');
 
 	$rand = md5(mt_rand());
 	$rand1 = $rand[1];
@@ -150,7 +149,7 @@ function automanage_attachments_create_directory($updir)
 	{
 		if (!@is_dir($directory))
 		{
-			if (!@mkdir($directory,0755))
+			if (!@mkdir($directory, 0755))
 			{
 				$context['dir_creation_error'] = 'attachments_no_create';
 				return false;
@@ -248,7 +247,7 @@ function automanage_attachments_by_space()
  *
  * @return array|bool An array of all the directories and subdirectories or false on failure
  */
-function get_directory_tree_elements ($directory)
+function get_directory_tree_elements($directory)
 {
 	/*
 		In Windows server both \ and / can be used as directory separators in paths
@@ -264,7 +263,7 @@ function get_directory_tree_elements ($directory)
 		if (substr($directory, 0, 1) != DIRECTORY_SEPARATOR)
 			return false;
 
-		$tree = explode(DIRECTORY_SEPARATOR, trim($directory,DIRECTORY_SEPARATOR));
+		$tree = explode(DIRECTORY_SEPARATOR, trim($directory, DIRECTORY_SEPARATOR));
 	}
 	return $tree;
 }
@@ -277,7 +276,7 @@ function get_directory_tree_elements ($directory)
  *
  * @return string|bool The first part of the path or false on error
  */
-function attachments_init_dir (&$tree, &$count)
+function attachments_init_dir(&$tree, &$count)
 {
 	$directory = '';
 	// If on Windows servers the first part of the path is the drive (e.g. "C:")
@@ -286,7 +285,7 @@ function attachments_init_dir (&$tree, &$count)
 		 //Better be sure that the first part of the path is actually a drive letter...
 		 //...even if, I should check this in the admin page...isn't it?
 		 //...NHAAA Let's leave space for users' complains! :P
-		if (preg_match('/^[a-z]:$/i',$tree[0]))
+		if (preg_match('/^[a-z]:$/i', $tree[0]))
 			$directory = array_shift($tree);
 		else
 			return false;
@@ -484,7 +483,7 @@ function attachmentChecks($attachID)
 	global $modSettings, $context, $sourcedir, $smcFunc;
 
 	// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
-	if ( empty($_SESSION['temp_attachments'][$attachID]))
+	if (empty($_SESSION['temp_attachments'][$attachID]))
 		$error = '$_SESSION[\'temp_attachments\'][$attachID]';
 
 	elseif (empty($attachID))
@@ -873,10 +872,8 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
+	global $board, $modSettings, $context, $scripturl, $smcFunc;
 
-	$attachContext = array();
-	$allAttachments = array();
 	$externalParse = false;
 
 	// Meh...
@@ -905,15 +902,14 @@ function parseAttachBBC($attachID = 0)
 		if (empty($allAttachments[0][$attachID]))
 			return 'attachments_no_data_loaded';
 
-		$attachContext = $allAttachments[0][$attachID];
 		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
 
 		// Fix the url to point out to showAvatar().
-		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID .';type=preview';
+		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
 
-		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID .';type=preview'. (empty($attachContext['is_image']) ? ';file' : '') .'">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
+		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
 
 		// Fix the thumbnail too, if the image has one.
 		if (!empty($attachContext['thumbnail']) && !empty($attachContext['thumbnail']['has_thumb']))
@@ -1078,7 +1074,7 @@ function getAttachsByMsg($msgID = 0)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				'. (!empty($msgID) ? 'AND a.id_msg = {int:message_id}' : '') .'',
+				'. (!empty($msgID) ? 'AND a.id_msg = {int:message_id}' : '') . '',
 			array(
 				'message_id' => $msgID,
 				'attachment_type' => 0,

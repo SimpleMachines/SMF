@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -69,7 +69,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '&nbsp;<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '&nbsp;<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
@@ -89,7 +89,7 @@ function template_permission_index()
 						<td ', $group['id'] == 1 || $group['id'] == -1 ? ' style="font-style: italic;"' : (!empty($group['num_permissions']['denied']) ? ' class="red"' : ''), '>', $group['num_permissions']['denied'], '</td>';
 
 		echo '
-						<td>', $group['allow_modify'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty($context['profile']) ? '' : ';pid=' . $context['profile']['id']) . '">' . ($context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view']). '</a>' : '', '</td>
+						<td>', $group['allow_modify'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty($context['profile']) ? '' : ';pid=' . $context['profile']['id']) . '">' . ($context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view']) . '</a>' : '', '</td>
 						<td class="centercol">', $group['allow_modify'] && $context['can_modify'] ? '<input type="checkbox" name="group[]" value="' . $group['id'] . '" class="input_check">' : '', '</td>
 					</tr>';
 	}
@@ -114,7 +114,7 @@ function template_permission_index()
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
 						<dt>
-							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'],'"></span></a>', $txt['permissions_apply_pre_defined'], ':
+							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>', $txt['permissions_apply_pre_defined'], ':
 						</dt>
 						<dd>
 							<select name="predefined">
@@ -593,7 +593,7 @@ function template_modify_group_display($type)
 					echo '
 						<tr class="windowbg">
 							<td>
-								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '', '
+								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">', $permission['name'], '</td><td>';
 
@@ -731,7 +731,7 @@ function template_inline_permissions()
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
 													<li>
-														<input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \''. $context['current_permission']. '[\');">
+														<input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \''. $context['current_permission'] . '[\');">
 														<span>', $txt['check_all'], '</span>
 													</li>
 												</ul>';

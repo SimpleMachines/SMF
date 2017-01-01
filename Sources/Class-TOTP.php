@@ -17,7 +17,7 @@ namespace TOTP;
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -114,7 +114,7 @@ class Auth
 	 */
 	public function setInitKey($key)
 	{
-		if (preg_match('/^['.implode('', array_keys($this->getLookup())).']+$/', $key) == false) {
+		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 		$this->initKey = $key;
@@ -247,7 +247,7 @@ class Auth
 		$initKey = ($initKey == null) ? $this->getInitKey() : $initKey;
 		$timestamp = ($timestamp == null) ? $this->generateTimestamp() : $timestamp;
 
-		$hash = hash_hmac (
+		$hash = hash_hmac(
 			'sha1',
 			pack('N*', 0) . pack('N*', $timestamp),
 			$initKey,
@@ -270,7 +270,7 @@ class Auth
 		$code = '';
 
 		for ($i = 0; $i < $length; $i++) {
-			$code .= $lookup[mt_rand(0, strlen($lookup)-1)];
+			$code .= $lookup[mt_rand(0, strlen($lookup) - 1)];
 		}
 
 		return $code;
@@ -283,7 +283,7 @@ class Auth
 	 */
 	public function generateTimestamp()
 	{
-		return floor(microtime(true)/$this->getRefresh());
+		return floor(microtime(true) / $this->getRefresh());
 	}
 
 	/**
@@ -297,10 +297,10 @@ class Auth
 		$offset = ord($hash[19]) & 0xf;
 
 		return (
-			((ord($hash[$offset+0]) & 0x7f) << 24 ) |
-			((ord($hash[$offset+1]) & 0xff) << 16 ) |
-			((ord($hash[$offset+2]) & 0xff) << 8 ) |
-			(ord($hash[$offset+3]) & 0xff)
+			((ord($hash[$offset + 0]) & 0x7f) << 24) |
+			((ord($hash[$offset + 1]) & 0xff) << 16) |
+			((ord($hash[$offset + 2]) & 0xff) << 8) |
+			(ord($hash[$offset + 3]) & 0xff)
 		) % pow(10, $this->getCodeLength());
 	}
 
@@ -315,7 +315,7 @@ class Auth
 	{
 		$lookup = $this->getLookup();
 
-		if (preg_match('/^['.implode('', array_keys($lookup)).']+$/', $hash) == false) {
+		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 

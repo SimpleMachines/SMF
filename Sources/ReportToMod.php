@@ -6,7 +6,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -252,10 +252,6 @@ function reportPost($msg, $reason)
 	$message = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$poster_name = un_htmlspecialchars($message['real_name']) . ($message['real_name'] != $message['poster_name'] ? ' (' . $message['poster_name'] . ')' : '');
-	$reporterName = un_htmlspecialchars($user_info['name']) . ($user_info['name'] != $user_info['username'] && $user_info['username'] != '' ? ' (' . $user_info['username'] . ')' : '');
-	$subject = un_htmlspecialchars($message['subject']);
-
 	$request = $smcFunc['db_query']('', '
 		SELECT id_report, ignore_all
 		FROM {db_prefix}log_reported
@@ -303,7 +299,7 @@ function reportPost($msg, $reason)
 			),
 			array(
 				$_POST['msg'], $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
-				$message['subject'], $message['body'] , time(), time(), 1, 0,
+				$message['subject'], $message['body'], time(), time(), 1, 0,
 			),
 			array('id_report')
 		);
@@ -377,7 +373,6 @@ function reportUser($id_member, $reason)
 	$smcFunc['db_free_result']($request);
 
 	$user_name = un_htmlspecialchars($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
-	$reporterName = un_htmlspecialchars($user_info['name']) . ($user_info['name'] != $user_info['username'] && $user_info['username'] != '' ? ' (' . $user_info['username'] . ')' : '');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_report, ignore_all

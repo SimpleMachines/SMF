@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -176,11 +176,11 @@ function UnapprovedPosts()
 		{
 			if ($curAction == 'approve')
 			{
-				approveMessages ($toAction, $details, $context['current_view']);
+				approveMessages($toAction, $details, $context['current_view']);
 			}
 			else
 			{
-				removeMessages ($toAction, $details, $context['current_view']);
+				removeMessages($toAction, $details, $context['current_view']);
 			}
 		}
 	}
@@ -437,7 +437,7 @@ function UnapprovedAttachments()
 					'value' => $txt['mc_unapproved_attach_poster'],
 				),
 				'data' => array(
-					'function' => function ($data)
+					'function' => function($data)
 					{
 						return $data['poster']['link'];
 					},
@@ -467,7 +467,7 @@ function UnapprovedAttachments()
 					'value' => $txt['post'],
 				),
 				'data' => array(
-					'function' => function ($data)
+					'function' => function($data)
 					{
 						return '<a href="' . $data['message']['href'] . '">' . shorten_subject($data['message']['subject'], 20) . '</a>';
 					},
@@ -693,7 +693,7 @@ function ApproveMessage()
 			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 	}
 
-	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg']. '#msg' . $_REQUEST['msg']);
+	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg']);
 }
 
 /**

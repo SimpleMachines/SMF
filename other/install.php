@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -62,7 +62,7 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => function(&$value){
+		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
 		},
@@ -79,7 +79,7 @@ $databases = array(
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
-		'validate_prefix' => function(&$value){
+		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
@@ -254,8 +254,21 @@ function initialize_inputs()
 	// PHP 5 might cry if we don't do this now.
 	if (function_exists('date_default_timezone_set'))
 	{
-		$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
-		date_default_timezone_set('Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600));
+		// Get PHP's default timezone, if set
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
+		else
+			$timezone_id = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($timezone_id, timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+		}
+
+		date_default_timezone_set($timezone_id);
 	}
 
 	// Force an integer step, defaulting to 0.
@@ -458,10 +471,7 @@ function Welcome()
 				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
 			}
 			else
-			{
-				$db_type = $key;
 				$incontext['supported_databases'][] = $db;
-			}
 		}
 	}
 
@@ -741,7 +751,7 @@ function DatabaseSettings()
 	if (isset($_POST['db_user']))
 	{
 		$incontext['db']['user'] = $_POST['db_user'];
-		$incontext['db']['name'] =  $_POST['db_name'];
+		$incontext['db']['name'] = $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 
@@ -1029,7 +1039,7 @@ function DatabasePopulation()
 	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
 	if (!empty($db_character_set) && $db_character_set == 'utf8' && !empty($databases[$db_type]['utf8_support']))
 		$smcFunc['db_query']('', '
-			SET NAMES {'. ($db_type == 'postgresql' ? 'string' : 'raw') . ':utf8}',
+			SET NAMES {string:utf8}',
 			array(
 				'db_error_skip' => true,
 				'utf8' => 'utf8',
@@ -1144,7 +1154,7 @@ function DatabasePopulation()
 		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), $db_connection) === false)
 		{
 			// Use the appropriate function based on the DB type
-			if ($db_type == 'mysql' || $db_type =='mysqli')
+			if ($db_type == 'mysql' || $db_type == 'mysqli')
 				$db_errorno = $db_type . '_errno';
 
 			// Error 1050: Table already exists!
@@ -1245,11 +1255,23 @@ function DatabasePopulation()
 	if (!empty($_POST['force_ssl']))
 		$newSettings[] = array('force_ssl', 2);
 
-	// As of PHP 5.1, setting a timezone is required.
+	// Setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
-		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
-		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
+		// Get PHP's default timezone, if set
+		$ini_tz = ini_get('date.timezone');
+		if (!empty($ini_tz))
+			$timezone_id = $ini_tz;
+		else
+			$timezone_id = '';
+
+		// If date.timezone is unset, invalid, or just plain weird, make a best guess
+		if (!in_array($timezone_id, timezone_identifiers_list()))
+		{	
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+		}
+
 		if (date_default_timezone_set($timezone_id))
 			$newSettings[] = array('default_timezone', $timezone_id);
 	}
@@ -1333,8 +1355,7 @@ function AdminAccount()
 	require_once($sourcedir . '/Subs.php');
 
 	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string){
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string) {
 			global $sourcedir;
 			if (function_exists('mb_strtolower'))
 				return mb_strtolower($string, 'UTF-8');
@@ -1527,7 +1548,7 @@ function DeleteInstall()
 
 	if (!empty($db_character_set) && !empty($databases[$db_type]['utf8_support']))
 		$smcFunc['db_query']('', '
-			SET NAMES {raw:db_character_set}',
+			SET NAMES {string:db_character_set}',
 			array(
 				'db_character_set' => $db_character_set,
 				'db_error_skip' => true,
@@ -1627,7 +1648,7 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version;  // The variable is usually defined in index.php so lets just use our variable to do it for us.
+		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
@@ -1801,9 +1822,9 @@ function template_install_above()
 		<title>', $txt['smf_installer'], '</title>
 		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
 
-		<script src="Themes/default/scripts/jquery-2.1.3.min.js"></script>
+		<script src="Themes/default/scripts/jquery-2.1.4.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body><div id="footerfix">

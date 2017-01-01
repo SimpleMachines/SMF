@@ -448,13 +448,13 @@ ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
-	ALTER COLUMN session type varchar(64);
+	ALTER COLUMN session type varchar(128);
 
 	ALTER TABLE {$db_prefix}log_errors
-	ALTER COLUMN session type varchar(64);
+	ALTER COLUMN session type varchar(128);
 
 	ALTER TABLE {$db_prefix}sessions
-	ALTER COLUMN session_id type varchar(64);");
+	ALTER COLUMN session_id type varchar(128);");
 
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
@@ -2180,6 +2180,45 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 ---#
 
 /******************************************************************************/
+--- Adding support for start and end times on calendar events
+/******************************************************************************/
+---# Add start_time end_time, and timezone columns to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN start_time time,
+ADD COLUMN end_time time,
+ADD COLUMN timezone VARCHAR(80);
+---#
+
+---# Update cal_maxspan and drop obsolete cal_allowspan setting
+---{
+	if (!isset($modSettings['cal_allowspan']))
+		$cal_maxspan = 0;
+	elseif ($modSettings['cal_allowspan'] == false)
+		$cal_maxspan = 1;
+	else
+		$cal_maxspan = ($modSettings['cal_maxspan'] > 1) ? $modSettings['cal_maxspan'] : 0;
+
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = '$cal_maxspan'
+		WHERE variable = 'cal_maxspan'");
+
+	if (isset($modSettings['cal_allowspan']))
+		upgrade_query("
+			DELETE FROM {$db_prefix}settings
+			WHERE variable = 'cal_allowspan'");
+---}
+---#
+
+/******************************************************************************/
+--- Adding location support for calendar events
+/******************************************************************************/
+---# Add location column to calendar table
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
 --- Update index for like search
 /******************************************************************************/
 ---# Change index for table log_packages
@@ -2208,12 +2247,19 @@ DROP INDEX IF EXISTS {$db_prefix}admin_info_files_filename;
 CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename varchar_pattern_ops);
 ---#
 
----# Change index for table boards 
+---# Change index for table boards
 DROP INDEX IF EXISTS {$db_prefix}boards_member_groups;
 CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
 ---#
 
----# Change index for table log_comments 
+---# Change index for table log_comments
 DROP INDEX IF EXISTS {$db_prefix}log_comments_comment_type;
 CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type varchar_pattern_ops);
+---#
+
+/******************************************************************************/
+--- drop col pm_email_notify from members
+/******************************************************************************/
+---# drop column pm_email_notify on table members
+ALTER TABLE {$db_prefix}members DROP COLUMN IF EXISTS pm_email_notify;
 ---#

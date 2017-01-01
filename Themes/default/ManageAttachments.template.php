@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -176,7 +176,7 @@ function template_maintenance()
 					}
 
 					function show_msg() {
-						$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', $txt['ajax_in_progress'], '" width="35" height="35">&nbsp; ', $txt['attachment_transfer_progress'] , '<\/div>\');
+						$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', $txt['ajax_in_progress'], '" width="35" height="35">&nbsp; ', $txt['attachment_transfer_progress'], '<\/div>\');
 						show_progress();
 					}
 

@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -424,7 +424,7 @@ class xmlArray
 			if ((!isset($match[3]) || trim($match[3]) != '/') && (!isset($match[2]) || trim($match[2]) != '/'))
 			{
 				// Because PHP 5.2.0+ seems to croak using regex, we'll have to do this the less fun way.
-				$last_tag_end = strpos($data, '</' . $match[1]. '>');
+				$last_tag_end = strpos($data, '</' . $match[1] . '>');
 				if ($last_tag_end === false)
 					continue;
 
@@ -438,7 +438,7 @@ class xmlArray
 						break;
 
 					// If not then find the next ending tag.
-					$next_tag_end = strpos($data, '</' . $match[1]. '>', $offset);
+					$next_tag_end = strpos($data, '</' . $match[1] . '>', $offset);
 
 					// Didn't find one? Then just use the last and sod it.
 					if ($next_tag_end === false)
@@ -452,7 +452,7 @@ class xmlArray
 				// Parse the insides.
 				$inner_match = substr($data, 0, $last_tag_end);
 				// Data now starts from where this section ends.
-				$data = substr($data, $last_tag_end + strlen('</' . $match[1]. '>'));
+				$data = substr($data, $last_tag_end + strlen('</' . $match[1] . '>'));
 
 				if (!empty($inner_match))
 				{
@@ -618,7 +618,7 @@ class xmlArray
 		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
 
 		// Translate all the entities out.
-		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function ($m)
+		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function($m)
 		{
 			return chr("$m[1]");
 		}, $data), $trans_tbl);
@@ -873,7 +873,7 @@ class ftp_connection
 		// Set different modes.
 		$chmod_values = $is_dir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
 
-		foreach($chmod_values as $val)
+		foreach ($chmod_values as $val)
 		{
 			// If it's writable, break out of the loop.
 			if (is_writable($ftp_file))

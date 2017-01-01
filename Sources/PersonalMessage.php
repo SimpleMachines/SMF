@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -342,9 +342,6 @@ function messageIndexBar($area)
 
 	require_once($sourcedir . '/Subs-Menu.php');
 
-	// What page is this, again?
-	$current_page = $scripturl . '?action=pm' . (!empty($_REQUEST['sa']) ? ';sa=' . $_REQUEST['sa'] : '') . (!empty($context['folder']) ? ';f=' . $context['folder'] : '') . (!empty($context['current_label_id']) ? ';l=' . $context['current_label_id'] : '');
-
 	// Set a few options for the menu.
 	$menuOptions = array(
 		'current_area' => $area,
@@ -619,7 +616,7 @@ function MessageFolder()
 					FROM {db_prefix}pm_recipients AS pmr' . ($context['display_mode'] == 2 ? '
 						INNER JOIN {db_prefix}personal_messages AS pm ON (pm.id_pm = pmr.id_pm)' : '') . $labelJoin . '
 					WHERE pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:not_deleted}' . $labelQuery .  $labelQuery2 . '
+						AND pmr.deleted = {int:not_deleted}' . $labelQuery . $labelQuery2 . '
 						AND pmr.id_pm ' . ($descending ? '>' : '<') . ' {int:id_pm}',
 					array(
 						'current_member' => $user_info['id'],
@@ -682,12 +679,12 @@ function MessageFolder()
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
 					AND pmr.id_member = {int:current_member}
 					AND pmr.deleted = {int:deleted_by}
-					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
+					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ('
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
 				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
 					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
 					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ','.$_GET['sort'] : '').'
+				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
 				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
 				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
@@ -711,7 +708,7 @@ function MessageFolder()
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
 					AND pmr.id_member = {int:current_member}
 					AND pmr.deleted = {int:is_deleted}
-					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
+					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ('
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
 			WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {raw:current_member}
 				AND pm.deleted_by_sender = {int:is_deleted}' : '1=1') . (empty($pmsg) ? '' : '
@@ -848,7 +845,7 @@ function MessageFolder()
 					)
 				);
 
-				while($row2 = $smcFunc['db_fetch_assoc']($request2))
+				while ($row2 = $smcFunc['db_fetch_assoc']($request2))
 				{
 					$l_id = $row2['id_label'];
 					if (isset($context['labels'][$l_id]))
@@ -1626,7 +1623,7 @@ function MessageSearch2()
 					)
 				);
 
-				while($row2 = $smcFunc['db_fetch_assoc']($request2))
+				while ($row2 = $smcFunc['db_fetch_assoc']($request2))
 				{
 					$l_id = $row2['id_label'];
 					if (isset($context['labels'][$l_id]))
@@ -2561,7 +2558,6 @@ function MessageActionsApply()
 
 	$to_delete = array();
 	$to_label = array();
-	$to_unlabel = array();
 	$label_type = array();
 	$labels = array();
 	foreach ($_REQUEST['pm_actions'] as $pm => $action)
@@ -2598,8 +2594,6 @@ function MessageActionsApply()
 	// Are we labeling anything?
 	if (!empty($to_label) && $context['folder'] == 'inbox')
 	{
-		$updateErrors = 0;
-
 		// Are we dealing with conversation view? If so, get all the messages in each conversation
 		if ($context['display_mode'] == 2)
 		{
@@ -3723,7 +3717,7 @@ function ManageRules()
 	// Editing a specific one?
 	if (isset($_GET['add']))
 	{
-		$context['rid'] = isset($_GET['rid']) && isset($context['rules'][$_GET['rid']])? (int) $_GET['rid'] : 0;
+		$context['rid'] = isset($_GET['rid']) && isset($context['rules'][$_GET['rid']]) ? (int) $_GET['rid'] : 0;
 		$context['sub_template'] = 'add_rule';
 
 		// Current rule information...
@@ -3764,7 +3758,7 @@ function ManageRules()
 	elseif (isset($_GET['save']))
 	{
 		checkSession();
-		$context['rid'] = isset($_GET['rid']) && isset($context['rules'][$_GET['rid']])? (int) $_GET['rid'] : 0;
+		$context['rid'] = isset($_GET['rid']) && isset($context['rules'][$_GET['rid']]) ? (int) $_GET['rid'] : 0;
 
 		// Name is easy!
 		$ruleName = $smcFunc['htmlspecialchars'](trim($_POST['rule_name']));

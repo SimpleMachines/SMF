@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -218,7 +218,8 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
 	{
 		$array = debug_backtrace();
-		for ($i = 0; $i < count($array); $i++)
+		$count = count($array);
+		for ($i = 0; $i < $count; $i++)
 		{
 			if ($array[$i]['function'] != 'loadSubTemplate')
 				continue;

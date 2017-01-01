@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -1557,7 +1557,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 		echo '
 				</dl>', ($return['allow_view_results'] ? '
-				<strong>'. $txt['poll_total_voters'] .': '. $return['total_votes'] .'</strong>' : ''), '
+				<strong>'. $txt['poll_total_voters'] . ': ' . $return['total_votes'] . '</strong>' : ''), '
 			</div>';
 	}
 }
@@ -2083,7 +2083,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 				echo '
-						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
 			}
 
 			echo '
@@ -2118,6 +2118,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
+			cal.start_time, cal.end_time, cal.timezone, cal.location,
 			cal.id_board, t.id_first_msg, t.approved
 		FROM {db_prefix}calendar AS cal
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
@@ -2152,15 +2153,22 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		if (!empty($row['id_first_msg']) && !$row['approved'])
 			$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
 
+		$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
+
 		$return[$date][] = array(
 			'id' => $row['id_event'],
 			'title' => $row['title'],
+			'location' => $row['location'],
 			'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 			'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 			'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 			'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 			'start_date' => $row['start_date'],
 			'end_date' => $row['end_date'],
+			'start_time' => !$allday ? $row['start_time'] : null,
+			'end_time' => !$allday ? $row['end_time'] : null,
+			'tz' => !$allday ? $row['timezone'] : null,
+			'allday' => $allday,
 			'is_last' => false
 		);
 
@@ -2287,7 +2295,7 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 			),
 			'file' => array(
 				'filename' => $filename,
-				'filesize' => round($row['filesize'] /1024, 2) . $txt['kilobyte'],
+				'filesize' => round($row['filesize'] / 1024, 2) . $txt['kilobyte'],
 				'downloads' => $row['downloads'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
 				'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',

@@ -15,7 +15,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -112,7 +112,7 @@ function ReportsMain()
 	// Build the reports button array.
 	$context['report_buttons'] = array(
 		'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'url' => $scripturl . '?action=admin;area=reports', 'active' => true),
-		'print' => array('text' => 'print', 'image' => 'print.png', 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type']. ';st=print', 'custom' => 'target="_blank"'),
+		'print' => array('text' => 'print', 'image' => 'print.png', 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type'] . ';st=print', 'custom' => 'target="_blank"'),
 	);
 
 	// Allow mods to add additional buttons here
@@ -215,7 +215,7 @@ function BoardReport()
 			'text_none' => $txt['none'],
 		)
 	);
-	$boards = array(0 => array('name' => $txt['global_boards']));
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Each board has it's own table.
@@ -344,7 +344,7 @@ function BoardPermissionsReport()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_board, id_group
 		FROM {db_prefix}moderator_groups
-		WHERE ' . $board_clause .' AND ' . $group_clause,
+		WHERE ' . $board_clause . ' AND ' . $group_clause,
 		array(
 		)
 	);
@@ -444,9 +444,6 @@ function BoardPermissionsReport()
 		// Here cycle through all the detected permissions.
 		foreach ($permissions as $ID_PERM => $perm_info)
 		{
-			// Is this identical to the global?
-			$identicalGlobal = $board == 0 ? false : true;
-
 			// Default data for this row.
 			$curData = array('col' => $perm_info['title']);
 

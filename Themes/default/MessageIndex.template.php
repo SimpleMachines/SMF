@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -44,7 +44,7 @@ function template_main()
 					<div class="info">
 						<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
 							', $board['name'], '
-							<p class="board_description mobile_display">', $board['description'] , '</p>
+							<p class="board_description mobile_display">', $board['description'], '</p>
 						</a>';
 
 			// Has it outstanding posts for approval?
@@ -53,7 +53,7 @@ function template_main()
 						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 			echo '
-						<p class="board_description">', $board['description'] , '</p>';
+						<p class="board_description">', $board['description'], '</p>';
 
 			// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 			if (!empty($board['moderators']) || !empty($board['moderator_groups']))
@@ -119,7 +119,7 @@ function template_main()
 	// Mobile action buttons (top)
 	echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 		</div>';
 
 		echo '
@@ -219,7 +219,7 @@ function template_main()
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
 				</div>
-					<div class="info', !empty($context['can_quick_mod']) ? '' : ' info_block','">
+					<div class="info', !empty($context['can_quick_mod']) ? '' : ' info_block', '">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
 			// Now we handle the icons
@@ -251,7 +251,7 @@ function template_main()
 								</span>
 							</div>
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
-							', !empty($topic['pages']) ? '<span id="pages'. $topic['first_post']['id']. '" class="topic_pages">&nbsp;'. $topic['pages']. '</span>' : '','
+							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">&nbsp;' . $topic['pages'] . '</span>' : '', '
 							<br class="clear">
 						</div>
 					</div>
@@ -305,7 +305,7 @@ function template_main()
 			foreach ($context['qmod_actions'] as $qmod_action)
 				if ($context['can_' . $qmod_action])
 					echo '
-						<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+						<option value="' . $qmod_action . '">' . $txt['quick_mod_' . $qmod_action] . '</option>';
 
 			echo '
 					</select>';
@@ -332,7 +332,7 @@ function template_main()
 	// Mobile action buttons (bottom)
 	echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 		</div>';
 
 		echo '
@@ -382,7 +382,7 @@ function template_main()
 	echo '
 			<div id="mobile_action" class="popup_container">
 				<div class="popup_window description">
-					<div class="popup_heading">', $txt['mobile_action'],'
+					<div class="popup_heading">', $txt['mobile_action'], '
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					', template_button_strip($context['normal_buttons']), '
 				</div>

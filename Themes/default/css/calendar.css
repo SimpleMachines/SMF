@@ -168,14 +168,14 @@ td.days:hover {
 }
 #main_grid tr:not(.days_wrapper) th,
 #main_grid tr:not(.days_wrapper) td {
-	height: 30px;
+    min-height: 30px;
 }
-#post_event {
+#main_grid td.calendar_base {
 	background: #e7eaef;
 	text-align: center;
 }
 #calendar_navigation {
-	margin-top: 8px;
+    margin-top: 8px;
 }
 #main_grid .act_day {
 	font-size: 12pt;
@@ -195,10 +195,10 @@ td.week_post {
 	vertical-align: middle !important;
 }
 div.week_add_event {
-	text-align: center;
+	/* text-align: center; */
 }
 div.week_add_event > a {
-	font-size: x-large;
+	/* font-size: x-large; */
 	color: #999;
 }
 div.week_add_event > a:hover {
@@ -232,6 +232,25 @@ span.hidelink {
 .modify_event:hover {
 	text-decoration: none;
 }
+.modify_event_links {
+	float: right;
+}
+.event_wrapper:not(:last-child) {
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #ddd;
+}
+.event_time, .event_location {
+	color: #777;
+}
+.post_event_link {
+	vertical-align: middle;
+	height: 18px;
+	display: inline-block;
+}
+.active_post_event {
+	margin-top: 1em;
+}
 
 /* Break long words in calendar table cells to avoid layout problems */
 #main_grid table td.days {
@@ -261,16 +280,16 @@ span.hidelink {
 	#main_grid tr {
 		margin-bottom: 1em;
 	}
-	#main_grid tr:not(.days_wrapper) {
+	#main_grid tr:first-of-type {
 		display: none;
 	}
-	#main_grid .days_wrapper {
+	#main_grid tr:not(:first-of-type) {
 		display: block;
 	}
 	#main_grid td {
 		display: block;
 	}
-	
+
 	#main_grid .calendar_table .days {
 		margin-top: 0;
 		height: auto;
@@ -287,7 +306,7 @@ span.hidelink {
 	#main_grid .calendar_table .weeks {
 		margin-top: 0;
 	}
-	
+
 	#main_grid .calendar_week tr {
 		border: 1px solid #ddd !important;
 	}
@@ -296,17 +315,10 @@ span.hidelink {
 		height: auto;
 		border: none !important;
 	}
-	#main_grid .calendar_week .event_col:before {
-		content: "Events: ";
-	}
-	#main_grid .calendar_week .holiday_col:before {
-		content: "Holidays: ";
-	}
+	#main_grid .calendar_week .event_col:before,
+	#main_grid .calendar_week .holiday_col:before,
 	#main_grid .calendar_week .birthday_col:before {
-		content: "Birthdays: ";
-	}
-	#main_grid .calendar_week .event_col:empty:before {
-		content: "Events: None";
+		content: attr(data-css-prefix);
 	}
 	#main_grid .calendar_week .holiday_col:empty {
 		display: none;
@@ -320,5 +332,14 @@ span.hidelink {
 	div.week_add_event > a {
 		font-size: 1em;
 		text-decoration: underline;
+	}
+	#main_grid .buttonlist {
+		margin: 2px;
+		padding: 0;
+	}
+	#calendar_navigation {
+		float: left;
+		margin: 3px 2px;
+		padding: 0;
 	}
 }

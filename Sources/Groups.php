@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2016 Simple Machines and individual contributors
+ * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 3
@@ -96,7 +96,7 @@ function GroupList()
 					'value' => $txt['name'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						// Since the moderator group has no explicit members, no link is needed.
 						if ($rowData['id_group'] == 3)
@@ -146,7 +146,7 @@ function GroupList()
 					'value' => $txt['moderators'],
 				),
 				'data' => array(
-					'function' => function ($group) use ($txt)
+					'function' => function($group) use ($txt)
 					{
 						return empty($group['moderators']) ? '<em>' . $txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
 					},
@@ -157,7 +157,7 @@ function GroupList()
 					'value' => $txt['membergroups_members_top'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// No explicit members for the moderator group.
 						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
@@ -745,7 +745,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (empty($row['reason']))
-			$reason = '<em>(' . $txt['mc_groupr_no_reason'] .  ')</em>';
+			$reason = '<em>(' . $txt['mc_groupr_no_reason'] . ')</em>';
 		else
 			$reason = censorText($row['reason']);
 
