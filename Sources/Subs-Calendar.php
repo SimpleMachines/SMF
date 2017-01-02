@@ -906,15 +906,13 @@ function insertEvent(&$eventOptions)
 	call_integration_hook('integrate_create_event', array(&$eventOptions, &$event_columns, &$event_parameters));
 
 	// Insert the event!
-	$smcFunc['db_insert']('',
+	$eventOptions['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}calendar',
 		$event_columns,
 		$event_parameters,
-		array('id_event')
+		array('id_event'),
+		1
 	);
-
-	// Store the just inserted id_event for future reference.
-	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
 
 	// If this isn't tied to a topic, we need to notify people about it.
 	if (empty($eventOptions['topic']))

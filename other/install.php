@@ -1478,7 +1478,7 @@ function AdminAccount()
 
 			$_POST['password1'] = hash_password(stripslashes($_POST['username']), stripslashes($_POST['password1']));
 
-			$request = $smcFunc['db_insert']('',
+			$incontext['member_id'] = $smcFunc['db_insert']('',
 				$db_prefix . 'members',
 				array(
 					'member_name' => 'string-25', 'real_name' => 'string-25', 'passwd' => 'string', 'email_address' => 'string',
@@ -1498,18 +1498,9 @@ function AdminAccount()
 					'', '', '',
 					'', '',
 				),
-				array('id_member')
+				array('id_member'),
+				1
 			);
-
-			// Awww, crud!
-			if ($request === false)
-			{
-				$incontext['error'] = $txt['error_user_settings_query'] . '<br>
-				<div style="margin: 2ex;">' . nl2br(htmlspecialchars($smcFunc['db_error']($db_connection))) . '</div>';
-				return false;
-			}
-
-			$incontext['member_id'] = $smcFunc['db_insert_id']("{$db_prefix}members", 'id_member');
 		}
 
 		// If we're here we're good.

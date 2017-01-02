@@ -808,7 +808,7 @@ function removeMessage($message, $decreasePostCount = true)
 
 		// Insert a new topic in the recycle board if $id_recycle_topic is empty.
 		if (empty($id_recycle_topic))
-			$smcFunc['db_insert']('',
+			$id_topic = $smcFunc['db_insert']('',
 				'{db_prefix}topics',
 				array(
 					'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
@@ -818,11 +818,12 @@ function removeMessage($message, $decreasePostCount = true)
 					$modSettings['recycle_board'], $row['id_member'], $row['id_member'], $message,
 					$message, 0, 1, $row['id_topic'],
 				),
-				array('id_topic')
+				array('id_topic'),
+				1
 			);
 
 		// Capture the ID of the new topic...
-		$topicID = empty($id_recycle_topic) ? $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic') : $id_recycle_topic;
+		$topicID = empty($id_recycle_topic) ? $id_topic : $id_recycle_topic;
 
 		// If the topic creation went successful, move the message.
 		if ($topicID > 0)

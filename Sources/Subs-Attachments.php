@@ -700,7 +700,7 @@ function createAttachment(&$attachmentOptions)
 	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
 		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 
-	$smcFunc['db_insert']('',
+	$attachmentOptions['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
 			'id_folder' => 'int', 'id_msg' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-40', 'fileext' => 'string-8',
@@ -712,9 +712,9 @@ function createAttachment(&$attachmentOptions)
 			(int) $attachmentOptions['size'], (empty($attachmentOptions['width']) ? 0 : (int) $attachmentOptions['width']), (empty($attachmentOptions['height']) ? '0' : (int) $attachmentOptions['height']),
 			(!empty($attachmentOptions['mime_type']) ? $attachmentOptions['mime_type'] : ''), (int) $attachmentOptions['approved'],
 		),
-		array('id_attach')
+		array('id_attach'),
+		1
 	);
-	$attachmentOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 
 	// Attachment couldn't be created.
 	if (empty($attachmentOptions['id']))
@@ -792,7 +792,7 @@ function createAttachment(&$attachmentOptions)
 			}
 
 			// To the database we go!
-			$smcFunc['db_insert']('',
+			$attachmentOptions['thumb'] = $smcFunc['db_insert']('',
 				'{db_prefix}attachments',
 				array(
 					'id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-40', 'fileext' => 'string-8',
@@ -802,9 +802,9 @@ function createAttachment(&$attachmentOptions)
 					$modSettings['currentAttachmentUploadDir'], (int) $attachmentOptions['post'], 3, $thumb_filename, $thumb_file_hash, $attachmentOptions['fileext'],
 					$thumb_size, $thumb_width, $thumb_height, $thumb_mime, (int) $attachmentOptions['approved'],
 				),
-				array('id_attach')
+				array('id_attach'),
+				1
 			);
-			$attachmentOptions['thumb'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 
 			if (!empty($attachmentOptions['thumb']))
 			{
@@ -1193,14 +1193,14 @@ function loadAttachmentContext($id_msg, $attachments)
 						$thumb_hash = getAttachmentFilename($thumb_filename, false, null, true);
 
 						// Add this beauty to the database.
-						$smcFunc['db_insert']('',
+						$attachment['id_thumb'] = $smcFunc['db_insert']('',
 							'{db_prefix}attachments',
 							array('id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'size' => 'int', 'width' => 'int', 'height' => 'int', 'fileext' => 'string', 'mime_type' => 'string'),
 							array($id_folder_thumb, $id_msg, 3, $thumb_filename, $thumb_hash, (int) $thumb_size, (int) $attachment['thumb_width'], (int) $attachment['thumb_height'], $thumb_ext, $thumb_mime),
-							array('id_attach')
+							array('id_attach'),
+							1
 						);
 						$old_id_thumb = $attachment['id_thumb'];
-						$attachment['id_thumb'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 						if (!empty($attachment['id_thumb']))
 						{
 							$smcFunc['db_query']('', '
