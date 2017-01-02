@@ -86,7 +86,7 @@ class sqlite_cache extends cache_api
 
 		$ttl		= $this->cacheTime + $ttl;
 		$query	= 'REPLACE INTO cache VALUES (\''.$this->cacheDB->escapeString($key).'\', \''.$this->cacheDB->escapeString($value).'\', '.$this->cacheDB->escapeString($ttl).');';
-		$result	= $this->cacheDB->query($query);
+		$result	= $this->cacheDB->exec($query);
 
 		return $result;
 	}
@@ -98,7 +98,7 @@ class sqlite_cache extends cache_api
 	{
 
 		$query	= 'DELETE FROM cache;';
-		$result	= $this->cacheDB->query($query);
+		$result	= $this->cacheDB->exec($query);
 
 		return $result;
 
