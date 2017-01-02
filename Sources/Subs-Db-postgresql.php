@@ -654,11 +654,10 @@ function smf_db_unescape_string($string)
  * @param array $data The data to insert
  * @param array $keys The keys for the table
  * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
- * @param bool $disable_trans Whether to disable transactions
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return value of the first key, behavior based on returnmode
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $disable_trans = false, $connection = null)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
@@ -674,13 +673,6 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-
-	$priv_trans = false;
-	if ((count($data) > 1 || $method == 'replace') && !$db_in_transact && !$disable_trans)
-	{
-		$smcFunc['db_transaction']('begin', $connection);
-		$priv_trans = true;
-	}
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace')
@@ -827,9 +819,6 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			}
 		}
 	}
-
-	if ($priv_trans)
-		$smcFunc['db_transaction']('commit', $connection);
 	
 	if ($with_returning && !empty($return_var))
 		return $return_var; 
