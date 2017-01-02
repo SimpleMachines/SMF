@@ -2,35 +2,46 @@
 html, p, code:before, table {
 	margin: 0;
 	padding: 0;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: #111;
 }
 html {
 	height: 100%;
+
+	/* Needed for iOS scrolling bug fix */
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
 body {
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+	/* Needed for iOS scrolling bug fix */
 	position: relative;
+	overflow: auto;
+
+	/* Needed to make sure body covers the whole editor and that
+		long lines don't cause horizontal scrolling */
 	min-height: 100%;
 	word-wrap: break-word;
-	overflow: auto;
-	margin: 0 5px;
-	padding: 0;
+    margin: 0 5px;
+    padding: 0;
 }
-ol, ul {
+
+ul, ol {
 	margin-top: 0;
 	margin-bottom: 0;
 	padding-top: 0;
 	padding-bottom: 0;
 }
-table,td {
+
+table, td {
 	border: 1px dotted #000;
 	empty-cells: show;
 }
+
 code:before {
 	position: absolute;
 	content: 'Code:';
-	top: -1.65em;
+	top: -1.35em;
 	left: 0;
 }
 code {
@@ -40,15 +51,16 @@ code {
 	border: 1px solid #aaa;
 	white-space: pre;
 	padding: .25em;
+	display: block;
 }
 .ie6 code, .ie7 code {
 	margin-top: 0;
 }
-code, code:before {
+code:before, code {
 	display: block;
 	text-align: left;
-	direction: ltr;
 }
+
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
@@ -63,13 +75,17 @@ blockquote cite {
 	border-bottom: 1px solid #aaa;
 	font-size: 0.9em;
 }
+
 blockquote cite:before {
 	color: #aaa;
 	font-size: 22px;
 	font-style: normal;
 	content: '\275D';
 	margin-right: 5px;
+	vertical-align: middle;
 }
+
+/* Prevent empty paragraphs from collapsing */
 div, p {
 	min-height: 1.25em;
 }

@@ -2752,7 +2752,7 @@ function package_put_contents($filename, $data, $testing = false)
 }
 
 /**
- * Clears (removes the files) the current package cache (temp directory)
+ * Flushes the cache from memory to the filesystem
  *
  * @param bool $trash
  */
@@ -2778,7 +2778,8 @@ function package_flush_cache($trash = false)
 		$result = package_chmod($filename);
 
 		// if we are not doing our test pass, then lets do a full write check
-		if (!$trash)
+		// bypass directories when doing this test
+		if ((!$trash) && !is_dir($filename))
 		{
 			// acid test, can we really open this file for writing?
 			$fp = ($result) ? fopen($filename, 'r+') : $result;
@@ -2798,11 +2799,16 @@ function package_flush_cache($trash = false)
 		return;
 	}
 
+	// Write the cache to disk here.
+	// Bypass directories when doing so - no data to write & the fopen will crash.
 	foreach ($package_cache as $filename => $data)
 	{
-		$fp = fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
-		fwrite($fp, $data);
-		fclose($fp);
+		if (!is_dir($filename)) 
+		{
+			$fp = fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
+			fwrite($fp, $data);
+			fclose($fp);
+		}
 	}
 
 	$package_cache = array();

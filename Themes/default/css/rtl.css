@@ -410,9 +410,6 @@ dl.register_form dt {
 
 /* Styles for maintenance mode.
 ------------------------------------------------------- */
-#maintenance_mode {
-	text-align: right;
-}
 #maintenance_mode img.floatleft {
 	margin-left: 1em;
 }

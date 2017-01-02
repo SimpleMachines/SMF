@@ -185,6 +185,22 @@ $txt['setting_image_verification_medium'] = 'Medium - Overlapping colored letter
 $txt['setting_image_verification_high'] = 'High - Angled letters, considerable noise/lines';
 $txt['setting_image_verification_extreme'] = 'Extreme - Angled letters, noise, lines and blocks';
 $txt['setting_image_verification_sample'] = 'Sample';
+
+// reCAPTCHA
+$txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
+$txt['recaptcha_configure_desc'] = 'Configurre the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
+$txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
+$txt['recaptcha_theme'] = 'reCAPTCHA Theme';
+$txt['recaptcha_theme_light'] = 'Light';
+$txt['recaptcha_theme_dark'] = 'Dark';
+$txt['recaptcha_site_key'] = 'Site Key';
+$txt['recaptcha_site_key_desc'] = 'This will be set in the HTML code your site serves to users.';
+$txt['recaptcha_secret_key'] = 'Secret Key';
+$txt['recaptcha_secret_key_desc'] = 'This is for communication between your site and Google. Be sure to keep it a secret.';
+$txt['recaptcha_no_key_question'] = 'Don\'t have a key for reCAPTCHA?';
+$txt['recaptcha_get_key'] = 'Get your reCAPTCHA key here.';
+
 $txt['setting_image_verification_nogd'] = '<strong>Note:</strong> as this server does not have the GD library installed the different complexity settings will have no effect.';
 $txt['setup_verification_questions'] = 'Verification Questions';
 $txt['setup_verification_questions_desc'] = '<span class="smalltext">If you want users to answer verification questions in order to stop spam bots, you should setup a number of questions in the table below. You should choose questions which relate to the subject of your forum. Genuine users will be able to answer these questions, while spam bots will not. Answers are not case sensitive. You may use BBC in the questions for formatting. To remove a question simply delete the contents of that line.</span>';

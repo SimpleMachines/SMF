@@ -2002,7 +2002,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $sourcedir;
 	global $context, $user_info, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
@@ -2036,8 +2036,25 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
 			'text_value' => '',
 			'questions' => array(),
+			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
+
+	// Is there actually going to be anything?
+	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']) && empty($thisVerification['can_recaptcha']))
+		return false;
+	elseif (!$isNew && !$do_test)
+		return true;
+
+	// Sanitize reCAPTCHA fields?
+	if ($thisVerification['can_recaptcha'])
+	{
+		// Only allow 40 alphanumeric, underscore and dash characters.
+		$thisVerification['recaptcha_site_key'] = preg_replace('/(0-9a-zA-Z_){40}/', '$1', $modSettings['recaptcha_site_key']);
+
+		// Light or dark theme...
+		$thisVerification['recaptcha_theme'] = preg_replace('/(light|dark)/', '$1', $modSettings['recaptcha_theme']);
+	}
 
 	// Add javascript for the object.
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'])
@@ -2045,12 +2062,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			<script>
 				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
 			</script>';
-
-	// Is there actually going to be anything?
-	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']))
-		return false;
-	elseif (!$isNew && !$do_test)
-		return true;
 
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
@@ -2115,6 +2126,23 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		if ($thisVerification['empty_field'] && !empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']) && !empty($_REQUEST[$_SESSION[$verificationOptions['id'] . '_vv']['empty_field']]))
 			$verification_errors[] = 'wrong_verification_answer';
 
+		if ($thisVerification['can_recaptcha'])
+		{
+			require_once($sourcedir . '/ReCaptcha/autoload.php');
+
+			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key']);
+
+			// Was there a reCAPTCHA response?
+			if (isset($_POST['g-recaptcha-response']))
+			{
+				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
+
+				if (!$resp->isSuccess())
+					$verification_errors[] = 'wrong_verification_code';
+			}
+			else
+				$verification_errors[] = 'wrong_verification_code';
+		}
 		if ($thisVerification['show_visual'] && (empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) || empty($_SESSION[$verificationOptions['id'] . '_vv']['code']) || strtoupper($_REQUEST[$verificationOptions['id'] . '_vv']['code']) !== $_SESSION[$verificationOptions['id'] . '_vv']['code']))
 			$verification_errors[] = 'wrong_verification_code';
 		if ($thisVerification['number_questions'])

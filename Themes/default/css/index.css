@@ -1645,11 +1645,6 @@ dl.register_form dd {
 
 /* Styles for maintenance mode.
 ------------------------------------------------------- */
-#maintenance_mode {
-	width: 75%;
-	min-width: 520px;
-	text-align: left;
-}
 #maintenance_mode img.floatleft {
 	margin-right: 12px;
 }
@@ -3876,4 +3871,10 @@ p.attached_BBC a.insertBBC
 }
 .windowbg2.noup {
 	box-shadow: none;
+}
+
+/* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
+.g-recaptcha
+{
+	display: inline-block;
 }
