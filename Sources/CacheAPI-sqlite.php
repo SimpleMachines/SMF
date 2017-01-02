@@ -15,7 +15,7 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * Our Cache API class
+ * SQLite Cache API class
  * @package cacheAPI
  */
 class sqlite_cache extends cache_api
@@ -33,8 +33,8 @@ class sqlite_cache extends cache_api
 
 		parent::__construct();
 
-    // Set our default cachedir.
-    $this->setCachedir();
+		// Set our default cachedir.
+		$this->setCachedir();
 
 		$database = $this->cachedir.'/'.'SQLite3Cache.db3';
 
