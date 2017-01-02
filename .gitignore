@@ -62,3 +62,5 @@ Thumbs.db
 .directory
 .idea/
 /test.php
+Themes/default/scripts/minified.js
+Themes/default/css/minified.css
