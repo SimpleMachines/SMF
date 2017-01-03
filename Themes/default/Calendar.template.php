@@ -193,9 +193,11 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				}
 			}
 			else
+			{
 				// Default Classes (either compact or comfortable and disabled).
 				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = 'disabled';
+			}
 
 			// Now, implode the classes for each day.
 			echo '<td class="', implode(' ', $classes), '">';
