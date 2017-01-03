@@ -29,15 +29,21 @@ class sqlite_cache extends cache_api
 
 	public function __construct()
 	{
-		global $modSettings;
 
 		parent::__construct();
 
 		// Set our default cachedir.
 		$this->setCachedir();
 
-		$database = $this->cachedir.'/'.'SQLite3Cache.db3';
+	}
 
+  /**
+	   * {@inheritDoc}
+	*/
+	public function connect() 
+	{
+
+		$database = $this->cachedir.'/'.'SQLite3Cache.db3';
 		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
 		if (filesize($database) == 0) {

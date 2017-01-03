@@ -16,7 +16,6 @@ $txt['registration_form'] = 'Registration Form';
 $txt['need_username'] = 'You need to fill in a username.';
 $txt['no_password'] = 'You didn\'t enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
-$txt['integrate_validate_login_failure'] = 'Integrate Validate Login Failure';
 $txt['choose_username'] = 'Choose username';
 $txt['maintain_mode'] = 'Maintenance Mode';
 $txt['registration_successful'] = 'Registration Successful';
