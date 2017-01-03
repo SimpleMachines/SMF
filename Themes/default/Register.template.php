@@ -94,7 +94,7 @@ function template_registration_form()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['required_info'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form">
 						<dt><strong><label for="smf_autov_username">', $txt['username'], ':</label></strong></dt>
@@ -167,7 +167,7 @@ function template_registration_form()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['additional_information'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form" id="custom_group">';
 	}
@@ -283,7 +283,7 @@ function template_registration_form()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['verification'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe noup">
 				<fieldset class="centertext">
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
@@ -335,7 +335,7 @@ function template_after()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['title'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<p>', $context['description'], '</p>
 			</div>
 		</div>';
