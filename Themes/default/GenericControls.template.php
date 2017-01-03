@@ -267,7 +267,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				<br>';
 
 		// Do the actual stuff
-		if ($i == 0)
+		if ($i == 0 && ($verify_context['show_visual'] || $verify_context['can_recaptcha']))
 		{
 			if ($verify_context['can_recaptcha'])
 			{
