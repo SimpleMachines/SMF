@@ -37,9 +37,9 @@ class sqlite_cache extends cache_api
 
 	}
 
-  /**
-	   * {@inheritDoc}
-	*/
+	/**
+		* {@inheritDoc}
+		*/
 	public function connect() 
 	{
 
@@ -118,16 +118,16 @@ class sqlite_cache extends cache_api
     global $context, $txt;
 
 		$config_vars[] = $txt['cache_sqlite_settings'];
-    $config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
+		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
 
-    if (!isset($context['settings_post_javascript']))
-      $context['settings_post_javascript'] = '';
+		if (!isset($context['settings_post_javascript']))
+			$context['settings_post_javascript'] = '';
 
-    $context['settings_post_javascript'] .= '
-      $("#cache_accelerator").change(function (e) {
-        var cache_type = e.currentTarget.value;
-        $("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
-      });';
+		$context['settings_post_javascript'] .= '
+			$("#cache_accelerator").change(function (e) {
+				var cache_type = e.currentTarget.value;
+				$("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
+			});';
   }
 
   /**
