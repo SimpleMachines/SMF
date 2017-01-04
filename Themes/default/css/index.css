@@ -2864,7 +2864,7 @@ h3 .collapse {
 }
 .board_icon, .info, .board_stats, .lastpost {
 	min-height: 4.5em;
-	display: table-cell;
+	display: inline-block;
 	vertical-align: middle;
 }
 .main_container {
