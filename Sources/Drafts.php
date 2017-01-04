@@ -70,7 +70,7 @@ function SaveDraft(&$post_errors)
 		$draft['subject'] = $smcFunc['substr']($draft['subject'], 0, 100);
 
 	// Modifying an existing draft, like hitting the save draft button or autosave enabled?
-	if (!empty($id_draft) && !empty($draft_info) && $draft_info['id_member'] == $user_info['id'])
+	if (!empty($id_draft) && !empty($draft_info))
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}user_drafts
