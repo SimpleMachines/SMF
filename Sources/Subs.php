@@ -3594,12 +3594,6 @@ function custMinify($data, $type, $do_deferred = false)
 	if (!empty($toCache))
 		return true;
 
-	// Yep, need a bunch of files.
-	require_once($sourcedir . '/minify/src/Minify.php');
-	require_once($sourcedir . '/minify/src/'. strtoupper($type) .'.php');
-	require_once($sourcedir . '/minify/src/Exception.php');
-	require_once($sourcedir . '/minify/src/Converter.php');
-
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 

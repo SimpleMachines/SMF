@@ -48,11 +48,11 @@ class Converter
             $to = realpath($to) ?: $to;
         }
 
-        $from = $this->normalize($from);
-        $to = $this->normalize($to);
-
         $from = $this->dirname($from);
         $to = $this->dirname($to);
+
+        $from = $this->normalize($from);
+        $to = $this->normalize($to);
 
         $this->from = $from;
         $this->to = $to;
