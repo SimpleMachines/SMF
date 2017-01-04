@@ -263,19 +263,11 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				<div class="smalltext vv_special">
 					', $txt['visual_verification_hidden'], ':
 					<input type="text" name="', $_SESSION[$verify_id . '_vv']['empty_field'], '" autocomplete="off" size="30" value="">
-				</div>
-				<br>';
+				</div>';
 
 		// Do the actual stuff
-		if ($i == 0)
+		if ($i == 0 && ($verify_context['show_visual'] || $verify_context['can_recaptcha']))
 		{
-			if ($verify_context['can_recaptcha'])
-			{
-				echo '
-				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
-				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
-			}
-
 			if ($verify_context['show_visual'])
 			{
 				if ($context['use_graphic_library'])
@@ -296,6 +288,13 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 					', $txt['visual_verification_description'], ':', $display_type != 'quick_reply' ? '<br>' : '', '
 					<input type="text" name="', $verify_id, '_vv[code]" value="', !empty($verify_context['text_value']) ? $verify_context['text_value'] : '', '" size="30" tabindex="', $context['tabindex']++, '" class="input_text" required>
 				</div>';
+			}
+
+			if ($verify_context['can_recaptcha'])
+			{
+				echo '
+				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
+				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
 			}
 		}
 		else
