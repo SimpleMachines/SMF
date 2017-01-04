@@ -175,8 +175,8 @@ div.sceditor-grip {
   max-width: 100%;
 }
 .sceditor-container *,
-.sceditor-container *:before,
-.sceditor-container *:after {
+.sceditor-container *::before,
+.sceditor-container *::after {
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
   box-sizing: content-box;
