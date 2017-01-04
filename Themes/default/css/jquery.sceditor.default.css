@@ -1,5 +1,5 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
-html, p, code:before, table {
+html, p, code::before, table {
 	margin: 0;
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -38,7 +38,7 @@ table, td {
 	empty-cells: show;
 }
 
-code:before {
+code::before {
 	position: absolute;
 	content: 'Code:';
 	top: -1.35em;
@@ -56,7 +56,7 @@ code {
 .ie6 code, .ie7 code {
 	margin-top: 0;
 }
-code:before, code {
+code::before, code {
 	display: block;
 	text-align: left;
 }
@@ -76,7 +76,7 @@ blockquote cite {
 	font-size: 0.9em;
 }
 
-blockquote cite:before {
+blockquote cite::before {
 	color: #aaa;
 	font-size: 22px;
 	font-style: normal;

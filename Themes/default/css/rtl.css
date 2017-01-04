@@ -24,7 +24,7 @@
 	text-align: right;
 }
 /* A quote, perhaps from another post. */
-.bbc_standard_quote:before, .bbc_alternate_quote:before {
+.bbc_standard_quote::before, .bbc_alternate_quote::before {
 	content: '\275E';
 	margin-left: 0.25em;
 }
@@ -126,7 +126,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 
 /* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections > a:after {
+.dropmenu li li.subsections > a::after {
 	left: 2px;
 	right: auto;
 	content: '\25c4';

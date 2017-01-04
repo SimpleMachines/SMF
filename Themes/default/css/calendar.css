@@ -297,7 +297,7 @@ span.hidelink {
 	#main_grid .calendar_table .days:not(.disabled) {
 		min-height: 45px;
 	}
-	#main_grid .calendar_table .weeks a:before {
+	#main_grid .calendar_table .weeks a::before {
 		content: attr(title);
 		font-size: 0.65em;
 		margin: 0 0.5em;
@@ -315,9 +315,9 @@ span.hidelink {
 		height: auto;
 		border: none !important;
 	}
-	#main_grid .calendar_week .event_col:before,
-	#main_grid .calendar_week .holiday_col:before,
-	#main_grid .calendar_week .birthday_col:before {
+	#main_grid .calendar_week .event_col::before,
+	#main_grid .calendar_week .holiday_col::before,
+	#main_grid .calendar_week .birthday_col::before {
 		content: attr(data-css-prefix);
 	}
 	#main_grid .calendar_week .holiday_col:empty {
