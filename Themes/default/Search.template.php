@@ -34,72 +34,75 @@ function template_main()
 		<p class="noticebox">', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '</p>';
 
 	echo '
-		<fieldset id="advanced_search">
-			<div class="roundframe">
-				<dl class="settings" id="search_options">
-					<dt class="righttext">
-						<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
-					</dt>
-					<dd>
-						<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
+		<div id="advanced_search" class="roundframe">
+			<dl class="settings" id="search_options">
+				<dt class="righttext">
+					<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
+				</dt>
+				<dd>
+					<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
 
 	if (empty($modSettings['search_simple_fulltext']))
 		echo '
-						<em class="smalltext">', $txt['search_example'], '</em>';
+					<br><em class="smalltext">', $txt['search_example'], '</em>';
 
 	echo '
-					</dd>
+				</dd>
 
-					<dt class="righttext"><label for="searchtype">',
-						$txt['search_match'], ':</label>
-					</dt>
-					<dd>
-						<select name="searchtype" id="searchtype">
-							<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['all_words'], '</option>
-							<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
-						</select>
-					</dd>
-					<dt class="righttext"><label for="userspec">',
-						$txt['by_user'], ':</label>
-					</dt>
-					<dd>
-						<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text">
-					</dd>
-					<dt class="righttext"><label for="sort">',
-						$txt['search_order'], ':</label>
-					</dt>
-					<dd>
-						<select id="sort" name="sort">
-							<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
-							<option value="num_replies|desc">', $txt['search_orderby_large_first'], '</option>
-							<option value="num_replies|asc">', $txt['search_orderby_small_first'], '</option>
-							<option value="id_msg|desc">', $txt['search_orderby_recent_first'], '</option>
-							<option value="id_msg|asc">', $txt['search_orderby_old_first'], '</option>
-						</select>
-					</dd>
-					<dt class="righttext options">',
-						$txt['search_options'], ':
-					</dt>
-					<dd class="options">
-						<label for="show_complete">', $txt['search_show_complete_messages'], '
+				<dt class="righttext"><label for="searchtype">',
+					$txt['search_match'], ':</label>
+				</dt>
+				<dd>
+					<select name="searchtype" id="searchtype">
+						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['all_words'], '</option>
+						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
+					</select>
+				</dd>
+				<dt class="righttext"><label for="userspec">',
+					$txt['by_user'], ':</label>
+				</dt>
+				<dd>
+					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text">
+				</dd>
+				<dt class="righttext"><label for="sort">',
+					$txt['search_order'], ':</label>
+				</dt>
+				<dd>
+					<select id="sort" name="sort">
+						<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+						<option value="num_replies|desc">', $txt['search_orderby_large_first'], '</option>
+						<option value="num_replies|asc">', $txt['search_orderby_small_first'], '</option>
+						<option value="id_msg|desc">', $txt['search_orderby_recent_first'], '</option>
+						<option value="id_msg|asc">', $txt['search_orderby_old_first'], '</option>
+					</select>
+				</dd>
+				<dt class="righttext options">',
+					$txt['search_options'], ':
+				</dt>
+				<dd class="options">
+					<ul>
+						<li>
 							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', ' class="input_check">
-						</label><br>
-						<label for="subject_only">', $txt['search_subject_only'], '
+							<label for="show_complete">', $txt['search_show_complete_messages'], '</label>
+						</li>
+						<li>
 							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', ' class="input_check">
-						</label>
-					</dd>
-					<dt class="righttext between">',
-						$txt['search_post_age'], ':
-					</dt>
-					<dd><label for="minage">',
-						$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
-					</dd>
-				</dl>
-				<script>
-					createEventListener(window);
-					window.addEventListener("load", initSearch, false);
-				</script>
-				<input type="hidden" name="advanced" value="1">';
+							<label for="subject_only">', $txt['search_subject_only'], '</label>
+						</li>
+					</ul>
+				</dd>
+				<dt class="righttext between">',
+					$txt['search_post_age'], ':
+				</dt>
+				<dd><label for="minage">',
+					$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
+				</dd>
+			</dl>
+			<script>
+				createEventListener(window);
+				window.addEventListener("load", initSearch, false);
+			</script>
+			<input type="hidden" name="advanced" value="1">';
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
