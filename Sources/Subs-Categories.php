@@ -160,15 +160,13 @@ function createCategory($catOptions)
 	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
 
 	// Add the category to the database.
-	$smcFunc['db_insert']('',
+	$category_id = $smcFunc['db_insert']('',
 		'{db_prefix}categories',
 		$cat_columns,
 		$cat_parameters,
-		array('id_cat')
+		array('id_cat'),
+		1
 	);
-
-	// Grab the new category ID.
-	$category_id = $smcFunc['db_insert_id']('{db_prefix}categories', 'id_cat');
 
 	// Set the given properties to the newly created category.
 	modifyCategory($category_id, $catOptions);

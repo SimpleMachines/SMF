@@ -653,12 +653,12 @@ function smf_db_unescape_string($string)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
  * @param bool $disable_trans Whether to disable transactions
  * @param resource $connection The connection to use (if null, $db_connection is used)
- * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
  * @return value of the first key, behavior based on returnmode
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $disable_trans = false, $connection = null)
 {
 	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
@@ -810,14 +810,14 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			if ($returnmode === 2)
 				$return_var = array();
 
-			while($row = $smcFunc['db_fetch_assoc']($request) && $with_returning)
+			while(($row = $smcFunc['db_fetch_row']($request)) && $with_returning)
 			{
-				if (is_int($row[$keys[0]])) // try to emulate mysql limitation
+				if (is_numeric($row[0])) // try to emulate mysql limitation
 				{
 					if ($returnmode === 1)
-						$return_var = $row[$keys[0]];
+						$return_var = $row[0];
 					elseif ($returnmode === 2)
-						$return_var[] = $row[$keys[0]];
+						$return_var[] = $row[0];
 				}
 				else
 				{

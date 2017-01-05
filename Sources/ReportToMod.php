@@ -290,7 +290,7 @@ function reportPost($msg, $reason)
 		if (empty($message['real_name']))
 			$message['real_name'] = $message['poster_name'];
 
-		$smcFunc['db_insert']('',
+		$id_report = $smcFunc['db_insert']('',
 			'{db_prefix}log_reported',
 			array(
 				'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -301,9 +301,9 @@ function reportPost($msg, $reason)
 				$_POST['msg'], $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
 				$message['subject'], $message['body'], time(), time(), 1, 0,
 			),
-			array('id_report')
+			array('id_report'),
+			1
 		);
-		$id_report = $smcFunc['db_insert_id']('{db_prefix}log_reported', 'id_report');
 	}
 
 	// Now just add our report...
@@ -411,7 +411,7 @@ function reportUser($id_member, $reason)
 	// Otherwise, we shall make one!
 	else
 	{
-		$smcFunc['db_insert']('',
+		$id_report = $smcFunc['db_insert']('',
 			'{db_prefix}log_reported',
 			array(
 				'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
@@ -422,9 +422,9 @@ function reportUser($id_member, $reason)
 				0, 0, 0, $user['id_member'], $user_name,
 				'', '', time(), time(), 1, 0,
 			),
-			array('id_report')
+			array('id_report'),
+			1
 		);
-		$id_report = $smcFunc['db_insert_id']('{db_prefix}log_reported', 'id_report');
 	}
 
 	// Now just add our report...

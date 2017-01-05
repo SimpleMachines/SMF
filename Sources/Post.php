@@ -1960,7 +1960,7 @@ function Post2()
 	if (isset($_REQUEST['poll']))
 	{
 		// Create the poll.
-		$smcFunc['db_insert']('',
+		$id_poll = $smcFunc['db_insert']('',
 			'{db_prefix}polls',
 			array(
 				'question' => 'string-255', 'hide_results' => 'int', 'max_votes' => 'int', 'expire_time' => 'int', 'id_member' => 'int',
@@ -1970,9 +1970,9 @@ function Post2()
 				$_POST['question'], $_POST['poll_hide'], $_POST['poll_max_votes'], (empty($_POST['poll_expire']) ? 0 : time() + $_POST['poll_expire'] * 3600 * 24), $user_info['id'],
 				$_POST['guestname'], $_POST['poll_change_vote'], $_POST['poll_guest_vote'],
 			),
-			array('id_poll')
+			array('id_poll'),
+			1
 		);
-		$id_poll = $smcFunc['db_insert_id']('{db_prefix}polls', 'id_poll');
 
 		// Create each answer choice.
 		$i = 0;

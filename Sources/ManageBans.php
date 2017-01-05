@@ -1536,7 +1536,7 @@ function insertBanGroup($ban_info = array())
 		return;
 
 	// Yes yes, we're ready to add now.
-	$smcFunc['db_insert']('',
+	$ban_info['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}ban_groups',
 		array(
 			'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
@@ -1546,9 +1546,9 @@ function insertBanGroup($ban_info = array())
 			$ban_info['name'], time(), $ban_info['db_expiration'], $ban_info['cannot']['access'], $ban_info['cannot']['register'],
 			$ban_info['cannot']['post'], $ban_info['cannot']['login'], $ban_info['reason'], $ban_info['notes'],
 		),
-		array('id_ban_group')
+		array('id_ban_group'),
+		1
 	);
-	$ban_info['id'] = $smcFunc['db_insert_id']('{db_prefix}ban_groups', 'id_ban_group');
 
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'impossible_insert_new_bangroup';

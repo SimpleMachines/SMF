@@ -312,7 +312,7 @@ function AddMembergroup()
 
 		call_integration_hook('integrate_pre_add_membergroup', array());
 
-		$smcFunc['db_insert']('',
+		$id_group = $smcFunc['db_insert']('',
 			'{db_prefix}membergroups',
 			array(
 				'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
@@ -322,10 +322,9 @@ function AddMembergroup()
 				'', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
 				'1#icon.png', '', $_POST['group_type'],
 			),
-			array('id_group')
+			array('id_group'),
+			1
 		);
-
-		$id_group = $smcFunc['db_insert_id']('{db_prefix}membergroups', 'id_group');
 
 		call_integration_hook('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
 

@@ -109,7 +109,7 @@ function SaveDraft(&$post_errors)
 	// otherwise creating a new draft
 	else
 	{
-		$smcFunc['db_insert']('',
+		$id_draft = $smcFunc['db_insert']('',
 			'{db_prefix}user_drafts',
 			array(
 				'id_topic' => 'int',
@@ -139,11 +139,9 @@ function SaveDraft(&$post_errors)
 			),
 			array(
 				'id_draft'
-			)
+			),
+			1
 		);
-
-		// get the id of the new draft
-		$id_draft = $smcFunc['db_insert_id']('{db_prefix}user_drafts', 'id_draft');
 
 		// everything go as expected?
 		if (!empty($id_draft))
@@ -251,7 +249,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	// otherwise creating a new PM draft.
 	else
 	{
-		$smcFunc['db_insert']('',
+		$id_pm_draft = $smcFunc['db_insert']('',
 			'{db_prefix}user_drafts',
 			array(
 				'id_reply' => 'int',
@@ -273,11 +271,9 @@ function SavePMDraft(&$post_errors, $recipientList)
 			),
 			array(
 				'id_draft'
-			)
+			),
+			1
 		);
-
-		// get the new id
-		$id_pm_draft = $smcFunc['db_insert_id']('{db_prefix}user_drafts', 'id_draft');
 
 		// everything go as expected, if not toss back an error
 		if (!empty($id_pm_draft))

@@ -522,17 +522,18 @@ function logActions($logs)
 		);
 	}
 
-	$smcFunc['db_insert']('',
+	$id_action = $smcFunc['db_insert']('',
 		'{db_prefix}log_actions',
 		array(
 			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
 			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
 		),
 		$inserts,
-		array('id_action')
+		array('id_action'),
+		1
 	);
 
-	return $smcFunc['db_insert_id']('{db_prefix}log_actions', 'id_action');
+	return $id_action;
 }
 
 ?>
