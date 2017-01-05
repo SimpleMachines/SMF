@@ -75,7 +75,7 @@ class sqlite_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$ttl = time();
+		$ttl = time() - $ttl;
 		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
 
