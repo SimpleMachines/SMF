@@ -113,7 +113,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 	);
 
 	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', $classMap);
+	call_integration_hook('integrate_autoload', array(&$classMap));
 
 	foreach ($classMap as $prefix => $dirName)
 	{
