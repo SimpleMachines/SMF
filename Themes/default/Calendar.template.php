@@ -93,7 +93,7 @@ function template_show_upcoming_list($grid_name)
 	}
 
 	// Give the user some controls to work with
-	template_caledar_top($calendar_data);
+	template_calendar_top($calendar_data);
 
 	// First, list any events
 	if (!empty($calendar_data['events']))
@@ -295,7 +295,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 	// Show the controls on main grids
 	if ($is_mini === false)
-		template_caledar_top($calendar_data);
+		template_calendar_top($calendar_data);
 
 	// Finally, the main calendar table.
 	echo '<table class="calendar_table">';
@@ -573,7 +573,7 @@ function template_show_week_grid($grid_name)
 				</div>';
 
 			// Show the controls
-			template_caledar_top($calendar_data);
+			template_calendar_top($calendar_data);
 		}
 
 		// Our actual month...
@@ -726,7 +726,7 @@ function template_show_week_grid($grid_name)
  *
  * @param array $calendar_data The data for the calendar grid that this is for
  */
-function template_caledar_top($calendar_data)
+function template_calendar_top($calendar_data)
 {
 	global $context, $scripturl, $txt;
 
