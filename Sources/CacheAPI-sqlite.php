@@ -20,12 +20,12 @@ if (!defined('SMF'))
  */
 class sqlite_cache extends cache_api
 {
-  /**
-   * @var string The path to the current $cachedir directory.
-   */
-  private $cachedir		= null;
-  private $cacheDB		= null;
-  private $cacheTime	= null;
+	/**
+	 * @var string The path to the current $cachedir directory.
+	 */
+	private $cachedir = null;
+	private $cacheDB = null;
+	private $cacheTime = null;
 
 	public function __construct()
 	{
@@ -38,19 +38,20 @@ class sqlite_cache extends cache_api
 	}
 
 	/**
-		* {@inheritDoc}
-		*/
-	public function connect() 
+	 * {@inheritDoc}
+	 */
+	public function connect()
 	{
 
-		$database = $this->cachedir.'/'.'SQLite3Cache.db3';
+		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
 		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
-		if (filesize($database) == 0) {
+		if (filesize($database) == 0)
+		{
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
-		$this->cacheTime	= time();
+		$this->cacheTime = time();
 
 	}
 
@@ -62,7 +63,9 @@ class sqlite_cache extends cache_api
 		$supported = class_exists("SQLite3") && is_writable($this->cachedir);
 
 		if ($test)
+		{
 			return $supported;
+		}
 
 		return parent::isSupported() && $supported;
 	}
@@ -72,12 +75,13 @@ class sqlite_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$ttl		= time();
-		$query	= 'SELECT value FROM cache WHERE key = \''.$this->cacheDB->escapeString($key).'\' AND ttl >= '.$ttl.' LIMIT 1';
-		$result	= $this->cacheDB->query($query);
+		$ttl = time();
+		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$result = $this->cacheDB->query($query);
 
-		$value		= null;
-		while($res = $result->fetchArray(SQLITE3_ASSOC)) { 
+		$value = null;
+		while ($res = $result->fetchArray(SQLITE3_ASSOC))
+		{
 			$value = $res['value'];
 		}
 
@@ -90,9 +94,9 @@ class sqlite_cache extends cache_api
 	public function putData($key, $value, $ttl = null)
 	{
 
-		$ttl		= $this->cacheTime + $ttl;
-		$query	= 'REPLACE INTO cache VALUES (\''.$this->cacheDB->escapeString($key).'\', \''.$this->cacheDB->escapeString($value).'\', '.$this->cacheDB->escapeString($ttl).');';
-		$result	= $this->cacheDB->exec($query);
+		$ttl = $this->cacheTime + $ttl;
+		$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $this->cacheDB->escapeString($ttl) . ');';
+		$result = $this->cacheDB->exec($query);
 
 		return $result;
 	}
@@ -103,49 +107,57 @@ class sqlite_cache extends cache_api
 	public function cleanCache($type = '')
 	{
 
-		$query	= 'DELETE FROM cache;';
-		$result	= $this->cacheDB->exec($query);
+		$query = 'DELETE FROM cache;';
+		$result = $this->cacheDB->exec($query);
 
 		return $result;
 
 	}
 
-  /**
-   * {@inheritDoc}
-   */
-  public function cacheSettings(array &$config_vars)
-  {
-    global $context, $txt;
+	/**
+	 * {@inheritDoc}
+	 */
+	public function cacheSettings(array &$config_vars)
+	{
+		global $context, $txt;
 
 		$config_vars[] = $txt['cache_sqlite_settings'];
 		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
+		{
 			$context['settings_post_javascript'] = '';
+		}
 
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
 			});';
-  }
+	}
 
-  /**
-   * Sets the $cachedir or uses the SMF default $cachedir..
-   *
-   * @access public
-   * @param string $dir A valid path
-   * @return boolean If this was successful or not.
-   */
-  public function setCachedir($dir = null)
-  {
-    global $cachedir_sqlite;
+	/**
+	 * Sets the $cachedir or uses the SMF default $cachedir..
+	 *
+	 * @access public
+	 *
+	 * @param string $dir A valid path
+	 *
+	 * @return boolean If this was successful or not.
+	 */
+	public function setCachedir($dir = null)
+	{
+		global $cachedir_sqlite;
 
-    // If its invalid, use SMF's.
-    if (is_null($dir) || !is_writable($dir))
-      $this->cachedir = $cachedir_sqlite;
-    else
-      $this->cachedir = $dir;
-  }
+		// If its invalid, use SMF's.
+		if (is_null($dir) || !is_writable($dir))
+		{
+			$this->cachedir = $cachedir_sqlite;
+		}
+		else
+		{
+			$this->cachedir = $dir;
+		}
+	}
 
 }
