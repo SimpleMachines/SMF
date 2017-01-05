@@ -112,7 +112,7 @@ function CalendarMain()
 		$context['calendar_view'] = $modSettings['calendar_default_view'];
 
 	// Don't let search engines index the non-default calendar pages
-	if ($context$context['calendar_view'] !== $modSettings['calendar_default_view'])
+	if ($context['calendar_view'] !== $modSettings['calendar_default_view'])
 		$context['robot_no_index'] = true;
 
 	// Get the current day of month...
