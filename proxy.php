@@ -105,7 +105,7 @@ class ProxyServer
 			@unlink($cached_file);
 			if ($this->checkRequest())
 				$this->serve();
-			exit;
+            redirectexit($request);
 		}
 
 		// Right, image not cached? Simply redirect, then.
