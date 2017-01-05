@@ -571,10 +571,10 @@ function template_show_week_grid($grid_name)
 					echo '
 					</h3>
 				</div>';
-		}
 
-		// Show the controls
-		template_caledar_top($calendar_data);
+			// Show the controls
+			template_caledar_top($calendar_data);
+		}
 
 		// Our actual month...
 		echo '
