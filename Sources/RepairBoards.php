@@ -401,7 +401,7 @@ function loadForumTests()
 							'xx',
 							1,
 						),
-						array('id_topic'),
+						array('id_msg'),
 						1
 					);
 
@@ -535,7 +535,7 @@ function loadForumTests()
 						'xx',
 						1,
 					),
-					array('id_topic'),
+					array('id_msg'),
 					1
 				);
 
