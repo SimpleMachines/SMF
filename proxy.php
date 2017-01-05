@@ -43,7 +43,7 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Class-CurlFetchWeb.php');
-        require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/Subs.php');
 
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
@@ -105,12 +105,12 @@ class ProxyServer
 			@unlink($cached_file);
 			if ($this->checkRequest())
 				$this->serve();
-            redirectexit($request);
+			redirectexit($request);
 		}
 
 		// Right, image not cached? Simply redirect, then.
 		if (!$this->checkRequest())
-            redirectexit($request);
+		    redirectexit($request);
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
