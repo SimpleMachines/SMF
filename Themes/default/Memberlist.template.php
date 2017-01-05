@@ -157,33 +157,34 @@ function template_search()
 					<span class="generic_icons filter"></span>', $txt['mlist_search'], '
 				</h3>
 			</div>
-			<div id="memberlist_search" class="clear">
-				<div class="roundframe noup">
-					<dl id="mlist_search" class="settings">
-						<dt>
-							<label><strong>', $txt['search_for'], ':</strong></label>
-						</dt>
-						<dd>
-							<input type="text" name="search" value="', $context['old_search'], '" size="40" class="input_text">
-						</dd>
-						<dt>
-							<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
-						</dt>';
+			<div id="advanced_search" class="roundframe noup">
+				<dl id="mlist_search" class="settings">
+					<dt>
+						<label><strong>', $txt['search_for'], ':</strong></label>
+					</dt>
+					<dd>
+						<input type="text" name="search" value="', $context['old_search'], '" size="40" class="input_text">
+					</dd>
+					<dt>
+						<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
+					</dt>
+					<dd>
+						<ul>';
 
 	foreach ($context['search_fields'] as $id => $title)
 	{
 		echo '
-						<dd>
-							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check floatright">', $title, '</label>
-						</dd>';
+							<li>
+								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check">
+								<label for="fields-', $id, '">', $title, '</label>
+							</li>';
 	}
 
 	echo '
-					</dl>
-					<div class="flow_auto">
-						<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit">
-					</div>
-				</div>
+						</ul>
+					</dd>
+				</dl>
+				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit">
 			</div>
 		</div>
 	</form>';
