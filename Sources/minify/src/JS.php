@@ -9,7 +9,7 @@ namespace MatthiasMullie\Minify;
  *
  * @author Matthias Mullie <minify@mullie.eu>
  * @author Tijs Verkoyen <minify@verkoyen.eu>
- * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved.
+ * @copyright Copyright (c) 2012, Matthias Mullie. All rights reserved
  * @license MIT License
  */
 class JS extends Minify
@@ -65,6 +65,17 @@ class JS extends Minify
     protected $keywordsAfter = array();
 
     /**
+     * List of all JavaScript operators.
+     *
+     * Will be loaded from /data/js/operators.txt
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators
+     *
+     * @var string[]
+     */
+    protected $operators = array();
+
+    /**
      * List of JavaScript operators that accept a <variable, value, ...> after
      * them. Some end of lines are not the end of a statement, like with these
      * operators.
@@ -111,6 +122,7 @@ class JS extends Minify
         $this->keywordsReserved = file($dataDir.'keywords_reserved.txt', $options);
         $this->keywordsBefore = file($dataDir.'keywords_before.txt', $options);
         $this->keywordsAfter = file($dataDir.'keywords_after.txt', $options);
+        $this->operators = file($dataDir.'operators.txt', $options);
         $this->operatorsBefore = file($dataDir.'operators_before.txt', $options);
         $this->operatorsAfter = file($dataDir.'operators_after.txt', $options);
     }
@@ -119,9 +131,9 @@ class JS extends Minify
      * Minify the data.
      * Perform JS optimizations.
      *
-     * @param string[optional] $path Path to write the data to.
+     * @param string[optional] $path Path to write the data to
      *
-     * @return string The minified data.
+     * @return string The minified data
      */
     public function execute($path = null)
     {
@@ -156,9 +168,9 @@ class JS extends Minify
         $this->extractRegex();
         $content = $this->replace($content);
 
-        $content = $this->stripWhitespace($content);
         $content = $this->propertyNotation($content);
         $content = $this->shortenBools($content);
+        $content = $this->stripWhitespace($content);
 
         /*
          * Earlier, we extracted strings & regular expressions and replaced them
@@ -205,25 +217,27 @@ class JS extends Minify
         $callback = function ($match) use ($minifier) {
             $count = count($minifier->extracted);
             $placeholder = '/'.$count.'/';
-            $minifier->extracted[$placeholder] = $match[1];
+            $minifier->extracted[$placeholder] = $match[0];
 
             return $placeholder;
         };
 
-        // it's a regex if we can find an opening and (not escaped) closing /,
-        // include \n because it may be there for a reason
-        // (https://github.com/matthiasmullie/minify/issues/56)
-        $pattern = '(\/.*?(?<!\\\\)(\\\\\\\\)*+\/\n?)';
+        $pattern = '\/.+?(?<!\\\\)(\\\\\\\\)*\/[gimy]*(?![0-9a-zA-Z\/])';
 
-        // / can't be preceded by variable, value, or similar because then
-        // it's going to be division
-        // checking for that is complex, so we'll do inverse:
-        // * at the beginning of the file, it's not division, but regex
-        $this->registerPattern('/^\s*\K'.$pattern.'/', $callback);
-        // * following another operator, it's not division, but regex
+        // a regular expression can only be followed by a few operators or some
+        // of the RegExp methods (a `\` followed by a variable or value is
+        // likely part of a division, not a regex)
+        $after = '[\.,;\)\}]';
+        $methods = '\.(exec|test|match|search|replace|split)\(';
+        $this->registerPattern('/'.$pattern.'(?=\s*('.$after.'|'.$methods.'))/', $callback);
+
+        // 1 more edge case: a regex can be followed by a lot more operators or
+        // keywords if there's a newline (ASI) in between, where the operator
+        // actually starts a new statement
+        // (https://github.com/matthiasmullie/minify/issues/56)
         $operators = $this->getOperatorsForRegex($this->operatorsBefore, '/');
-        $operators += $this->getKeywordsForRegex($this->keywordsReserved, '/');
-        $this->registerPattern('/(?:'.implode('|', $operators).')\s*\K'.$pattern.'/', $callback);
+        $operators += $this->getOperatorsForRegex($this->keywordsReserved, '/');
+        $this->registerPattern('/'.$pattern.'\s*\n(?=\s*('.implode('|', $operators).'))/', $callback);
     }
 
     /**
@@ -238,7 +252,7 @@ class JS extends Minify
      * Because it's sometimes hard to tell if a newline is part of a statement
      * that should be terminated or not, we'll just leave some of them alone.
      *
-     * @param string $content The content to strip the whitespace for.
+     * @param string $content The content to strip the whitespace for
      *
      * @return string
      */
@@ -256,17 +270,19 @@ class JS extends Minify
         // collapse consecutive line feeds into just 1
         $content = preg_replace('/\n+/', "\n", $content);
 
-        $before = $this->getOperatorsForRegex($this->operatorsBefore, '/');
-        $after = $this->getOperatorsForRegex($this->operatorsAfter, '/');
-        $operators = $before + $after;
+        $operatorsBefore = $this->getOperatorsForRegex($this->operatorsBefore, '/');
+        $operatorsAfter = $this->getOperatorsForRegex($this->operatorsAfter, '/');
+        $operators = $this->getOperatorsForRegex($this->operators, '/');
+        $keywordsBefore = $this->getKeywordsForRegex($this->keywordsBefore, '/');
+        $keywordsAfter = $this->getKeywordsForRegex($this->keywordsAfter, '/');
 
         // strip whitespace that ends in (or next line begin with) an operator
         // that allows statements to be broken up over multiple lines
-        unset($before['+'], $before['-'], $after['+'], $after['-']);
+        unset($operatorsBefore['+'], $operatorsBefore['-'], $operatorsAfter['+'], $operatorsAfter['-']);
         $content = preg_replace(
             array(
-                '/('.implode('|', $before).')\s+/',
-                '/\s+('.implode('|', $after).')/',
+                '/('.implode('|', $operatorsBefore).')\s+/',
+                '/\s+('.implode('|', $operatorsAfter).')/',
             ), '\\1', $content
         );
 
@@ -278,19 +294,20 @@ class JS extends Minify
             ), '\\1', $content
         );
 
+        // collapse whitespace around reserved words into single space
+        $content = preg_replace('/(^|[;\}\s])\K('.implode('|', $keywordsBefore).')\s+/', '\\2 ', $content);
+        $content = preg_replace('/\s+('.implode('|', $keywordsAfter).')(?=([;\{\s]|$))/', ' \\1', $content);
+
         /*
          * We didn't strip whitespace after a couple of operators because they
          * could be used in different contexts and we can't be sure it's ok to
          * strip the newlines. However, we can safely strip any non-line feed
          * whitespace that follows them.
          */
-        $content = preg_replace('/([\}\)\]])[^\S\n]+(?!'.implode('|', $operators).')/', '\\1', $content);
-
-        // collapse whitespace around reserved words into single space
-        $before = $this->getKeywordsForRegex($this->keywordsBefore, '/');
-        $after = $this->getKeywordsForRegex($this->keywordsAfter, '/');
-        $content = preg_replace('/(^|[;\}\s])\K('.implode('|', $before).')\s+/', '\\2 ', $content);
-        $content = preg_replace('/\s+('.implode('|', $after).')(?=([;\{\s]|$))/', ' \\1', $content);
+        $operatorsDiffBefore = array_diff($operators, $operatorsBefore);
+        $operatorsDiffAfter = array_diff($operators, $operatorsAfter);
+        $content = preg_replace('/('.implode('|', $operatorsDiffBefore).')[^\S\n]+/', '\\1', $content);
+        $content = preg_replace('/[^\S\n]+('.implode('|', $operatorsDiffAfter).')/', '\\1', $content);
 
         /*
          * Get rid of double semicolons, except where they can be used like:
@@ -450,7 +467,7 @@ class JS extends Minify
         $keywords = $this->getKeywordsForRegex($keywords);
         $keywords = '(?<!'.implode(')(?<!', $keywords).')';
 
-        return preg_replace_callback('/(?<='.$previousChar.'|\])'.$keywords.'\[(([\'"])[0-9]+\\2)\]/u', $callback, $content);
+        return preg_replace_callback('/(?<='.$previousChar.'|\])'.$keywords.'\[\s*(([\'"])[0-9]+\\2)\s*\]/u', $callback, $content);
     }
 
     /**
@@ -462,8 +479,8 @@ class JS extends Minify
      */
     protected function shortenBools($content)
     {
-        $content = preg_replace('/\btrue\b/', '!0', $content);
-        $content = preg_replace('/\bfalse\b/', '!1', $content);
+        $content = preg_replace('/\btrue\b(?!:)/', '!0', $content);
+        $content = preg_replace('/\bfalse\b(?!:)/', '!1', $content);
 
         // for(;;) is exactly the same as while(true)
         $content = preg_replace('/\bwhile\(!0\){/', 'for(;;){', $content);

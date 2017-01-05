@@ -2128,8 +2128,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		if ($thisVerification['can_recaptcha'])
 		{
-			require_once($sourcedir . '/ReCaptcha/autoload.php');
-
 			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key']);
 
 			// Was there a reCAPTCHA response?
