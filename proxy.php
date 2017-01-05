@@ -20,24 +20,16 @@ define('SMF', 'proxy');
  */
 class ProxyServer
 {
-	/**
-	 * @var bool $enabled Whether or not this is enabled
-	 */
+	/** @var bool $enabled Whether or not this is enabled */
 	protected $enabled;
 
-	/**
-	 * @var int $maxSize The maximum size for files to cache
-	 */
+	/** @var int $maxSize The maximum size for files to cache */
 	protected $maxSize;
 
-	/**
-	 * @var string $secret A secret code used for hashing
-	 */
+	/** @var string $secret A secret code used for hashing */
 	protected $secret;
 
-	/**
-	 * @var string The cache directory
-	 */
+	/** @var string The cache directory */
 	protected $cache;
 
 	/**
@@ -51,6 +43,9 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Class-CurlFetchWeb.php');
+
+		// Turn off all error reporting; any extra junk makes for an invalid image.
+		error_reporting(0);
 
 		$this->enabled = (bool) $image_proxy_enabled;
 		$this->maxSize = (int) $image_proxy_maxsize;
@@ -110,6 +105,10 @@ class ProxyServer
 				$this->serve();
 			exit;
 		}
+
+		// Right, image not cached? Simply redirect, then.
+		if (!$this->checkRequest())
+			header('Location: ' . $request);
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
@@ -184,7 +183,4 @@ class ProxyServer
 }
 
 $proxy = new ProxyServer();
-if ($proxy->checkRequest())
-	$proxy->serve();
-
-exit;
+$proxy->serve();
