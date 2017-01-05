@@ -677,7 +677,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavaScript('
-	$("#event_time_input .date_input").datepicker({
+	$("#calendar_range .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
 		autoSize: true,
 		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
@@ -696,7 +696,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",
 	});
-	var date_entry = document.getElementById("event_time_input");
+	var date_entry = document.getElementById("calendar_range");
 	var date_entry_pair = new Datepair(date_entry, {
 		dateClass: "date_input",
 		autoclose: true,
