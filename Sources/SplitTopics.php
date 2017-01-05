@@ -624,7 +624,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 		fatal_lang_error('split_first_post', false);
 
 	// We're off to insert the new topic!  Use 0 for now to avoid UNIQUE errors.
-	$smcFunc['db_insert']('',
+	$split2_ID_TOPIC = $smcFunc['db_insert']('',
 			'{db_prefix}topics',
 			array(
 				'id_board' => 'int',
@@ -641,9 +641,9 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 				(int) $id_board, $split2_firstMem, $split2_lastMem, 0,
 				0, $split2_replies, $split2_unapprovedposts, (int) $split2_approved, 0,
 			),
-			array('id_topic')
+			array('id_topic'),
+			1
 		);
-	$split2_ID_TOPIC = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
 	if ($split2_ID_TOPIC <= 0)
 		fatal_lang_error('cant_insert_topic');
 

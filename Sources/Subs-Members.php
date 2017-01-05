@@ -701,13 +701,13 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// Register them into the database.
-	$smcFunc['db_insert']('',
+	$memberID = $smcFunc['db_insert']('',
 		'{db_prefix}members',
 		$column_names,
 		$values,
-		array('id_member')
+		array('id_member'),
+		1
 	);
-	$memberID = $smcFunc['db_insert_id']('{db_prefix}members', 'id_member');
 
 	// Call an optional function as notification of registration.
 	call_integration_hook('integrate_post_register', array(&$regOptions, &$theme_vars, &$memberID));

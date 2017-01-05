@@ -653,12 +653,11 @@ function smf_db_unescape_string($string)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
- * @param bool $disable_trans Whether to disable transactions
- * @param resource $connection The connection to use (if null, $db_connection is used)
  * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return value of the first key, behavior based on returnmode
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null, $returnmode = 0)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
@@ -674,13 +673,6 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-
-	$priv_trans = false;
-	if ((count($data) > 1 || $method == 'replace') && !$db_in_transact && !$disable_trans)
-	{
-		$smcFunc['db_transaction']('begin', $connection);
-		$priv_trans = true;
-	}
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace')
@@ -810,14 +802,14 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			if ($returnmode === 2)
 				$return_var = array();
 
-			while($row = $smcFunc['db_fetch_assoc']($request) && $with_returning)
+			while(($row = $smcFunc['db_fetch_row']($request)) && $with_returning)
 			{
-				if (is_int($row[$keys[0]])) // try to emulate mysql limitation
+				if (is_numeric($row[0])) // try to emulate mysql limitation
 				{
 					if ($returnmode === 1)
-						$return_var = $row[$keys[0]];
+						$return_var = $row[0];
 					elseif ($returnmode === 2)
-						$return_var[] = $row[$keys[0]];
+						$return_var[] = $row[0];
 				}
 				else
 				{
@@ -827,9 +819,6 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			}
 		}
 	}
-
-	if ($priv_trans)
-		$smcFunc['db_transaction']('commit', $connection);
 	
 	if ($with_returning && !empty($return_var))
 		return $return_var; 

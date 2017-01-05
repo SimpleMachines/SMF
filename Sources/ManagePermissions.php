@@ -1928,7 +1928,7 @@ function EditPermissionProfiles()
 		$_POST['profile_name'] = $smcFunc['htmlspecialchars']($_POST['profile_name']);
 
 		// Insert the profile itself.
-		$smcFunc['db_insert']('',
+		$profile_id = $smcFunc['db_insert']('',
 			'{db_prefix}permission_profiles',
 			array(
 				'profile_name' => 'string',
@@ -1936,9 +1936,9 @@ function EditPermissionProfiles()
 			array(
 				$_POST['profile_name'],
 			),
-			array('id_profile')
+			array('id_profile'),
+			1
 		);
-		$profile_id = $smcFunc['db_insert_id']('{db_prefix}permission_profiles', 'id_profile');
 
 		// Load the permissions from the one it's being copied from.
 		$request = $smcFunc['db_query']('', '

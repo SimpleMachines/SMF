@@ -743,7 +743,7 @@ function EditPoll2()
 	else
 	{
 		// Create the poll.
-		$smcFunc['db_insert']('',
+		$bcinfo['id_poll'] = $smcFunc['db_insert']('',
 			'{db_prefix}polls',
 			array(
 				'question' => 'string-255', 'hide_results' => 'int', 'max_votes' => 'int', 'expire_time' => 'int', 'id_member' => 'int',
@@ -753,11 +753,9 @@ function EditPoll2()
 				$_POST['question'], $_POST['poll_hide'], $_POST['poll_max_votes'], $_POST['poll_expire'], $user_info['id'],
 				$user_info['username'], $_POST['poll_change_vote'], $_POST['poll_guest_vote'],
 			),
-			array('id_poll')
+			array('id_poll'),
+			1
 		);
-
-		// Set the poll ID.
-		$bcinfo['id_poll'] = $smcFunc['db_insert_id']('{db_prefix}polls', 'id_poll');
 
 		// Link the poll to the topic
 		$smcFunc['db_query']('', '

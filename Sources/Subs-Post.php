@@ -1069,7 +1069,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		return $log;
 
 	// Insert the message itself and then grab the last insert id.
-	$smcFunc['db_insert']('',
+	$id_pm = $smcFunc['db_insert']('',
 		'{db_prefix}personal_messages',
 		array(
 			'id_pm_head' => 'int', 'id_member_from' => 'int', 'deleted_by_sender' => 'int',
@@ -1079,9 +1079,9 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			$pm_head, $from['id'], ($store_outbox ? 0 : 1),
 			$from['username'], time(), $htmlsubject, $htmlmessage,
 		),
-		array('id_pm')
+		array('id_pm'),
+		1
 	);
-	$id_pm = $smcFunc['db_insert_id']('{db_prefix}personal_messages', 'id_pm');
 
 	// Add the recipients.
 	if (!empty($id_pm))
@@ -1765,13 +1765,13 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
 
 	// Insert the post.
-	$smcFunc['db_insert']('',
+	$msgOptions['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}messages',
 		$message_columns,
 		$message_parameters,
-		array('id_msg')
+		array('id_msg'),
+		1
 	);
-	$msgOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}messages', 'id_msg');
 
 	// Something went wrong creating the message...
 	if (empty($msgOptions['id']))
@@ -1810,13 +1810,13 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
 
-		$smcFunc['db_insert']('',
+		$topicOptions['id'] = $smcFunc['db_insert']('',
 			'{db_prefix}topics',
 			$topic_columns,
 			$topic_parameters,
-			array('id_topic')
+			array('id_topic'),
+			1
 		);
-		$topicOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
 
 		// The topic couldn't be created for some reason.
 		if (empty($topicOptions['id']))

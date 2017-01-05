@@ -264,7 +264,7 @@ function loadForumTests()
 				$memberStartedID = (int) getMsgMemberID($row['myid_first_msg']);
 				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
 
-				$smcFunc['db_insert']('',
+				$newTopicID = $smcFunc['db_insert']('',
 					'{db_prefix}topics',
 					array(
 						'id_board' => 'int',
@@ -282,10 +282,9 @@ function loadForumTests()
 						$row['myid_last_msg'],
 						$row['my_num_replies']
 					),
-					array('id_topic')
+					array('id_topic'),
+					1
 				);
-
-				$newTopicID = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
@@ -372,7 +371,7 @@ function loadForumTests()
 				}
 
 				if(empty($row['id_topic'])) {
-					$smcFunc['db_insert']('',
+					$newMessageID = $smcFunc['db_insert']('',
 						'{db_prefix}messages',
 						array(
 							'id_board' => 'int',
@@ -402,12 +401,11 @@ function loadForumTests()
 							'xx',
 							1,
 						),
-						array('id_topic')
+						array('id_msg'),
+						1
 					);
 
-					$newMessageID = $smcFunc['db_insert_id']("{db_prefix}messages", 'id_msg');
-
-					$smcFunc['db_insert']('',
+					$row['id_topic'] = $smcFunc['db_insert']('',
 						'{db_prefix}topics',
 						array(
 							'id_board' => 'int',
@@ -427,10 +425,9 @@ function loadForumTests()
 							$newMessageID,
 							0,
 						),
-						array('id_topic')
+						array('id_topic'),
+						1
 					);
-
-					$row['id_topic'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
 
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}messages
@@ -508,7 +505,7 @@ function loadForumTests()
 
 				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
 
-				$smcFunc['db_insert']('',
+				$newMessageID = $smcFunc['db_insert']('',
 					'{db_prefix}messages',
 					array(
 						'id_board' => 'int',
@@ -538,12 +535,11 @@ function loadForumTests()
 						'xx',
 						1,
 					),
-					array('id_topic')
+					array('id_msg'),
+					1
 				);
 
-				$newMessageID = $smcFunc['db_insert_id']("{db_prefix}messages", 'id_msg');
-
-				$smcFunc['db_insert']('',
+				$newTopicID = $smcFunc['db_insert']('',
 					'{db_prefix}topics',
 					array(
 						'id_board' => 'int',
@@ -563,10 +559,9 @@ function loadForumTests()
 						$newMessageID,
 						0,
 					),
-					array('id_topic')
+					array('id_topic'),
+					1
 				);
-
-				$newTopicID = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
@@ -778,13 +773,13 @@ function loadForumTests()
 				$row['my_num_topics'] = (int) $row['my_num_topics'];
 				$row['my_num_posts'] = (int) $row['my_num_posts'];
 
-				$smcFunc['db_insert']('',
+				$newBoardID = $smcFunc['db_insert']('',
 					'{db_prefix}boards',
 					array('id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'),
 					array($salvageCatID, $txt['salvaged_board_name'], $txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'),
-					array('id_board')
+					array('id_board'),
+					1
 				);
-				$newBoardID = $smcFunc['db_insert_id']('{db_prefix}boards', 'id_board');
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}topics
@@ -1811,11 +1806,12 @@ function createSalvageArea()
 
 	if (empty($salvageCatID))
 	{
-		$smcFunc['db_insert']('',
+		$salvageCatID = $smcFunc['db_insert']('',
 			'{db_prefix}categories',
 			array('name' => 'string-255', 'cat_order' => 'int'),
 			array($txt['salvaged_category_name'], -1),
-			array('id_cat')
+			array('id_cat'),
+			1
 		);
 
 		if ($smcFunc['db_affected_rows']() <= 0)
@@ -1823,8 +1819,6 @@ function createSalvageArea()
 			loadLanguage('Admin');
 			fatal_lang_error('salvaged_category_error', false);
 		}
-
-		$salvageCatID = $smcFunc['db_insert_id']('{db_prefix}categories', 'id_cat');
 	}
 
 	// Check to see if a 'Salvage Board' exists, if not => insert one.
@@ -1845,11 +1839,12 @@ function createSalvageArea()
 
 	if (empty($salvageBoardID))
 	{
-		$smcFunc['db_insert']('',
+		$salvageBoardID = $smcFunc['db_insert']('',
 			'{db_prefix}boards',
 			array('name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'),
 			array($txt['salvaged_board_name'], $txt['salvaged_board_description'], $salvageCatID, '1', -1, ''),
-			array('id_board')
+			array('id_board'),
+			1
 		);
 
 		if ($smcFunc['db_affected_rows']() <= 0)
@@ -1858,7 +1853,6 @@ function createSalvageArea()
 			fatal_lang_error('salvaged_board_error', false);
 		}
 
-		$salvageBoardID = $smcFunc['db_insert_id']('{db_prefix}boards', 'id_board');
 	}
 
 	$smcFunc['db_query']('alter_table_boards', '

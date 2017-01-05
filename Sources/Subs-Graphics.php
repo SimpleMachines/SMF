@@ -52,7 +52,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 
 	$id_folder = 1;
 	$avatar_hash = '';
-	$smcFunc['db_insert']('',
+	$attachID = $smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
 			'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-255', 'fileext' => 'string-8', 'size' => 'int',
@@ -62,9 +62,9 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 			$memID, 1, $destName, $avatar_hash, $ext, 1,
 			$id_folder,
 		),
-		array('id_attach')
+		array('id_attach'),
+		1
 	);
-	$attachID = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 
 	// Retain this globally in case the script wants it.
 	$modSettings['new_avatar_data'] = array(

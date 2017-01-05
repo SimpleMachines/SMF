@@ -845,13 +845,13 @@ function createBoard($boardOptions)
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 	// Insert a board, the settings are dealt with later.
-	$smcFunc['db_insert']('',
+	$board_id = $smcFunc['db_insert']('',
 		'{db_prefix}boards',
 		$board_columns,
 		$board_parameters,
-		array('id_board')
+		array('id_board'),
+		1
 	);
-	$board_id = $smcFunc['db_insert_id']('{db_prefix}boards', 'id_board');
 
 	if (empty($board_id))
 		return 0;

@@ -579,7 +579,7 @@ function ModifySubscription()
 		// Is it new?!
 		if ($context['action_type'] == 'add')
 		{
-			$smcFunc['db_insert']('',
+			$id_subscribe = $smcFunc['db_insert']('',
 				'{db_prefix}subscriptions',
 				array(
 					'name' => 'string-60', 'description' => 'string-255', 'active' => 'int', 'length' => 'string-4', 'cost' => 'string',
@@ -591,7 +591,8 @@ function ModifySubscription()
 					$_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete,
 					$reminder,
 				),
-				array('id_subscribe')
+				array('id_subscribe'),
+				1
 			);
 		}
 		// Otherwise must be editing.
@@ -634,7 +635,7 @@ function ModifySubscription()
 				)
 			);
 		}
-		call_integration_hook('integrate_save_subscription', array(($context['action_type'] == 'add' ? $smcFunc['db_insert_id']('{db_prefix}subscriptions', 'id_subscribe') : $context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
+		call_integration_hook('integrate_save_subscription', array(($context['action_type'] == 'add' ? $id_subscribe : $context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
 
 		redirectexit('action=admin;area=paidsubscribe;view');
 	}
