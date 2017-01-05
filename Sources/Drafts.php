@@ -219,7 +219,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 		$draft['subject'] = $smcFunc['substr']($draft['subject'], 0, 100);
 
 	// Modifying an existing PM draft?
-	if (!empty($id_pm_draft) && !empty($draft_info) && $draft_info['id_member'] == $user_info['id'])
+	if (!empty($id_pm_draft) && !empty($draft_info))
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}user_drafts
