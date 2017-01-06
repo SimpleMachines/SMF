@@ -530,6 +530,7 @@ $txt['calendar_linked_events'] = 'Linked Events';
 $txt['calendar_click_all'] = 'click to see all %1$s';
 $txt['calendar_allday'] = 'All day';
 $txt['calendar_timezone'] = 'Time zone';
+$txt['calendar_list'] = 'List';
 
 $txt['movetopic_change_subject'] = 'Change the topic\'s subject';
 $txt['movetopic_new_subject'] = 'New subject';
