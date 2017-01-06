@@ -1018,7 +1018,7 @@ function saveSettings(&$config_vars)
 		'webmaster_email',
 		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
 		'boarddir', 'sourcedir',
-		'cachedir', 'cache_accelerator', 'cache_memcached',
+		'cachedir', 'cachedir_sqlite', 'cache_accelerator', 'cache_memcached',
 		'image_proxy_secret',
 	);
 
