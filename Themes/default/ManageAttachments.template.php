@@ -181,7 +181,7 @@ function template_maintenance()
 					}
 
 					function show_progress() {
-						$(\'#show_progress\').load("progress.php");
+						$(\'#show_progress\').on("load", "progress.php");
 						setTimeout(\'show_progress()\', 1500);
 					}
 

@@ -188,7 +188,7 @@
 			removeKeyboardScrolling: function () {
 				this.$element
 					.removeAttr('tabindex')
-					.unbind("keydown", this.elementKeydown);
+					.off("keydown", this.elementKeydown);
 			},
 
 			bindEvents: function () {
@@ -277,9 +277,9 @@
 			},
 
 			removeMouseMoveScrolling: function () {
-				this.$thumb.unbind();
-				$(document).unbind("mouseup", this.documentMouseup);
-				$(document).unbind("mousemove", this.documentMousemove);
+				this.$thumb.off();
+				$(document).off("mouseup", this.documentMouseup);
+				$(document).off("mousemove", this.documentMousemove);
 			},
 
 			initMouseWheelScrolling: function () {
@@ -293,7 +293,7 @@
 			},
 
 			removeMouseWheelScrolling: function () {
-				this.scrollable.$element.unbind("mousewheel");
+				this.scrollable.$element.off("mousewheel");
 			},
 
 			initTouchScrolling: function () {
@@ -332,7 +332,7 @@
 			},
 
 			removeMouseClickScrolling: function () {
-				this.$scrollBar.unbind("click", this.scrollBarClick);
+				this.$scrollBar.off("click", this.scrollBarClick);
 			},
 
 			initWindowResize: function () {
@@ -346,7 +346,7 @@
 			},
 
 			removeWindowResize: function () {
-				$(window).unbind("resize", this.windowResize);
+				$(window).off("resize", this.windowResize);
 			},
 
 			isKeyScrolling: function (key) {
@@ -764,11 +764,11 @@
 
 	$.fn.extend({
 		mousewheel: function (fn) {
-			return fn ? this.bind("mousewheel", fn) : this.trigger("mousewheel");
+			return fn ? this.on("mousewheel", fn) : this.trigger("mousewheel");
 		},
 
 		unmousewheel: function (fn) {
-			return this.unbind("mousewheel", fn);
+			return this.off("mousewheel", fn);
 		}
 	});
 
