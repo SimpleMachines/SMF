@@ -2156,7 +2156,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavaScriptFile('jquery-2.1.4.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavaScriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
+		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
