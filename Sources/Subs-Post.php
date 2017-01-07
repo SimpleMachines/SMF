@@ -860,7 +860,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		{
 			if (!is_numeric($recipients[$rec_type][$id]))
 			{
-				$recipients[$rec_type][$id] = $smcFunc['strtolower'](trim(preg_replace('/[<>&"\'=\\\]/', '', $recipients[$rec_type][$id])));
+				$recipients[$rec_type][$id] = $smcFunc['strtolower'](trim(preg_replace('~[<>&"\'=\\\]~', '', $recipients[$rec_type][$id])));
 				$usernames[$recipients[$rec_type][$id]] = 0;
 			}
 		}
@@ -2110,7 +2110,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
-	if (!empty($modSettings['enable_mentions']))
+	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{
 		require_once($sourcedir . '/Mentions.php');
 

@@ -944,7 +944,7 @@ img.sort, .sort {
 
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
-.buttonlist {
+.buttonlist, .buttonrow {
 	z-index: 100;
 	padding: 5px 0 5px 0;
 	margin: 5px 0 5px 0;
@@ -993,6 +993,21 @@ img.sort, .sort {
 }
 .button.last {
 	margin-top: 9px;
+}
+/* In a .buttonrow, the buttons are joined together */
+.buttonrow {
+	margin-left: 5px;
+}
+.buttonrow .button {
+	display: table-cell;
+}
+.buttonrow .button:not(:first-child) {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+.buttonrow .button:not(:last-child) {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 /* Styles for the general looks of the theme.

@@ -79,6 +79,10 @@ function CalendarMain()
 				$_REQUEST['year'] = (int) $_REQUEST['year'];
 				$_REQUEST['month'] = (int) $_REQUEST['month'];
 
+				// We want month view.
+				if (empty($_GET['viewmonth']))
+					$_GET['viewmonth'] = true;
+
 				// And we definitely don't want weekly view.
 				unset ($_GET['viewweek']);
 
@@ -93,22 +97,80 @@ function CalendarMain()
 	// Set the page title to mention the calendar ;).
 	$context['page_title'] = $txt['calendar'];
 
-	// Is this a week view?
-	$context['view_week'] = isset($_GET['viewweek']);
+	// Ensure a default view is defined
+	if (empty($modSettings['calendar_default_view']))
+		$modSettings['calendar_default_view'] = 'view_list';
 
-	// Don't let search engines index weekly calendar pages.
-	if ($context['view_week'])
+	// What view do we want?
+	if (isset($_GET['viewweek']))
+		$context['calendar_view'] = 'view_week';
+	elseif (isset($_GET['viewmonth']))
+		$context['calendar_view'] = 'view_month';
+	elseif (isset($_GET['viewlist']))
+		$context['calendar_view'] = 'view_list';
+	else
+		$context['calendar_view'] = $modSettings['calendar_default_view'];
+
+	// Don't let search engines index the non-default calendar pages
+	if ($context['calendar_view'] !== $modSettings['calendar_default_view'])
 		$context['robot_no_index'] = true;
 
 	// Get the current day of month...
 	require_once($sourcedir . '/Subs-Calendar.php');
 	$today = getTodayInfo();
 
-	// If the month and year are not passed in, use today's date as a starting point.
+	// Need a start date for all views
+	if (!empty($_REQUEST['start_date']))
+	{
+		$start_parsed = date_parse($_REQUEST['start_date']);
+		if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count']))
+		{
+			$_REQUEST['year'] = $start_parsed['year'];
+			$_REQUEST['month'] = $start_parsed['month'];
+			$_REQUEST['day'] = $start_parsed['day'];
+		}
+	}
+	$year = !empty($_REQUEST['year']) ? (int) $_REQUEST['year'] : $today['year'];
+	$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
+	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : $today['day'];
+
+	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day))) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])));
+
+	// Need an end date for the list view
+	if (!empty($_REQUEST['end_date']))
+	{
+		$end_parsed = date_parse($_REQUEST['end_date']);
+		if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count']))
+		{
+			$_REQUEST['end_year'] = $end_parsed['year'];
+			$_REQUEST['end_month'] = $end_parsed['month'];
+			$_REQUEST['end_day'] = $end_parsed['day'];
+		}
+	}
+	$end_year = !empty($_REQUEST['end_year']) ? (int) $_REQUEST['end_year'] : null;
+	$end_month = !empty($_REQUEST['end_month']) ? (int) $_REQUEST['end_month'] : null;
+	$end_day = !empty($_REQUEST['end_day']) ? (int) $_REQUEST['end_day'] : null;
+
+	$end_object = checkdate($end_month, $end_day, $end_year) === true ? date_create(implode('-', array($end_year, $end_month, $end_day))) : null;
+
+	if (empty($end_object) || $start_object >= $end_object)
+	{
+		$num_days_shown = empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'];
+
+		$end_object = date_create(date_format($start_object, 'Y-m-d'));
+
+		date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
+	}
+
 	$curPage = array(
-		'day' => isset($_REQUEST['day']) ? (int) $_REQUEST['day'] : $today['day'],
-		'month' => isset($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'],
-		'year' => isset($_REQUEST['year']) ? (int) $_REQUEST['year'] : $today['year']
+		'year' => date_format($start_object, 'Y'),
+		'month' => date_format($start_object, 'n'),
+		'day' => date_format($start_object, 'j'),
+		'start_date' => date_format($start_object, 'Y-m-d'),
+		'end_year' => date_format($end_object, 'Y'),
+		'end_month' => date_format($end_object, 'n'),
+		'end_day' => date_format($end_object, 'j'),
+		'end_date' => date_format($end_object, 'Y-m-d'),
 	);
 
 	// Make sure the year and month are in valid ranges.
@@ -117,11 +179,10 @@ function CalendarMain()
 	if ($curPage['year'] < $modSettings['cal_minyear'] || $curPage['year'] > $modSettings['cal_maxyear'])
 		fatal_lang_error('invalid_year', false);
 	// If we have a day clean that too.
-	if ($context['view_week'])
+	if ($context['calendar_view'] != 'view_month')
 	{
-		// Note $isValid is -1 < PHP 5.1
-		$isValid = mktime(0, 0, 0, $curPage['month'], $curPage['day'], $curPage['year']);
-		if ($curPage['day'] > 31 || !$isValid || $isValid == -1)
+		$isValid = checkdate($curPage['month'], $curPage['day'], $curPage['year']);
+		if (!$isValid)
 			fatal_lang_error('invalid_day', false);
 	}
 
@@ -144,7 +205,9 @@ function CalendarMain()
 	);
 
 	// Load up the main view.
-	if ($context['view_week'])
+	if ($context['calendar_view'] == 'view_list')
+		$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
+	elseif ($context['calendar_view'] == 'view_week')
 		$context['calendar_grid_main'] = getCalendarWeek($curPage['month'], $curPage['year'], $curPage['day'], $calendarOptions);
 	else
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
@@ -178,7 +241,8 @@ function CalendarMain()
 	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
-	$context['page_title'] .= ' - ' . ($context['view_week'] ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+	if ($context['calendar_view'] != 'view_list')
+		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'view_week' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -191,7 +255,7 @@ function CalendarMain()
 		'name' => $txt['months'][$context['current_month']] . ' ' . $context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
-	if ($context['view_week'])
+	if ($context['calendar_view'] == 'view_week')
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
 			'name' => $context['calendar_grid_main']['week_title'],

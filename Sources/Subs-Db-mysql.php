@@ -33,44 +33,50 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	global $smcFunc, $mysql_set_mode;
 
 	// Map some database specific functions, only do this once.
-	if (!isset($smcFunc['db_fetch_assoc']) || $smcFunc['db_fetch_assoc'] != 'mysql_fetch_assoc')
+	if (!isset($smcFunc['db_fetch_assoc']) || $smcFunc['db_fetch_assoc'] != 'mysqli_fetch_assoc')
 		$smcFunc += array(
-			'db_query' => 'smf_db_query',
-			'db_quote' => 'smf_db_quote',
-			'db_fetch_assoc' => 'mysql_fetch_assoc',
-			'db_fetch_row' => 'mysql_fetch_row',
-			'db_free_result' => 'mysql_free_result',
-			'db_insert' => 'smf_db_insert',
-			'db_insert_id' => 'smf_db_insert_id',
-			'db_num_rows' => 'mysql_num_rows',
-			'db_data_seek' => 'mysql_data_seek',
-			'db_num_fields' => 'mysql_num_fields',
-			'db_escape_string' => 'addslashes',
-			'db_unescape_string' => 'stripslashes',
-			'db_server_info' => 'mysql_get_server_info',
-			'db_affected_rows' => 'smf_db_affected_rows',
-			'db_transaction' => 'smf_db_transaction',
-			'db_error' => 'mysql_error',
-			'db_select_db' => 'mysql_select_db',
-			'db_title' => 'MySQL',
-			'db_sybase' => false,
-			'db_case_sensitive' => false,
+			'db_query'                  => 'smf_db_query',
+			'db_quote'                  => 'smf_db_quote',
+			'db_fetch_assoc'            => 'mysqli_fetch_assoc',
+			'db_fetch_row'              => 'mysqli_fetch_row',
+			'db_free_result'            => 'mysqli_free_result',
+			'db_insert'                 => 'smf_db_insert',
+			'db_insert_id'              => 'smf_db_insert_id',
+			'db_num_rows'               => 'mysqli_num_rows',
+			'db_data_seek'              => 'mysqli_data_seek',
+			'db_num_fields'             => 'mysqli_num_fields',
+			'db_escape_string'          => 'addslashes',
+			'db_unescape_string'        => 'stripslashes',
+			'db_server_info'            => 'smf_db_get_server_info',
+			'db_affected_rows'          => 'smf_db_affected_rows',
+			'db_transaction'            => 'smf_db_transaction',
+			'db_error'                  => 'mysqli_error',
+			'db_select_db'              => 'smf_db_select',
+			'db_title'                  => 'MySQLi',
+			'db_sybase'                 => false,
+			'db_case_sensitive'         => false,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
-			'db_is_resource' => 'is_resource',
+			'db_is_resource'            => 'smf_is_resource',
 		);
 
-	if (!empty($db_options['port']))
-		$db_server .= ':' . $db_options['port'];
-	
-	$flags = 2; //#define CLIENT_FOUND_ROWS 2 /* Found instead of affected rows */
-
 	if (!empty($db_options['persist']))
-		$connection = @mysql_pconnect($db_server, $db_user, $db_passwd, $flags);
-	else
-		$connection = @mysql_connect($db_server, $db_user, $db_passwd, false, $flags);
+		$db_server = 'p:' . $db_server;
+
+	$connection = mysqli_init();
+	
+	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	
+	$success = false;
+	
+	if ($connection) {
+		if (!empty($db_options['port']))
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'], null, $flags);
+		else
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', 0, null, $flags);
+	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
-	if (!$connection)
+	if ($success === false)
 	{
 		if (!empty($db_options['non_fatal']))
 			return null;
@@ -79,7 +85,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	}
 
 	// Select the database, unless told not to
-	if (empty($db_options['dont_select_db']) && !@mysql_select_db($db_name, $connection) && empty($db_options['non_fatal']))
+	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
 	// This makes it possible to have SMF automatically change the sql_mode and autocommit if needed.
@@ -100,9 +106,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
  */
 function db_extend($type = 'extra')
 {
-	global $sourcedir, $db_type;
+	global $sourcedir;
 
-	require_once($sourcedir . '/Db' . strtoupper($type[0]) . substr($type, 1) . '-' . $db_type . '.php');
+	// we force the MySQL files as nothing syntactically changes with MySQLi
+	require_once($sourcedir . '/Db' . strtoupper($type[0]) . substr($type, 1) . '-mysql.php');
 	$initFunc = 'db_' . $type . '_init';
 	$initFunc();
 }
@@ -119,6 +126,31 @@ function db_fix_prefix(&$db_prefix, $db_name)
 }
 
 /**
+ * Wrap mysqli_select_db so the connection does not need to be specified
+ *
+ * @param string &$database The database
+ * @param object $connection The connection object (if null, $db_connection is used)
+ * @return bool Whether the database was selected
+ */
+function smf_db_select($database, $connection = null)
+{
+	global $db_connection;
+	return mysqli_select_db($connection === null ? $db_connection : $connection, $database);
+}
+
+/**
+ * Wrap mysqli_get_server_info so the connection does not need to be specified
+ *
+ * @param object $connection The connection to use (if null, $db_connection is used)
+ * @return string The server info
+ */
+function smf_db_get_server_info($connection = null)
+{
+	global $db_connection;
+	return mysqli_get_server_info($connection === null ? $db_connection : $connection);
+}
+
+/**
  * Callback for preg_replace_callback on the query.
  * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board'), with
  * their current values from $user_info.
@@ -132,9 +164,7 @@ function smf_db_replacement__callback($matches)
 	global $db_callback, $user_info, $db_prefix, $smcFunc;
 
 	list ($values, $connection) = $db_callback;
-
-	// Connection gone???  This should *never* happen at this point, yet it does :'(
-	if (!is_resource($connection))
+	if (!is_object($connection))
 		display_db_error();
 
 	if ($matches[1] === 'db_prefix')
@@ -153,7 +183,7 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if ($matches[1] === 'literal')
-		return '\'' . mysql_real_escape_string($matches[2], $connection) . '\'';
+		return '\'' . mysqli_real_escape_string($connection, $matches[2]) . '\'';
 
 	if (!isset($values[$matches[2]]))
 		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
@@ -170,7 +200,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'string':
 		case 'text':
-			return sprintf('\'%1$s\'', mysql_real_escape_string($replacement, $connection));
+			return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $replacement));
 		break;
 
 		case 'array_int':
@@ -201,7 +231,7 @@ function smf_db_replacement__callback($matches)
 					smf_db_error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				foreach ($replacement as $key => $value)
-					$replacement[$key] = sprintf('\'%1$s\'', mysql_real_escape_string($value, $connection));
+					$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $value));
 
 				return implode(', ', $replacement);
 			}
@@ -332,6 +362,34 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
 
+	// Get a connection if we are shutting down, sometimes the link is closed before sessions are written
+	if (!is_object($connection))
+	{
+		global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
+
+		// Are we in SSI mode?  If so try that username and password first
+		if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
+		{
+			if (empty($db_persist))
+				$db_connection = @mysqli_connect($db_server, $ssi_db_user, $ssi_db_passwd);
+			else
+				$db_connection = @mysqli_connect('p:' . $db_server, $ssi_db_user, $ssi_db_passwd);
+		}
+		// Fall back to the regular username and password if need be
+		if (!$db_connection)
+		{
+			if (empty($db_persist))
+				$db_connection = @mysqli_connect($db_server, $db_user, $db_passwd);
+			else
+				$db_connection = @mysqli_connect('p:' . $db_server, $db_user, $db_passwd);
+		}
+
+		if (!$db_connection || !@mysqli_select_db($db_connection, $db_name))
+			$db_connection = false;
+
+		$connection = $db_connection;
+	}
+
 	// One more query....
 	$db_count = !isset($db_count) ? 1 : $db_count + 1;
 
@@ -434,9 +492,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	}
 
 	if (empty($db_unbuffered))
-		$ret = @mysql_query($db_string, $connection);
+		$ret = @mysqli_query($connection, $db_string);
 	else
-		$ret = @mysql_unbuffered_query($db_string, $connection);
+		$ret = @mysqli_query($connection, $db_string, MYSQLI_USE_RESULT);
 
 	if ($ret === false && empty($db_values['db_error_skip']))
 		$ret = smf_db_error($db_string, $connection);
@@ -457,7 +515,7 @@ function smf_db_affected_rows($connection = null)
 {
 	global $db_connection;
 
-	return mysql_affected_rows($connection === null ? $db_connection : $connection);
+	return mysqli_affected_rows($connection === null ? $db_connection : $connection);
 }
 
 /**
@@ -473,7 +531,7 @@ function smf_db_insert_id($table, $field = null, $connection = null)
 	global $db_connection;
 
 	// MySQL doesn't need the table or field information.
-	return mysql_insert_id($connection === null ? $db_connection : $connection);
+	return mysqli_insert_id($connection === null ? $db_connection : $connection);
 }
 
 /**
@@ -491,11 +549,11 @@ function smf_db_transaction($type = 'commit', $connection = null)
 	$connection = $connection === null ? $db_connection : $connection;
 
 	if ($type == 'begin')
-		return @mysql_query('BEGIN', $connection);
+		return @mysqli_query($connection, 'BEGIN');
 	elseif ($type == 'rollback')
-		return @mysql_query('ROLLBACK', $connection);
+		return @mysqli_query($connection, 'ROLLBACK');
 	elseif ($type == 'commit')
-		return @mysql_query('COMMIT', $connection);
+		return @mysqli_query($connection, 'COMMIT');
 
 	return false;
 }
@@ -505,7 +563,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
  * Backtrace, log, try to fix.
  *
  * @param string $db_string The DB string
- * @param resource $connection The connection to use (if null, $db_connection is used)
+ * @param object $connection The connection to use (if null, $db_connection is used)
  */
 function smf_db_error($db_string, $connection = null)
 {
@@ -521,8 +579,8 @@ function smf_db_error($db_string, $connection = null)
 	$connection = $connection === null ? $db_connection : $connection;
 
 	// This is the error message...
-	$query_error = mysql_error($connection);
-	$query_errno = mysql_errno($connection);
+	$query_error = mysqli_error($connection);
+	$query_errno = mysqli_errno($connection);
 
 	// Error numbers:
 	//    1016: Can't open file '....MYI'
@@ -622,20 +680,20 @@ function smf_db_error($db_string, $connection = null)
 				if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
 				{
 					if (empty($db_persist))
-						$db_connection = @mysql_connect($db_server, $ssi_db_user, $ssi_db_passwd);
+						$db_connection = @mysqli_connect($db_server, $ssi_db_user, $ssi_db_passwd);
 					else
-						$db_connection = @mysql_pconnect($db_server, $ssi_db_user, $ssi_db_passwd);
+						$db_connection = @mysqli_connect('p:' . $db_server, $ssi_db_user, $ssi_db_passwd);
 				}
 				// Fall back to the regular username and password if need be
 				if (!$db_connection)
 				{
 					if (empty($db_persist))
-						$db_connection = @mysql_connect($db_server, $db_user, $db_passwd);
+						$db_connection = @mysqli_connect($db_server, $db_user, $db_passwd);
 					else
-						$db_connection = @mysql_pconnect($db_server, $db_user, $db_passwd);
+						$db_connection = @mysqli_connect('p:' . $db_server, $db_user, $db_passwd);
 				}
 
-				if (!$db_connection || !@mysql_select_db($db_name, $db_connection))
+				if (!$db_connection || !@mysqli_select_db($db_connection, $db_name))
 					$db_connection = false;
 			}
 
@@ -646,7 +704,7 @@ function smf_db_error($db_string, $connection = null)
 				{
 					$ret = $smcFunc['db_query']('', $db_string, false, false);
 
-					$new_errno = mysql_errno($db_connection);
+					$new_errno = mysqli_errno($db_connection);
 					if ($ret !== false || in_array($new_errno, array(1205, 1213)))
 						break;
 				}
@@ -700,7 +758,7 @@ function smf_db_error($db_string, $connection = null)
  * @param array $data The data to insert
  * @param array $keys The keys for the table
  * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
- * @param resource $connection The connection to use (if null, $db_connection is used)
+ * @param object $connection The connection to use (if null, $db_connection is used)
  * @return value of the first key, behavior based on returnmode
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
@@ -845,6 +903,21 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 		);
 
 	return strtr($string, $replacements);
+}
+
+/**
+ * Validates whether the resource is a valid mysqli instance.
+ * Mysqli uses objects rather than resource. https://bugs.php.net/bug.php?id=42797
+ *
+ * @param mixed $result The string to test
+ * @return bool True if it is, false otherwise
+ */
+function smf_is_resource($result)
+{
+	if ($result instanceof mysqli_result)
+		return true;
+
+	return false;
 }
 
 ?>
