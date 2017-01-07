@@ -27,7 +27,7 @@ require_once('Sources/Class-Package.php');
 
 // Database info.
 $databases = array(
-	'mysqli' => array(
+	'mysql' => array(
 		'name' => 'MySQLi',
 		'version' => '5.0.3',
 		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
@@ -39,26 +39,6 @@ $databases = array(
 		'utf8_support' => true,
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
-		'utf8_default' => true,
-		'utf8_required' => true,
-		'alter_support' => true,
-		'validate_prefix' => function(&$value) {
-			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
-			return true;
-		},
-	),
-	'mysql' => array(
-		'name' => 'MySQL',
-		'version' => '5.0.3',
-		'version_check' => 'return min(mysql_get_server_info(), mysql_get_client_info());',
-		'supported' => function_exists('mysql_connect'),
-		'default_user' => 'mysql.default_user',
-		'default_password' => 'mysql.default_password',
-		'default_host' => 'mysql.default_host',
-		'default_port' => 'mysql.default_port',
-		'utf8_support' => true,
-		'utf8_version' => '5.0.3',
-		'utf8_version_check' => 'return mysql_get_server_info();',
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
@@ -376,7 +356,7 @@ function load_database()
 		// Figure out the port...
 		if (!empty($_POST['db_port']))
 		{
-			if ($db_type == 'mysql' || $db_type == 'mysqli')
+			if ($db_type == 'mysql')
 			{
 				$port = ((int) $_POST['db_port'] == ini_get($db_type . 'default_port')) ? '' : (int) $_POST['db_port'];
 			}
