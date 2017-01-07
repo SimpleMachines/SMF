@@ -83,9 +83,9 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'extra' => json_encode(
 					    array(
 					        "event_id" => $this->_details['event_id'],
-						"event_title" => $this->_details['event_title']
-                        			)
-                    			),
+							"event_title" => $this->_details['event_title']
+						)
+					),
 				);
 			}
 
