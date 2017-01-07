@@ -84,8 +84,8 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					    array(
 					        "event_id" => $this->_details['event_id'],
 						"event_title" => $this->_details['event_title']
-                        )
-                    ),
+                        			)
+                    			),
 				);
 			}
 
