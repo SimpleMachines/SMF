@@ -653,11 +653,6 @@ table.table_grid td {
 .title_bar th {
 	padding: 4px 8px;
 }
-/* this is for checkboxes to ensure they line well same elements on the line */
-/* @to-do change all checkall checkboxes on thead's to this */
-.title_bar .checkall {
-	padding: 4px 0;
-}
 .title_bar .sort_down, .title_bar .sort_up {
 	margin: -3px 0 0 2px;
 }
@@ -2867,7 +2862,6 @@ h3 .collapse {
 	border-left: 1px solid #DDD;
 	border-right: 1px solid #DDD;
 	text-align: center;
-	min-height: 3em;
 	margin: 3px 0 0;
 }
 .lastpost {
@@ -2878,7 +2872,6 @@ h3 .collapse {
 	margin: 3px 0 0 0;
 }
 .board_icon, .info, .board_stats, .lastpost {
-	min-height: 4.5em;
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -2997,10 +2990,8 @@ span.postby {
 	border-radius: 0;
 }
 #topic_header div {
-	height: 2em;
 	font-weight: bold;
 	font-size: 1em;
-	margin: 0;
 	padding: 0;
 }
 #topic_header input {
@@ -3017,7 +3008,6 @@ span.postby {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	min-height: 3.5em;
 }
 .icon img, .moderation input {
 	margin-top: 15px;
@@ -3026,12 +3016,11 @@ span.postby {
 	border: none;
 }
 .moderation {
-	display: table-cell;
+	display: inline-block;
 	min-width: 35px;
 	width: 3%;
 	vertical-align: middle;
 	text-align: right;
-	padding: 0 5px 0 0 !important;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
@@ -3796,21 +3785,21 @@ h3.profile_hd {
 #au-previews div.descbox div,
 #au-previews div.errorbox div,
 #au-previews div.infobox div{
-	display:inline-block;
-	width:32%;
-	min-height:30px;
+	display: inline-block;
+	width: 32%;
+	min-height: 30px;
 	vertical-align: middle;
 }
 .attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
-	display:none;
+	display: none;
 }
 p.attached_BBC a.insertBBC
 {
-	margin:0;
+	margin: 0;
 }
 
 .attach-info p, .attach-info field{
-	display:inline-block;
+	display: inline-block;
 }
 #attachUpload{
 	min-height:50px;
@@ -3839,11 +3828,11 @@ p.attached_BBC a.insertBBC
 	background-color: #34c2e3;
 	background-size: 30px 30px;
 	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-	width:0px;
+	width: 0px;
 }
 
 #maxFiles_progress, #maxFiles_progress_text {
-	display:none;
+	display: none;
 }
 .progress_yellow span {
 	background-color: #fecf23;
