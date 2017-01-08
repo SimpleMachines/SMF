@@ -28,7 +28,7 @@ require_once('Sources/Class-Package.php');
 // Database info.
 $databases = array(
 	'mysql' => array(
-		'name' => 'MySQLi',
+		'name' => 'MySQL',
 		'version' => '5.0.3',
 		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'supported' => function_exists('mysqli_connect'),
