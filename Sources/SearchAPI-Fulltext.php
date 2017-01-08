@@ -33,7 +33,7 @@ class fulltext_search extends search_api
 	/**
 	 * @var array Which databases support this method?
 	 */
-	protected $supported_databases = array('mysql', 'mysqli');
+	protected $supported_databases = array('mysql');
 
 	/**
 	 * The constructor function
