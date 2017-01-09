@@ -204,7 +204,7 @@ function template_settings()
 			'id' => 'og_image',
 			'label' => $txt['og_image'],
 			'description' => $txt['og_image_desc'],
-			'type' => 'text',
+			'type' => 'url',
 		),
 	);
 }
