@@ -1006,6 +1006,14 @@ function UpgradeOptions()
 
 	$changes = array();
 
+	// Add proxy settings.
+	if (!isset($GLOBALS['image_proxy_maxsize']))
+		$changes += array(
+			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
+			'image_proxy_maxsize' => 5190,
+			'image_proxy_enabled' => 0,
+		);
+
 	// If we're overriding the language follow it through.
 	if (isset($_GET['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $_GET['lang'] . '.php'))
 		$changes['language'] = '\'' . $_GET['lang'] . '\'';
