@@ -94,7 +94,6 @@ h1.forumtitle {
 }
 .panel form div {
 	max-height: 560px;
-	overflow: auto;
 }
 .panel p, .panel h3, .panel ul {
 	margin: 0 0 1em 0;
