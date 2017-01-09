@@ -1593,21 +1593,15 @@ function parse_sql($filename)
 	db_extend('packages');
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
-	if (!function_exists('sql_error_handler'))
-	{
-		function sql_error_handler($errno, $errstr, $errfile, $errline)
+	set_error_handler(
+		function ($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
-			global $support_js;
-
 			if ($support_js)
 				return true;
 			else
 				echo 'Error: ' . $errstr . ' File: ' . $errfile . ' Line: ' . $errline;
 		}
-	}
-
-	// Make our own error handler.
-	set_error_handler('sql_error_handler');
+	);
 
 	// If we're on MySQL supporting collations then let's find out what the members table uses and put it in a global var - to allow upgrade script to match collations!
 	if (!empty($databases[$db_type]['utf8_support']) && version_compare($databases[$db_type]['utf8_version'], eval($databases[$db_type]['utf8_version_check']), '>'))
