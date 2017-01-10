@@ -111,7 +111,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 if (php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 {
 	$command_line = true;
-	$disable_security = 1;
+	$disable_security = true;
 }
 else
 	$command_line = false;
@@ -168,7 +168,7 @@ if (isset($_GET['ssi']))
 
 // Include our helper functions.
 require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/ LogInOut.php');
+require_once($sourcedir . '/LogInOut.php');
 require_once($upgrade_path . '/upgrade-helper.php');
 
 // This only exists if we're on SMF ;)
@@ -1009,7 +1009,7 @@ function UpgradeOptions()
 	// Add proxy settings.
 	if (!isset($GLOBALS['image_proxy_maxsize']))
 		$changes += array(
-			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
+			'image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\'',
 			'image_proxy_maxsize' => 5190,
 			'image_proxy_enabled' => 0,
 		);
@@ -1368,7 +1368,7 @@ function DeleteUpgrade()
 		),
 		array(
 			time(), 3, $user_info['id'], $command_line ? '127.0.0.1' : $user_info['ip'], 'upgrade',
-			0, 0, 0, safe_serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
+			0, 0, 0, json_encode(array('version' => $forum_version, 'member' => $user_info['id'])),
 		),
 		array('id_action')
 	);
@@ -2411,7 +2411,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 /**
  * Handles converting your database to UTF-8
  */
-function convertUtf8()
+function ConvertUtf8()
 {
 	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
 
@@ -2836,9 +2836,9 @@ function convertUtf8()
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
 					CONVERT TO CHARACTER SET utf8',
-						array(
-								'table_name' => $table_info['Name'],
-						)
+					array(
+						'table_name' => $table_info['Name'],
+					)
 				);
 
 				if ($command_line)
@@ -3772,7 +3772,9 @@ function template_backup_database()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="backup_done" id="backup_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<span id="debuginfo"></span>';
+			<div id="debug_section" style="height: 200px; overflow: auto;">
+			<span id="debuginfo"></span>
+			</div>';
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_tables']))
@@ -3819,8 +3821,8 @@ function template_backup_database()
 			echo '
 				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
-				if (document.getElementById(\'debuginfo\').scrollHeight)
-					document.getElementById(\'debuginfo\').scrollTop = document.getElementById(\'debuginfo\').scrollHeight;';
+				if (document.getElementById(\'debug_section\').scrollHeight)
+					document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
 
 		echo '
 				// Get the next update...
