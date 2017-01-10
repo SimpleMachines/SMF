@@ -53,7 +53,7 @@ function smf_fileUpload(oOptions)
 				$('#maxFiles_progress span').width(range_maxFile + '%');
 
 				// Show or update the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', (myDropzone.options.maxFilesize != null ? myDropzone.options.maxFilesize : myDropzone.options.text_attach_unlimited)).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize * 0.001, 3)));
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', (Math.round(myDropzone.options.maxLimitReferenceUploadSize / 1024))).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize / 1024)));
 
 				if (myDropzone.options.totalMaxSize == 0){
 					$('#maxFiles_progress').hide();
@@ -67,14 +67,14 @@ function smf_fileUpload(oOptions)
 
 			// This file has reached the max total size per post.
 			if (myDropzone.options.maxLimitReferenceUploadSize > 0 && myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
-				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', Math.round(myDropzone.options.maxLimitReferenceUploadSize / 1024)).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize / 1024)));
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
 			}
 
-			// The file is too big.  Zero means unlimited poweeeerrrrr!!!
-			if (myDropzone.options.maxFilesize > 0 && (file.size * 0.001) > myDropzone.options.maxFilesize){
+			// The file is too big. 
+			if ((myDropzone.options.maxFilesize > 0) && (file.size > (myDropzone.options.maxFilesize * 1024))){
 				done(myDropzone.options.dictFileTooBig);
 
 				// File is cancel.
