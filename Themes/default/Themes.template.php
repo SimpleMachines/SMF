@@ -420,8 +420,8 @@ function template_set_options()
 			}
 			else if (isset($setting['type']) && $setting['type'] == 'url')
 			{
-			echo'
-			<input type="url"';
+				echo'
+						<input type="url"';
 			}
 			else
 			{
@@ -660,8 +660,8 @@ function template_set_settings()
 			}
 			else if (isset($setting['type']) && $setting['type'] == 'url')
 			{
-			echo'
-			<input type="url"';
+				echo'
+						<input type="url"';	
 			}
 			else
 			{
