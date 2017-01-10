@@ -522,8 +522,8 @@ function CheckFilesWritable()
 		'Smileys',
 		'Themes',
 		'agreement.txt',
-		'Settings.php'
-		'Settings_bak.php'
+		'Settings.php',
+		'Settings_bak.php',
 	);
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
