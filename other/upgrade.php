@@ -19,22 +19,13 @@ $GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '5.0.3';
 
 $databases = array(
-	'mysqli' => array(
-		'name' => 'MySQLi',
+	'mysql' => array(
+		'name' => 'MySQL',
 		'version' => '5.0.3',
 		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'utf8_support' => true,
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
-		'alter_support' => true,
-	),
-	'mysql' => array(
-		'name' => 'MySQL',
-		'version' => '5.0.3',
-		'version_check' => 'return min(mysql_get_server_info(), mysql_get_client_info());',
-		'utf8_support' => true,
-		'utf8_version' => '5.0.3',
-		'utf8_version_check' => 'return mysql_get_server_info();',
 		'alter_support' => true,
 	),
 	'postgresql' => array(
