@@ -172,14 +172,14 @@
 			// create the tip move with the cursor
 			if (oSettings.followMouse)
 			{
-				$(this).bind("mousemove", function(event){
+				$(this).on("mousemove", function(event){
 					positionTooltip(event);
 					return false;
 				});
 			}
 
 			// clear the tip on a click
-			$(this).bind("click", function(event){
+			$(this).on("click", function(event){
 				hideTooltip(this);
 				return true;
 			});
