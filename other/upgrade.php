@@ -15,12 +15,19 @@
 define('SMF_VERSION', '2.1 Beta 3');
 define('SMF_LANG_VERSION', '2.1 Beta 3');
 
+/**
+ * The minimum required PHP version.
+ * @var string
+ */
 $GLOBALS['required_php_version'] = '5.3.8';
-$GLOBALS['required_mysql_version'] = '5.0.3';
 
+/**
+ * A list of supported database systems.
+ * @var array
+ */
 $databases = array(
-	'mysqli' => array(
-		'name' => 'MySQLi',
+	'mysql' => array(
+		'name' => 'MySQL',
 		'version' => '5.0.3',
 		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'utf8_support' => true,
@@ -28,32 +35,49 @@ $databases = array(
 		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
 		'alter_support' => true,
 	),
-	'mysql' => array(
-		'name' => 'MySQL',
-		'version' => '5.0.3',
-		'version_check' => 'return min(mysql_get_server_info(), mysql_get_client_info());',
-		'utf8_support' => true,
-		'utf8_version' => '5.0.3',
-		'utf8_version_check' => 'return mysql_get_server_info();',
-		'alter_support' => true,
-	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
-		'version' => '8.0',
+		'version' => '9.1',
 		'version_check' => '$version = pg_version(); return $version[\'client\'];',
 		'always_has_db' => true,
 	),
 );
 
-// General options for the script.
+/**
+ * The maximum time a single substep may take, in seconds.
+ * @var int
+ */
 $timeLimitThreshold = 3;
+
+/**
+ * The current path to the upgrade.php file.
+ * @var string
+ */
 $upgrade_path = dirname(__FILE__);
+
+/**
+ * The URL of the current page.
+ * @var string
+ */
 $upgradeurl = $_SERVER['PHP_SELF'];
-// Where the SMF images etc are kept.
+
+/**
+ * The base URL for the external SMF resources.
+ * @var string
+ */
 $smfsite = 'http://www.simplemachines.org/smf';
-// Disable the need for admins to login?
+
+/**
+ * Flag to disable the required administrator login.
+ * @var bool
+ */
 $disable_security = false;
-// How long, in seconds, must admin be inactive to allow someone else to run?
+
+/**
+ * The amount of seconds allowed between logins.
+ * If the first user to login is inactive for this amount of seconds, a second login is allowed.
+ * @var int
+ */
 $upcontext['inactive_timeout'] = 10;
 
 // All the steps in detail.
@@ -65,8 +89,6 @@ $upcontext['steps'] = array(
 	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
 	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
 	5 => array(6, 'Convert serialized strings to JSON', 'serialize_to_json', 10),
-	// This is removed as it doesn't really work right at the moment.
-	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
 	6 => array(7, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
@@ -89,7 +111,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 if (php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 {
 	$command_line = true;
-	$disable_security = 1;
+	$disable_security = true;
 }
 else
 	$command_line = false;
@@ -144,85 +166,10 @@ if (isset($_GET['ssi']))
 	loadPermissions();
 }
 
-if (!function_exists('un_htmlspecialchars'))
-{
-	function un_htmlspecialchars($string)
-	{
-		return strtr($string, array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' '));
-	}
-}
-
-if (!function_exists('text2words'))
-{
-	function text2words($text)
-	{
-		// Step 1: Remove entities/things we don't consider words:
-		$words = preg_replace('~(?:[\x0B\0\xA0\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~', ' ', $text);
-
-		// Step 2: Entities we left to letters, where applicable, lowercase.
-		$words = preg_replace('~([^&\d]|^)[#;]~', '$1 ', un_htmlspecialchars(strtolower($words)));
-
-		// Step 3: Ready to split apart and index!
-		$words = explode(' ', $words);
-		$returned_words = array();
-		foreach ($words as $word)
-		{
-			$word = trim($word, '-_\'');
-
-			if ($word != '')
-				$returned_words[] = substr($word, 0, 20);
-		}
-
-		return array_unique($returned_words);
-	}
-}
-
-if (!function_exists('clean_cache'))
-{
-	// Empty out the cache folder.
-	function clean_cache($type = '')
-	{
-		global $cachedir, $sourcedir;
-
-		// No directory = no game.
-		if (!is_dir($cachedir))
-			return;
-
-		// Remove the files in SMF's own disk cache, if any
-		$dh = opendir($cachedir);
-		while ($file = readdir($dh))
-		{
-			if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
-				@unlink($cachedir . '/' . $file);
-		}
-		closedir($dh);
-
-		// Invalidate cache, to be sure!
-		// ... as long as index.php can be modified, anyway.
-		@touch($cachedir . '/' . 'index.php');
-		clearstatcache();
-	}
-}
-
-// MD5 Encryption.
-if (!function_exists('md5_hmac'))
-{
-	function md5_hmac($data, $key)
-	{
-		if (strlen($key) > 64)
-			$key = pack('H*', md5($key));
-		$key = str_pad($key, 64, chr(0x00));
-
-		$k_ipad = $key ^ str_repeat(chr(0x36), 64);
-		$k_opad = $key ^ str_repeat(chr(0x5c), 64);
-
-		return md5($k_opad . pack('H*', md5($k_ipad . $data)));
-	}
-}
-
-// Don't do security check if on Yabbse
-if (!isset($modSettings['smfVersion']))
-	$disable_security = true;
+// Include our helper functions.
+require_once($sourcedir . '/Subs.php');
+require_once($sourcedir . '/LogInOut.php');
+require_once($upgrade_path . '/upgrade-helper.php');
 
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
@@ -258,7 +205,7 @@ if (!isset($settings['default_theme_dir']))
 
 $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && !empty($modSettings['totalMessages']) && $modSettings['totalMessages'] > 75000;
 // Default title...
-$upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SMF Install!' : 'Upgrading from YaBB SE!';
+$upcontext['page_title'] = 'Updating Your SMF Installation!';
 
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
@@ -338,7 +285,7 @@ upgradeExit();
 // Exit the upgrade script.
 function upgradeExit($fallThrough = false)
 {
-	global $upcontext, $upgradeurl, $boarddir, $command_line, $is_debug;
+	global $upcontext, $upgradeurl, $sourcedir, $command_line, $is_debug;
 
 	// Save where we are...
 	if (!empty($upcontext['current_step']) && !empty($upcontext['user']['id']))
@@ -348,9 +295,9 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['updated'] = time();
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(safe_serialize($upcontext['user']));
-		copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
-		changeSettings(array('upgradeData' => '"' . $upgradeData . '"'));
-		updateLastError();
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('upgradeData' => '"' . $upgradeData . '"'));
+		updateDbLastError(0);
 	}
 
 	// Handle the progress of the step, if any.
@@ -490,7 +437,6 @@ function loadEssentialData()
 
 	$smcFunc['strtolower'] = 'smf_strtolower';
 
-
 	// Initialize everything...
 	initialize_inputs();
 
@@ -508,7 +454,7 @@ function loadEssentialData()
 		if ($db_connection === null)
 			die('Unable to connect to database - please check username and password are correct in Settings.php');
 
-		if (($db_type == 'mysql' || $db_type == 'mysqli') && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
+		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
 			SET NAMES {string:db_character_set}',
 			array(
@@ -556,13 +502,6 @@ function initialize_inputs()
 
 	umask(0);
 
-	// Fun.  Low PHP version...
-	if (!isset($_GET))
-	{
-		$GLOBALS['_GET']['step'] = 0;
-		return;
-	}
-
 	ob_start();
 
 	// Better to upgrade cleanly and fall apart than to screw everything up if things take too long.
@@ -573,13 +512,12 @@ function initialize_inputs()
 	{
 		@unlink(__FILE__);
 
-		$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-
 		// And the extra little files ;).
 		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
 		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
 		while ($file = readdir($dh))
@@ -638,21 +576,22 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
-	global $smcFunc, $db_type, $databases, $txt, $boardurl;
+	global $smcFunc, $db_type, $databases, $boardurl;
+
+	// We global $txt here so that the language files can add to them. This variable is NOT unused.
+	global $txt;
 
 	$upcontext['sub_template'] = 'welcome_message';
-
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists($sourcedir . '/QueryString.php')
 		&& @file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php')
-		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
+		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
 
 	// Need legacy scripts?
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.1)
-		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
+		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.0)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_1-1.sql');
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 1.1)
@@ -788,8 +727,12 @@ function checkLogin()
 	global $modSettings, $upcontext, $disable_security;
 	global $smcFunc, $db_type, $support_js;
 
+	// Don't bother if the security is disabled.
+	if ($disable_security)
+		return true;
+
 	// Are we trying to login?
-	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
+	if (isset($_POST['contbutt']) && (!empty($_POST['user'])))
 	{
 		// If we've disabled security pick a suitable name!
 		if (empty($_POST['user']))
@@ -797,7 +740,7 @@ function checkLogin()
 
 		// Before 2.0 these column names were different!
 		$oldDB = false;
-		if (empty($db_type) || $db_type == 'mysql' || $db_type == 'mysqli')
+		if (empty($db_type) || $db_type == 'mysql')
 		{
 			$request = $smcFunc['db_query']('', '
 				SHOW COLUMNS
@@ -975,9 +918,6 @@ function UpgradeOptions()
 	if (empty($_POST['upcont']))
 		return false;
 
-	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
-
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
 	{
@@ -1066,6 +1006,14 @@ function UpgradeOptions()
 
 	$changes = array();
 
+	// Add proxy settings.
+	if (!isset($GLOBALS['image_proxy_maxsize']))
+		$changes += array(
+			'image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\'',
+			'image_proxy_maxsize' => 5190,
+			'image_proxy_enabled' => 0,
+		);
+
 	// If we're overriding the language follow it through.
 	if (isset($_GET['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $_GET['lang'] . '.php'))
 		$changes['language'] = '\'' . $_GET['lang'] . '\'';
@@ -1091,9 +1039,6 @@ function UpgradeOptions()
 	if ($command_line)
 		echo ' * Updating Settings.php...';
 
-	// Backup the current one first.
-	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
-
 	// Fix some old paths.
 	if (substr($boarddir, 0, 1) == '.')
 		$changes['boarddir'] = '\'' . fixRelativePath($boarddir) . '\'';
@@ -1108,28 +1053,24 @@ function UpgradeOptions()
 	if (empty($db_type))
 		$changes['db_type'] = 'mysql';
 
-	// For now we offer a option, this may change in future versions when mysql is completely removed.
-	if (!empty($_POST['convertMysql']) && $db_type == 'mysql')
-		$changes['db_type'] = '\'mysqli\'';
-
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
-	if (strpos($db_server, ':') !== false && ($db_type == 'mysql' || $db_type == 'mysqli'))
+	if (strpos($db_server, ':') !== false && $db_type == 'mysql')
 	{
-		list($db_server, $db_port) = explode(':', $db_server);
+		list ($db_server, $db_port) = explode(':', $db_server);
 
 		$changes['db_server'] = '\'' . $db_server . '\'';
 
 		// Only set this if we're not using the default port
-		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+		if ($db_port != ini_get('mysqli.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
 	elseif (!empty($db_port))
 	{
 		// If db_port is set and is the same as the default, set it to ''
-		if ($db_type == 'mysql' || $db_type == 'mysqli')
+		if ($db_type == 'mysql')
 		{
-			if ($db_port == ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+			if ($db_port == ini_get('mysqli.default_port'))
 				$changes['db_port'] = '\'\'';
 			elseif ($db_type == 'postgresql' && $db_port == 5432)
 				$changes['db_port'] = '\'\'';
@@ -1147,77 +1088,8 @@ function UpgradeOptions()
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
 	// Update Settings.php with the new settings.
-	changeSettings($changes);
-
-	// Back up again before we do anything else, just in case...
-	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
-
-	// Read the contents of the file in as a string
-	$settings_file = file_get_contents($boarddir . '/Settings.php');
-
-	// Look to see if the new error-catching section is there...
-	if (stripos($settings_file, 'if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))') === false)
-	{
-		// This is what we want to add...
-		$error_catching_header = '
-########## Error-Catching ##########
-# Note: You shouldn\'t touch these settings.';
-
-		$error_catching = '
-if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))
-	include(dirname(__FILE__) . \'/db_last_error.php\');
-
-if (!isset($db_last_error))
-{
-	// File does not exist so lets try to create it
-	file_put_contents(dirname(__FILE__) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');
-	$db_last_error = 0;
-}
-';
-		// Before we go any further, check to see if the original code is there first...
-		if (stripos('########## Error-Catching ##########', $settings_file !== false))
-		{
-			$found_old = true;
-			// Replace the old line with the new code - assuming the header is already there
-			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching, $settings_file);
-		}
-		// What about just the db_last_error line?
-		elseif (stripos('$db_last_error =', $settings_file !== false))
-		{
-			$found_old = true;
-			// Replace the old line with the new code
-			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching_header . $error_catching, $settings_file);
-		}
-		else
-		{
-			$found_old = false;
-			// We want the comments as well as the code...
-			$error_catching = $error_catching_header . $error_catching;
-		}
-
-		// Blank out the file - done to fix a oddity with some servers.
-		$fp = fopen($boarddir . '/Settings.php', 'w');
-		fclose($fp);
-
-		// Open the file for writing
-		$file = fopen($boarddir . '/Settings.php', 'r+');
-
-		// Write the original contents...
-		fwrite($file, $settings_file);
-
-		// If we didn't find the old code, add the new code at the end instead...
-		if (!$found_old)
-		{
-			// Go to the position two bytes before the end - in front of the closing PHP tag
-			fseek($file, -2, SEEK_END);
-
-			// Append our new data - the extra line break above will prevent us from breaking things...
-			fwrite($file, $error_catching);
-		}
-
-		// Close the file
-		fclose($file);
-	}
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile($changes);
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -1240,7 +1112,7 @@ if (!isset($db_last_error))
 // Backup the database - why not...
 function BackupDatabase()
 {
-	global $upcontext, $db_prefix, $command_line, $is_debug, $support_js, $file_steps, $smcFunc;
+	global $upcontext, $db_prefix, $command_line, $support_js, $file_steps, $smcFunc;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'backup_xml' : 'backup_database';
 	$upcontext['page_title'] = 'Backup Database';
@@ -1321,7 +1193,7 @@ function BackupDatabase()
 // Backup one table...
 function backupTable($table)
 {
-	global $is_debug, $command_line, $db_prefix, $smcFunc;
+	global $command_line, $db_prefix, $smcFunc;
 
 	if ($command_line)
 	{
@@ -1338,7 +1210,7 @@ function backupTable($table)
 // Step 2: Everything.
 function DatabaseChanges()
 {
-	global $db_prefix, $modSettings, $command_line, $smcFunc;
+	global $db_prefix, $modSettings, $smcFunc;
 	global $upcontext, $support_js, $db_type;
 
 	// Have we just completed this?
@@ -1348,15 +1220,13 @@ function DatabaseChanges()
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = 'Database Changes';
 
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-
 	// All possible files.
-	// Name, <version, insert_on_complete
+	// Name, < version, insert_on_complete
 	$files = array(
 		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
 		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
+		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
 	);
 
 	// How many files are there in total?
@@ -1430,331 +1300,6 @@ function DatabaseChanges()
 	return false;
 }
 
-// Clean up any mods installed...
-function CleanupMods()
-{
-	global $db_prefix, $upcontext, $boarddir, $packagesdir, $settings, $smcFunc, $command_line;
-
-	// Sorry. Not supported for command line users.
-	if ($command_line)
-		return true;
-
-	// Skipping first?
-	if (!empty($_POST['skip']))
-	{
-		unset($_POST['skip']);
-		return true;
-	}
-
-	// If we get here withOUT SSI we need to redirect to ensure we get it!
-	if (!isset($_GET['ssi']) || !function_exists('mktree'))
-		redirectLocation('&ssi=1');
-
-	$upcontext['sub_template'] = 'clean_mods';
-	$upcontext['page_title'] = 'Cleanup Modifications';
-
-	// This can be skipped.
-	$upcontext['skip'] = true;
-
-	// If we're on the second redirect continue...
-	if (isset($_POST['cleandone2']))
-		return true;
-
-	// Do we already know about some writable files?
-	if (isset($_POST['writable_files']))
-	{
-		$writable_files = safe_unserialize(base64_decode($_POST['writable_files']));
-		if (!makeFilesWritable($writable_files))
-		{
-			// What have we left?
-			$upcontext['writable_files'] = $writable_files;
-			return false;
-		}
-	}
-
-	// Make sure we have some sort of packages directory.
-	if (!isset($packagesdir))
-		$packagesdir = $boarddir . '/Packages';
-
-	// Load all theme paths....
-	$request = $smcFunc['db_query']('', '
-		SELECT id_theme, variable, value
-		FROM {db_prefix}themes
-		WHERE id_member = {int:id_member}
-			AND variable IN ({string:theme_dir}, {string:images_url})',
-		array(
-			'id_member' => 0,
-			'theme_dir' => 'theme_dir',
-			'images_url' => 'images_url',
-			'db_error_skip' => true,
-		)
-	);
-	$theme_paths = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if ($row['id_theme'] == 1)
-			$settings['default_' . $row['variable']] = $row['value'];
-		elseif ($row['variable'] == 'theme_dir')
-			$theme_paths[$row['id_theme']][$row['variable']] = $row['value'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Are there are mods installed that may need uninstalling?
-	$request = $smcFunc['db_query']('', '
-		SELECT id_install, filename, name, themes_installed, version
-		FROM {db_prefix}log_packages
-		WHERE install_state = {int:installed}
-		ORDER BY time_installed DESC',
-		array(
-			'installed' => 1,
-			'db_error_skip' => true,
-		)
-	);
-	$upcontext['packages'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		// Work out the status.
-		if (!file_exists($packagesdir . '/' . $row['filename']))
-		{
-			$status = 'Missing';
-			$status_color = 'red';
-			$result = 'Removed';
-		}
-		else
-		{
-			$status = 'Installed';
-			$status_color = 'green';
-			$result = 'No Action Needed';
-		}
-
-		$upcontext['packages'][$row['id_install']] = array(
-			'id' => $row['id_install'],
-			'themes' => explode(',', $row['themes_installed']),
-			'name' => $row['name'],
-			'filename' => $row['filename'],
-			'missing_file' => file_exists($packagesdir . '/' . $row['filename']) ? 0 : 1,
-			'files' => array(),
-			'file_count' => 0,
-			'status' => $status,
-			'result' => $result,
-			'color' => $status_color,
-			'version' => $row['version'],
-			'needs_removing' => false,
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Don't carry on if there are none.
-	if (empty($upcontext['packages']))
-		return true;
-
-	// Setup some basics.
-	if (!empty($upcontext['user']['version']))
-		$_SESSION['version_emulate'] = $upcontext['user']['version'];
-
-	// Before we get started, don't report notice errors.
-	$oldErrorReporting = error_reporting(E_ALL ^ E_NOTICE);
-
-	if (!mktree($packagesdir . '/temp', 0755))
-	{
-		deltree($packagesdir . '/temp', false);
-		if (!mktree($packagesdir . '/temp', 0777))
-		{
-			deltree($packagesdir . '/temp', false);
-			// @todo Error here - plus chmod!
-		}
-	}
-
-	// Anything which reinstalled should not have its entry removed.
-	$reinstall_worked = array();
-
-	// We're gonna be doing some removin'
-	$test = isset($_POST['cleandone']) ? false : true;
-	foreach ($upcontext['packages'] as $id => $package)
-	{
-		// Can't do anything about this....
-		if ($package['missing_file'])
-			continue;
-
-		// Not testing *and* this wasn't checked?
-		if (!$test && (!isset($_POST['remove']) || !isset($_POST['remove'][$id])))
-			continue;
-
-		// What are the themes this was installed into?
-		$cur_theme_paths = array();
-		foreach ($theme_paths as $tid => $data)
-			if ($tid != 1 && in_array($tid, $package['themes']))
-				$cur_theme_paths[$tid] = $data;
-
-		// Get the modifications data if applicable.
-		$filename = $package['filename'];
-		$packageInfo = getPackageInfo($filename);
-		if (!is_array($packageInfo))
-			continue;
-
-		$info = parsePackageInfo($packageInfo['xml'], $test, 'uninstall');
-		// Also get the reinstall details...
-		if (isset($_POST['remove']))
-			$infoInstall = parsePackageInfo($packageInfo['xml'], true);
-
-		if (is_file($packagesdir . '/' . $filename))
-			read_tgz_file($packagesdir . '/' . $filename, $packagesdir . '/temp');
-		else
-			copytree($packagesdir . '/' . $filename, $packagesdir . '/temp');
-
-		// Work out how we uninstall...
-		$files = array();
-		foreach ($info as $change)
-		{
-			// Work out two things:
-			// 1) Whether it's installed at the moment - and if so whether its fully installed, and:
-			// 2) Whether it could be installed on the new version.
-			if ($change['type'] == 'modification')
-			{
-				$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
-				if ($change['boardmod'])
-					$results = parseBoardMod($contents, $test, $change['reverse'], $cur_theme_paths);
-				else
-					$results = parseModification($contents, $test, $change['reverse'], $cur_theme_paths);
-
-				foreach ($results as $action)
-				{
-					// Something we can remove? Probably means it existed!
-					if (($action['type'] == 'replace' || $action['type'] == 'append' || (!empty($action['filename']) && $action['type'] == 'failure')) && !in_array($action['filename'], $files))
-						$files[] = $action['filename'];
-					if ($action['type'] == 'failure')
-					{
-						$upcontext['packages'][$id]['needs_removing'] = true;
-						$upcontext['packages'][$id]['status'] = 'Reinstall Required';
-						$upcontext['packages'][$id]['color'] = '#FD6435';
-					}
-				}
-			}
-		}
-
-		// Store this info for the template as appropriate.
-		$upcontext['packages'][$id]['files'] = $files;
-		$upcontext['packages'][$id]['file_count'] = count($files);
-
-		// If we've done something save the changes!
-		if (!$test)
-			package_flush_cache();
-
-		// Are we attempting to reinstall this thing?
-		if (isset($_POST['remove']) && !$test && isset($infoInstall))
-		{
-			// Need to extract again I'm afraid.
-			if (is_file($packagesdir . '/' . $filename))
-				read_tgz_file($packagesdir . '/' . $filename, $packagesdir . '/temp');
-			else
-				copytree($packagesdir . '/' . $filename, $packagesdir . '/temp');
-
-			$errors = false;
-			$upcontext['packages'][$id]['result'] = 'Removed';
-			foreach ($infoInstall as $change)
-			{
-				if ($change['type'] == 'modification')
-				{
-					$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
-					if ($change['boardmod'])
-						$results = parseBoardMod($contents, true, $change['reverse'], $cur_theme_paths);
-					else
-						$results = parseModification($contents, true, $change['reverse'], $cur_theme_paths);
-
-					// Are there any errors?
-					foreach ($results as $action)
-						if ($action['type'] == 'failure')
-							$errors = true;
-				}
-			}
-			if (!$errors)
-			{
-				$reinstall_worked[] = $id;
-				$upcontext['packages'][$id]['result'] = 'Reinstalled';
-				$upcontext['packages'][$id]['color'] = 'green';
-				foreach ($infoInstall as $change)
-				{
-					if ($change['type'] == 'modification')
-					{
-						$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
-						if ($change['boardmod'])
-							$results = parseBoardMod($contents, false, $change['reverse'], $cur_theme_paths);
-						else
-							$results = parseModification($contents, false, $change['reverse'], $cur_theme_paths);
-					}
-				}
-
-				// Save the changes.
-				package_flush_cache();
-			}
-		}
-	}
-
-	// Put errors back on a sec.
-	error_reporting($oldErrorReporting);
-
-	// Check everything is writable.
-	if ($test && !empty($upcontext['packages']))
-	{
-		$writable_files = array();
-		foreach ($upcontext['packages'] as $package)
-		{
-			if (!empty($package['files']))
-				foreach ($package['files'] as $file)
-					$writable_files[] = $file;
-		}
-
-		if (!empty($writable_files))
-		{
-			$writable_files = array_unique($writable_files);
-			$upcontext['writable_files'] = $writable_files;
-
-			if (!makeFilesWritable($writable_files))
-				return false;
-		}
-	}
-
-	if (file_exists($packagesdir . '/temp'))
-		deltree($packagesdir . '/temp');
-
-	// Removing/Reinstalling any packages?
-	if (isset($_POST['remove']))
-	{
-		$deletes = array();
-		foreach ($_POST['remove'] as $id => $dummy)
-		{
-			if (!in_array((int) $id, $reinstall_worked))
-				$deletes[] = (int) $id;
-		}
-
-		if (!empty($deletes))
-			upgrade_query('
-				UPDATE ' . $db_prefix . 'log_packages
-				SET install_state = 0
-				WHERE id_install IN (' . implode(',', $deletes) . ')');
-
-		// Ensure we don't lose our changes!
-		package_put_contents($packagesdir . '/installed.list', time());
-
-		$upcontext['sub_template'] = 'cleanup_done';
-		return false;
-	}
-	else
-	{
-		$allgood = true;
-		// Is there actually anything that needs our attention?
-		foreach ($upcontext['packages'] as $package)
-			if ($package['color'] != 'green')
-				$allgood = false;
-
-		if ($allgood)
-			return true;
-	}
-
-	$_GET['substep'] = 0;
-	return isset($_POST['cleandone']) ? true : false;
-}
-
 
 // Delete the damn thing!
 function DeleteUpgrade()
@@ -1791,12 +1336,11 @@ function DeleteUpgrade()
 	// Wipe this out...
 	$upcontext['user'] = array();
 
-	// Make a backup of Settings.php first as otherwise earlier changes are lost.
-	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
-	changeSettings($changes);
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile($changes);
 
 	// Clean any old cache files away.
-	clean_cache();
+	upgrade_clean_cache();
 
 	// Can we delete the file?
 	$upcontext['can_delete_script'] = is_writable(dirname(__FILE__)) || is_writable(__FILE__);
@@ -1824,7 +1368,7 @@ function DeleteUpgrade()
 		),
 		array(
 			time(), 3, $user_info['id'], $command_line ? '127.0.0.1' : $user_info['ip'], 'upgrade',
-			0, 0, 0, safe_serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
+			0, 0, 0, json_encode(array('version' => $forum_version, 'member' => $user_info['id'])),
 		),
 		array('id_action')
 	);
@@ -1832,7 +1376,7 @@ function DeleteUpgrade()
 
 	// Save the current database version.
 	$server_version = $smcFunc['db_server_info']();
-	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
+	if ($db_type == 'mysql' && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
 		updateSettings(array('db_mysql_group_by_fix' => '1'));
 
 	if ($command_line)
@@ -1993,80 +1537,6 @@ function convertSettingstoOptions()
 	}
 }
 
-function changeSettings($config_vars)
-{
-	global $boarddir;
-
-	$settingsArray = file($boarddir . '/Settings_bak.php');
-
-	if (count($settingsArray) == 1)
-		$settingsArray = preg_split('~[\r\n]~', $settingsArray[0]);
-
-	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
-	{
-		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) == '$')
-		{
-			$settingsArray[$i] = trim($settingsArray[$i]) . "\n";
-
-			foreach ($config_vars as $var => $val)
-			{
-				if (isset($settingsArray[$i]) && strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
-				{
-					if ($val == '#remove#')
-						unset($settingsArray[$i]);
-					else
-					{
-						$comment = strstr(substr($settingsArray[$i], strpos($settingsArray[$i], ';')), '#');
-						$settingsArray[$i] = '$' . $var . ' = ' . $val . ';' . ($comment != '' ? "\t\t" . $comment : "\n");
-					}
-
-					unset($config_vars[$var]);
-				}
-			}
-		}
-		if (isset($settingsArray[$i]))
-		{
-			if (trim(substr($settingsArray[$i], 0, 2)) == '?' . '>')
-				$end = $i;
-		}
-	}
-
-	// Assume end-of-file if the end wasn't found.
-	if (empty($end) || $end < 10)
-		$end = count($settingsArray);
-
-	if (!empty($config_vars))
-	{
-		$settingsArray[$end++] = '';
-		foreach ($config_vars as $var => $val)
-		{
-			if ($val != '#remove#')
-				$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
-		}
-	}
-	// This should be the last line and even last bytes of the file.
-	$settingsArray[$end] = '?' . '>';
-
-	// Blank out the file - done to fix a oddity with some servers.
-	$fp = fopen($boarddir . '/Settings.php', 'w');
-	fclose($fp);
-
-	$fp = fopen($boarddir . '/Settings.php', 'r+');
-	for ($i = 0; $i < $end; $i++)
-	{
-		if (isset($settingsArray[$i]))
-			fwrite($fp, strtr($settingsArray[$i], "\r", ''));
-	}
-	fwrite($fp, rtrim($settingsArray[$i]));
-	fclose($fp);
-}
-function updateLastError()
-{
-	// clear out the db_last_error file
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-}
-
 function php_version_check()
 {
 	return version_compare(PHP_VERSION, $GLOBALS['required_php_version'], '>=');
@@ -2080,44 +1550,6 @@ function db_version_check()
 	$curver = preg_replace('~\-.+?$~', '', $curver);
 
 	return version_compare($databases[$db_type]['version'], $curver, '<=');
-}
-
-function getMemberGroups()
-{
-	global $smcFunc;
-	static $member_groups = array();
-
-	if (!empty($member_groups))
-		return $member_groups;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT group_name, id_group
-		FROM {db_prefix}membergroups
-		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-		array(
-			'admin_group' => 1,
-			'old_group' => 7,
-			'db_error_skip' => true,
-		)
-	);
-	if ($request === false)
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT membergroup, id_group
-			FROM {db_prefix}membergroups
-			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
-			array(
-				'admin_group' => 1,
-				'old_group' => 7,
-				'db_error_skip' => true,
-			)
-		);
-	}
-	while ($row = $smcFunc['db_fetch_row']($request))
-		$member_groups[trim($row[0])] = $row[1];
-	$smcFunc['db_free_result']($request);
-
-	return $member_groups;
 }
 
 function fixRelativePath($path)
@@ -2161,21 +1593,15 @@ function parse_sql($filename)
 	db_extend('packages');
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
-	if (!function_exists('sql_error_handler'))
-	{
-		function sql_error_handler($errno, $errstr, $errfile, $errline)
+	set_error_handler(
+		function ($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
-			global $support_js;
-
 			if ($support_js)
 				return true;
 			else
 				echo 'Error: ' . $errstr . ' File: ' . $errfile . ' Line: ' . $errline;
 		}
-	}
-
-	// Make our own error handler.
-	set_error_handler('sql_error_handler');
+	);
 
 	// If we're on MySQL supporting collations then let's find out what the members table uses and put it in a global var - to allow upgrade script to match collations!
 	if (!empty($databases[$db_type]['utf8_support']) && version_compare($databases[$db_type]['utf8_version'], eval($databases[$db_type]['utf8_version_check']), '>'))
@@ -2431,9 +1857,9 @@ function upgrade_query($string, $unbuffered = false)
 
 	$db_error_message = $smcFunc['db_error']($db_connection);
 	// If MySQL we do something more clever.
-	if ($db_type == 'mysql' || $db_type == 'mysqli')
+	if ($db_type == 'mysql')
 	{
-		$mysql_errno = ($db_type == 'mysqli') ? mysqli_errno($db_connection) : mysql_errno($db_connection);
+		$mysqli_errno = mysqli_errno($db_connection);
 		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
 
 		// Error numbers:
@@ -2449,58 +1875,37 @@ function upgrade_query($string, $unbuffered = false)
 		//    1146: Table doesn't exist.
 		//    2013: Lost connection to server during query.
 
-		if ($mysql_errno == 1016)
+		if ($mysqli_errno == 1016)
 		{
 			if (preg_match('~\'([^\.\']+)~', $db_error_message, $match) != 0 && !empty($match[1]))
 			{
-				if ($db_type == 'mysql')
-				{
-					mysql_query('REPAIR TABLE `' . $match[1] . '`');
-					$result = mysql_query($string);
-				}
-				else
-				{
-					mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
-					$result = mysqli_query($db_connection, $string);
-				}
+				mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
+				$result = mysqli_query($db_connection, $string);
 				if ($result !== false)
 					return $result;
 			}
 		}
-		elseif ($mysql_errno == 2013)
+		elseif ($mysqli_errno == 2013)
 		{
-			$db_connection = mysql_connect($db_server, $db_user, $db_passwd);
-			if ($db_type == 'mysql')
+			$db_connection = mysqli_connect($db_server, $db_user, $db_passwd);
+			mysqli_select_db($db_connection, $db_name);
+			if ($db_connection)
 			{
-				mysql_select_db($db_name, $db_connection);
-				if ($db_connection)
-				{
-					$result = mysql_query($string);
-					if ($result !== false)
-						return $result;
-				}
-			}
-			else
-			{
-				mysqli_select_db($db_connection, $db_name);
-				if ($db_connection)
-				{
-					$result = mysqli_query($db_connection, $string);
-					if ($result !== false)
-						return $result;
-				}
+				$result = mysqli_query($db_connection, $string);
+				if ($result !== false)
+					return $result;
 			}
 		}
 		// Duplicate column name... should be okay ;).
-		elseif (in_array($mysql_errno, array(1060, 1061, 1068, 1091)))
+		elseif (in_array($mysqli_errno, array(1060, 1061, 1068, 1091)))
 			return false;
 		// Duplicate insert... make sure it's the proper type of query ;).
-		elseif (in_array($mysql_errno, array(1054, 1062, 1146)) && $error_query)
+		elseif (in_array($mysqli_errno, array(1054, 1062, 1146)) && $error_query)
 			return false;
 		// Creating an index on a non-existent column.
-		elseif ($mysql_errno == 1072)
+		elseif ($mysqli_errno == 1072)
 			return false;
-		elseif ($mysql_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
+		elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
 			return false;
 	}
 	// If a table already exists don't go potty.
@@ -2557,42 +1962,6 @@ function upgrade_query($string, $unbuffered = false)
 		</div>';
 
 	upgradeExit();
-}
-
-function smf_mysql_fetch_assoc($rs)
-{
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_fetch_assoc($rs) : mysqli_fetch_assoc($rs);
-}
-
-function smf_mysql_fetch_row($rs)
-{
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_fetch_row($rs) : mysqli_fetch_row($rs);
-}
-
-function smf_mysql_free_result($rs)
-{
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_free_result($rs) : mysqli_free_result($rs);
-}
-
-function smf_mysql_insert_id($rs)
-{
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_insert_id($rs) : mysqli_insert_id($rs);
-}
-
-function smf_mysql_num_rows($rs)
-{
-	global $db_type;
-	return ($db_type == 'mysql') ? mysql_num_rows($rs) : mysqli_num_rows($rs);
-}
-
-function smf_mysql_real_escape_string($string)
-{
-	global $db_type, $db_connection;
-	return ($db_type == 'mysql') ? mysql_real_escape_string($string, $db_connection) : mysqli_real_escape_string($db_connection, $string);
 }
 
 // This performs a table alter, but does it unbuffered so the script can time out professionally.
@@ -2699,57 +2068,53 @@ function protected_alter($change, $substep, $is_test = false)
 	nextSubstep($substep);
 }
 
-// Alter a text column definition preserving its character set.
+/**
+ * Alter a text column definition preserving its character set.
+ *
+ * @param array $change
+ * @param int $substep
+ */
 function textfield_alter($change, $substep)
 {
-	global $db_prefix, $databases, $db_type, $smcFunc;
+	global $db_prefix, $smcFunc;
 
-	// Versions of MySQL < 4.1 wouldn't benefit from character set detection.
-	if (empty($databases[$db_type]['utf8_support']) || version_compare($databases[$db_type]['utf8_version'], eval($databases[$db_type]['utf8_version_check']), '>'))
-	{
-		$column_fix = true;
-		$null_fix = !$change['null_allowed'];
-	}
-	else
+	$request = $smcFunc['db_query']('', '
+		SHOW FULL COLUMNS
+		FROM {db_prefix}' . $change['table'] . '
+		LIKE {string:column}',
+		array(
+			'column' => $change['column'],
+			'db_error_skip' => true,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) === 0)
+		die('Unable to find column ' . $change['column'] . ' inside table ' . $db_prefix . $change['table']);
+	$table_row = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+
+	// If something of the current column definition is different, fix it.
+	$column_fix = $table_row['Type'] !== $change['type'] || (strtolower($table_row['Null']) === 'yes') !== $change['null_allowed'] || ($table_row['Default'] === null) !== !isset($change['default']) || (isset($change['default']) && $change['default'] !== $table_row['Default']);
+
+	// Columns that previously allowed null, need to be converted first.
+	$null_fix = strtolower($table_row['Null']) === 'yes' && !$change['null_allowed'];
+
+	// Get the character set that goes with the collation of the column.
+	if ($column_fix && !empty($table_row['Collation']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SHOW FULL COLUMNS
-			FROM {db_prefix}' . $change['table'] . '
-			LIKE {string:column}',
+			SHOW COLLATION
+			LIKE {string:collation}',
 			array(
-				'column' => $change['column'],
+				'collation' => $table_row['Collation'],
 				'db_error_skip' => true,
 			)
 		);
+		// No results? Just forget it all together.
 		if ($smcFunc['db_num_rows']($request) === 0)
-			die('Unable to find column ' . $change['column'] . ' inside table ' . $db_prefix . $change['table']);
-		$table_row = $smcFunc['db_fetch_assoc']($request);
+			unset($table_row['Collation']);
+		else
+			$collation_info = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
-
-		// If something of the current column definition is different, fix it.
-		$column_fix = $table_row['Type'] !== $change['type'] || (strtolower($table_row['Null']) === 'yes') !== $change['null_allowed'] || ($table_row['Default'] === null) !== !isset($change['default']) || (isset($change['default']) && $change['default'] !== $table_row['Default']);
-
-		// Columns that previously allowed null, need to be converted first.
-		$null_fix = strtolower($table_row['Null']) === 'yes' && !$change['null_allowed'];
-
-		// Get the character set that goes with the collation of the column.
-		if ($column_fix && !empty($table_row['Collation']))
-		{
-			$request = $smcFunc['db_query']('', '
-				SHOW COLLATION
-				LIKE {string:collation}',
-				array(
-					'collation' => $table_row['Collation'],
-					'db_error_skip' => true,
-				)
-			);
-			// No results? Just forget it all together.
-			if ($smcFunc['db_num_rows']($request) === 0)
-				unset($table_row['Collation']);
-			else
-				$collation_info = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
-		}
 	}
 
 	if ($column_fix)
@@ -2789,7 +2154,7 @@ function checkChange(&$change)
 	if (empty($database_version))
 	{
 		$database_version = $databases[$db_type]['version_check'];
-		$where_field_support = ($db_type == 'mysql' || $db_type == 'mysqli') && version_compare('5.0', $database_version, '<=');
+		$where_field_support = $db_type == 'mysql' && version_compare('5.0', $database_version, '<=');
 	}
 
 	// Not a column we need to check on?
@@ -2913,8 +2278,8 @@ function nextSubstep($substep)
 
 function cmdStep0()
 {
-	global $boarddir, $sourcedir, $language, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $language, $is_debug;
+	global $boarddir, $sourcedir, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
+	global $is_debug;
 	$start_time = time();
 
 	ob_end_clean();
@@ -3043,259 +2408,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	$upcontext['current_step'] = 1;
 }
 
-function print_error($message, $fatal = false)
-{
-	static $fp = null;
-
-	if ($fp === null)
-		$fp = fopen('php://stderr', 'wb');
-
-	fwrite($fp, $message . "\n");
-
-	if ($fatal)
-		exit;
-}
-
-function throw_error($message)
-{
-	global $upcontext;
-
-	$upcontext['error_msg'] = $message;
-	$upcontext['sub_template'] = 'error_message';
-
-	return false;
-}
-
-// Check files are writable - make them writable if necessary...
-function makeFilesWritable(&$files)
-{
-	global $upcontext, $boarddir;
-
-	if (empty($files))
-		return true;
-
-	$failure = false;
-	// On linux, it's easy - just use is_writable!
-	if (substr(__FILE__, 1, 2) != ':\\')
-	{
-		$upcontext['systemos'] = 'linux';
-
-		foreach ($files as $k => $file)
-		{
-			if (!is_writable($file))
-			{
-				@chmod($file, 0755);
-
-				// Well, 755 hopefully worked... if not, try 777.
-				if (!is_writable($file) && !@chmod($file, 0777))
-					$failure = true;
-				// Otherwise remove it as it's good!
-				else
-					unset($files[$k]);
-			}
-			else
-				unset($files[$k]);
-		}
-	}
-	// Windows is trickier.  Let's try opening for r+...
-	else
-	{
-		$upcontext['systemos'] = 'windows';
-
-		foreach ($files as $k => $file)
-		{
-			// Folders can't be opened for write... but the index.php in them can ;).
-			if (is_dir($file))
-				$file .= '/index.php';
-
-			// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
-			@chmod($file, 0777);
-			$fp = @fopen($file, 'r+');
-
-			// Hmm, okay, try just for write in that case...
-			if (!$fp)
-				$fp = @fopen($file, 'w');
-
-			if (!$fp)
-				$failure = true;
-			else
-				unset($files[$k]);
-			@fclose($fp);
-		}
-	}
-
-	if (empty($files))
-		return true;
-
-	if (!isset($_SERVER))
-		return !$failure;
-
-	// What still needs to be done?
-	$upcontext['chmod']['files'] = $files;
-
-	// If it's windows it's a mess...
-	if ($failure && substr(__FILE__, 1, 2) == ':\\')
-	{
-		$upcontext['chmod']['ftp_error'] = 'total_mess';
-
-		return false;
-	}
-	// We're going to have to use... FTP!
-	elseif ($failure)
-	{
-		// Load any session data we might have...
-		if (!isset($_POST['ftp_username']) && isset($_SESSION['installer_temp_ftp']))
-		{
-			$upcontext['chmod']['server'] = $_SESSION['installer_temp_ftp']['server'];
-			$upcontext['chmod']['port'] = $_SESSION['installer_temp_ftp']['port'];
-			$upcontext['chmod']['username'] = $_SESSION['installer_temp_ftp']['username'];
-			$upcontext['chmod']['password'] = $_SESSION['installer_temp_ftp']['password'];
-			$upcontext['chmod']['path'] = $_SESSION['installer_temp_ftp']['path'];
-		}
-		// Or have we submitted?
-		elseif (isset($_POST['ftp_username']))
-		{
-			$upcontext['chmod']['server'] = $_POST['ftp_server'];
-			$upcontext['chmod']['port'] = $_POST['ftp_port'];
-			$upcontext['chmod']['username'] = $_POST['ftp_username'];
-			$upcontext['chmod']['password'] = $_POST['ftp_password'];
-			$upcontext['chmod']['path'] = $_POST['ftp_path'];
-		}
-
-		if (isset($upcontext['chmod']['username']))
-		{
-			$ftp = new ftp_connection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
-
-			if ($ftp->error === false)
-			{
-				// Try it without /home/abc just in case they messed up.
-				if (!$ftp->chdir($upcontext['chmod']['path']))
-				{
-					$upcontext['chmod']['ftp_error'] = $ftp->last_message;
-					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $upcontext['chmod']['path']));
-				}
-			}
-		}
-
-		if (!isset($ftp) || $ftp->error !== false)
-		{
-			if (!isset($ftp))
-				$ftp = new ftp_connection(null);
-			// Save the error so we can mess with listing...
-			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error']))
-				$upcontext['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
-
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
-
-			if ($found_path || !isset($upcontext['chmod']['path']))
-				$upcontext['chmod']['path'] = $detect_path;
-
-			if (!isset($upcontext['chmod']['username']))
-				$upcontext['chmod']['username'] = $username;
-
-			// Don't forget the login token.
-			$upcontext += createToken('login');
-
-			return false;
-		}
-		else
-		{
-			// We want to do a relative path for FTP.
-			if (!in_array($upcontext['chmod']['path'], array('', '/')))
-			{
-				$ftp_root = strtr($boarddir, array($upcontext['chmod']['path'] => ''));
-				if (substr($ftp_root, -1) == '/' && ($upcontext['chmod']['path'] == '' || $upcontext['chmod']['path'][0] === '/'))
-				$ftp_root = substr($ftp_root, 0, -1);
-			}
-			else
-				$ftp_root = $boarddir;
-
-			// Save the info for next time!
-			$_SESSION['installer_temp_ftp'] = array(
-				'server' => $upcontext['chmod']['server'],
-				'port' => $upcontext['chmod']['port'],
-				'username' => $upcontext['chmod']['username'],
-				'password' => $upcontext['chmod']['password'],
-				'path' => $upcontext['chmod']['path'],
-				'root' => $ftp_root,
-			);
-
-			foreach ($files as $k => $file)
-			{
-				if (!is_writable($file))
-					$ftp->chmod($file, 0755);
-				if (!is_writable($file))
-					$ftp->chmod($file, 0777);
-
-				// Assuming that didn't work calculate the path without the boarddir.
-				if (!is_writable($file))
-				{
-					if (strpos($file, $boarddir) === 0)
-					{
-						$ftp_file = strtr($file, array($_SESSION['installer_temp_ftp']['root'] => ''));
-						$ftp->chmod($ftp_file, 0755);
-						if (!is_writable($file))
-							$ftp->chmod($ftp_file, 0777);
-						// Sometimes an extra slash can help...
-						$ftp_file = '/' . $ftp_file;
-						if (!is_writable($file))
-							$ftp->chmod($ftp_file, 0755);
-						if (!is_writable($file))
-							$ftp->chmod($ftp_file, 0777);
-					}
-				}
-
-				if (is_writable($file))
-					unset($files[$k]);
-			}
-
-			$ftp->close();
-		}
-	}
-
-	// What remains?
-	$upcontext['chmod']['files'] = $files;
-
-	if (empty($files))
-		return true;
-
-	return false;
-}
-
-function quickFileWritable($file)
-{
-	if (is_writable($file))
-		return true;
-
-	@chmod($file, 0755);
-
-	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
-	$chmod_values = array(0755, 0775, 0777);
-
-	foreach ($chmod_values as $val)
-	{
-		// If it's writable, break out of the loop
-		if (is_writable($file))
-			break;
-		else
-			@chmod($file, $val);
-	}
-}
-function smf_strtolower($string)
-{
-	global $sourcedir;
-	if (function_exists('mb_strtolower'))
-		return mb_strtolower($string, 'UTF-8');
-	require_once($sourcedir . '/Subs-Charset.php');
-	return utf8_strtolower($string);
-}
-
 /**
  * Handles converting your database to UTF-8
  */
-function convertUtf8()
+function ConvertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js, $is_debug;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
@@ -3306,7 +2424,7 @@ function convertUtf8()
 			array(array('global_character_set', 'UTF-8')),
 			array('variable')
 		);
-		
+
 		return true;
 	}
 	else
@@ -3495,8 +2613,8 @@ function convertUtf8()
 				'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
 				'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
 				'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
-				'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '\'\'',
-				'0xFC' => '\'\'',		'0xFF' => '\'\'',		'0xC2' => '0xFF',
+				'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
+				'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
 				'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
 				'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
 				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
@@ -3531,8 +2649,7 @@ function convertUtf8()
 				'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
 				'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
 				'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
-				'0xFA' => '0xD7AA',		'0xFF' => '0xD6B2',		'0xFC' => '0xE282AC',
-				'0xFB' => '0xD792',
+				'0xFA' => '0xD7AA',
 			),
 			'windows-1253' => array(
 				'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
@@ -3540,7 +2657,7 @@ function convertUtf8()
 				'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
 				'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
 				'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
-				'0xD2' => '\'\'',			'0xFF' => '\'\'',			'0xCE' => '0xCE9E',
+				'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
 				'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
 				'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
 				'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
@@ -3577,8 +2694,7 @@ function convertUtf8()
 				'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
 				'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
 				'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
-				'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',		'0xFF' => '0xCE92',
-				'0xD2' => '0xE282AC',
+				'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
 			),
 		);
 
@@ -3597,9 +2713,9 @@ function convertUtf8()
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
-		$file_steps = $upcontext['table_count'];
 
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		// We want to start at the first table.
+		for ($substep = ($_GET['substep'] == 0 ? 1 : $_GET['substep']); $substep <= $upcontext['table_count']; $substep++)
 		{
 			$table = $queryTables[$_GET['substep']];
 
@@ -3720,9 +2836,9 @@ function convertUtf8()
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
 					CONVERT TO CHARACTER SET utf8',
-						array(
-								'table_name' => $table_info['Name'],
-						)
+					array(
+						'table_name' => $table_info['Name'],
+					)
 				);
 
 				if ($command_line)
@@ -3781,7 +2897,7 @@ function convertUtf8()
 
 function serialize_to_json()
 {
-	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
@@ -3821,11 +2937,10 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
-	$upcontext['table_count'] = 13;
+	$upcontext['table_count'] = count($keys);
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-	$file_steps = $upcontext['table_count'];
 
 	foreach ($keys as $id => $table)
 		if ($id < $_GET['substep'])
@@ -4578,10 +3693,10 @@ function template_upgrade_options()
 				<table>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
+							<input type="checkbox" name="backup" id="backup" value="1" class="input_check">
 						</td>
 						<td width="100%">
-							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label>', isset($modSettings['smfVersion']) ? '' : ' (recommended!)', '
+							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label> (recommended!)
 						</td>
 					</tr>
 					<tr valign="top">
@@ -4597,22 +3712,7 @@ function template_upgrade_options()
 								<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 							</div>
 						</td>
-					</tr>';
-
-	// Offer mysql users to switch to mysqli
-	if ($db_type == 'mysql' && function_exists('mysqli_query'))
-		echo '
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="convertMysql" id="convertMysql" value="1" checked class="input_check">
-						</td>
-						<td width="100%">
-							<label for="convertMysql">Use MySQLi functionality (MySQL compatible).</span>
-							<strong class="smalltext"><a href="http://wiki.simplemachines.org/smf/Upgrading-MySQLi-Functionality" target="_blank">More information about MySQLi</a></strong><br>
-						</td>
-					</tr>';
-
-	echo '
+					</tr>
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="debug" id="debug" value="1" class="input_check">
@@ -4672,7 +3772,9 @@ function template_backup_database()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="backup_done" id="backup_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<span id="debuginfo"></span>';
+			<div id="debug_section" style="height: 200px; overflow: auto;">
+			<span id="debuginfo"></span>
+			</div>';
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_tables']))
@@ -4719,8 +3821,8 @@ function template_backup_database()
 			echo '
 				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
-				if (document.getElementById(\'debuginfo\').scrollHeight)
-					document.getElementById(\'debuginfo\').scrollTop = document.getElementById(\'debuginfo\').scrollHeight;';
+				if (document.getElementById(\'debug_section\').scrollHeight)
+					document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
 
 		echo '
 				// Get the next update...
@@ -5137,7 +4239,7 @@ function template_database_changes()
 
 function template_database_xml()
 {
-	global $is_debug, $upcontext, $txt;
+	global $is_debug, $upcontext;
 
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
@@ -5246,189 +4348,6 @@ function template_utf8_xml()
 
 	echo '
 	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
-}
-
-function template_clean_mods()
-{
-	global $upcontext;
-
-	$upcontext['chmod_in_form'] = true;
-
-	echo '
-	<h3>SMF has detected some packages which were installed but not fully removed prior to upgrade. We recommend you remove the following mods and reinstall upon completion of the upgrade.</h3>
-	<form action="', $upcontext['form_url'], '&amp;ssi=1" name="upform" id="upform" method="post">';
-
-	// In case it's required.
-	template_chmod();
-
-	echo '
-		<table width="90%" align="center" style="background-color: black;">
-			<tr style="background-color: #eeeeee;">
-				<td width="40%"><strong>Modification Name</strong></td>
-				<td width="10%" align="center"><strong>Version</strong></td>
-				<td width="15%"><strong>Files Affected</strong></td>
-				<td width="20%"><strong>Status</strong></td>
-				<td width="5%" align="center"><strong>Fix?</strong></td>
-			</tr>';
-
-	foreach ($upcontext['packages'] as $package)
-	{
-		echo '
-			<tr style="background-color: #cccccc;">
-				<td width="40%">', $package['name'], '</td>
-				<td width="10%">', $package['version'], '</td>
-				<td width="15%">', $package['file_count'], ' <span class="smalltext">[<a href="#" onclick="alert(\'The following files are affected by this modification:\\n\\n', strtr(implode('<br>', $package['files']), array('\\' => '\\\\', '<br>' => '\\n')), '\'); return false;">details</a>]</td>
-				<td width="20%"><span style="font-weight: bold; color: ', $package['color'], '">', $package['status'], '</span></td>
-				<td width="5%" align="center">
-					<input type="hidden" name="remove[', $package['id'], ']" value="0">
-					<input type="checkbox" name="remove[', $package['id'], ']"', $package['color'] == 'green' ? ' disabled' : '', ' class="input_check">
-				</td>
-			</tr>';
-	}
-	echo '
-		</table>
-		<input type="hidden" name="cleandone" value="1">';
-
-	// Files to make writable?
-	if (!empty($upcontext['writable_files']))
-		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
-
-	// We'll want a continue button...
-	if (empty($upcontext['chmod']['files']))
-		$upcontext['continue'] = 1;
-}
-
-// Finished with the mods - let them know what we've done.
-function template_cleanup_done()
-{
-	global $upcontext;
-
-	echo '
-	<h3>SMF has attempted to fix and reinstall mods as required. We recommend you visit the package manager upon completing upgrade to check the status of your modifications.</h3>
-	<form action="', $upcontext['form_url'], '&amp;ssi=1" name="upform" id="upform" method="post">
-		<table width="90%" align="center" style="background-color: black;">
-			<tr style="background-color: #eeeeee;">
-				<td width="100%"><strong>Actions Completed:</strong></td>
-			</tr>';
-
-	foreach ($upcontext['packages'] as $package)
-	{
-		echo '
-			<tr style="background-color: #cccccc;">
-				<td>', $package['name'], '... <span style="font-weight: bold; color: ', $package['color'], ';">', $package['result'], '</span></td>
-			</tr>';
-	}
-	echo '
-		</table>
-		<input type="hidden" name="cleandone2" value="1">';
-
-	// We'll want a continue button...
-	$upcontext['continue'] = 1;
-}
-
-// Do they want to upgrade their templates?
-function template_upgrade_templates()
-{
-	global $upcontext;
-
-	echo '
-	<h3>There have been numerous language and template changes since the previous version of SMF. On this step the upgrader can attempt to automatically make these changes in your templates to save you from doing so manually.</h3>
-	<form action="', $upcontext['form_url'], '&amp;ssi=1', $upcontext['is_test'] ? '' : ';forreal=1', '" name="upform" id="upform" method="post">';
-
-	// Any files need to be writable?
-	$upcontext['chmod_in_form'] = true;
-	template_chmod();
-
-	// Language/Template files need an update?
-	if ($upcontext['temp_progress'] == 0 && !$upcontext['is_test'] && (!empty($upcontext['languages']) || !empty($upcontext['themes'])))
-	{
-		echo '
-		The following template files will be updated to ensure they are compatible with this version of SMF. Note that this can only fix a limited number of compatibility issues and in general you should seek out the latest version of these themes/language files.
-		<table width="90%" align="center" style="background-color: black;">
-			<tr style="background-color: #eeeeee;">
-				<td width="80%"><strong>Area</strong></td>
-				<td width="20%" align="center"><strong>Changes Required</strong></td>
-			</tr>';
-
-		foreach ($upcontext['languages'] as $language)
-		{
-			echo '
-				<tr style="background-color: #cccccc;">
-					<td width="80%">
-						&quot;', $language['name'], '&quot; Language Pack
-						<div class="smalltext">(';
-
-			foreach ($language['files'] as $k => $file)
-				echo $file['name'], $k + 1 != count($language['files']) ? ', ' : ')';
-
-			echo '
-						</div>
-					</td>
-					<td width="20%" align="center">', $language['edit_count'] == 0 ? 1 : $language['edit_count'], '</td>
-				</tr>';
-		}
-
-		foreach ($upcontext['themes'] as $theme)
-		{
-			echo '
-				<tr style="background-color: #CCCCCC;">
-					<td width="80%">
-						&quot;', $theme['name'], '&quot; Theme
-						<div class="smalltext">(';
-
-			foreach ($theme['files'] as $k => $file)
-				echo $file['name'], $k + 1 != count($theme['files']) ? ', ' : ')';
-
-			echo '
-						</div>
-					</td>
-					<td width="20%" align="center">', $theme['edit_count'] == 0 ? 1 : $theme['edit_count'], '</td>
-				</tr>';
-		}
-
-		echo '
-		</table>';
-	}
-	else
-	{
-		$langFiles = 0;
-		$themeFiles = 0;
-		if (!empty($upcontext['languages']))
-			foreach ($upcontext['languages'] as $lang)
-				$langFiles += count($lang['files']);
-		if (!empty($upcontext['themes']))
-			foreach ($upcontext['themes'] as $theme)
-				$themeFiles += count($theme['files']);
-		echo sprintf('Found <strong>%d</strong> language files and <strong>%d</strong> templates requiring an update so far.', $langFiles, $themeFiles) . '<br>';
-
-		// What we're currently doing?
-		if (!empty($upcontext['current_message']))
-			echo '
-				', $upcontext['current_message'];
-	}
-
-	echo '
-		<input type="hidden" name="uptempdone" value="1">';
-
-	if (!empty($upcontext['languages']))
-		echo '
-		<input type="hidden" name="languages" value="', base64_encode(safe_serialize($upcontext['languages'])), '">';
-	if (!empty($upcontext['themes']))
-		echo '
-		<input type="hidden" name="themes" value="', base64_encode(safe_serialize($upcontext['themes'])), '">';
-	if (!empty($upcontext['writable_files']))
-		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
-
-	// Offer them the option to upgrade from YaBB SE?
-	if (!empty($upcontext['can_upgrade_yabbse']))
-		echo '
-		<br><label for="conv"><input type="checkbox" name="conv" id="conv" value="1" class="input_check"> Convert the existing YaBB SE template and set it as default.</label><br>';
-
-	// We'll want a continue button... assuming chmod is OK (Otherwise let them use connect!)
-	if (empty($upcontext['chmod']['files']) || $upcontext['is_test'])
-		$upcontext['continue'] = 1;
 }
 
 // Template for the database backup tool/
@@ -5570,15 +4489,24 @@ function template_upgrade_complete()
 
 /**
  * Convert MySQL (var)char ip col to binary
+ *
+ * @param string $targetTable The table to perform the operation on
+ * @param string $oldCol The old column to gather data from
+ * @param string $newCol The new column to put data in
+ * @param int $limit The amount of entries to handle at once.
+ * @param int $setSize The amount of entries after which to update the database.
+ *
  * newCol needs to be a varbinary(16) null able field
- * return true or false
+ * @return bool
  */
 function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
 {
 	global $smcFunc, $step_progress;
 
+	$current_substep = $_GET['substep'];
+
 	$step_progress['name'] = 'Converting ips';
-	$step_progress['current'] = $_GET['a'];
+	$step_progress['current'] = !empty($_GET['a']) ? $_GET['a'] : 0;
 
 	// Skip this if we don't have the column
 	$request = $smcFunc['db_query']('', '
@@ -5602,7 +4530,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	$is_done = false;
 	while (!$is_done)
 	{
-		nextSubStep($substep);
+		// Keep looping at the current step.
+		nextSubStep($current_substep);
 
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
@@ -5669,7 +4598,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 			{
 				foreach ($updates as $key => $ip)
 				{
-					$request = $smcFunc['db_query']('', '
+					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}' . $targetTable . '
 						SET ' . $newCol . ' = {inet:ip}
 						WHERE ' . $oldCol . ' = {string:ip}',
@@ -5681,7 +4610,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 			else
 			{
 				$updates['whereSet'] = array_values($updates);
-				$request = $smcFunc['db_query']('', '
+				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}' . $targetTable . '
 					SET ' . $newCol . ' = CASE ' .
 					implode('

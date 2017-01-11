@@ -243,7 +243,7 @@ function initialize_inputs()
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($timezone_id, timezone_identifiers_list()))
-		{	
+		{
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 		}
@@ -485,7 +485,7 @@ function Welcome()
 
 function CheckFilesWritable()
 {
-	global $txt, $incontext;
+	global $txt, $incontext, $sourcedir;
 
 	$incontext['page_title'] = $txt['ftp_checking_writable'];
 	$incontext['sub_template'] = 'chmod_files';
@@ -499,10 +499,9 @@ function CheckFilesWritable()
 		'Smileys',
 		'Themes',
 		'agreement.txt',
-		'Settings.php'
+		'Settings.php',
+		'Settings_bak.php',
 	);
-	if (file_exists(dirname(__FILE__) . '/Settings_bak.php'))
-		$writable_files[] = 'Settings_bak.php';
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
@@ -593,7 +592,7 @@ function CheckFilesWritable()
 		}
 
 		$incontext['ftp_errors'] = array();
-
+		require_once($sourcedir . '/Class-Package.php');
 		if (isset($_POST['ftp_username']))
 		{
 			$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
@@ -1247,7 +1246,7 @@ function DatabasePopulation()
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($timezone_id, timezone_identifiers_list()))
-		{	
+		{
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 		}

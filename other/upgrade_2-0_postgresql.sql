@@ -1368,12 +1368,12 @@ WHERE id_group = 1;
 
 ---# Adjusting calendar maximum year.
 ---{
-if (!isset($modSettings['cal_maxyear']) || $modSettings['cal_maxyear'] == '2010')
+if (!isset($modSettings['cal_maxyear']) || $modSettings['cal_maxyear'] < 2030)
 {
 	$smcFunc['db_insert']('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('cal_maxyear', '2020'),
+		array('cal_maxyear', '2030'),
 		array('variable', 'value')
 	);
 }
