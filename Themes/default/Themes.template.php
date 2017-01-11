@@ -418,6 +418,11 @@ function template_set_options()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
+			else if (isset($setting['type']) && $setting['type'] == 'url')
+			{
+				echo'
+						<input type="url"';
+			}
 			else
 			{
 				echo '
@@ -652,6 +657,11 @@ function template_set_settings()
 
 				echo '
 						<input type="number"', $min . $max . $step;
+			}
+			else if (isset($setting['type']) && $setting['type'] == 'url')
+			{
+				echo'
+						<input type="url"';	
 			}
 			else
 			{
