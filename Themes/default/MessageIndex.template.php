@@ -26,7 +26,7 @@ function template_main()
 			</div>';
 	}
 
-	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
+	if (!empty($context['boards']) && (!empty($options['show_children']) && $context['start'] == 0))
 	{
 		echo '
 	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table">
