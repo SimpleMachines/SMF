@@ -485,7 +485,7 @@ function Welcome()
 
 function CheckFilesWritable()
 {
-	global $txt, $incontext, $sourcedir;
+	global $txt, $incontext;
 
 	$incontext['page_title'] = $txt['ftp_checking_writable'];
 	$incontext['sub_template'] = 'chmod_files';
@@ -592,7 +592,7 @@ function CheckFilesWritable()
 		}
 
 		$incontext['ftp_errors'] = array();
-		require_once($sourcedir . '/Class-Package.php');
+		require_once('Sources/Class-Package.php');
 		if (isset($_POST['ftp_username']))
 		{
 			$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
