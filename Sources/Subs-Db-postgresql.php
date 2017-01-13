@@ -34,7 +34,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
-	if (!isset($smcFunc['db_fetch_assoc']) || $smcFunc['db_fetch_assoc'] != 'postg_fetch_assoc')
+	if (!isset($smcFunc['db_fetch_assoc']))
 		$smcFunc += array(
 			'db_query' => 'smf_db_query',
 			'db_quote' => 'smf_db_quote',
