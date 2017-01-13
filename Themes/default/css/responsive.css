@@ -47,6 +47,12 @@
 	div[id^="mobile_generic_menu_"] .generic_menu {
 		display: block;
 	}
+	.menu_icon {
+		display: inline-block;
+		background: url(../images/menu_icon.svg) no-repeat;
+		height: 20px;
+		width: 20px;
+	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
 	.dropmenu li a.active, .dropmenu li a.active:hover,
@@ -346,12 +352,6 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
-	.menu_icon {
-		display: inline-block;
-		background: url(../images/menu_icon.svg) no-repeat;
-		height: 20px;
-		width: 20px;
-	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
