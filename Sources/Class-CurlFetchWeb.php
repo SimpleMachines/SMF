@@ -69,7 +69,7 @@ class curl_fetch_web_data
 	public $user_options = array();
 	
 	/**
-	 * @var array Any post data as form name => value
+	 * @var string Any post data as form name => value
 	 */
 	public $post_data;
 	
