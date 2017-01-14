@@ -80,6 +80,12 @@ $disable_security = false;
  */
 $upcontext['inactive_timeout'] = 10;
 
+// The helper is crucial. Include it first thing.
+if (!file_exists($upgrade_path . '/upgrade-helper.php'))
+    die('upgrade-helper.php not found where it was expected: ' . $upgrade_path . '/upgrade-helper.php! Make sure you have uploaded ALL files from the upgrade package. The upgrader cannot continue.');
+
+require_once($upgrade_path . '/upgrade-helper.php');
+
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = array(
@@ -169,7 +175,6 @@ if (isset($_GET['ssi']))
 // Include our helper functions.
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
-require_once($upgrade_path . '/upgrade-helper.php');
 
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
