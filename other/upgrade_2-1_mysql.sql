@@ -1022,22 +1022,22 @@ if (!empty($select_columns))
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if (!empty($row['aim']))
-				$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
+				$inserts[] = array($row['id_member'], 0, 'cust_aolins', $row['aim']);
 
 			if (!empty($row['icq']))
-				$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
+				$inserts[] = array($row['id_member'], 0, 'cust_icq', $row['icq']);
 
 			if (!empty($row['msn']))
-				$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
+				$inserts[] = array($row['id_member'], 0, 'cust_skyp', $row['msn']);
 
 			if (!empty($row['yim']))
-				$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
+				$inserts[] = array($row['id_member'], 0, 'cust_yim', $row['yim']);
 
 			if (!empty($row['location']))
-				$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
+				$inserts[] = array($row['id_member'], 0, 'cust_loca', $row['location']);
 
 			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
-				$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+				$inserts[] = array($row['id_member'], 0, 'cust_gender', $genderTypes[INTval($row['gender'])]);
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -1046,7 +1046,7 @@ if (!empty($select_columns))
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 				$inserts,
-				array('id_theme', 'id_member', 'variable')
+				array('id_member', 'id_theme', 'variable', 'value')
 			);
 
 		$_GET['a'] += $limit;
