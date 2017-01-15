@@ -1046,7 +1046,7 @@ if (!empty($select_columns))
 				'{db_prefix}themes',
 				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 				$inserts,
-				array('id_member', 'id_theme', 'variable', 'value')
+				array('id_theme', 'id_member', 'variable')
 			);
 
 		$_GET['a'] += $limit;
