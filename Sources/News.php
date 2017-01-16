@@ -212,9 +212,13 @@ function ShowXmlFeed()
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
 
+	// Allow mods to specify any keys that need special handling
+	$forceCdataKeys = array();
+	$nsKeys = array();
+
 	// If mods want to do somthing with this feed, let them do that now.
-	// Provide the feed's data, title, format, and content type.
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']));
+	// Provide the feed's data, title, format, content type, and keys that need special handling
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']), &$forceCdataKeys, &$nsKeys);
 
 	// This is an xml file....
 	ob_end_clean();
@@ -251,7 +255,7 @@ function ShowXmlFeed()
 			echo '<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
-		dumpTags($xml, 2, 'item', $xml_format);
+		dumpTags($xml, 2, 'item', $xml_format, $forceCdataKeys, $nsKeys);
 
 		// Output the footer of the xml.
 		echo '
@@ -279,7 +283,7 @@ function ShowXmlFeed()
 		<name>', cdata_parse(strip_tags($context['forum_name'])), '</name>
 	</author>';
 
-		dumpTags($xml, 2, 'entry', $xml_format);
+		dumpTags($xml, 2, 'entry', $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </feed>';
@@ -305,7 +309,7 @@ function ShowXmlFeed()
 	</channel>
 ';
 
-		dumpTags($xml, 1, 'item', $xml_format);
+		dumpTags($xml, 1, 'item', $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </rdf:RDF>';
@@ -317,7 +321,7 @@ function ShowXmlFeed()
 <smf:xml-feed xmlns:smf="http://www.simplemachines.org/" xmlns="http://www.simplemachines.org/xml/', $_GET['sa'], '" xml:lang="', strtr($txt['lang_locale'], '_', '-'), '">';
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
-		dumpTags($xml, 1, $subActions[$_GET['sa']][1], $xml_format);
+		dumpTags($xml, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </smf:xml-feed>';
@@ -434,13 +438,15 @@ function cdata_parse($data, $ns = '', $force = false)
  * Formats data retrieved in other functions into xml format.
  * Additionally formats data based on the specific format passed.
  * This function is recursively called to handle sub arrays of data.
-
+ *
  * @param array $data The array to output as xml data
  * @param int $i The amount of indentation to use.
  * @param null|string $tag If specified, it will be used instead of the keys of data.
  * @param string $xml_format The format to use ('atom', 'rss', 'rss2' or empty for plain XML)
+ * @param array $forceCdataKeys A list of keys on which to force cdata wrapping (used by mods, maybe)
+ * @param array $nsKeys Key-value pairs of namespace prefixes to pass to cdata_parse() (used by mods, maybe)
  */
-function dumpTags($data, $i, $tag = null, $xml_format = '')
+function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = array(), $nsKeys = array())
 {
 	// Wrap the values of these keys into CDATA tags
 	$keysToCdata = array(
@@ -460,6 +466,12 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 	if ($xml_format != 'atom')
 		$keysToCdata[] = 'category';
 
+	if (!empty($forceCdataKeys))
+	{
+		$keysToCdata = array_merge($keysToCdata, $forceCdataKeys);
+		$keysToCdata = array_unique($keysToCdata);
+	}
+
 	// For every array in the data...
 	foreach ($data as $key => $val)
 	{
@@ -467,9 +479,12 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		if ($val === null)
 			continue;
 
+		$forceCdata = in_array($key, $forceCdataKeys);
+		$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
+
 		// If the value should maybe be CDATA, do that now.
 		if (!is_array($val) && in_array($key, $keysToCdata))
-			$val = cdata_parse($val);
+			$val = cdata_parse($val, $ns, $forceCdata);
 
 		// If a tag was passed, use it instead of the key.
 		$key = isset($tag) ? $tag : $key;
@@ -507,7 +522,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 			if (is_array($val))
 			{
 				// An array.  Dump it, and then indent the tag.
-				dumpTags($val, $i + 1, null, $xml_format);
+				dumpTags($val, $i + 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 				echo "\n", str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
