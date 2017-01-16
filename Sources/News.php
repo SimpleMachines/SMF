@@ -846,7 +846,7 @@ function getXmlRecent($xml_format)
 				'category' => $row['bname'],
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
-				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']
+				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			);
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
@@ -896,7 +896,7 @@ function getXmlRecent($xml_format)
 					'id' => $row['id_board'],
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0'
 				),
-				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']
+				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			);
 	}
 	$smcFunc['db_free_result']($request);
