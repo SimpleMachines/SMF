@@ -3050,11 +3050,13 @@ function serialize_to_json()
 								UPDATE {db_prefix}themes
 								SET value = {string:prefs}
 								WHERE id_theme = {int:theme}
-									AND id_member = {int:member}',
+									AND id_member = {int:member}
+									AND variable = {string:admin_prefs}',
 								array(
 									'prefs' => $row['value'],
 									'theme' => $row['id_theme'],
-									'member' => $row['id_member']
+									'member' => $row['id_member'],
+									'admin_prefs' => 'admin_preferences'
 								)
 							);
 
