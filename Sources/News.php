@@ -492,18 +492,24 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		// First let's indent!
 		echo "\n", str_repeat("\t", $i);
 
-		// Grr, I hate kludges... almost worth doing it properly, here, but not quite.
-		if ($xml_format == 'atom' && $key == 'link')
+		// Atom uses attributes rather than content for some elements.
+		if ($xml_format == 'atom')
 		{
-			echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '" />';
-			continue;
+			if ($key == 'link')
+			{
+				echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '" />';
+				continue;
+			}
+			elseif ($key == 'category')
+			{
+				echo '<', $key, ' term="', $val, '" />';
+				continue;
+			}
 		}
 
-		// If it's empty/0/nothing simply output an empty tag.
+		// If it's empty/0/nothing simply output an empty element.
 		if ($val == '')
 			echo '<', $key, ' />';
-		elseif ($xml_format == 'atom' && $key == 'category')
-			echo '<', $key, ' term="', $val, '" />';
 		else
 		{
 			// Beginning tag.
