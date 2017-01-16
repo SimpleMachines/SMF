@@ -2641,8 +2641,7 @@ dl.addrules dt.floatleft {
 	box-shadow: 0 3px 6px rgba(0,0,0,0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
-	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
-	overflow: visible!important;
+	overflow: visible !important;
 	background: #FFFFFF;
 	top: 15%;
 	margin: 0 auto;

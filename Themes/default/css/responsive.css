@@ -13,12 +13,18 @@
 
 /* I have a Lumia with 480px screen... so ^^ */
 @media (max-width: 480px) {
+	/* Stay where you are in mobile popup enabled */
+	body {
+		overflow: hidden;
+	}
 	/* This is general */
 	.popup_window {
 		width: 90%;
 		min-height: 285px !important;
 		max-height: 5em;
-		overflow: scroll !important;
+		overflow-x: hidden !important;
+		overflow-y: scroll !important;
+		-webkit-overflow-scrolling: touch;
 		padding: 0;
 		margin: 0 auto;
 	}
