@@ -357,15 +357,16 @@ function fix_possible_url($val)
  * Called from getXmlProfile in News.php
  *
  * @param string $data XML data
- * @param string $ns
- * @return string The XML data enclosed in cdata tags
+ * @param string $ns A namespace prefix for the XML data elements (used by mods, maybe)
+ * @param boolean $force If true, enclose the XML data in cdata tags no matter what (used by mods, maybe)
+ * @return string The XML data enclosed in cdata tags when necessary
  */
-function cdata_parse($data, $ns = '')
+function cdata_parse($data, $ns = '', $force = false)
 {
 	global $smcFunc;
 
 	// Do we even need to do this?
-	if (strpbrk($data, '<>&') == false)
+	if (strpbrk($data, '<>&') == false && $force !== true)
 		return $data;
 
 	$cdata = '<![CDATA[';
