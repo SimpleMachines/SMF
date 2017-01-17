@@ -212,13 +212,22 @@ function ShowXmlFeed()
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
 
+	// Allow mods to add extra tags to the feed/channel
+	$extraFeedTags = array(
+		'rss' => array(),
+		'rss2' => array(),
+		'atom' => array(),
+		'rdf' => array(),
+		'smf' => array(),
+	);
+
 	// Allow mods to specify any keys that need special handling
 	$forceCdataKeys = array();
 	$nsKeys = array();
 
 	// If mods want to do somthing with this feed, let them do that now.
-	// Provide the feed's data, title, format, content type, and keys that need special handling
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa'], &$forceCdataKeys, &$nsKeys));
+	// Provide the feed's data, title, format, content type, keys that need special handling, etc.
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -255,6 +264,19 @@ function ShowXmlFeed()
 			echo '
 		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
 
+		if ($xml_format == 'rss' && !empty($extraFeedTags['rss']))
+		{
+			foreach ($extraFeedTags['rss'] as $extraTag)
+				echo '
+		', $extraTag;
+		}
+		elseif ($xml_format == 'rss2' && !empty($extraFeedTags['rss2']))
+		{
+			foreach ($extraFeedTags['rss2'] as $extraTag)
+				echo '
+		', $extraTag;
+		}
+
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
 		dumpTags($xml, 2, 'item', $xml_format, $forceCdataKeys, $nsKeys);
 
@@ -276,13 +298,19 @@ function ShowXmlFeed()
 	<link rel="self" type="application/atom+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
-
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
 	<subtitle>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</subtitle>
 	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>
 	<author>
 		<name>', cdata_parse(strip_tags($context['forum_name'])), '</name>
 	</author>';
+
+		if ($xml_format == 'atom' && !empty($extraFeedTags['atom']))
+		{
+			foreach ($extraFeedTags['atom'] as $extraTag)
+				echo '
+	', $extraTag;
+		}
 
 		dumpTags($xml, 2, 'entry', $xml_format, $forceCdataKeys, $nsKeys);
 
@@ -296,7 +324,16 @@ function ShowXmlFeed()
 	<channel rdf:about="', $scripturl, '">
 		<title>', $feed_title, '</title>
 		<link>', $scripturl, '</link>
-		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>
+		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>';
+
+		if ($xml_format == 'rdf' && !empty($extraFeedTags['rdf']))
+		{
+			foreach ($extraFeedTags['rdf'] as $extraTag)
+				echo '
+		', $extraTag;
+		}
+
+		echo '
 		<items>
 			<rdf:Seq>';
 
