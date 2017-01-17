@@ -725,8 +725,64 @@ function getXmlNews($xml_format)
 		censorText($row['body']);
 		censorText($row['subject']);
 
+		// Do we want to include any attachments?
+		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
+		{
+			$attach_request = $smcFunc['db_query']('', '
+				SELECT
+					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
+				FROM {db_prefix}attachments AS a
+					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+				WHERE a.attachment_type = {int:attachment_type}
+					AND a.id_msg = {int:message_id}',
+				array(
+					'message_id' => $row['id_msg'],
+					'attachment_type' => 0,
+					'is_approved' => 1,
+				)
+			);
+			$loaded_attachments = array();
+			while ($attach = $smcFunc['db_fetch_assoc']($attach_request))
+			{
+				// Include approved attachments only
+				if ($attach['approved'])
+					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
+			}
+			$smcFunc['db_free_result']($attach_request);
+
+			// Sort the attachments by size to make things easier below
+			if (!empty($loaded_attachments))
+			{
+				uasort($loaded_attachments, function($a, $b) {
+					if ($a['filesize'] == $b['filesize'])
+					        return 0;
+					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+				});
+			}
+			else
+				$loaded_attachments = null;
+		}
+		else
+			$loaded_attachments = null;
+
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
+		{
+			// Only one attachment allowed in RSS.
+			if ($loaded_attachments !== null)
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'attributes' => array(
+						'url' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+						'length' => $attachment['filesize'],
+						'type' => $attachment['mime_type'],
+					),
+				);
+			}
+			else
+				$enclosure = null;
+
 			$data[] = array(
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
@@ -736,8 +792,11 @@ function getXmlNews($xml_format)
 				'category' => $row['bname'],
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
 				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'enclosure' => $enclosure,
 			);
+		}
 		elseif ($xml_format == 'rdf')
+		{
 			$data[] = array(
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
@@ -783,9 +842,30 @@ function getXmlNews($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'enclosure' => $enclosure,
 			);
+		}
 		// The biggest difference here is more information.
 		else
+		{
+			$attachments = array();
+			if (!empty($loaded_attachments))
+			{
+				foreach ($loaded_attachments as $attachment)
+				{
+					$attachments[$attachment['id_attach']] = array(
+						'id' => $attachment['id_attach'],
+						'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+						'downloads' => $attachment['downloads'],
+						'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
+						'byte_size' => $attachment['filesize'],
+						'link' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+					);
+				}
+			}
+			else
+				$attachments = null;
+
 			$data[] = array(
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_topic'],
@@ -803,7 +883,9 @@ function getXmlNews($xml_format)
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0',
 				),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'attachments' => $attachments,
 			);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -954,9 +1036,11 @@ function getXmlRecent($xml_format)
 			{
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
-					'url' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'attributes' => array(
+						'url' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+						'length' => $attachment['filesize'],
+						'type' => $attachment['mime_type'],
+					),
 				);
 			}
 			else
