@@ -44,7 +44,7 @@ CREATE TABLE {$db_prefix}attachments (
   downloads MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   width MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   height MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
-  mime_type VARCHAR(20) NOT NULL DEFAULT '',
+  mime_type VARCHAR(128) NOT NULL DEFAULT '',
   approved TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (id_attach),
   UNIQUE idx_id_member (id_member, id_attach),
