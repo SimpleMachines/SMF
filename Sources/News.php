@@ -496,7 +496,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		'blurb',
 	);
 	if ($xml_format != 'atom')
-		$keysToCdata[] = 'category';
+		$keysToCdata[] = 'term';
 
 	if (!empty($forceCdataKeys))
 	{
@@ -511,6 +511,16 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		if ($val === null)
 			continue;
 
+		// The element's attributes
+		$attributes = array();
+		if (!empty($val['attributes']) && is_array($val['attributes']))
+		{
+			$attributes = $val['attributes'];
+			unset($val['attributes']);
+			if (count($val) === 1)
+				$val = array_pop($val);
+		}
+
 		$forceCdata = in_array($key, $forceCdataKeys);
 		$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
@@ -524,36 +534,6 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		// First let's indent!
 		echo "\n", str_repeat("\t", $i);
 
-		// Atom uses attributes rather than content for some elements.
-		if ($xml_format == 'atom')
-		{
-			if ($key == 'link')
-			{
-				echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '" />';
-				continue;
-			}
-			elseif ($key == 'category')
-			{
-				echo '<', $key, ' term="', $val, '" />';
-				continue;
-			}
-			elseif ($key == 'enclosure')
-			{
-				echo '<link rel="enclosure" href="', fix_possible_url($val['url']), '" length="', $val['length'], '" type="', $val['type'], '" />';
-				continue;
-			}
-		}
-
-		// Sometimes, RSS acts like Atom
-		if ($xml_format == 'rss' || $xml_format == 'rss2')
-		{
-			if ($key == 'enclosure')
-			{
-				echo '<enclosure url="', fix_possible_url($val['url']), '" length="', $val['length'], '" type="', $val['type'], '" />';
-				continue;
-			}
-		}
-
 		// If it's empty/0/nothing simply output an empty element.
 		if ($val == '')
 			echo '<', $key, ' />';
@@ -566,10 +546,18 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 				echo "\n", str_repeat("\t", $i + 1);
 				echo '<dc:format>text/html</dc:format>';
 			}
-			elseif ($xml_format == 'atom' && $key == 'summary')
-				echo '<', $key, ' type="html">';
 			else
-				echo '<', $key, '>';
+			{
+				echo '<', $key;
+
+				if (!empty($attributes))
+				{
+					foreach ($attributes as $attr_key => $attr_value)
+						echo ' ', $attr_key, '="', $attr_value, '"';
+				}
+
+				echo '>';
+			}
 
 			// The element's value.
 			if (is_array($val))
@@ -636,7 +624,13 @@ function getXmlMembers($xml_format)
 		elseif ($xml_format == 'atom')
 			$data[] = array(
 				'title' => $row['real_name'],
-				'link' => $scripturl . '?action=profile;u=' . $row['id_member'],
+				'link' => array(
+					'attributes' => array(
+						'rel' => 'alternate',
+						'type' => 'text/html',
+						'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+					),
+				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
 				'id' => $scripturl . '?action=profile;u=' . $row['id_member'],
@@ -749,12 +743,38 @@ function getXmlNews($xml_format)
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'description' => $row['body'],
 			);
+		}
 		elseif ($xml_format == 'atom')
+		{
+			// Only one attachment allowed
+			if (!empty($loaded_attachments))
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'attributes' => array(
+						'href' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+						'length' => $attachment['filesize'],
+						'type' => $attachment['mime_type'],
+					),
+				);
+			}
+			else
+				$enclosure = null;
+
 			$data[] = array(
 				'title' => $row['subject'],
-				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'summary' => $row['body'],
-				'category' => $row['bname'],
+				'link' => array(
+					'attributes' => array(
+						'rel' => 'alternate',
+						'type' => 'text/html',
+						'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+					),
+				),
+				'summary' => array(
+					'attributes' => array('type' => 'html'),
+					'content' => $row['body'],
+				),
+				'category' => array('attributes' => array('term' => $row['bname'])),
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
@@ -969,9 +989,11 @@ function getXmlRecent($xml_format)
 			{
 				$attachment = array_pop($loaded_attachments);
 				$enclosure = array(
-					'url' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
-					'length' => $attachment['filesize'],
-					'type' => $attachment['mime_type'],
+					'attributes' => array(
+						'href' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+						'length' => $attachment['filesize'],
+						'type' => $attachment['mime_type'],
+					),
 				);
 			}
 			else
@@ -979,9 +1001,18 @@ function getXmlRecent($xml_format)
 
 			$data[] = array(
 				'title' => $row['subject'],
-				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'summary' => $row['body'],
-				'category' => $row['bname'],
+				'link' => array(
+					'attributes' => array(
+						'rel' => 'alternate',
+						'type' => 'text/html',
+						'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+					),
+				),
+				'summary' => array(
+					'attributes' => array('type' => 'html'),
+					'content' => $row['body'],
+				),
+				'category' => array('attributes' => array('term' => $row['bname'])),
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
@@ -1092,8 +1123,17 @@ function getXmlProfile($xml_format)
 	elseif ($xml_format == 'atom')
 		$data[] = array(
 			'title' => $profile['name'],
-			'link' => $scripturl . '?action=profile;u=' . $profile['id'],
-			'summary' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+			'link' => array(
+				'attributes' => array(
+					'rel' => 'alternate',
+					'type' => 'text/html',
+					'href' => $scripturl . '?action=profile;u=' . $profile['id'],
+				),
+			),
+			'summary' => array(
+				'attributes' => array('type' => 'html'),
+				'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+			),
 			'author' => array(
 				'name' => $profile['real_name'],
 				'email' => $profile['show_email'] ? $profile['email'] : null,
