@@ -264,15 +264,9 @@ function ShowXmlFeed()
 			echo '
 		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
 
-		if ($xml_format == 'rss' && !empty($extraFeedTags['rss']))
+		if (!empty($extraFeedTags[$xml_format]))
 		{
-			foreach ($extraFeedTags['rss'] as $extraTag)
-				echo '
-		', $extraTag;
-		}
-		elseif ($xml_format == 'rss2' && !empty($extraFeedTags['rss2']))
-		{
-			foreach ($extraFeedTags['rss2'] as $extraTag)
+			foreach ($extraFeedTags[$xml_format] as $extraTag)
 				echo '
 		', $extraTag;
 		}
@@ -305,9 +299,9 @@ function ShowXmlFeed()
 		<name>', cdata_parse(strip_tags($context['forum_name'])), '</name>
 	</author>';
 
-		if ($xml_format == 'atom' && !empty($extraFeedTags['atom']))
+		if (!empty($extraFeedTags[$xml_format]))
 		{
-			foreach ($extraFeedTags['atom'] as $extraTag)
+			foreach ($extraFeedTags[$xml_format] as $extraTag)
 				echo '
 	', $extraTag;
 		}
@@ -326,9 +320,9 @@ function ShowXmlFeed()
 		<link>', $scripturl, '</link>
 		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>';
 
-		if ($xml_format == 'rdf' && !empty($extraFeedTags['rdf']))
+		if (!empty($extraFeedTags[$xml_format]))
 		{
-			foreach ($extraFeedTags['rdf'] as $extraTag)
+			foreach ($extraFeedTags[$xml_format] as $extraTag)
 				echo '
 		', $extraTag;
 		}
