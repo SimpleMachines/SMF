@@ -218,7 +218,7 @@ function ShowXmlFeed()
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, title, format, content type, and keys that need special handling
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']), &$forceCdataKeys, &$nsKeys);
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa'], &$forceCdataKeys, &$nsKeys));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -252,7 +252,8 @@ function ShowXmlFeed()
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
-			echo '<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
+			echo '
+		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
 		dumpTags($xml, 2, 'item', $xml_format, $forceCdataKeys, $nsKeys);
@@ -505,6 +506,21 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 				echo '<', $key, ' term="', $val, '" />';
 				continue;
 			}
+			elseif ($key == 'enclosure')
+			{
+				echo '<link rel="enclosure" href="', fix_possible_url($val['url']), '" length="', $val['length'], '" type="', $val['type'], '" />';
+				continue;
+			}
+		}
+
+		// Sometimes, RSS acts like Atom
+		if ($xml_format == 'rss' || $xml_format == 'rss2')
+		{
+			if ($key == 'enclosure')
+			{
+				echo '<enclosure url="', fix_possible_url($val['url']), '" length="', $val['length'], '" type="', $val['type'], '" />';
+				continue;
+			}
 		}
 
 		// If it's empty/0/nothing simply output an empty element.
@@ -528,7 +544,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 			if (is_array($val))
 			{
 				// An array.  Dump it, and then indent the tag.
-				dumpTags($val, $i + 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+				dumpTags($val, $i + 1, ($key == 'attachments') ? 'attachment' : null, $xml_format, $forceCdataKeys, $nsKeys);
 				echo "\n", str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
@@ -754,7 +770,9 @@ function getXmlNews($xml_format)
 function getXmlRecent($xml_format)
 {
 	global $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $context, $user_info;
+	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Attachments.php');
 
 	$done = false;
 	$loops = 0;
@@ -836,8 +854,63 @@ function getXmlRecent($xml_format)
 		censorText($row['body']);
 		censorText($row['subject']);
 
+		// Do we want to include any attachments?
+		$modSettings['attachmentsInFeeds'] = true;
+		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['attachmentsInFeeds']) && allowedTo('view_attachments', $row['id_board']))
+		{
+			$attach_request = $smcFunc['db_query']('', '
+				SELECT
+					a.id_attach, COALESCE(a.size, 0) AS filesize, a.mime_type, a.approved, m.id_topic AS topic
+				FROM {db_prefix}attachments AS a
+					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+				WHERE a.attachment_type = {int:attachment_type}
+					AND a.id_msg = {int:message_id}',
+				array(
+					'message_id' => $row['id_msg'],
+					'attachment_type' => 0,
+					'is_approved' => 1,
+				)
+			);
+			$loaded_attachments = array();
+			while ($attach = $smcFunc['db_fetch_assoc']($attach_request))
+			{
+				// Include approved attachments only
+				if ($attach['approved'])
+					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
+			}
+			$smcFunc['db_free_result']($attach_request);
+
+			// Sort the attachments by size to make things easier below
+			if (!empty($loaded_attachments))
+			{
+				uasort($loaded_attachments, function($a, $b) {
+					if ($a['filesize'] == $b['filesize'])
+					        return 0;
+					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+				});
+			}
+			else
+				$loaded_attachments = null;
+		}
+		else
+			$loaded_attachments = null;
+
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
+		{
+			// Only one attachment allowed in RSS.
+			if ($loaded_attachments !== null)
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'url' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+					'length' => $attachment['filesize'],
+					'type' => $attachment['mime_type'],
+				);
+			}
+			else
+				$enclosure = null;
+
 			$data[] = array(
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
@@ -847,14 +920,32 @@ function getXmlRecent($xml_format)
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
 				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+				'enclosure' => $enclosure,
 			);
+		}
 		elseif ($xml_format == 'rdf')
+		{
 			$data[] = array(
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'description' => $row['body'],
 			);
+		}
 		elseif ($xml_format == 'atom')
+		{
+			// Only one attachment allowed
+			if (!empty($loaded_attachments))
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'url' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+					'length' => $attachment['filesize'],
+					'type' => $attachment['mime_type'],
+				);
+			}
+			else
+				$enclosure = null;
+
 			$data[] = array(
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
@@ -868,9 +959,12 @@ function getXmlRecent($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+				'enclosure' => $enclosure,
 			);
+		}
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
+		{
 			$data[] = array(
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_msg'],
@@ -897,7 +991,9 @@ function getXmlRecent($xml_format)
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0'
 				),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+				'attachments' => $loaded_attachments,
 			);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
