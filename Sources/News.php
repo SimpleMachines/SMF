@@ -988,8 +988,7 @@ function getXmlRecent($xml_format)
 		censorText($row['subject']);
 
 		// Do we want to include any attachments?
-		$modSettings['attachmentsInFeeds'] = true;
-		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['attachmentsInFeeds']) && allowedTo('view_attachments', $row['id_board']))
+		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['xmlnews_attachments']) && allowedTo('view_attachments', $row['id_board']))
 		{
 			$attach_request = $smcFunc['db_query']('', '
 				SELECT
