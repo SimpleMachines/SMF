@@ -806,7 +806,7 @@ function getXmlNews($xml_format)
  */
 function getXmlRecent($xml_format)
 {
-	global $scripturl, $modSettings, $board;
+	global $scripturl, $modSettings, $board, $txt;
 	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
 
 	require_once($sourcedir . '/Subs-Attachments.php');
@@ -897,7 +897,7 @@ function getXmlRecent($xml_format)
 		{
 			$attach_request = $smcFunc['db_query']('', '
 				SELECT
-					a.id_attach, COALESCE(a.size, 0) AS filesize, a.mime_type, a.approved, m.id_topic AS topic
+					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
 				FROM {db_prefix}attachments AS a
 					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 				WHERE a.attachment_type = {int:attachment_type}
@@ -1002,6 +1002,24 @@ function getXmlRecent($xml_format)
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
 		{
+			$attachments = array();
+			if (!empty($loaded_attachments))
+			{
+				foreach ($loaded_attachments as $attachment)
+				{
+					$attachments[$attachment['id_attach']] = array(
+						'id' => $attachment['id_attach'],
+						'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+						'downloads' => $attachment['downloads'],
+						'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
+						'byte_size' => $attachment['filesize'],
+						'link' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+					);
+				}
+			}
+			else
+				$attachments = null;
+
 			$data[] = array(
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_msg'],
@@ -1028,7 +1046,7 @@ function getXmlRecent($xml_format)
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0'
 				),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'attachments' => $loaded_attachments,
+				'attachments' => $attachments,
 			);
 		}
 	}
