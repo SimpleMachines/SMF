@@ -689,7 +689,7 @@ $txt['merge_custom_subject'] = 'Custom subject';
 $txt['merge_include_notifications'] = 'Include notifications?';
 $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
-$txt['merge_why'] = 'Please entere a brief description as to<br>why these topics are being merged.';
+$txt['merge_why'] = 'Please enter a brief description as to<br>why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
 $txt['mergetopic_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
 
@@ -871,7 +871,7 @@ $txt['notify_topic_0'] = 'Not Following';
 $txt['notify_topic_1'] = 'No Alerts or Emails';
 $txt['notify_topic_2'] = 'Receive Alerts';
 $txt['notify_topic_3'] = 'Receive Emails and Alerts';
-$txt['notify_topic_0_desc'] = 'You will not receive any emails or alerts for this post and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic.';
+$txt['notify_topic_0_desc'] = 'You will not receive any emails or alerts for this topic and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic.';
 $txt['notify_topic_1_desc'] = 'You will not receive any emails or alerts but only @mentions by other members.';
 $txt['notify_topic_2_desc'] = 'You will receive alerts for this topic.';
 $txt['notify_topic_3_desc'] = 'You will receive both alerts and e-mails for this topic.';
