@@ -713,7 +713,7 @@ function getXmlMembers($xml_format)
 		// More logical format for the data, but harder to apply.
 		else
 			$data[] = array(
-				'tag' => 'dummy',
+				'tag' => 'member',
 				'content' => array(
 					array(
 						'tag' => 'name',
@@ -1052,7 +1052,7 @@ function getXmlNews($xml_format)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'dummy',
+				'tag' => 'article',
 				'content' => array(
 					array(
 						'tag' => 'time',
@@ -1457,7 +1457,7 @@ function getXmlRecent($xml_format)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'dummy',
+				'tag' => 'recent-post',
 				'content' => array(
 					array(
 						'tag' => 'time',
@@ -1586,6 +1586,7 @@ function getXmlProfile($xml_format)
 	$profile = &$memberContext[$_GET['u']];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
+	{
 		$data[] = array(
 			'tag' => 'item',
 			'content' => array(
@@ -1615,7 +1616,9 @@ function getXmlProfile($xml_format)
 				),
 			)
 		);
+	}
 	elseif ($xml_format == 'rdf')
+	{
 		$data[] = array(
 			'tag' => 'item',
 			'content' => array(
@@ -1633,7 +1636,9 @@ function getXmlProfile($xml_format)
 				),
 			)
 		);
+	}
 	elseif ($xml_format == 'atom')
+	{
 		$data[] = array(
 			'tag' => 'entry',
 			'content' => array(
@@ -1685,12 +1690,13 @@ function getXmlProfile($xml_format)
 				),
 			)
 		);
+	}
 	else
 	{
 		$data = array(
 			array(
 				'tag' => 'username',
-				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : '',
+				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : null,
 			),
 			array(
 				'tag' => 'name',
@@ -1720,70 +1726,52 @@ function getXmlProfile($xml_format)
 				'tag' => 'registered',
 				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
 			),
-		);
-
-		// Everything below here might not be set, and thus maybe shouldn't be displayed.
-		if ($profile['gender']['name'] != '')
-			$data[] = array(
+			array(
 				'tag' => 'gender',
-				'content' => $profile['gender']['name'],
-			);
-
-		if ($profile['avatar']['name'] != '')
-			$data[] = array(
+				'content' => !empty($profile['gender']['name']) ? $profile['gender']['name'] : null,
+			),
+			array(
 				'tag' => 'avatar',
-				'content' => $profile['avatar']['url'],
-			);
-
-		// If they are online, show an empty tag... no reason to put anything inside it.
-		if ($profile['online']['is_online'])
-			$data[] = array(
+				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
+			),
+			array(
 				'tag' => 'online',
-				'content' => '',
-			);
-
-		if ($profile['signature'] != '')
-			$data[] = array(
+				'content' => !empty($profile['online']['is_online']) ? '' : null,
+			),
+			array(
 				'tag' => 'signature',
-				'content' => $profile['signature'],
-			);
-		if ($profile['blurb'] != '')
-			$data[] = array(
+				'content' => !empty($profile['signature']) ? $profile['signature'] : null,
+			),
+			array(
 				'tag' => 'blurb',
-				'content' => $profile['blurb'],
-			);
-		if ($profile['title'] != '')
-			$data[] = array(
+				'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
+			),
+			array(
 				'tag' => 'title',
-				'content' => $profile['title'],
-			);
-
-		if ($profile['website']['title'] != '')
-			$data[] = array(
+				'content' => !empty($profile['title']) ? $profile['title'] : null,
+			),
+			array(
+				'tag' => 'position',
+				'content' => !empty($profile['group']) ? $profile['group'] : null,
+			),
+			array(
+				'tag' => 'email',
+				'content' => !empty($profile['show_email']) ? $profile['show_email'] : null,
+			),
+			array(
 				'tag' => 'website',
-				'content' => array(
+				'content' => empty($profile['website']['url']) ? null : array(
 					array(
 						'tag' => 'title',
-						'content' => $profile['website']['title'],
+						'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 					),
 					array(
 						'tag' => 'link',
 						'content' => $profile['website']['url'],
 					),
 				),
-			);
-
-		if ($profile['group'] != '')
-			$data[] = array(
-				'tag' => 'position',
-				'content' => $profile['group'],
-			);
-
-		if ($profile['show_email'])
-			$data[] = array(
-				'tag' => 'email',
-				'content' => $profile['email'],
-			);
+			),
+		);
 
 		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')
 		{
