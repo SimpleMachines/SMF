@@ -496,7 +496,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		'blurb',
 	);
 	if ($xml_format != 'atom')
-		$keysToCdata[] = 'term';
+		$keysToCdata[] = 'category';
 
 	if (!empty($forceCdataKeys))
 	{
