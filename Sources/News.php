@@ -525,7 +525,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 	}
 
 	// For every array in the data...
-	foreach ($data as $elementkey => $element)
+	foreach ($data as $element)
 	{
 		$key = isset($element['tag']) ? $element['tag'] : null;
 		$val = isset($element['content']) ? $element['content'] : null;
@@ -1578,7 +1578,7 @@ function getXmlProfile($xml_format)
 	$profile = &$memberContext[$_GET['u']];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
-		$data = array(
+		$data[] = array(
 			'tag' => 'item',
 			'content' => array(
 				array(
@@ -1608,7 +1608,7 @@ function getXmlProfile($xml_format)
 			)
 		);
 	elseif ($xml_format == 'rdf')
-		$data = array(
+		$data[] = array(
 			'tag' => 'item',
 			'content' => array(
 				array(
@@ -1684,81 +1684,78 @@ function getXmlProfile($xml_format)
 	else
 	{
 		$data = array(
-			'tag' => 'dummy',
-			'content' => array(
-				array(
-					'tag' => 'username',
-					'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : '',
-				),
-				array(
-					'tag' => 'name',
-					'content' => $profile['name'],
-				),
-				array(
-					'tag' => 'link',
-					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
-				),
-				array(
-					'tag' => 'posts',
-					'content' => $profile['posts'],
-				),
-				array(
-					'tag' => 'post-group',
-					'content' => $profile['post_group'],
-				),
-				array(
-					'tag' => 'language',
-					'content' => $profile['language'],
-				),
-				array(
-					'tag' => 'last-login',
-					'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['last_login']),
-				),
-				array(
-					'tag' => 'registered',
-					'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
-				),
-			)
+			array(
+				'tag' => 'username',
+				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : '',
+			),
+			array(
+				'tag' => 'name',
+				'content' => $profile['name'],
+			),
+			array(
+				'tag' => 'link',
+				'content' => $scripturl . '?action=profile;u=' . $profile['id'],
+			),
+			array(
+				'tag' => 'posts',
+				'content' => $profile['posts'],
+			),
+			array(
+				'tag' => 'post-group',
+				'content' => $profile['post_group'],
+			),
+			array(
+				'tag' => 'language',
+				'content' => $profile['language'],
+			),
+			array(
+				'tag' => 'last-login',
+				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['last_login']),
+			),
+			array(
+				'tag' => 'registered',
+				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
+			),
 		);
 
 		// Everything below here might not be set, and thus maybe shouldn't be displayed.
 		if ($profile['gender']['name'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'gender',
 				'content' => $profile['gender']['name'],
 			);
 
 		if ($profile['avatar']['name'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'avatar',
 				'content' => $profile['avatar']['url'],
 			);
 
 		// If they are online, show an empty tag... no reason to put anything inside it.
 		if ($profile['online']['is_online'])
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'online',
 				'content' => '',
 			);
 
 		if ($profile['signature'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'signature',
 				'content' => $profile['signature'],
 			);
 		if ($profile['blurb'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'blurb',
 				'content' => $profile['blurb'],
 			);
 		if ($profile['title'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'title',
 				'content' => $profile['title'],
 			);
 
 		if ($profile['website']['title'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'website',
 				'content' => array(
 					array(
@@ -1773,13 +1770,13 @@ function getXmlProfile($xml_format)
 			);
 
 		if ($profile['group'] != '')
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'position',
 				'content' => $profile['group'],
 			);
 
 		if ($profile['show_email'])
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'email',
 				'content' => $profile['email'],
 			);
@@ -1790,7 +1787,7 @@ function getXmlProfile($xml_format)
 			$datearray = getdate(forum_time());
 			$age = $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1);
 
-			$data['content'][] = array(
+			$data[] = array(
 				'tag' => 'age',
 				'content' => $age,
 			);
