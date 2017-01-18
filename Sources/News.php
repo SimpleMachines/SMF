@@ -535,8 +535,18 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		echo "\n", str_repeat("\t", $i);
 
 		// If it's empty/0/nothing simply output an empty element.
-		if ($val == '')
-			echo '<', $key, ' />';
+		if (empty($val))
+		{
+			echo '<', $key;
+
+			if (!empty($attributes))
+			{
+				foreach ($attributes as $attr_key => $attr_value)
+					echo ' ', $attr_key, '="', $attr_value, '"';
+			}
+
+			echo ' />';
+		}
 		else
 		{
 			// Beginning tag.
