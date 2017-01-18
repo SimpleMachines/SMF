@@ -279,6 +279,11 @@ function ShowXmlFeed()
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
+		if ($xml_format == 'rss2')
+			foreach ($_REQUEST as $var => $val)
+				if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
+					$url_parts[] = $var . '=' . (is_array($_REQUEST[$var]) ? implode(',', $_REQUEST[$var]) : $_REQUEST[$var]);
+
 		// Start with an RSS 2.0 header.
 		echo '
 <rss version=', $xml_format == 'rss2' ? '"2.0"' : '"0.92"', ' xml:lang="', strtr($txt['lang_locale'], '_', '-'), '"', $ns_string, '>
@@ -290,7 +295,7 @@ function ShowXmlFeed()
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
 			echo '
-		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
+		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />';
 
 		echo $extraFeedTags_string;
 
