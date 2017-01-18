@@ -324,7 +324,7 @@ function ShowXmlFeed()
 
 		echo $extraFeedTags_string;
 
-		dumpTags($xml, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </feed>';
@@ -1651,7 +1651,7 @@ function getXmlProfile($xml_format)
 					'content' => array(
 						array(
 							'tag' => 'name',
-							'content' => $profile['real_name'],
+							'content' => $profile['name'],
 						),
 						array(
 							'tag' => 'email',
@@ -1659,7 +1659,7 @@ function getXmlProfile($xml_format)
 						),
 						array(
 							'tag' => 'uri',
-							'content' => !empty($profile['website']) ? $profile['website']['url'] : null,
+							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : null,
 						),
 					),
 				),
@@ -1674,10 +1674,6 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'id',
 					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
-				),
-				array(
-					'tag' => 'logo',
-					'content' => !empty($profile['avatar']) ? $profile['avatar']['url'] : '',
 				),
 			)
 		);
