@@ -569,9 +569,12 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		else
 		{
 			// Beginning tag.
-			if ($xml_format == 'rdf' && $key == 'item' && isset($val['link']))
+			if ($xml_format == 'rdf' && $key == 'item')
 			{
-				echo '<', $key, ' rdf:about="', fix_possible_url($val['link']), '">';
+				$link = array_filter($val, function ($e) { return ($e['tag'] == 'link'); });
+				$link = array_pop($link);
+
+				echo '<', $key, ' rdf:about="', fix_possible_url($link['content']), '">';
 				echo "\n", str_repeat("\t", $i + 1);
 				echo '<dc:format>text/html</dc:format>';
 			}
