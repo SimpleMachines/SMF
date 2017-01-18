@@ -1,8 +1,12 @@
 function smf_fileUpload(oOptions)
 {
-	// Before anything else, overwrite some stuff...
+	// Check if the file should be accepted or not...
 	Dropzone.prototype.accept = function(file, done) {
-		return this.options.accept.call(this, file, done);
+		if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
+			done(this.options.dictMaxFilesExceeded);
+			return this.emit("maxfilesexceeded", file);
+		} else 
+			return this.options.accept.call(this, file, done);
 	};
 
 	var previewNode = document.querySelector('#au-template');
@@ -178,9 +182,6 @@ function smf_fileUpload(oOptions)
 
 						// Remove the text field and show a nice confirmation message.
 						_innerElement.find('.attached_BBC').text(data.text);
-
-						// Update the maxfiles var.
-						myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
 
 						// Do stuff only if the file was actually accepted and it doesn't have an error status.
 						if (file.accepted && file.status != Dropzone.ERROR) {
