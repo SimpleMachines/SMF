@@ -51,7 +51,7 @@ function ShowXmlFeed()
 		'desc' => $txt['xml_rss_desc'],
 		'author' => $context['forum_name'],
 		'source' => $scripturl,
-		'id' => $scripturl,
+		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],
 		'icon' => $boardurl . '/favicon.ico',
 	);
 
@@ -249,9 +249,25 @@ function ShowXmlFeed()
 	$forceCdataKeys = array();
 	$nsKeys = array();
 
+	// Remember this, just in case...
+	$orig_feed_meta = $feed_meta;
+
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, title, format, content type, keys that need special handling, etc.
 	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
+
+	// These can't be empty
+	$feed_meta['title'] = !empty($feed_meta['title']) ? $feed_meta['title'] : $orig_feed_meta['title'];
+	$feed_meta['desc'] = !empty($feed_meta['desc']) ? $feed_meta['desc'] : $orig_feed_meta['desc'];
+	$feed_meta['source'] = !empty($feed_meta['source']) ? $feed_meta['source'] : $orig_feed_meta['source'];
+
+	// Sanitize basic feed metadata values
+	$feed_meta['title'] = cdata_parse(strip_tags($feed_meta['title']));
+	$feed_meta['desc'] = cdata_parse(strip_tags($feed_meta['desc']));
+	$feed_meta['author'] = cdata_parse(strip_tags($feed_meta['author']));
+	$feed_meta['rights'] = cdata_parse(strip_tags($feed_meta['rights']));
+	$feed_meta['source'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['source'])));
+	$feed_meta['icon'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['icon'])));
 
 	$ns_string = '';
 	if (!empty($namespaces[$xml_format]))
@@ -300,7 +316,15 @@ function ShowXmlFeed()
 	<channel>
 		<title>', $feed_meta['title'], '</title>
 		<link>', $feed_meta['source'], '</link>
-		<description>', cdata_parse(strip_tags($feed_meta['desc'])), '</description>';
+		<description>', $feed_meta['desc'], '</description>',
+		!empty($feed_meta['icon']) ? '
+		<image>
+			<url>' . $feed_meta['icon'] . '</url>
+			<title>' . $feed_meta['title'] . '</title>
+			<link>' . $feed_meta['source'] . '</link>
+		</image>' : '',
+		!empty($feed_meta['rights']) ? '
+		<copyright>' . $feed_meta['rights'] . '</copyright>' : '';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
@@ -328,14 +352,18 @@ function ShowXmlFeed()
 	<title>', $feed_meta['title'], '</title>
 	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
 	<link rel="self" type="application/atom+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />
-	<id>', $feed_meta['id'], '</id>
-	<icon>', $feed_meta['icon'], '</icon>
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
-	<subtitle>', cdata_parse(strip_tags($feed_meta['desc'])), '</subtitle>
-	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>
+	<id>', $feed_meta['source'], '</id>
+	<subtitle>', $feed_meta['desc'], '</subtitle>
+	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
+	!empty($feed_meta['icon']) ? '
+	<icon>' . $feed_meta['icon'] . '</icon>' : '',
+	!empty($feed_meta['author']) ? '
 	<author>
-		<name>', cdata_parse(strip_tags($feed_meta['author'])), '</name>
-	</author>';
+		<name>', $feed_meta['author'], '</name>
+	</author>' : '',
+	!empty($feed_meta['rights']) ? '
+	<rights>' . $feed_meta['rights'] . '</rights>' : '';
 
 		echo $extraFeedTags_string;
 
@@ -351,7 +379,7 @@ function ShowXmlFeed()
 	<channel rdf:about="', $scripturl, '">
 		<title>', $feed_meta['title'], '</title>
 		<link>', $feed_meta['source'], '</link>
-		<description>', cdata_parse(strip_tags($feed_meta['desc'])), '</description>';
+		<description>', $feed_meta['desc'], '</description>';
 
 		echo $extraFeedTags_string;
 
@@ -417,7 +445,7 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
+	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
 		{
 			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
 		}, $val);
@@ -542,51 +570,43 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 	// For every array in the data...
 	foreach ($data as $element)
 	{
-		$key = isset($element['tag']) ? $element['tag'] : null;
+		// If a tag was passed, use it instead of the key.
+		$key = isset($tag) ? $tag : (isset($element['tag']) ? $element['tag'] : null);
 		$val = isset($element['content']) ? $element['content'] : null;
 		$attrs = isset($element['attributes']) ? $element['attributes'] : null;
 
 		// Skip it, it's been set to null.
-		if ($val === null && $attrs === null)
+		if ($key === null || ($val === null && $attrs === null))
 			continue;
-
-		// If a tag was passed, use it instead of the key.
-		$key = isset($tag) ? $tag : $key;
-
-		$forceCdata = in_array($key, $forceCdataKeys);
-		$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
 		// If the value should maybe be CDATA, do that now.
 		if (!is_array($val) && in_array($key, $keysToCdata))
+		{
+			$forceCdata = in_array($key, $forceCdataKeys);
+			$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
+
 			$val = cdata_parse($val, $ns, $forceCdata);
+		}
 
 		// First let's indent!
 		echo "\n", str_repeat("\t", $i);
 
-		// If it's empty/0/nothing simply output an empty element.
+		// Beginning tag.
+		echo '<', $key;
+
+		if (!empty($attrs))
+		{
+			foreach ($attrs as $attr_key => $attr_value)
+				echo ' ', $attr_key, '="', fix_possible_url($attr_value), '"';
+		}
+
+		// If it's empty, simply output an empty element.
 		if (empty($val))
 		{
-			echo '<', $key;
-
-			if (!empty($attrs))
-			{
-				foreach ($attrs as $attr_key => $attr_value)
-					echo ' ', $attr_key, '="', $attr_value, '"';
-			}
-
 			echo ' />';
 		}
 		else
 		{
-			// Beginning tag.
-			echo '<', $key;
-
-			if (!empty($attrs))
-			{
-				foreach ($attrs as $attr_key => $attr_value)
-					echo ' ', $attr_key, '="', $attr_value, '"';
-			}
-
 			echo '>';
 
 			// The element's value.
@@ -667,7 +687,7 @@ function getXmlMembers($xml_format)
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?action=profile;u=' . $row['id_member'])),
+				'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $row['id_member'])),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -920,7 +940,7 @@ function getXmlNews($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?topic=' . $row['id_topic'] . '.0')),
+				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.0')),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -1330,7 +1350,7 @@ function getXmlRecent($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'])),
+				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'])),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -1634,7 +1654,7 @@ function getXmlProfile($xml_format)
 	{
 		$data[] = array(
 			'tag' => 'item',
-			'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?action=profile;u=' . $profile['id'])),
+			'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $profile['id'])),
 			'content' => array(
 				array(
 					'tag' => 'dc:format',
