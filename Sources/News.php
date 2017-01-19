@@ -292,7 +292,7 @@ function ShowXmlFeed()
 		if ($xml_format == 'rss2')
 			foreach ($_REQUEST as $var => $val)
 				if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
-					$url_parts[] = $var . '=' . (is_array($_REQUEST[$var]) ? implode(',', $_REQUEST[$var]) : $_REQUEST[$var]);
+					$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		// Start with an RSS 2.0 header.
 		echo '
@@ -305,7 +305,7 @@ function ShowXmlFeed()
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
 			echo '
-		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />';
+		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />';
 
 		echo $extraFeedTags_string;
 
@@ -321,13 +321,13 @@ function ShowXmlFeed()
 	{
 		foreach ($_REQUEST as $var => $val)
 			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
-				$url_parts[] = $var . '=' . (is_array($_REQUEST[$var]) ? implode(',', $_REQUEST[$var]) : $_REQUEST[$var]);
+				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		echo '
 <feed', $ns_string, '>
 	<title>', $feed_meta['title'], '</title>
 	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
-	<link rel="self" type="application/atom+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/atom+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />
 	<id>', $feed_meta['id'], '</id>
 	<icon>', $feed_meta['icon'], '</icon>
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
