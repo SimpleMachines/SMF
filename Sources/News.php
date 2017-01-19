@@ -360,7 +360,7 @@ function ShowXmlFeed()
 	<icon>' . $feed_meta['icon'] . '</icon>' : '',
 	!empty($feed_meta['author']) ? '
 	<author>
-		<name>', $feed_meta['author'], '</name>
+		<name>' . $feed_meta['author'] . '</name>
 	</author>' : '',
 	!empty($feed_meta['rights']) ? '
 	<rights>' . $feed_meta['rights'] . '</rights>' : '';
@@ -687,7 +687,7 @@ function getXmlMembers($xml_format)
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $row['id_member'])),
+				'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $row['id_member']),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -940,7 +940,7 @@ function getXmlNews($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.0')),
+				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.0'),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -1350,7 +1350,7 @@ function getXmlRecent($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
-				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'])),
+				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']),
 				'content' => array(
 					array(
 						'tag' => 'dc:format',
@@ -1654,7 +1654,7 @@ function getXmlProfile($xml_format)
 	{
 		$data[] = array(
 			'tag' => 'item',
-			'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $profile['id'])),
+			'attributes' => array('rdf:about' => $scripturl . '?action=profile;u=' . $profile['id']),
 			'content' => array(
 				array(
 					'tag' => 'dc:format',
