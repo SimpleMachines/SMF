@@ -45,6 +45,16 @@ function ShowXmlFeed()
 	// Default to latest 5.  No more than 255, please.
 	$_GET['limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
 
+	// Some general metadata for this feed. We'll change some of these values below.
+	$feed_meta = array(
+		'title' => '',
+		'desc' => $txt['xml_rss_desc'],
+		'author' => $context['forum_name'],
+		'source' => $scripturl,
+		'id' => $scripturl,
+		'icon' => $boardurl . '/favicon.ico',
+	);
+
 	// Handle the cases where a board, boards, or category is asked for.
 	$query_this_board = 1;
 	$context['optimize_msg'] = array(
@@ -66,10 +76,10 @@ function ShowXmlFeed()
 					'current_category' => (int) $_REQUEST['c'][0],
 				)
 			);
-			list ($feed_title) = $smcFunc['db_fetch_row']($request);
+			list ($feed_meta['title']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
-			$feed_title = ' - ' . strip_tags($feed_title);
+			$feed_meta['title'] = ' - ' . strip_tags($feed_meta['title']);
 		}
 
 		$request = $smcFunc['db_query']('', '
@@ -125,7 +135,7 @@ function ShowXmlFeed()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($num_boards == 1)
-				$feed_title = ' - ' . strip_tags($row['name']);
+				$feed_meta['title'] = ' - ' . strip_tags($row['name']);
 
 			$boards[] = $row['id_board'];
 			$total_posts += $row['num_posts'];
@@ -153,7 +163,7 @@ function ShowXmlFeed()
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		$feed_title = ' - ' . strip_tags($board_info['name']);
+		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
 
 		$query_this_board = 'b.id_board = ' . $board;
 
@@ -210,7 +220,7 @@ function ShowXmlFeed()
 			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml, 240);
 	}
 
-	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
 
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
@@ -241,7 +251,7 @@ function ShowXmlFeed()
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, title, format, content type, keys that need special handling, etc.
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
 
 	$ns_string = '';
 	if (!empty($namespaces[$xml_format]))
@@ -288,9 +298,9 @@ function ShowXmlFeed()
 		echo '
 <rss version=', $xml_format == 'rss2' ? '"2.0"' : '"0.92"', ' xml:lang="', strtr($txt['lang_locale'], '_', '-'), '"', $ns_string, '>
 	<channel>
-		<title>', $feed_title, '</title>
-		<link>', $scripturl, '</link>
-		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>';
+		<title>', $feed_meta['title'], '</title>
+		<link>', $feed_meta['source'], '</link>
+		<description>', cdata_parse(strip_tags($feed_meta['desc'])), '</description>';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
@@ -315,16 +325,16 @@ function ShowXmlFeed()
 
 		echo '
 <feed', $ns_string, '>
-	<title>', $feed_title, '</title>
-	<link rel="alternate" type="text/html" href="', $scripturl, '" />
+	<title>', $feed_meta['title'], '</title>
+	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
 	<link rel="self" type="application/atom+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />
-	<id>', $scripturl, '</id>
-	<icon>', $boardurl, '/favicon.ico</icon>
+	<id>', $feed_meta['id'], '</id>
+	<icon>', $feed_meta['icon'], '</icon>
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
-	<subtitle>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</subtitle>
+	<subtitle>', cdata_parse(strip_tags($feed_meta['desc'])), '</subtitle>
 	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>
 	<author>
-		<name>', cdata_parse(strip_tags($context['forum_name'])), '</name>
+		<name>', cdata_parse(strip_tags($feed_meta['author'])), '</name>
 	</author>';
 
 		echo $extraFeedTags_string;
@@ -339,9 +349,9 @@ function ShowXmlFeed()
 		echo '
 <rdf:RDF', $ns_string, '>
 	<channel rdf:about="', $scripturl, '">
-		<title>', $feed_title, '</title>
-		<link>', $scripturl, '</link>
-		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>';
+		<title>', $feed_meta['title'], '</title>
+		<link>', $feed_meta['source'], '</link>
+		<description>', cdata_parse(strip_tags($feed_meta['desc'])), '</description>';
 
 		echo $extraFeedTags_string;
 
