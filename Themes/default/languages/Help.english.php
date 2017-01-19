@@ -355,6 +355,11 @@ $helptxt['enableEmbeddedFlash'] = 'This setting will allow your users to use Fla
 	USE AT YOUR OWN RISK!';
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" class="new_win">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
+$helptxt['xmlnews_attachments'] = 'Allows links to attachments to be enclosed within your XML/RSS feeds. Turn this on if you want to use your forum as a podcasting, broadcatching, or similar content distribution platform.
+	<br><br>
+	The "view attachments" permission affects this setting. Members and guests will only see a post\'s attachments in the feed if they can also see the attachments on the post\'s web page. Keep in mind that most feed readers will access your feeds as a guest.
+	<br><br>
+	Some feed formats only allow one enclosed attachment per post. If a post has multiple attachments, SMF will enclose the largest one in these feeds.';
 $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains. For example, if...<br>
 	your site is http://www.example.com/,<br>
 	and your forum is http://forum.example.com/,<br>
