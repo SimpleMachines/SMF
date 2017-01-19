@@ -579,27 +579,15 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		else
 		{
 			// Beginning tag.
-			if ($xml_format == 'rdf' && $key == 'item')
+			echo '<', $key;
+
+			if (!empty($attrs))
 			{
-				$link = array_filter($val, function ($e) { return ($e['tag'] == 'link'); });
-				$link = array_pop($link);
-
-				echo '<', $key, ' rdf:about="', fix_possible_url($link['content']), '">';
-				echo "\n", str_repeat("\t", $i + 1);
-				echo '<dc:format>text/html</dc:format>';
+				foreach ($attrs as $attr_key => $attr_value)
+					echo ' ', $attr_key, '="', $attr_value, '"';
 			}
-			else
-			{
-				echo '<', $key;
 
-				if (!empty($attrs))
-				{
-					foreach ($attrs as $attr_key => $attr_value)
-						echo ' ', $attr_key, '="', $attr_value, '"';
-				}
-
-				echo '>';
-			}
+			echo '>';
 
 			// The element's value.
 			if (is_array($val))
@@ -679,7 +667,12 @@ function getXmlMembers($xml_format)
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
 				'tag' => 'item',
+				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?action=profile;u=' . $row['id_member'])),
 				'content' => array(
+					array(
+						'tag' => 'dc:format',
+						'content' => 'text/html',
+					),
 					array(
 						'tag' => 'title',
 						'content' => $row['real_name'],
@@ -927,7 +920,12 @@ function getXmlNews($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
+				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?topic=' . $row['id_topic'] . '.0')),
 				'content' => array(
+					array(
+						'tag' => 'dc:format',
+						'content' => 'text/html',
+					),
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
@@ -1332,7 +1330,12 @@ function getXmlRecent($xml_format)
 		{
 			$data[] = array(
 				'tag' => 'item',
+				'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'])),
 				'content' => array(
+					array(
+						'tag' => 'dc:format',
+						'content' => 'text/html',
+					),
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
@@ -1631,7 +1634,12 @@ function getXmlProfile($xml_format)
 	{
 		$data[] = array(
 			'tag' => 'item',
+			'attributes' => array('rdf:about' => fix_possible_url($scripturl . '?action=profile;u=' . $profile['id'])),
 			'content' => array(
+				array(
+					'tag' => 'dc:format',
+					'content' => 'text/html',
+				),
 				array(
 					'tag' => 'title',
 					'content' => $profile['name'],
