@@ -254,6 +254,11 @@ class Attachments
 			// No errors, YAY!
 			if (empty($errors))
 			{
+				// The reported MIME type of the attachment might not be reliable.
+				// Fortunately, PHP 5.3+ lets us easily verify the real MIME type.
+				if (function_exists('mime_content_type'))
+					$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
+
 				$_SESSION['temp_attachments'][$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,

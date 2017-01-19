@@ -152,7 +152,7 @@ CREATE TABLE {$db_prefix}attachments (
   downloads int NOT NULL default '0',
   width int NOT NULL default '0',
   height int NOT NULL default '0',
-  mime_type varchar(20) NOT NULL default '',
+  mime_type varchar(128) NOT NULL default '',
   approved smallint NOT NULL default '1',
   PRIMARY KEY (id_attach)
 );
