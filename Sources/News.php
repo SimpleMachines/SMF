@@ -579,14 +579,8 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		if ($key === null || ($val === null && $attrs === null))
 			continue;
 
-		// If the value should maybe be CDATA, do that now.
-		if (!is_array($val) && in_array($key, $keysToCdata))
-		{
-			$forceCdata = in_array($key, $forceCdataKeys);
-			$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
-
-			$val = cdata_parse($val, $ns, $forceCdata);
-		}
+		$forceCdata = in_array($key, $forceCdataKeys);
+		$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
 		// First let's indent!
 		echo "\n", str_repeat("\t", $i);
@@ -618,10 +612,10 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 			}
 			// A string with returns in it.... show this as a multiline element.
 			elseif (strpos($val, "\n") !== false)
-				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i);
+				echo "\n", in_array($key, $keysToCdata) ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val), "\n", str_repeat("\t", $i);
 			// A simple string.
 			else
-				echo fix_possible_url($val);
+				echo in_array($key, $keysToCdata) ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
 
 			// Ending tag.
 			echo '</', $key, '>';
