@@ -1726,11 +1726,10 @@ function MaintainRecountPosts()
 	$request = $smcFunc['db_query']('', '
 		SELECT /*!40001 SQL_NO_CACHE */ m.id_member, COUNT(m.id_member) AS posts
 		FROM {db_prefix}messages AS m 
-		INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
+			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}
 			AND b.count_posts = {int:zero}
-			AND m.id_board = b.id_board ' . (!empty($modSettings['recycle_enable']) ? '
-			AND b.id_board != {int:recycle}' : '') . '
+			' . (!empty($modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 		GROUP BY m.id_member
 		LIMIT {int:start}, {int:number}',
 		array(
@@ -1781,11 +1780,10 @@ function MaintainRecountPosts()
 		)
 		SELECT m.id_member
 		FROM {db_prefix}messages AS m
-		INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
+			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}
 			AND b.count_posts = {int:zero}
-			AND m.id_board = b.id_board ' . (!empty($modSettings['recycle_enable']) ? '
-			AND b.id_board != {int:recycle}' : '') . '
+			' . (!empty($modSettings['recycle_enable']) ? ' AND b.id_board != {int:recycle}' : '') . '
 		GROUP BY m.id_member',
 		array(
 			'zero' => 0,
