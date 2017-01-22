@@ -464,18 +464,24 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 
 		// Post drafts
 		if ($draft_type === 0)
+		{
+			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24); 
 			$context['drafts'][] = array(
-				'subject' => censorText(shorten_subject(stripslashes($row['subject']), 24)),
+				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
 				'link' => '<a href="' . $scripturl . '?action=post;board=' . $row['id_board'] . ';' . (!empty($row['id_topic']) ? 'topic=' . $row['id_topic'] . '.0;' : '') . 'id_draft=' . $row['id_draft'] . '">' . $row['subject'] . '</a>',
 			);
+		}
 		// PM drafts
 		elseif ($draft_type === 1)
+		{
+			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
 			$context['drafts'][] = array(
-				'subject' => censorText(shorten_subject(stripslashes($row['subject']), 24)),
+				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
 				'link' => '<a href="' . $scripturl . '?action=pm;sa=send;id_draft=' . $row['id_draft'] . '">' . (!empty($row['subject']) ? $row['subject'] : $txt['drafts_none']) . '</a>',
 			);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 }
