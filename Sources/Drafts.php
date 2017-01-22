@@ -475,7 +475,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 		// PM drafts
 		elseif ($draft_type === 1)
 		{
-			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24)
+			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
 			$context['drafts'][] = array(
 				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),
