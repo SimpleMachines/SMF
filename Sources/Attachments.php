@@ -331,10 +331,11 @@ class Attachments
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
 				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : $modSettings['currentAttachmentUploadDir'],
 				'approved' => !$modSettings['postmod_active'] || allowedTo('post_attachment'),
-				'errors' => $attachment['errors'],
+				'errors' => array(),
 			);
 
 			if (empty($attachment['errors']))
+			{	
 				if (createAttachment($attachmentOptions))
 				{
 					// Avoid JS getting confused.
@@ -349,13 +350,13 @@ class Attachments
 					if ($this->_msg)
 						assignAttachments($_SESSION['already_attached'], $this->_msg);
 				}
-
-			elseif (!empty($attachmentOptions['errors']))
+			}
+			else
 			{
 				// Sort out the errors for display and delete any associated files.
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
 
-				foreach ($attachmentOptions['errors'] as $error)
+				foreach ($attachment['errors'] as $error)
 				{
 					$attachmentOptions['errors'][] = vsprintf($txt['attach_warning'], $attachment['name']);
 
