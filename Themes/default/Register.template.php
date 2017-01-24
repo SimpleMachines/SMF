@@ -702,5 +702,3 @@ function template_edit_reserved_words()
 			</div>
 		</form>';
 }
-
-?>

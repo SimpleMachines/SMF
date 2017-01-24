@@ -543,5 +543,3 @@ function send_http_status($code)
 	else
 		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
-
-?>

@@ -886,4 +886,3 @@ $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
 $txt['mobile_user_menu'] = 'Mobile Main Menu';
-?>

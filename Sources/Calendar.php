@@ -760,5 +760,3 @@ function clock()
 			}
 	}
 }
-
-?>

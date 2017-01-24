@@ -163,5 +163,3 @@ $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log
 $txt['spider_stats_select_month'] = 'Jump To Month';
 $txt['spider_stats_page_hits'] = 'Page Hits';
 $txt['spider_stats_no_entries'] = 'There are currently no spider statistics available.';
-
-?>

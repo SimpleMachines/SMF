@@ -970,5 +970,3 @@ function subscriptions($memID)
 	else
 		$context['sub_template'] = 'user_subscription';
 }
-
-?>

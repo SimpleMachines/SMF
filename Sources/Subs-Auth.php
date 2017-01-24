@@ -915,5 +915,3 @@ function hash_benchmark($hashTime = 0.2)
 
 	return $cost;
 }
-
-?>

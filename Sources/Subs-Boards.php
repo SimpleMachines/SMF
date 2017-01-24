@@ -1454,5 +1454,3 @@ function isChildOf($child, $parent)
 
 	return isChildOf($boards[$child]['parent'], $parent);
 }
-
-?>

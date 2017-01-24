@@ -2950,5 +2950,3 @@ function viewWarning($memID)
 		if ($context['member']['warning'] >= $limit)
 			$context['current_level'] = $limit;
 }
-
-?>

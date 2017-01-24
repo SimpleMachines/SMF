@@ -619,5 +619,3 @@ function template_maint_warning_below()
 {
 
 }
-
-?>

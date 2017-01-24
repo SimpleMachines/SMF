@@ -5827,5 +5827,3 @@ function build_regex($strings, $delim = null)
 
 	return $regexes;
 }
-
-?>

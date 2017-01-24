@@ -1231,5 +1231,3 @@ function template_edit_file()
 		</form>
 	</div>';
 }
-
-?>

@@ -90,5 +90,3 @@ function getBoardList($boardListOptions = array())
 
 	return $return_value;
 }
-
-?>

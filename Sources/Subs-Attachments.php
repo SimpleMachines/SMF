@@ -1280,5 +1280,3 @@ function loadAttachmentContext($id_msg, $attachments)
 
 	return $attachmentData;
 }
-
-?>

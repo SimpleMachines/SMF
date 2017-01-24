@@ -585,5 +585,3 @@ function get_file_listing($path, $relative)
 
 	return array_merge($listing1, $listing2);
 }
-
-?>

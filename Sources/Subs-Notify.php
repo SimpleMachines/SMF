@@ -114,5 +114,3 @@ function deleteNotifyPrefs($memID, array $prefs)
 		)
 	);
 }
-
-?>

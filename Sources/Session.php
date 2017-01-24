@@ -231,5 +231,3 @@ function sessionGC($max_lifetime)
 
 	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
-
-?>

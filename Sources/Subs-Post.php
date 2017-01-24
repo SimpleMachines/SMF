@@ -2968,5 +2968,3 @@ function spell_suggest($dict, $word)
 		return pspell_suggest($dict, $word);
 	}
 }
-
-?>

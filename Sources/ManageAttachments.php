@@ -2809,5 +2809,3 @@ function TransferAttachments()
 
 	redirectexit('action=admin;area=manageattachments;sa=maintenance#transfer');
 }
-
-?>

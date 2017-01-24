@@ -3116,4 +3116,3 @@ function template_profile_tfa()
 	echo '
 							</dd>';
 }
-?>

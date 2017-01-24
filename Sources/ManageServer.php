@@ -1320,5 +1320,3 @@ function loadCacheAPIs()
 
 	return $apis;
 }
-
-?>

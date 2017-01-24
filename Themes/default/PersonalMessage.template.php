@@ -1958,5 +1958,3 @@ function template_showPMDrafts()
 			<span>', $context['page_index'], '</span>
 		</div>';
 }
-
-?>

@@ -350,5 +350,3 @@ function template_replies()
 	if (empty($context['no_topic_listing']))
 		template_topic_legend();
 }
-
-?>

@@ -700,5 +700,3 @@ if (!function_exists('smf_crc32'))
 {
 	require_once $sourcedir . '/Subs-Compat.php';
 }
-
-?>

@@ -232,5 +232,3 @@ class Mentions
 		return $names;
 	}
 }
-
-?>

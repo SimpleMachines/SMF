@@ -1978,5 +1978,3 @@ function loadPaymentGateways()
 
 	return $gateways;
 }
-
-?>

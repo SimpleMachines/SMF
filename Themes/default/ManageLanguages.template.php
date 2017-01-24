@@ -364,5 +364,3 @@ function template_add_language()
 		</form>
 	</div>';
 }
-
-?>

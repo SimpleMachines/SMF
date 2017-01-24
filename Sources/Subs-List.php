@@ -253,5 +253,3 @@ function createList($listOptions)
 	// Make sure the template is loaded.
 	loadTemplate('GenericList');
 }
-
-?>

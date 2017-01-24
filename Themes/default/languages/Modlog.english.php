@@ -112,5 +112,3 @@ $txt['modlog_ac_lock_poll'] = 'Locked voting in the poll in &quot;{topic}&quot;'
 $txt['modlog_ac_remove_poll'] = 'Removed the poll from &quot;{topic}&quot;';
 $txt['modlog_ac_reset_poll'] = 'Reset votes in the poll in &quot;{topic}&quot;';
 $txt['modlog_ac_unlock_poll'] = 'Unlocked voting in the poll in &quot;{topic}&quot;';
-
-?>

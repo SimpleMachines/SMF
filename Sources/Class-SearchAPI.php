@@ -225,5 +225,3 @@ abstract class search_api implements search_api_interface
 	{
 	}
 }
-
-?>

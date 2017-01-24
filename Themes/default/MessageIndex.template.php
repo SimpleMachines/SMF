@@ -436,5 +436,3 @@ function template_topic_legend()
 		</div>
 	</div>';
 }
-
-?>

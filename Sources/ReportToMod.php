@@ -466,5 +466,3 @@ function reportUser($id_member, $reason)
 	// Back to the post we reported!
 	redirectexit('reportsent;action=profile;u=' . $id_member);
 }
-
-?>

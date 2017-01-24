@@ -307,4 +307,3 @@ function showAttachment()
 
 	die();
 }
-?>

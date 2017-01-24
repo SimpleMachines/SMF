@@ -82,5 +82,3 @@ function template_edit_holiday()
 		</form>
 	</div>';
 }
-
-?>
