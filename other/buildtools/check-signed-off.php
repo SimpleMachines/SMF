@@ -11,7 +11,7 @@
  * @version 2.1 Beta 3
  */
 
-$message = shell_exec('git show -s --format=%B ' . $hash . ' | tail -n 1');
+$message = shell_exec('git show -s --format=%B HEAD | tail -n 1');
 $result = stripos($message, 'Signed-off by:');
 if ($result === false)
 	die('Error: Signed-off by not found in commit message');
