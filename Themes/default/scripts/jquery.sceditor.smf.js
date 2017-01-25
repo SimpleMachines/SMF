@@ -437,17 +437,17 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (url.substr(0, 7) === 'mailto:')
 				return '[email=' + url.substr(7) + ']' + content + '[/email]';
 
-			if (element.attr('target') !== undefined)
+			if (typeof element.attr('target') !== "undefined")
 				return '[url=\"' + decodeURI(url) + '\"]' + content + '[/url]';
 
 			// A mention?
-			else if (element.attr('data-mention') !== "undefined")
+			else if (typeof element.attr('data-mention') !== "undefined")
 			{
 				return '[member='+ element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
 			}
 
 			// Is this an attachment?
-			else if (element.attr('data-attachment') !== "undefined")
+			else if (typeof element.attr('data-attachment') !== "undefined")
 			{
 				var attribs = '';
 				if (typeof element.attr('name') !== "undefined")
