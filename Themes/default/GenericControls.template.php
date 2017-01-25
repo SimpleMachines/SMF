@@ -85,7 +85,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		else
 			echo ',
 					emoticons:
-					{}';
+					{},
+					emoticonsEnabled:false';
 
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
