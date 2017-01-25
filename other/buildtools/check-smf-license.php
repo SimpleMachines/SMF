@@ -45,7 +45,8 @@ $ignoreFiles = array(
 	// Language Files are ignored as they don't use the License format.
 	'./Themes/default/languages/[A-Za-z0-9]+\.english\.php',
 
-	// Miscellaneous.
+	// Cache and miscellaneous.
+	'\./cache/data_[A-Za-z0-9-_]\.php',
 	'\./other/db_last_error.php',
 );
 
