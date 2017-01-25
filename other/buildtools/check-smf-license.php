@@ -44,6 +44,9 @@ $ignoreFiles = array(
 
 	// Language Files are ignored as they don't use the License format.
 	'./Themes/default/languages/[A-Za-z0-9]+\.english\.php',
+
+	// Miscellaneous.
+	'\./other/db_last_error.php',
 );
 
 // No file? Thats bad.
@@ -78,7 +81,7 @@ $file = fopen($currentFile, 'r');
 $contents = fread($file, 4000);
 
 // How the license file should look, in a regex type format.
-$match = array( 
+$match = array(
 	0 => '\* Simple Machines Forum \(SMF\)' . '[\r]?\n',
 	1 => ' \*' . '[\r]?\n',
 	2 => ' \* @package SMF' . '[\r]?\n',
