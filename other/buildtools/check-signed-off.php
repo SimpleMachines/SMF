@@ -22,5 +22,5 @@ if ($result === false)
 	// Try 2.
 	$result2 = stripos($lastLine, 'Signed by');
 	if ($result2 === false)
-		die('Error: Signed-off-by not found in commit message [' . $lastLine . ']' . "\n");
+		die('Error: Signed-off-by not found in commit message [' . $lastLine . ']' . '[' . $message . ']' . "\n");
 }
