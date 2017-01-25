@@ -275,7 +275,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		html: '<ul>{0}</ul>',
 		format: function (element, content) {
-			if ($(element[0]).css('list-style-type') == 'disc')
+			if ($(element[0]).style == undefined || $(element[0]).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
 				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
