@@ -165,7 +165,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Adding more space to the mime_type column.
 ALTER TABLE {$db_prefix}attachments
-CHANGE `mime_type` `mime_type` VARCHAR(128) NOT NULL;
+CHANGE `mime_type` `mime_type` VARCHAR(128) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting legacy attachments.
