@@ -908,7 +908,7 @@ function checkLogin()
 // Step 1: Do the maintenance and backup.
 function UpgradeOptions()
 {
-	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir;
+	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $db_last_error;
 
 	$upcontext['sub_template'] = 'upgrade_options';
@@ -1093,6 +1093,10 @@ function UpgradeOptions()
 	// Add support for $tasksdir var.
 	if (empty($tasksdir))
 		$changes['tasksdir'] = '\'' . fixRelativePath($sourcedir) . '/tasks\'';
+
+	// Make sure we fix the language as well.
+	if (stristr($language, '-utf8'))
+		$changes['language'] = str_ireplace('-utf8', '', $language);
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
