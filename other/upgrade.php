@@ -603,6 +603,9 @@ function WelcomeLogin()
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 1.1)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_1-0.sql');
 
+	// We don't need "-utf8" files anymore...
+	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language']);
+
 	// This needs to exist!
 	if (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
 		return throw_error('The upgrader could not find the &quot;Install&quot; language file for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
