@@ -262,5 +262,3 @@ $txt['force_ssl_label'] = 'Force SSL throughout the forum';
 $txt['force_ssl_info'] = '<b>Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible</b>';
 
 $txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
-
-?>

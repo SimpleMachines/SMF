@@ -142,5 +142,3 @@ function BoardIndex()
 		loadCSSFile('slider.min.css', array(), 'smf_jquery_slider');
 	}
 }
-
-?>

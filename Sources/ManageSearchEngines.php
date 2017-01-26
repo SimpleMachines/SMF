@@ -1111,5 +1111,3 @@ function recacheSpiderNames()
 
 	updateSettings(array('spider_name_cache' => json_encode($spiders)));
 }
-
-?>

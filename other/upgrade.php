@@ -4642,5 +4642,3 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	unset($_GET['a']);
 }
-
-?>

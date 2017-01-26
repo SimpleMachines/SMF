@@ -431,5 +431,3 @@ function template_show_spider_stats()
 		</form>
 	</div>';
 }
-
-?>

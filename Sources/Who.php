@@ -848,5 +848,3 @@ function Credits($in_admin = false)
 		$context['page_title'] = $txt['credits'];
 	}
 }
-
-?>

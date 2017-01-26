@@ -919,5 +919,3 @@ function smf_is_resource($result)
 
 	return false;
 }
-
-?>

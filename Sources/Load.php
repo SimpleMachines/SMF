@@ -3515,5 +3515,3 @@ function set_avatar_data($data = array())
 			'url' => '',
 		);
 }
-
-?>

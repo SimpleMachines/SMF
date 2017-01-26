@@ -98,5 +98,3 @@ function template_generic()
 
 	echo $context['data'];
 }
-
-?>

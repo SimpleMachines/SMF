@@ -1616,5 +1616,3 @@ function template_admin_quick_search()
 									<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit">
 								</span>';
 }
-
-?>

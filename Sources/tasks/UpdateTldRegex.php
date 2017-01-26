@@ -32,5 +32,3 @@ class Update_TLD_Regex extends SMF_BackgroundTask
 		return true;
 	}
 }
-
-?>

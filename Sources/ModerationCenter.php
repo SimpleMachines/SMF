@@ -2082,5 +2082,3 @@ function ModEndSession()
 
 	redirectexit();
 }
-
-?>

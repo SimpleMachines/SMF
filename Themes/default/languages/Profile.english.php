@@ -563,4 +563,3 @@ $txt['tfa_preserve'] = 'Remember this computer for 30 days (not recommended on s
 $txt['tfa_backup_code'] = 'Backup code';
 $txt['tfa_backup_desc'] = 'In case you have lost your device or authentication app, you can use the backup code provided to you when 2FA was setup. In case you have lost that as well, please contact the administrator';
 $txt['tfa_wait'] = 'Please wait for about 2 minutes before attempting to log in via 2FA again';
-?>

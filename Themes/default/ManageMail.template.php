@@ -38,5 +38,3 @@ function template_browse()
 	echo '
 	</div>';
 }
-
-?>

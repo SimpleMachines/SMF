@@ -261,5 +261,3 @@ function template_attachment_errors()
 		</div>
 	</div>';
 }
-
-?>

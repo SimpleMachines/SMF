@@ -588,5 +588,3 @@ function fix_serialized_columns()
 	));
 
 }
-
-?>

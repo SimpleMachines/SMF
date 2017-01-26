@@ -1290,5 +1290,3 @@ function frameOptionsHeader($override = null)
 	header('X-XSS-Protection: 1');
 	header('X-Content-Type-Options: nosniff');
 }
-
-?>

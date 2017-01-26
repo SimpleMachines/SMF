@@ -28,5 +28,3 @@ class standard_search extends search_api
 		return false;
 	}
 }
-
-?>

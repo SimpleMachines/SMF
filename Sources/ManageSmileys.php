@@ -1995,5 +1995,3 @@ function list_getMessageIcons($start, $items_per_page, $sort)
 
 	return $message_icons;
 }
-
-?>

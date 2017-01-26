@@ -190,5 +190,3 @@ function TopicNotify()
 	else
 		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
-
-?>

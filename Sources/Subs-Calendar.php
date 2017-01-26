@@ -1707,5 +1707,3 @@ function removeHolidays($holiday_ids)
 		'calendar_updated' => time(),
 	));
 }
-
-?>

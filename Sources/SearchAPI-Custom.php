@@ -299,5 +299,3 @@ class custom_search extends search_api
 		}
 	}
 }
-
-?>

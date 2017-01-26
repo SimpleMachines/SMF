@@ -913,5 +913,3 @@ function template_postmod_permissions()
 	echo '
 					</div>';
 }
-
-?>

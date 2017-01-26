@@ -428,5 +428,3 @@ function template_ic_block_online()
 	echo '
 			</p>';
 }
-
-?>

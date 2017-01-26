@@ -752,5 +752,3 @@ $txt['mention'] = 'Membergroups allowed to mention users';
 $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
-
-?>

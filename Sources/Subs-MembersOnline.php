@@ -261,5 +261,3 @@ function trackStatsUsersOnline($total_users_online)
 	if (!empty($settingsToUpdate))
 		updateSettings($settingsToUpdate);
 }
-
-?>

@@ -444,5 +444,3 @@ class browser_detector
 		);
 	}
 }
-
-?>

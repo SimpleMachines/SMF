@@ -616,4 +616,3 @@ $helptxt['force_ssl'] = '<b>Test SSL and HTTPS on your server properly before en
 $helptxt['image_proxy_enabled'] = 'Required for embedding external images when in full SSL';
 $helptxt['image_proxy_secret'] = 'Keep this a secret, protects your forum from hotlinking images. Change it in order to render current hotlinked images useless';
 $helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy will cache: bigger images will be not be cached. Cached images are stored in your SMF cache folder, so make sure you have enough free space.';
-?>

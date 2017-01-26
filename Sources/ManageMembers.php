@@ -1284,5 +1284,3 @@ function jeffsdatediff($old)
 	// Divide out the seconds in a day to get the number of days.
 	return ceil($dis / (24 * 60 * 60));
 }
-
-?>

@@ -357,5 +357,3 @@ function ModifyRegistrationSettings($return_config = false)
 
 	prepareDBSettingContext($config_vars);
 }
-
-?>

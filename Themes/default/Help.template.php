@@ -199,5 +199,3 @@ function template_terms()
 				', $txt['agreement_disabled'], '
 			</div>';
 }
-
-?>

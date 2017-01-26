@@ -578,5 +578,3 @@ function template_viewmemberreport()
 		</form>
 	</div>';
 }
-
-?>

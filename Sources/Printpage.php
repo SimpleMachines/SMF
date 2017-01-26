@@ -334,5 +334,3 @@ function PrintTopic()
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.0';
 }
-
-?>

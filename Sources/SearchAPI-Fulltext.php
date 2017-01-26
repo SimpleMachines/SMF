@@ -289,5 +289,3 @@ class fulltext_search extends search_api
 		return $ignoreRequest;
 	}
 }
-
-?>

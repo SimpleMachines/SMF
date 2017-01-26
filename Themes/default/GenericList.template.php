@@ -286,5 +286,3 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		</table>';
 	}
 }
-
-?>

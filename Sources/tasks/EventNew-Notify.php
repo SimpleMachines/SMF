@@ -103,5 +103,3 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		}
 	}
 }
-
-?>

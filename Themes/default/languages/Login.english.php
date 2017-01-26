@@ -139,5 +139,3 @@ $txt['registration_password_no_match'] = 'Passwords do not match';
 $txt['registration_password_valid'] = 'Password is valid';
 
 $txt['registration_errors_occurred'] = 'The following errors were detected in your registration. Please correct them to continue:';
-
-?>

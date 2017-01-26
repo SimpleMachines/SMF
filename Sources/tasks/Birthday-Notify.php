@@ -132,5 +132,3 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 		return true;
 	}
 }
-
-?>
