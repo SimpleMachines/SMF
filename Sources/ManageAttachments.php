@@ -1524,7 +1524,9 @@ function RepairAttachments()
 		{
 			$to_remove = array();
 			$ignore_ids = array(0);
-			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] += 500));
+			
+			// returns an array of ints of id_attach's that should not be deleted
+			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
 
 			$result = $smcFunc['db_query']('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
@@ -1532,16 +1534,18 @@ function RepairAttachments()
 					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 				WHERE a.id_attach BETWEEN {int:substep} AND {int:substep} + 499
 					AND a.id_member = {int:no_member}
-					AND a.id_msg != {int:no_msg}
-					AND NOT FIND_IN_SET(a.id_msg, {array_int:ignore_ids})
-					AND m.id_msg IS NULL',
+					AND (a.id_msg = {int:no_msg} OR m.id_msg IS NULL)
+					AND a.id_attach NOT IN ({array_int:ignore_ids})
+					AND a.attachment_type IN ({array_int:attach_thumb})',
 				array(
 					'no_member' => 0,
 					'no_msg' => 0,
 					'substep' => $_GET['substep'],
 					'ignore_ids' => $ignore_ids,
+					'attach_thumb' => array(0,3),
 				)
 			);
+			
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$to_remove[] = $row['id_attach'];
@@ -1564,11 +1568,11 @@ function RepairAttachments()
 					DELETE FROM {db_prefix}attachments
 					WHERE id_attach IN ({array_int:to_remove})
 						AND id_member = {int:no_member}
-						AND id_msg != {int:no_msg}',
+						AND attachment_type IN ({array_int:attach_thumb})',
 					array(
 						'to_remove' => $to_remove,
 						'no_member' => 0,
-						'no_msg' => 0,
+						'attach_thumb' => array(0,3),
 					)
 				);
 
