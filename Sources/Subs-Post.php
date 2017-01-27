@@ -833,13 +833,14 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	if ($smcFunc['strlen']($htmlsubject) > 100)
 		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
 
-	// Integrated PMs
-	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));
-
 	// Get a list of usernames and convert them to IDs.
 	$usernames = array();
 	foreach ($recipients as $rec_type => $rec)
 	{
+		// Make sure $rec is an array
+		if (!is_array($rec))
+			$rec = array($rec);
+
 		foreach ($rec as $id => $member)
 		{
 			if (!is_numeric($recipients[$rec_type][$id]))
@@ -1154,6 +1155,16 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Off the notification email goes!
 		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
 	}
+
+	// Create an array of data to send to the hook
+	$hook_data = array(
+		'message' => $message,
+		'id_pm' => $id_pm,
+		'log' => $log,
+	);
+
+	// Integrated PMs
+	call_integration_hook('integrate_personal_message', array(&$recipients, &$from, &$subject, &$hook_data));
 
 	// Back to what we were on before!
 	loadLanguage('index+PersonalMessage');
