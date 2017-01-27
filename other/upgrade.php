@@ -1096,7 +1096,7 @@ function UpgradeOptions()
 
 	// Make sure we fix the language as well.
 	if (stristr($language, '-utf8'))
-		$changes['language'] = str_ireplace('-utf8', '', $language);
+		$changes['language'] = '\'' . str_ireplace('-utf8', '', $language) . '\'';
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
