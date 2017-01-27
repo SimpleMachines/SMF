@@ -286,19 +286,6 @@ function template_main()
 										</li>';
 			}
 
-			// This shows the popular messaging icons.
-			if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
-				echo '
-										<li class="im_icons">
-											<hr />
-											<ol>
-												', !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
-												', !empty($message['member']['msn']['link']) ? '<li>' . $message['member']['msn']['link'] . '</li>' : '', '
-												', !empty($message['member']['aim']['link']) ? '<li>' . $message['member']['aim']['link'] . '</li>' : '', '
-												', !empty($message['member']['yim']['link']) ? '<li>' . $message['member']['yim']['link'] . '</li>' : '', '
-											</ol>
-										</li>';
-
 			// Show the website and email address buttons.
 			if ($message['member']['show_profile_buttons'])
 			{

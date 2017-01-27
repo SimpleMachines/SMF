@@ -80,26 +80,6 @@ function template_main()
 			echo '
 					<td class="centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><img src="' . $settings['images_url'] . '/www.png" alt="' . $member['website']['title'] . '" title="' . $member['website']['title'] . '" /></a>' : '', '</td>';
 
-		// ICQ?
-		if (!isset($context['disabled_fields']['icq']))
-			echo '
-					<td class="centertext">', $member['icq']['link'], '</td>';
-
-		// AIM?
-		if (!isset($context['disabled_fields']['aim']))
-			echo '
-					<td class="centertext">', $member['aim']['link'], '</td>';
-
-		// YIM?
-		if (!isset($context['disabled_fields']['yim']))
-			echo '
-					<td class="centertext">', $member['yim']['link'], '</td>';
-
-		// MSN?
-		if (!isset($context['disabled_fields']['msn']))
-			echo '
-					<td class="centertext">', $member['msn']['link'], '</td>';
-
 		// Group and date.
 		echo '
 					<td class="lefttext">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>

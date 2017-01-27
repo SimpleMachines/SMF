@@ -614,10 +614,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'website_title' => '',
 		'website_url' => '',
 		'location' => '',
-		'icq' => '',
-		'aim' => '',
-		'yim' => '',
-		'msn' => '',
 		'time_format' => '',
 		'signature' => '',
 		'avatar' => '',
@@ -671,10 +667,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		if (in_array($regOptions['register_vars']['id_group'], $unassignableGroups))
 			$regOptions['register_vars']['id_group'] = 0;
 	}
-
-	// ICQ cannot be zero.
-	if (isset($regOptions['extra_register_vars']['icq']) && empty($regOptions['extra_register_vars']['icq']))
-		$regOptions['extra_register_vars']['icq'] = '';
 
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
@@ -1232,7 +1224,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.icq, mem.aim, mem.yim, mem.msn, mem.member_ip, mem.member_ip2, mem.last_login,
+			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.member_ip, mem.member_ip2, mem.last_login,
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)

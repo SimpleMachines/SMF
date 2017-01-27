@@ -427,7 +427,7 @@ $helptxt['default_personal_text'] = 'Sets the default text a new user will have 
 
 $helptxt['modlog_enabled'] = 'Logs all moderation actions.';
 
-$helptxt['guest_hideContacts'] = 'If selected this option will hide the email addresses and messenger contact details
+$helptxt['guest_hideContacts'] = 'If selected this option will hide the email addresses
 	of all members from any guests on your forum';
 
 $helptxt['registration_method'] = 'This option determines what method of registration is used for people wishing to join your forum. You can select from:<br /><br />

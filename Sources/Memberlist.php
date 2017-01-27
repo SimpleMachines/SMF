@@ -93,38 +93,6 @@ function Memberlist()
 				'up' => 'LENGTH(mem.website_url) > 0 DESC, IFNULL(mem.website_url, 1=1) ASC, mem.website_url ASC'
 			),
 		),
-		'icq' => array(
-			'label' => $txt['icq'],
-			'width' => 30,
-			'sort' => array(
-				'down' => 'LENGTH(mem.icq) > 0 ASC, mem.icq = 0 DESC, mem.icq DESC',
-				'up' => 'LENGTH(mem.icq) > 0 DESC, mem.icq = 0 ASC, mem.icq ASC'
-			),
-		),
-		'aim' => array(
-			'label' => $txt['aim'],
-			'width' => 30,
-			'sort' => array(
-				'down' => 'LENGTH(mem.aim) > 0 ASC, IFNULL(mem.aim, 1=1) DESC, mem.aim DESC',
-				'up' => 'LENGTH(mem.aim) > 0 DESC, IFNULL(mem.aim, 1=1) ASC, mem.aim ASC'
-			),
-		),
-		'yim' => array(
-			'label' => $txt['yim'],
-			'width' => 30,
-			'sort' => array(
-				'down' => 'LENGTH(mem.yim) > 0 ASC, IFNULL(mem.yim, 1=1) DESC, mem.yim DESC',
-				'up' => 'LENGTH(mem.yim) > 0 DESC, IFNULL(mem.yim, 1=1) ASC, mem.yim ASC'
-			),
-		),
-		'msn' => array(
-			'label' => $txt['msn'],
-			'width' => 30,
-			'sort' => array(
-				'down' => 'LENGTH(mem.msn) > 0 ASC, IFNULL(mem.msn, 1=1) DESC, mem.msn DESC',
-				'up' => 'LENGTH(mem.msn) > 0 DESC, IFNULL(mem.msn, 1=1) ASC, mem.msn ASC'
-			),
-		),
 		'id_group' => array(
 			'label' => $txt['position'],
 			'sort' => array(
@@ -483,9 +451,6 @@ function MLSearch()
 			$fields = allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
 		else
 			$fields = array();
-		// Search for messengers...
-		if (in_array('messenger', $_POST['fields']) && (!$user_info['is_guest'] || empty($modSettings['guest_hideContacts'])))
-			$fields += array(3 => 'msn', 'aim', 'icq', 'yim');
 		// Search for websites.
 		if (in_array('website', $_POST['fields']))
 			$fields += array(7 => 'website_title', 'website_url');
@@ -560,7 +525,6 @@ function MLSearch()
 		$context['search_fields'] = array(
 			'name' => $txt['mlist_search_name'],
 			'email' => $txt['mlist_search_email'],
-			'messenger' => $txt['mlist_search_messenger'],
 			'website' => $txt['mlist_search_website'],
 			'group' => $txt['mlist_search_group'],
 		);

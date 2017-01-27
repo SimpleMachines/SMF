@@ -38,9 +38,6 @@ $txt['dob_year'] = 'Year (YYYY)';
 $txt['password_strength'] = 'For best security, you should use eight or more characters with a combination of letters, numbers, and symbols.';
 $txt['include_website_url'] = 'This must be included if you specify a URL below.';
 $txt['complete_url'] = 'This must be a complete URL.';
-$txt['your_icq'] = 'This is your ICQ number.';
-$txt['your_aim'] = 'This is your AOL Instant Messenger nickname.';
-$txt['your_yim'] = 'This is your Yahoo! Instant Messenger nickname.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
 $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
@@ -50,7 +47,6 @@ $txt['current_time'] = 'Current forum time';
 $txt['language'] = 'Language';
 $txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
 $txt['invalid_registration'] = 'Invalid Date Registered value, valid example:';
-$txt['msn_email_address'] = 'Your MSN messenger email address';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
