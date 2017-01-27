@@ -105,8 +105,8 @@ function is_not_guest($message = '')
 {
 	global $user_info, $txt, $context, $scripturl;
 
-	// Luckily, this person isn't a guest.
-	if (!$user_info['is_guest'])
+	// Luckily, this person isn't bot and a guest.
+	if (is_array($user_info) && !$user_info['is_guest'])
 		return;
 
 	// People always worry when they see people doing things they aren't actually doing...
