@@ -72,11 +72,6 @@ CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
   'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
-# Should be droped when pg min >= 9.1
-CREATE OR REPLACE FUNCTION CONCAT (text, text) RETURNS text AS
-  'SELECT $1 || $2 AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION INSTR (text, text) RETURNS integer AS
   'SELECT POSITION($2 in $1) AS result'
 LANGUAGE 'sql';
