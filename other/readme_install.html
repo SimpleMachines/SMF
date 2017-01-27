@@ -1,8 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>SMF 2.0 Installation Guide</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?fin20" />
+		<title>SMF 2.1 Installation Guide</title>
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
+		<style type="text/css">#wrapper, .frame {width: 90%;}</style>
 		<style type="text/css">
 			h1.forumtitle
 			{
@@ -10,11 +11,11 @@
 			}
 			#upper_section .user
 			{
-				height: 4em;
+				height: 1em;
 			}
 			#upper_section .news
 			{
-				height: 80px;
+				height: 1em;
 			}
 			#main_screen
 			{
@@ -31,11 +32,6 @@
 			h3
 			{
 				color: #d05800;
-			}
-			#content_section
-			{
-				position: relative;
-				top: -20px;
 			}
 			#main_content_section .panel
 			{
@@ -65,16 +61,6 @@
 				font-weight: normal;
 				line-height: 1.6em;
 			}
-			#liftup
-			{
-				position: relative;
-				top: -70px;
-			}
-			#footer_section
-			{
-				position: relative;
-				top: -60px;
-			}
 			tt
 			{
 				font-family: verdana, sans-serif;
@@ -101,11 +87,6 @@
 				margin-left: 2em;
 				margin-bottom: .1em;
 			}
-			#header, #content_section, #footer_section
-			{
-				width: 90%;
-				margin: 0 auto;
-			}
 			a:link, a:visited
 			{
 				color: #3E5D8F;
@@ -118,19 +99,20 @@
 	</head>
 	<body>
 		<div id="header"><div class="frame">
-			<div id="top_section">
-				<h1 class="forumtitle">SMF 2.0 Installation Guide</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-			</div>
-			<div id="upper_section" class="middletext" style="overflow: hidden;">
+			<h1 class="forumtitle"><a>SMF 2.1 Installation Guide</a></h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+		</div></div>
+		<div id="wrapper">
+		<div id="upper_section" class="middletext" style="overflow: hidden;">
+			<div id="inner_section">
 				<div class="user"></div>
 				<div class="news normaltext">
 				</div>
 			</div>
-		</div></div>
-		<div id="content_section"><div class="frame">
+		</div>
+		<div id="content_section">
 			<div id="main_content_section">
-				<div id="liftup">
+				<div>
 					<div class="panel">
 						<h2 id="contents">Installing your forum</h2>
 						<p>Thank you for deciding to use, or at least try, <a href="http://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="http://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
@@ -153,7 +135,7 @@
 						<ul>
 							<li>Any webserver that properly supports PHP, such as <a href="http://httpd.apache.org/" target="_blank">Apache</a> or <a href="http://www.microsoft.com/iis" target="_blank">Internet Information Services (IIS)</a>.</li>
 							<li>
-								<a href="http://www.php.net" target="_blank">PHP</a> 4.1.0 or higher.  The following directives are required to be set correctly in php.ini:
+								<a href="http://www.php.net" target="_blank">PHP</a> 5.1.0 or higher.  The following directives are required to be set correctly in php.ini:
 								<ul>
 									<li>the engine directive must be On.</li>
 									<li>the <a href="http://www.php.net/sybase#ini.magic-quotes-sybase" target="_blank">magic_quotes_sybase</a> directive must be set to Off.</li>
@@ -164,7 +146,7 @@
 							</li>
 							<li>Any of the following database systems
 								<ul>
-									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 4.0.18 or higher.</li>
+									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 4.1.2 or higher.</li>
 									<li><a href="http://www.postgresql.org/" target="_blank">PostgreSQL</a> 8.0 or higher.</li>
 									<li><a href="http://www.sqlite.org/" target="_blank">SQLite</a> 1.x - 2.x.</li>
 								</ul>
@@ -238,7 +220,7 @@
 						<h3>Creating a database using PHPMyAdmin</h3>
 						<p>Most shared hosting services disable this option. If the option to create databases through PHPMyAdmin is available through the hosting service you use, the database can be created from the PHPMyAdmin home page.</p>
 						<h3>Creating a database using a control panel</h3>
-						<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF 2.0 has the ability to support other database types, including PostgreSQL and SQLite. SMF 1.1 supports only MySQL database types.</p>
+						<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF starting from version 2.0 has the ability to support other database types, including PostgreSQL and SQLite. SMF 1.1 supports only MySQL database types.</p>
 						<h3>Creating a database user</h3>
 						<p>A database user can be created through the control panel provided by your hosting service. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page, prompting you to create a MySQL database user. With different hosts, these options may have different names.</p>
 						<p>The database user requires the following permissions: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX. Additional permissions may be granted, if desired.</p>
@@ -247,7 +229,7 @@
 						<h2 id="Run_the_installer">Run the installer</h2>
 						<p>The final step in installing SMF is running the installer. The information from the previous steps will be used in the installation process.</p>
 						<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
-						<p>The SMF install screen looks different for SMF 2.0 and SMF 1.1, however, both still require the same information. Navigating to the directory where SMF is located, should redirect you to the install.php file, and prompt the installer to run. For example: www.yourdomain.com/forum/install.php</p>
+						<p>The SMF install screen looks different for SMF 2.1 and SMF 1.1, however, both still require the same information. Navigating to the directory where SMF is located, should redirect you to the install.php file, and prompt the installer to run. For example: www.yourdomain.com/forum/install.php</p>
 						<h3>Basic forum settings</h3>
 						<dl>
 							<dt>Forum Name</dt>
@@ -266,7 +248,7 @@
 						<h3>Database server settings</h3>
 						<dl>
 							<dt>Database type</dt>
-							<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (for SMF 2.0) such as PostgreSQL and SQLite may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
+							<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (starting from SMF 2.0) such as PostgreSQL and SQLite may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
 							<dt>Server name</dt>
 							<dd>The location of the database is specified here. 99% of the time this will be localhost.</dd>
 							<dt>Username</dt>
@@ -299,10 +281,13 @@
 					</div>
 				</div>
 			</div>
-		</div></div>
+		</div>
+		</div>
 		<div id="footer_section"><div class="frame">
-			<div class="smalltext padding"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; margin-bottom: 0.7em;" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</div>
-			<div class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></div>
+			<ul class="reset">
+				<li class="copyright"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; margin-bottom: 0.7em;" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</li>
+				<li><a href="http://www.simplemachines.org">Simple Machines Forum</a></li>
+			</ul>
 		</div></div>
 	</body>
 </html>

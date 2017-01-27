@@ -1077,7 +1077,7 @@
 				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
 					attrs.defaultAttr = content;
 
-				return '<a trget="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+				return '<a target="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
 			}
 		},
 		iurl: {
@@ -1093,7 +1093,7 @@
 				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
 					attrs.defaultAttr = content;
 
-				return '<a trget="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+				return '<a target="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
 			}
 		},
 		// END_COMMAND

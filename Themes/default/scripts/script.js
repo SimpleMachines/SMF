@@ -28,6 +28,15 @@ if (!('XMLHttpRequest' in window) && 'ActiveXObject' in window)
 // Some older versions of Mozilla don't have this, for some reason.
 if (!('forms' in document))
 	document.forms = document.getElementsByTagName('form');
+	
+// Versions of ie < 9 do not have this built in
+if (!('getElementsByClassName' in document))
+{
+	document.getElementsByClassName = function(className)
+	{
+		return $('".' + className + '"');
+	}
+}
 
 // Load an XML document using XMLHttpRequest.
 function getXMLDocument(sUrl, funcCallback)
