@@ -178,6 +178,11 @@ function template_summary()
 					<dt>', $txt['age'], ':</dt>
 					<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="" />' : ''), '</dd>';
 
+	if(!empty($context['member']['birth_date']))
+		echo '
+					<dt>', $txt['dob'], ':</dt>
+					<dd>', $context['member']['birth_date'], '</dd>';					
+					
 	if (!isset($context['disabled_fields']['location']) && !empty($context['member']['location']))
 		echo '
 					<dt>', $txt['location'], ':</dt>
