@@ -52,7 +52,7 @@ $txt['membergroups_min_posts'] = 'Required posts';
 $txt['membergroups_online_color'] = 'Color in online list';
 $txt['membergroups_icon_count'] = 'Number of icon images';
 $txt['membergroups_icon_image'] = 'Icon image filename';
-$txt['membergroups_icon_image_note'] = 'You can upload custom images to the default theme directory to be able to select them here. Different images can be used in different themes, just give them the same name.';
+$txt['membergroups_icon_image_note'] = 'You can upload custom images to the forum\'s default theme directory to be able to select them here. Different images can be used in different themes, just give them the same name.';
 $txt['membergroups_icon_image_size'] = 'Max size allowed 128x32px';
 $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
