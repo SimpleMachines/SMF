@@ -260,7 +260,7 @@ class Attachments
 					$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
 
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => $smcFunc['htmlspecialchars']($_FILES['attachment']['name'][$n]),
 					'tmp_name' => $destName,
 					'size' => $_FILES['attachment']['size'][$n],
 					'type' => $_FILES['attachment']['type'][$n],
@@ -286,7 +286,7 @@ class Attachments
 			else
 			{
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => $smcFunc['htmlspecialchars']($_FILES['attachment']['name'][$n]),
 					'tmp_name' => $destName,
 					'errors' => $errors,
 				);
