@@ -8,12 +8,11 @@ Code Contributors;
 
 Aaron van Geffen, Adam Tallon, ahrasis, albertlast, AngelinaBelle, Antechinus, Antes, AnthonyCalandra, asmith20002, beratdogan, Bjoern "Bloc" Kristiansen, Brad "IchBin™" Grow, Bruno "margarett" Alves,
 Bryan "Runic" Deakin, butchs, Colin Schoen, Daniel15, Dr. Deejay, Diego Andrés, d3vcho, ElPlayer, emanuele, equinoxmatt, FearThe1337,  Feline, Graeme Spence, georaldc, gnif,
-Hendrik Jan "Compuart" Visser, hhy89, HorusGoul, Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jon "Sesquipedalian" Stovell, Jonathan "vbgamer45" Valentin, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood,
+Hendrik Jan "Compuart" Visser, hhy89, HorusGoul, Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jon "Sesquipedalian" Stovell, Jonathan "vbgamer45" Valentin, José, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood,
 Juan "JayBachatero" Hernandez, Karl "RegularExpression" Benson, Kays, liviuroman, live627, Marcus "cσσкιє мσηѕтєя" Forsberg,
 Matt "Grudge" Wolf, Matthew "Labradoodle-360" Kerle, Michael Colin Blaber, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, mikemill, motokochan, NIBOGO, nwsw, Norv,
-Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Rupurudu, Russell "sicommnend" Najar, Selman "[SiNaN]" Eser, sexwarrior, Shitiz "Dragooon" Garg, siddhartha-gupta, skysky6, socram8888, Spuds, SSPMark,
-Steven "Fustrate" Hoffman, Underdog-01, Unknown W. "[Unknown]" Brackets, tekkla, Theodore "Orstio" Hildebrandt, tinoest, The-Craw,
-Thorsten "TE" Eurich, Trekkie101, Wade "sησω" Poulsen, winrules, Xarcell, Yoshi2889, and zilladotexe.
+Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Rupurudu, Russell "sicommnend" Najar, Selman "[SiNaN]" Eser, sexwarrior, Shawn Bulen, Shitiz "Dragooon" Garg, siddhartha-gupta, skysky6, socram8888, Spuds, SSPMark,
+Steven "Fustrate" Hoffman, Underdog-01, Unknown W. "[Unknown]" Brackets, tekkla, Theodore "Orstio" Hildebrandt, Thomas Fok, tinoest, The-Craw, Thorsten "TE" Eurich, Trekkie101, Wade "sησω" Poulsen, winrules, Xarcell, Yoshi2889, and zilladotexe.
 
 
 
@@ -24,7 +23,7 @@ Aleksi "Lex" Kilpinen, Alexandre "Ap2" Patenaude, Amacythe, Andrea Hubacher, Ang
 babylonking, Ben Scott, Bigguy, Bjoern "Bloc" Kristiansen, BlackouT, Brad "IchBin™" Grow, Bruno "margarett" Alves, Bryan "Runic" Deakin, br360,
 Bugo, Bulakbol, Burpee, Chainy, Chas Large, Chris Cromer, M. Colin Blaber, Colin Schoen, Cristián "Anguz" Lávaque,
 Daniel15, Daniel Diehl, Dannii Willis, [darksteel], David Recordon, Derek Schwab, ディン1031, Diego Andrés, diplomat,
-Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, eldacar, Eliana Tamerin, emanuele, Eren Yasarkurt,
+Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, d3vcho, eldacar, Eliana Tamerin, emanuele, Eren Yasarkurt,
 Fiery, Gary M. Gadsdon, gbsothere, Goosemoose, Graeme Spence, GravuTrad, Harro, Hendrik Jan "Compuart" Visser,
 Horseman, Huw, Hyper Piranha, Irisado, Jack "akabugeyes" Thorsen, Jack.R.Abbit, Jade Elizabeth Trainor,
 James "Cheschire" Yarbro, Jan-Olof "Owdy" Eriksson, Jason "JBlaze" Clemons, Jeff Lewis, Jesse "Gobalopper" Reid,
@@ -76,4 +75,4 @@ Phennig | © 2009-2012 | This font is licensed under the SIL Open Font License, 
 Copyright
 
 Forum
-SMF 2.1 Beta 3 | SMF © 2015, Simple Machines
+SMF 2.1 Beta 3 | SMF © 2017, Simple Machines
