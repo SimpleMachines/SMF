@@ -282,6 +282,7 @@ function template_edit_group()
 					<dt>
 						<label for="icon_image_input"><strong>', $txt['membergroups_icon_image'], ':</strong></label><br>
 						<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
+						<span class="smalltext">', $txt['membergroups_icon_image_size'], '</span>
 					</dt>
 					<dd>
 						', $txt['membergroups_images_url'], '
