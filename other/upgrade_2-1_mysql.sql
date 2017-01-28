@@ -2511,14 +2511,14 @@ ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
 --- Cleaning up after old UTF-8 languages
 /******************************************************************************/
 ---# Update the forum language list
----(
+---{
 	$langlist = json_decode($modSettings['langList'], true);
 	$newlangs = array();
 
 	// Strip "-utf8" from any languages and change them to regular if necessary
 	foreach($langlist as $internal => $external)
 	{
-		// Make sure we won't end up with a duplicate here...
+		// Make sure we wont end up with a duplicate here...
 		if (!array_key_exists(str_ireplace('-utf8', '', $internal), $newlangs))
 		{
 			$newlangs[str_ireplace('-utf8', '', $internal)] = str_ireplace(' UTF-8', '', $external);
@@ -2530,6 +2530,6 @@ ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 ---# Update the members' languages
-UPDATE {$db__prefix}memberes
+UPDATE {$db_prefix}members
 SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---#
