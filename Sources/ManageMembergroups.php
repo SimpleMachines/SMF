@@ -1139,19 +1139,19 @@ function EditMembergroup()
 
 	// Scan the directory.
 	$context['possible_icons'] = array();
-	if ($files = scandir($settings['theme_dir'] . '/images/membericons'))
+	if ($files = scandir($settings['default_theme_dir'] . '/images/membericons'))
 	{
 		// Loop through every file in the directory.
 		foreach ($files as $value)
 		{
 			// Grab the image extension.
-			$ext = pathinfo($settings['theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
+			$ext = pathinfo($settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
 
 			// If the extension is not empty, and it is valid
 			if (!empty($ext) && in_array($ext, $imageExts))
 			{
 				// Get the size of the image.
-				$image_info = getimagesize($settings['theme_dir'] . '/images/membericons/' . $value);
+				$image_info = getimagesize($settings['default_theme_dir'] . '/images/membericons/' . $value);
 
 				// If this is bigger than 128 in width or 32 in height, skip this one.
 				if ($image_info == false || $image_info[0] > 128 || $image_info[1] > 32)
