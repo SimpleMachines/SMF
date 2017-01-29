@@ -215,4 +215,5 @@ function template_print_options()
 		echo '
 			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
 }
+
 ?>

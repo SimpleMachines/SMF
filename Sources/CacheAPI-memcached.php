@@ -145,3 +145,5 @@ class memcached_cache extends cache_api
 			});';
 	}
 }
+
+?>

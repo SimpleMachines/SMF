@@ -204,3 +204,5 @@ class smf_cache extends cache_api
 		return $this->cachedir;
 	}
 }
+
+?>
