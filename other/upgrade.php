@@ -128,7 +128,7 @@ require_once($upgrade_path . '/Settings.php');
 // Are we logged in?
 if (isset($upgradeData))
 {
-	$upcontext['user'] = unserialize(base64_decode($upgradeData));
+	$upcontext['user'] = json_decode(base64_decode($upgradeData), true);
 
 	// Check for sensible values.
 	if (empty($upcontext['user']['started']) || $upcontext['user']['started'] < time() - 86400)
@@ -217,7 +217,7 @@ if (isset($_GET['data']))
 {
 	global $is_debug;
 
-	$upcontext['upgrade_status'] = safe_unserialize(base64_decode($_GET['data']));
+	$upcontext['upgrade_status'] = json_decode(base64_decode($_GET['data']), true);
 	$upcontext['current_step'] = $upcontext['upgrade_status']['curstep'];
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 	$upcontext['rid'] = $upcontext['upgrade_status']['rid'];
@@ -299,7 +299,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
 		$upcontext['debug'] = $is_debug;
-		$upgradeData = base64_encode(safe_serialize($upcontext['user']));
+		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('upgradeData' => '"' . $upgradeData . '"'));
 		updateDbLastError(0);
@@ -348,7 +348,7 @@ function upgradeExit($fallThrough = false)
 		if (isset($upcontext['sub_template']))
 		{
 			$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(safe_serialize($upcontext['upgrade_status']));
+			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(json_encode($upcontext['upgrade_status']));
 
 			// Custom stuff to pass back?
 			if (!empty($upcontext['query_string']))
@@ -405,7 +405,7 @@ function redirectLocation($location, $addForm = true)
 	if ($addForm)
 	{
 		$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(safe_serialize($upcontext['upgrade_status'])) . $location;
+		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(json_encode($upcontext['upgrade_status'])) . $location;
 	}
 
 	while (@ob_end_clean());
@@ -4645,6 +4645,29 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	}
 
 	unset($_GET['a']);
+}
+
+/**
+ * Get the column info. This is basically the same as smf_db_list_columns but we get 1 column, force detail and other checks.
+ *
+ * @param string $targetTable The table to perform the operation on
+ * @param string $column The column we are looking for.
+ *
+ * @return array Info on the table.
+ */
+function upgradeGetColumnInfo($targetTable, $column)
+{
+ 	global $smcFunc;
+
+ 	// This should already be here, but be safe.
+ 	db_extend('packages');
+ 
+ 	$columns = $smcFunc['db_list_columns']($targetTable, true);
+
+	if (isset($columns[$column]))
+		return $columns[$column];
+	else
+		return null;
 }
 
 ?>
