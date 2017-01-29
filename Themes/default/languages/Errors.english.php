@@ -444,4 +444,5 @@ $txt['json_JSON_ERROR_RECURSION'] = 'Json decode error: One or more recursive re
 $txt['json_JSON_ERROR_INF_OR_NAN'] = 'Json decode error: One or more NAN or INF values in the value to be encoded';
 $txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'Json decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
+
 ?>

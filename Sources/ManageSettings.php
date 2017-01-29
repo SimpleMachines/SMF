@@ -2271,4 +2271,5 @@ function ModifyAlertsSettings()
 	$context['description'] = $txt['notifications_desc'];
 	$context['sub_template'] = 'alert_configuration';
 }
+
 ?>

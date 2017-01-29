@@ -67,3 +67,5 @@ class apcu_cache extends cache_api
 		return apcu_clear_cache();
 	}
 }
+
+?>

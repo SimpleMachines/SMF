@@ -175,4 +175,5 @@ $txt['mc_add_note'] = 'Add';
 $txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this user\'s profile?\\n\\nThis will turn off further reports for everyone.';
 $txt['mc_reported_members_title'] = 'Reported Members';
 $txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
+
 ?>

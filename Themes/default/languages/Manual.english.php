@@ -34,4 +34,5 @@ $txt['manual_section_calendar_desc'] = 'Users can keep track of events, holidays
 $txt['manual_section_features_desc'] = 'Here is a list of the most popular features in SMF.';
 
 $txt['agreement_disabled'] = 'Registration agreement disabled';
+
 ?>

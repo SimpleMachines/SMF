@@ -123,3 +123,5 @@ class xcache_cache extends cache_api
 			});';
 	}
 }
+
+?>
