@@ -134,4 +134,5 @@ $txt['dont_check_for_duplicate'] = 'Don\'t check for duplicates';
 $txt['duplicates'] = 'Duplicates';
 
 $txt['not_activated'] = 'Not activated';
+
 ?>

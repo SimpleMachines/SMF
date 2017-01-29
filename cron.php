@@ -300,4 +300,5 @@ abstract class SMF_BackgroundTask
 	 */
 	abstract public function execute();
 }
+
 ?>
