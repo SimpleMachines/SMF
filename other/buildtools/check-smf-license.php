@@ -108,3 +108,16 @@ $versionMatch = $match;
 $versionMatch[7] = ' \* @version ' . $currentVersion . '[\r]?\n';
 if (!preg_match('~' . implode('', $versionMatch) . '~i', $contents))
 	die('Error: The version is incorrect in ' . $currentFile . "\n");
+
+// Special check, ugprade.php, install.php copyright templates.
+if (in_array($currentFile, array('./other/upgrade.php', './other/install.php')))
+{
+	// The code is fairly well into it, just get the entire contents.
+	$upgradeFile = file_get_contents($currentFile);
+
+	if (!preg_match('~<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; (\d{4}), Simple Machines</a></li>~i', $upgradeFile, $upgradeResults))
+		die('Error: Could not locate upgrade template copyright $software_year' . "\n");
+
+	if ((int) $upgradeResults[1] != $currentSoftwareYear)
+		die('Error: Upgrade template copyright year is invalid' . "\n");
+}
