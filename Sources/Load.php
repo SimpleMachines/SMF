@@ -2790,15 +2790,14 @@ function getBoardParents($id_parent)
  * It will try to choose only utf8 or non-utf8 languages.
  *
  * @param bool $use_cache Whether or not to use the cache
- * @param bool $favor_utf8 Whether or not to favor UTF-8 files
  * @return array An array of information about available languages
  */
-function getLanguages($use_cache = true, $favor_utf8 = true)
+function getLanguages($use_cache = true)
 {
 	global $context, $smcFunc, $settings, $modSettings;
 
 	// Either we don't use the cache, or its expired.
-	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
+	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages', !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
 	{
 		// If we don't have our ucwords function defined yet, let's load the settings data.
 		if (empty($smcFunc['ucwords']))
@@ -2837,8 +2836,8 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 			$dir = dir($language_dir);
 			while ($entry = $dir->read())
 			{
-				// Look for the index language file....
-				if (!preg_match('~^index\.(.+)\.php$~', $entry, $matches))
+				// Look for the index language file... For good measure skip any "index.language-utf8.php" files
+				if (!preg_match('~^index\.(.+[^-utf8])\.php$~', $entry, $matches))
 					continue;
 
 				if (!empty($langList) && !empty($langList[$matches[1]]))
@@ -2888,17 +2887,9 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		if (empty($langList))
 			updateSettings(array('langList' => json_encode($catchLang)));
 
-		// Favoring UTF8? Then prevent us from selecting non-UTF8 versions.
-		if ($favor_utf8)
-		{
-			foreach ($context['languages'] as $lang)
-				if (substr($lang['filename'], strlen($lang['filename']) - 5, 5) != '-utf8' && isset($context['languages'][$lang['filename'] . '-utf8']))
-					unset($context['languages'][$lang['filename']]);
-		}
-
 		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
-			cache_put_data('known_languages' . ($favor_utf8 ? '' : '_all'), $context['languages'], !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+			cache_put_data('known_languages', $context['languages'], !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
 	}
 
 	return $context['languages'];
