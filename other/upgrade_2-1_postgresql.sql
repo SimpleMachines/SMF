@@ -2272,25 +2272,6 @@ ALTER TABLE {$db_prefix}members DROP COLUMN IF EXISTS pm_email_notify;
 /******************************************************************************/
 --- Cleaning up after old UTF-8 languages
 /******************************************************************************/
----# Update the forum language list
----{
-	$langlist = json_decode($modSettings['langList'], true);
-	$newlangs = array();
-
-	// Strip "-utf8" from any languages and change them to regular if necessary
-	foreach($langlist as $internal => $external)
-	{
-		// Make sure we wont end up with a duplicate here...
-		if (!array_key_exists(str_ireplace('-utf8', '', $internal), $newlangs))
-		{
-			$newlangs[str_ireplace('-utf8', '', $internal)] = str_ireplace(' UTF-8', '', $external);
-		}
-	}
-
-	updateSettings(array('langList' => json_encode($newlangs)));
----}
----#
-
 ---# Update the members' languages
 UPDATE {$db_prefix}members
 SET lngfile = REPLACE(lngfile, '-utf8', '');
