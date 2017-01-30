@@ -323,7 +323,7 @@ class Attachments
 	protected function sanitize_attachment_filename($filename)
 	{
 		// Prevent filesystem traversal attacks by removing directory component
-		$i = strrpos($filename, '/');
+		$i = strrpos($filename, DIRECTORY_SEPARATOR);
 		if ($i !== false) $filename = substr($filename, $i + 1);
 
 		// Additional sanitization may go here.
