@@ -317,8 +317,8 @@ class Attachments
 	 * sanitize $_FILES['attachment']['name']
 	 *
 	 * @access protected
-	 * @param string $filename The filename to be santized
-	 * @return string santized filename
+	 * @param string $filename The filename to be sanitized
+	 * @return string sanitized filename
 	 */
 	protected function sanitize_attachment_filename($filename)
 	{
@@ -326,7 +326,7 @@ class Attachments
 		$i = strrpos($filename, '/');
 		if ($i !== false) $filename = substr($filename, $i + 1);
 
-		// Additional sanitzation may go here.
+		// Additional sanitization may go here.
 		
 		return $filename;	
 	}	
