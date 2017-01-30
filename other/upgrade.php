@@ -125,6 +125,10 @@ else
 // Load this now just because we can.
 require_once($upgrade_path . '/Settings.php');
 
+// We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
+if (isset($language))
+	$language = str_ireplace('-utf8', '', $language);
+
 // Are we logged in?
 if (isset($upgradeData))
 {
@@ -800,6 +804,9 @@ function checkLogin()
 					$groups[$k] = (int) $v;
 
 				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+
+				// We don't use "-utf8" anymore...
+				$user_language = str_ireplace('-utf8', '', $user_language);
 			}
 			else
 				$upcontext['username_incorrect'] = true;
