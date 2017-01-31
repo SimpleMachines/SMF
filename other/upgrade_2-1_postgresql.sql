@@ -717,31 +717,62 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 
 ---# Upgrading post notification settings
 ---{
-	// Skip errors here so we don't croak if the columns don't exist...
-	$existing_notify = $smcFunc['db_query']('', '
-		SELECT id_member, notify_regularity, notify_send_body, notify_types
-		FROM {db_prefix}members',
-		array(
-			'db_error_skip' => true,
-		)
-	);
-	if (!empty($existing_notify))
+// First see if we still have a notify_regularity column
+$results = $smcFunc['db_list_columns']('{db_prefix}members');
+if (in_array('notify_regularity', $results))
+{
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Upgrading post notification settings';
+	$step_progress['current'] = $_GET['a'];
+
+	$limit = 100000;
+	$is_done = false;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+	while (!$is_done)
 	{
-		while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+		nextSubStep($substep);
+		$inserts = array();
+
+		// Skip errors here so we don't croak if the columns don't exist...
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, notify_regularity, notify_send_body, notify_types
+			FROM {db_prefix}members
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'db_error_skip' => true,
+				'start' => $_GET['a'],
+				'limit' => $limit,
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
 		{
-			$smcFunc['db_insert']('ignore',
-				'{db_prefix}user_alerts_prefs',
-				array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-				array(
-					array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-					array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-					array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-				),
-				array('id_member', 'alert_pref')
-			);
+			while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+			{
+				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
+				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
+				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
+			}
+			$smcFunc['db_free_result']($existing_notify);
 		}
-		$smcFunc['db_free_result']($existing_notify);
+
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+			$inserts,
+			array('id_member', 'alert_pref')
+		);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
 	}
+	unset($_GET['a']);
+}
 ---}
 ---#
 
