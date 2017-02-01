@@ -1717,9 +1717,9 @@ CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 CREATE TABLE {$db_prefix}mentions (
   content_id int default '0',
   content_type varchar(10) default '',
-  id_mentioned int default 0,
-  id_member int NOT NULL default 0,
-  time int NOT NULL default 0,
+  id_mentioned int default '0',
+  id_member int NOT NULL default '0',
+  time int NOT NULL default '0',
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
