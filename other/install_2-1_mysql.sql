@@ -1179,9 +1179,9 @@ CREATE TABLE {$db_prefix}user_likes (
 CREATE TABLE {$db_prefix}mentions (
   content_id INT DEFAULT '0',
   content_type VARCHAR(10) DEFAULT '',
-  id_mentioned INT DEFAULT 0,
-  id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
-  `time` INT NOT NULL DEFAULT 0,
+  id_mentioned INT DEFAULT '0',
+  id_member INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `time` INT NOT NULL DEFAULT '0',
   PRIMARY KEY (content_id, content_type, id_mentioned),
   INDEX content (content_id, content_type),
   INDEX mentionee (id_member)
