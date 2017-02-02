@@ -1252,9 +1252,9 @@ ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
 	content_type VARCHAR(10) DEFAULT '',
-	id_mentioned INT DEFAULT '0',
-	id_member INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`time` INT NOT NULL DEFAULT '0',
+	id_mentioned INT DEFAULT 0,
+	id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
+	`time` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned),
 	INDEX idx_content (content_id, content_type),
 	INDEX idx_mentionee (id_member)

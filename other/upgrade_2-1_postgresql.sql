@@ -1260,9 +1260,9 @@ ADD COLUMN likes smallint NOT NULL default '0';
 CREATE TABLE  {$db_prefix}mentions (
 	content_id int NOT NULL default '0',
 	content_type varchar(10) default '',
-	id_mentioned int NOT NULL default '0',
-	id_member int NOT NULL default '0',
-	time int NOT NULL default '0',
+	id_mentioned int NOT NULL default 0,
+	id_member int NOT NULL default 0,
+	time int NOT NULL default 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
