@@ -268,7 +268,7 @@ function template_summary()
 
 	echo '
 		<div id="detailedinfo">
-			<dl>';
+			<dl class="settings">';
 
 	if ($context['user']['is_owner'] || $context['user']['is_admin'])
 		echo '
@@ -308,7 +308,7 @@ function template_summary()
 	if (!empty($context['print_custom_fields']['standard']))
 	{
 		echo '
-				<dl>';
+				<dl class="settings">';
 
 		foreach ($context['print_custom_fields']['standard'] as $field)
 			if (!empty($field['output_html']))
@@ -321,7 +321,7 @@ function template_summary()
 	}
 
 	echo '
-				<dl class="noborder">';
+				<dl class="settings noborder">';
 
 	// Can they view/issue a warning?
 	if ($context['can_view_warning'] && $context['member']['warning'])
@@ -903,7 +903,7 @@ function template_trackActivity()
 	// The last IP the user used.
 	echo '
 		<div id="tracking" class="windowbg2 noup">
-			<dl class="noborder">
+			<dl class="settings noborder">
 				<dt>', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
 					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
@@ -1385,7 +1385,7 @@ function template_edit_options()
 
 	if (!empty($context['profile_fields']))
 		echo '
-				<dl>';
+				<dl class="settings">';
 
 	// Start the big old loop 'of love.
 	$lastItem = 'hr';
@@ -1401,7 +1401,7 @@ function template_edit_options()
 			echo '
 				</dl>
 				<hr>
-				<dl>';
+				<dl class="settings">';
 		}
 		elseif ($field['type'] == 'callback')
 		{
@@ -1499,7 +1499,7 @@ function template_edit_options()
 				<hr>';
 
 		echo '
-				<dl>';
+				<dl class="settings">';
 
 		foreach ($context['custom_fields'] as $field)
 		{
@@ -1526,7 +1526,7 @@ function template_edit_options()
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])
 		echo '
-				<dl>
+				<dl class="settings">
 					<dt>
 						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br>
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
@@ -1588,7 +1588,7 @@ function template_profile_pm_settings()
 								</dd>
 						</dl>
 						<hr>
-						<dl>
+						<dl class="settings">
 								<dt>
 										<label for="pm_receive_from">', $txt['pm_receive_from'], '</label>
 								</dt>
@@ -1614,7 +1614,7 @@ function template_profile_pm_settings()
 								</dd>
 						</dl>
 						<hr>
-						<dl>
+						<dl class="settings">
 								<dt>
 										<label for="pm_remove_inbox_label">', $txt['pm_remove_inbox_label'], '</label>
 								</dt>
@@ -1645,7 +1645,7 @@ function template_profile_theme_settings()
 				echo '
 				</dl>
 				<hr>
-				<dl class="settings flow_auto">';
+				<dl class="settings">';
 
 			// Should we give a name to this section?
 			if (is_string($setting) && !empty($setting))
@@ -2564,7 +2564,7 @@ function template_profile_save()
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])
 		echo '
-					<dl>
+					<dl class="settings">
 						<dt>
 							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '>', $txt['current_password'], ': </strong><br>
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>

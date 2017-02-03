@@ -360,7 +360,7 @@ function template_set_options()
 				echo '
 				</dl>
 				<hr>
-				<dl class="settings flow_auto">';
+				<dl class="settings">';
 
 			// Should we give a name to this section?
 			if (is_string($setting) && !empty($setting))
@@ -589,7 +589,7 @@ function template_set_settings()
 				</h3>
 			</div>
 			<div class="windowbg2 noup">
-				<dl class="settings flow_auto">';
+				<dl class="settings">';
 
 	$first_setting_key = array_shift(array_keys($context['settings']));
 	$titled_section = false;
@@ -604,7 +604,7 @@ function template_set_settings()
 				echo '
 				</dl>
 				<hr>
-				<dl class="settings flow_auto">';
+				<dl class="settings">';
 
 			// Add a fake heading?
 			if (is_string($setting) && !empty($setting))
