@@ -1632,8 +1632,34 @@ function template_profile_theme_settings()
 {
 	global $context, $modSettings, $txt;
 
+	$first_option_key = array_shift(array_keys($context['theme_options']));
+	$titled_section = false;
+
 	foreach ($context['theme_options'] as $i => $setting)
 	{
+		// Just spit out separators and move on
+		if (!is_array($setting))
+		{
+			// Insert a separator (unless this is the first item in the list)
+			if ($i !== $first_option_key)
+				echo '
+				</dl>
+				<hr>
+				<dl class="settings flow_auto">';
+
+			// Should we give a name to this section?
+			if (is_string($setting) && !empty($setting))
+			{
+				$titled_section = true;
+				echo '
+					<dt><b>' . $setting . '</b></dt><dd></dd>';
+			}
+			else
+				$titled_section = false;
+
+			continue;
+		}
+
 		// Is this disabled?
 		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
 			continue;
@@ -1664,11 +1690,12 @@ function template_profile_theme_settings()
 
 		echo '
 					<dt>
-						<label for="', $setting['id'], '">', $setting['label'], '</label>';
-			if (isset($setting['description']))
-				echo '
-						<br><span class="smalltext">', $setting['description'], '</span>';
+						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
+
+		if (isset($setting['description']))
 			echo '
+						<br><span class="smalltext">', $setting['description'], '</span>';
+		echo '
 					</dt>
 					<dd>';
 

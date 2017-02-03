@@ -18,6 +18,7 @@ function template_options()
 	global $context, $txt;
 
 	$context['theme_options'] = array(
+		$txt['theme_opt_calendar'],
 		array(
 			'id' => 'calendar_start_day',
 			'label' => $txt['calendar_start_day'],
@@ -28,6 +29,7 @@ function template_options()
 			),
 			'default' => true,
 		),
+		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
 			'label' => $txt['show_children'],
@@ -77,6 +79,7 @@ function template_options()
 			'label' => $txt['posts_apply_ignore_list'],
 			'default' => false,
 		),
+		$txt['theme_opt_posting'],
 		array(
 			'id' => 'return_to_post',
 			'label' => $txt['return_to_post'],
@@ -107,6 +110,7 @@ function template_options()
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
 		),
+		$txt['theme_opt_moderation'],
 		array(
 			'id' => 'display_quick_mod',
 			'label' => $txt['display_quick_mod'],
@@ -117,6 +121,7 @@ function template_options()
 			),
 			'default' => true,
 		),
+		$txt['theme_opt_personal_messages'],
 		array(
 			'id' => 'popup_messages',
 			'label' => $txt['popup_messages'],
