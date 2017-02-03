@@ -1794,6 +1794,9 @@ function theme($memID)
 {
 	global $txt, $context;
 
+	loadTemplate('Settings');
+	loadSubTemplate('options');
+
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
 		loadCustomFields($memID, 'theme');

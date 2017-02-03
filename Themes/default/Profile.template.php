@@ -1632,157 +1632,98 @@ function template_profile_theme_settings()
 {
 	global $context, $modSettings, $txt;
 
-	echo '
-							<dt>
-								<label for="show_children">', $txt['show_children'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_children]" value="0">
-								<input type="checkbox" name="default_options[show_children]" id="show_children" value="1"', !empty($context['member']['options']['show_children']) ? ' checked' : '', ' class="input_check">
-							</dd>
-							<dt>
-								<label for="show_no_avatars">', $txt['show_no_avatars'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_no_avatars]" value="0">
-								<input type="checkbox" name="default_options[show_no_avatars]" id="show_no_avatars" value="1"', !empty($context['member']['options']['show_no_avatars']) ? ' checked' : '', ' class="input_check">
-							</dd>
-							<dt>
-								<label for="show_no_signatures">', $txt['show_no_signatures'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_no_signatures]" value="0">
-								<input type="checkbox" name="default_options[show_no_signatures]" id="show_no_signatures" value="1"', !empty($context['member']['options']['show_no_signatures']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	if (!empty($modSettings['allow_no_censored']))
-		echo '
-							<dt>
-								<label for="show_no_censored">' . $txt['show_no_censored'] . '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_no_censored]" value="0">
-								<input type="checkbox" name="default_options[show_no_censored]" id="show_no_censored" value="1"' . (!empty($context['member']['options']['show_no_censored']) ? ' checked' : '') . ' class="input_check">
-							</dd>';
-
-	echo '
-							<dt>
-								<label for="return_to_post">', $txt['return_to_post'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[return_to_post]" value="0">
-								<input type="checkbox" name="default_options[return_to_post]" id="return_to_post" value="1"', !empty($context['member']['options']['return_to_post']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	if (!empty($modSettings['enable_buddylist']))
-		echo '
-							<dt>
-								<label for="posts_apply_ignore_list">', $txt['posts_apply_ignore_list'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[posts_apply_ignore_list]" value="0">
-								<input type="checkbox" name="default_options[posts_apply_ignore_list]" id="posts_apply_ignore_list" value="1"', !empty($context['member']['options']['posts_apply_ignore_list']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	echo '
-							<dt>
-								<label for="view_newest_first">', $txt['recent_posts_at_top'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[view_newest_first]" value="0">
-								<input type="checkbox" name="default_options[view_newest_first]" id="view_newest_first" value="1"', !empty($context['member']['options']['view_newest_first']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	// Choose WYSIWYG settings?
-	if (empty($modSettings['disable_wysiwyg']))
-		echo '
-							<dt>
-								<label for="wysiwyg_default">', $txt['wysiwyg_default'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[wysiwyg_default]" value="0">
-								<input type="checkbox" name="default_options[wysiwyg_default]" id="wysiwyg_default" value="1"', !empty($context['member']['options']['wysiwyg_default']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	if (empty($modSettings['disableCustomPerPage']))
+	foreach ($context['theme_options'] as $i => $setting)
 	{
+		// Is this disabled?
+		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
+			continue;
+		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
+			continue;
+		elseif ($setting['id'] == 'show_no_censored' && empty($modSettings['allow_no_censored']))
+			continue;
+		elseif ($setting['id'] == 'posts_apply_ignore_list' && empty($modSettings['enable_buddylist']))
+			continue;
+		elseif ($setting['id'] == 'wysiwyg_default' && !empty($modSettings['disable_wysiwyg']))
+			continue;
+		elseif ($setting['id'] == 'topics_per_page' && !empty($modSettings['disableCustomPerPage']))
+			continue;
+		elseif ($setting['id'] == 'drafts_autosave_enabled' && (empty($modSettings['drafts_autosave_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
+			continue;
+		elseif ($setting['id'] == 'drafts_show_saved_enabled' && (empty($modSettings['drafts_show_saved_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
+			continue;
+
+		if (!isset($setting['type']) || $setting['type'] == 'bool')
+			$setting['type'] = 'checkbox';
+		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
+			$setting['type'] = 'number';
+		elseif ($setting['type'] == 'string')
+			$setting['type'] = 'text';
+
+		if (isset($setting['options']))
+			$setting['type'] = 'list';
+
 		echo '
-							<dt>
-								<label for="topics_per_page">', $txt['topics_per_page'], '</label>
-							</dt>
-							<dd>
-								<select name="default_options[topics_per_page]" id="topics_per_page">
-									<option value="0"', empty($context['member']['options']['topics_per_page']) ? ' selected' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxTopics'], ')</option>
-									<option value="5"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 5 ? ' selected' : '', '>5</option>
-									<option value="10"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 10 ? ' selected' : '', '>10</option>
-									<option value="25"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 25 ? ' selected' : '', '>25</option>
-									<option value="50"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 50 ? ' selected' : '', '>50</option>
-								</select>
-							</dd>
-							<dt>
-								<label for="messages_per_page">', $txt['messages_per_page'], '</label>
-							</dt>
-							<dd>
-								<select name="default_options[messages_per_page]" id="messages_per_page">
-									<option value="0"', empty($context['member']['options']['messages_per_page']) ? ' selected' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxMessages'], ')</option>
-									<option value="5"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 5 ? ' selected' : '', '>5</option>
-									<option value="10"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 10 ? ' selected' : '', '>10</option>
-									<option value="25"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 25 ? ' selected' : '', '>25</option>
-									<option value="50"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 50 ? ' selected' : '', '>50</option>
-								</select>
-							</dd>';
+					<dt>
+						<label for="', $setting['id'], '">', $setting['label'], '</label>';
+			if (isset($setting['description']))
+				echo '
+						<br><span class="smalltext">', $setting['description'], '</span>';
+			echo '
+					</dt>
+					<dd>';
+
+		// display checkbox options
+		if ($setting['type'] == 'checkbox')
+		{
+			echo '
+						<input type="hidden" name="default_options[' . $setting['id'] . ']" value="0">
+						<input type="checkbox" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($context['member']['options'][$setting['id']]) ? ' checked' : '', ' value="1" class="input_check">';
+		}
+		// how about selection lists, we all love them
+		elseif ($setting['type'] == 'list')
+		{
+			echo '
+						&nbsp;<select class="floatleft" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', '>';
+
+			foreach ($setting['options'] as $value => $label)
+			{
+				echo '
+							<option value="', $value, '"', $value == $context['member']['options'][$setting['id']] ? ' selected' : '', '>', $label, '</option>';
+			}
+
+			echo '
+						</select>';
+		}
+		// a textbox it is then
+		else
+		{
+			if (isset($setting['type']) && $setting['type'] == 'number')
+			{
+				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
+				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
+				$step = isset($setting['step']) ? ' step="' . $setting['step'] . '"' : '';
+
+				echo '
+						<input type="number"', $min . $max . $step;
+			}
+			else if (isset($setting['type']) && $setting['type'] == 'url')
+			{
+				echo'
+						<input type="url"';
+			}
+			else
+			{
+				echo '
+						<input type="text"';
+			}
+
+			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', isset($context['member']['options'][$setting['id']]) ? $context['member']['options'][$setting['id']] : $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', ' class="input_text">';
+		}
+
+		// end of this defintion
+		echo '
+					</dd>';
 	}
-
-	if (!empty($modSettings['cal_enabled']))
-		echo '
-							<dt>
-								<label for="calendar_start_day">', $txt['calendar_start_day'], ':</label>
-							</dt>
-							<dd>
-								<select name="default_options[calendar_start_day]" id="calendar_start_day">
-									<option value="0"', empty($context['member']['options']['calendar_start_day']) ? ' selected' : '', '>', $txt['days'][0], '</option>
-									<option value="1"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 1 ? ' selected' : '', '>', $txt['days'][1], '</option>
-									<option value="6"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 6 ? ' selected' : '', '>', $txt['days'][6], '</option>
-								</select>
-							</dd>';
-
-	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_autosave_enabled']))
-		echo '
-							<dt>
-								<label for="drafts_autosave_enabled">', $txt['drafts_autosave_enabled'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0">
-								<input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_show_saved_enabled']))
-		echo '
-							<dt>
-								<label for="drafts_show_saved_enabled">', $txt['drafts_show_saved_enabled'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[drafts_show_saved_enabled]" value="0">
-								<input type="checkbox" name="default_options[drafts_show_saved_enabled]" id="drafts_show_saved_enabled" value="1"', !empty($context['member']['options']['drafts_show_saved_enabled']) ? ' checked' : '', ' class="input_check">
-							</dd>';
-
-	echo '
-							<dt>
-								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0">
-								<input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked' : '', ' class="input_check">
-							</dd>
-							<dt>
-								<label for="display_quick_mod">', $txt['display_quick_mod'], ':</label>
-							</dt>
-							<dd>
-								<select name="default_options[display_quick_mod]" id="display_quick_mod">
-									<option value="0"', empty($context['member']['options']['display_quick_mod']) ? ' selected' : '', '>', $txt['display_quick_mod_none'], '</option>
-									<option value="1"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] == 1 ? ' selected' : '', '>', $txt['display_quick_mod_check'], '</option>
-									<option value="2"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] != 1 ? ' selected' : '', '>', $txt['display_quick_mod_image'], '</option>
-								</select>
-							</dd>';
 }
 
 /**
