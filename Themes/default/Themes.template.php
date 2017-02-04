@@ -347,7 +347,7 @@ function template_set_options()
 	echo '
 				<dl class="settings">';
 
-	$first_option_key = array_shift(array_keys($context['options']));
+	$first_option_key = array_shift($skeys = array_keys($context['options']));
 	$titled_section = false;
 
 	foreach ($context['options'] as $i => $setting)
@@ -581,7 +581,7 @@ function template_set_settings()
 			<div class="windowbg2 noup">
 				<dl class="settings">';
 
-	$first_setting_key = array_shift(array_keys($context['settings']));
+	$first_setting_key = array_shift($skeys = array_keys($context['settings']));
 	$titled_section = false;
 
 	foreach ($context['settings'] as $i => $setting)
