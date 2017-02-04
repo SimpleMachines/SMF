@@ -387,16 +387,18 @@ function template_set_options()
 							<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
 						</select>&nbsp;</span>';
 
+		echo '
+						<label for="options_', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
+		if (isset($setting['description']))
+			echo '
+						<br><span class="smalltext">', $setting['description'], '</span>';
+		echo '
+					</dt>';
+
 		// display checkbox options
 		if ($setting['type'] == 'checkbox')
 		{
 			echo '
-						<label for="options_', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
-			if (isset($setting['description']))
-				echo '
-						<br><span class="smalltext">', $setting['description'], '</span>';
-			echo '
-					</dt>
 					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="input_check floatleft">';
@@ -405,12 +407,6 @@ function template_set_options()
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
-						<label for="options_', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
-			if (isset($setting['description']))
-				echo '
-						<br><span class="smalltext">', $setting['description'], '</span>';
-			echo '
-					</dt>
 					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 						&nbsp;<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled' : '', '>';
 
@@ -427,12 +423,6 @@ function template_set_options()
 		else
 		{
 			echo '
-						<label for="options_', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
-			if (isset($setting['description']))
-				echo '
-						<br><span class="smalltext">', $setting['description'], '</span>';
-			echo '
-					</dt>
 					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>';
 
 			if (isset($setting['type']) && $setting['type'] == 'number')
@@ -619,19 +609,21 @@ function template_set_settings()
 			continue;
 		}
 
+		echo '
+					<dt>
+						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
+
+		if (isset($setting['description']))
+			echo '<br>
+						<span class="smalltext">', $setting['description'], '</span>';
+
+		echo '
+					</dt>';
+
 		// A checkbox?
 		if ($setting['type'] == 'checkbox')
 		{
 			echo '
-					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
-
-			if (isset($setting['description']))
-				echo '<br>
-						<span class="smalltext">', $setting['description'], '</span>';
-
-			echo '
-					</dt>
 					<dd>
 						<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1" class="input_check">
@@ -641,15 +633,6 @@ function template_set_settings()
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
-					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
-
-			if (isset($setting['description']))
-				echo '<br>
-						<span class="smalltext">', $setting['description'], '</span>';
-
-			echo '
-					</dt>
 					<dd>
 						<select name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">';
 
@@ -665,14 +648,6 @@ function template_set_settings()
         	elseif ($setting['type'] == 'textarea')
 		{
 			echo '
-					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
-
-			if (isset($setting['description']))
-				echo '<br>
-						<span class="smalltext">', $setting['description'], '</span>';
-			echo '
-					</dt>
 					<dd>
 						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
                 echo '
@@ -682,15 +657,6 @@ function template_set_settings()
 		else
 		{
 			echo '
-					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
-
-			if (isset($setting['description']))
-				echo '<br>
-						<span class="smalltext">', $setting['description'], '</span>';
-
-			echo '
-					</dt>
 					<dd>';
 
 			if (isset($setting['type']) && $setting['type'] == 'number')
