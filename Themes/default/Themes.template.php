@@ -353,7 +353,7 @@ function template_set_options()
 	foreach ($context['options'] as $i => $setting)
 	{
 		// Just spit out separators and move on
-		if (!is_array($setting))
+		if (empty($setting) || !is_array($setting))
 		{
 			// Insert a separator (unless this is the first item in the list)
 			if ($i !== $first_option_key)
@@ -587,7 +587,7 @@ function template_set_settings()
 	foreach ($context['settings'] as $i => $setting)
 	{
 		// Is this a separator?
-		if (!is_array($setting))
+		if (empty($setting) || !is_array($setting))
 		{
 			// We don't need a separator before the first list element
 			if ($i !== $first_setting_key)

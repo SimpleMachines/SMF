@@ -1638,7 +1638,7 @@ function template_profile_theme_settings()
 	foreach ($context['theme_options'] as $i => $setting)
 	{
 		// Just spit out separators and move on
-		if (!is_array($setting))
+		if (empty($setting) || !is_array($setting))
 		{
 			// Insert a separator (unless this is the first item in the list)
 			if ($i !== $first_option_key)
