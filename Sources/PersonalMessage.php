@@ -2225,6 +2225,13 @@ function MessagePost2()
 
 	loadLanguage('PersonalMessage', '', false);
 
+	if (isset($_REQUEST['xml']))
+	{
+		// Just in case of an earlier error...
+		$context['preview_message'] = '';
+		$context['preview_subject'] = '';
+	}
+	
 	// Extract out the spam settings - it saves database space!
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
