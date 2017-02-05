@@ -101,7 +101,7 @@ function PackageInstallTest()
 	// You have to specify a file!!
 	if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
 		redirectexit('action=admin;area=packages');
-	$context['filename'] = preg_replace('~[\.]+~', '.', $_REQUEST['package']);
+	$context['filename'] = basename($_REQUEST['package']);
 
 	// Do we have an existing id, for uninstalls and the like.
 	$context['install_id'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 0;
