@@ -2911,7 +2911,7 @@ function ConvertUtf8()
 			flush();
 		}
 	}
-
+	$_GET['substep'] = 0;
 	return true;
 }
 
@@ -2957,6 +2957,7 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
+	$upcontext['page_title'] = 'Converting to JSON';
 	$upcontext['table_count'] = count($keys);
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
