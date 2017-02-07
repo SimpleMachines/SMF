@@ -13,10 +13,6 @@
 
 /* I have a Lumia with 480px screen... so ^^ */
 @media (max-width: 480px) {
-	/* Stay where you are in mobile popup enabled */
-	body {
-		overflow: hidden;
-	}
 	/* This is general */
 	.popup_window {
 		width: 90%;
