@@ -1632,7 +1632,8 @@ function template_profile_theme_settings()
 {
 	global $context, $modSettings, $txt;
 
-	$first_option_key = array_shift($skeys = array_keys($context['theme_options']));
+	$skeys = array_keys($context['theme_options']);
+	$first_option_key = array_shift($skeys);
 	$titled_section = false;
 
 	foreach ($context['theme_options'] as $i => $setting)
