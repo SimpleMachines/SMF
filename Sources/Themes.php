@@ -592,6 +592,10 @@ function SetThemeOptions()
 
 	foreach ($context['options'] as $i => $setting)
 	{
+		// Just skip separators
+		if (!is_array($setting))
+			continue;
+
 		// Is this disabled?
 		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
 		{

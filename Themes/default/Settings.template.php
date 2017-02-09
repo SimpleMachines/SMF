@@ -18,59 +18,21 @@ function template_options()
 	global $context, $txt;
 
 	$context['theme_options'] = array(
+		$txt['theme_opt_calendar'],
+		array(
+			'id' => 'calendar_start_day',
+			'label' => $txt['calendar_start_day'],
+			'options' => array(
+				0 => $txt['days'][0],
+				1 => $txt['days'][1],
+				6 => $txt['days'][6],
+			),
+			'default' => true,
+		),
+		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
 			'label' => $txt['show_children'],
-			'default' => true,
-		),
-		array(
-			'id' => 'show_no_avatars',
-			'label' => $txt['show_no_avatars'],
-			'default' => true,
-		),
-		array(
-			'id' => 'show_no_signatures',
-			'label' => $txt['show_no_signatures'],
-			'default' => true,
-		),
-		array(
-			'id' => 'return_to_post',
-			'label' => $txt['return_to_post'],
-			'default' => true,
-		),
-		array(
-			'id' => 'view_newest_first',
-			'label' => $txt['recent_posts_at_top'],
-			'default' => true,
-		),
-		array(
-			'id' => 'view_newest_pm_first',
-			'label' => $txt['recent_pms_at_top'],
-			'default' => true,
-		),
-		array(
-			'id' => 'posts_apply_ignore_list',
-			'label' => $txt['posts_apply_ignore_list'],
-			'default' => false,
-		),
-		array(
-			'id' => 'wysiwyg_default',
-			'label' => $txt['wysiwyg_default'],
-			'default' => false,
-		),
-		array(
-			'id' => 'popup_messages',
-			'label' => $txt['popup_messages'],
-			'default' => true,
-		),
-		array(
-			'id' => 'pm_remove_inbox_label',
-			'label' => $txt['pm_remove_inbox_label'],
-			'default' => true,
-		),
-		array(
-			'id' => 'auto_notify',
-			'label' => $txt['auto_notify'],
 			'default' => true,
 		),
 		array(
@@ -98,20 +60,57 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'calendar_start_day',
-			'label' => $txt['calendar_start_day'],
-			'options' => array(
-				0 => $txt['days'][0],
-				1 => $txt['days'][1],
-				6 => $txt['days'][6],
-			),
+			'id' => 'view_newest_first',
+			'label' => $txt['recent_posts_at_top'],
 			'default' => true,
+		),
+		array(
+			'id' => 'show_no_avatars',
+			'label' => $txt['show_no_avatars'],
+			'default' => true,
+		),
+		array(
+			'id' => 'show_no_signatures',
+			'label' => $txt['show_no_signatures'],
+			'default' => true,
+		),
+		array(
+			'id' => 'posts_apply_ignore_list',
+			'label' => $txt['posts_apply_ignore_list'],
+			'default' => false,
+		),
+		$txt['theme_opt_posting'],
+		array(
+			'id' => 'return_to_post',
+			'label' => $txt['return_to_post'],
+			'default' => true,
+		),
+		array(
+			'id' => 'auto_notify',
+			'label' => $txt['auto_notify'],
+			'default' => true,
+		),
+		array(
+			'id' => 'wysiwyg_default',
+			'label' => $txt['wysiwyg_default'],
+			'default' => false,
 		),
 		array(
 			'id' => 'use_editor_quick_reply',
 			'label' => $txt['use_editor_quick_reply'],
 			'default' => true,
 		),
+		array(
+			'id' => 'drafts_autosave_enabled',
+			'label' => $txt['drafts_autosave_enabled'],
+			'default' => true,
+		),
+		array(
+			'id' => 'drafts_show_saved_enabled',
+			'label'  => $txt['drafts_show_saved_enabled'],
+			'default' => true,
+		),
+		$txt['theme_opt_moderation'],
 		array(
 			'id' => 'display_quick_mod',
 			'label' => $txt['display_quick_mod'],
@@ -122,11 +121,22 @@ function template_options()
 			),
 			'default' => true,
 		),
+		$txt['theme_opt_personal_messages'],
 		array(
-			'id' => 'drafts_show_saved_enabled',
-			'label'  => $txt['drafts_show_saved_enabled'],
+			'id' => 'popup_messages',
+			'label' => $txt['popup_messages'],
 			'default' => true,
-		)
+		),
+		array(
+			'id' => 'view_newest_pm_first',
+			'label' => $txt['recent_pms_at_top'],
+			'default' => true,
+		),
+		array(
+			'id' => 'pm_remove_inbox_label',
+			'label' => $txt['pm_remove_inbox_label'],
+			'default' => true,
+		),
 	);
 }
 
