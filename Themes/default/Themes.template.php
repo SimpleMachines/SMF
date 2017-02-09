@@ -347,7 +347,8 @@ function template_set_options()
 	echo '
 				<dl class="settings">';
 
-	$first_option_key = array_shift($skeys = array_keys($context['options']));
+	$skeys = array_keys($context['options']);
+	$first_option_key = array_shift($skeys);
 	$titled_section = false;
 
 	foreach ($context['options'] as $i => $setting)
