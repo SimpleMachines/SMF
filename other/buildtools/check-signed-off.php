@@ -68,5 +68,15 @@ if ($result === false)
 	// Try 2.
 	$result2 = stripos($lastLine, 'Signed by');
 	if ($result2 === false)
+	{
+		echo "--DEBUG MASTER--\n";
+		echo $debugMaster . "\n";
+		echo "--DEBUG MASTER--\n";
+
+		echo "--DEBUG SECONDARY--\n";
+		echo $debugSecondary . "\n";
+		echo "--DEBUG SECONDARY--\n";
+
 		die('Error: Signed-off-by not found in commit message [' . $lastLine . ']' . '[' . $message . ']' . '[' . $debugSecondary . '][' . $debugMaster . ']' . "\n");
+	}
 }
