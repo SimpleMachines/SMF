@@ -4,6 +4,8 @@ php:
   - 5.3
   - 5.6
   - 7.0
+  - 7.1
+  - hhvm
 
 script:
   - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi
