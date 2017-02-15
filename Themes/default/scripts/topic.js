@@ -436,11 +436,11 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	var i, x = new Array(),
 		oCaller = this,
 		formData = {
-			subject : document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit(),
-			message : document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#").php_to8bit(),
+			subject : document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#"),
+			message : document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#"),
 			topic : parseInt(document.forms.quickModForm.elements['topic'].value),
 			msg : parseInt(document.forms.quickModForm.elements['msg'].value),
-			modify_reason : document.forms.quickModForm.elements['modify_reason'].value.replace(/&#/g, "&#38;#").php_to8bit()
+			modify_reason : document.forms.quickModForm.elements['modify_reason'].value.replace(/&#/g, "&#38;#")
 		};
 
 	// Send in the XMLhttp request and let's hope for the best.
