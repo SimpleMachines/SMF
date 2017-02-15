@@ -2509,7 +2509,7 @@ dl.addrules dt.floatleft {
 ------------------------------------------------- */
 #mlist_search {
 	margin: auto;
-	width: 500px;
+	max-width: 500px;
 }
 #mlist .selected {
 	white-space: nowrap;
@@ -2648,7 +2648,7 @@ dl.addrules dt.floatleft {
 }
 .popup_heading {
 	margin: 0;
-	padding: 10px 4px;
+	padding: 10px 8px;
 	color: #bf6900;
 	background: none;
 }

@@ -1605,7 +1605,7 @@ function template_admin_quick_search()
 	global $context, $txt, $scripturl;
 	if ($context['user']['is_admin'])
 		echo '
-								<span class="floatright">
+								<span class="floatright admin_search">
 									<span class="generic_icons filter centericon"></span>
 									<input type="search" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text">
 									<select name="search_type">

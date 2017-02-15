@@ -13,10 +13,6 @@
 
 /* I have a Lumia with 480px screen... so ^^ */
 @media (max-width: 480px) {
-	/* Stay where you are in mobile popup enabled */
-	body {
-		overflow: hidden;
-	}
 	/* This is general */
 	.popup_window {
 		width: 90%;
@@ -230,15 +226,15 @@
 	#mlist_search dt {
 		width: 100%;
 		display: block;
+		padding: 0;
 	}
 	#mlist_search dd {
-		float: left;
+		padding: 0;
+		margin: 0;
 	}
 	#mlist_search .input_check{
-		margin: 0 13px 0 0;
-	}
-	#mlist_search .input_text {
-		width: 93%;
+		margin: 0 13px 3px 3px;
+		vertical-align: middle;
 	}
 	/* Moderation */
 	.post_note input {
@@ -252,6 +248,12 @@
 		width: 100% !important;
 		padding: 0 !important;
 		margin: 0 0 5px 0;
+	}
+	.admin_search {
+		float: none;
+		display: block;
+		width: 100%;
+		margin-bottom: 10px;
 	}
 	.admin_group a {
 		width: 50% !important;
@@ -440,6 +442,7 @@
 		width: 100% !important;
 		border-left: 0;
 		border-right: 0;
+		border-radius: 0;
 	}
 	#top_section, #footer {
 		padding-left: 0;
