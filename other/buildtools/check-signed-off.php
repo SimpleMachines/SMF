@@ -44,19 +44,19 @@ if (preg_match('~Merge ([A-Za-z0-9]{40}) into ([A-Za-z0-9]{40})~i', $lastLine, $
 	// This is debugging stuff for now to figure out why Travis can fail to get us the right info about a signed off commit.
 	$debugSecondary = base64_encode(json_encode(array(
 		// Raw body.
-		'B' => shell_exec('git show -s --format=%B HEAD'),
+		'B' => shell_exec('git show -s --format=%B ' . $merges[1] . ''),
 		// Body.
-		'b2' => shell_exec('git show -s --format=%b HEAD'),
+		'b2' => shell_exec('git show -s --format=%b ' . $merges[1] . ''),
 		// Commit notes.
-		'N' => shell_exec('git show -s --format=%N HEAD'),
+		'N' => shell_exec('git show -s --format=%N ' . $merges[1] . ''),
 		// Ref names.
-		'd' => shell_exec('git show -s --format=%d HEAD'),
+		'd' => shell_exec('git show -s --format=%d ' . $merges[1] . ''),
 		// Commit hash.
-		'H' => shell_exec('git show -s --format=%H HEAD'),
+		'H' => shell_exec('git show -s --format=%H ' . $merges[1] . ''),
 		// Tree hash.
-		'T' => shell_exec('git show -s --format=%T HEAD'),
+		'T' => shell_exec('git show -s --format=%T ' . $merges[1] . ''),
 		// Parent hash.
-		'P' => shell_exec('git show -s --format=%P HEAD'),
+		'P' => shell_exec('git show -s --format=%P ' . $merges[1] . ''),
 	)));
 }
 else
