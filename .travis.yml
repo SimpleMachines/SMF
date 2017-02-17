@@ -8,7 +8,7 @@ php:
   - hhvm
 
 script:
-  - cd other/buildTools/ && git fetch && git pull && cd ../../ 
+  - git submodule foreach git pull origin master
   - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi
   - if php other/buildtools/check-signed-off.php | grep "Error:"; then php other/buildtools/check-signed-off.php; exit 1; fi
   - if find . -name "*.php" -exec php other/buildtools/check-smf-license.php {} 2>&1 \; | grep "Error:"; then exit 1; fi
