@@ -1,0 +1,3 @@
+[submodule "other/buildTools"]
+	path = other/buildTools
+	url = git@github.com:SimpleMachines/BuildTools.git
