@@ -8,7 +8,6 @@ php:
   - hhvm
 
 script:
-  - git clone https://github.com/SimpleMachines/BuildTools.git other/buildTools > /dev/null 2>&1
   - cd other/buildTools/ && git fetch && git pull && cd ../../ 
   - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi
   - if php other/buildtools/check-signed-off.php | grep "Error:"; then php other/buildtools/check-signed-off.php; exit 1; fi
