@@ -447,25 +447,24 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 	if ($output_method != 'echo' || empty($posts))
 		return $posts;
 
-	echo '
-		<table style="border: none" class="ssi_table">';
+	echo '<div class="ssitable">
+			<div class="ssitable_body">';
 	foreach ($posts as $post)
-		echo '
-			<tr>
-				<td style="text-align: right; vertical-align: top; white-space: nowrap">
+		echo '<div class="ssitable_row">
+				<div class="ssitable_cell">	
 					[', $post['board']['link'], ']
-				</td>
-				<td style="vertical-align: top">
+				</div>
+				<div class="ssitable_cell">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
-				</td>
-				<td style="text-align: right; white-space: nowrap">
+				</div>
+				<div class="ssitable_cell">
 					', $post['time'], '
-				</td>
-			</tr>';
-	echo '
-		</table>';
+				</div>
+			</div>';
+	echo '</div>
+		</div>';
 }
 
 /**
@@ -613,24 +612,26 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		return $posts;
 
 	echo '
-		<table style="border: none" class="ssi_table">';
+		<div class="ssitable">
+			<div class="ssitable_body">';
 	foreach ($posts as $post)
 		echo '
-			<tr>
-				<td style="text-align: right; vertical-align: top; white-space: nowrap">
+			<div class="ssitable_row">
+				<div class="ssitable_cell">	
 					[', $post['board']['link'], ']
-				</td>
-				<td style="vertical-align: top">
+				</div>
+				<div class="ssitable_cell">	
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>', '
-				</td>
-				<td style="text-align: right; white-space: nowrap">
+				</div>
+				<div class="ssitable_cell">	
 					', $post['time'], '
-				</td>
-			</tr>';
+				</div>
+			</div>';
 	echo '
-		</table>';
+			</div>
+		</div>';
 }
 
 /**
@@ -725,21 +726,29 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 		return $boards;
 
 	echo '
-		<table class="ssi_table">
-			<tr>
-				<th style="text-align: left">', $txt['board'], '</th>
-				<th style="text-align: left">', $txt['board_topics'], '</th>
-				<th style="text-align: left">', $txt['posts'], '</th>
-			</tr>';
+		<div class="ssitable">
+			<div class="ssitable_body">
+			<div class="ssitable_heading">
+				<div class="ssitable_head">', $txt['board'], '</div>
+				<div class="ssitable_head">', $txt['board_topics'], '</div>
+				<div class="ssitable_head">', $txt['posts'], '</div>
+			</div>';
 	foreach ($boards as $sBoard)
 		echo '
-			<tr>
-				<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
-				<td style="text-align: right">', comma_format($sBoard['num_topics']), '</td>
-				<td style="text-align: right">', comma_format($sBoard['num_posts']), '</td>
-			</tr>';
+			<div class="ssitable_row">
+				<div class="ssitable_cell">	
+					', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
+				</div>
+				<div class="ssitable_cell">	
+					', comma_format($sBoard['num_topics']), '
+				</div>
+				<div class="ssitable_cell">	
+					', comma_format($sBoard['num_posts']), '
+				</div>
+			</div>';
 	echo '
-		</table>';
+			</div>
+		</div>';
 }
 
 // Shows the top topics.
@@ -817,24 +826,29 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 	if ($output_method != 'echo' || empty($topics))
 		return $topics;
 
-	echo '
-		<table class="ssi_table">
-			<tr>
-				<th style="text-align: left"></th>
-				<th style="text-align: left">', $txt['views'], '</th>
-				<th style="text-align: left">', $txt['replies'], '</th>
-			</tr>';
+	echo '<div class="ssitable">
+			<div class="ssitable_body">
+			<div class="ssitable_heading">
+				<div class="ssitable_head"></div>
+				<div class="ssitable_head">', $txt['views'], '</div>
+				<div class="ssitable_head">', $txt['replies'], '</div>
+			</div>';
 	foreach ($topics as $sTopic)
 		echo '
-			<tr>
-				<td style="text-align: left">
+			<div class="ssitable_row">
+				<div class="ssitable_cell">	
 					', $sTopic['link'], '
-				</td>
-				<td style="text-align: right">', comma_format($sTopic['num_views']), '</td>
-				<td style="text-align: right">', comma_format($sTopic['num_replies']), '</td>
-			</tr>';
+				</div>
+				<div class="ssitable_cell">	
+				', comma_format($sTopic['num_views']), '
+				</div>
+				<div class="ssitable_cell">	
+				', comma_format($sTopic['num_replies']), '
+				</div>
+			</div>';
 	echo '
-		</table>';
+			</div>
+		</div>';
 }
 
 /**
@@ -1020,7 +1034,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 	// Draw the table!
 	if ($output_method == 'echo')
 		echo '
-		<table style="border: none" class="ssi_table">';
+		<div class="ssitable">';
 
 	$query_members = array();
 	foreach ($members as $member)
@@ -1035,19 +1049,19 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 		// Only do something if we're echo'ing.
 		if ($output_method == 'echo')
 			echo '
-			<tr>
-				<td style="text-align: right; vertical-align: top; white-space: nowrap">
+			<div class="ssitable_row">
+				<div class="ssitable_cell">
 					', $query_members[$member]['link'], '
 					<br>', $query_members[$member]['blurb'], '
 					<br>', $query_members[$member]['avatar']['image'], '
-				</td>
-			</tr>';
+				</div>
+			</div>';
 	}
 
 	// End the table if appropriate.
 	if ($output_method == 'echo')
 		echo '
-		</table>';
+		</div>';
 
 	// Send back the data.
 	return $query_members;
@@ -1191,24 +1205,18 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 	createToken('login');
 
 	echo '
-		<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
-			<table style="border: none" class="ssi_table">
-				<tr>
-					<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
-					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
-				</tr><tr>
-					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
-					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
-				</tr>
-				<tr>
-					<td>
-						<input type="hidden" name="cookielength" value="-1">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-					</td>
-					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
-				</tr>
-			</table>
+		<form class="login" action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
+			<dl>
+				<dt>', $txt['username'], ':</dt>
+				<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
+				<dt>', $txt['password'], ':</dt>
+				<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
+			</dl>		
+			<dl>
+				<dt>', $txt['always_logged_in'], ':</dt>
+				<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>
+			</dl>
+			<p><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
 		</form>';
 
 }
@@ -2336,23 +2344,25 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 
 	// Give them the default.
 	echo '
-		<table class="ssi_downloads">
-			<tr>
-				<th style="text-align: left; padding: 2">', $txt['file'], '</th>
-				<th style="text-align: left; padding: 2">', $txt['posted_by'], '</th>
-				<th style="text-align: left; padding: 2">', $txt['downloads'], '</th>
-				<th style="text-align: left; padding: 2">', $txt['filesize'], '</th>
-			</tr>';
+		<div class="ssitable">
+			<div class="ssitable_body">
+			<div class="ssitable_heading">
+				<div class="ssitable_head">', $txt['file'], '</div>
+				<div class="ssitable_head">', $txt['posted_by'], '</div>
+				<div class="ssitable_head">', $txt['downloads'], '</div>
+				<div class="ssitable_head">', $txt['filesize'], '</div>
+			</div>';
 	foreach ($attachments as $attach)
 		echo '
-			<tr>
-				<td>', $attach['file']['link'], '</td>
-				<td>', $attach['member']['link'], '</td>
-				<td style="text-align: center">', $attach['file']['downloads'], '</td>
-				<td>', $attach['file']['filesize'], '</td>
-			</tr>';
+			<div class="ssitable_row">
+				<div class="ssitable_cell">	', $attach['file']['link'], '</div>
+				<div class="ssitable_cell">', $attach['member']['link'], '</div>
+				<div class="ssitable_cell">', $attach['file']['downloads'], '</div>
+				<div class="ssitable_cell">', $attach['file']['filesize'], '</div>
+			</div>';
 	echo '
-		</table>';
+			</div>
+		</div>';
 }
 
 ?>
