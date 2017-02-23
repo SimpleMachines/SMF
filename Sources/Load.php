@@ -74,6 +74,9 @@ function reloadSettings()
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
+	// setlocale is required for basename() & pathinfo() to work properly on files with utf8 characters in the names
+	setlocale(LC_CTYPE,'en_US.UTF-8');
+
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
