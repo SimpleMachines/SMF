@@ -3669,6 +3669,9 @@ p.information img {
 .action_who select {
 	margin-top: -1px !important;
 }
+span.member.hidden {
+	font-style: italic;
+}
 
 /* Icons (converted from img to css) */
 /* Stay here till I find a better place for you guys */
