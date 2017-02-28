@@ -1672,6 +1672,9 @@ dl.register_form dd {
 #admin_login .centertext a.help img {
 	vertical-align: middle;
 }
+li.custom_field {
+	padding-top: 4px;
+}
 
 tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	padding: 4px 8px;
