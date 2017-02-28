@@ -1074,10 +1074,10 @@ if (!empty($select_columns))
 			$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
 		if (!empty($row['msn']))
-			$inserts[] = array($row['id_member'], 1, 'cust_skyp', $row['msn']);
+			$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
 
 		if (!empty($row['yim']))
-			$inserts[] = array($row['id_member'], 1, 'cust_yim', $row['yim']);
+			$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
 
 		if (!empty($row['location']))
 			$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
