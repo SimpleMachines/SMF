@@ -2651,7 +2651,7 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 				$found = true;
 
 				// setlocale is required for basename() & pathinfo() to work properly on the selected language
-				setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $txt['lang_character_set']);
+				setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $modSettings['global_character_set']);
 				
 				break;
 			}
