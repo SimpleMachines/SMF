@@ -538,6 +538,31 @@ VALUES
 ---}
 ---#
 
+---# Remove old mod tasks...
+---{
+	$vanilla_tasks = array(
+		'approval_notification',
+		'birthdayemails',
+		'daily_digest',
+		'daily_maintenance',
+		'fetchSMfiles',
+		'paid_subscriptions',
+		'remove_temp_attachments',
+		'remove_topic_redirect',
+		'remove_old_drafts',
+		'weekly_digest',
+		'weekly_maintenance');
+
+	$smcFunc['db_query']('',
+		'DELETE FROM {db_prefix}scheduled_tasks
+			WHERE task NOT IN ({array_string:keep_tasks});',
+		array(
+			'keep_tasks' => $vanilla_tasks
+		)
+	);
+---}
+---#
+
 /******************************************************************************/
 ---- Adding background tasks support
 /******************************************************************************/
@@ -1038,10 +1063,10 @@ if (!empty($select_columns))
 				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
 			if (!empty($row['msn']))
-				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
+				$inserts[] = array($row['id_member'], 1, 'cust_skyp', $row['msn']);
 
 			if (!empty($row['yim']))
-				$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
+				$inserts[] = array($row['id_member'], 1, 'cust_yim', $row['yim']);
 
 			if (!empty($row['location']))
 				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
