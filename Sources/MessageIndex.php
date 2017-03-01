@@ -235,15 +235,15 @@ function MessageIndex()
 		'last_poster' => 'COALESCE(meml.real_name, ml.poster_name)',
 		'replies' => 't.num_replies',
 		'views' => 't.num_views',
-		'first_post' => 'mf.poster_time',
-		'last_post' => 'ml.poster_time'
+		'first_post' => 't.id_topic',
+		'last_post' => 't.id_last_msg'
 	);
 
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
 		$context['sort_by'] = 'last_post';
-		$_REQUEST['sort'] = 'ml.poster_time';
+		$_REQUEST['sort'] = 'id_last_msg';
 		$ascending = isset($_REQUEST['asc']);
 	}
 	// Otherwise default to ascending.
@@ -286,8 +286,8 @@ function MessageIndex()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT t.id_topic
-			FROM {db_prefix}topics AS t' . (in_array($context['sort_by'], array('last_poster', 'last_post')) ? '
-				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)' : (in_array($context['sort_by'], array('first_post', 'starter', 'subject')) ? '
+			FROM {db_prefix}topics AS t' . ($context['sort_by'] === 'last_poster' ? '
+				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)' : (in_array($context['sort_by'], array('starter', 'subject')) ? '
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)' : '')) . ($context['sort_by'] === 'starter' ? '
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' : '') . ($context['sort_by'] === 'last_poster' ? '
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
@@ -718,13 +718,13 @@ function MessageIndex()
 
 	// Build the message index button array.
 	$context['normal_buttons'] = array();
-
+	
 	if ($context['can_post_new'])
 		$context['normal_buttons']['new_topic'] = array('text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true);
-
+	
 	if ($context['can_post_poll'])
 		$context['normal_buttons']['post_poll'] = array('text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll');
-
+	
 	if (!$context['user']['is_logged'])
 		$context['normal_buttons']['markread'] = array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
 
