@@ -538,6 +538,31 @@ VALUES
 ---}
 ---#
 
+---# Remove old mod tasks...
+---{
+	$vanilla_tasks = array(
+		'approval_notification',
+		'birthdayemails',
+		'daily_digest',
+		'daily_maintenance',
+		'fetchSMfiles',
+		'paid_subscriptions',
+		'remove_temp_attachments',
+		'remove_topic_redirect',
+		'remove_old_drafts',
+		'weekly_digest',
+		'weekly_maintenance');
+
+	$smcFunc['db_query']('',
+		'DELETE FROM {db_prefix}scheduled_tasks
+			WHERE task NOT IN ({array_string:keep_tasks});',
+		array(
+			'keep_tasks' => $vanilla_tasks
+		)
+	);
+---}
+---#
+
 /******************************************************************************/
 ---- Adding background tasks support
 /******************************************************************************/
