@@ -16,7 +16,6 @@ $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 
 // Ensure you remember to use uppercase for character set strings.
-// Leave this entry at ISO-8859-1 for the language editor
 $txt['lang_character_set'] = 'ISO-8859-1';
 // Character set and right to left?
 $txt['lang_rtl'] = false;
