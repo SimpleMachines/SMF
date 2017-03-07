@@ -471,6 +471,16 @@ function scheduled_daily_maintenance()
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
 
+	// Ensure all topics have valid first/last message times, in case a mod or something didn't do it properly
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics AS t
+			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+		WHERE t.first_msg_time = 0 OR t.last_msg_time = 0',
+		array()
+	);
+
 	// Log we've done it...
 	return true;
 }
