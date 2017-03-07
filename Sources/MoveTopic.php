@@ -608,9 +608,12 @@ function moveTopics($topics, $toBoard)
 			// If not, update.
 			if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max'])
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics
-					SET id_first_msg = {int:first_msg}, id_last_msg = {int:last_msg}
-					WHERE id_topic = {int:selected_topic}',
+					UPDATE {db_prefix}topics AS t
+						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+					SET t.id_first_msg = {int:first_msg}, t.id_last_msg = {int:last_msg},
+						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+					WHERE t.id_topic = {int:selected_topic}',
 					array(
 						'first_msg' => $row['first_msg'],
 						'last_msg' => $row['last_msg'],

@@ -296,6 +296,18 @@ function loadForumTests()
 						'newTopicID' => $newTopicID,
 					)
 				);
+
+				// Ensure the salvage topic has the correct first/last message times
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}topics AS t
+						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+					WHERE t.id_topic = {int:id_topic}',
+					array(
+						'id_topic' => $newTopicID,
+					)
+				);
 			},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_missing_topics', 'id_msg', 'id_topic'),
@@ -427,6 +439,18 @@ function loadForumTests()
 						),
 						array('id_topic'),
 						1
+					);
+
+					// Ensure this topic has the correct first/last message times
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}topics AS t
+							INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+							INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+						SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+						WHERE t.id_topic = {int:id_topic}',
+						array(
+							'id_topic' => $row['id_topic'],
+						)
 					);
 
 					$smcFunc['db_query']('', '
@@ -574,9 +598,19 @@ function loadForumTests()
 					)
 				);
 
+				// Ensure the poll's topic has the correct first/last message times
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}topics AS t
+						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+					WHERE t.id_topic = {int:id_topic}',
+					array(
+						'id_topic' => $newTopicID,
+					)
+				);
+
 				updateStats('subject', $newTopicID, $txt['salvaged_poll_topic_name']);
-
-
 		},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
@@ -619,11 +653,14 @@ function loadForumTests()
 				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
 
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics
-					SET id_first_msg = {int:myid_first_msg},
-						id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
-						id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
-					WHERE id_topic = {int:topic_id}',
+					UPDATE {db_prefix}topics AS t
+						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+					SET t.id_first_msg = {int:myid_first_msg},
+						t.id_member_started = {int:memberStartedID}, t.id_last_msg = {int:myid_last_msg},
+						t.id_member_updated = {int:memberUpdatedID}, t.approved = {int:firstmsg_approved},
+						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+					WHERE t.id_topic = {int:topic_id}',
 					array(
 						'myid_first_msg' => $row['myid_first_msg'],
 						'memberStartedID' => $memberStartedID,

@@ -636,10 +636,13 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 				'unapproved_posts' => 'int',
 				'approved' => 'int',
 				'is_sticky' => 'int',
+				'first_msg_time' => 'int',
+				'last_msg_time' => 'int',
 			),
 			array(
 				(int) $id_board, $split2_firstMem, $split2_lastMem, 0,
 				0, $split2_replies, $split2_unapprovedposts, (int) $split2_approved, 0,
+				0, 0,
 			),
 			array('id_topic'),
 			1
@@ -718,6 +721,19 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 			'id_first_msg' => $split2_first_msg,
 			'id_last_msg' => $split2_last_msg,
 			'id_topic' => $split2_ID_TOPIC,
+		)
+	);
+
+	// Ensure both topics have the correct first/last message times
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics AS t
+			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+		WHERE t.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}',
+		array(
+			'id_topic1' => $split1_ID_TOPIC,
+			'id_topic2' => $split2_ID_TOPIC,
 		)
 	);
 
@@ -1637,23 +1653,26 @@ function MergeExecute($topics = array())
 	// Again, only do this if we're redirecting - otherwise delete
 	if (isset($_POST['postRedirect']))
 	{
-		// Having done all that, now make sure we fix the merge/redirect topics upp before we
+		// Having done all that, now make sure we fix the merge/redirect topics up before we
 		// leave here. Specifically: that there are no replies, no unapproved stuff, that the first
 		// and last posts are the same and so on and so forth.
 		foreach ($updated_topics as $old_topic => $id_msg)
 		{
 			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}topics
-				SET id_first_msg = id_last_msg,
-					id_member_started = {int:current_user},
-					id_member_updated = {int:current_user},
-					id_poll = 0,
-					approved = 1,
-					num_replies = 0,
-					unapproved_posts = 0,
-					id_redirect_topic = {int:redirect_topic},
-					redirect_expires = {int:redirect_expires}
-				WHERE id_topic = {int:old_topic}',
+				UPDATE {db_prefix}topics AS t
+					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				SET t.id_first_msg = t.id_last_msg,
+					t.id_member_started = {int:current_user},
+					t.id_member_updated = {int:current_user},
+					t.id_poll = 0,
+					t.approved = 1,
+					t.num_replies = 0,
+					t.unapproved_posts = 0,
+					t.id_redirect_topic = {int:redirect_topic},
+					t.redirect_expires = {int:redirect_expires},
+					t.first_msg_time = m.poster_time,
+					t.last_msg_time = m.poster_time
+				WHERE t.id_topic = {int:old_topic}',
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
@@ -1712,6 +1731,18 @@ function MergeExecute($topics = array())
 			'num_replies' => $num_replies,
 			'unapproved_posts' => $num_unapproved,
 			'num_views' => $num_views,
+		)
+	);
+
+	// Ensure the merged topic has the correct first/last message times
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics AS t
+			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
+		WHERE t.id_topic = {int:id_topic}',
+		array(
+			'id_topic' => $id_topic,
 		)
 	);
 

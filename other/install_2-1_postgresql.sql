@@ -1600,6 +1600,8 @@ CREATE TABLE {$db_prefix}topics (
   id_redirect_topic bigint NOT NULL default '0',
   unapproved_posts smallint NOT NULL default '0',
   approved smallint NOT NULL default '1',
+  first_msg_time bigint NOT NULL default '0',
+  last_msg_time bigint NOT NULL default '0',
   PRIMARY KEY (id_topic)
 );
 
@@ -1615,6 +1617,8 @@ CREATE INDEX {$db_prefix}topics_approved ON {$db_prefix}topics (approved);
 CREATE INDEX {$db_prefix}topics_member_started ON {$db_prefix}topics (id_member_started, id_board);
 CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_board, is_sticky, id_last_msg);
 CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);
+CREATE INDEX {$db_prefix}topics_first_msg_time ON {$db_prefix}topics (first_msg_time);
+CREATE INDEX {$db_prefix}topics_last_msg_time ON {$db_prefix}topics (last_msg_time);
 
 #
 # Sequence for table `user_alerts`
