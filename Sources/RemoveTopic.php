@@ -906,11 +906,13 @@ function removeMessage($message, $decreasePostCount = true)
 
 			// Ensure the recycle topic has the correct first/last message times
 			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}topics AS t
+				UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 					INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-					INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-				SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-				WHERE t.id_topic = {int:id_topic}',
+					INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+				SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+				FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+				WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+					AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 				array(
 					'id_topic' => $topicID,
 				)
@@ -1002,11 +1004,13 @@ function removeMessage($message, $decreasePostCount = true)
 
 	// Update the first/last message times in the original topic
 	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics AS t
+		UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-		WHERE t.id_topic = {int:id_topic}',
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+		FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+		WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+			AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 		array(
 			'id_topic' => $row['id_topic'],
 		)
@@ -1433,17 +1437,19 @@ function mergePosts($msgs, $from_topic, $target_topic)
 
 		// Update the topic details for the source topic.
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics AS t
+			UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 				INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-				INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+				INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
 			SET
 				t.id_first_msg = {int:id_first_msg},
 				t.id_last_msg = {int:id_last_msg},
 				t.num_replies = {int:num_replies},
 				t.unapproved_posts = {int:unapproved_posts},
 				t.first_msg_time = mf.poster_time,
-				t.last_msg_time = ml.poster_time
-			WHERE t.id_topic = {int:from_topic}',
+				t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+				FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+			WHERE t.id_topic = {int:from_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+				AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 			array(
 				'id_first_msg' => $source_topic_data['id_first_msg'],
 				'id_last_msg' => $source_topic_data['id_last_msg'],
@@ -1470,17 +1476,19 @@ function mergePosts($msgs, $from_topic, $target_topic)
 
 	// Finally get around to updating the destination topic, now all indexes etc on the source are fixed.
 	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics AS t
+		UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
 		SET
 			t.id_first_msg = {int:id_first_msg},
 			t.id_last_msg = {int:id_last_msg},
 			t.num_replies = {int:num_replies},
 			t.unapproved_posts = {int:unapproved_posts},
 			t.first_msg_time = mf.poster_time,
-			t.last_msg_time = ml.poster_time
-		WHERE t.id_topic = {int:target_topic}',
+			t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+		FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+		WHERE t.id_topic = {int:target_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+			AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 		array(
 			'id_first_msg' => $target_topic_data['id_first_msg'],
 			'id_last_msg' => $target_topic_data['id_last_msg'],

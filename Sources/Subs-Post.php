@@ -2417,13 +2417,15 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	// ... next the topics...
 	foreach ($topic_changes as $id => $changes)
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics AS t
+			UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 				INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-				INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+				INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
 			SET t.approved = {int:approved}, t.unapproved_posts = unapproved_posts + {int:unapproved_posts},
 				t.num_replies = num_replies + {int:num_replies}, t.id_last_msg = {int:id_last_msg},
-				t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-			WHERE t.id_topic = {int:id_topic}',
+				t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+			FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+			WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+				AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 			array(
 				'approved' => $changes['approved'],
 				'unapproved_posts' => $changes['unapproved_posts'],

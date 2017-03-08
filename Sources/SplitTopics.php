@@ -726,11 +726,13 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	// Ensure both topics have the correct first/last message times
 	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics AS t
+		UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-		WHERE t.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}',
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+		FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+		WHERE t.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+			AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 		array(
 			'id_topic1' => $split1_ID_TOPIC,
 			'id_topic2' => $split2_ID_TOPIC,
@@ -1659,8 +1661,8 @@ function MergeExecute($topics = array())
 		foreach ($updated_topics as $old_topic => $id_msg)
 		{
 			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}topics AS t
-					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
+					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)' : '') . '
 				SET t.id_first_msg = t.id_last_msg,
 					t.id_member_started = {int:current_user},
 					t.id_member_updated = {int:current_user},
@@ -1671,8 +1673,10 @@ function MergeExecute($topics = array())
 					t.id_redirect_topic = {int:redirect_topic},
 					t.redirect_expires = {int:redirect_expires},
 					t.first_msg_time = m.poster_time,
-					t.last_msg_time = m.poster_time
-				WHERE t.id_topic = {int:old_topic}',
+					t.last_msg_time = m.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+				FROM {db_prefix}messages AS m' : '') . '
+				WHERE t.id_topic = {int:old_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+					AND t.id_first_msg = m.id_msg' : ''),
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
@@ -1736,11 +1740,13 @@ function MergeExecute($topics = array())
 
 	// Ensure the merged topic has the correct first/last message times
 	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics AS t
+		UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-		WHERE t.id_topic = {int:id_topic}',
+			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+		FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+		WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+			AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 		array(
 			'id_topic' => $id_topic,
 		)

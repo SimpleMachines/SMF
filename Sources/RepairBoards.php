@@ -299,11 +299,13 @@ function loadForumTests()
 
 				// Ensure the salvage topic has the correct first/last message times
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics AS t
+					UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-					WHERE t.id_topic = {int:id_topic}',
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+					FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+					WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+						AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 					array(
 						'id_topic' => $newTopicID,
 					)
@@ -443,11 +445,13 @@ function loadForumTests()
 
 					// Ensure this topic has the correct first/last message times
 					$smcFunc['db_query']('', '
-						UPDATE {db_prefix}topics AS t
+						UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 							INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-							INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-						SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-						WHERE t.id_topic = {int:id_topic}',
+							INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+						SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+						FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+						WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+							AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 						array(
 							'id_topic' => $row['id_topic'],
 						)
@@ -600,11 +604,13 @@ function loadForumTests()
 
 				// Ensure the poll's topic has the correct first/last message times
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics AS t
+					UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
-					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-					WHERE t.id_topic = {int:id_topic}',
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
+					SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+					FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+					WHERE t.id_topic = {int:id_topic}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+						AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 					array(
 						'id_topic' => $newTopicID,
 					)
@@ -653,14 +659,16 @@ function loadForumTests()
 				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
 
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics AS t
+					UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
 						INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)
+						INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
 					SET t.id_first_msg = {int:myid_first_msg},
 						t.id_member_started = {int:memberStartedID}, t.id_last_msg = {int:myid_last_msg},
 						t.id_member_updated = {int:memberUpdatedID}, t.approved = {int:firstmsg_approved},
-						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time
-					WHERE t.id_topic = {int:topic_id}',
+						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+					FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
+					WHERE t.id_topic = {int:topic_id}' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
+						AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
 					array(
 						'myid_first_msg' => $row['myid_first_msg'],
 						'memberStartedID' => $memberStartedID,
