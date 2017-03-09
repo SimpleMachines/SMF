@@ -472,14 +472,22 @@ function scheduled_daily_maintenance()
 	));
 
 	// Ensure all topics have valid first/last message times, in case a mod or something didn't do it properly
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics AS t' . ($smcFunc['db_title'] !== 'PostgreSQL' ? '
-			INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
-			INNER JOIN {db_prefix}messages AS ml ON (t.id_last_msg = ml.id_msg)' : '') . '
-		SET t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
-		FROM {db_prefix}messages AS mf, {db_prefix}messages AS ml' : '') . '
-		WHERE t.first_msg_time = 0 OR t.last_msg_time = 0' . ($smcFunc['db_title'] === 'PostgreSQL' ? '
-			AND t.id_first_msg = mf.id_msg AND t.id_last_msg = ml.id_msg' : ''),
+	$smcFunc['db_update_from'](
+		array('name' => '{db_prefix}topics', 'alias' => 't'),
+		array(
+			array(
+				'name' => '{db_prefix}messages',
+				'alias' => 'mf',
+				'condition' => 't.id_first_msg = mf.id_msg'
+			),
+			array(
+				'name' => '{db_prefix}messages',
+				'alias' => 'ml',
+				'condition' => 't.id_last_msg = ml.id_msg'
+			),
+		),
+		't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
+		't.first_msg_time = 0 OR t.last_msg_time = 0',
 		array()
 	);
 
