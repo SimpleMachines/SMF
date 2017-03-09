@@ -1749,7 +1749,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$new_topic = empty($topicOptions['id']);
 
-	$now = time();
+	$msgOptions['poster_time'] = time();
 
 	$message_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (empty($modSettings['max_messageLength']) ? 'string' : 'string-65534')),
@@ -1759,7 +1759,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$message_parameters = array(
 		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-		$posterOptions['name'], $posterOptions['email'], $now, $posterOptions['ip'],
+		$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
 		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
 	);
 
@@ -1809,7 +1809,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
 			$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
 			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
-			$now, $now,
+			$msgOptions['poster_time'], $msgOptions['poster_time'],
 		);
 
 		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
