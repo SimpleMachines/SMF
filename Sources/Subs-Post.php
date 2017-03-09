@@ -1749,7 +1749,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$new_topic = empty($topicOptions['id']);
 
-	$msgOptions['poster_time'] = time();
+	$msgOptions['poster_time'] = isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : time();
 
 	$message_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (empty($modSettings['max_messageLength']) ? 'string' : 'string-65534')),
