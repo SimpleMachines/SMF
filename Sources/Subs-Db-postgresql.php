@@ -943,6 +943,9 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 	if (empty($table['name']) || empty($table['alias']) || empty($set))
 		return;
 
+	if (!empty($where))
+		$where = '(' . $where . ')';
+
 	$from = array();
 	foreach ($joined as $join)
 	{
@@ -950,7 +953,7 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 			continue;
 
 		$from[] = $join['name'] . ' AS ' . $join['alias'];
-		$where = (!empty($where) ? $where .' AND ' : '') . $join['condition'];
+		$where = (!empty($where) ? $where .' AND ' : '') . '(' . $join['condition'] . ')';
 	}
 	if (empty($from))
 		return;

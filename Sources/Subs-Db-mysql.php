@@ -947,7 +947,7 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 		if (empty($join['name']) || empty($join['alias']) || empty($join['condition']))
 			continue;
 
-		$joins[] = 'INNER JOIN ' . $join['name'] . ' AS ' . $join['alias'] . ' ON (' . $join['condition'] . ')';
+		$joins[] = 'JOIN ' . $join['name'] . ' AS ' . $join['alias'] . ' ON (' . $join['condition'] . ')';
 	}
 
 	if (empty($joins))
