@@ -1867,7 +1867,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'is_sticky' => $topicOptions['sticky_mode'],
 			'id_topic' => $topicOptions['id'],
 			'counter_increment' => 1,
-			'last_msg_time' => $now,
+			'last_msg_time' => $msgOptions['poster_time'],
 		);
 		if ($msgOptions['approved'])
 			$topics_columns = array(
