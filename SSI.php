@@ -537,14 +537,14 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
-			mf.poster_time, mf.subject, ml.id_topic, mf.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color,
-			IFNULL(mem.real_name, mf.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
+			ml.poster_time, mf.subject, ml.id_topic, ml.id_member, ml.id_msg, t.num_replies, t.num_views, mg.online_color,
+			IFNULL(mem.real_name, ml.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) >= ml.id_msg_modified AS is_read,
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from') . ', SUBSTRING(mf.body, 1, 384) AS body, mf.smileys_enabled, mf.icon
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_last_msg)
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mf.id_member)' . (!$user_info['is_guest'] ? '
+			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ml.id_member)' . (!$user_info['is_guest'] ? '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' : '') . '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
