@@ -187,8 +187,12 @@ function Post($post_errors = array())
 
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
-	unset($_SESSION['already_attached']);
 
+	// Clear out prior attachment activity when starting afresh
+	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
+		unset($_SESSION['already_attached']);
+	}
+	
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
