@@ -936,8 +936,6 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
-	$connection = $connection === null ? $db_connection : $connection;
-
 	if (empty($table['name']) || empty($table['alias']) || empty($set))
 		return;
 
@@ -959,7 +957,8 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 			', $joins) . '
 		SET ' . $set . (!empty($where) ? '
 		WHERE ' . $where : ''),
-		$db_values
+		$db_values,
+		$connection
 	);
 
 	return $ret;
