@@ -905,22 +905,15 @@ function removeMessage($message, $decreasePostCount = true)
 				);
 
 			// Ensure the recycle topic has the correct first/last message times
+			$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+			$joined = array(
+				array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+				array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+			);
+			$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+			$where = 't.id_topic = {int:id_topic}';
 			$smcFunc['db_update_from'](
-				array('name' => '{db_prefix}topics', 'alias' => 't'),
-				array(
-					array(
-						'name' => '{db_prefix}messages',
-						'alias' => 'mf',
-						'condition' => 't.id_first_msg = mf.id_msg'
-					),
-					array(
-						'name' => '{db_prefix}messages',
-						'alias' => 'ml',
-						'condition' => 't.id_last_msg = ml.id_msg'
-					),
-				),
-				't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-				't.id_topic = {int:id_topic}',
+				$table, $joined, $set, $where,
 				array(
 					'id_topic' => $topicID,
 				)
@@ -1011,22 +1004,15 @@ function removeMessage($message, $decreasePostCount = true)
 	}
 
 	// Update the first/last message times in the original topic
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+	);
+	$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
 	$smcFunc['db_update_from'](
-		array('name' => '{db_prefix}topics', 'alias' => 't'),
-		array(
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'mf',
-				'condition' => 't.id_first_msg = mf.id_msg'
-			),
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'ml',
-				'condition' => 't.id_last_msg = ml.id_msg'
-			),
-		),
-		't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-		't.id_topic = {int:id_topic}',
+		$table, $joined, $set, $where,
 		array(
 			'id_topic' => $row['id_topic'],
 		)
@@ -1452,22 +1438,15 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		$smcFunc['db_free_result']($request);
 
 		// Update the topic details for the source topic.
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+		);
+		$set = 't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:from_topic}';
 		$smcFunc['db_update_from'](
-			array('name' => '{db_prefix}topics', 'alias' => 't'),
-			array(
-				array(
-					'name' => '{db_prefix}messages',
-					'alias' => 'mf',
-					'condition' => 't.id_first_msg = mf.id_msg'
-				),
-				array(
-					'name' => '{db_prefix}messages',
-					'alias' => 'ml',
-					'condition' => 't.id_last_msg = ml.id_msg'
-				),
-			),
-			't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-			't.id_topic = {int:from_topic}',
+			$table, $joined, $set, $where,
 			array(
 				'id_first_msg' => $source_topic_data['id_first_msg'],
 				'id_last_msg' => $source_topic_data['id_last_msg'],
@@ -1493,22 +1472,15 @@ function mergePosts($msgs, $from_topic, $target_topic)
 	}
 
 	// Finally get around to updating the destination topic, now all indexes etc on the source are fixed.
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+	);
+	$set = 't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:target_topic}';
 	$smcFunc['db_update_from'](
-		array('name' => '{db_prefix}topics', 'alias' => 't'),
-		array(
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'mf',
-				'condition' => 't.id_first_msg = mf.id_msg'
-			),
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'ml',
-				'condition' => 't.id_last_msg = ml.id_msg'
-			),
-		),
-		't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-		't.id_topic = {int:target_topic}',
+		$table, $joined, $set, $where,
 		array(
 			'id_first_msg' => $target_topic_data['id_first_msg'],
 			'id_last_msg' => $target_topic_data['id_last_msg'],

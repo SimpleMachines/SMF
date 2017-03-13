@@ -607,29 +607,24 @@ function moveTopics($topics, $toBoard)
 		{
 			// If not, update.
 			if ($row['first_msg'] != $topicMaxMin[$row['id_topic']]['min'] || $row['last_msg'] != $topicMaxMin[$row['id_topic']]['max'])
+			{
+				$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+				$joined = array(
+					array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+					array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+				);
+				$set = 't.id_first_msg = {int:first_msg}, t.id_last_msg = {int:last_msg},
+						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+				$where = 't.id_topic = {int:selected_topic}';
 				$smcFunc['db_update_from'](
-					array('name' => '{db_prefix}topics', 'alias' => 't'),
-					array(
-						array(
-							'name' => '{db_prefix}messages',
-							'alias' => 'mf',
-							'condition' => 't.id_first_msg = mf.id_msg'
-						),
-						array(
-							'name' => '{db_prefix}messages',
-							'alias' => 'ml',
-							'condition' => 't.id_last_msg = ml.id_msg'
-						),
-					),
-					't.id_first_msg = {int:first_msg}, t.id_last_msg = {int:last_msg},
-						t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-					't.id_topic = {int:selected_topic}',
+					$table, $joined, $set, $where,
 					array(
 						'first_msg' => $row['first_msg'],
 						'last_msg' => $row['last_msg'],
 						'selected_topic' => $row['id_topic'],
 					)
 				);
+			}
 		}
 		$smcFunc['db_free_result']($request);
 	}

@@ -2416,22 +2416,16 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 	// ... next the topics...
 	foreach ($topic_changes as $id => $changes)
+	{
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+		);
+		$set = 't.approved = {int:approved}, t.unapproved_posts = unapproved_posts + {int:unapproved_posts}, t.num_replies = num_replies + {int:num_replies}, t.id_last_msg = {int:id_last_msg}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:id_topic}';
 		$smcFunc['db_update_from'](
-			array('name' => '{db_prefix}topics', 'alias' => 't'),
-			array(
-				array(
-					'name' => '{db_prefix}messages',
-					'alias' => 'mf',
-					'condition' => 't.id_first_msg = mf.id_msg'
-				),
-				array(
-					'name' => '{db_prefix}messages',
-					'alias' => 'ml',
-					'condition' => 't.id_last_msg = ml.id_msg'
-				),
-			),
-			't.approved = {int:approved}, t.unapproved_posts = unapproved_posts + {int:unapproved_posts}, t.num_replies = num_replies + {int:num_replies}, t.id_last_msg = {int:id_last_msg}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-			't.id_topic = {int:id_topic}',
+			$table, $joined, $set, $where,
 			array(
 				'approved' => $changes['approved'],
 				'unapproved_posts' => $changes['unapproved_posts'],
@@ -2440,6 +2434,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 				'id_topic' => $id,
 			)
 		);
+	}
 
 	// ... finally the boards...
 	foreach ($board_changes as $id => $changes)

@@ -725,22 +725,15 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Ensure both topics have the correct first/last message times
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+	);
+	$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}';
 	$smcFunc['db_update_from'](
-		array('name' => '{db_prefix}topics', 'alias' => 't'),
-		array(
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'mf',
-				'condition' => 't.id_first_msg = mf.id_msg'
-			),
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'ml',
-				'condition' => 't.id_last_msg = ml.id_msg'
-			),
-		),
-		't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-		't.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}',
+		$table, $joined, $set, $where,
 		array(
 			'id_topic1' => $split1_ID_TOPIC,
 			'id_topic2' => $split2_ID_TOPIC,
@@ -1668,16 +1661,11 @@ function MergeExecute($topics = array())
 		// and last posts are the same and so on and so forth.
 		foreach ($updated_topics as $old_topic => $id_msg)
 		{
-			$smcFunc['db_update_from'](
-				array('name' => '{db_prefix}topics', 'alias' => 't'),
-				array(
-					array(
-						'name' => '{db_prefix}messages',
-						'alias' => 'm',
-						'condition' => 't.id_first_msg = m.id_msg'
-					),
-				),
-				't.id_first_msg = t.id_last_msg,
+			$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+			$joined = array(
+				array('name' => '{db_prefix}messages', 'alias' => 'm', 'condition' => 't.id_first_msg = m.id_msg'),
+			);
+			$set = 't.id_first_msg = t.id_last_msg,
 					t.id_member_started = {int:current_user},
 					t.id_member_updated = {int:current_user},
 					t.id_poll = 0,
@@ -1687,8 +1675,10 @@ function MergeExecute($topics = array())
 					t.id_redirect_topic = {int:redirect_topic},
 					t.redirect_expires = {int:redirect_expires},
 					t.first_msg_time = m.poster_time,
-					t.last_msg_time = m.poster_time',
-				't.id_topic = {int:old_topic}',
+					t.last_msg_time = m.poster_time';
+			$where = 't.id_topic = {int:old_topic}';
+			$smcFunc['db_update_from'](
+				$table, $joined, $set, $where,
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
@@ -1751,22 +1741,15 @@ function MergeExecute($topics = array())
 	);
 
 	// Ensure the merged topic has the correct first/last message times
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+	);
+	$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
 	$smcFunc['db_update_from'](
-		array('name' => '{db_prefix}topics', 'alias' => 't'),
-		array(
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'mf',
-				'condition' => 't.id_first_msg = mf.id_msg'
-			),
-			array(
-				'name' => '{db_prefix}messages',
-				'alias' => 'ml',
-				'condition' => 't.id_last_msg = ml.id_msg'
-			),
-		),
-		't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time',
-		't.id_topic = {int:id_topic}',
+		$table, $joined, $set, $where,
 		array(
 			'id_topic' => $id_topic,
 		)
