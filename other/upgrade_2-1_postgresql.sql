@@ -950,44 +950,29 @@ foreach ($toMove as $move)
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
----# Checking for "core" and removing it if necessary...
+---# Delete all theme data except for the current default
 ---{
-// Do they have "core" installed?
-if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
-{
-	$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
-	$theme_request = upgrade_query("
-		SELECT id_theme
-		FROM {$db_prefix}themes
-		WHERE variable = 'theme_dir'
-			AND value ='$core_dir'");
+$smcFunc['db_query']('', '
+	DELETE FROM {db_prefix}themes
+	WHERE id_theme != {int:default_theme}',
+	array(
+		'default_theme' => 1,
+	)
+);
+---}
+---#
 
-	// Don't do anything if this theme is already uninstalled
-	if ($smcFunc['db_num_rows']($theme_request) == 1)
-	{
-		list($id_theme) = $smcFunc['db_fetch_row']($theme_request, 0);
-		$smcFunc['db_free_result']($theme_request);
-
-		$known_themes = explode(', ', $modSettings['knownThemes']);
-
-		// Remove this value...
-		$known_themes = array_diff($known_themes, array($id_theme));
-
-		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
-
-		// Update the database
-		upgrade_query("
-			UPDATE {$db_prefix}settings
-			SET value = '$known_themes'
-			WHERE variable = 'knownThemes'");
-
-		// Delete any info about this theme
-		upgrade_query("
-			DELETE FROM {$db_prefix}themes
-			WHERE id_theme = $id_theme");
-	}
-}
+---# Setting knownThemes to current default
+---{
+$smcFunc['db_query']('', '
+	UPDATE {db_prefix}settings
+	SET value = {string:default_theme}
+	WHERE variable = {string:known_themes}',
+	array(
+		'default_theme' => '1',
+		'known_themes' => 'knownThemes',
+	)
+);
 ---}
 ---#
 
