@@ -596,7 +596,7 @@ function getPackageInfo($gzfilename)
  */
 function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $restore_write_status = false)
 {
-	global $context, $modSettings, $package_ftp, $boarddir, $txt, $sourcedir, $scripturl;
+	global $context, $modSettings, $package_ftp, $boarddir, $txt, $sourcedir, $scripturl, $packagesdir;
 
 	// If we're restoring the status of existing files prepare the data.
 	if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms']))
@@ -828,9 +828,6 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				'connected' => true,
 			);
 
-			if (!isset($modSettings['package_path']) || $modSettings['package_path'] != $_POST['ftp_path'])
-				updateSettings(array('package_path' => $_POST['ftp_path']));
-
 			// This is now the primary connection.
 			$package_ftp = $ftp;
 		}
@@ -873,7 +870,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 			if ($found_path)
 				$_POST['ftp_path'] = $detect_path;
 			elseif (!isset($_POST['ftp_path']))
-				$_POST['ftp_path'] = isset($modSettings['package_path']) ? $modSettings['package_path'] : $detect_path;
+				$_POST['ftp_path'] = isset($packagesdir) ? $packagesdir : $detect_path;
 
 			if (!isset($_POST['ftp_username']))
 				$_POST['ftp_username'] = $username;
@@ -1051,7 +1048,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 		if ($found_path)
 			$_POST['ftp_path'] = $detect_path;
 		elseif (!isset($_POST['ftp_path']))
-			$_POST['ftp_path'] = isset($modSettings['package_path']) ? $modSettings['package_path'] : $detect_path;
+			$_POST['ftp_path'] = isset($packagesdir) ? $packagesdir : $detect_path;
 
 		if (!isset($_POST['ftp_username']))
 			$_POST['ftp_username'] = $username;
@@ -1092,9 +1089,6 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 			'path' => $_POST['ftp_path'],
 			'root' => $ftp_root,
 		);
-
-		if (!isset($modSettings['package_path']) || $modSettings['package_path'] != $_POST['ftp_path'])
-			updateSettings(array('package_path' => $_POST['ftp_path']));
 
 		$files = packageRequireFTP($destination_url, $files, $return);
 	}
