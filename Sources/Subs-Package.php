@@ -912,7 +912,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
  */
 function packageRequireFTP($destination_url, $files = null, $return = false)
 {
-	global $context, $modSettings, $package_ftp, $boarddir, $txt, $sourcedir;
+	global $context, $modSettings, $package_ftp, $boarddir, $txt, $sourcedir, $packagesdir;
 
 	// Try to make them writable the manual way.
 	if ($files !== null)
