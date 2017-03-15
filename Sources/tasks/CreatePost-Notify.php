@@ -55,7 +55,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.member_groups,
-				mem.id_group, mem.id_post_group, mem.additional_groups, t.id_member_started
+				mem.id_group, mem.id_post_group, mem.additional_groups, t.id_member_started, mem.pm_ignore_list,
+				t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
@@ -103,6 +104,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			$frequency = !empty($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 1;
 			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
+			// Don't send a notification if the watching member ignored the member who made the action.
+			if (!empty($data['pm_ignore_list']) && in_array($data['id_member_updated'], explode(',', $data['pm_ignore_list'])))
+			    continue;
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $data['id_member_started'])
 				continue;
 			elseif (in_array($type, array('reply', 'topic')) && $member == $posterOptions['id'])
