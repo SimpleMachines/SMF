@@ -33,31 +33,60 @@ function getBirthdayRange($low_date, $high_date)
 	$year_low = (int) substr($low_date, 0, 4);
 	$year_high = (int) substr($high_date, 0, 4);
 
-	// Collect all of the birthdays for this month.  I know, it's a painful query.
-	$result = $smcFunc['db_query']('birthday_array', '
-		SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-		FROM {db_prefix}members
-		WHERE YEAR(birthdate) != {string:year_one}
-			AND MONTH(birthdate) != {int:no_month}
-			AND DAYOFMONTH(birthdate) != {int:no_day}
-			AND YEAR(birthdate) <= {int:max_year}
-			AND (
-				DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
-				OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
+	if($smcFunc['db_title'] != "PostgreSQL") {
+		// Collect all of the birthdays for this month.  I know, it's a painful query.
+		$result = $smcFunc['db_query']('birthday_array', '
+			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+			FROM {db_prefix}members
+			WHERE YEAR(birthdate) != {string:year_one}
+				AND MONTH(birthdate) != {int:no_month}
+				AND DAYOFMONTH(birthdate) != {int:no_day}
+				AND YEAR(birthdate) <= {int:max_year}
+				AND (
+					DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
+					OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
+				)
+				AND is_activated = {int:is_activated}',
+			array(
+				'is_activated' => 1,
+				'no_month' => 0,
+				'no_day' => 0,
+				'year_one' => '0001',
+				'year_low' => $year_low . '-%m-%d',
+				'year_high' => $year_high . '-%m-%d',
+				'low_date' => $low_date,
+				'high_date' => $high_date,
+				'max_year' => $year_high,
 			)
-			AND is_activated = {int:is_activated}',
-		array(
-			'is_activated' => 1,
-			'no_month' => 0,
-			'no_day' => 0,
-			'year_one' => '0001',
-			'year_low' => $year_low . '-%m-%d',
-			'year_high' => $year_high . '-%m-%d',
-			'low_date' => $low_date,
-			'high_date' => $high_date,
-			'max_year' => $year_high,
-		)
-	);
+		);
+	}
+	else
+	{
+		$result = $smcFunc['db_query']('birthday_array', '
+			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+			FROM {db_prefix}members
+			WHERE YEAR(birthdate) != {string:year_one}
+				AND MONTH(birthdate) != {int:no_month}
+				AND DAYOFMONTH(birthdate) != {int:no_day}
+				AND (
+					EXTRACT(doy FROM birthdate) BETWEEN EXTRACT(doy FROM {date:year_low_low_date}) AND EXTRACT(doy FROM {date:year_low_high_date})' . ($year_low == $year_high ? '' : '
+					OR  EXTRACT(doy FROM birthdate) BETWEEN EXTRACT(doy FROM {date:year_high_low_date}) AND EXTRACT(doy FROM {date:year_high_high_date})') . '
+				)
+				AND is_activated = {int:is_activated}',
+			array(
+				'is_activated' => 1,
+				'no_month' => 0,
+				'no_day' => 0,
+				'year_one' => '0001',
+				'year_low' => $year_low . '-%m-%d',
+				'year_high' => $year_high . '-%m-%d',
+				'year_low_low_date' => $low_date,
+				'year_low_high_date' => ($year_low == $year_high ? $high_date : $year_low .'-12-31'),
+				'year_high_low_date' => ($year_low == $year_high ? $low_date : $year_high .'-01-01'),
+				'year_high_high_date' => $high_date,
+			)
+		);
+	}
 	$bday = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
