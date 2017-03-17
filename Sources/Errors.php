@@ -154,7 +154,7 @@ function fatal_error($error, $log = 'general', $status = 500)
  *  - the information is logged if log is specified.
  *
  * @param string $error The error message
- * @param string|boolean $log The type of error, or false to not log it
+ * @param string|false $log The type of error, or false to not log it
  * @param array $sprintf An array of data to be sprintf()'d into the specified message
  * @param int $status = false The HTTP status code associated with this error
  */
