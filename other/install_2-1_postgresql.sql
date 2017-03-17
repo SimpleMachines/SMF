@@ -1092,6 +1092,7 @@ CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_add
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);
+CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (EXTRACT(doy FROM birthdate));
 CREATE INDEX {$db_prefix}members_posts ON {$db_prefix}members (posts);
 CREATE INDEX {$db_prefix}members_last_login ON {$db_prefix}members (last_login);
 CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);
