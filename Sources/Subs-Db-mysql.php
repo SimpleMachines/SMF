@@ -252,6 +252,15 @@ function smf_db_replacement__callback($matches)
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
+		
+		case 'datetime':
+			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
+				return 'str_to_date('.
+					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5] ,$datetime_matches[6]).
+					',\'%Y-%m-%d %h:%i:%s\')';
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
 
 		case 'float':
 			if (!is_numeric($replacement))
