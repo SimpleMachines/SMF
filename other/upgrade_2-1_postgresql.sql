@@ -2337,5 +2337,6 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 --- Create index for birthday calendar query
 /******************************************************************************/
 ---# Create index members_birthdate2
+DROP INDEX IF EXISTS {$db_prefix}members_birthdate2;
 CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (EXTRACT(doy FROM birthdate));
 ---#
