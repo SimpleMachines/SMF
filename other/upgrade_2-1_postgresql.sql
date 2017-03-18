@@ -2336,7 +2336,17 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 /******************************************************************************/
 --- Create index for birthday calendar query
 /******************************************************************************/
+---# Create help function for index
+---{
+upgrade_query("
+	CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
+    SELECT to_char($1, ''MM-DD'');'
+	LANGUAGE 'sql' IMMUTABLE STRICT;"
+);
+---}
+---#
+
 ---# Create index members_birthdate2
 DROP INDEX IF EXISTS {$db_prefix}members_birthdate2;
-CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (EXTRACT(doy FROM birthdate));
+CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_month_day(birthdate));
 ---#

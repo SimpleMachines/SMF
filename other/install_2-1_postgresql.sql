@@ -80,6 +80,10 @@ CREATE OR REPLACE FUNCTION bool_not_eq_int (boolean, integer) RETURNS boolean AS
   'SELECT CAST($1 AS integer) != $2 AS result'
 LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
+    SELECT to_char($1, ''MM-DD'');'
+LANGUAGE 'sql' IMMUTABLE STRICT;
+
 #
 # Create PostgreSQL operators.
 #
@@ -1092,7 +1096,7 @@ CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_add
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);
-CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (EXTRACT(doy FROM birthdate));
+CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_month_day(birthdate));
 CREATE INDEX {$db_prefix}members_posts ON {$db_prefix}members (posts);
 CREATE INDEX {$db_prefix}members_last_login ON {$db_prefix}members (last_login);
 CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);

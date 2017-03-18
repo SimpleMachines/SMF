@@ -69,8 +69,8 @@ function getBirthdayRange($low_date, $high_date)
 				AND MONTH(birthdate) != {int:no_month}
 				AND DAYOFMONTH(birthdate) != {int:no_day}
 				AND (
-					EXTRACT(doy FROM birthdate) BETWEEN EXTRACT(doy FROM {date:year_low_low_date}) AND EXTRACT(doy FROM {date:year_low_high_date})' . ($year_low == $year_high ? '' : '
-					OR  EXTRACT(doy FROM birthdate) BETWEEN EXTRACT(doy FROM {date:year_high_low_date}) AND EXTRACT(doy FROM {date:year_high_high_date})') . '
+					indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_low_low_date}) AND indexable_month_day({date:year_low_high_date})' . ($year_low == $year_high ? '' : '
+					OR  indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_high_low_date}) AND indexable_month_day({date:year_high_high_date})') . '
 				)
 				AND is_activated = {int:is_activated}',
 			array(
