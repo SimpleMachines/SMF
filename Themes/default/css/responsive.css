@@ -517,8 +517,6 @@
 	}
 	#moderationbuttons_strip a {
 		float: left;
-		width: 40%;
-		max-width: 90px;
 		margin: 0 5px 7px 0 !important; /* Extra margin for fat fingers like Kindred */
 	}
 	.button.button_strip_mark_unread {
