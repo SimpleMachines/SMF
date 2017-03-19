@@ -1,13 +1,13 @@
 <?php
 /**
- * Simple Machines Forum (SMF)
+ * Used to validate and transform user supplied data from forms etc
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @name      ElkArte Forum
+ * @copyright ElkArte Forum contributors
+ * @license   BSD http://opensource.org/licenses/BSD-3-Clause
  *
- * @version 2.1 Beta 3
+ * @version 1.1 Release Candidate 1
+ *
  */
 if (!defined('SMF'))
 	die('No direct access...');
