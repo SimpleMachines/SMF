@@ -950,13 +950,15 @@ foreach ($toMove as $move)
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
----# Delete all theme data except for the current default
+---# Disabling old themes
 ---{
 $smcFunc['db_query']('', '
 	DELETE FROM {db_prefix}themes
-	WHERE id_theme != {int:default_theme}',
+	WHERE id_theme != {int:default_theme}
+	  AND variable IN ({array_string:remove_settings});',
 	array(
 		'default_theme' => 1,
+		'remove_settings' => array('theme_dir','theme_url'),
 	)
 );
 ---}
@@ -967,7 +969,7 @@ $smcFunc['db_query']('', '
 $smcFunc['db_query']('', '
 	UPDATE {db_prefix}settings
 	SET value = {string:default_theme}
-	WHERE variable = {string:known_themes}',
+	WHERE variable = {string:known_themes};',
 	array(
 		'default_theme' => '1',
 		'known_themes' => 'knownThemes',
