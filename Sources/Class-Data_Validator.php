@@ -2,11 +2,19 @@
 /**
  * Used to validate and transform user supplied data from forms etc
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * Simple Machines Forum (SMF)
  *
- * @version 1.1 Release Candidate 1
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2017 Simple Machines and individual contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * This file contains code covered by:
+ * name:		ElkArte Forum
+ * copyright:	ElkArte Forum contributors
+ * license:  	BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * @version 2.1 Beta 3
  *
  */
 if (!defined('SMF'))
