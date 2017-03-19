@@ -213,6 +213,7 @@ $txt['error_username_too_long'] = 'Username must be less than 25 characters long
 $txt['error_username_left_empty'] = 'Username field was left empty.';
 $txt['error_db_filename_exists'] = 'The database that you are trying to create exists. Please delete the current database file or enter another name.';
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
+$txt['error_utf8_support'] = 'The database which you trying to use is not using charcode utf8';
 
 $txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
 $txt['upgrade_warning'] = 'Warning!';
