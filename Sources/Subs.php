@@ -3676,6 +3676,9 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	// Just make up a nice hash...
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
+	
+	// Just make sure that attachment id is only a int
+	$attachment_id = (int) $attachment_id;
 
 	// Grab the file hash if it wasn't added.
 	// Left this for legacy.
