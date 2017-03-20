@@ -713,7 +713,7 @@ function SendMailing($clean_only = false)
 	checkSession();
 
 	// Where are we actually to?
-	$context['start'] = isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 	$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 	$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
