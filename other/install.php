@@ -41,7 +41,9 @@ $databases = array(
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'alter_support' => true,
+		'alter_support' => function() {
+			return true;
+		},
 		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
@@ -56,7 +58,16 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'utf8_support' => true,
+		'utf8_support' => function() {
+			$request = pg_query('SHOW SERVER_ENCODING');
+			
+			list ($charcode) = pg_fetch_row($request);
+			
+			if ($charcode == 'UTF8')			
+				return true;
+			else
+				return false;
+		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
 		'validate_prefix' => function(&$value) {
@@ -957,6 +968,12 @@ function ForumSettings()
 		// UTF-8 requires a setting to override the language charset.
 		if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
 		{
+			if (!$databases[$db_type]['utf8_support']())
+			{
+				$incontext['error'] = sprintf($txt['error_utf8_support']);
+				return false;
+			}
+				
 			if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
 			{
 				$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
