@@ -1639,9 +1639,16 @@ function buildEventDatetimes($row)
 function getUserTimezone($id_member = null)
 {
 	global $smcFunc, $context, $sourcedir, $user_info, $modSettings;
+	static $member_cache = array();
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
+	
+	//check if the cache got the data
+	if(isset($id_member) && isset($member_cache[$id_member]))
+	{
+		return $member_cache[$id_member];
+	}
 
 	if (isset($id_member))
 	{
@@ -1660,6 +1667,9 @@ function getUserTimezone($id_member = null)
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
 
+	if (isset($id_member))
+		$member_cache[$id_member] = $timezone;
+	
 	return $timezone;
 }
 
