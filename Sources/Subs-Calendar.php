@@ -33,7 +33,8 @@ function getBirthdayRange($low_date, $high_date)
 	$year_low = (int) substr($low_date, 0, 4);
 	$year_high = (int) substr($high_date, 0, 4);
 
-	if($smcFunc['db_title'] != "PostgreSQL") {
+	if ($smcFunc['db_title'] != "PostgreSQL")
+	{
 		// Collect all of the birthdays for this month.  I know, it's a painful query.
 		$result = $smcFunc['db_query']('birthday_array', '
 			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
@@ -81,8 +82,8 @@ function getBirthdayRange($low_date, $high_date)
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'year_low_low_date' => $low_date,
-				'year_low_high_date' => ($year_low == $year_high ? $high_date : $year_low .'-12-31'),
-				'year_high_low_date' => ($year_low == $year_high ? $low_date : $year_high .'-01-01'),
+				'year_low_high_date' => ($year_low == $year_high ? $high_date : $year_low . '-12-31'),
+				'year_high_low_date' => ($year_low == $year_high ? $low_date : $year_high . '-01-01'),
 				'year_high_high_date' => $high_date,
 			)
 		);
@@ -1645,7 +1646,7 @@ function getUserTimezone($id_member = null)
 		$id_member = $context['user']['id'];
 	
 	//check if the cache got the data
-	if(isset($id_member) && isset($member_cache[$id_member]))
+	if (isset($id_member) && isset($member_cache[$id_member]))
 	{
 		return $member_cache[$id_member];
 	}
