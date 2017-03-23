@@ -2818,7 +2818,7 @@ function ConvertUtf8()
 								$table_charsets[$charset] = array();
 
 							$table_charsets[$charset][] = $column_info;
-							}
+						}
 					}
 				}
 			}
