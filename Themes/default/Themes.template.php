@@ -582,7 +582,8 @@ function template_set_settings()
 			<div class="windowbg2 noup">
 				<dl class="settings">';
 
-	$first_setting_key = array_shift($skeys = array_keys($context['settings']));
+    $skeys = array_keys($context['settings']);
+	$first_setting_key = array_shift($skeys);
 	$titled_section = false;
 
 	foreach ($context['settings'] as $i => $setting)
