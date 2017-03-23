@@ -927,16 +927,16 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
  * Updates data in a table, using data from other tables
  *
  * @param array $table Associative array with info about the table to be updated ('name' => '{db_prefix}foo', 'alias' => 'f')
- * @param array $from Array of associative arrays with info about the other tables to get data from ('name' => '{db_prefix}bar', 'alias' => 'b', 'condition' => 'f.baz = b.qux')
+ * @param array $joined Array of associative arrays with info about the other tables to get data from ('name' => '{db_prefix}bar', 'alias' => 'b', 'condition' => 'f.baz = b.qux')
  * @param string $set A string containing the SET instructions for the update query
  * @param string $where A string containing any WHERE conditions for the update query
  * @param array $db_values The values to be inserted into the compiled query string
- * @param object $connection The connection to use (if null, $db_connection is used)
+ * @param object $connection The connection to use (if null, $db_connection will be used)
  * @return bool True if the update was successful, otherwise false
  */
 function smf_db_update_from($table, $joined, $set, $where, $db_values, $connection = null)
 {
-	global $smcFunc, $db_connection, $db_prefix;
+	global $smcFunc, $db_prefix;
 
 	if (empty($table['name']) || empty($table['alias']) || empty($set))
 		return;
@@ -951,7 +951,7 @@ function smf_db_update_from($table, $joined, $set, $where, $db_values, $connecti
 			continue;
 
 		$from[] = $join['name'] . ' AS ' . $join['alias'];
-		$where = (!empty($where) ? $where .' AND ' : '') . '(' . $join['condition'] . ')';
+		$where = (!empty($where) ? $where . ' AND ' : '') . '(' . $join['condition'] . ')';
 	}
 	if (empty($from))
 		return;
