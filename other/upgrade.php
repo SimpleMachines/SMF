@@ -2812,13 +2812,13 @@ function ConvertUtf8()
 					{
 						list($charset) = explode('_', $collation);
 
-					// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-					if ($charset != 'utf8') {
-						if (!isset($table_charsets[$charset]))
-							$table_charsets[$charset] = array();
+						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
+						if ($charset != 'utf8') {
+							if (!isset($table_charsets[$charset]))
+								$table_charsets[$charset] = array();
 
-						$table_charsets[$charset][] = $column_info;
-						}
+							$table_charsets[$charset][] = $column_info;
+							}
 					}
 				}
 			}
