@@ -4950,6 +4950,7 @@ function smf_list_timezones($when = 'now')
 		'Asia/Rangoon' => 'Yangon/Rangoon',
 		'Indian/Christmas' => 'Christmas Island',
 		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
+		'Antarctica/Vostok' => 'Vostok Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
 		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
