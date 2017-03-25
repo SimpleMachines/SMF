@@ -1609,6 +1609,7 @@ function buildEventDatetimes($row)
 	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 	if (strspn($tz_abbrev, '+-') > 0)
 	{
+		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
 		$missing_tz_abbrs = array(
 			'Antarctica/Casey' => 'CAST',
 			'Antarctica/Davis' => 'DAVT',
@@ -1616,43 +1617,22 @@ function buildEventDatetimes($row)
 			'Antarctica/Mawson' => 'MAWT',
 			'Antarctica/Rothera' => 'ART',
 			'Antarctica/Syowa' => 'SYOT',
-			'Antarctica/Troll' => 'CET',
 			'Antarctica/Vostok' => 'VOST',
 			'Asia/Almaty' => 'ALMT',
-			'Asia/Anadyr' => 'ANAT',
 			'Asia/Aqtau' => 'ORAT',
 			'Asia/Aqtobe' => 'AQTT',
 			'Asia/Ashgabat' => 'TMT',
-			'Asia/Baku' => 'AZT',
 			'Asia/Bishkek' => 'KGT',
-			'Asia/Chita' => 'YAKT',
 			'Asia/Colombo' => 'IST',
 			'Asia/Dushanbe' => 'TJT',
-			'Asia/Irkutsk' => 'IRKT',
-			'Asia/Kamchatka' => 'PETT',
-			'Asia/Khandyga' => 'YAKT',
-			'Asia/Krasnoyarsk' => 'KRAT',
-			'Asia/Magadan' => 'MAGT',
-			'Asia/Novokuznetsk' => 'KRAT',
-			'Asia/Novosibirsk' => 'NOVT',
-			'Asia/Omsk' => 'OMST',
 			'Asia/Oral' => 'ORAT',
 			'Asia/Qyzylorda' => 'QYZT',
-			'Asia/Sakhalin' => 'SAKT',
 			'Asia/Samarkand' => 'UZT',
-			'Asia/Srednekolymsk' => 'SRET',
 			'Asia/Tashkent' => 'UZT',
 			'Asia/Tbilisi' => 'GET',
-			'Asia/Ust-Nera' => 'VLAT',
-			'Asia/Vladivostok' => 'VLAT',
-			'Asia/Yakutsk' => 'YAKT',
-			'Asia/Yekaterinburg' => 'YEKT',
 			'Asia/Yerevan' => 'AMT',
 			'Europe/Istanbul' => 'TRT',
-			'Europe/Kirov' => 'MSK',
 			'Europe/Minsk' => 'MSK',
-			'Europe/Samara' => 'SAMT',
-			'Europe/Volgograd' => 'MSK',
 			'Indian/Kerguelen' => 'TFT',
 		);
 
@@ -1665,14 +1645,16 @@ function buildEventDatetimes($row)
 			if ($tz_location['country_code'] == 'RU')
 			{
 				$msk_offset = intval($tz_abbrev) - 3;
-				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-				$tz_abbrev = 'MSK' . $msk_offset;
+				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
 			}
 		}
 
 		// Still no good? We'll just mark it as a UTC offset
 		if (strspn($tz_abbrev, '+-') > 0)
-			$tz_abbrev = 'UTC' . $tz_abbrev;
+		{
+			$tz_abbrev = intval($tz_abbrev);
+			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
+		}
 	}
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
