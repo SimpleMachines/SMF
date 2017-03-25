@@ -4983,7 +4983,7 @@ function smf_list_timezones($when = 'now')
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
 
-		// There are some time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
+		// There are some time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
 		{
 			$missing_tz_abbrs = array(
