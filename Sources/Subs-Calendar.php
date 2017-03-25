@@ -1656,8 +1656,8 @@ function buildEventDatetimes($row)
 			'Indian/Kerguelen' => 'TFT',
 		);
 
-		if (!empty($missing_tz_abbrs[$tzid]))
-			$tzinfo[0]['abbr'] = $missing_tz_abbrs[$tzid];
+		if (!empty($missing_tz_abbrs[$tz]))
+			$tzinfo[0]['abbr'] = $missing_tz_abbrs[$tz];
 		else
 		{
 			$tz_location = timezone_location_get(timezone_open($row['timezone']));
