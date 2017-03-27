@@ -950,44 +950,47 @@ foreach ($toMove as $move)
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
----# Checking for "core" and removing it if necessary...
+---# Clean up settings for unused themes
 ---{
-// Do they have "core" installed?
-if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
-{
-	$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
-	$theme_request = upgrade_query("
-		SELECT id_theme
-		FROM {$db_prefix}themes
-		WHERE variable = 'theme_dir'
-			AND value ='$core_dir'");
-
-	// Don't do anything if this theme is already uninstalled
-	if ($smcFunc['db_num_rows']($theme_request) == 1)
-	{
-		list($id_theme) = $smcFunc['db_fetch_row']($theme_request, 0);
-		$smcFunc['db_free_result']($theme_request);
-
-		$known_themes = explode(', ', $modSettings['knownThemes']);
-
-		// Remove this value...
-		$known_themes = array_diff($known_themes, array($id_theme));
-
-		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
-
-		// Update the database
-		upgrade_query("
-			UPDATE {$db_prefix}settings
-			SET value = '$known_themes'
-			WHERE variable = 'knownThemes'");
-
-		// Delete any info about this theme
-		upgrade_query("
-			DELETE FROM {$db_prefix}themes
-			WHERE id_theme = $id_theme");
+// Fetch list of theme directories
+$request = $smcFunc['db_query']('', '
+	SELECT id_theme, variable, value
+	  FROM {db_prefix}themes
+	WHERE variable = {string:theme_dir}
+	  AND id_theme != {int:default_theme};',
+	array(
+		'default_theme' => 1,
+		'theme_dir' => 'theme_dir',
+	)
+);
+// Check which themes exist in the filesystem & save off their IDs 
+// Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
+$known_themes = array('1');
+$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
+while ($row = $smcFunc['db_fetch_assoc']($request))	{
+	if ($row['value'] != $core_dir && is_dir($row['value'])) {
+		$known_themes[] = $row['id_theme'];
 	}
 }
+// Cleanup unused theme settings
+$smcFunc['db_query']('', '
+	DELETE FROM {db_prefix}themes
+	WHERE id_theme NOT IN ({array_int:known_themes});',
+	array(
+		'known_themes' => $known_themes,
+	)
+);
+// Set knownThemes
+$known_themes = implode(',', $known_themes);
+$smcFunc['db_query']('', '
+	UPDATE {db_prefix}settings
+	SET value = {string:known_themes}
+	WHERE variable = {string:known_theme_str};',
+	array(
+		'known_theme_str' => 'knownThemes',
+		'known_themes' => $known_themes,
+	)
+);
 ---}
 ---#
 
