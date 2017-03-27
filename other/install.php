@@ -36,14 +36,14 @@ $databases = array(
 		'default_password' => 'mysql.default_password',
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
-		'utf8_support' => true,
+		'utf8_support' => function() {
+			return true;
+		},
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'alter_support' => function() {
-			return true;
-		},
+		'alter_support' => true,
 		'validate_prefix' => function(&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
