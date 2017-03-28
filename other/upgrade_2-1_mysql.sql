@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	PRIMARY KEY id_login(id_login),
 	INDEX idx_id_member (id_member),
 	INDEX idx_time (time)
-) ENGINE=MyISAM{$db_collation};
+) ENGINE=MyISAM;
 ---#
 
 ---# Copying the current package backup setting...
@@ -1167,7 +1167,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	to_list VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY id_draft(id_draft),
 	INDEX idx_id_member (id_member, id_draft, type)
-) ENGINE=MyISAM{$db_collation};
+) ENGINE=MyISAM;
 ---#
 
 ---# Adding draft permissions...
@@ -1271,7 +1271,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 	id_board SMALLINT(5) UNSIGNED DEFAULT '0',
 	id_group SMALLINT(5) UNSIGNED DEFAULT '0',
 	PRIMARY KEY (id_board, id_group)
-) ENGINE=MyISAM{$db_collation};
+) ENGINE=MyISAM;
 ---#
 
 /******************************************************************************/
@@ -1397,7 +1397,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
 	INDEX idx_lngfile (lngfile)
-) ENGINE=MyISAM{$db_collation};
+) ENGINE=MyISAM;
 ---#
 
 ---# Moving questions and answers to the new table
