@@ -2914,7 +2914,7 @@ function ConvertUtf8()
 		}
 	}
 	$_GET['substep'] = 0;
-	return false;
+	return true;
 }
 
 function serialize_to_json()
