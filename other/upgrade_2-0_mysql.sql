@@ -426,7 +426,7 @@ CREATE TABLE {$db_prefix}log_online (
 	PRIMARY KEY (session),
 	KEY log_time (log_time),
 	KEY id_member (id_member)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM{$db_collation};
 ---#
 
 /******************************************************************************/
