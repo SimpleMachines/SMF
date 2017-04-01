@@ -1329,7 +1329,7 @@ function DatabaseChanges()
 
 		return true;
 	}
-	return false;
+	return true;
 }
 
 
@@ -1638,7 +1638,7 @@ function parse_sql($filename)
 	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
 	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
 	if ($db_type == 'mysql')
-		$db_collation = ' ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 	else
 		$db_collation = '';
 
