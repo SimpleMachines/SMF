@@ -283,8 +283,12 @@ foreach ($upcontext['steps'] as $num => $step)
 		// Call the step and if it returns false that means pause!
 		if (function_exists($step[2]) && $step[2]() === false)
 			break;
-		elseif (function_exists($step[2]))
+		elseif (function_exists($step[2])) {
+			//Start each new step with this unset, so the 'normal' template is called first
+			unset($_GET['xml']);
+			$_GET['substep'] = 0;
 			$upcontext['current_step']++;
+		}
 	}
 	$upcontext['overall_percent'] += $step[3];
 }
@@ -2441,7 +2445,11 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
  */
 function ConvertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js;
+
+	// Done it already?
+	if (!empty($_POST['utf8_done']))
+		return true;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
@@ -2741,14 +2749,26 @@ function ConvertUtf8()
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
+	
+		// What ones have we already done?
+		foreach ($queryTables as $id => $table)
+			if ($id < $_GET['substep'])
+				$upcontext['previous_tables'][] = $table;
 
+		$upcontext['cur_table_num'] = $_GET['substep'];
+		$upcontext['cur_table_name'] = $queryTables[$_GET['substep']];
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+			
+		// Make sure we're ready & have painted the template before proceeding	
+		if ($support_js && !isset($_GET['xml'])) {
+			$_GET['substep'] = 0;
+			return false;
+		}	
+			
 		// We want to start at the first table.
-		for ($substep = ($_GET['substep'] == 0 ? 1 : $_GET['substep']); $substep <= $upcontext['table_count']; $substep++)
+		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
 		{
 			$table = $queryTables[$_GET['substep']];
-
-			// Do we need to pause?
-			nextSubstep($substep);
 
 			$getTableStatus = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS
@@ -2762,9 +2782,12 @@ function ConvertUtf8()
 			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
 			$smcFunc['db_free_result']($getTableStatus);
 
-			$upcontext['cur_table_num'] = $_GET['substep'];
+			$upcontext['cur_table_num'] = $_GET['substep'] + 1;
 			$upcontext['cur_table_name'] = $table_info['Name'];
 			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+			// Do we need to pause?
+			nextSubstep($substep);
 
 			// Just to make sure it doesn't time out.
 			if (function_exists('apache_reset_timeout'))
@@ -2872,6 +2895,9 @@ function ConvertUtf8()
 				if ($command_line)
 					echo " done.\n";
 			}
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
 		}
 
 		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
@@ -2920,7 +2946,7 @@ function ConvertUtf8()
 		}
 	}
 	$_GET['substep'] = 0;
-	return true;
+	return false;
 }
 
 function serialize_to_json()
@@ -3257,7 +3283,7 @@ function template_chmod()
 					content.write(\'<a href="javascript:self.close();">close</a>\n\t\t</div>\n\t</body>\n</html>\');
 					content.close();
 				}
-		</script>';
+			</script>';
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
@@ -3803,7 +3829,7 @@ function template_backup_database()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="backup_done" id="backup_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<div id="debug_section" style="height: 200px; overflow: auto;">
+			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 
@@ -3868,6 +3894,7 @@ function template_backup_database()
 					getNextTables();
 			}
 			getNextTables();
+		//# sourceURL=dynamicScript-bkup.js 
 		</script>';
 	}
 }
@@ -3967,7 +3994,7 @@ function template_database_changes()
 				echo 'Completed in ', $totalTime, '<br>';
 
 			echo '</span>
-			<div id="debug_section" style="height: 200px; overflow: auto;">
+			<div id="debug_section" style="height: 117px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 		}
@@ -4263,6 +4290,7 @@ function template_database_changes()
 			getNextItem();';
 
 		echo '
+		//# sourceURL=dynamicScript-dbch.js 
 		</script>';
 	}
 	return;
@@ -4302,7 +4330,9 @@ function template_convert_utf8()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<span id="debuginfo"></span>';
+			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
+			<span id="debuginfo"></span>
+			</div>';
 
 	// Done any tables so far?
 	if (!empty($upcontext['previous_tables']))
@@ -4332,11 +4362,11 @@ function template_convert_utf8()
 			var lastTable = ', $upcontext['cur_table_num'], ';
 			function getNextTables()
 			{
-				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onConversionUpdate);
 			}
 
 			// Got an update!
-			function onBackupUpdate(oXMLDoc)
+			function onConversionUpdate(oXMLDoc)
 			{
 				var sCurrentTableName = "";
 				var iTableNum = 0;
@@ -4354,7 +4384,10 @@ function template_convert_utf8()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+				if (document.getElementById(\'debug_section\').scrollHeight)
+					document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
 
 		echo '
 				// Get the next update...
@@ -4369,11 +4402,12 @@ function template_convert_utf8()
 					getNextTables();
 			}
 			getNextTables();
+		//# sourceURL=dynamicScript-conv.js 
 		</script>';
 	}
 }
 
-function template_utf8_xml()
+function template_convert_xml()
 {
 	global $upcontext;
 
@@ -4393,7 +4427,9 @@ function template_serialize_json()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="json_done" id="json_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<span id="debuginfo"></span>';
+			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
+			<span id="debuginfo"></span>
+			</div>';
 
 	// Dont any tables so far?
 	if (!empty($upcontext['previous_tables']))
@@ -4443,7 +4479,10 @@ function template_serialize_json()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+				if (document.getElementById(\'debug_section\').scrollHeight)
+					document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
 
 		echo '
 				// Get the next update...
@@ -4458,6 +4497,7 @@ function template_serialize_json()
 					getNextTables();
 			}
 			getNextTables();
+		//# sourceURL=dynamicScript-json.js 
 		</script>';
 	}
 }
