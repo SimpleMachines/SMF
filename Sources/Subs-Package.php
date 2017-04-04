@@ -2980,7 +2980,7 @@ function package_create_backup($id = 'backup')
 
 	$files = array();
 
-	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
+	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php', 'settings.php');
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))
@@ -3035,11 +3035,12 @@ function package_create_backup($id = 'backup')
 			package_chmod($packagesdir . '/backups');
 		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 		$output_ext = '.tar';
-
-		if (file_exists($output_file . $output_ext))
+		$output_ext_target = '.tar.gz';
+		
+		if (file_exists($output_file . $output_ext_target))
 		{
 			$i = 2;
-			while (file_exists($output_file . '_' . $i . $output_ext))
+			while (file_exists($output_file . '_' . $i . $output_ext_target))
 				$i++;
 			$output_file = $output_file . '_' . $i . $output_ext;
 		}
