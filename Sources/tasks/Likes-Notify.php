@@ -31,7 +31,8 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		if ($this->_details['content_type'] == 'msg')
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups
+				SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups,
+				mem.pm_ignore_list
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
@@ -47,6 +48,7 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 				// Use an empty array if additional_groups is blank to avoid a fringe case... (see https://github.com/SimpleMachines/SMF2.1/issues/2987)
 				$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 				$allowed = explode(',', $row['member_groups']);
+				$ignored_members = explode(',', $row['pm_ignore_list']);
 
 				// If the user is in group 1 anywhere, they can see everything anyway.
 				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
@@ -73,6 +75,11 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		// If the person who sent the notification is the person whose content it is, do nothing.
 		if ($author == $this->_details['sender_id'])
 			return true;
+
+		// If the person who sent the notification is on this person's ignore list, do nothing.
+        if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
+            return true;
+        }
 
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
