@@ -812,10 +812,12 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
----# Adding new columns to log_topics...
+---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
 ADD COLUMN unwatched int NOT NULL DEFAULT '0';
+---#
 
+---# Initializing new column in log_topics...
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
 ---#
@@ -824,7 +826,7 @@ SET unwatched = 0;
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
-	RENAME disregarded TO unwatched");
+	DROP COLUMN disregarded");
 ---}
 ---#
 

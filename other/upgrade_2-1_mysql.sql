@@ -785,17 +785,19 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
----# Adding new columns to boards...
+---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched TINYINT(3) NOT NULL DEFAULT '0';
+ADD COLUMN unwatched TINYINT NOT NULL DEFAULT '0';
+---#
 
+---# Initializing new column in log_topics...
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
 ---#
 
 ---# Fixing column name change...
 ALTER TABLE {$db_prefix}log_topics
-CHANGE COLUMN disregarded unwatched TINYINT(3) NOT NULL DEFAULT '0';
+DROP COLUMN disregarded;
 ---#
 
 /******************************************************************************/
@@ -1253,7 +1255,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
 	content_type VARCHAR(10) DEFAULT '',
 	id_mentioned INT DEFAULT 0,
-	id_member INT NOT NULL DEFAULT 0,
+	id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
 	`time` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned),
 	INDEX idx_content (content_id, content_type),
@@ -2160,15 +2162,16 @@ MySQLConvertOldIp('members','member_ip2_old','member_ip2');
 ---}
 ---#
 
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_ip on {$db_prefix}members;
+DROP INDEX temp_old_ip2 on {$db_prefix}members;
+---#
+
 ---# Remove the old member columns
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
 ---#
 
----# Remove the temporary ip indexes
-DROP INDEX temp_old_ip on {$db_prefix}messages;
-DROP INDEX temp_old_ip2 on {$db_prefix}messages;
----#
 /******************************************************************************/
 --- Update messages poster_ip with ipv6 support (May take a while)
 /******************************************************************************/
