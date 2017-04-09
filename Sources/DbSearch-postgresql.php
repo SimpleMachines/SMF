@@ -118,6 +118,9 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 			$db_values['db_error_skip'] = true;
 		}
 	}
+	
+	//fix double quotes
+	$db_values = str_replace('"',"'",$db_values);
 
 	$return = $smcFunc['db_query']('', $db_string,
 		$db_values, $connection
