@@ -4528,8 +4528,10 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	$current_substep = $_GET['substep'];
 
+	if (empty($_GET['a']))
+		$_GET['a'] = 0;
 	$step_progress['name'] = 'Converting ips';
-	$step_progress['current'] = !empty($_GET['a']) ? $_GET['a'] : 0;
+	$step_progress['current'] = $_GET['a'];
 
 	// Skip this if we don't have the column
 	$request = $smcFunc['db_query']('', '
@@ -4555,6 +4557,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	{
 		// Keep looping at the current step.
 		nextSubStep($current_substep);
+
+		$arIp = array();
 
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
