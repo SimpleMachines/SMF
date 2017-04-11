@@ -19,7 +19,7 @@
 class Likes_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
 	 * @return bool Always returns true
 	 */
 	public function execute()
@@ -50,9 +50,9 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 				$allowed = explode(',', $row['member_groups']);
 				$ignored_members = explode(',', $row['pm_ignore_list']);
 
-                // If the user is in group 1 anywhere, they can see everything anyway.
-                if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
-                    $author = $row['id_member'];
+				// If the user is in group 1 anywhere, they can see everything anyway.
+				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
+					$author = $row['id_member'];
 			}
 			$smcFunc['db_free_result']($request);
 		}
@@ -77,9 +77,9 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		// If the person who sent the notification is on this person's ignore list, do nothing.
-        if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
-            return true;
-        }
+		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
+			return true;
+		}
 
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
