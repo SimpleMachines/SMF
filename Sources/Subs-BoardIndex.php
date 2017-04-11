@@ -44,7 +44,7 @@ function getBoardIndex($boardIndexOptions)
 		);
 
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
-	$result_boards = $smcFunc['db_query']('boardindex_fetch_boards', '
+	$result_boards = $smcFunc['db_query']('', '
 		SELECT' . ($boardIndexOptions['include_categories'] ? '
 			c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
 			b.id_board, b.name AS board_name, b.description,
@@ -53,7 +53,7 @@ function getBoardIndex($boardIndexOptions)
 			COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 			m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
-			(COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
+			(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse,' : '')) . '
 			COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '

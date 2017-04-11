@@ -321,9 +321,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'attach_download_increase' => array(
 			'~LOW_PRIORITY~' => '',
 		),
-		'boardindex_fetch_boards' => array(
-			'~COALESCE\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
-		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
 		),
