@@ -2209,6 +2209,10 @@ MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
 ---}
 ---#
 
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
+---#
+
 ---# Drop old column to messages
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
@@ -2219,10 +2223,6 @@ CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, i
 
 ---# Add the index again to mesages poster ip msg
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
----#
-
----# Remove the temporary ip indexes
-DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ---#
 
 /******************************************************************************/
