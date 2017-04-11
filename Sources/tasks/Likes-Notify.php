@@ -50,9 +50,9 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 				$allowed = explode(',', $row['member_groups']);
 				$ignored_members = explode(',', $row['pm_ignore_list']);
 
-				// If the user is in group 1 anywhere, they can see everything anyway.
-				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
-					$author = $row['id_member'];
+                // If the user is in group 1 anywhere, they can see everything anyway.
+                if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0)
+                    $author = $row['id_member'];
 			}
 			$smcFunc['db_free_result']($request);
 		}
