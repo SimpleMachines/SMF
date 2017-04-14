@@ -2140,7 +2140,7 @@ ADD COLUMN member_ip VARBINARY(16),
 ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# Create a ip index for old ips
+---# Create an ip index for old ips
 ---{
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
 if (in_array('member_ip_old', $results))
@@ -2155,6 +2155,7 @@ if (in_array('member_ip_old', $results))
 ---{
 MySQLConvertOldIp('members','member_ip_old','member_ip');
 ---}
+---#
 
 ---# Convert member ips2
 ---{
@@ -2191,7 +2192,7 @@ if ($doChange)
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# Create a ip index for old ips
+---# Create an ip index for old ips
 ---{
 $doChange = true;
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
