@@ -358,7 +358,11 @@ function upgradeExit($fallThrough = false)
 			if (!empty($upcontext['query_string']))
 				$upcontext['form_url'] .= $upcontext['query_string'];
 
-			call_user_func('template_' . $upcontext['sub_template']);
+			// Call the appropriate subtemplate
+			if (is_callable('template_' . $upcontext['sub_template']))
+				call_user_func('template_' . $upcontext['sub_template']);
+			else
+				die('Upgrade aborted!  Invalid template: template_' . $upcontext['sub_template']);
 		}
 
 		// Was there an error?
