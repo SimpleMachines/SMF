@@ -84,7 +84,7 @@ function reloadSettings()
 		{
 			return $string;
 		};
-	$fix_utf8mb4 = function($string) use ($utf8,$smcFunc)
+	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
 	{
 		if (!$utf8 || $smcFunc['db_mb4'])
 			return $string;
