@@ -29,6 +29,7 @@ function db_search_init()
 			'db_search_support' => 'smf_db_search_support',
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => false,
+			'db_search_language' => 'smf_db_search_language',
 		);
 
 	db_extend();
@@ -152,6 +153,41 @@ function smf_db_create_word_search($size)
 			'string_zero' => '0',
 		)
 	);
+}
+
+/**
+* Return the language for the textsearch index
+*/
+function smf_db_search_language()
+{
+	global $smcFunc, $modSettings;
+	
+	$language_ftx = 'english';
+	
+	if (!empty($modSettings['search_language']))
+		$language_ftx = $modSettings['search_language'];
+	else
+	{
+		$request = $smcFunc['db_query']('','
+			SHOW default_text_search_config',
+			array()
+		);
+
+		if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+		{
+			$row = $smcFunc['db_fetch_assoc']($request);
+			$language_ftx = $row['default_text_search_config'];
+
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('search_language', $language_ftx),
+				array('variable')
+			);
+		}
+	}
+
+	return $language_ftx;	
 }
 
 ?>
