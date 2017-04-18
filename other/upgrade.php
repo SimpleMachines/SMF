@@ -458,7 +458,11 @@ function loadEssentialData()
 		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
 
 		// Make the connection...
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true));
+		if (empty($db_connection))
+			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true));
+		else
+			// If we've returned here, ping/reconnect to be safe
+			$smcFunc['db_ping']($db_connection);
 
 		// Oh dear god!!
 		if ($db_connection === null)
