@@ -1211,12 +1211,9 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
-				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type], 0));
-				// Show some numbers. If they exist.
-				if ($type == 'attachmentNumPerPostLimit' && $context['attachments']['quantity'] > 0)
+				// Show the max number of attachments if not 0.
+				if ($type == 'attachmentNumPerPostLimit')
 					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
-				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
-					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)), 0));
 			}
 	}
 
