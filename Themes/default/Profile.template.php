@@ -582,7 +582,7 @@ function template_showAlerts()
 						<ul class="quickbuttons">
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'], '</a></li>
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>
-							<li><input type="checkbox" name="mark[', $id, ']" value="', $id, '"></li>
+							<li><input type="checkbox" class="input_check" name="mark[', $id, ']" value="', $id, '"></li>
 						</ul>
 					</td>
 				</tr>';
@@ -595,7 +595,7 @@ function template_showAlerts()
 					', $context['pagination'], '
 				</div>
 				<div class="floatright">
-					', $txt['check_all'], ': <input type="checkbox" name="select_all" id="select_all">
+					', $txt['check_all'], ': <input type="checkbox" class="input_check" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', $txt['quick_mod_markread'], '</option>
 						<option value="unread">', $txt['quick_mod_markunread'], '</option>
