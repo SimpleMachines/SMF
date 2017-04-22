@@ -192,7 +192,7 @@ function Post($post_errors = array())
 	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
 		unset($_SESSION['already_attached']);
 	}
-	
+
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
@@ -331,7 +331,7 @@ function Post($post_errors = array())
 		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 		{
 			$d = date_create($context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 		}
 
 		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');

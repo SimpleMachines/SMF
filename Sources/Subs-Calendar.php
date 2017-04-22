@@ -1604,58 +1604,7 @@ function buildEventDatetimes($row)
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
-	$tz_abbrev = date_format($start_object, 'T');
-
-	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
-	if (strspn($tz_abbrev, '+-') > 0)
-	{
-		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
-		$missing_tz_abbrs = array(
-			'Antarctica/Casey' => 'CAST',
-			'Antarctica/Davis' => 'DAVT',
-			'Antarctica/DumontDUrville' => 'DDUT',
-			'Antarctica/Mawson' => 'MAWT',
-			'Antarctica/Rothera' => 'ART',
-			'Antarctica/Syowa' => 'SYOT',
-			'Antarctica/Vostok' => 'VOST',
-			'Asia/Almaty' => 'ALMT',
-			'Asia/Aqtau' => 'ORAT',
-			'Asia/Aqtobe' => 'AQTT',
-			'Asia/Ashgabat' => 'TMT',
-			'Asia/Bishkek' => 'KGT',
-			'Asia/Colombo' => 'IST',
-			'Asia/Dushanbe' => 'TJT',
-			'Asia/Oral' => 'ORAT',
-			'Asia/Qyzylorda' => 'QYZT',
-			'Asia/Samarkand' => 'UZT',
-			'Asia/Tashkent' => 'UZT',
-			'Asia/Tbilisi' => 'GET',
-			'Asia/Yerevan' => 'AMT',
-			'Europe/Istanbul' => 'TRT',
-			'Europe/Minsk' => 'MSK',
-			'Indian/Kerguelen' => 'TFT',
-		);
-
-		if (!empty($missing_tz_abbrs[$tz]))
-			$tz_abbrev = $missing_tz_abbrs[$tz];
-		else
-		{
-			// Russia likes to experiment with time zones
-			$tz_location = timezone_location_get(timezone_open($row['timezone']));
-			if ($tz_location['country_code'] == 'RU')
-			{
-				$msk_offset = intval($tz_abbrev) - 3;
-				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
-			}
-		}
-
-		// Still no good? We'll just mark it as a UTC offset
-		if (strspn($tz_abbrev, '+-') > 0)
-		{
-			$tz_abbrev = intval($tz_abbrev);
-			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
-		}
-	}
+	$tz_abbrev = fix_tz_abbrev($row['timezone'], date_format($start_object, 'T'));
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
