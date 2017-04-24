@@ -1326,20 +1326,19 @@ function Post($post_errors = array())
 	);
 
 	// Icons are fun.
-	$message_icon_select = '<select name="icon" id="icon" onchange="showimage()">';
+	$context['posting_fields']['icon'] = array(
+		'dt' => $txt['message_icon'],
+		'dd' => '<select name="icon" id="icon" onchange="showimage()">',
+	);
 	foreach ($context['icons'] as $icon)
 	{
-		$message_icon_select .= '
+		$context['posting_fields']['icon']['dd'] .= '
 							<option value="' . $icon['value'] . '"' . ($icon['value'] == $context['icon'] ? ' selected' : '') . '>' . $icon['name'] . '</option>';
 	}
-	$message_icon_select .= '
+	$context['posting_fields']['icon']['dd'] .= '
 						</select>
 						<img id="icons" src="' . $context['icon_url'] . '">';
 
-	$context['posting_fields']['icon'] = array(
-		'dt' => $txt['message_icon'],
-		'dd' => $message_icon_select,
-	);
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
