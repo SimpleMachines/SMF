@@ -136,12 +136,12 @@ function template_main()
 
 	// All the posting fields.
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
-		foreach ($context['posting_fields'] as $pf)
+		foreach ($context['posting_fields'] as $pfid => $pf)
 			echo '
-						<dt class="clear">
+						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
 							', $pf['dt'], '
 						</dt>
-						<dd>
+						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
 							', preg_replace('~<(input|select)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
 
