@@ -45,7 +45,6 @@ function Post($post_errors = array())
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
-	$context['posting_fields'] = array();
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -192,7 +191,7 @@ function Post($post_errors = array())
 	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
 		unset($_SESSION['already_attached']);
 	}
-	
+
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
@@ -1299,6 +1298,48 @@ function Post($post_errors = array())
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
 	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+
+	// Now let's set up the fields for the posting form header...
+	$context['posting_fields'] = array();
+
+	// Guests must supply their name and email.
+	if (isset($context['name']) && isset($context['email']))
+	{
+		$context['posting_fields']['guest_name'] = array(
+			'dt' => '<span' . (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . ' id="caption_guestname">' . $txt['name'] . ':</span>',
+			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" class="input_text">',
+		);
+
+		if (empty($modSettings['guest_post_no_email']))
+		{
+			$context['posting_fields']['guest_email'] = array(
+				'dt' => '<span' . (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . ' id="caption_email">' . $txt['email'] . ':</span>',
+				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" class="input_text" required>',
+			);
+		}
+	}
+
+	// Gotta have a subject.
+	$context['posting_fields']['subject'] = array(
+		'dt' => '<span' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . ' id="caption_subject">' . $txt['subject'] . ':</span>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" class="' . (isset($context['post_error']['no_subject']) ? 'error' : 'input_text') . '" required>',
+	);
+
+	// Icons are fun.
+	$message_icon_select = '<select name="icon" id="icon" onchange="showimage()">';
+	foreach ($context['icons'] as $icon)
+	{
+		$message_icon_select .= '
+							<option value="' . $icon['value'] . '"' . ($icon['value'] == $context['icon'] ? ' selected' : '') . '>' . $icon['name'] . '</option>';
+	}
+	$message_icon_select .= '
+						</select>
+						<img src="' . $context['icon_url'] . '" id="icons">';
+
+	$context['posting_fields']['message_icon'] = array(
+		'dt' => $txt['message_icon'],
+		'dd' => $message_icon_select,
+	);
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))

@@ -134,62 +134,18 @@ function template_main()
 	echo '
 					<dl id="post_header">';
 
-	// Custom posting fields.
+	// All the posting fields.
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
 		foreach ($context['posting_fields'] as $pf)
 			echo '
-						<dt>
-							', $pf['dt'] ,'
-						</dt>
-						<dd>
-							', $pf['dd'] ,'
-						</dd>';
-
-
-	// Guests have to put in their name and email...
-	if (isset($context['name']) && isset($context['email']))
-	{
-		echo '
-						<dt>
-							<span', isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '', ' id="caption_guestname">', $txt['name'], ':</span>
-						</dt>
-						<dd>
-							<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
-						</dd>';
-
-		if (empty($modSettings['guest_post_no_email']))
-			echo '
-						<dt>
-							<span', isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '', ' id="caption_email">', $txt['email'], ':</span>
-						</dt>
-						<dd>
-							<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
-						</dd>';
-	}
-
-	// Now show the subject box for this post.
-	echo '
 						<dt class="clear">
-							<span', isset($context['post_error']['no_subject']) ? ' class="error"' : '', ' id="caption_subject">', $txt['subject'], ':</span>
+							', $pf['dt'], '
 						</dt>
 						<dd>
-							<input type="text" name="subject"', $context['subject'] == '' ? '' : ' value="' . $context['subject'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80"', isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', ' required>
-						</dd>
-						<dt class="clear_left">
-							', $txt['message_icon'], ':
-						</dt>
-						<dd>
-							<select name="icon" id="icon" onchange="showimage()">';
-
-	// Loop through each message icon allowed, adding it to the drop down list.
-	foreach ($context['icons'] as $icon)
-		echo '
-								<option value="', $icon['value'], '"', $icon['value'] == $context['icon'] ? ' selected' : '', '>', $icon['name'], '</option>';
+							', preg_replace('~<(input|select)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
+						</dd>';
 
 	echo '
-							</select>
-							<img src="', $context['icon_url'], '" id="icons" alt="">
-						</dd>
 					</dl>';
 
 	// Are you posting a calendar event?
