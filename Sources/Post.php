@@ -1305,15 +1305,15 @@ function Post($post_errors = array())
 	// Guests must supply their name and email.
 	if (isset($context['name']) && isset($context['email']))
 	{
-		$context['posting_fields']['guest_name'] = array(
-			'dt' => '<span' . (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . ' id="caption_guestname">' . $txt['name'] . ':</span>',
-			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" class="input_text">',
+		$context['posting_fields']['guestname'] = array(
+			'dt' => '<span id="caption_guestname"' .  (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . '>' . $txt['name'] . '</span>',
+			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" class="input_text" required>',
 		);
 
 		if (empty($modSettings['guest_post_no_email']))
 		{
-			$context['posting_fields']['guest_email'] = array(
-				'dt' => '<span' . (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . ' id="caption_email">' . $txt['email'] . ':</span>',
+			$context['posting_fields']['email'] = array(
+				'dt' => '<span id="caption_email"' .  (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . '>' . $txt['email'] . '</span>',
 				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" class="input_text" required>',
 			);
 		}
@@ -1321,8 +1321,8 @@ function Post($post_errors = array())
 
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
-		'dt' => '<span' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . ' id="caption_subject">' . $txt['subject'] . ':</span>',
-		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" class="' . (isset($context['post_error']['no_subject']) ? 'error' : 'input_text') . '" required>',
+		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" class="input_text" required>',
 	);
 
 	// Icons are fun.
@@ -1334,9 +1334,9 @@ function Post($post_errors = array())
 	}
 	$message_icon_select .= '
 						</select>
-						<img src="' . $context['icon_url'] . '" id="icons">';
+						<img id="icons" src="' . $context['icon_url'] . '">';
 
-	$context['posting_fields']['message_icon'] = array(
+	$context['posting_fields']['icon'] = array(
 		'dt' => $txt['message_icon'],
 		'dd' => $message_icon_select,
 	);
