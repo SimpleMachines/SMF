@@ -142,7 +142,7 @@ function template_main()
 							', $pf['dt'], '
 						</dt>
 						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
-							', preg_replace('~<(input|select)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
+							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
 
 	echo '
