@@ -4980,12 +4980,17 @@ function smf_list_timezones($when = 'now')
 		if ($tzid == 'UTC')
 			continue;
 
+		$tz = timezone_open($tzid);
+
 		// First, get the set of transition rules for this tzid
-		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
+		$tzinfo = timezone_transitions_get($tz, $when, $later);
 
 		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
 		$tzkey = serialize($tzinfo);
+
+		// Next, get the geographic info for this tzid
+		$tzgeo = timezone_location_get($tz);
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
@@ -4999,10 +5004,11 @@ function smf_list_timezones($when = 'now')
 		$tzid_parts = explode('/', $tzid);
 		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
+		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
 	}
 
-	// Sort by offset
-	array_multisort($offsets, SORT_ASC, $zones);
+	// Sort by offset then longitude
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -5021,7 +5027,7 @@ function smf_list_timezones($when = 'now')
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . '] (' . $longitudes[$tzkey] . ')';
 	}
 
 	$timezones = array_merge(
