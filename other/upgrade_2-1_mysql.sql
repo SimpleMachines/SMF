@@ -785,17 +785,19 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
----# Adding new columns to boards...
+---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched TINYINT(3) NOT NULL DEFAULT '0';
+ADD COLUMN unwatched TINYINT NOT NULL DEFAULT '0';
+---#
 
+---# Initializing new column in log_topics...
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
 ---#
 
 ---# Fixing column name change...
 ALTER TABLE {$db_prefix}log_topics
-CHANGE COLUMN disregarded unwatched TINYINT(3) NOT NULL DEFAULT '0';
+DROP COLUMN disregarded;
 ---#
 
 /******************************************************************************/
@@ -924,45 +926,47 @@ foreach ($toMove as $move)
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
----# Checking for "core" and removing it if necessary...
+---# Clean up settings for unused themes
 ---{
-// Do they have "core" installed?
-if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
-{
-	$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
-	$theme_request = upgrade_query("
-		SELECT id_theme
-		FROM {$db_prefix}themes
-		WHERE variable = 'theme_dir'
-			AND value ='$core_dir'");
-
-	// Don't do anything if this theme is already uninstalled
-	if ($smcFunc['db_num_rows']($theme_request) == 1)
-	{
-		// Only one row, so no loop needed
-		$row = $smcFunc['db_fetch_row']($theme_request);
-		$id_theme = $row[0];
-		$smcFunc['db_free_result']($theme_request);
-
-		$known_themes = explode(', ', $modSettings['knownThemes']);
-
-		// Remove this value...
-		$known_themes = array_diff($known_themes, array($id_theme));
-
-		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
-
-		// Update the database
-		upgrade_query("
-			REPLACE INTO {$db_prefix}settings (variable, value)
-			VALUES ('knownThemes', '$known_themes')");
-
-		// Delete any info about this theme
-		upgrade_query("
-			DELETE FROM {$db_prefix}themes
-			WHERE id_theme = $id_theme");
+// Fetch list of theme directories
+$request = $smcFunc['db_query']('', '
+	SELECT id_theme, variable, value
+	  FROM {db_prefix}themes
+	WHERE variable = {string:theme_dir}
+	  AND id_theme != {int:default_theme};',
+	array(
+		'default_theme' => 1,
+		'theme_dir' => 'theme_dir',
+	)
+);
+// Check which themes exist in the filesystem & save off their IDs 
+// Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
+$known_themes = array('1');
+$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
+while ($row = $smcFunc['db_fetch_assoc']($request))	{
+	if ($row['value'] != $core_dir && is_dir($row['value'])) {
+		$known_themes[] = $row['id_theme'];
 	}
 }
+// Cleanup unused theme settings
+$smcFunc['db_query']('', '
+	DELETE FROM {db_prefix}themes
+	WHERE id_theme NOT IN ({array_int:known_themes});',
+	array(
+		'known_themes' => $known_themes,
+	)
+);
+// Set knownThemes
+$known_themes = implode(',', $known_themes);
+$smcFunc['db_query']('', '
+	UPDATE {db_prefix}settings
+	SET value = {string:known_themes}
+	WHERE variable = {string:known_theme_str};',
+	array(
+		'known_theme_str' => 'knownThemes',
+		'known_themes' => $known_themes,
+	)
+);
 ---}
 ---#
 
@@ -1251,7 +1255,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
 	content_type VARCHAR(10) DEFAULT '',
 	id_mentioned INT DEFAULT 0,
-	id_member INT NOT NULL DEFAULT 0,
+	id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
 	`time` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned),
 	INDEX idx_content (content_id, content_type),
@@ -2158,15 +2162,16 @@ MySQLConvertOldIp('members','member_ip2_old','member_ip2');
 ---}
 ---#
 
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_ip on {$db_prefix}members;
+DROP INDEX temp_old_ip2 on {$db_prefix}members;
+---#
+
 ---# Remove the old member columns
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
 ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
 ---#
 
----# Remove the temporary ip indexes
-DROP INDEX temp_old_ip on {$db_prefix}messages;
-DROP INDEX temp_old_ip2 on {$db_prefix}messages;
----#
 /******************************************************************************/
 --- Update messages poster_ip with ipv6 support (May take a while)
 /******************************************************************************/
@@ -2204,6 +2209,10 @@ MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
 ---}
 ---#
 
+---# Remove the temporary ip indexes
+DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
+---#
+
 ---# Drop old column to messages
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
@@ -2214,10 +2223,6 @@ CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, i
 
 ---# Add the index again to mesages poster ip msg
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
----#
-
----# Remove the temporary ip indexes
-DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ---#
 
 /******************************************************************************/
