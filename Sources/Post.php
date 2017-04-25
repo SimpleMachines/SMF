@@ -192,7 +192,7 @@ function Post($post_errors = array())
 	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
 		unset($_SESSION['already_attached']);
 	}
-	
+
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
@@ -319,8 +319,8 @@ function Post($post_errors = array())
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+			$context['event']['start_time'] = $context['event']['start_time_orig'];
+			$context['event']['end_time'] = $context['event']['end_time_orig'];
 		}
 
 		// Need this so the user can select a timezone for the event.
