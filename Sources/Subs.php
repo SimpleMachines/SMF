@@ -4904,14 +4904,14 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
-	// We'll need this too
-	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
+	// We'll need these too
+	$date_when = date_create('@' . $when);
+	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
 
 	// Prefer and give custom descriptions for these time zones
 	// If the description is left empty, it will be filled in with the names of matching cities
 	$timezone_descriptions = array(
-		'America/Adak' => 'Hawaii-Aleutian',
-		'Pacific/Honolulu' => 'Hawaii',
+		'America/Adak' => 'Aleutian Islands',
 		'Pacific/Marquesas' => 'Marquesas Islands',
 		'Pacific/Gambier' => 'Gambier Islands',
 		'America/Anchorage' => 'Alaska',
@@ -5011,6 +5011,8 @@ function smf_list_timezones($when = 'now')
 	{
 		$tzinfo = unserialize($tzkey);
 
+		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
+
 		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
 			$desc = $timezone_descriptions[$tzvalue['tzid']];
 		else
@@ -5019,7 +5021,7 @@ function smf_list_timezones($when = 'now')
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
 	$timezones = array_merge(
