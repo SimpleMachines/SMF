@@ -1900,7 +1900,7 @@ ALTER TABLE {$db_prefix}members
 ADD tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
 
----# Force 2FA per membergroup?
+---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
 ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 ---#
@@ -2218,11 +2218,11 @@ DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
----# Add the index again to mesages poster ip topic
+---# Add the index again to messages poster ip topic
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 ---#
 
----# Add the index again to mesages poster ip msg
+---# Add the index again to messages poster ip msg
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
 
