@@ -1312,7 +1312,7 @@ function getBoardTree()
 		'b.description', 'b.child_level', 'b.board_order', 'b.count_posts', 'b.member_groups',
 		'b.id_theme', 'b.override_theme', 'b.id_profile', 'b.redirect', 'b.num_posts',
 		'b.num_topics', 'b.deny_member_groups', 'c.id_cat', 'c.name AS cat_name',
-		'c.description AScat_desc', 'c.cat_order', 'c.can_collapse'
+		'c.description AS cat_desc', 'c.cat_order', 'c.can_collapse',
 	);
 
 	// Let mods add extra columns and parameters to the SELECT query
