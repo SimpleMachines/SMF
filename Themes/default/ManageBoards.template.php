@@ -683,6 +683,17 @@ function template_modify_board()
 			document.getElementById("reset_redirect_div").style.display = redirectEnabled ? "" : "none";';
 	}
 
+	// Include any JavaScript added by mods using the 'integrate_edit_board' hook.
+	if (!empty($context['custom_board_settings']) && is_array($context['custom_board_settings']))
+	{
+		foreach ($context['custom_board_settings'] as $cbs)
+		{
+			if (!empty($cbs['refreshOptions']))
+				echo '
+			', $cbs['refreshOptions'];
+		}
+	}
+
 	echo '
 		}
 		refreshOptions();
