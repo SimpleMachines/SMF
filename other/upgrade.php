@@ -2756,7 +2756,7 @@ function ConvertUtf8()
 				$upcontext['previous_tables'][] = $table;
 
 		$upcontext['cur_table_num'] = $_GET['substep'];
-		$upcontext['cur_table_name'] = $queryTables[$_GET['substep']];
+		$upcontext['cur_table_name'] = str_replace($db_prefix, '', $queryTables[$_GET['substep']]);
 		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 			
 		// Make sure we're ready & have painted the template before proceeding	
@@ -2766,9 +2766,9 @@ function ConvertUtf8()
 		}	
 			
 		// We want to start at the first table.
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++)
 		{
-			$table = $queryTables[$_GET['substep']];
+			$table = $queryTables[$substep];
 
 			$getTableStatus = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS
@@ -2782,8 +2782,8 @@ function ConvertUtf8()
 			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
 			$smcFunc['db_free_result']($getTableStatus);
 
-			$upcontext['cur_table_num'] = $_GET['substep'] + 1;
-			$upcontext['cur_table_name'] = $table_info['Name'];
+			$upcontext['cur_table_name'] = str_replace($db_prefix, '', (isset($queryTables[$substep + 1]) ? $queryTables[$substep + 1] : $queryTables[$substep]));
+			$upcontext['cur_table_num'] = $substep + 1;
 			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
 			// Do we need to pause?
