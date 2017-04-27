@@ -698,7 +698,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 
 	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	addInlineJavaScript('
 	$("#calendar_range .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
