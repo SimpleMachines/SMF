@@ -536,6 +536,31 @@ function template_modify_board()
 					</dl>
 				</div>';
 
+	// Show any board settings added by mods using the 'integrate_edit_board' hook.
+	if (!empty($context['custom_board_settings']) && is_array($context['custom_board_settings']))
+	{
+		echo '
+				<hr>
+				<div id="custom_board_settings">
+					<dl class="settings">';
+
+		foreach ($context['custom_board_settings'] as $cbs_id => $cbs)
+		{
+			if (!empty($cbs['dt']) && !empty($cbs['dd']))
+				echo '
+						<dt class="clear', !is_numeric($cbs_id) ? ' cbs_' . $cbs_id : '', '">
+							', $cbs['dt'], '
+						</dt>
+						<dd', !is_numeric($cbs_id) ? ' class="cbs_' . $cbs_id . '"' : '', '>
+							', $cbs['dd'], '
+						</dd>';
+		}
+
+		echo '
+					</dl>
+				</div>';
+	}
+
 	if (!empty($context['board']['is_recycle']))
 		echo '
 				<div class="noticebox">', $txt['mboards_recycle_disabled_delete'], '</div>';
