@@ -1745,7 +1745,7 @@ function EditMessageIcons()
 	$smcFunc['db_free_result']($request);
 
 	// Submitting a form?
-	if (isset($_POST['icons_save']))
+	if (isset($_POST['icons_save']) || isset($_POST['delete']))
 	{
 		checkSession();
 
