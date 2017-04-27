@@ -684,14 +684,11 @@ function template_modify_board()
 	}
 
 	// Include any JavaScript added by mods using the 'integrate_edit_board' hook.
-	if (!empty($context['custom_board_settings']) && is_array($context['custom_board_settings']))
+	if (!empty($context['custom_refreshOptions']) && is_array($context['custom_refreshOptions']))
 	{
-		foreach ($context['custom_board_settings'] as $cbs)
-		{
-			if (!empty($cbs['refreshOptions']))
-				echo '
-			', $cbs['refreshOptions'];
-		}
+		foreach ($context['custom_refreshOptions'] as $refreshOption)
+			echo '
+			', $refreshOption;
 	}
 
 	echo '
