@@ -164,6 +164,22 @@ function template_modify_category()
 						<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" class="input_check">
 					</dd>';
 
+	// Show any category settings added by mods using the 'integrate_edit_category' hook.
+	if (!empty($context['custom_category_settings']) && is_array($context['custom_category_settings']))
+	{
+		foreach ($context['custom_category_settings'] as $catset_id => $catset)
+		{
+			if (!empty($catset['dt']) && !empty($catset['dd']))
+				echo '
+						<dt class="clear', !is_numeric($catset_id) ? ' catset_' . $catset_id : '', '">
+							', $catset['dt'], '
+						</dt>
+						<dd', !is_numeric($catset_id) ? ' class="catset_' . $catset_id . '"' : '', '>
+							', $catset['dd'], '
+						</dd>';
+		}
+	}
+
 	// Table footer.
 	echo '
 				</dl>';
