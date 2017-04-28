@@ -33,7 +33,7 @@ function template_main()
 	}
 
 	// What view are we showing?
-	if ($context['calendar_view'] == 'view_list')
+	if ($context['calendar_view'] == 'viewlist')
 	{
 		echo '
 			<div id="main_grid">
@@ -41,7 +41,7 @@ function template_main()
 			</div>
 		';
 	}
-	elseif ($context['calendar_view'] == 'view_week')
+	elseif ($context['calendar_view'] == 'viewweek')
 	{
 		echo '
 			<div id="main_grid">
@@ -285,7 +285,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				}
 
 				// Arguably the most exciting part, the title!
-				echo '<a href="', $scripturl, '?action=calendar;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
+				echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
 
 				echo '
 				</h3>
@@ -394,6 +394,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// The actual day number - be it a link, or just plain old text!
 				if (!empty($modSettings['cal_daysaslink']) && $context['can_post'])
 					echo '<a href="', $scripturl, '?action=calendar;sa=post;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
+				elseif ($is_mini)
+					echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
 				else
 					echo '<span class="day_text">', $title_prefix, $day['day'], '</span>';
 
@@ -735,13 +737,13 @@ function template_calendar_top($calendar_data)
 	echo '
 		<div class="calendar_top roundframe', empty($calendar_data['disable_title']) ? ' noup' : '', '">
 			<div id="calendar_viewselector" class="buttonrow floatleft">
-				<a href="', $scripturl, '?action=calendar;viewlist;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'view_list' ? ' active' : '', '">', $txt['calendar_list'], '</a>
-				<a href="', $scripturl, '?action=calendar;viewmonth;year=', $context['current_year'], ';month=', $context['current_month'], '" class="button', $context['calendar_view'] == 'view_month' ? ' active' : '', '">', $txt['calendar_month'], '</a>
-				<a href="', $scripturl, '?action=calendar;viewweek;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'view_week' ? ' active' : '', '">', $txt['calendar_week'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewlist;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewlist' ? ' active' : '', '">', $txt['calendar_list'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewmonth;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', $txt['calendar_month'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewweek;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewweek' ? ' active' : '', '">', $txt['calendar_week'], '</a>
 			</div>
 			', template_button_strip($context['calendar_buttons'], 'right');
 
-	if ($context['calendar_view'] == 'view_list')
+	if ($context['calendar_view'] == 'viewlist')
 	{
 		echo '
 			<form action="', $scripturl, '?action=calendar;viewlist" id="calendar_range" method="post" accept-charset="', $context['character_set'], '">
