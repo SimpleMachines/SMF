@@ -3244,9 +3244,9 @@ div#pollmoderation {
 	padding: 0 12px 0 0; /* Deprecated? */
 }
 .keyinfo h5 .modified {
-	float: right;
 	color: #333;
 	font-weight: normal;
+	font-style: italic;
 	padding: 2px 4px 0 4px;
 }
 .mvisible::before {
