@@ -3227,11 +3227,10 @@ div#pollmoderation {
 	clear: right;
 }
 .messageicon {
-	float: left;
-	margin: -5px 6px -6px 0;
+	display: inline-block;
 }
 .messageicon img {
-	padding: 0 3px 0 3px;
+	vertical-align: middle;
 }
 .keyinfo h5 {
 	padding: 1px 0 5px 0;
@@ -3250,6 +3249,26 @@ div#pollmoderation {
 	font-weight: normal;
 	padding: 2px 4px 0 4px;
 }
+.mvisible::before {
+	content: "« ";
+}
+.mvisible::after {
+	content: " »";
+}
+#reason::before {
+	content: " - ";
+}
+.messageicon_container {
+	background: transparent;
+	cursor: pointer;
+	padding: 3px;
+	text-align: center;"
+}
+.messageicon_container:hover {
+	background: #FFF;
+	padding: 2px;
+	border: 1px solid rgb(173, 173, 173);
+}
 .subject_title a {
 	font-size: 0.9em;
 	color: #333;
@@ -3259,6 +3278,7 @@ div#pollmoderation {
 	color: #ad6825;
 	font-weight: bold;
 	opacity: 0.4;
+	padding: 2px 0 0 4px;
 }
 .inner {
 	padding: 7px 8px 2px 2px;
