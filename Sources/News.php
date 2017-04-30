@@ -259,17 +259,12 @@ function ShowXmlFeed()
 	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
 
 	// These can't be empty
-	$feed_meta['title'] = !empty($feed_meta['title']) ? $feed_meta['title'] : $orig_feed_meta['title'];
-	$feed_meta['desc'] = !empty($feed_meta['desc']) ? $feed_meta['desc'] : $orig_feed_meta['desc'];
-	$feed_meta['source'] = !empty($feed_meta['source']) ? $feed_meta['source'] : $orig_feed_meta['source'];
+	foreach (array('title', 'desc', 'source') as $mkey)
+		$feed_meta[$mkey] = !empty($feed_meta[$mkey]) ? $feed_meta[$mkey] : $orig_feed_meta[$mkey];
 
 	// Sanitize basic feed metadata values
-	$feed_meta['title'] = cdata_parse(strip_tags($feed_meta['title']));
-	$feed_meta['desc'] = cdata_parse(strip_tags($feed_meta['desc']));
-	$feed_meta['author'] = cdata_parse(strip_tags($feed_meta['author']));
-	$feed_meta['rights'] = cdata_parse(strip_tags($feed_meta['rights']));
-	$feed_meta['source'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['source'])));
-	$feed_meta['icon'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['icon'])));
+	foreach ($feed_meta as $mkey => $mvalue)
+		$feed_meta[$mkey] = cdata_parse(strip_tags(fix_possible_url($feed_meta[$mkey])));
 
 	$ns_string = '';
 	if (!empty($namespaces[$xml_format]))
@@ -281,8 +276,9 @@ function ShowXmlFeed()
 	$extraFeedTags_string = '';
 	if (!empty($extraFeedTags[$xml_format]))
 	{
+		$indent = "\t" . ($xml_format !== 'atom' ? "\t" : '');
 		foreach ($extraFeedTags[$xml_format] as $extraTag)
-			$extraFeedTags_string .= "\n\t\t" . $extraTag;
+			$extraFeedTags_string .= "\n" . $indent . $extraTag;
 	}
 
 	// This is an xml file....
