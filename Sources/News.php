@@ -34,7 +34,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $forum_version;
+	global $query_this_board, $smcFunc, $forum_version, $settings;
 
 	// If it's not enabled, die.
 	if (empty($modSettings['xmlnews_enable']))
@@ -52,6 +52,7 @@ function ShowXmlFeed()
 		'author' => $context['forum_name'],
 		'source' => $scripturl,
 		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],
+		'icon' => !empty($settings['og_image']) ? $settings['og_image'] : $boardurl . '/favicon.ico',
 		'language' => !empty($txt['lang_locale']) ? str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) : 'en',
 	);
 
