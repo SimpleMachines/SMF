@@ -209,17 +209,17 @@ function ShowXmlFeed()
 
 	// Get the associative array representing the xml.
 	if (!empty($modSettings['cache_enable']) && (!$user_info['is_guest'] || $modSettings['cache_enable'] >= 3))
-		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
-	if (empty($xml))
+		$xml_data = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
+	if (empty($xml_data))
 	{
 		$call = call_helper($subActions[$_GET['sa']][0], true);
 
 		if (!empty($call))
-			$xml = call_user_func($call, $xml_format);
+			$xml_data = call_user_func($call, $xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))
-			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml, 240);
+			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
 	}
 
 	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
@@ -255,8 +255,8 @@ function ShowXmlFeed()
 	$orig_feed_meta = $feed_meta;
 
 	// If mods want to do somthing with this feed, let them do that now.
-	// Provide the feed's data, title, format, content type, keys that need special handling, etc.
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
+	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
 
 	// These can't be empty
 	foreach (array('title', 'desc', 'source') as $mkey)
@@ -334,7 +334,7 @@ function ShowXmlFeed()
 		echo $extraFeedTags_string;
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
-		dumpTags($xml, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		// Output the footer of the xml.
 		echo '
@@ -367,7 +367,7 @@ function ShowXmlFeed()
 
 		echo $extraFeedTags_string;
 
-		dumpTags($xml, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </feed>';
@@ -387,7 +387,7 @@ function ShowXmlFeed()
 		<items>
 			<rdf:Seq>';
 
-		foreach ($xml as $item)
+		foreach ($xml_data as $item)
 		{
 			$link = array_filter($item['content'], function ($e) { return ($e['tag'] == 'link'); });
 			$link = array_pop($link);
@@ -402,7 +402,7 @@ function ShowXmlFeed()
 	</channel>
 ';
 
-		dumpTags($xml, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </rdf:RDF>';
@@ -417,7 +417,7 @@ function ShowXmlFeed()
 		echo $extraFeedTags_string;
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
-		dumpTags($xml, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </smf:xml-feed>';
