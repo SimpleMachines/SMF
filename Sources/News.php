@@ -628,7 +628,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
  * The array will be generated to match the format.
  * @todo get the list of members from Subs-Members.
  *
- * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array of arrays of feed items. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlMembers($xml_format)
@@ -759,10 +759,10 @@ function getXmlMembers($xml_format)
 /**
  * Get the latest topics information from a specific board,
  * to display later.
- * The returned array will be generated to match the xmf_format.
+ * The returned array will be generated to match the xml_format.
  * @todo does not belong here
  *
- * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'.
+ * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'.
  * @return array An array of arrays of topic data for the feed. Each array has keys corresponding to the tags for the specified format.
  */
 function getXmlNews($xml_format)
@@ -1152,7 +1152,7 @@ function getXmlNews($xml_format)
  * The returned array will be generated to match the xml_format.
  * @todo does not belong here.
  *
- * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array of arrays containing data for the feed. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlRecent($xml_format)
@@ -1592,7 +1592,7 @@ function getXmlRecent($xml_format)
  * which will be generated to match the xml_format.
  * @todo refactor.
  *
- * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array profile data
  */
 function getXmlProfile($xml_format)
