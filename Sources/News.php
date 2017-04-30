@@ -651,6 +651,9 @@ function getXmlMembers($xml_format)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// Create a GUID for each member using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':member=' . $row['id_member'];
+
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
@@ -674,7 +677,10 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?action=profile;u=' . $row['id_member'],
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 				),
 			);
@@ -723,7 +729,7 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?action=profile;u=' . $row['id_member'],
+						'content' => $guid,
 					),
 				),
 			);
@@ -872,6 +878,9 @@ function getXmlNews($xml_format)
 		else
 			$loaded_attachments = null;
 
+		// Create a GUID for this topic using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -921,7 +930,10 @@ function getXmlNews($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 					array(
 						'tag' => 'enclosure',
@@ -1022,7 +1034,7 @@ function getXmlNews($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+						'content' => $guid,
 					),
 					array(
 						'tag' => 'link',
@@ -1282,6 +1294,9 @@ function getXmlRecent($xml_format)
 		else
 			$loaded_attachments = null;
 
+		// Create a GUID for this post using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -1331,7 +1346,10 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 					array(
 						'tag' => 'enclosure',
@@ -1432,7 +1450,7 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+						'content' => $guid,
 					),
 					array(
 						'tag' => 'link',
@@ -1612,6 +1630,9 @@ function getXmlProfile($xml_format)
 	// Okay, I admit it, I'm lazy.  Stupid $_GET['u'] is long and hard to type.
 	$profile = &$memberContext[$_GET['u']];
 
+	// Create a GUID for this member using the tag URI scheme
+	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $user_profile[$profile['id']]['date_registered']) . ':member=' . $profile['id'];
+
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
 		$data[] = array(
@@ -1639,7 +1660,10 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'guid',
-					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
+					'content' => $guid,
+					'attributes' => array(
+						'isPermaLink' => 'false',
+					),
 				),
 			)
 		);
@@ -1718,7 +1742,7 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'id',
-					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
+					'content' => $guid,
 				),
 			)
 		);
