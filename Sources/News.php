@@ -52,7 +52,7 @@ function ShowXmlFeed()
 		'author' => $context['forum_name'],
 		'source' => $scripturl,
 		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],
-		'icon' => $boardurl . '/favicon.ico',
+		'language' => !empty($txt['lang_locale']) ? str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) : 'en',
 	);
 
 	// Handle the cases where a board, boards, or category is asked for.
@@ -324,7 +324,9 @@ function ShowXmlFeed()
 			<link>' . $feed_meta['source'] . '</link>
 		</image>' : '',
 		!empty($feed_meta['rights']) ? '
-		<copyright>' . $feed_meta['rights'] . '</copyright>' : '';
+		<copyright>' . $feed_meta['rights'] . '</copyright>' : '',
+		!empty($feed_meta['language']) ? '
+		<language>' . $feed_meta['language'] . '</language>' : '';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
@@ -348,7 +350,7 @@ function ShowXmlFeed()
 				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		echo '
-<feed', $ns_string, '>
+<feed', $ns_string, !empty($feed_meta['language']) ? ' xml:lang="' . $feed_meta['language'] . '"' : '', '>
 	<title>', $feed_meta['title'], '</title>
 	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
 	<link rel="self" type="application/atom+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />
