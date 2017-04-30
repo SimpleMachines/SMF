@@ -181,7 +181,7 @@ function ShowXmlFeed()
 	}
 
 	// Show in rss or proprietary format?
-	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'smf';
+	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
 
 	// @todo Birthdays?
 
