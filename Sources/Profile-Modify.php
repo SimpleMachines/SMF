@@ -3161,7 +3161,7 @@ function profileSaveAvatarData(&$value)
 		$url = parse_url($_POST['userpicpersonal']);
 		$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
 
-		$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
+		$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, null, false, true);
 		if ($contents != false && $tmpAvatar = fopen($new_filename, 'wb'))
 		{
 			fwrite($tmpAvatar, $contents);
@@ -3265,7 +3265,7 @@ function profileSaveAvatarData(&$value)
 				if (!is_writable($uploadDir))
 					fatal_lang_error('attachments_no_write', 'critical');
 
-				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
+				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, null, false, true);
 				if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
 					fatal_lang_error('attach_timeout', 'critical');
 

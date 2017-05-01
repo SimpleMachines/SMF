@@ -686,7 +686,7 @@ function createAttachment(&$attachmentOptions)
 
 	// Get the hash if no hash has been given yet.
 	if (empty($attachmentOptions['file_hash']))
-		$attachmentOptions['file_hash'] = getAttachmentFilename($attachmentOptions['name'], false, null, true);
+		$attachmentOptions['file_hash'] = getAttachmentFilename($attachmentOptions['name'], null, false, true);
 
 	// Assuming no-one set the extension let's take a look at it.
 	if (empty($attachmentOptions['fileext']))
@@ -768,7 +768,7 @@ function createAttachment(&$attachmentOptions)
 
 			$thumb_filename = $attachmentOptions['name'] . '_thumb';
 			$thumb_size = filesize($attachmentOptions['destination'] . '_thumb');
-			$thumb_file_hash = getAttachmentFilename($thumb_filename, false, null, true);
+			$thumb_file_hash = getAttachmentFilename($thumb_filename, null, false, true);
 			$thumb_path = $attachmentOptions['destination'] . '_thumb';
 
 			// We should check the file size and count here since thumbs are added to the existing totals.
@@ -1195,7 +1195,7 @@ function loadAttachmentContext($id_msg, $attachments)
 							$thumb_mime = 'image/' . $thumb_ext;
 
 						$thumb_filename = $attachment['filename'] . '_thumb';
-						$thumb_hash = getAttachmentFilename($thumb_filename, false, null, true);
+						$thumb_hash = getAttachmentFilename($thumb_filename, 0, null, true);
 
 						// Add this beauty to the database.
 						$attachment['id_thumb'] = $smcFunc['db_insert']('',
