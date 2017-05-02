@@ -3704,7 +3704,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
-	if (!empty($modSettings['currentAttachmentUploadDir']) && $dir != null)
+	if (is_array($modSettings['attachmentUploadDir']))
 		$path = $modSettings['attachmentUploadDir'][$dir];
 
 	else
