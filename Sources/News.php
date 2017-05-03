@@ -652,7 +652,7 @@ function getXmlMembers($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Create a GUID for each member using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':member=' . $row['id_member'];
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
