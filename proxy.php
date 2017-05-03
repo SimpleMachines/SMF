@@ -106,10 +106,6 @@ class ProxyServer
 			header('HTTP/1.0 404 Not Found');
 			exit;
 		}
-		// Right, image not cached? Simply redirect, then.
-		if (!$response) {
-			header('Location: ' . $request, false, 301);
-		}
 
 		// Is the cache expired?
 		if (!$cached || time() - $cached['time'] > (5 * 86400))
@@ -121,7 +117,7 @@ class ProxyServer
 		}
 
 		// Right, image not cached? Simply redirect, then.
-		if (!$this->checkRequest())
+		if (!$response)
 		    redirectexit($request);
 
 		// Make sure we're serving an image
