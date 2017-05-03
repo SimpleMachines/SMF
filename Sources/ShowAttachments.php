@@ -320,7 +320,6 @@ function showAttachment()
 			$buffer = fread($fp, 1024 * $maxSpeed);
 			echo($buffer);
 			flush();
-			usleep($this->sec * 1000000);
 			$bytes_sent += strlen($buffer);
 		}
 		fclose($fp);
