@@ -98,6 +98,18 @@ class ProxyServer
 		$request = $_GET['request'];
 		$cached_file = $this->getCachedPath($request);
 		$cached = json_decode(file_get_contents($cached_file), true);
+		
+		// Did we get an error when trying to fetch the image
+		$response = $this->checkRequest();
+		if (is_int($response)) {
+			// Throw a 404
+			header('HTTP/1.0 404 Not Found');
+			exit;
+		}
+		// Right, image not cached? Simply redirect, then.
+		if (!$response) {
+			header('Location: ' . $request, false, 301);
+		}
 
 		// Is the cache expired?
 		if (!$cached || time() - $cached['time'] > (5 * 86400))
@@ -151,7 +163,7 @@ class ProxyServer
 	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return bool Whether the specified image was cached
+	 * @return bool|int Whether the specified image was cached or error code when accessing
 	 */
 	protected function cacheImage($request)
 	{
@@ -159,10 +171,15 @@ class ProxyServer
 
 		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
 		$request = $curl->get_url_data($request);
+		$responseCode = $request->result('code');
 		$response = $request->result();
 
 		if (empty($response))
 			return false;
+		
+		if ($responseCode != 200) {
+			return $request->result('code');
+		}
 
 		$headers = $response['headers'];
 
