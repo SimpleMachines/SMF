@@ -309,6 +309,8 @@ function showAttachment()
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
 
+		// 40 kilobytes is a good-ish amount
+		$chunksize = 40 * 1024;
 		$bytes_sent = 0;
 
 		$fp = fopen($file['filePath'], 'rb');
@@ -317,7 +319,7 @@ function showAttachment()
 
 		while (!feof($fp) && (!connection_aborted()) && ($bytes_sent < $new_length))
 		{
-			$buffer = fread($fp, 1024 * $maxSpeed);
+			$buffer = fread($fp, $chunksize);
 			echo($buffer);
 			flush();
 			$bytes_sent += strlen($buffer);
