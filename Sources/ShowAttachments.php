@@ -280,13 +280,54 @@ function showAttachment()
 	else
 		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
 
-	header('Content-Length: ' . filesize($file['filePath']));
+	// Multipart and resuming support
+	$range = 0;
+	$size = filesize($file['filePath']);
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+		list($range) = explode(",", $range, 2);
+		list($range, $range_end) = explode("-", $range);
+		$range = intval($range);
+		$range_end = !$range_end ? $size - 1 : intval($range_end);
+
+		$new_length = $range_end - $range + 1;
+		header("HTTP/1.1 206 Partial Content");
+		header("Content-Length: $new_length");
+		header("Content-Range: bytes $range-$range_end/$size");
+	}
+	else
+		header("Content-Length: " . $size);
+
 
 	// Try to buy some time...
 	@set_time_limit(600);
 
+	// For multipart/resumable downloads, send the requested chunk(s) of the file
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		while (@ob_get_level() > 0)
+			@ob_end_clean();
+
+		$bytes_sent = 0;
+
+		$fp = fopen($file['filePath'], 'rb');
+
+		fseek($fp, $range);
+
+		while (!feof($fp) && (!connection_aborted()) && ($bytes_sent < $new_length))
+		{
+			$buffer = fread($fp, 1024 * $maxSpeed);
+			echo($buffer);
+			flush();
+			usleep($this->sec * 1000000);
+			$bytes_sent += strlen($buffer);
+		}
+		fclose($fp);
+	}
+
 	// Since we don't do output compression for files this large...
-	if (filesize($file['filePath']) > 4194304)
+	elseif ($size > 4194304)
 	{
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
