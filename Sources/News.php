@@ -165,7 +165,7 @@ function ShowXmlFeed()
 		$smcFunc['db_free_result']($request);
 
 		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
-		$feed_meta['source'] .= ';board=' . $board . '.0' ;
+		$feed_meta['source'] .= '?board=' . $board . '.0' ;
 
 		$query_this_board = 'b.id_board = ' . $board;
 
