@@ -209,7 +209,7 @@ $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
 $txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
-$txt['last_edit_reason'] = '<span class="lastedit">Reason</span>: %1$s';
+$txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
 $txt['recent_posts'] = 'Recent Posts';
