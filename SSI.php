@@ -177,6 +177,9 @@ if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['
 // Have the ability to easily add functions to SSI.
 call_integration_hook('integrate_SSI');
 
+// Ignore a call to ssi_* functions if we are not using SSI.php
+if (empty($modSettings['allow_ssi_functions_anywhere']) && isset($_GET['ssi_function']) && basename($_SERVER['PHP_SELF']) !== 'SSI.php')
+	unset($_GET['ssi_function']);
 // Call a function passed by GET.
 if (isset($_GET['ssi_function']) && function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
 {
