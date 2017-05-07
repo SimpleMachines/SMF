@@ -1252,10 +1252,6 @@ function scheduled_fetchSMfiles()
 		// Get the file
 		$file_data = fetch_web_data($url);
 
-		// If we got an error - maybe https isn't working, try http?
-		if ($file_data === false && substr($url, 0, 30) == 'https://www.simplemachines.org')
-			$file_data = fetch_web_data(str_replace('https://www.simplemachines.org', 'http://www.simplemachines.org', $url));
-
 		// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 		if ($file_data === false)
 		{
