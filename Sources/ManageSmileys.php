@@ -1480,7 +1480,7 @@ function InstallSmileySet()
 
 	$extracted = read_tgz_file($destination, $packagesdir . '/temp');
 	if (!$extracted)
-		fatal_lang_error('packageget_unable', false, array('http://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
+		fatal_lang_error('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
 	if ($extracted && !file_exists($packagesdir . '/temp/package-info.xml'))
 		foreach ($extracted as $file)
 			if (basename($file['filename']) == 'package-info.xml')

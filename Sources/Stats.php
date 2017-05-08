@@ -744,7 +744,7 @@ function getDailyStats($condition_string, $condition_parameters = array())
  * can also be accessed by the admin, to show what stats sm.org collects.
  * does not return any data directly to sm.org, instead starts a new request for security.
  *
- * @link http://www.simplemachines.org/about/stats.php for more info.
+ * @link https://www.simplemachines.org/about/stats.php for more info.
  * Note: This functionality is currently broken
  */
 function SMStats()

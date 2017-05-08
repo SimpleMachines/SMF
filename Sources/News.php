@@ -233,8 +233,8 @@ function ShowXmlFeed()
 			'dc' => 'http://purl.org/dc/elements/1.1/',
 		),
 		'smf' => array(
-			'' => 'http://www.simplemachines.org/xml/' . $_GET['sa'],
-			'smf' => 'http://www.simplemachines.org/',
+			'' => 'https://www.simplemachines.org/xml/' . $_GET['sa'],
+			'smf' => 'https://www.simplemachines.org/',
 		),
 	);
 	$extraFeedTags = array(
@@ -355,7 +355,7 @@ function ShowXmlFeed()
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
 	<id>', $feed_meta['source'], '</id>
 	<subtitle>', $feed_meta['desc'], '</subtitle>
-	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
+	<generator uri="https://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
 	!empty($feed_meta['icon']) ? '
 	<icon>' . $feed_meta['icon'] . '</icon>' : '',
 	!empty($feed_meta['author']) ? '

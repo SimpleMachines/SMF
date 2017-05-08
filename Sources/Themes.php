@@ -1452,7 +1452,7 @@ function InstallCopy()
 
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>
-<theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
+<theme-info xmlns="https://www.simplemachines.org/xml/theme-info" xmlns:smf="https://www.simplemachines.org/">
 <!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
 <id>smf:' . $smcFunc['strtolower']($context['to_install']['name']) . '</id>
 <!-- The theme\'s version, please try to use semantic versioning. -->
@@ -1464,7 +1464,7 @@ function InstallCopy()
 <!-- Author: your email address or contact information. The name attribute is optional. -->
 <author name="Simple Machines">info@simplemachines.org</author>
 <!-- Website... where to get updates and more information. -->
-<website>http://www.simplemachines.org/</website>
+<website>https://www.simplemachines.org/</website>
 <!-- Template layers to use, defaults to "html,body". -->
 <layers>' . $context['to_install']['theme_layers'] . '</layers>
 <!-- Templates to load on startup. Default is "index". -->
