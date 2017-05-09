@@ -3287,6 +3287,8 @@ img.smiley {
 .attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
+	display:inline-block;
+	vertical-align:top;
 }
 .attachments_top {
 	margin: 0 auto;
