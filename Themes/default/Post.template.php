@@ -134,7 +134,8 @@ function template_main()
 	echo '
 					<dl id="post_header">';
 
-	// All the posting fields.
+	// All the posting fields (subject, message icon, guest name & email, etc.)
+	// Mod & theme authors can use the 'integrate_post_end' hook to modify $context['posting_fields']
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
 		foreach ($context['posting_fields'] as $pfid => $pf)
 			echo '
