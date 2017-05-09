@@ -973,7 +973,7 @@ $request = $smcFunc['db_query']('', '
 		'theme_dir' => 'theme_dir',
 	)
 );
-// Check which themes exist in the filesystem & save off their IDs 
+// Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = $GLOBALS['boarddir'] . '/Themes/core';
@@ -2066,6 +2066,14 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 ---#
 
 /******************************************************************************/
+--- Tokenizing references to forum URL in posts and personal messages
+/******************************************************************************/
+---# Replacing $boardurl with token
+UPDATE {$db_prefix}messages SET body = REPLACE(body, '{$boardurl}', CONCAT('{$', 'boardurl}')) WHERE body LIKE '%{$boardurl}%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '{$boardurl}', CONCAT('{$', 'boardurl}')) WHERE body LIKE '%{$boardurl}%';
+---#
+
+/******************************************************************************/
 --- Remove redundant indexes
 /******************************************************************************/
 ---# Duplicates to messages_current_topic
@@ -2462,6 +2470,6 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 /******************************************************************************/
 --- Create index for messages likes
 /******************************************************************************/
----# Add Index for messages likes 
+---# Add Index for messages likes
 CREATE INDEX idx_likes ON {$db_prefix}messages (likes DESC);
 ---#

@@ -308,7 +308,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
-	global $db_callback, $db_last_result, $db_replace_result, $modSettings;
+	global $db_callback, $db_last_result, $db_replace_result, $modSettings, $boardurl;
 
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
@@ -388,6 +388,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 		// Inject the values passed to this function.
 		$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', 'smf_db_replacement__callback', $db_string);
+
+		// Replace $boardurl with a token (we restore it when we retrieve the value)
+		$db_string = str_replace($boardurl, '{$boardurl}', $db_string);
 
 		// This shouldn't be residing in global space any longer.
 		$db_callback = array();
@@ -480,7 +483,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		$db_string = $query_hints_set . $db_string;
-		
+
 		if (isset($db_show_debug) && $db_show_debug === true && $db_cache[$db_count]['q'] != '...')
 			$db_cache[$db_count]['q'] = "\t\t" . $db_string;
 	}
@@ -626,14 +629,23 @@ function smf_db_fetch_row($request, $counter = false)
 	global $db_row_count;
 
 	if ($counter !== false)
-		return pg_fetch_row($request, $counter);
+		$row = pg_fetch_row($request, $counter);
 
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
+	else
+	{
+		// Reset the row counter...
+		if (!isset($db_row_count[(int) $request]))
+			$db_row_count[(int) $request] = 0;
 
-	// Return the right row.
-	return @pg_fetch_row($request, $db_row_count[(int) $request]++);
+		// Get the right row.
+		$row = @pg_fetch_row($request, $db_row_count[(int) $request]++);
+	}
+
+	array_walk($row, function(&$column) use ($boardurl) {
+		$column = str_replace('{$boardurl}', $boardurl, $column);
+	});
+
+	return $row;
 }
 
 /**
@@ -648,14 +660,23 @@ function smf_db_fetch_assoc($request, $counter = false)
 	global $db_row_count;
 
 	if ($counter !== false)
-		return pg_fetch_assoc($request, $counter);
+		$row = pg_fetch_assoc($request, $counter);
 
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
+	else
+	{
+		// Reset the row counter...
+		if (!isset($db_row_count[(int) $request]))
+			$db_row_count[(int) $request] = 0;
 
-	// Return the right row.
-	return @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
+		// Get the right row.
+		$row = @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
+	}
+
+	array_walk($row, function(&$column) use ($boardurl) {
+		$column = str_replace('{$boardurl}', $boardurl, $column);
+	});
+
+	return $row;
 }
 
 /**
@@ -963,7 +984,7 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A PostgreSQL result resource
  * @return array An array that contains all rows (records) in the result resource
