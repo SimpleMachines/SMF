@@ -32,7 +32,7 @@ use ReCaptcha\RequestParameters;
 /**
  * Sends cURL request to the reCAPTCHA service.
  * Note: this requires the cURL extension to be enabled in PHP
- * @see https://www.php.net/manual/en/book.curl.php
+ * @see https://php.net/manual/en/book.curl.php
  */
 class CurlPost implements RequestMethod
 {

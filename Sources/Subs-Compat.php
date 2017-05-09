@@ -155,7 +155,7 @@ function sha1_raw($text)
 /**
  * Compatibility function.
  * crc32 doesn't work as expected on 64-bit functions - make our own.
- * https://www.php.net/crc32#79567
+ * https://php.net/crc32#79567
  * @param string $number
  * @return string The crc32 polynomial of $number
  */
