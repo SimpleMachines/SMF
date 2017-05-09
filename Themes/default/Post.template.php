@@ -135,9 +135,11 @@ function template_main()
 					<dl id="post_header">';
 
 	// All the posting fields (subject, message icon, guest name & email, etc.)
-	// Mod & theme authors can use the 'integrate_post_end' hook to modify $context['posting_fields']
+	// Mod & theme authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php)
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
+	{
 		foreach ($context['posting_fields'] as $pfid => $pf)
+		{
 			echo '
 						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
 							', $pf['dt'], '
@@ -145,6 +147,8 @@ function template_main()
 						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
 							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
+		}
+	}
 
 	echo '
 					</dl>';
