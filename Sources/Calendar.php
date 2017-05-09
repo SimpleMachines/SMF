@@ -536,7 +536,7 @@ function CalendarPost()
 /**
  * This function offers up a download of an event in iCal 2.0 format.
  *
- * Follows the conventions in {@link http://tools.ietf.org/html/rfc5546 RFC5546}
+ * Follows the conventions in {@link https://tools.ietf.org/html/rfc5546 RFC5546}
  * Sets events as all day events since we don't have hourly events
  * Will honor and set multi day events
  * Sets a sequence number if the event has been modified

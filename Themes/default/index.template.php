@@ -32,7 +32,7 @@
 	wants and or needs.
 
 	For more information on the templating system, please see the site at:
-	http://www.simplemachines.org/
+	https://www.simplemachines.org/
 */
 
 /**

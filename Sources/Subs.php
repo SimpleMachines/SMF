@@ -5506,7 +5506,7 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		require_once($sourcedir . '/Subs-Package.php');
-		$tlds = fetch_web_data('http://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)

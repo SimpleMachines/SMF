@@ -3307,10 +3307,10 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
- *	 memcache: http://www.php.net/memcache
- *	 APC: http://www.php.net/apc
- *   APCu: http://www.php.net/book.apcu
+ *	 Xcache: https://xcache.lighttpd.net/wiki/XcacheApi
+ *	 memcache: https://www.php.net/memcache
+ *	 APC: https://www.php.net/apc
+ *   APCu: https://www.php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *

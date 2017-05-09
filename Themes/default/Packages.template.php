@@ -790,7 +790,7 @@ function template_servers()
 								<strong>' . $txt['serverurl'] . ':</strong>
 							</dt>
 							<dd>
-								<input type="text" name="serverurl" size="44" value="http://" class="input_text">
+								<input type="text" name="serverurl" size="44" value="https://" class="input_text">
 							</dd>
 						</dl>
 						<div class="righttext">
@@ -807,7 +807,7 @@ function template_servers()
 								<strong>' . $txt['serverurl'] . ':</strong>
 							</dt>
 							<dd>
-								<input type="text" name="package" size="44" value="http://" class="input_text">
+								<input type="text" name="package" size="44" value="https://" class="input_text">
 							</dd>
 							<dt>
 								<strong>', $txt['package_download_filename'], ':</strong>
