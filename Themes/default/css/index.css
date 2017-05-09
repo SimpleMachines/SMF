@@ -3263,6 +3263,9 @@ div#pollmoderation {
 	color: #333;
 	font-weight: bold;
 }
+.subject_hidden a {
+	display: none;
+}
 .page_number {
 	color: #ad6825;
 	font-weight: bold;
