@@ -233,8 +233,8 @@ function ShowXmlFeed()
 			'dc' => 'http://purl.org/dc/elements/1.1/',
 		),
 		'smf' => array(
-			'' => 'https://www.simplemachines.org/xml/' . $_GET['sa'],
-			'smf' => 'https://www.simplemachines.org/',
+			'' => 'http://www.simplemachines.org/xml/' . $_GET['sa'],
+			'smf' => 'http://www.simplemachines.org/',
 		),
 	);
 	$extraFeedTags = array(

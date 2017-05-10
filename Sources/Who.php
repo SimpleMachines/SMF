@@ -773,7 +773,7 @@ function Credits($in_admin = false)
 		),
 		'software' => array(
 			'<a href="https://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
-			'<a href="https://github.com/briancherne/jquery-hoverIntent">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://briancherne.github.io/jquery-hoverIntent/">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="https://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="https://github.com/mzubala/jquery-custom-scrollbar">jQuery Custom Scrollbar</a> | &copy; Maciej Zubala | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
@@ -787,7 +787,7 @@ function Credits($in_admin = false)
 		'fonts' => array(
 			'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
 			'<a href="https://fontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="https://openfontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 		),
 	);
 
