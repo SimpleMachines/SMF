@@ -434,25 +434,31 @@ function template_main()
 									<img data-dz-thumbnail />
 								</div>
 								<div class="attach-info">
-									<p class="name" data-dz-name></p>
-									<p class="error" data-dz-errormessage></p>
-									<p class="size" data-dz-size></p>
-									<p class="message" data-dz-message></p>
-									<p class="attached_BBC">
+									<div>
+										<span class="name" data-dz-name></span>
+										<span class="error" data-dz-errormessage></span>
+										<span class="size" data-dz-size></span>
+										<span class="message" data-dz-message></span>
+									</div>
+									<div class="attached_BBC">
 										<input type="text" name="attachBBC" value="" readonly>
-										<span class="attached_BBC_width_height">
-											<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
-											<input type="text" name="attached_BBC_width" value="" size=4>
-											<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
-											<input type="text" name="attached_BBC_height" value="" size=4>
-										</span>
+										<div class="attached_BBC_width_height">
+											<div class="attached_BBC_width">
+												<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+												<input type="text" name="attached_BBC_width" value="" size=4>
+											</div>
+											<div class="attached_BBC_height">
+												<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+												<input type="text" name="attached_BBC_height" value="" size=4>
+											</div>
+										</div>
+									</div>
+									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="attach-ui">
 										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
-									</p>
-									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
-								</div>
-								<div class="attach-ui">
-									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
-									<a class="button_submit start">', $txt['upload'] ,'</a>
+										<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
+										<a class="button_submit start">', $txt['upload'] ,'</a>
+									</div>
 								</div>
 							</div>
 						</div>

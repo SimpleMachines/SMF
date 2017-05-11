@@ -187,6 +187,7 @@ function smf_fileUpload(oOptions)
 
 						// Remove the text field and show a nice confirmation message.
 						_innerElement.find('.attached_BBC').text(data.text);
+						_thisElement.find('.attach-info a.insertBBC').fadeOut();
 
 						// Do stuff only if the file was actually accepted and it doesn't have an error status.
 						if (file.accepted && file.status != Dropzone.ERROR) {
@@ -201,7 +202,7 @@ function smf_fileUpload(oOptions)
 					error: function (xhr, textStatus, errorThrown) {
 
 						// Tell the user something horrible happen!
-						_innerElement.find('p.error').append(textStatus.error.join('<br>'));
+						_innerElement.find('span.error').append(textStatus.error.join('<br>'));
 
 						// For dramatic purposes only!
 						_innerElement.removeClass('infobox').addClass('errorbox');
@@ -274,15 +275,16 @@ function smf_fileUpload(oOptions)
 
 		// There is a general error.
 		if (responseText.generalErrors){
-			_thisElement.find('p.error').append(responseText.generalErrors.join('<br>'));
+			_thisElement.find('span.error').append(responseText.generalErrors.join('<br>'));
 			return;
 		}
 
 		// Server returns an array.
 		response = responseText.files[0];
 
-		// Show the input field.
-		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+		// Show the input field and insert button.
+		_thisElement.find('.attach-info div.attached_BBC').fadeIn();
+		_thisElement.find('.attach-info a.insertBBC').fadeIn();
 
 		if (typeof response.type == "undefined" || response.type.indexOf('image') != 0){
 			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
@@ -294,7 +296,7 @@ function smf_fileUpload(oOptions)
 			_thisElement.addClass('errorbox').removeClass('descbox');
 
 			// Show the server error.
-			_thisElement.find('p.error').append(response.errors.join('<br>'));
+			_thisElement.find('span.error').append(response.errors.join('<br>'));
 			return;
 		}
 
@@ -320,7 +322,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Get the current file box progress bar, set its inner span's width accordingly.
-		_thisElement.find('p.progressBar span').width(progress + '%');
+		_thisElement.find('div.progressBar span').width(progress + '%');
 	});
 
 	myDropzone.on('complete', function(file, progress, bytesSent) {
@@ -328,12 +330,13 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Hide the progress bar.
-		_thisElement.find('p.progressBar').fadeOut();
+		_thisElement.find('div.progressBar').fadeOut();
 
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
 			// Show the input field.
-			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+			_thisElement.find('.attach-info div.attached_BBC').fadeIn();
+			_thisElement.find('.attach-info a.insertBBC').fadeIn();
 
 			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0){
 				_thisElement.find('.attach-info .attached_BBC_width_height').hide();
@@ -372,7 +375,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Show the progress bar when upload starts.
-		_thisElement.find('p.progressBar').fadeIn();
+		_thisElement.find('div.progressBar').fadeIn();
 
 		// Show the total progress bar when upload starts.
 		$("#total-progress").fadeIn();

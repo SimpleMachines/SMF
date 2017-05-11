@@ -3807,10 +3807,10 @@ h3.profile_hd {
 	justify-content: space-between;
 	align-items: center;
 }
-#au-previews div.descbox div,
-#au-previews div.errorbox div,
-#au-previews div.infobox div{
-	padding: 0 10px;
+#au-previews div.descbox > div,
+#au-previews div.errorbox > div,
+#au-previews div.infobox > div{
+	padding: 10px;
 	box-sizing: border-box;
 }
 #au-previews .attach-preview {
@@ -3819,28 +3819,37 @@ h3.profile_hd {
 }
 #au-previews .attach-info {
 	flex: 1 1 auto;
-	max-width: 400px
+	width: 250px;
 }
 #au-previews .attach-ui {
-	flex: 1 0 auto;
-	width: 170px;
+	min-height: 36px;
 }
 input[name="attachBBC"] {
 	width: 100%;
+	margin-top: 10px;
 }
-.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
+.attach-info .progressBar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
 	display: none;
 }
-.attached_BBC_width_height {
-	margin-top: 12px;
-	float: left;
+.attached_BBC_width_height label {
+	min-width: 100px;
+	display: inline-block;
 }
-a.insertBBC
-{
-	margin: 0;
+.attached_BBC_width, .attached_BBC_height {
+	margin: 10px 1em 0 0;
+	display: inline-block;
 }
 a.button_submit {
 	margin-top:15px;
+	text-decoration: none;
+	display: inline-block;
+	min-width: 0;
+}
+a.button_submit.insertBBC
+{
+	float: left;
+	margin-left: 0;
+	display: none;
 }
 
 .attach-info p, .attach-info field{
