@@ -9,9 +9,11 @@ php:
   - 7.1
   - hhvm
 
+before_install:
+  - sudo add-apt-repository ppa:mapnik/boost -y
+
 script:
   - sudo add-apt-repository ppa:git-core/ppa -y
-  - sudo add-apt-repository ppa:mapnik/boost -y
   - sudo apt-get update
   - sudo apt-get install git
   - git submodule foreach git pull origin master
