@@ -9,10 +9,10 @@ php:
   - 7.1
   - hhvm
 
-addons:
-  apt:
-    packages:
-    - 'ppa:mapnik/boost'
+matrix:
+  include:
+    - php: hhvm
+      dist: trusty
 
 script:
   - sudo add-apt-repository ppa:git-core/ppa -y
