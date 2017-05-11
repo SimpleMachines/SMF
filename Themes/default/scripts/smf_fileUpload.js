@@ -5,7 +5,7 @@ function smf_fileUpload(oOptions)
 		if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
 			done(this.options.dictMaxFilesExceeded);
 			return this.emit("maxfilesexceeded", file);
-		} else 
+		} else
 			return this.options.accept.call(this, file, done);
 	};
 
@@ -28,13 +28,15 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		smf_insertBBC: function(file){
+		smf_insertBBC: function(file, w, h){
 			var bbcOptionalParams = {
-				name: typeof file.name !== "undefined" ? ('name='+ file.name) : '',
+				width: +w > 0 ? ('width='+ w + ' ') : '',
+				height: +h > 0 ? ('height='+ h + ' ') : '',
+				name: typeof file.name !== "undefined" ? ('name='+ file.name + ' ') : '',
 				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
 			};
 
-			return '[attach '+ decodeURIComponent(bbcOptionalParams.name) +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach ' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 
@@ -77,7 +79,7 @@ function smf_fileUpload(oOptions)
 				file.status = Dropzone.CANCELED;
 			}
 
-			// The file is too big. 
+			// The file is too big.
 			if ((myDropzone.options.maxFilesize > 0) && (file.size > (myDropzone.options.maxFilesize * 1024))){
 				done(myDropzone.options.dictFileTooBig);
 
@@ -138,10 +140,13 @@ function smf_fileUpload(oOptions)
 			_innerElement.find('.insertBBC').on('click', function (e) {
 				e.preventDefault();
 
+				w = _innerElement.find('input[name="attached_BBC_width"]').val();
+				h = _innerElement.find('input[name="attached_BBC_height"]').val();
+
 				// Get the editor stuff.
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
-				oEditor.insert(myDropzone.options.smf_insertBBC(response));
+				oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
 			});
 		};
 
@@ -279,6 +284,10 @@ function smf_fileUpload(oOptions)
 		// Show the input field.
 		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
+		if (typeof response.type == "undefined" || response.type.indexOf('image') != 0){
+			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+		}
+
 		// The request was complete but the server returned an error.
 		if (typeof response.errors !== 'undefined' && response.errors.length > 0){
 
@@ -293,7 +302,9 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// Append the BBC.
-		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
+		w = _thisElement.find('input[name="attached_BBC_width"]').val();
+		h = _thisElement.find('input[name="attached_BBC_height"]').val();
+		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response, w, h));
 
 		file.insertAttachment(_thisElement, response);
 
@@ -324,6 +335,10 @@ function smf_fileUpload(oOptions)
 			// Show the input field.
 			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
+			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0){
+				_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+			}
+
 			// If there wasn't any error, change the current cover.
 			_thisElement.addClass('infobox').removeClass('descbox');
 
@@ -331,7 +346,9 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('.start').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
+			w = _thisElement.find('input[name="attached_BBC_width"]').val();
+			h = _thisElement.find('input[name="attached_BBC_height"]').val();
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
 
 			file.insertAttachment(_thisElement, file);
 

@@ -3801,23 +3801,43 @@ h3.profile_hd {
 	transform: translate(-50%, -50%);
 }
 
+.dz-image-preview {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+}
 #au-previews div.descbox div,
 #au-previews div.errorbox div,
 #au-previews div.infobox div{
-	display: inline-block;
-	width: 32%;
-	min-height: 30px;
-	vertical-align: middle;
+	padding: 0 10px;
+	box-sizing: border-box;
 }
-.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
+#au-previews .attach-preview {
+	flex: 0 0 auto;
+	width: 170px;
+}
+#au-previews .attach-info {
+	flex: 1 1 auto;
+	max-width: 400px
+}
+#au-previews .attach-ui {
+	flex: 1 0 auto;
+	width: 170px;
+}
+input[name="attachBBC"] {
+	width: 100%;
+}
+.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
 	display: none;
+}
+.attached_BBC_width_height {
+	margin-top: 12px;
+	float: left;
 }
 a.insertBBC
 {
 	margin: 0;
-}
-p.attached_BBC {
-	margin-right:75px;
 }
 a.button_submit {
 	margin-top:15px;

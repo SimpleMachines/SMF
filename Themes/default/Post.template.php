@@ -15,7 +15,7 @@
  */
 function template_main()
 {
-	global $context, $options, $txt, $scripturl, $modSettings, $counter;
+	global $context, $options, $txt, $editortxt, $scripturl, $modSettings, $counter;
 
 	// Start the javascript... and boy is there a lot.
 	echo '
@@ -440,6 +440,12 @@ function template_main()
 									<p class="message" data-dz-message></p>
 									<p class="attached_BBC">
 										<input type="text" name="attachBBC" value="" readonly>
+										<span class="attached_BBC_width_height">
+											<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+											<input type="text" name="attached_BBC_width" value="" size=4>
+											<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+											<input type="text" name="attached_BBC_height" value="" size=4>
+										</span>
 										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
 									</p>
 									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
