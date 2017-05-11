@@ -12,7 +12,7 @@ php:
 addons:
   apt:
     packages:
-    - boost: 'ppa:mapnik/boost'
+    - 'ppa:mapnik/boost'
 
 script:
   - sudo add-apt-repository ppa:git-core/ppa -y
