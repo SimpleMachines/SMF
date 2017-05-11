@@ -3851,14 +3851,13 @@ a.button_submit.insertBBC
 	margin-left: 0;
 	display: none;
 }
-
-.attach-info p, .attach-info field{
-	display: inline-block;
+.attach-info input[type="number"] {
+	width: 5em;
 }
-#attachUpload{
+#attachUpload {
 	min-height:50px;
 }
-#total-progress{
+#total-progress {
 	width:50%;
 	display:none;
 }
