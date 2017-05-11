@@ -15,7 +15,7 @@
  */
 function template_main()
 {
-	global $context, $options, $txt, $editortxt, $scripturl, $modSettings, $counter;
+	global $context, $options, $txt, $scripturl, $modSettings, $counter;
 
 	// Start the javascript... and boy is there a lot.
 	echo '
