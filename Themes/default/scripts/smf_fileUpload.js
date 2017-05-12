@@ -286,7 +286,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.attach-info div.attached_BBC').fadeIn();
 		_thisElement.find('.attach-info a.insertBBC').fadeIn();
 
-		if (typeof response.type == "undefined" || response.type.indexOf('image') != 0){
+		if (typeof response.mime_type == "undefined" || response.mime_type.indexOf('image') != 0){
 			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
 		}
 
