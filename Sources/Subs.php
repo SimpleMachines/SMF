@@ -4672,9 +4672,9 @@ function sanitizeMSCutPaste($string)
 
 	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
-		"\xe2\80\x9a",	// single low-9 quotation mark
-		"\xe2\80\x9e",	// double low-9 quotation mark
-		"\xe2\80\xa6",	// horizontal ellipsis
+		"\xe2\x80\x9a",	// single low-9 quotation mark
+		"\xe2\x80\x9e",	// double low-9 quotation mark
+		"\xe2\x80\xa6",	// horizontal ellipsis
 		"\xe2\x80\x98",	// left single curly quote
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
