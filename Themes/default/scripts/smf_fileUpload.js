@@ -29,14 +29,17 @@ function smf_fileUpload(oOptions)
 		autoQueue: false,
 		clickable: '.fileinput-button',
 		smf_insertBBC: function(file, w, h){
+
+			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
+
 			var bbcOptionalParams = {
-				width: +w > 0 ? ('width='+ w + ' ') : '',
-				height: +h > 0 ? ('height='+ h + ' ') : '',
-				name: typeof file.name !== "undefined" ? ('name='+ file.name + ' ') : '',
-				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
+				width: mime_type.indexOf('image') =s= 0 && +w > 0 ? (' width='+ w) : '',
+				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height='+ h) : '',
+				name: typeof file.name !== "undefined" ? (' name='+ file.name) : '',
+				type: ' type=' + mime_type,
 			};
 
-			return '[attach ' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 
