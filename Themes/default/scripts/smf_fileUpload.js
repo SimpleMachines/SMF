@@ -33,7 +33,7 @@ function smf_fileUpload(oOptions)
 			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
 
 			var bbcOptionalParams = {
-				width: mime_type.indexOf('image') =s= 0 && +w > 0 ? (' width='+ w) : '',
+				width: mime_type.indexOf('image') == 0 && +w > 0 ? (' width='+ w) : '',
 				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height='+ h) : '',
 				name: typeof file.name !== "undefined" ? (' name='+ file.name) : '',
 				type: ' type=' + mime_type,
