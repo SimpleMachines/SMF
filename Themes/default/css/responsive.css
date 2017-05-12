@@ -183,6 +183,11 @@
 	.move_topic {
 		width: 100%;
 	}
+	.bbc_float {
+		max-width: 100% !important;
+		margin-left: 0.5em !important;
+		margin-right: 0.5em !important;
+	}
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -267,7 +272,7 @@
 	#admincenter select, #quick_search select {
 		width: 90%;
 	}
-	
+
 	/* Calendar */
 	.event_options_left, .event_options_right {
 		width: 100%;

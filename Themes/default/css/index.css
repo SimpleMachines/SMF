@@ -412,6 +412,17 @@ blockquote cite::before {
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
 }
+.bbc_float {
+	clear: both;
+	margin-bottom: 1em;
+	max-width: 100%;
+}
+.bbc_float.floatleft {
+	margin-right: 1em;
+}
+.bbc_float.floatright {
+	margin-left: 1em;
+}
 /* No image should have a border when linked. */
 a img {
 	border: 0;

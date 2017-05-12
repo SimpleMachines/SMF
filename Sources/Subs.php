@@ -1272,6 +1272,26 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
 			array(
+				'tag' => 'float',
+				'type' => 'unparsed_equals',
+				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in))?\]',
+				'before' => '<div $1>',
+				'after' => '</div>',
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
+
+					if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in))~', $data, $matches))
+						$css = 'style="max-width:' . $matches[1] . '"';
+					else
+						$css = 'style="max-width:45%"';
+
+					$data = $class . ' ' . $css;
+				},
+				'trim' => 'outside',
+				'block_level' => true,
+			),
+			array(
 				'tag' => 'font',
 				'type' => 'unparsed_equals',
 				'test' => '[A-Za-z0-9_,\-\s]+?\]',
@@ -3676,7 +3696,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	// Just make up a nice hash...
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
-	
+
 	// Just make sure that attachment id is only a int
 	$attachment_id = (int) $attachment_id;
 
