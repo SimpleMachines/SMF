@@ -3847,8 +3847,7 @@ a.button_submit {
 }
 a.button_submit.insertBBC
 {
-	float: left;
-	margin-left: 0;
+	/* Hide until the JavaScript shows it */
 	display: none;
 }
 .attach-info input[type="number"] {

@@ -455,9 +455,9 @@ function template_main()
 									</div>
 									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="attach-ui">
-										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
 										<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
 										<a class="button_submit start">', $txt['upload'] ,'</a>
+										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
 									</div>
 								</div>
 							</div>
