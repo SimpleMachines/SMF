@@ -3845,11 +3845,6 @@ a.button_submit {
 	display: inline-block;
 	min-width: 0;
 }
-a.button_submit.insertBBC
-{
-	/* Hide until the JavaScript shows it */
-	display: none;
-}
 .attach-info input[type="number"] {
 	width: 5em;
 }

@@ -136,8 +136,11 @@ function smf_fileUpload(oOptions)
 
 		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, response){
-
-			_innerElement.find('.insertBBC').on('click', function (e) {
+			insertButton = $('<a />')
+			.addClass('button_submit')
+			.prop('disabled', false)
+			.text(myDropzone.options.text_insertBBC)
+			.on('click', function (e) {
 				e.preventDefault();
 
 				w = _innerElement.find('input[name="attached_BBC_width"]').val();
@@ -147,7 +150,8 @@ function smf_fileUpload(oOptions)
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
 				oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
-			});
+			})
+			.appendTo(_innerElement.find('.attach-ui'));
 		};
 
 		// Replace the filled with a message when the attachment is deleted.
@@ -212,8 +216,8 @@ function smf_fileUpload(oOptions)
 			.appendTo(_innerElement.find('.attach-ui'));
 		};
 
-		// Hookup the start button.
-		_thisElement.find('.start').on( 'click', function() {
+		// Hookup the upload button.
+		_thisElement.find('.upload').on( 'click', function() {
 			myDropzone.enqueueFile(file);
 		});
 
@@ -254,8 +258,8 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the 'start' button.
-		_thisElement.find('.start').fadeOutAndRemove('slow');
+		// Remove the 'upload' button.
+		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 		// Set a nice css class to make it more obvious theres an error.
 		_thisElement.addClass('errorbox').removeClass('descbox');
@@ -265,8 +269,8 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the 'start' button.
-		_thisElement.find('.start').fadeOutAndRemove('slow');
+		// Remove the 'upload' button.
+		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 		// Don't do anything if there is no response from server.
 		if (!responseText){
@@ -311,7 +315,7 @@ function smf_fileUpload(oOptions)
 		file.insertAttachment(_thisElement, response);
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.delete').fadeOutAndRemove('slow');
+		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
 
 		// Fire up the delete button.
 		file.deleteAttachment(_thisElement, response.attachID, file);
@@ -345,8 +349,8 @@ function smf_fileUpload(oOptions)
 			// If there wasn't any error, change the current cover.
 			_thisElement.addClass('infobox').removeClass('descbox');
 
-			// Remove the 'start' button.
-			_thisElement.find('.start').fadeOutAndRemove('slow');
+			// Remove the 'upload' button.
+			_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 			// Append the BBC.
 			w = _thisElement.find('input[name="attached_BBC_width"]').val();
@@ -356,7 +360,7 @@ function smf_fileUpload(oOptions)
 			file.insertAttachment(_thisElement, file);
 
 			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.delete').fadeOutAndRemove('slow');
+			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
 
 			// Fire up the delete button.
 			file.deleteAttachment(_thisElement, file.attachID, file);
