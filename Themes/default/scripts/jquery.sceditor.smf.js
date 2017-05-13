@@ -646,3 +646,40 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		}
 	}
 );
+
+$.sceditor.plugins.bbcode.bbcode.set(
+	'float', {
+		styles: {
+			"float": ["left", "right"],
+		},
+		tags: {
+			div: {
+				"class": "float",
+			},
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: function ($element, content) {
+			if (!$element.css('float'))
+				return content;
+
+			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			max = $element.css('max-width') ? ' max=' + $element.css('max-width') : '';
+
+			return '[float=' + side + max + ']' + content + '[/float]';
+		},
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined")
+				return content;
+
+			if (attrs.defaultattr.indexOf('left') == 0)
+				style = 'float:left; margin-right: 1em;';
+			else
+				style = 'float:right; margin-left: 1em;';
+
+			style += ' max-width:' + (typeof attrs.max !== "undefined" ? attrs.max : '45%') + ';';
+
+			return '<div class="float" style="' + style + '">' + content + '</div>';
+		}
+	}
+);
