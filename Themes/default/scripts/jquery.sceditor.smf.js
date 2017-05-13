@@ -233,7 +233,7 @@ $.sceditor.command.set(
 $.sceditor.command.set(
 	'floatleft', {
 		tooltip: 'Float left',
-		txtExec: ["[float=left]", "[/float]"],
+		txtExec: ["[float=left max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
 		}
@@ -243,7 +243,7 @@ $.sceditor.command.set(
 $.sceditor.command.set(
 	'floatright', {
 		tooltip: 'Float right',
-		txtExec: ["[float=right]", "[/float]"],
+		txtExec: ["[float=right max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
@@ -681,7 +681,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				return content;
 
 			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
-			max = $element.css('max-width') != "none" ? ' max=' + $element.css('max-width') : '';
+			max = ' max=' + ($element.css('max-width') != "none" ? $element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';
 		},
