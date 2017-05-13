@@ -681,7 +681,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				return content;
 
 			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
-			max = $element.css('max-width') ? ' max=' + $element.css('max-width') : '';
+			max = $element.css('max-width') != "none" ? ' max=' + $element.css('max-width') : '';
 
 			return '[float=' + side + max + ']' + content + '[/float]';
 		},
