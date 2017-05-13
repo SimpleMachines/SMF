@@ -95,15 +95,19 @@ img {
 	max-width: 100%;
 }
 
+.floatleft, .floatright {
+	max-width: 45%;
+	border: 1px dashed #aaa;
+	padding: 1px;
+	min-height: 1em;
+}
 .floatleft {
 	float: left;
 	margin: 0 1em 1em 0;
-	max-width: 45%;
 }
 .floatright {
 	float: right;
 	margin: 0 0 1em 1em;
-	max-width: 45%;
 }
 /* Prevent unnecessary line breaks after floats */
 .floatleft + div > br:first-child,
