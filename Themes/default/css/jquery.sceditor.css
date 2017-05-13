@@ -570,3 +570,11 @@ div.sceditor-group {
 div.sceditor-dropdown img {
   cursor: pointer;
 }
+.sceditor-button-floatleft div {
+  background: url('../images/float_icons.png');
+  background-position: 0px 0px;
+}
+.sceditor-button-floatright div {
+  background: url('../images/float_icons.png');
+  background-position: 0px -16px;
+}

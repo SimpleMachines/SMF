@@ -230,6 +230,26 @@ $.sceditor.command.set(
 	}
 );
 
+$.sceditor.command.set(
+	'floatleft', {
+		tooltip: 'Float left',
+		txtExec: ["[float=left]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<aside class="float" style="float: left; margin-right: 1em; max-width: 45%;">', '</aside>');
+		}
+	}
+);
+
+$.sceditor.command.set(
+	'floatright', {
+		tooltip: 'Float right',
+		txtExec: ["[float=right]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<aside class="float" style="float: right; margin-left: 1em; max-width: 45%;">', '</aside>');
+		}
+	}
+);
+
 $.sceditor.plugins.bbcode.bbcode.set(
 	'abbr', {
 		tags: {
