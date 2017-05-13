@@ -235,7 +235,7 @@ $.sceditor.command.set(
 		tooltip: 'Float left',
 		txtExec: ["[float=left]", "[/float]"],
 		exec: function () {
-			this.wysiwygEditorInsertHtml('<aside class="float" style="float: left; margin-right: 1em; max-width: 45%;">', '</aside>');
+			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
 		}
 	}
 );
@@ -245,7 +245,7 @@ $.sceditor.command.set(
 		tooltip: 'Float right',
 		txtExec: ["[float=right]", "[/float]"],
 		exec: function () {
-			this.wysiwygEditorInsertHtml('<aside class="float" style="float: right; margin-left: 1em; max-width: 45%;">', '</aside>');
+			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
 	}
 );
