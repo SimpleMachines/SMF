@@ -669,12 +669,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 $.sceditor.plugins.bbcode.bbcode.set(
 	'float', {
-		styles: {
-			"float": ["left", "right"],
-		},
 		tags: {
 			div: {
-				"class": "float",
+				"class": ["floatleft", "floatright"],
 			},
 		},
 		isInline: false,
@@ -692,14 +689,10 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.defaultattr === "undefined")
 				return content;
 
-			if (attrs.defaultattr.indexOf('left') == 0)
-				style = 'float:left; margin-right: 1em;';
-			else
-				style = 'float:right; margin-left: 1em;';
+			floatclass = attrs.defaultattr.indexOf('left') == 0 ? 'floatleft' : 'floatright';
+			style = typeof attrs.max !== "undefined" ? ' style="max-width:' + attrs.max + ';"' : '';
 
-			style += ' max-width:' + (typeof attrs.max !== "undefined" ? attrs.max : '45%') + ';';
-
-			return '<div class="float" style="' + style + '">' + content + '</div>';
+			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
 	}
 );

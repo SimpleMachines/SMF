@@ -95,10 +95,18 @@ img {
 	max-width: 100%;
 }
 
-/* Prevent unnecessary line breaks after floats */
-.float + div > br:first-child {
-	display: none;
+.floatleft {
+	float: left;
+	margin: 0 1em 1em 0;
+	max-width: 45%;
 }
-.float {
-	margin-bottom: 1em;
+.floatright {
+	float: right;
+	margin: 0 0 1em 1em;
+	max-width: 45%;
+}
+/* Prevent unnecessary line breaks after floats */
+.floatleft + div > br:first-child,
+.floatright + div > br:first-child {
+	display: none;
 }
