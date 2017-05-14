@@ -114,3 +114,10 @@ img {
 .floatright + div > br:first-child {
 	display: none;
 }
+
+@media (max-width: 480px) {
+	.floatleft, .floatright {
+		max-width: 100% !important;
+		margin: 0 0.5em 1em !important;
+	}
+}
