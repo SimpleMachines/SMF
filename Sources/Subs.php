@@ -1274,15 +1274,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'float',
 				'type' => 'unparsed_equals',
-				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in))?\]',
+				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
 				'before' => '<div $1>',
 				'after' => '</div>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
 
-					if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in))~', $data, $matches))
-						$css = 'style="max-width:' . $matches[1] . '"';
+					if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches))
+						$css = 'style="max-width:' . $matches[1] . (is_numeric($matches[1]) ? 'px' : '') . '"';
 					else
 						$css = 'style="max-width:45%"';
 

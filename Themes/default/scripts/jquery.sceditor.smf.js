@@ -690,7 +690,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				return content;
 
 			floatclass = attrs.defaultattr.indexOf('left') == 0 ? 'floatleft' : 'floatright';
-			style = typeof attrs.max !== "undefined" ? ' style="max-width:' + attrs.max + ';"' : '';
+			style = typeof attrs.max !== "undefined" ? ' style="max-width:' + attrs.max + (+attrs.max === parseInt(attrs.max) ? 'px' : '') + ';"' : '';
 
 			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
