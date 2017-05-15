@@ -310,17 +310,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					return element.style ? element.style[name] : null;
 				};
 
-			// Is this an attachment?
-			if (element.attr('data-attachment'))
-			{
-				if (element.attr('name'))
-					attribs += ' name=' + element.attr('name');
-				if (element.attr('type'))
-					attribs += ' type=' + 	element.attr('type');
-
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
-			}
-
 			// check if this is an emoticon image
 			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
 				return content;
@@ -334,6 +323,17 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " alt=" + element.attr('alt');
 			if (element.attr('title'))
 				attribs += " title=" + element.attr('title');
+
+			// Is this an attachment?
+			if (element.attr('data-attachment'))
+			{
+				if (element.attr('name'))
+					attribs += ' name=' + element.attr('name');
+				if (element.attr('type'))
+					attribs += ' type=' + 	element.attr('type');
+
+				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+			}
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 		},

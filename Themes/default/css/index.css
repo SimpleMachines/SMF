@@ -3227,11 +3227,10 @@ div#pollmoderation {
 	clear: right;
 }
 .messageicon {
-	float: left;
-	margin: -5px 6px -6px 0;
+	display: inline-block;
 }
 .messageicon img {
-	padding: 0 3px 0 3px;
+	vertical-align: middle;
 }
 .keyinfo h5 {
 	padding: 1px 0 5px 0;
@@ -3245,20 +3244,33 @@ div#pollmoderation {
 	padding: 0 12px 0 0; /* Deprecated? */
 }
 .keyinfo h5 .modified {
-	float: right;
 	color: #333;
 	font-weight: normal;
+	font-style: italic;
 	padding: 2px 4px 0 4px;
+}
+.mvisible::before {
+	content: "« ";
+}
+.mvisible::after {
+	content: " »";
+}
+#reason::before {
+	content: " - ";
 }
 .subject_title a {
 	font-size: 0.9em;
 	color: #333;
 	font-weight: bold;
 }
+.subject_hidden a {
+	display: none;
+}
 .page_number {
 	color: #ad6825;
 	font-weight: bold;
 	opacity: 0.4;
+	padding: 2px 0 0 4px;
 }
 .inner {
 	padding: 7px 8px 2px 2px;
@@ -3278,6 +3290,8 @@ img.smiley {
 .attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
+	display:inline-block;
+	vertical-align:top;
 }
 .attachments_top {
 	margin: 0 auto;
