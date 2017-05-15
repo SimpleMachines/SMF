@@ -177,20 +177,20 @@ if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['
 // Have the ability to easily add functions to SSI.
 call_integration_hook('integrate_SSI');
 
-// Ignore a call to ssi_* functions if we are not using SSI.php
-if (empty($modSettings['allow_ssi_functions_anywhere']) && isset($_GET['ssi_function']) && basename($_SERVER['PHP_SELF']) !== 'SSI.php')
-	unset($_GET['ssi_function']);
-// Call a function passed by GET.
-if (isset($_GET['ssi_function']) && function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
+if (basename($_SERVER['PHP_SELF']) == 'SSI.php')
 {
-	call_user_func('ssi_' . $_GET['ssi_function']);
+	// You shouldn't just access SSI.php directly by URL!!
+	if (!isset($_GET['ssi_function']))
+		die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+	// Call a function passed by GET.
+	if (function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+		call_user_func('ssi_' . $_GET['ssi_function']);
 	exit;
 }
-if (isset($_GET['ssi_function']))
-	exit;
-// You shouldn't just access SSI.php directly by URL!!
-elseif (basename($_SERVER['PHP_SELF']) == 'SSI.php')
-	die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+
+// To avoid side effects later on.
+unset($_GET['ssi_function']);
 
 error_reporting($ssi_error_reporting);
 if (function_exists('set_magic_quotes_runtime'))
