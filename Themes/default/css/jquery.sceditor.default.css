@@ -103,10 +103,12 @@ img {
 }
 .floatleft {
 	float: left;
+	clear: left;
 	margin: 0 1em 1em 0;
 }
 .floatright {
 	float: right;
+	clear: right;
 	margin: 0 0 1em 1em;
 }
 /* Prevent unnecessary line breaks after floats */
