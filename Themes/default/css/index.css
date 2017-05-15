@@ -415,7 +415,8 @@ blockquote cite::before {
 .bbc_float {
 	clear: both;
 	margin-bottom: 1em;
-	max-width: 100%;
+	/* default max-width to use if none was specified in the BBC */
+	max-width: 45%;
 }
 .bbc_float.floatleft {
 	margin-right: 1em;
