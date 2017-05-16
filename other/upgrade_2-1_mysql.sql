@@ -1900,7 +1900,7 @@ ALTER TABLE {$db_prefix}members
 ADD tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
 
----# Force 2FA per membergroup?
+---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
 ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 ---#
@@ -2140,7 +2140,7 @@ ADD COLUMN member_ip VARBINARY(16),
 ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# Create a ip index for old ips
+---# Create an ip index for old ips
 ---{
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
 if (in_array('member_ip_old', $results))
@@ -2155,6 +2155,7 @@ if (in_array('member_ip_old', $results))
 ---{
 MySQLConvertOldIp('members','member_ip_old','member_ip');
 ---}
+---#
 
 ---# Convert member ips2
 ---{
@@ -2191,7 +2192,7 @@ if ($doChange)
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# Create a ip index for old ips
+---# Create an ip index for old ips
 ---{
 $doChange = true;
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
@@ -2217,11 +2218,11 @@ DROP INDEX temp_old_poster_ip on {$db_prefix}messages;
 ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
----# Add the index again to mesages poster ip topic
+---# Add the index again to messages poster ip topic
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 ---#
 
----# Add the index again to mesages poster ip msg
+---# Add the index again to messages poster ip msg
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
 
