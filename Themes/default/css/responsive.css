@@ -590,15 +590,6 @@
 	#private, #enclose {
 		width: 95%;
 	}
-
-	/* Attachment uploading. */
-	#au-previews div.descbox div,
-	#au-previews div.errorbox div,
-	#au-previews div.infobox div{
-		display:block;
-		width:auto;
-		padding-bottom: 3px;
-	}
 }
 
 @media (min-width: 480px) and (max-width: 560px) {

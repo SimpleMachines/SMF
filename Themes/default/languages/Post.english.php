@@ -176,7 +176,7 @@ $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
 $txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
 $txt['attached_file_uploaded'] = 'Attachment successfully uploaded!';
-$txt['attached_file_delete'] = 'Delete this attachment';
+$txt['attached_file_delete'] = 'Delete';
 $txt['attached_file_cannot'] = 'You cannot upload attachments';
 $txt['attached_file_deleted'] = 'The attachment was successfully deleted.';
 $txt['attached_file_deleted_error'] = 'There was an error while performing the deletion.';
@@ -184,6 +184,8 @@ $txt['attached_insertBBC'] = 'Insert';
 $txt['attached_cancelAll'] = 'Cancel all';
 $txt['attached_uploadAll'] = 'Upload all';
 $txt['attached_attachedLeft'] = 'There are a few attachments left, please upload them or cancel them before posting.';
+$txt['attached_insertwidth'] = 'Insert width (px):';
+$txt['attached_insertheight'] = 'Insert height (px):';
 
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';

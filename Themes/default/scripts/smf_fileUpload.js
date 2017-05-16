@@ -5,7 +5,7 @@ function smf_fileUpload(oOptions)
 		if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
 			done(this.options.dictMaxFilesExceeded);
 			return this.emit("maxfilesexceeded", file);
-		} else 
+		} else
 			return this.options.accept.call(this, file, done);
 	};
 
@@ -28,13 +28,18 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		smf_insertBBC: function(file){
+		smf_insertBBC: function(file, w, h){
+
+			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
+
 			var bbcOptionalParams = {
-				name: typeof file.name !== "undefined" ? ('name='+ file.name) : '',
-				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
+				width: mime_type.indexOf('image') == 0 && +w > 0 ? (' width='+ w) : '',
+				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height='+ h) : '',
+				name: typeof file.name !== "undefined" ? (' name='+ file.name) : '',
+				type: ' type=' + mime_type,
 			};
 
-			return '[attach '+ decodeURIComponent(bbcOptionalParams.name) +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 
@@ -77,7 +82,7 @@ function smf_fileUpload(oOptions)
 				file.status = Dropzone.CANCELED;
 			}
 
-			// The file is too big. 
+			// The file is too big.
 			if ((myDropzone.options.maxFilesize > 0) && (file.size > (myDropzone.options.maxFilesize * 1024))){
 				done(myDropzone.options.dictFileTooBig);
 
@@ -134,15 +139,22 @@ function smf_fileUpload(oOptions)
 
 		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, response){
-
-			_innerElement.find('.insertBBC').on('click', function (e) {
+			insertButton = $('<a />')
+			.addClass('button_submit')
+			.prop('disabled', false)
+			.text(myDropzone.options.text_insertBBC)
+			.on('click', function (e) {
 				e.preventDefault();
+
+				w = _innerElement.find('input[name="attached_BBC_width"]').val();
+				h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
 				// Get the editor stuff.
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
-				oEditor.insert(myDropzone.options.smf_insertBBC(response));
-			});
+				oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
+			})
+			.appendTo(_innerElement.find('.attach-ui'));
 		};
 
 		// Replace the filled with a message when the attachment is deleted.
@@ -182,6 +194,7 @@ function smf_fileUpload(oOptions)
 
 						// Remove the text field and show a nice confirmation message.
 						_innerElement.find('.attached_BBC').text(data.text);
+						_thisElement.find('.attach-info a.insertBBC').fadeOut();
 
 						// Do stuff only if the file was actually accepted and it doesn't have an error status.
 						if (file.accepted && file.status != Dropzone.ERROR) {
@@ -196,7 +209,7 @@ function smf_fileUpload(oOptions)
 					error: function (xhr, textStatus, errorThrown) {
 
 						// Tell the user something horrible happen!
-						_innerElement.find('p.error').append(textStatus.error.join('<br>'));
+						_innerElement.find('span.error').append(textStatus.error.join('<br>'));
 
 						// For dramatic purposes only!
 						_innerElement.removeClass('infobox').addClass('errorbox');
@@ -206,8 +219,8 @@ function smf_fileUpload(oOptions)
 			.appendTo(_innerElement.find('.attach-ui'));
 		};
 
-		// Hookup the start button.
-		_thisElement.find('.start').on( 'click', function() {
+		// Hookup the upload button.
+		_thisElement.find('.upload').on( 'click', function() {
 			myDropzone.enqueueFile(file);
 		});
 
@@ -248,8 +261,8 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the 'start' button.
-		_thisElement.find('.start').fadeOutAndRemove('slow');
+		// Remove the 'upload' button.
+		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 		// Set a nice css class to make it more obvious theres an error.
 		_thisElement.addClass('errorbox').removeClass('descbox');
@@ -259,8 +272,8 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the 'start' button.
-		_thisElement.find('.start').fadeOutAndRemove('slow');
+		// Remove the 'upload' button.
+		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 		// Don't do anything if there is no response from server.
 		if (!responseText){
@@ -269,15 +282,20 @@ function smf_fileUpload(oOptions)
 
 		// There is a general error.
 		if (responseText.generalErrors){
-			_thisElement.find('p.error').append(responseText.generalErrors.join('<br>'));
+			_thisElement.find('span.error').append(responseText.generalErrors.join('<br>'));
 			return;
 		}
 
 		// Server returns an array.
 		response = responseText.files[0];
 
-		// Show the input field.
-		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+		// Show the input field and insert button.
+		_thisElement.find('.attach-info div.attached_BBC').fadeIn();
+		_thisElement.find('.attach-info a.insertBBC').fadeIn();
+
+		if (typeof response.mime_type == "undefined" || response.mime_type.indexOf('image') != 0){
+			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+		}
 
 		// The request was complete but the server returned an error.
 		if (typeof response.errors !== 'undefined' && response.errors.length > 0){
@@ -285,7 +303,7 @@ function smf_fileUpload(oOptions)
 			_thisElement.addClass('errorbox').removeClass('descbox');
 
 			// Show the server error.
-			_thisElement.find('p.error').append(response.errors.join('<br>'));
+			_thisElement.find('span.error').append(response.errors.join('<br>'));
 			return;
 		}
 
@@ -293,12 +311,14 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// Append the BBC.
-		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
+		w = _thisElement.find('input[name="attached_BBC_width"]').val();
+		h = _thisElement.find('input[name="attached_BBC_height"]').val();
+		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response, w, h));
 
 		file.insertAttachment(_thisElement, response);
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.delete').fadeOutAndRemove('slow');
+		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
 
 		// Fire up the delete button.
 		file.deleteAttachment(_thisElement, response.attachID, file);
@@ -309,7 +329,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Get the current file box progress bar, set its inner span's width accordingly.
-		_thisElement.find('p.progressBar span').width(progress + '%');
+		_thisElement.find('div.progressBar span').width(progress + '%');
 	});
 
 	myDropzone.on('complete', function(file, progress, bytesSent) {
@@ -317,26 +337,33 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Hide the progress bar.
-		_thisElement.find('p.progressBar').fadeOut();
+		_thisElement.find('div.progressBar').fadeOut();
 
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
 			// Show the input field.
-			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+			_thisElement.find('.attach-info div.attached_BBC').fadeIn();
+			_thisElement.find('.attach-info a.insertBBC').fadeIn();
+
+			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0){
+				_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+			}
 
 			// If there wasn't any error, change the current cover.
 			_thisElement.addClass('infobox').removeClass('descbox');
 
-			// Remove the 'start' button.
-			_thisElement.find('.start').fadeOutAndRemove('slow');
+			// Remove the 'upload' button.
+			_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
+			w = _thisElement.find('input[name="attached_BBC_width"]').val();
+			h = _thisElement.find('input[name="attached_BBC_height"]').val();
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
 
 			file.insertAttachment(_thisElement, file);
 
 			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.delete').fadeOutAndRemove('slow');
+			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
 
 			// Fire up the delete button.
 			file.deleteAttachment(_thisElement, file.attachID, file);
@@ -355,7 +382,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Show the progress bar when upload starts.
-		_thisElement.find('p.progressBar').fadeIn();
+		_thisElement.find('div.progressBar').fadeIn();
 
 		// Show the total progress bar when upload starts.
 		$("#total-progress").fadeIn();
