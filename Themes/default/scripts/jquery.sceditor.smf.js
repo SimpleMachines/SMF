@@ -277,9 +277,16 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		html: function (element, attrs, content) {
 			var style = '';
 			var code = 'ul';
+			var olTypes = new Array('decimal', 'decimal-leading-zero', 'lower-roman', 'upper-roman', 'lower-alpha', 'upper-alpha', 'lower-greek', 'lower-latin', 'upper-latin', 'hebrew', 'armenian', 'georgian', 'cjk-ideographic', 'hiragana', 'katakana', 'hiragana-iroha', 'katakana-iroha');
 
-			if (attrs.type)
-					style = ' style="list-style-type: ' + attrs.type + '"';
+			if (attrs.type) {
+				style = ' style="list-style-type: ' + attrs.type + '"';
+
+				if (olTypes.indexOf(attrs.type) > -1)
+					code = 'ol';
+			}
+			else
+				style = ' style="list-style-type: disc"';
 
 			return '<' + code + style + '>' + content + '</' + code + '>';
 		}
@@ -295,7 +302,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		html: '<ul>{0}</ul>',
 		format: function (element, content) {
-			if ($(element[0]).style == undefined || $(element[0]).css('list-style-type') == 'disc')
+			if ($(element[0]).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
 				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
@@ -310,8 +317,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		},
 		breakStart: true,
 		isInline: false,
-		format: "[list type=decimal]{0}[/list]",
-		html: '<ol>{0}</ol>'
+		html: '<ol>{0}</ol>',
+		format: function (element, content) {
+			if ($(element[0]).css('list-style-type') == 'none')
+				return '[list type=decimal]' + content + '[/list]';
+			else
+				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+		}
 	}
 );
 
