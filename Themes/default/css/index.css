@@ -413,16 +413,17 @@ blockquote cite::before {
 	list-style-type: inherit;
 }
 .bbc_float {
-	clear: both;
 	margin-bottom: 1em;
 	/* default max-width to use if none was specified in the BBC */
 	max-width: 45%;
 }
 .bbc_float.floatleft {
 	margin-right: 1em;
+	clear: left;
 }
 .bbc_float.floatright {
 	margin-left: 1em;
+	clear: right;
 }
 /* No image should have a border when linked. */
 a img {
