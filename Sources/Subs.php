@@ -4970,6 +4970,7 @@ function smf_list_timezones($when = 'now')
 		'Asia/Rangoon' => 'Yangon/Rangoon',
 		'Indian/Christmas' => 'Christmas Island',
 		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
+		'Antarctica/Vostok' => 'Vostok Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
 		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
@@ -5002,21 +5003,69 @@ function smf_list_timezones($when = 'now')
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
 
-		// There are a handful of time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
+		// There are some time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
 		{
-			$tz_location = timezone_location_get(timezone_open($tzid));
+			$missing_tz_abbrs = array(
+				'Antarctica/Casey' => 'CAST',
+				'Antarctica/Davis' => 'DAVT',
+				'Antarctica/DumontDUrville' => 'DDUT',
+				'Antarctica/Mawson' => 'MAWT',
+				'Antarctica/Rothera' => 'ART',
+				'Antarctica/Syowa' => 'SYOT',
+				'Antarctica/Troll' => 'CET',
+				'Antarctica/Vostok' => 'VOST',
+				'Asia/Almaty' => 'ALMT',
+				'Asia/Anadyr' => 'ANAT',
+				'Asia/Aqtau' => 'ORAT',
+				'Asia/Aqtobe' => 'AQTT',
+				'Asia/Ashgabat' => 'TMT',
+				'Asia/Baku' => 'AZT',
+				'Asia/Bishkek' => 'KGT',
+				'Asia/Chita' => 'YAKT',
+				'Asia/Colombo' => 'IST',
+				'Asia/Dushanbe' => 'TJT',
+				'Asia/Irkutsk' => 'IRKT',
+				'Asia/Kamchatka' => 'PETT',
+				'Asia/Khandyga' => 'YAKT',
+				'Asia/Krasnoyarsk' => 'KRAT',
+				'Asia/Magadan' => 'MAGT',
+				'Asia/Novokuznetsk' => 'KRAT',
+				'Asia/Novosibirsk' => 'NOVT',
+				'Asia/Omsk' => 'OMST',
+				'Asia/Oral' => 'ORAT',
+				'Asia/Qyzylorda' => 'QYZT',
+				'Asia/Sakhalin' => 'SAKT',
+				'Asia/Samarkand' => 'UZT',
+				'Asia/Srednekolymsk' => 'SRET',
+				'Asia/Tashkent' => 'UZT',
+				'Asia/Tbilisi' => 'GET',
+				'Asia/Ust-Nera' => 'VLAT',
+				'Asia/Vladivostok' => 'VLAT',
+				'Asia/Yakutsk' => 'YAKT',
+				'Asia/Yekaterinburg' => 'YEKT',
+				'Asia/Yerevan' => 'AMT',
+				'Europe/Istanbul' => 'TRT',
+				'Europe/Kirov' => 'MSK',
+				'Europe/Minsk' => 'MSK',
+				'Europe/Samara' => 'SAMT',
+				'Europe/Volgograd' => 'MSK',
+				'Indian/Kerguelen' => 'TFT',
+			);
 
-			// Kazakstan
-			if ($tz_location['country_code'] == 'KZ')
-				$tzinfo[0]['abbr'] = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tzinfo[0]['abbr']);
-
-			// Russia likes to experiment with time zones
-			if ($tz_location['country_code'] == 'RU')
+			if (!empty($missing_tz_abbrs[$tzid]))
+				$tzinfo[0]['abbr'] = $missing_tz_abbrs[$tzid];
+			else
 			{
-				$msk_offset = intval($tzinfo[0]['abbr']) - 3;
-				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-				$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
+				$tz_location = timezone_location_get(timezone_open($tzid));
+
+				// Russia likes to experiment with time zones
+				if ($tz_location['country_code'] == 'RU')
+				{
+					$msk_offset = intval($tzinfo[0]['abbr']) - 3;
+					$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
+					$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
+				}
 			}
 
 			// Still no good? We'll just mark it as a UTC offset

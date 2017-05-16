@@ -1606,21 +1606,69 @@ function buildEventDatetimes($row)
 	$tz = date_format($start_object, 'e');
 	$tz_abbrev = date_format($start_object, 'T');
 
-	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
+	// There are some time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
 	if (strspn($tz_abbrev, '+-') > 0)
 	{
-		$tz_location = timezone_location_get(timezone_open($row['timezone']));
+		$missing_tz_abbrs = array(
+			'Antarctica/Casey' => 'CAST',
+			'Antarctica/Davis' => 'DAVT',
+			'Antarctica/DumontDUrville' => 'DDUT',
+			'Antarctica/Mawson' => 'MAWT',
+			'Antarctica/Rothera' => 'ART',
+			'Antarctica/Syowa' => 'SYOT',
+			'Antarctica/Troll' => 'CET',
+			'Antarctica/Vostok' => 'VOST',
+			'Asia/Almaty' => 'ALMT',
+			'Asia/Anadyr' => 'ANAT',
+			'Asia/Aqtau' => 'ORAT',
+			'Asia/Aqtobe' => 'AQTT',
+			'Asia/Ashgabat' => 'TMT',
+			'Asia/Baku' => 'AZT',
+			'Asia/Bishkek' => 'KGT',
+			'Asia/Chita' => 'YAKT',
+			'Asia/Colombo' => 'IST',
+			'Asia/Dushanbe' => 'TJT',
+			'Asia/Irkutsk' => 'IRKT',
+			'Asia/Kamchatka' => 'PETT',
+			'Asia/Khandyga' => 'YAKT',
+			'Asia/Krasnoyarsk' => 'KRAT',
+			'Asia/Magadan' => 'MAGT',
+			'Asia/Novokuznetsk' => 'KRAT',
+			'Asia/Novosibirsk' => 'NOVT',
+			'Asia/Omsk' => 'OMST',
+			'Asia/Oral' => 'ORAT',
+			'Asia/Qyzylorda' => 'QYZT',
+			'Asia/Sakhalin' => 'SAKT',
+			'Asia/Samarkand' => 'UZT',
+			'Asia/Srednekolymsk' => 'SRET',
+			'Asia/Tashkent' => 'UZT',
+			'Asia/Tbilisi' => 'GET',
+			'Asia/Ust-Nera' => 'VLAT',
+			'Asia/Vladivostok' => 'VLAT',
+			'Asia/Yakutsk' => 'YAKT',
+			'Asia/Yekaterinburg' => 'YEKT',
+			'Asia/Yerevan' => 'AMT',
+			'Europe/Istanbul' => 'TRT',
+			'Europe/Kirov' => 'MSK',
+			'Europe/Minsk' => 'MSK',
+			'Europe/Samara' => 'SAMT',
+			'Europe/Volgograd' => 'MSK',
+			'Indian/Kerguelen' => 'TFT',
+		);
 
-		// Kazakstan
-		if ($tz_location['country_code'] == 'KZ')
-			$tz_abbrev = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tz_abbrev);
-
-		// Russia likes to experiment with time zones
-		if ($tz_location['country_code'] == 'RU')
+		if (!empty($missing_tz_abbrs[$tz]))
+			$tzinfo[0]['abbr'] = $missing_tz_abbrs[$tz];
+		else
 		{
-			$msk_offset = intval($tz_abbrev) - 3;
-			$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-			$tz_abbrev = 'MSK' . $msk_offset;
+			$tz_location = timezone_location_get(timezone_open($row['timezone']));
+
+			// Russia likes to experiment with time zones
+			if ($tz_location['country_code'] == 'RU')
+			{
+				$msk_offset = intval($tz_abbrev) - 3;
+				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
+				$tz_abbrev = 'MSK' . $msk_offset;
+			}
 		}
 
 		// Still no good? We'll just mark it as a UTC offset
@@ -1644,7 +1692,7 @@ function getUserTimezone($id_member = null)
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
-	
+
 	//check if the cache got the data
 	if (isset($id_member) && isset($member_cache[$id_member]))
 	{
@@ -1670,7 +1718,7 @@ function getUserTimezone($id_member = null)
 
 	if (isset($id_member))
 		$member_cache[$id_member] = $timezone;
-	
+
 	return $timezone;
 }
 
