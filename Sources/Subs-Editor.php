@@ -1683,6 +1683,15 @@ function create_control_richedit($editorOptions)
 		);
 		$context['bbc_tags'][] = array(
 			array(
+				'code' => 'floatleft',
+				'description' => $editortxt['float_left']
+			),
+			array(
+				'code' => 'floatright',
+				'description' => $editortxt['float_right']
+			),
+			array(),
+			array(
 				'code' => 'flash',
 				'description' => $editortxt['flash']
 			),

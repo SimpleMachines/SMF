@@ -230,6 +230,26 @@ $.sceditor.command.set(
 	}
 );
 
+$.sceditor.command.set(
+	'floatleft', {
+		tooltip: 'Float left',
+		txtExec: ["[float=left max=45%]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
+		}
+	}
+);
+
+$.sceditor.command.set(
+	'floatright', {
+		tooltip: 'Float right',
+		txtExec: ["[float=right max=45%]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
+		}
+	}
+);
+
 $.sceditor.plugins.bbcode.bbcode.set(
 	'abbr', {
 		tags: {
@@ -643,6 +663,36 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attrs.defaultattr = content;
 
 			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@','') +'</a>';
+		}
+	}
+);
+
+$.sceditor.plugins.bbcode.bbcode.set(
+	'float', {
+		tags: {
+			div: {
+				"class": ["floatleft", "floatright"],
+			},
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: function ($element, content) {
+			if (!$element.css('float'))
+				return content;
+
+			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			max = ' max=' + ($element.css('max-width') != "none" ? $element.css('max-width') : '45%');
+
+			return '[float=' + side + max + ']' + content + '[/float]';
+		},
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined")
+				return content;
+
+			floatclass = attrs.defaultattr.indexOf('left') == 0 ? 'floatleft' : 'floatright';
+			style = typeof attrs.max !== "undefined" ? ' style="max-width:' + attrs.max + (+attrs.max === parseInt(attrs.max) ? 'px' : '') + ';"' : '';
+
+			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
 	}
 );
