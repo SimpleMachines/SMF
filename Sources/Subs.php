@@ -2138,7 +2138,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
 
-				if (preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
 
@@ -2416,7 +2416,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$whitespace_regex .= '(&nbsp;|\s)*<br>';
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
-				if (preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
 				array_pop($open_tags);
