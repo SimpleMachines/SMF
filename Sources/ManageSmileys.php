@@ -122,7 +122,7 @@ function EditSmileySettings($return_config = false)
 
 	// Get the names of the smiley sets.
 	$smiley_sets = explode(',', $modSettings['smiley_sets_known']);
-	$set_names = explode("\n", $modSettings['smiley_sets_names']);
+	$set_names = explode('\n', $modSettings['smiley_sets_names']);
 
 	$smiley_context = array();
 	foreach ($smiley_sets as $i => $set)
