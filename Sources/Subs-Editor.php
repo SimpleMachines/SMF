@@ -1809,24 +1809,57 @@ function create_control_richedit($editorOptions)
 				if ((!empty($tag['code'])) && empty($context['disabled_tags'][$tag['code']]))
 				{
 					$tagsRow[] = $tag['code'];
+					$tag['allow_children'] = !empty($tag['allow_children']) && strpos($tag['allow_children'], 'null') === false ? array_map('trim', explode(',', $tag['allow_children'])) : array();
+
 					if (isset($tag['image']))
 						$bbcodes_styles .= '
 			.sceditor-button-' . $tag['code'] . ' div {
 				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
 			}';
 					if (isset($tag['before']))
-					{
 						$context['bbcodes_handlers'] .= '
 				$.sceditor.command.set(
 					' . javaScriptEscape($tag['code']) . ', {
 					exec: function () {
-						this.wysiwygEditorInsertHtml(' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ');
+						this.wysiwygEditorInsertHtml(' . (!empty($tag['html']) ? javaScriptEscape($tag['html']) : javaScriptEscape($tag['before'] . (!empty($tag['after']) ? ', ' . $tag['after'] : ''))) . ');
 					},
 					txtExec: [' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . '],
 					tooltip: ' . javaScriptEscape($tag['description']) . '
 				});';
-					}
 
+					if (!empty($tag['html']) && !empty($tag['before']))
+					{
+						preg_match('~=(.*?)]~', $tag['before'], $attrs);
+						$context['bbcodes_handlers'] .= '
+				$.sceditor.plugins.bbcode.bbcode.set(
+					' . javaScriptEscape($tag['code']) . ',
+					{
+						style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css",
+						tags: {
+							"' . $tag['code'] . '": null
+						},
+						excludeClosing: ' . (!empty($tag['after']) ? 'false' : 'true') . ',
+						' . (!empty($tag['after']) && !empty($tag['allow_children']) ? 'allowedChildren: [' . javaScriptEscape(implode("', '", $tag['allow_children'])) . '],' : '') . '
+						skipLastLineBreak: true,
+						breakEnd: false,
+						allowsEmpty: true,
+						quoteType: $.sceditor.BBCodeParser.QuoteType.auto,
+						isSelfClosing: ' . (!empty($tag['after']) ? 'false' : 'true') . ',
+						isInline: ' . (!empty($tag['block_lvl']) ? 'false' : 'true') . ',
+						html: 	function(token, attrs, content) {
+								if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+									return \'' . preg_replace('~\$1~', '\' + content + \'', '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span class="editor" style="display:none;">' . $tag['before'] . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+
+								var attributes = attrs.defaultattr.split(",");
+
+								if (attributes.length === 2)
+									return \'' . preg_replace(array('~\$1~', '~\$2~', '~\$3~'), array('\' + content + \'', '\' + attributes[0] + \'', '\' + attributes[1] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display:none;" class="editor">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \',\' + attributes[1] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+								else
+									return \'' . preg_replace(array('~\$1~', '~\$2~'), array('\' + content + \'', '\' + attributes[0] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display:none;" class="editor">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+						}
+					}
+				);';
+					}
 				}
 				else
 				{
