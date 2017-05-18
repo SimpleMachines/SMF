@@ -2131,9 +2131,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*<br>';
+				// Trim one line of whitespace after unnested tags, but all of it after nested ones
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
 
@@ -2406,9 +2411,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += $ot_strlen + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*<br>';
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
 				array_pop($open_tags);
