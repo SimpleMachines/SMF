@@ -698,8 +698,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 
 	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavaScript('
 	$("#calendar_range .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
@@ -721,17 +719,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		nextText: "' . $txt['next_month'] . '",
 	});
 	var date_entry = document.getElementById("calendar_range");
-	var date_entry_pair = new Datepair(date_entry, {
-		dateClass: "date_input",
-		autoclose: true,
-		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
 	', true);
 
 	return $calendarGrid;
@@ -1644,7 +1631,7 @@ function getUserTimezone($id_member = null)
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
-	
+
 	//check if the cache got the data
 	if (isset($id_member) && isset($member_cache[$id_member]))
 	{
@@ -1670,7 +1657,7 @@ function getUserTimezone($id_member = null)
 
 	if (isset($id_member))
 		$member_cache[$id_member] = $timezone;
-	
+
 	return $timezone;
 }
 
