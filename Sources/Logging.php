@@ -62,7 +62,7 @@ function writeLog($force = false)
 		$serialized = json_encode($serialized);
 	}
 	else
-		$serialized = '';
+		$serialized = '{}';
 
 	// Guests use 0, members use their session ID.
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
