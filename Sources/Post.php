@@ -318,8 +318,8 @@ function Post($post_errors = array())
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+			$context['event']['start_time'] = $context['event']['start_time_orig'];
+			$context['event']['end_time'] = $context['event']['end_time_orig'];
 		}
 
 		// Need this so the user can select a timezone for the event.
@@ -329,8 +329,8 @@ function Post($post_errors = array())
 		// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 		{
-			$d = date_create($context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 		}
 
 		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');

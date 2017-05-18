@@ -4932,14 +4932,14 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
-	// We'll need this too
-	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
+	// We'll need these too
+	$date_when = date_create('@' . $when);
+	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
 
 	// Prefer and give custom descriptions for these time zones
 	// If the description is left empty, it will be filled in with the names of matching cities
 	$timezone_descriptions = array(
-		'America/Adak' => 'Hawaii-Aleutian',
-		'Pacific/Honolulu' => 'Hawaii',
+		'America/Adak' => 'Aleutian Islands',
 		'Pacific/Marquesas' => 'Marquesas Islands',
 		'Pacific/Gambier' => 'Gambier Islands',
 		'America/Anchorage' => 'Alaska',
@@ -4978,6 +4978,7 @@ function smf_list_timezones($when = 'now')
 		'Asia/Rangoon' => 'Yangon/Rangoon',
 		'Indian/Christmas' => 'Christmas Island',
 		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
+		'Antarctica/Vostok' => 'Vostok Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
 		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
@@ -5007,32 +5008,17 @@ function smf_list_timezones($when = 'now')
 		if ($tzid == 'UTC')
 			continue;
 
+		$tz = timezone_open($tzid);
+
 		// First, get the set of transition rules for this tzid
-		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
+		$tzinfo = timezone_transitions_get($tz, $when, $later);
 
-		// There are a handful of time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
-		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-		{
-			$tz_location = timezone_location_get(timezone_open($tzid));
-
-			// Kazakstan
-			if ($tz_location['country_code'] == 'KZ')
-				$tzinfo[0]['abbr'] = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tzinfo[0]['abbr']);
-
-			// Russia likes to experiment with time zones
-			if ($tz_location['country_code'] == 'RU')
-			{
-				$msk_offset = intval($tzinfo[0]['abbr']) - 3;
-				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-				$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
-			}
-
-			// Still no good? We'll just mark it as a UTC offset
-			if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-				$tzinfo[0]['abbr'] = 'UTC' . $tzinfo[0]['abbr'];
-		}
+		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
 		$tzkey = serialize($tzinfo);
+
+		// Next, get the geographic info for this tzid
+		$tzgeo = timezone_location_get($tz);
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
@@ -5046,10 +5032,11 @@ function smf_list_timezones($when = 'now')
 		$tzid_parts = explode('/', $tzid);
 		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
+		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
 	}
 
-	// Sort by offset
-	array_multisort($offsets, SORT_ASC, $zones);
+	// Sort by offset then longitude
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -5058,15 +5045,17 @@ function smf_list_timezones($when = 'now')
 	{
 		$tzinfo = unserialize($tzkey);
 
+		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
+
 		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
 			$desc = $timezone_descriptions[$tzvalue['tzid']];
 		else
 			$desc = implode(', ', array_unique($tzvalue['locations']));
 
 		if (isset($priority_zones[$tzkey]))
-			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
 	$timezones = array_merge(
@@ -5076,6 +5065,72 @@ function smf_list_timezones($when = 'now')
 	);
 
 	return $timezones;
+}
+
+/**
+ * Reformats certain time zone abbreviations to look better.
+ *
+ * Some of PHP's time zone abbreviations are just numerical offsets from UTC, e.g. '+04'
+ * These look weird and are kind of useless, so we make them look better.
+ *
+ * @param string $tzid The Olsen time zome identifier for a time zone.
+ * @param string $tz_abbrev The abbreviation PHP provided for this time zone.
+ * @return string The fixed version of $tz_abbrev.
+ */
+function fix_tz_abbrev($tzid, $tz_abbrev)
+{
+	// Is this abbreviation just a numerical offset?
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
+		$missing_tz_abbrs = array(
+			'Antarctica/Casey' => 'CAST',
+			'Antarctica/Davis' => 'DAVT',
+			'Antarctica/DumontDUrville' => 'DDUT',
+			'Antarctica/Mawson' => 'MAWT',
+			'Antarctica/Rothera' => 'ART',
+			'Antarctica/Syowa' => 'SYOT',
+			'Antarctica/Vostok' => 'VOST',
+			'Asia/Almaty' => 'ALMT',
+			'Asia/Aqtau' => 'ORAT',
+			'Asia/Aqtobe' => 'AQTT',
+			'Asia/Ashgabat' => 'TMT',
+			'Asia/Bishkek' => 'KGT',
+			'Asia/Colombo' => 'IST',
+			'Asia/Dushanbe' => 'TJT',
+			'Asia/Oral' => 'ORAT',
+			'Asia/Qyzylorda' => 'QYZT',
+			'Asia/Samarkand' => 'UZT',
+			'Asia/Tashkent' => 'UZT',
+			'Asia/Tbilisi' => 'GET',
+			'Asia/Yerevan' => 'AMT',
+			'Europe/Istanbul' => 'TRT',
+			'Europe/Minsk' => 'MSK',
+			'Indian/Kerguelen' => 'TFT',
+		);
+
+		if (!empty($missing_tz_abbrs[$tzid]))
+			$tz_abbrev = $missing_tz_abbrs[$tzid];
+		else
+		{
+			// Russia likes to experiment with time zones often, and names them as offsets from Moscow
+			$tz_location = timezone_location_get(timezone_open($tzid));
+			if ($tz_location['country_code'] == 'RU')
+			{
+				$msk_offset = intval($tz_abbrev) - 3;
+				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
+			}
+		}
+
+		// Still no good? We'll just mark it as a UTC offset
+		if (strspn($tz_abbrev, '+-') > 0)
+		{
+			$tz_abbrev = intval($tz_abbrev);
+			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
+		}
+	}
+
+	return $tz_abbrev;
 }
 
 /**
