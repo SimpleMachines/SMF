@@ -1619,43 +1619,11 @@ function parse_sql($filename)
 		}
 	);
 
-	// If we're on MySQL supporting collations then let's find out what the members table uses and put it in a global var - to allow upgrade script to match collations!
-	if (!empty($databases[$db_type]['utf8_support']) && version_compare($databases[$db_type]['utf8_version'], eval($databases[$db_type]['utf8_version_check']), '>'))
-	{
-		$request = $smcFunc['db_query']('', '
-			SHOW TABLE STATUS
-			LIKE {string:table_name}',
-			array(
-				'table_name' => "{$db_prefix}members",
-				'db_error_skip' => true,
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) === 0)
-			die('Unable to find members table!');
-		$table_status = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
-
-		if (!empty($table_status['Collation']))
-		{
-			$request = $smcFunc['db_query']('', '
-				SHOW COLLATION
-				LIKE {string:collation}',
-				array(
-					'collation' => $table_status['Collation'],
-					'db_error_skip' => true,
-				)
-			);
-			// Got something?
-			if ($smcFunc['db_num_rows']($request) !== 0)
-				$collation_info = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
-
-			// Excellent!
-			if (!empty($collation_info['Collation']) && !empty($collation_info['Charset']))
-				$db_collation = ' CHARACTER SET ' . $collation_info['Charset'] . ' COLLATE ' . $collation_info['Collation'];
-		}
-	}
-	if (empty($db_collation))
+	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
+	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
+	if ($db_type == 'mysql')
+		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+	else
 		$db_collation = '';
 
 	$endl = $command_line ? "\n" : '<br>' . "\n";
@@ -1667,7 +1635,7 @@ function parse_sql($filename)
 	$substep = 0;
 	$last_step = '';
 
-	// Make sure all newly created tables will have the proper characters set.
+	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
 	if (isset($db_character_set) && $db_character_set === 'utf8')
 		$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
 
@@ -2930,7 +2898,7 @@ function ConvertUtf8()
 		}
 	}
 	$_GET['substep'] = 0;
-	return false;
+	return true;
 }
 
 function serialize_to_json()
