@@ -231,19 +231,7 @@ function EditSearchMethod()
 				)
 			);
 
-			$request = $smcFunc['db_query']('', '
-				SHOW default_text_search_config',
-				array()
-			);
-
-			$language_ftx = 'simple';
-
-			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-			{
-				$row = $smcFunc['db_fetch_assoc']($request);
-				$language_ftx = $row['default_text_search_config'];
-			}
-
+			$language_ftx = $smcFunc['db_search_language']();
 
 			$smcFunc['db_query']('', '
 				CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages

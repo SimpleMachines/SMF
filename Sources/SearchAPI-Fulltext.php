@@ -208,19 +208,8 @@ class fulltext_search extends search_api
 		{
 			if($smcFunc['db_title'] == "PostgreSQL")
 			{
-				//we use the default language "default_text_search_config", otherwise we had to assgine the language here
-				//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-				$language_ftx = 'english';
-				$request = $smcFunc['db_query']('','
-					SHOW default_text_search_config',
-					array()
-				);
-
-				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-				{
-					$row = $smcFunc['db_fetch_assoc']($request);
-					$language_ftx = $row['default_text_search_config'];
-				}
+				$language_ftx = $smcFunc['db_search_language']();
+				
 				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:body_match})';
 				$query_params['language_ftx'] = $language_ftx;
 			}
@@ -253,19 +242,8 @@ class fulltext_search extends search_api
 			if ($query_params['boolean_match']) {
 				if($smcFunc['db_title'] == "PostgreSQL")
 				{
-					//we use the default language "default_text_search_config", otherwise we had to assgine the language here
-					//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-					$language_ftx = 'english';
-					$request = $smcFunc['db_query']('','
-						SHOW default_text_search_config',
-						array()
-					);
-
-					if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-					{
-						$row = $smcFunc['db_fetch_assoc']($request);
-						$language_ftx = $row['default_text_search_config'];
-					}
+					$language_ftx = $smcFunc['db_search_language']();
+					
 					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:boolean_match})';
 					$query_params['language_ftx'] = $language_ftx;
 				}
