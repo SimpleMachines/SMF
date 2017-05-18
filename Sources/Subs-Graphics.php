@@ -244,16 +244,10 @@ function checkImageContents($fileName, $extensiveCheck = false)
  */
 function checkGD()
 {
-	global $gd2;
-
-	// Check to see if GD is installed and what version.
-	if (($extensionFunctions = get_extension_funcs('gd')) === false)
-		return false;
-
-	// Also determine if GD2 is installed and store it in a global.
-	$gd2 = in_array('imagecreatetruecolor', $extensionFunctions) && function_exists('imagecreatetruecolor');
-
-	return true;
+    global $gd2;
+    // imagecreate is in both versions of GD, but imagecreatetruecolor only got added in GD2.
+    $gd2 = function_exists('imagecreatetruecolor');
+    return $gd2 || function_exists('imagecreate');
 }
 
 /**
