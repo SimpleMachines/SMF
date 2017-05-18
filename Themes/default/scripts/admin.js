@@ -386,7 +386,7 @@ function addOption()
 }
 
 
-//Create a named element dynamically - thanks to: http://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
+//Create a named element dynamically - thanks to: https://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
 function createNamedElement(type, name, customFields)
 {
 	var element = null;

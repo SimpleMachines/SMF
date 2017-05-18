@@ -202,7 +202,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
- * @param int $error_level A pre-defined error-handling constant (see {@link http://www.php.net/errorfunc.constants})
+ * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
  * @param int $line The line where the error occurred

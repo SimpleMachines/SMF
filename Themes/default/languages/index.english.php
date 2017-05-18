@@ -8,8 +8,8 @@ $txt['native_name'] = 'English';
 
 // Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
 // For more information see:
-//   - http://www.php.net/function.pspell-new
-//   - http://www.php.net/function.setlocale
+//   - https://php.net/function.pspell-new
+//   - https://php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';

@@ -62,12 +62,6 @@ $upgrade_path = dirname(__FILE__);
 $upgradeurl = $_SERVER['PHP_SELF'];
 
 /**
- * The base URL for the external SMF resources.
- * @var string
- */
-$smfsite = 'http://www.simplemachines.org/smf';
-
-/**
  * Flag to disable the required administrator login.
  * @var bool
  */
@@ -570,16 +564,6 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Anybody home?
-	if (!isset($_GET['xml']))
-	{
-		$upcontext['remote_files_available'] = false;
-		$test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
-		if ($test)
-			$upcontext['remote_files_available'] = true;
-		@fclose($test);
-	}
-
 	// Something is causing this to happen, and it's annoying.  Stop it.
 	$temp = 'upgrade_php?step';
 	while (strlen($temp) > 4)
@@ -735,7 +719,7 @@ function WelcomeLogin()
 				<li>Source Directory: ' . $boarddir . '</li>
 				<li>Cache Directory: ' . $cachedir_temp . '</li>
 			</ul>
-			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="http://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
+			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
@@ -947,7 +931,7 @@ function UpgradeOptions()
 		return false;
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
+	if (!empty($_POST['stats']) && (substr($boardurl, 0, 16) != 'http://localhost' || substr($boardurl, 0, 16) != 'https://localhost') && empty($modSettings['allow_sm_stats']))
 	{
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
@@ -1461,7 +1445,7 @@ function cli_scheduled_fetchSMfiles()
 	foreach ($js_files as $ID_FILE => $file)
 	{
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'http://www.simplemachines.org' : '';
+		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'https://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
@@ -3485,7 +3469,7 @@ function template_upgrade_below()
 		</div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2017, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>
@@ -3552,7 +3536,7 @@ function template_welcome_message()
 	global $upcontext, $disable_security, $settings, $txt;
 
 	echo '
-		<script src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
+		<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
@@ -3806,7 +3790,7 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="stat">
 								Allow Simple Machines to Collect Basic Stats Monthly.<br>
-								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="http://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.</span>
+								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.</span>
 							</label>
 						</td>
 					</tr>
@@ -4552,7 +4536,7 @@ function template_upgrade_complete()
 		echo '<br> Upgrade completed in ', $totalTime, '<br><br>';
 
 	echo '<br>
-			If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="http://www.simplemachines.org/community/index.php">look to us for assistance</a>.<br>
+			If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="https://www.simplemachines.org/community/index.php">look to us for assistance</a>.<br>
 			<br>
 			Best of luck,<br>
 			Simple Machines';
@@ -4597,7 +4581,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	}
 	$smcFunc['db_free_result']($request);
 
-	//mysql default max length is 1mb http://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
+	//mysql default max length is 1mb https://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
 	$arIp = array();
 
 	$is_done = false;
