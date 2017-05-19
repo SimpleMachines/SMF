@@ -26,7 +26,7 @@ by signing off your contributions, you acknowledge that you can and do license y
  * an easy way to do so, is to define an alias for the git commit command, which includes -s switch (reference: [How to create Git aliases](https://git.wiki.kernel.org/index.php/Aliases))
 * send a pull request to us.
 
-##How to submit a pull request:
+## How to submit a pull request:
 * If you want to send a bug fix for the version 2.1, send it to the branch ***release-2.1***
 * If you want to send a new feature, use the branch ***development***
 * You should never send any pull request against the master branch
