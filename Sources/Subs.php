@@ -5148,21 +5148,29 @@ function inet_ptod($ip_address)
 
 /**
  * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
- * @return string The IP address in presentation format or false on error
+ * @return string The IP address in presentation format or an empty string on error
  */
 function inet_dtop($bin)
 {
-	if(empty($bin))
+	if (empty($bin))
 		return '';
 
-	global $db_type;
-
-	if ($db_type == 'postgresql')
+	// An unpacked IPv4 address? Just return it.
+	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false)
 		return $bin;
 
-	$ip_address = inet_ntop($bin);
+	// A packed IP address? Unpack it.
+	// Need to check this first because a packed IP might take a form that validates as an IPv6.
+	$unpacked = @inet_ntop($bin);
+	if ($unpacked !== false)
+		return $unpacked;
 
-	return $ip_address;
+	// An unpacked IPv6 address? Just return it.
+	if (filter_var($bin, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false)
+		return $bin;
+
+	// No valid IP address? Return an empty string.
+	return '';
 }
 
 /**
