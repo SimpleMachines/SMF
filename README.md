@@ -10,8 +10,7 @@ Contributions to documentation are licensed under [CC-by-SA 3](https://creativec
 
 Feel free to fork this repository and make your desired changes.
 
-Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF2.1/blob/master/DCO.txt) in the repository:
-by signing off your contributions, you acknowledge that you can and do license your submissions under the license of the project.
+To get started, <a href="https://www.clahub.com/agreements/SockDrawer/StoryBB">sign the Contributor License Agreement</a>.
 
 ## Branches organization:
 * ***master*** - is the main branch, only used to merge in a "final release"
