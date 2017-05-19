@@ -1,24 +1,24 @@
 # [SMF](www.simplemachines.org)
 [![Build Status](https://travis-ci.org/SimpleMachines/SMF2.1.svg?branch=release-2.1)](https://travis-ci.org/SimpleMachines/SMF2.1)
 
-This is a SMF 2.1 development repository.
+This is StoryBB!
 The software is licensed under [BSD 3-clause license](https://opensource.org/licenses/BSD-3-Clause).
 
 Contributions to documentation are licensed under [CC-by-SA 3](https://creativecommons.org/licenses/by-sa/3.0). Third party libraries or sets of images, are under their own licenses.
 
-##Notes:
+## Notes:
 
 Feel free to fork this repository and make your desired changes.
 
 Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF2.1/blob/master/DCO.txt) in the repository:
 by signing off your contributions, you acknowledge that you can and do license your submissions under the license of the project.
 
-##Branches organization:
+## Branches organization:
 * ***master*** - is the main branch, only used to merge in a "final release"
 * ***development*** - is the branch where the development of the "next" version/s happens
 * ***release-2.1*** - is the branch where bug fixes for the version 2.1 are applied
 
-##How to contribute:
+## How to contribute:
 * fork the repository. If you are not used to Github, please check out [fork a repository](https://help.github.com/fork-a-repo).
 * branch your repository, to commit the desired changes.
 * sign-off your commits, to acknowledge your submission under the license of the project.
@@ -34,7 +34,7 @@ For more informations, the ideal branching we would like to follow is the one de
 
 Please, feel free to play around. That's what we're doing. ;)
 
-##Security matters:
+## Security matters:
 
 Lastly, if you have a security issue you would like to notify us about regarding SMF - not just for 2.1, but for any version -
 please file a [security report](https://www.simplemachines.org/about/smf/security.php) on our website: https://www.simplemachines.org/about/smf/security.php
