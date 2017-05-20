@@ -1693,21 +1693,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$bbc_codes[$c] = array();
 		}
 
-		// Shhhh!
-		if (!isset($disabled['color']))
-		{
-			$codes[] = array(
-				'tag' => 'chrissy',
-				'before' => '<span style="color: #cc0099;">',
-				'after' => ' :-*</span>',
-			);
-			$codes[] = array(
-				'tag' => 'kissy',
-				'before' => '<span style="color: #cc0099;">',
-				'after' => ' :-*</span>',
-			);
-		}
-
 		foreach ($codes as $code)
 		{
 			// Make it easier to process parameters later
