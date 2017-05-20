@@ -1782,9 +1782,6 @@ function Post2()
 	}
 	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && $smcFunc['htmltrim']($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';
-	// You are not!
-	if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !$user_info['is_admin'])
-		fatal_error('Knave! Masquerader! Charlatan!', false);
 
 	// Validate the poll...
 	if (isset($_REQUEST['poll']) && $modSettings['pollMode'] == '1')
