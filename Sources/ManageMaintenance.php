@@ -87,10 +87,6 @@ function ManageMaintenance()
 		'hooks' => array(
 			'function' => 'list_integration_hooks',
 		),
-		'destroy' => array(
-			'function' => 'Destroy',
-			'activities' => array(),
-		),
 	);
 
 	call_integration_hook('integrate_manage_maintenance', array(&$subActions));
@@ -315,22 +311,6 @@ function MaintainEmptyUnimportantLogs()
 	updateSettings(array('search_pointer' => 0));
 
 	$context['maintenance_finished'] = $txt['maintain_logs'];
-}
-
-/**
- * Oh noes! I'd document this but that would give it away
- */
-function Destroy()
-{
-	global $context;
-
-	echo '<!DOCTYPE html>
-		<html', $context['right_to_left'] ? ' dir="rtl"' : '', '><head><title>', $context['forum_name_html_safe'], ' deleted!</title></head>
-		<body style="background-color: orange; font-family: arial, sans-serif; text-align: center;">
-		<div style="margin-top: 8%; font-size: 400%; color: black;">Oh my, you killed ', $context['forum_name_html_safe'], '!</div>
-		<div style="margin-top: 7%; font-size: 500%; color: red;"><strong>You lazy bum!</strong></div>
-		</body></html>';
-	obExit(false);
 }
 
 /**
