@@ -1466,7 +1466,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
-			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
+			'posts' => comma_format($profile['posts']),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
 			'ip' => $smcFunc['htmlspecialchars']($profile['member_ip']),
