@@ -2955,7 +2955,6 @@ function censorText(&$text, $force = false)
 /**
  * Load the template/language file using eval or require? (with eval we can show an error message!)
  * 	- loads the template or language file specified by filename.
- * 	- uses eval unless disableTemplateEval is enabled.
  * 	- outputs a parse error if the file did not exist or contained errors.
  * 	- attempts to detect the error and line, and show detailed information.
  *
@@ -2979,21 +2978,12 @@ function template_include($filename, $once = false)
 	else
 		$templates[] = $filename;
 
-	// Are we going to use eval?
-	if (empty($modSettings['disableTemplateEval']))
-	{
-		$file_found = file_exists($filename) && eval('?' . '>' . rtrim(file_get_contents($filename))) !== false;
-		$settings['current_include_filename'] = $filename;
-	}
-	else
-	{
-		$file_found = file_exists($filename);
+	$file_found = file_exists($filename);
 
-		if ($once && $file_found)
-			require_once($filename);
-		elseif ($file_found)
-			require($filename);
-	}
+	if ($once && $file_found)
+		require_once($filename);
+	elseif ($file_found)
+		require($filename);
 
 	if ($file_found !== true)
 	{
