@@ -2898,7 +2898,7 @@ function ConvertUtf8()
 		}
 	}
 	$_GET['substep'] = 0;
-	return true;
+	return false;
 }
 
 function serialize_to_json()
@@ -3781,7 +3781,7 @@ function template_backup_database()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="backup_done" id="backup_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
+			<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 
@@ -3946,7 +3946,7 @@ function template_database_changes()
 				echo 'Completed in ', $totalTime, '<br>';
 
 			echo '</span>
-			<div id="debug_section" style="height: 117px; overflow: auto;">
+			<div id="debug_section" style="height: 59px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 		}
@@ -4282,7 +4282,7 @@ function template_convert_utf8()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
+			<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 
@@ -4379,7 +4379,7 @@ function template_serialize_json()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="json_done" id="json_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<div id="debug_section" style="height: ', ($is_debug ? '195' : '12') , 'px; overflow: auto;">
+			<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 
