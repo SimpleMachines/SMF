@@ -428,9 +428,6 @@ function loadEssentialData()
 	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
-
 	error_reporting(E_ALL);
 	define('SMF', 1);
 

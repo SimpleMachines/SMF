@@ -146,9 +146,7 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Turn off magic quotes runtime and enable error reporting.
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
+	// Enable error reporting.
 	error_reporting(E_ALL);
 
 	// Fun.  Low PHP version...
@@ -188,11 +186,11 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Add slashes, as long as they aren't already being added.
-	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-				$_POST[$k] = addslashes($v);
+	// Add slashes, because they're not being added additionally by the fun that is Magic Quotes.
+	// @todo not suuuuure this is a good idea.
+	foreach ($_POST as $k => $v)
+		if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+			$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))

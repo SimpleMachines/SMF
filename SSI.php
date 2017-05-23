@@ -24,10 +24,6 @@ global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_er
 global $db_connection, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cachedir;
 
-// Remember the current configuration so it can be set back.
-$ssi_magic_quotes_runtime = function_exists('get_magic_quotes_gpc') && get_magic_quotes_runtime();
-if (function_exists('set_magic_quotes_runtime'))
-	@set_magic_quotes_runtime(0);
 $time_start = microtime();
 
 // Just being safe...
@@ -193,8 +189,6 @@ if (basename($_SERVER['PHP_SELF']) == 'SSI.php')
 unset($_GET['ssi_function']);
 
 error_reporting($ssi_error_reporting);
-if (function_exists('set_magic_quotes_runtime'))
-	@set_magic_quotes_runtime($ssi_magic_quotes_runtime);
 
 return true;
 
