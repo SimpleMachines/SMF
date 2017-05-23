@@ -65,11 +65,11 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 		$db_server = 'p:' . $db_server;
 
 	$connection = mysqli_init();
-	
+
 	$flags = MYSQLI_CLIENT_FOUND_ROWS;
-	
+
 	$success = false;
-	
+
 	if ($connection) {
 		if (!empty($db_options['port']))
 			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'], null, $flags);
@@ -172,11 +172,9 @@ function smf_db_replacement__callback($matches)
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
 
-	if ($matches[1] === 'query_see_board')
-		return $user_info['query_see_board'];
-
-	if ($matches[1] === 'query_wanna_see_board')
-		return $user_info['query_wanna_see_board'];
+	$user_queries = array_values(preg_grep('/^query_/', array_keys($user_info)));
+	if (in_array($matches[1], $user_queries))
+		return $user_info[$matches[1]];
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
@@ -254,7 +252,7 @@ function smf_db_replacement__callback($matches)
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
-		
+
 		case 'datetime':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
 				return 'str_to_date('.
@@ -824,7 +822,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		),
 		$connection
 	);
-	
+
 	if(!empty($keys) && (count($keys) > 0) && $method == '' && $returnmode > 0)
 	{
 		if ($returnmode == 1)
