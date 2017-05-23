@@ -612,8 +612,6 @@ function JavaScriptEscape($string)
  * - handles rewriting URLs for the queryless URLs option.
  * - can be turned off entirely by setting $scripturl to an empty
  *   string, ''. (it wouldn't work well like that anyway.)
- * - because of bugs in certain builds of PHP, does not function in
- *   versions lower than 4.3.0 - please upgrade if this hurts you.
  *
  * @param string $buffer The unmodified output buffer
  * @return string The modified buffer
@@ -626,7 +624,7 @@ function ob_sessrewrite($buffer)
 	if ($scripturl == '' || !defined('SID'))
 		return $buffer;
 
-	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
+	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
 	// @todo smflib
 	if (empty($_COOKIE) && SID != '' && !isBrowser('possibly_robot'))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);

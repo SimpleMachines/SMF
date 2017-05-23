@@ -809,8 +809,8 @@ function rebuildModCache()
 }
 
 /**
- * The same thing as setcookie but gives support for HTTP-Only cookies in PHP < 5.2
- * @todo We can remove this since SMF requires PHP >= 5.3.8 now
+ * A consistent cookie function that can be configured and integrated in
+ * the wider environment, e.g. user configuration, plugins.
  *
  * @param string $name
  * @param string $value = ''
