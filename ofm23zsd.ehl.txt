@@ -1,0 +1,20 @@
+﻿Update Subs-Db-mysql.php
+
+- any modification or future SMF update that includes additions/changes for where clauses contained within the $user_info array (using the query_ prefix) will be included using this method.
+- Imo this should also be applied to the SMF 2.0.15 update
+
+Signed-off-by: Underdog-01 <github.underdog@gmail.com>
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Author:    Underdog <github.underdog@gmail.com>
+# Date:      Mon May 22 21:24:25 2017 -0400
+#
+# On branch patch-22
+# Your branch is up-to-date with 'origin/patch-22'.
+#
+# Changes to be committed:
+#	modified:   Sources/Subs-Db-mysql.php
+#
+
