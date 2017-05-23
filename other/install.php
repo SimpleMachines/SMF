@@ -426,7 +426,7 @@ function Welcome()
 		{
 			if (preg_match('~^\$db_passwd\s=\s\'([^\']+)\';$~', $line))
 				$probably_installed++;
-			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/smf\';~', $line))
+			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/storybb\';~', $line))
 				$probably_installed++;
 		}
 
@@ -737,7 +737,7 @@ function DatabaseSettings()
 	}
 	else
 	{
-		$incontext['db']['prefix'] = 'smf_';
+		$incontext['db']['prefix'] = 'sbb_';
 	}
 
 	// Are we submitting?
@@ -2119,7 +2119,7 @@ function template_database_settings()
 			</tr><tr id="db_name_contain">
 				<td valign="top" class="textbox"><label for="db_name_input">', $txt['db_settings_database'], ':</label></td>
 				<td>
-					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
+					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'storybb' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_database_info'], '
 					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span></div>
 				</td>

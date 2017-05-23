@@ -50,7 +50,7 @@ $language = 'english';
  * URL to your forum's folder. (without the trailing /!)
  * @var string
  */
-$boardurl = 'http://127.0.0.1/smf';
+$boardurl = 'http://127.0.0.1/storybb';
 /**
  * Email address to send emails from. (like noreply@yourdomain.com.)
  * @var string
@@ -78,7 +78,7 @@ $db_server = 'localhost';
  * The database name
  * @var string
  */
-$db_name = 'smf';
+$db_name = 'storybb';
 /**
  * Database username
  * @var string
@@ -104,7 +104,7 @@ $ssi_db_passwd = '';
  * This helps to prevent conflicts
  * @var string
  */
-$db_prefix = 'smf_';
+$db_prefix = 'sbb_';
 /**
  * Use a persistent database connection
  * @var int|bool
@@ -153,7 +153,7 @@ $image_proxy_enabled = true;
  * Secret key to be used by the proxy
  * @var string
  */
-$image_proxy_secret = 'smfisawesome';
+$image_proxy_secret = 'storybbisawesome';
 
 /**
  * Maximum file size (in KB) for indiviudal files
