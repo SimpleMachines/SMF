@@ -5,16 +5,13 @@
 
 Signed-off-by: Underdog-01 <github.underdog@gmail.com>
 
-# Please enter the commit message for your changes. Lines starting
-# with '#' will be ignored, and an empty message aborts the commit.
-#
-# Author:    Underdog <github.underdog@gmail.com>
-# Date:      Mon May 22 21:24:25 2017 -0400
-#
-# On branch patch-22
-# Your branch is up-to-date with 'origin/patch-22'.
-#
-# Changes to be committed:
-#	modified:   Sources/Subs-Db-mysql.php
-#
+Author:    Underdog <github.underdog@gmail.com>
+Date:      Mon May 22 21:24:25 2017 -0400
+
+On branch patch-22
+Your branch is up-to-date with 'origin/patch-22'.
+
+Changes to be committed:
+modified:   Sources/Subs-Db-mysql.php
+
 
