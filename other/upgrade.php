@@ -19,7 +19,7 @@ define('SMF_LANG_VERSION', '2.1 Beta 3');
  * The minimum required PHP version.
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 /**
  * A list of supported database systems.
@@ -428,9 +428,6 @@ function loadEssentialData()
 	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
-
 	error_reporting(E_ALL);
 	define('SMF', 1);
 

@@ -931,7 +931,7 @@ function PlushSearch2()
 
 	// *** Encode all search params
 
-	// All search params have been checked, let's compile them to a single string... made less simple by PHP 4.3.9 and below.
+	// All search params have been checked, let's compile them to a single string...
 	$temp_params = $search_params;
 	if (isset($temp_params['brd']))
 		$temp_params['brd'] = implode(',', $temp_params['brd']);

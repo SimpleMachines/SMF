@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Beta 3';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -146,9 +146,7 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Turn off magic quotes runtime and enable error reporting.
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
+	// Enable error reporting.
 	error_reporting(E_ALL);
 
 	// Fun.  Low PHP version...
@@ -188,11 +186,11 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Add slashes, as long as they aren't already being added.
-	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-				$_POST[$k] = addslashes($v);
+	// Add slashes, because they're not being added additionally by the fun that is Magic Quotes.
+	// @todo not suuuuure this is a good idea.
+	foreach ($_POST as $k => $v)
+		if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+			$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
@@ -428,7 +426,7 @@ function Welcome()
 		{
 			if (preg_match('~^\$db_passwd\s=\s\'([^\']+)\';$~', $line))
 				$probably_installed++;
-			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/smf\';~', $line))
+			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/storybb\';~', $line))
 				$probably_installed++;
 		}
 
@@ -739,7 +737,7 @@ function DatabaseSettings()
 	}
 	else
 	{
-		$incontext['db']['prefix'] = 'smf_';
+		$incontext['db']['prefix'] = 'sbb_';
 	}
 
 	// Are we submitting?
@@ -2121,7 +2119,7 @@ function template_database_settings()
 			</tr><tr id="db_name_contain">
 				<td valign="top" class="textbox"><label for="db_name_input">', $txt['db_settings_database'], ':</label></td>
 				<td>
-					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
+					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'storybb' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_database_info'], '
 					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span></div>
 				</td>

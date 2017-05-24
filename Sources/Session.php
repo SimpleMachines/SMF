@@ -59,7 +59,7 @@ function loadSession()
 			$_POST[session_name()] = $session_id;
 		}
 
-		// Use database sessions? (they don't work in 4.1.x!)
+		// Use database sessions?
 		if (!empty($modSettings['databaseSession_enable']))
 		{
 			@ini_set('session.serialize_handler', 'php');
