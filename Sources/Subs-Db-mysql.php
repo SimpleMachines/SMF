@@ -171,10 +171,10 @@ function smf_db_replacement__callback($matches)
 
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
-
-	$user_queries = array_values(preg_grep('/^query_/', array_keys($user_info)));
-	if (in_array($matches[1], $user_queries))
-		return $user_info[$matches[1]];
+	
+	foreach (array_keys($user_info) as $key)
+		if (strpos($key, 'query_') !== false && $key === $matches[1])
+			return $user_info[$matches[1]];	
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
