@@ -130,7 +130,7 @@ function smf_db_replacement__callback($matches)
 
 	foreach (array_keys($user_info) as $key)
 		if (strpos($key, 'query_') !== false && $key === $matches[1])
-			return $user_info[$matches[1]];	
+			return $user_info[$matches[1]];
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
@@ -208,7 +208,7 @@ function smf_db_replacement__callback($matches)
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
-		
+
 		case 'datetime':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
 				return 'to_timestamp('.
@@ -825,9 +825,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			}
 		}
 	}
-	
+
 	if ($with_returning && !empty($return_var))
-		return $return_var; 
+		return $return_var;
 }
 
 /**

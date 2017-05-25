@@ -154,7 +154,7 @@ function smf_db_get_server_info($connection = null)
 
 /**
  * Callback for preg_replace_callback on the query.
- * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board'), with
+ * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board', etc), with
  * their current values from $user_info.
  * In addition, it performs checks and sanitization on the values sent to the database.
  *
@@ -171,10 +171,10 @@ function smf_db_replacement__callback($matches)
 
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
-	
+
 	foreach (array_keys($user_info) as $key)
 		if (strpos($key, 'query_') !== false && $key === $matches[1])
-			return $user_info[$matches[1]];	
+			return $user_info[$matches[1]];
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
