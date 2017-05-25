@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
-	global $smcFunc, $mysql_set_mode;
+	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
@@ -89,9 +89,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	// This makes it possible to have SMF automatically change the sql_mode and autocommit if needed.
-	if (isset($mysql_set_mode) && $mysql_set_mode === true)
-		$smcFunc['db_query']('', 'SET sql_mode = \'\', AUTOCOMMIT = 1',
+	$smcFunc['db_query']('', 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'',
 		array(),
 		false
 	);
