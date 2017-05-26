@@ -937,6 +937,8 @@ function UpgradeOptions()
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
 	{
+		$upcontext['allow_sm_stats'] = true;
+
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 		if ($fp)
@@ -964,7 +966,8 @@ function UpgradeOptions()
 				);
 		}
 	}
-	else
+	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
+	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:allow_sm_stats}',
