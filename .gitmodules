@@ -1,3 +1,0 @@
-[submodule "other/buildTools"]
-	path = other/buildTools
-	url = https://github.com/SimpleMachines/BuildTools.git
