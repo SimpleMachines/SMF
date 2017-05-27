@@ -423,7 +423,7 @@ CREATE TABLE {$db_prefix}log_online (
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   ip VARBINARY(16),
-  url VARCHAR(1024) NOT NULL,
+  url VARCHAR(2048) NOT NULL,
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member)
