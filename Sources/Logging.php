@@ -17,6 +17,28 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
+ * Truncate the GET array to a specified length
+ * @param array $arr The array to truncate
+ *
+ * @return array The truncated array
+ */
+function truncateArray($arr, $max_length=2048) {
+	$curr_length = array_sum(array_map("strlen", $arr));
+	if ($curr_length <= $max_length)
+		return $arr;
+	else {
+		foreach ($arr as $key => $value) {
+			// Pop the last element from the array and reduce the length
+			$curr_length -= strlen(array_pop($arr));
+			if ($curr_length <= $max_length) {
+				return $arr;
+			}
+		}
+		return $arr;
+	}
+} 
+
+/**
  * Put this user in the online log.
  *
  * @param bool $force Whether to force logging the data
@@ -52,7 +74,7 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$serialized = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$serialized = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
