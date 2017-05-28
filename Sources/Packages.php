@@ -1511,10 +1511,10 @@ function PackageBrowse()
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
-	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
+	$context['default_version'] = preg_replace('~^StoryBB ~', '', $forum_version);
 
 	// Version we're currently emulating, if any
-	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
+	$context['selected_version'] = preg_replace('~^StoryBB ~', '', $context['forum_version']);
 }
 
 /**
@@ -1541,10 +1541,10 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (!@is_writable($packagesdir))
 		create_chmod_control(array($packagesdir), array('destination_url' => $scripturl . '?action=admin;area=packages', 'crash_on_error' => true));
 
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = strtr($forum_version, array('StoryBB ' => ''));
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
-	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
+	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('StoryBB ' => '')) == $the_version)
 	{
 		unset($_SESSION['version_emulate']);
 	}
@@ -1553,7 +1553,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
 		elseif ($_GET['version_emulate'] !== 0)
-			$_SESSION['version_emulate'] = strtr($_GET['version_emulate'], array('-' => ' ', '+' => ' ', 'SMF ' => ''));
+			$_SESSION['version_emulate'] = strtr($_GET['version_emulate'], array('-' => ' ', '+' => ' ', 'StoryBB ' => ''));
 	}
 	if (!empty($_SESSION['version_emulate']))
 	{
