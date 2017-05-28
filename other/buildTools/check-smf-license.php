@@ -80,7 +80,7 @@ $contents = fread($file, 4000);
 
 // How the license file should look, in a regex type format.
 $match = array(
-	0 => ' \* @package StoryBB (storybb.org) - A roleplayer\'s forum software' . '[\r]?\n',
+	0 => ' \* @package StoryBB \(storybb.org\) - A roleplayer\'s forum software' . '[\r]?\n',
 	1 => ' \* @copyright 2017 StoryBB and individual contributors (see contributors.txt)' . '[\r]?\n',
 	2 => ' \* @license 3-clause BSD (see accompanying LICENSE file)' . '[\r]?\n',
 	3 => ' \*' . '[\r]?\n',
