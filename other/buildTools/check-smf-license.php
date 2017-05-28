@@ -93,7 +93,7 @@ if (!preg_match('~' . implode('', $match) . '~i', $contents))
 
 // Check the year is correct.
 $yearMatch = $match;
-$yearMatch[4] = ' \* @copyright ' . $currentSoftwareYear . ' Simple Machines and individual contributors' . '[\r]?\n';
+$yearMatch[4] = ' \* @copyright ' . $currentSoftwareYear . ' StoryBB and individual contributors (see contributors.txt)' . '[\r]?\n';
 if (!preg_match('~' . implode('', $yearMatch) . '~i', $contents))
 	die('Error: The software year is incorrect in ' . $currentFile . "\n");
 
