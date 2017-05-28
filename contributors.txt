@@ -1,11 +1,7 @@
 StoryBB is, in some ways, like a story - collaborative.
 
 Principle StoryBB-specific contributors:
-AccaliaDeElementia
-Arantor
-izzion
-Onyx
-yamikuronue
+AccaliaDeElementia, Arantor, izzion, Onyx, yamikuronue
 
 StoryBB-specific additional software:
 Lightncandy | © Yahoo! Inc. | Licensed under The MIT License (MIT)
