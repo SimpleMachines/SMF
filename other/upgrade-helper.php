@@ -14,8 +14,7 @@ if (!defined('SMF_VERSION'))
 	die('No direct access!');
 
 /**
- * Clean the cache using the SMF 2.1 CacheAPI.
- * If coming from SMF 2.0 and below it should wipe the cache using the SMF backend.
+ * Clean the cache using the CacheAPI.
  */
 function upgrade_clean_cache()
 {

@@ -60,7 +60,7 @@ $contents = fread($file, 100);
 if (preg_match('~\?>\s+$~', $contents, $matches))
 	die('Error: End of File contains extra spaces in ' . $currentFile . "\n");
 
-// Test to see if its there even, SMF 2.1 base package needs it there in our main files to allow package manager to properly handle end operations.  Customizations do not need it.
+// Test to see if its there even, StoryBB base package needs it there in our main files to allow package manager to properly handle end operations.  Customizations do not need it.
 if (!preg_match('~\?>$~', $contents, $matches))
 	die('Error: End of File missing in ' . $currentFile . "\n");
 

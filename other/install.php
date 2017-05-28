@@ -8,8 +8,8 @@
  * @version 3.0 Alpha 1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 3';
-$GLOBALS['db_script_version'] = '2-1';
+$GLOBALS['current_smf_version'] = '3.0 Alpha 1';
+$GLOBALS['db_script_version'] = '3-0';
 
 $GLOBALS['required_php_version'] = '7.0.0';
 

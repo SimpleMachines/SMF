@@ -145,12 +145,12 @@ abstract class cache_api implements cache_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	protected $version_compatible = 'SMF 2.1 Beta 3';
+	protected $version_compatible = 'StoryBB 3.0 Alpha 1';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	protected $min_smf_version = 'SMF 2.1 Beta 3';
+	protected $min_smf_version = 'StoryBB 3.0 Alpha 1';
 
 	/**
 	 * @var string The prefix for all keys.

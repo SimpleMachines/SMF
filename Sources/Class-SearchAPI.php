@@ -140,12 +140,12 @@ abstract class search_api implements search_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 3';
+	public $version_compatible = 'StoryBB 3.0 Alpha 1';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 3';
+	public $min_smf_version = 'StoryBB 3.0 Alpha 1';
 
 	/**
 	 * @var bool Whether or not it's supported

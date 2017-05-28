@@ -29,8 +29,8 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 // Load the main template.
 template_ssi_above();
 ?>
-			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 Beta 3</p>
+			<h2>StoryBB SSI.php Functions</h2>
+			<p><strong>Current Version:</strong> 3.0 Alpha 1</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -412,7 +412,7 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 Beta 3 SSI.php Examples</title>
+		<title>StoryBB 3.0 Alpha 1 SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
@@ -498,7 +498,7 @@ function template_ssi_above()
 	</head>
 	<body>
 		<div id="header">
-			<h1 class="forumtitle">SMF 2.1 Beta 3 SSI.php Examples</h1>
+			<h1 class="forumtitle">StoryBB 3.0 Alpha 1 SSI.php Examples</h1>
 			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">
