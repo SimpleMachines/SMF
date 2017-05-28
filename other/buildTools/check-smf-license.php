@@ -80,14 +80,11 @@ $contents = fread($file, 4000);
 
 // How the license file should look, in a regex type format.
 $match = array(
-	0 => '\* Simple Machines Forum \(SMF\)' . '[\r]?\n',
-	1 => ' \*' . '[\r]?\n',
-	2 => ' \* @package SMF' . '[\r]?\n',
-	3 => ' \* @author Simple Machines https?://www.simplemachines.org' . '[\r]?\n',
-	4 => ' \* @copyright \d{4} Simple Machines and individual contributors' . '[\r]?\n',
-	5 => ' \* @license https?://www.simplemachines.org/about/smf/license.php BSD' . '[\r]?\n',
-	6 => ' \*' . '[\r]?\n',
-	7 => ' \* @version',
+	0 => ' \* @package StoryBB (storybb.org) - A roleplayer\'s forum software' . '[\r]?\n',
+	1 => ' \* @copyright 2017 StoryBB and individual contributors (see contributors.txt)' . '[\r]?\n',
+	2 => ' \* @license 3-clause BSD (see accompanying LICENSE file)' . '[\r]?\n',
+	3 => ' \*' . '[\r]?\n',
+	4 => ' \* @version',
 );
 
 // Just see if the license is there.
