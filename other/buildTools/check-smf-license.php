@@ -99,7 +99,7 @@ if (!preg_match('~' . implode('', $yearMatch) . '~i', $contents))
 
 // Check the version is correct.
 $versionMatch = $match;
-$versionMatch[7] = ' \* @version ' . $currentVersion . '[\r]?\n';
+$versionMatch[4] = ' \* @version ' . $currentVersion . '[\r]?\n';
 if (!preg_match('~' . implode('', $versionMatch) . '~i', $contents))
 	die('Error: The version is incorrect in ' . $currentFile . "\n");
 
