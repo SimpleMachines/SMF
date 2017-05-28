@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManagePaid
+// Version: 3.0 Alpha 1; ManagePaid
 
 global $boardurl;
 

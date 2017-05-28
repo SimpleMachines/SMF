@@ -1,3 +1,14 @@
+StoryBB is, in some ways, like a story - collaborative.
+
+Principle StoryBB-specific contributors:
+AccaliaDeElementia, Arantor, izzion, Onyx, yamikuronue
+
+StoryBB-specific additional software:
+Lightncandy | © Yahoo! Inc. | Licensed under The MIT License (MIT)
+
+
+The following is the original contributors list from SMF 2.1 from which StoryBB is derived.
+
 Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today!
 Those who contributed their time and effort in the form of code submissions, and in SMF's various teams including;
 Project Management, Support Specialists, Customizers, Doc Writers, Localizers, Marketing, Site Team and Server Team.

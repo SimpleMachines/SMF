@@ -1,18 +1,15 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 3';
-$GLOBALS['db_script_version'] = '2-1';
+$GLOBALS['current_smf_version'] = '3.0 Alpha 1';
+$GLOBALS['db_script_version'] = '3-0';
 
 $GLOBALS['required_php_version'] = '7.0.0';
 

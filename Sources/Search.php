@@ -3,14 +3,11 @@
 /**
  * Handle all of the searching from here.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -19,7 +16,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 3',
+	'forum_version' => 'StoryBB Alpha 1',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );

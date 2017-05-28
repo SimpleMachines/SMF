@@ -1,14 +1,11 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 // Stuff we will ignore.
@@ -68,7 +65,7 @@ foreach ($ignoreFiles as $if)
 $indexFile = fopen('./index.php', 'r');
 $indexContents = fread($indexFile, 850);
 
-if (!preg_match('~\$forum_version = \'SMF ([^\']+)\';~i', $indexContents, $versionResults))
+if (!preg_match('~\$forum_version = \'StoryBB ([^\']+)\';~i', $indexContents, $versionResults))
 	die('Error: Could not locate $forum_version' . "\n");
 $currentVersion = $versionResults[1];
 
@@ -83,14 +80,11 @@ $contents = fread($file, 4000);
 
 // How the license file should look, in a regex type format.
 $match = array(
-	0 => '\* Simple Machines Forum \(SMF\)' . '[\r]?\n',
-	1 => ' \*' . '[\r]?\n',
-	2 => ' \* @package SMF' . '[\r]?\n',
-	3 => ' \* @author Simple Machines https?://www.simplemachines.org' . '[\r]?\n',
-	4 => ' \* @copyright \d{4} Simple Machines and individual contributors' . '[\r]?\n',
-	5 => ' \* @license https?://www.simplemachines.org/about/smf/license.php BSD' . '[\r]?\n',
-	6 => ' \*' . '[\r]?\n',
-	7 => ' \* @version',
+	0 => ' \* @package StoryBB \(storybb.org\) - A roleplayer\'s forum software' . '[\r]?\n',
+	1 => ' \* @copyright \d{4} StoryBB and individual contributors \(see contributors.txt\)' . '[\r]?\n',
+	2 => ' \* @license 3-clause BSD \(see accompanying LICENSE file\)' . '[\r]?\n',
+	3 => ' \*' . '[\r]?\n',
+	4 => ' \* @version',
 );
 
 // Just see if the license is there.
@@ -99,13 +93,13 @@ if (!preg_match('~' . implode('', $match) . '~i', $contents))
 
 // Check the year is correct.
 $yearMatch = $match;
-$yearMatch[4] = ' \* @copyright ' . $currentSoftwareYear . ' Simple Machines and individual contributors' . '[\r]?\n';
+$yearMatch[1] = ' \* @copyright ' . $currentSoftwareYear . ' StoryBB and individual contributors \(see contributors.txt\)' . '[\r]?\n';
 if (!preg_match('~' . implode('', $yearMatch) . '~i', $contents))
 	die('Error: The software year is incorrect in ' . $currentFile . "\n");
 
 // Check the version is correct.
 $versionMatch = $match;
-$versionMatch[7] = ' \* @version ' . $currentVersion . '[\r]?\n';
+$versionMatch[4] = ' \* @version ' . $currentVersion . '[\r]?\n';
 if (!preg_match('~' . implode('', $versionMatch) . '~i', $contents))
 	die('Error: The version is incorrect in ' . $currentFile . "\n");
 

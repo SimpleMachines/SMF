@@ -1,14 +1,11 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 // Stuff we will ignore.
@@ -63,7 +60,7 @@ $contents = fread($file, 100);
 if (preg_match('~\?>\s+$~', $contents, $matches))
 	die('Error: End of File contains extra spaces in ' . $currentFile . "\n");
 
-// Test to see if its there even, SMF 2.1 base package needs it there in our main files to allow package manager to properly handle end operations.  Customizations do not need it.
+// Test to see if its there even, StoryBB base package needs it there in our main files to allow package manager to properly handle end operations.  Customizations do not need it.
 if (!preg_match('~\?>$~', $contents, $matches))
 	die('Error: End of File missing in ' . $currentFile . "\n");
 

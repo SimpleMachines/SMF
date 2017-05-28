@@ -3,14 +3,11 @@
 /**
  * This file contains the files necessary to display news as an XML feed.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -355,7 +352,7 @@ function ShowXmlFeed()
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
 	<id>', $feed_meta['source'], '</id>
 	<subtitle>', $feed_meta['desc'], '</subtitle>
-	<generator uri="https://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
+	<generator uri="https://storybb.org" version="', strtr($forum_version, array('StoryBB ' => '')), '">StoryBB</generator>',
 	!empty($feed_meta['icon']) ? '
 	<icon>' . $feed_meta['icon'] . '</icon>' : '',
 	!empty($feed_meta['author']) ? '
