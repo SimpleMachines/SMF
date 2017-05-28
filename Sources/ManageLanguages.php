@@ -143,7 +143,7 @@ function list_getLanguagesList()
 	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
 
 	// We're going to use this URL.
-	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
+	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('StoryBB ' => '')));
 
 	// Load the class file and stick it into an array.
 	require_once($sourcedir . '/Class-Package.php');
@@ -237,7 +237,7 @@ function DownloadLanguage()
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('StoryBB ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
 
 			// Make sure the files aren't stuck in the cache.
 			package_flush_cache();
@@ -249,7 +249,7 @@ function DownloadLanguage()
 
 	// Open up the old china.
 	if (!isset($archive_content))
-		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), null);
+		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('StoryBB ' => ''))) . ';fetch=' . urlencode($_GET['did']), null);
 
 	if (empty($archive_content))
 		fatal_error($txt['add_language_error_no_response']);

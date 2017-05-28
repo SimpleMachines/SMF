@@ -65,7 +65,7 @@ foreach ($ignoreFiles as $if)
 $indexFile = fopen('./index.php', 'r');
 $indexContents = fread($indexFile, 850);
 
-if (!preg_match('~\$forum_version = \'SMF ([^\']+)\';~i', $indexContents, $versionResults))
+if (!preg_match('~\$forum_version = \'StoryBB ([^\']+)\';~i', $indexContents, $versionResults))
 	die('Error: Could not locate $forum_version' . "\n");
 $currentVersion = $versionResults[1];
 

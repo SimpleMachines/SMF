@@ -18,7 +18,7 @@
  */
 
 $software_year = '2017';
-$forum_version = 'SMF 2.1 Beta 3';
+$forum_version = 'StoryBB 3.0 Alpha 1';
 
 // Get everything started up...
 define('SMF', 1);

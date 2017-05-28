@@ -9,8 +9,8 @@
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 3');
-define('SMF_LANG_VERSION', '2.1 Beta 3');
+define('SMF_VERSION', '3.0 Alpha 1');
+define('SMF_LANG_VERSION', '3.0 Alpha 1');
 
 /**
  * The minimum required PHP version.

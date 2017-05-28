@@ -205,7 +205,7 @@ function get_theme_info($path)
 	}
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = strtr($forum_version, array('StoryBB ' => ''));
 	$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.

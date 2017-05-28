@@ -316,7 +316,7 @@ function PackageGBrowse()
 			$default_title = $smcFunc['htmlspecialchars']($listing->fetch('default-website/@title'));
 	}
 
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = strtr($forum_version, array('StoryBB ' => ''));
 	if (!empty($_SESSION['version_emulate']))
 		$the_version = $_SESSION['version_emulate'];
 

@@ -1384,7 +1384,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '3.0 - 3.0.99, ' . strtr($forum_version, array('StoryBB ' => '')),
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);
