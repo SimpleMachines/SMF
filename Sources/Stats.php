@@ -779,7 +779,7 @@ function SMStats()
 		'topics' => $modSettings['totalTopics'],
 		'boards' => 0,
 		'php_version' => $serverVersions['php']['version'],
-		'database_type' => strtolower($serverVersions['db_server']['title']),
+		'database_type' => strtolower($serverVersions['db_engine']['version']),
 		'database_version' => $serverVersions['db_server']['version'],
 		'smf_version' => $forum_version,
 		'smfd_version' => $modSettings['smfVersion'],
