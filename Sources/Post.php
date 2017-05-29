@@ -45,7 +45,6 @@ function Post($post_errors = array())
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
-	$context['posting_fields'] = array();
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -192,7 +191,7 @@ function Post($post_errors = array())
 	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
 		unset($_SESSION['already_attached']);
 	}
-	
+
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
@@ -319,8 +318,8 @@ function Post($post_errors = array())
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+			$context['event']['start_time'] = $context['event']['start_time_orig'];
+			$context['event']['end_time'] = $context['event']['end_time_orig'];
 		}
 
 		// Need this so the user can select a timezone for the event.
@@ -330,8 +329,8 @@ function Post($post_errors = array())
 		// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 		{
-			$d = date_create($context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 		}
 
 		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
@@ -1299,6 +1298,47 @@ function Post($post_errors = array())
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
 	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+
+	// Now let's set up the fields for the posting form header...
+	$context['posting_fields'] = array();
+
+	// Guests must supply their name and email.
+	if (isset($context['name']) && isset($context['email']))
+	{
+		$context['posting_fields']['guestname'] = array(
+			'dt' => '<span id="caption_guestname"' .  (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . '>' . $txt['name'] . '</span>',
+			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" class="input_text" required>',
+		);
+
+		if (empty($modSettings['guest_post_no_email']))
+		{
+			$context['posting_fields']['email'] = array(
+				'dt' => '<span id="caption_email"' .  (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . '>' . $txt['email'] . '</span>',
+				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" class="input_text" required>',
+			);
+		}
+	}
+
+	// Gotta have a subject.
+	$context['posting_fields']['subject'] = array(
+		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" class="input_text" required>',
+	);
+
+	// Icons are fun.
+	$context['posting_fields']['icon'] = array(
+		'dt' => $txt['message_icon'],
+		'dd' => '<select name="icon" id="icon" onchange="showimage()">',
+	);
+	foreach ($context['icons'] as $icon)
+	{
+		$context['posting_fields']['icon']['dd'] .= '
+							<option value="' . $icon['value'] . '"' . ($icon['value'] == $context['icon'] ? ' selected' : '') . '>' . $icon['name'] . '</option>';
+	}
+	$context['posting_fields']['icon']['dd'] .= '
+						</select>
+						<img id="icons" src="' . $context['icon_url'] . '">';
+
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))

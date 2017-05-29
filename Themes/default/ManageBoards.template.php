@@ -164,6 +164,22 @@ function template_modify_category()
 						<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" class="input_check">
 					</dd>';
 
+	// Show any category settings added by mods using the 'integrate_edit_category' hook.
+	if (!empty($context['custom_category_settings']) && is_array($context['custom_category_settings']))
+	{
+		foreach ($context['custom_category_settings'] as $catset_id => $catset)
+		{
+			if (!empty($catset['dt']) && !empty($catset['dd']))
+				echo '
+						<dt class="clear', !is_numeric($catset_id) ? ' catset_' . $catset_id : '', '">
+							', $catset['dt'], '
+						</dt>
+						<dd', !is_numeric($catset_id) ? ' class="catset_' . $catset_id . '"' : '', '>
+							', $catset['dd'], '
+						</dd>';
+		}
+	}
+
 	// Table footer.
 	echo '
 				</dl>';
@@ -536,6 +552,31 @@ function template_modify_board()
 					</dl>
 				</div>';
 
+	// Show any board settings added by mods using the 'integrate_edit_board' hook.
+	if (!empty($context['custom_board_settings']) && is_array($context['custom_board_settings']))
+	{
+		echo '
+				<hr>
+				<div id="custom_board_settings">
+					<dl class="settings">';
+
+		foreach ($context['custom_board_settings'] as $cbs_id => $cbs)
+		{
+			if (!empty($cbs['dt']) && !empty($cbs['dd']))
+				echo '
+						<dt class="clear', !is_numeric($cbs_id) ? ' cbs_' . $cbs_id : '', '">
+							', $cbs['dt'], '
+						</dt>
+						<dd', !is_numeric($cbs_id) ? ' class="cbs_' . $cbs_id . '"' : '', '>
+							', $cbs['dd'], '
+						</dd>';
+		}
+
+		echo '
+					</dl>
+				</div>';
+	}
+
 	if (!empty($context['board']['is_recycle']))
 		echo '
 				<div class="noticebox">', $txt['mboards_recycle_disabled_delete'], '</div>';
@@ -640,6 +681,14 @@ function template_modify_board()
 		if ($context['board']['redirect'])
 			echo '
 			document.getElementById("reset_redirect_div").style.display = redirectEnabled ? "" : "none";';
+	}
+
+	// Include any JavaScript added by mods using the 'integrate_edit_board' hook.
+	if (!empty($context['custom_refreshOptions']) && is_array($context['custom_refreshOptions']))
+	{
+		foreach ($context['custom_refreshOptions'] as $refreshOption)
+			echo '
+			', $refreshOption;
 	}
 
 	echo '

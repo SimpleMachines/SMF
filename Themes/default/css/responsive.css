@@ -183,6 +183,11 @@
 	.move_topic {
 		width: 100%;
 	}
+	.bbc_float {
+		max-width: 100% !important;
+		margin-left: 0.5em !important;
+		margin-right: 0.5em !important;
+	}
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -267,7 +272,7 @@
 	#admincenter select, #quick_search select {
 		width: 90%;
 	}
-	
+
 	/* Calendar */
 	.event_options_left, .event_options_right {
 		width: 100%;
@@ -584,15 +589,6 @@
 	}
 	#private, #enclose {
 		width: 95%;
-	}
-
-	/* Attachment uploading. */
-	#au-previews div.descbox div,
-	#au-previews div.errorbox div,
-	#au-previews div.infobox div{
-		display:block;
-		width:auto;
-		padding-bottom: 3px;
 	}
 }
 

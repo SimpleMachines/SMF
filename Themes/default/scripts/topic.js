@@ -323,9 +323,6 @@ QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 	// At least NOW we're in edit mode
 	this.bInEditMode = true;
 
-	// Keep track of whether we want to show the subject
-	this.opt.bShowSubject = blnShowSubject;
-
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
@@ -485,7 +482,7 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 
 		// Show new subject, but only if we want to...
 		var oSubject = message.getElementsByTagName('subject')[0];
-		var sSubjectText = this.opt.bshowSubject ? oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}') : '';
+		var sSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		var sTopSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		this.sSubjectBuffer = this.opt.sTemplateSubjectNormal.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurSubjectDiv, this.sSubjectBuffer);

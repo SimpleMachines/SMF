@@ -1,4 +1,4 @@
-/* You can find detailed information at http://wiki.simplemachines.org/smf/Curve2_CSS
+/* You can find detailed information at https://wiki.simplemachines.org/smf/Curve2_CSS
 /* Index */
 html {
 	background: #3e5a78;
@@ -411,6 +411,19 @@ blockquote cite::before {
 	text-align: left;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
+}
+.bbc_float {
+	margin-bottom: 1em;
+	/* default max-width to use if none was specified in the BBC */
+	max-width: 45%;
+}
+.bbc_float.floatleft {
+	margin-right: 1em;
+	clear: left;
+}
+.bbc_float.floatright {
+	margin-left: 1em;
+	clear: right;
 }
 /* No image should have a border when linked. */
 a img {
@@ -3263,6 +3276,9 @@ div#pollmoderation {
 	color: #333;
 	font-weight: bold;
 }
+.subject_hidden a {
+	display: none;
+}
 .page_number {
 	color: #ad6825;
 	font-weight: bold;
@@ -3287,6 +3303,8 @@ img.smiley {
 .attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
+	display:inline-block;
+	vertical-align:top;
 }
 .attachments_top {
 	margin: 0 auto;
@@ -3796,35 +3814,57 @@ h3.profile_hd {
 	transform: translate(-50%, -50%);
 }
 
-#au-previews div.descbox div,
-#au-previews div.errorbox div,
-#au-previews div.infobox div{
-	display: inline-block;
-	width: 32%;
-	min-height: 30px;
-	vertical-align: middle;
+.dz-image-preview {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
 }
-.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
+#au-previews div.descbox > div,
+#au-previews div.errorbox > div,
+#au-previews div.infobox > div{
+	padding: 10px;
+	box-sizing: border-box;
+}
+#au-previews .attach-preview {
+	flex: 0 0 auto;
+	width: 170px;
+}
+#au-previews .attach-info {
+	flex: 1 1 auto;
+	width: 250px;
+}
+#au-previews .attach-ui {
+	min-height: 36px;
+}
+input[name="attachBBC"] {
+	width: 100%;
+	margin-top: 10px;
+}
+.attach-info .progressBar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
 	display: none;
 }
-a.insertBBC
-{
-	margin: 0;
+.attached_BBC_width_height label {
+	min-width: 100px;
+	display: inline-block;
 }
-p.attached_BBC {
-	margin-right:75px;
+.attached_BBC_width, .attached_BBC_height {
+	margin: 10px 1em 0 0;
+	display: inline-block;
 }
 a.button_submit {
 	margin-top:15px;
-}
-
-.attach-info p, .attach-info field{
+	text-decoration: none;
 	display: inline-block;
+	min-width: 0;
 }
-#attachUpload{
+.attach-info input[type="number"] {
+	width: 5em;
+}
+#attachUpload {
 	min-height:50px;
 }
-#total-progress{
+#total-progress {
 	width:50%;
 	display:none;
 }

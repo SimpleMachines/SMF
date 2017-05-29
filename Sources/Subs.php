@@ -1132,9 +1132,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '"></a>';
+							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '" class="atc_img"></a>';
 						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . '/>';
+							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
 					}
 
 					// No image. Show a link.
@@ -1272,6 +1272,26 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
 			array(
+				'tag' => 'float',
+				'type' => 'unparsed_equals',
+				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
+				'before' => '<div $1>',
+				'after' => '</div>',
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
+
+					if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches))
+						$css = ' style="max-width:' . $matches[1] . (is_numeric($matches[1]) ? 'px' : '') . '"';
+					else
+						$css = '';
+
+					$data = $class . $css;
+				},
+				'trim' => 'outside',
+				'block_level' => true,
+			),
+			array(
 				'tag' => 'font',
 				'type' => 'unparsed_equals',
 				'test' => '[A-Za-z0-9_,\-\s]+?\]',
@@ -1407,7 +1427,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'list',
 				'parameters' => array(
-					'type' => array('match' => '(none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha)'),
+					'type' => array('match' => '(none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|upper-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha)'),
 				),
 				'before' => '<ul class="bbc_list" style="list-style-type: {type};">',
 				'after' => '</ul>',
@@ -2111,9 +2131,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*<br>';
+				// Trim one line of whitespace after unnested tags, but all of it after nested ones
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
 
@@ -2386,9 +2411,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += $ot_strlen + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*<br>';
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
 				array_pop($open_tags);
@@ -3676,7 +3704,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	// Just make up a nice hash...
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
-	
+
 	// Just make sure that attachment id is only a int
 	$attachment_id = (int) $attachment_id;
 
@@ -3704,7 +3732,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
-	if (!empty($modSettings['currentAttachmentUploadDir']))
+	if (is_array($modSettings['attachmentUploadDir']))
 		$path = $modSettings['attachmentUploadDir'][$dir];
 
 	else
@@ -4672,9 +4700,9 @@ function sanitizeMSCutPaste($string)
 
 	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
-		"\xe2\80\x9a",	// single low-9 quotation mark
-		"\xe2\80\x9e",	// double low-9 quotation mark
-		"\xe2\80\xa6",	// horizontal ellipsis
+		"\xe2\x80\x9a",	// single low-9 quotation mark
+		"\xe2\x80\x9e",	// double low-9 quotation mark
+		"\xe2\x80\xa6",	// horizontal ellipsis
 		"\xe2\x80\x98",	// left single curly quote
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
@@ -4904,14 +4932,14 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
-	// We'll need this too
-	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
+	// We'll need these too
+	$date_when = date_create('@' . $when);
+	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
 
 	// Prefer and give custom descriptions for these time zones
 	// If the description is left empty, it will be filled in with the names of matching cities
 	$timezone_descriptions = array(
-		'America/Adak' => 'Hawaii-Aleutian',
-		'Pacific/Honolulu' => 'Hawaii',
+		'America/Adak' => 'Aleutian Islands',
 		'Pacific/Marquesas' => 'Marquesas Islands',
 		'Pacific/Gambier' => 'Gambier Islands',
 		'America/Anchorage' => 'Alaska',
@@ -4950,6 +4978,7 @@ function smf_list_timezones($when = 'now')
 		'Asia/Rangoon' => 'Yangon/Rangoon',
 		'Indian/Christmas' => 'Christmas Island',
 		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
+		'Antarctica/Vostok' => 'Vostok Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
 		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
@@ -4979,32 +5008,17 @@ function smf_list_timezones($when = 'now')
 		if ($tzid == 'UTC')
 			continue;
 
+		$tz = timezone_open($tzid);
+
 		// First, get the set of transition rules for this tzid
-		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
+		$tzinfo = timezone_transitions_get($tz, $when, $later);
 
-		// There are a handful of time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
-		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-		{
-			$tz_location = timezone_location_get(timezone_open($tzid));
-
-			// Kazakstan
-			if ($tz_location['country_code'] == 'KZ')
-				$tzinfo[0]['abbr'] = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tzinfo[0]['abbr']);
-
-			// Russia likes to experiment with time zones
-			if ($tz_location['country_code'] == 'RU')
-			{
-				$msk_offset = intval($tzinfo[0]['abbr']) - 3;
-				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-				$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
-			}
-
-			// Still no good? We'll just mark it as a UTC offset
-			if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-				$tzinfo[0]['abbr'] = 'UTC' . $tzinfo[0]['abbr'];
-		}
+		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
 		$tzkey = serialize($tzinfo);
+
+		// Next, get the geographic info for this tzid
+		$tzgeo = timezone_location_get($tz);
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
@@ -5018,10 +5032,11 @@ function smf_list_timezones($when = 'now')
 		$tzid_parts = explode('/', $tzid);
 		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
+		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
 	}
 
-	// Sort by offset
-	array_multisort($offsets, SORT_ASC, $zones);
+	// Sort by offset then longitude
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -5030,15 +5045,17 @@ function smf_list_timezones($when = 'now')
 	{
 		$tzinfo = unserialize($tzkey);
 
+		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
+
 		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
 			$desc = $timezone_descriptions[$tzvalue['tzid']];
 		else
 			$desc = implode(', ', array_unique($tzvalue['locations']));
 
 		if (isset($priority_zones[$tzkey]))
-			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
 	$timezones = array_merge(
@@ -5048,6 +5065,72 @@ function smf_list_timezones($when = 'now')
 	);
 
 	return $timezones;
+}
+
+/**
+ * Reformats certain time zone abbreviations to look better.
+ *
+ * Some of PHP's time zone abbreviations are just numerical offsets from UTC, e.g. '+04'
+ * These look weird and are kind of useless, so we make them look better.
+ *
+ * @param string $tzid The Olsen time zome identifier for a time zone.
+ * @param string $tz_abbrev The abbreviation PHP provided for this time zone.
+ * @return string The fixed version of $tz_abbrev.
+ */
+function fix_tz_abbrev($tzid, $tz_abbrev)
+{
+	// Is this abbreviation just a numerical offset?
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
+		$missing_tz_abbrs = array(
+			'Antarctica/Casey' => 'CAST',
+			'Antarctica/Davis' => 'DAVT',
+			'Antarctica/DumontDUrville' => 'DDUT',
+			'Antarctica/Mawson' => 'MAWT',
+			'Antarctica/Rothera' => 'ART',
+			'Antarctica/Syowa' => 'SYOT',
+			'Antarctica/Vostok' => 'VOST',
+			'Asia/Almaty' => 'ALMT',
+			'Asia/Aqtau' => 'ORAT',
+			'Asia/Aqtobe' => 'AQTT',
+			'Asia/Ashgabat' => 'TMT',
+			'Asia/Bishkek' => 'KGT',
+			'Asia/Colombo' => 'IST',
+			'Asia/Dushanbe' => 'TJT',
+			'Asia/Oral' => 'ORAT',
+			'Asia/Qyzylorda' => 'QYZT',
+			'Asia/Samarkand' => 'UZT',
+			'Asia/Tashkent' => 'UZT',
+			'Asia/Tbilisi' => 'GET',
+			'Asia/Yerevan' => 'AMT',
+			'Europe/Istanbul' => 'TRT',
+			'Europe/Minsk' => 'MSK',
+			'Indian/Kerguelen' => 'TFT',
+		);
+
+		if (!empty($missing_tz_abbrs[$tzid]))
+			$tz_abbrev = $missing_tz_abbrs[$tzid];
+		else
+		{
+			// Russia likes to experiment with time zones often, and names them as offsets from Moscow
+			$tz_location = timezone_location_get(timezone_open($tzid));
+			if ($tz_location['country_code'] == 'RU')
+			{
+				$msk_offset = intval($tz_abbrev) - 3;
+				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
+			}
+		}
+
+		// Still no good? We'll just mark it as a UTC offset
+		if (strspn($tz_abbrev, '+-') > 0)
+		{
+			$tz_abbrev = intval($tz_abbrev);
+			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
+		}
+	}
+
+	return $tz_abbrev;
 }
 
 /**
@@ -5506,7 +5589,7 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		require_once($sourcedir . '/Subs-Package.php');
-		$tlds = fetch_web_data('http://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)

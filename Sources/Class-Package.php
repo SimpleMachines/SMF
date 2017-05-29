@@ -725,7 +725,7 @@ class xmlArray
  * Class ftp_connection
  * Simple FTP protocol implementation.
  *
- * @see http://www.faqs.org/rfcs/rfc959.html
+ * @see https://tools.ietf.org/html/rfc959
  */
 class ftp_connection
 {

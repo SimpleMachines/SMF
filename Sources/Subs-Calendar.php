@@ -698,8 +698,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 
 	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavaScript('
 	$("#calendar_range .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
@@ -721,17 +719,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		nextText: "' . $txt['next_month'] . '",
 	});
 	var date_entry = document.getElementById("calendar_range");
-	var date_entry_pair = new Datepair(date_entry, {
-		dateClass: "date_input",
-		autoclose: true,
-		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
 	', true);
 
 	return $calendarGrid;
@@ -1604,29 +1591,7 @@ function buildEventDatetimes($row)
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
-	$tz_abbrev = date_format($start_object, 'T');
-
-	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
-	if (strspn($tz_abbrev, '+-') > 0)
-	{
-		$tz_location = timezone_location_get(timezone_open($row['timezone']));
-
-		// Kazakstan
-		if ($tz_location['country_code'] == 'KZ')
-			$tz_abbrev = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tz_abbrev);
-
-		// Russia likes to experiment with time zones
-		if ($tz_location['country_code'] == 'RU')
-		{
-			$msk_offset = intval($tz_abbrev) - 3;
-			$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-			$tz_abbrev = 'MSK' . $msk_offset;
-		}
-
-		// Still no good? We'll just mark it as a UTC offset
-		if (strspn($tz_abbrev, '+-') > 0)
-			$tz_abbrev = 'UTC' . $tz_abbrev;
-	}
+	$tz_abbrev = fix_tz_abbrev($row['timezone'], date_format($start_object, 'T'));
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
@@ -1644,7 +1609,7 @@ function getUserTimezone($id_member = null)
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
-	
+
 	//check if the cache got the data
 	if (isset($id_member) && isset($member_cache[$id_member]))
 	{
@@ -1670,7 +1635,7 @@ function getUserTimezone($id_member = null)
 
 	if (isset($id_member))
 		$member_cache[$id_member] = $timezone;
-	
+
 	return $timezone;
 }
 

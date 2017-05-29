@@ -1464,7 +1464,7 @@ function InstallCopy()
 <!-- Author: your email address or contact information. The name attribute is optional. -->
 <author name="Simple Machines">info@simplemachines.org</author>
 <!-- Website... where to get updates and more information. -->
-<website>http://www.simplemachines.org/</website>
+<website>https://www.simplemachines.org/</website>
 <!-- Template layers to use, defaults to "html,body". -->
 <layers>' . $context['to_install']['theme_layers'] . '</layers>
 <!-- Templates to load on startup. Default is "index". -->

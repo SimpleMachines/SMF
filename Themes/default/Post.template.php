@@ -134,62 +134,23 @@ function template_main()
 	echo '
 					<dl id="post_header">';
 
-	// Custom posting fields.
+	// All the posting fields (subject, message icon, guest name & email, etc.)
+	// Mod & theme authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php)
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
-		foreach ($context['posting_fields'] as $pf)
-			echo '
-						<dt>
-							', $pf['dt'] ,'
-						</dt>
-						<dd>
-							', $pf['dd'] ,'
-						</dd>';
-
-
-	// Guests have to put in their name and email...
-	if (isset($context['name']) && isset($context['email']))
 	{
-		echo '
-						<dt>
-							<span', isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '', ' id="caption_guestname">', $txt['name'], ':</span>
-						</dt>
-						<dd>
-							<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
-						</dd>';
-
-		if (empty($modSettings['guest_post_no_email']))
+		foreach ($context['posting_fields'] as $pfid => $pf)
+		{
 			echo '
-						<dt>
-							<span', isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '', ' id="caption_email">', $txt['email'], ':</span>
+						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
+							', $pf['dt'], '
 						</dt>
-						<dd>
-							<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
+						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
+							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
+		}
 	}
 
-	// Now show the subject box for this post.
 	echo '
-						<dt class="clear">
-							<span', isset($context['post_error']['no_subject']) ? ' class="error"' : '', ' id="caption_subject">', $txt['subject'], ':</span>
-						</dt>
-						<dd>
-							<input type="text" name="subject"', $context['subject'] == '' ? '' : ' value="' . $context['subject'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80"', isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', ' required>
-						</dd>
-						<dt class="clear_left">
-							', $txt['message_icon'], ':
-						</dt>
-						<dd>
-							<select name="icon" id="icon" onchange="showimage()">';
-
-	// Loop through each message icon allowed, adding it to the drop down list.
-	foreach ($context['icons'] as $icon)
-		echo '
-								<option value="', $icon['value'], '"', $icon['value'] == $context['icon'] ? ' selected' : '', '>', $icon['name'], '</option>';
-
-	echo '
-							</select>
-							<img src="', $context['icon_url'], '" id="icons" alt="">
-						</dd>
 					</dl>';
 
 	// Are you posting a calendar event?
@@ -434,19 +395,30 @@ function template_main()
 									<img data-dz-thumbnail />
 								</div>
 								<div class="attach-info">
-									<p class="name" data-dz-name></p>
-									<p class="error" data-dz-errormessage></p>
-									<p class="size" data-dz-size></p>
-									<p class="message" data-dz-message></p>
-									<p class="attached_BBC">
+									<div>
+										<span class="name" data-dz-name></span>
+										<span class="error" data-dz-errormessage></span>
+										<span class="size" data-dz-size></span>
+										<span class="message" data-dz-message></span>
+									</div>
+									<div class="attached_BBC">
 										<input type="text" name="attachBBC" value="" readonly>
-										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
-									</p>
-									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
-								</div>
-								<div class="attach-ui">
-									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
-									<a class="button_submit start">', $txt['upload'] ,'</a>
+										<div class="attached_BBC_width_height">
+											<div class="attached_BBC_width">
+												<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+												<input type="number" name="attached_BBC_width" min="0" value="" placeholder="auto">
+											</div>
+											<div class="attached_BBC_height">
+												<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
+											</div>
+										</div>
+									</div>
+									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="attach-ui">
+										<a data-dz-remove class="button_submit cancel">', $txt['modify_cancel'] ,'</a>
+										<a class="button_submit upload">', $txt['upload'] ,'</a>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -630,9 +602,9 @@ function template_main()
 						{
 							// Handle the WYSIWYG editor.
 							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && $("#', $context['post_box_name'], '").data("sceditor") != undefined)
-								x[x.length] = textFields[i] + \'=\' + $("#', $context['post_box_name'], '").data("sceditor").getText().replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+								x[x.length] = textFields[i] + \'=\' + $("#', $context['post_box_name'], '").data("sceditor").getText().replace(/&#/g, \'&#38;#\');
 							else
-								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\');
 						}
 					for (var i = 0, n = numericFields.length; i < n; i++)
 						if (numericFields[i] in document.forms.postmodify && \'value\' in document.forms.postmodify[numericFields[i]])

@@ -7,7 +7,7 @@ namespace TOTP;
  * clients.
  *
  * NOTE: A lot of the logic from this class has been borrowed from this class:
- * http://www.idontplaydarts.com/wp-content/uploads/2011/07/ga.php_.txt
+ * https://www.idontplaydarts.com/wp-content/uploads/2011/07/ga.php_.txt
  *
  * @author Chris Cornutt <ccornutt@phpdeveloper.org>
  * @package GAuth

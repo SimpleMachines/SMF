@@ -439,8 +439,8 @@ function CalendarPost()
 	// Otherwise, just adjust these to look nice on the input form
 	else
 	{
-		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+		$context['event']['start_time'] = $context['event']['start_time_orig'];
+		$context['event']['end_time'] = $context['event']['end_time_orig'];
 	}
 
 	// Need this so the user can select a timezone for the event.
@@ -450,8 +450,8 @@ function CalendarPost()
 	// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 	{
-		$d = date_create($context['event']['tz']);
-		$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+		$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+		$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 	}
 
 	// Get list of boards that can be posted in.
@@ -536,7 +536,7 @@ function CalendarPost()
 /**
  * This function offers up a download of an event in iCal 2.0 format.
  *
- * Follows the conventions in {@link http://tools.ietf.org/html/rfc5546 RFC5546}
+ * Follows the conventions in {@link https://tools.ietf.org/html/rfc5546 RFC5546}
  * Sets events as all day events since we don't have hourly events
  * Will honor and set multi day events
  * Sets a sequence number if the event has been modified

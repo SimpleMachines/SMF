@@ -203,7 +203,7 @@ class paypal_payment
 			$requestString .= '&' . $k . '=' . urlencode($v);
 
 		// Can we use curl?
-		if (function_exists('curl_init') && $curl = curl_init((!empty($modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'http://www.') . 'paypal.com/cgi-bin/webscr'))
+		if (function_exists('curl_init') && $curl = curl_init((!empty($modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr'))
 		{
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);

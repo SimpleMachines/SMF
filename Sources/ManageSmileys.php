@@ -1435,7 +1435,8 @@ function InstallSmileySet()
 		$context['filename'] = $base_name;
 
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
-		if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
+		// @ TODO: Our current xml files serve http links.  Allowing both for now until we serve https.
+		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
 			fatal_lang_error('not_on_simplemachines');
 
 		$destination = $packagesdir . '/' . $base_name;
@@ -1480,7 +1481,7 @@ function InstallSmileySet()
 
 	$extracted = read_tgz_file($destination, $packagesdir . '/temp');
 	if (!$extracted)
-		fatal_lang_error('packageget_unable', false, array('http://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
+		fatal_lang_error('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
 	if ($extracted && !file_exists($packagesdir . '/temp/package-info.xml'))
 		foreach ($extracted as $file)
 			if (basename($file['filename']) == 'package-info.xml')

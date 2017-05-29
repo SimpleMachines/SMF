@@ -211,7 +211,7 @@
  * Animated jQuery Drag and Drop Plugin
  * Version 0.5.1 beta
  * Author Abel Mohler
- * Released with the MIT License: http://www.opensource.org/licenses/mit-license.php
+ * Released with the MIT License: https://opensource.org/licenses/mit-license.php
  */
 (function($){
 	$.fn.animaDrag = function(o, callback) {
@@ -324,8 +324,8 @@
  * Copyright (c) 2015
  *
  * Dual licensed under the MIT and GPL licenses:
- *	http://www.opensource.org/licenses/mit-license.php
- *	http://www.gnu.org/licenses/gpl.html
+ *	https://opensource.org/licenses/mit-license.php
+ *	https://www.gnu.org/licenses/gpl.html
  */
 
 ;(function ($, w) {

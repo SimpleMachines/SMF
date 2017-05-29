@@ -47,7 +47,7 @@ function HelpIndex()
 	global $scripturl, $context, $txt;
 
 	// We need to know where our wiki is.
-	$context['wiki_url'] = 'http://wiki.simplemachines.org/smf';
+	$context['wiki_url'] = 'https://wiki.simplemachines.org/smf';
 	$context['wiki_prefix'] = 'SMF2.1:';
 
 	$context['canonical_url'] = $scripturl . '?action=help';

@@ -8,8 +8,8 @@ $txt['native_name'] = 'English';
 
 // Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
 // For more information see:
-//   - http://www.php.net/function.pspell-new
-//   - http://www.php.net/function.setlocale
+//   - https://php.net/function.pspell-new
+//   - https://php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
@@ -397,10 +397,12 @@ $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';
 $txt['poll_total_voters'] = 'Total Members Voted';
-$txt['shortcuts'] = 'shortcuts: alt+s submit/post, alt+p preview';
-$txt['shortcuts_firefox'] = 'shortcuts: shift+alt+s submit/post, shift+alt+p preview';
+$txt['shortcuts'] = 'Shortcuts: alt+s save/post, alt+p preview';
+$txt['shortcuts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview';
+$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview';
 $txt['shortcuts_drafts'] = ', alt+d save draft';
 $txt['shortcuts_drafts_firefox'] = ', shift+alt+d save draft';
+$txt['shortcuts_drafts_mac'] = ', ⌃⌥D save draft';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
