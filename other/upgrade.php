@@ -3759,7 +3759,7 @@ function template_upgrade_options()
 	echo '
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked', ' class="input_check">
+							<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']) ? '' : ' checked="checked"', ' class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="stat">
