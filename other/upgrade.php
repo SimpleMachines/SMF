@@ -931,7 +931,7 @@ function UpgradeOptions()
 		return false;
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && (substr($boardurl, 0, 16) != 'http://localhost' || substr($boardurl, 0, 16) != 'https://localhost') && empty($modSettings['allow_sm_stats']))
+	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
 		$upcontext['allow_sm_stats'] = true;
 
@@ -957,7 +957,10 @@ function UpgradeOptions()
 				$smcFunc['db_insert']('replace',
 					$db_prefix . 'settings',
 					array('variable' => 'string', 'value' => 'string'),
-					array('allow_sm_stats', $ID[1]),
+					array(
+						array('sm_stats_key', $ID[1]),
+						array('enable_sm_stats', 1),
+					),
 					array('variable')
 				);
 		}
@@ -966,9 +969,9 @@ function UpgradeOptions()
 	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
-			WHERE variable = {string:allow_sm_stats}',
+			WHERE variable = {string:enable_sm_stats}',
 			array(
-				'allow_sm_stats' => 'allow_sm_stats',
+				'enable_sm_stats' => 'enable_sm_stats',
 				'db_error_skip' => true,
 			)
 		);

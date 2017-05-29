@@ -745,18 +745,17 @@ function getDailyStats($condition_string, $condition_parameters = array())
  * does not return any data directly to sm.org, instead starts a new request for security.
  *
  * @link https://www.simplemachines.org/about/stats.php for more info.
- * Note: This functionality is currently broken
  */
 function SMStats()
 {
 	global $modSettings, $user_info, $forum_version, $sourcedir;
 
 	// First, is it disabled?
-	if (empty($modSettings['allow_sm_stats']))
+	if (empty($modSettings['enable_sm_stats']) || empty($modSettings['sm_stats_key']))
 		die();
 
 	// Are we saying who we are, and are we right? (OR an admin)
-	if (!$user_info['is_admin'] && (!isset($_GET['sid']) || $_GET['sid'] != $modSettings['allow_sm_stats']))
+	if (!$user_info['is_admin'] && (!isset($_GET['sid']) || $_GET['sid'] != $modSettings['sm_stats_key']))
 		die();
 
 	// Verify the referer...
@@ -773,7 +772,7 @@ function SMStats()
 
 	// Get the actual stats.
 	$stats_to_send = array(
-		'UID' => $modSettings['allow_sm_stats'],
+		'UID' => $modSettings['sm_stats_key'],
 		'time_added' => time(),
 		'members' => $modSettings['totalMembers'],
 		'messages' => $modSettings['totalMessages'],
