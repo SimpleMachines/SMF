@@ -305,7 +305,7 @@ function MLAll()
 	if ($use_cache && $_REQUEST['sort'] === 'real_name' && !isset($_REQUEST['desc']))
 	{
 		$first_offset = $_REQUEST['start'] - ($_REQUEST['start'] % $cache_step_size);
-		$second_offset = ceil(($_REQUEST['start'] + $modSettings['defaultMaxMembers']) / $cache_step_size) * $cache_step_size;
+		$second_offset = floor(($_REQUEST['start'] + $modSettings['defaultMaxMembers']) / $cache_step_size) * $cache_step_size;
 
 		$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 		$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
