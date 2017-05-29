@@ -182,7 +182,13 @@ function ModifyGeneralSettings($return_config = false)
 
 		// Are we saving the stat collection?
 		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
-			registerSMStats();
+		{
+			$registerSMStats = registerSMStats();
+
+			// Failed to register, disable it again.
+			if (empty($registerSMStats))
+				$_POST['enable_sm_stats'] = 0;
+		}
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
@@ -1362,13 +1368,18 @@ function registerSMStats()
 		preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 		if (!empty($ID[1]))
+		{
 			$smcFunc['db_insert']('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				array('sm_stats_key', $ID[1]),
 				array('variable')
 			);
+			return true;
+		}
 	}
+
+	return false;
 }
 
 ?>
