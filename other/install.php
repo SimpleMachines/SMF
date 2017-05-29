@@ -1205,32 +1205,6 @@ function DatabasePopulation()
 			$newSettings[] = array('localCookies', '1');
 	}
 
-	// Are we allowing stat collection?
-	if (isset($_POST['stats']) && (strpos($_POST['boardurl'], 'http://localhost') !== 0 || strpos($_POST['boardurl'], 'https://localhost') !== 0))
-	{
-		// Attempt to register the site etc.
-		$fp = @fsockopen("www.simplemachines.org", 80, $errno, $errstr);
-		if ($fp)
-		{
-			$out = "GET /smf/stats/register_stats.php?site=" . base64_encode($_POST['boardurl']) . " HTTP/1.1\r\n";
-			$out .= "Host: www.simplemachines.org\r\n";
-			$out .= "Connection: Close\r\n\r\n";
-			fwrite($fp, $out);
-
-			$return_data = '';
-			while (!feof($fp))
-				$return_data .= fgets($fp, 128);
-
-			fclose($fp);
-
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
-
-			if (!empty($ID[1]))
-				$newSettings[] = array('allow_sm_stats', $ID[1]);
-		}
-	}
-
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
 		$newSettings[] = array('force_ssl', 2);
@@ -2223,15 +2197,6 @@ function template_forum_settings()
 					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
 					<br>
 					<div class="smalltext block">', $txt['install_settings_utf8_info'], '</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_stats'], ':</td>
-				<td>
-					<input type="checkbox" name="stats" id="stats_check" class="input_check" />&nbsp;
-					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
-					<br>
-					<div class="smalltext block">', $txt['install_settings_stats_info'], '</div>
 				</td>
 			</tr>
 			<tr>
