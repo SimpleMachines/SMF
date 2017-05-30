@@ -1373,7 +1373,7 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	{
 		if (!empty($row['value']))
 		{
-			$smcFunc['db_insert']('',
+			$smcFunc['db_insert']('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
 				array(
