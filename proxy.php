@@ -193,7 +193,7 @@ class ProxyServer
 			'size' => $response['size'],
 			'time' => time(),
 			'body' => base64_encode($response['body']),
-		))) === false ? false : true;
+		))) === false ? 1 : null;
 	}
 }
 
