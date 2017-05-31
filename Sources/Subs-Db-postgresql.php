@@ -226,7 +226,13 @@ function smf_db_replacement__callback($matches)
 		break;
 
 		case 'identifier':
-			return '"' . strtr($replacement, array('`' => '', '.' => '')) . '"';
+			$replacement = strtr($replacement, array('`' => ''));
+			if(strpos($replacement,'.') !== false)
+			{
+				$replacement = strstr($replacement, '.');
+				$replacement = substr($replacement, 1);
+			}
+			return '"' . $replacement . '"';
 		break;
 
 		case 'raw':
