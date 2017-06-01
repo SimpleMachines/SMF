@@ -403,6 +403,10 @@ $helptxt['customoptions'] = 'This defines the options that a user may choose fro
 	</ul>';
 
 $helptxt['autoFixDatabase'] = 'This will automatically fix broken tables and resume as if nothing happened. This can be useful, because the only way to fix it is to REPAIR the table, and this way your forum won\'t be down until you notice. It does email you when this happens.';
+$helptxt['pgFulltextSearch'] = 'This setting allow your to define the language wich is used for the fulltext search of postgresql, the language settings are independent from your smf settings and not related to the installed language for smf. <br/>
+When you change the language you need to rebuild the fulltext search index to find under Search -> Search Method. (Fulltext Index)<br/>
+The listed language based on the postgresql installation,
+when you miss a language ask your database admin.';
 
 $helptxt['enableParticipation'] = 'This shows a little icon on the topics the user has posted in.';
 
