@@ -5147,8 +5147,9 @@ function inet_ptod($ip_address)
 }
 
 /**
+ * Convert the ip field of a database output in a string
  * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
- * @return string The IP address in presentation format or false on error
+ * @return string The IP address in presentation format, null will be an emtpy string or false on error
  */
 function inet_dtop($bin)
 {
@@ -5160,9 +5161,31 @@ function inet_dtop($bin)
 	if ($db_type == 'postgresql')
 		return $bin;
 
-	$ip_address = inet_ntop($bin);
+	//http://stackoverflow.com/questions/1241728/can-i-try-catch-a-warning
+	set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext)
+		{
+			// error was suppressed with the @-operator
+			if (0 === error_reporting())
+			{
+				return false;
+			}
 
-	return $ip_address;
+			throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+		}
+	);
+
+	try
+	{
+	 $var = inet_ntop($bin);
+	 restore_error_handler();
+	 return $var;
+	}
+	catch(ErrorException $e)
+	{
+	    log_error($e->getMessage().'<br/>'.$e->getTraceAsString(),'general', $e->getFile(), $e->getLine());
+		restore_error_handler();
+		return false;
+	}
 }
 
 /**
