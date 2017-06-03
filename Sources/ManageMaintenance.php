@@ -2355,6 +2355,11 @@ function UserCreate()
 	$context['benchmark_result']['test_name'] = $txt['benchmark_usercreate'];
 	deleteMembers($usersID);
 }
+/**
+ *Dummy Function for MaintainBenchmark
+ */
+function MaintainBenchmark()
+{}
 
 /**
  * Benchmakr for Post creation tries to create as many as possible in 1 minute
