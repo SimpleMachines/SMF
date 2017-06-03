@@ -231,5 +231,9 @@ $txt['enable_maintenance1'] = 'Due to the size of your forum, it is recommended 
 $txt['enable_maintenance2'] = 'To proceed, due to the size of your forum, please place your forum in "maintenance mode".';
 
 $txt['benchmark_usercreate'] = 'Creating User';
+$txt['benchmark_post'] = 'Creating Posts';
+$txt['benchmark_usercreate_info'] = 'Create as many users as possible in one minute';
+$txt['benchmark_post_info'] = 'Create as many posts as possible in one minute'; 
+$txt['benchmark_topic'] = 'Benchmark methodes';
 
 ?>

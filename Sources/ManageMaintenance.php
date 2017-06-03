@@ -97,6 +97,7 @@ function ManageMaintenance()
 			'template' => 'maintain_Benchmark',
 			'activities' => array(
 				'usercreate' => 'UserCreate',
+				'postcreate' => 'PostCreate',
 			),
 		),
 	);
@@ -2294,47 +2295,25 @@ function get_hook_info_from_raw($rawData)
 }
 
 /**
- * Supporting function for the benchmark maintenance area.
- */
-function MaintainBenchmark()
-{
-	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
-
-	// Show some conversion options?
-	$context['convert_utf8'] = ($db_type == 'mysql') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
-	$context['convert_entities'] = ($db_type == 'mysql') && isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
-
-	if ($db_type == 'mysql')
-	{
-		db_extend('packages');
-
-		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
-		foreach ($colData as $column)
-			if ($column['name'] == 'body')
-				$body_type = $column['type'];
-
-		$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
-	}
-
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
-	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
-		$context['maintenance_finished'] = $txt['entity_convert_title'];
-}
-
-/**
  * Benchmakr for User creation tries to create as many as possible in 1 minute
  * It requires the admin_forum permission.
  * It shows as the maintain_forum admin area.
- * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=usercreate.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
 
- * @uses the optimize sub template
+ * @uses the benchmarkresult sub template
  */
 function UserCreate()
 {
-	global $db_prefix, $txt, $context, $smcFunc, $time_start;
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$usersID = array();
+	$start = 0;
+	$maxRuntime = 60;
 
 	isAllowedTo('admin_forum');
 
@@ -2346,72 +2325,141 @@ function UserCreate()
 		validateToken('admin-optimize', 'post', false);
 
 	ignore_user_abort(true);
-	db_extend();
 
 	$context['page_title'] = $txt['benchmark_usercreate'];
-	$context['sub_template'] = 'usercreate';
+	$context['sub_template'] = 'benchmarkresult';
 	$context['continue_post_data'] = '';
 	$context['continue_countdown'] = 3;
-
-	// Only optimize the tables related to this smf install, not all the tables in the db
-	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
-
-	// Get a list of tables, as well as how many there are.
-	$temp_tables = $smcFunc['db_list_tables'](false, $real_prefix . '%');
-	$tables = array();
-	foreach ($temp_tables as $table)
-		$tables[] = array('table_name' => $table);
-
-	// If there aren't any tables then I believe that would mean the world has exploded...
-	$context['num_tables'] = count($tables);
-	if ($context['num_tables'] == 0)
-		fatal_error('You appear to be running SMF in a flat file mode... fantastic!', false);
-
-	$_REQUEST['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
-
-	// Try for extra time due to large tables.
+	
+	// Try for extra time
 	@set_time_limit(100);
-
-	// For each table....
-	$_SESSION['optimized_tables'] = !empty($_SESSION['optimized_tables']) ? $_SESSION['optimized_tables'] : array();
-	for ($key = $_REQUEST['start']; $context['num_tables'] - 1; $key++)
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	while (microtime(true) < $end)
 	{
-		if (empty($tables[$key]))
-			break;
+		$regOptions = array(
+			'interface' => 'admin',
+			'username' => $prefixUsername . $count,
+			'email' => $prefixUsername. '_' . $count . '@' . $_SERVER['SERVER_NAME'] . (strpos($_SERVER['SERVER_NAME'], '.') === FALSE ? '.com' : ''),
+			'password' => '',
+			'require' => 'nothing'
+		);
 
-		// Continue?
-		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 10)
-		{
-			$_REQUEST['start'] = $key;
-			$context['continue_get_data'] = '?action=admin;area=maintain;sa=benchmark;activity=usercreate;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
-			$context['continue_percent'] = round(100 * $_REQUEST['start'] / $context['num_tables']);
-			$context['sub_template'] = 'not_done';
-			$context['page_title'] = $txt['not_done_title'];
-
-			createToken('admin-optimize');
-			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-optimize_token_var'] . '" value="' . $context['admin-optimize_token'] . '">';
-
-			if (function_exists('apache_reset_timeout'))
-				apache_reset_timeout();
-
-			return;
-		}
-
-		// Optimize the table!  We use backticks here because it might be a custom table.
-		$data_freed = $smcFunc['db_optimize_table']($tables[$key]['table_name']);
-
-		if ($data_freed > 0)
-			$_SESSION['optimized_tables'][] = array(
-				'name' => $tables[$key]['table_name'],
-				'data_freed' => $data_freed,
-			);
+		$usersID[] = registerMember($regOptions);
+		$count++;
 	}
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_usercreate'];
+	deleteMembers($usersID);
+}
 
-	// Number of tables, etc...
-	$txt['database_numb_tables'] = sprintf($txt['database_numb_tables'], $context['num_tables']);
-	$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
-	$context['optimized_tables'] = $_SESSION['optimized_tables'];
-	unset($_SESSION['optimized_tables']);
+/**
+ * Benchmakr for Post creation tries to create as many as possible in 1 minute
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=postcreate.
+
+ * @uses the benchmarkresult sub template
+ */
+function PostCreate()
+{
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	require_once($sourcedir . '/Subs-Post.php');
+	require_once($sourcedir . '/RemoveTopic.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$userID = 0;
+	$start = 0;
+	$maxRuntime = 60;
+	$username = $prefixUsername . '_' . $count;
+	$email = $username . '@' . $_SERVER['SERVER_NAME'] . (strpos($_SERVER['SERVER_NAME'], '.') === FALSE ? '.com' : '');
+	$postid = 0;
+	$boardid = 0;
+	
+	// find a board
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board
+		FROM {db_prefix}boards
+		LIMIT 1',
+		array()
+	);
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$boardid = $row['id_board'];
+
+	isAllowedTo('admin_forum');
+
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
+
+	ignore_user_abort(true);
+
+	$context['page_title'] = $txt['benchmark_usercreate'];
+	$context['sub_template'] = 'benchmarkresult';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
+	
+	$regOptions = array(
+			'interface' => 'admin',
+			'username' => $prefixUsername . $count,
+			'email' => $email,
+			'password' => '',
+			'require' => 'nothing'
+		);
+
+	$userID = registerMember($regOptions);
+	
+	// Try for extra time
+	@set_time_limit(100);
+	
+	//create the inital topic
+	$msgOptions = array(
+		'subject' => 'Post Benchmark Topic',
+		'body' => 'nothing',
+		'approved' => TRUE
+	);
+
+	$topicOptions = $topicOptions = array(
+				'board' => $boardid,
+				'mark_as_read' => TRUE,
+			);
+
+	$posterOptions = array(
+		'id' => $userID,
+		'name' => $username,
+		'email' => $email,
+		'update_post_count' => TRUE,
+	);
+
+	createPost($msgOptions, $topicOptions, $posterOptions);
+	
+	$postid = $topicOptions['id'];
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	while (microtime(true) < $end)
+	{
+		createPost($msgOptions, $topicOptions, $posterOptions);
+		$count++;
+	}
+	
+	removeTopics($postid);
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_post'];
+	
+	deleteMembers($userID);
 }
 
 ?>
