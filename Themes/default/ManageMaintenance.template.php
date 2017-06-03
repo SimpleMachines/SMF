@@ -609,4 +609,89 @@ function template_convert_msgbody()
 	</div>';
 }
 
+/**
+ * Tempalte for the benchmark maintenance tasks.
+ */
+function template_maintain_benchmark()
+{
+	global $context, $txt, $scripturl, $modSettings;
+
+	// If maintenance has finished tell the user.
+	if (!empty($context['maintenance_finished']))
+		echo '
+			<div class="infobox">
+				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+			</div>';
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_optimize'], '</h3>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=usercreate" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['maintain_optimize_info'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+
+	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
+	if (isset($context['convert_to']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['mediumtext_introduction'], '</p>',
+				$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
+				<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+	}
+
+	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
+	if ($context['convert_utf8'])
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['utf8_title'], '</h3>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['utf8_introduction'], '</p>
+				', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<div class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</div>' : '', '
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '/><br class="clear_right">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+	}
+
+	// We might want to convert entities if we're on UTF-8.
+	if ($context['convert_entities'])
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['entity_convert_title'], '</h3>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=convertentities" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['entity_convert_introduction'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+	}
+
+	echo '
+	</div>';
+}
+
 ?>

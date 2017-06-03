@@ -225,6 +225,7 @@ $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
 $txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
 $txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for checking.';
+$txt['maintain_sub_benchmark'] = 'Benchmark';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
