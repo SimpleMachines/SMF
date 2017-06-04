@@ -260,6 +260,7 @@ function displayDebug()
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
+		$missed_entries = array();
 		$entries = array();
 		$total_t = 0;
 		$total_s = 0;
@@ -272,11 +273,11 @@ function displayDebug()
 		if (!isset($cache_misses))
 			$cache_misses = array();
 		foreach ($cache_misses as $missed)
-			$missed_entires[] = $missed['d'] . ' ' . $missed['k'];
+			$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 
 		echo '
 	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entires), '</em></span>)<br>';
+	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 	}
 
 	echo '
