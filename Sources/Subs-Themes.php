@@ -258,7 +258,7 @@ function get_theme_info($path)
  */
 function theme_install($to_install = array())
 {
-	global $smcFunc, $context, $themedir, $themeurl, $modSettings;
+	global $smcFunc, $context, $modSettings;
 	global $settings, $explicit_images;
 
 	// External use? no problem!

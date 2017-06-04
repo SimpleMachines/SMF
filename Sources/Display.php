@@ -31,7 +31,7 @@ function Display()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings;
 	global $options, $sourcedir, $user_info, $board_info, $topic, $board;
-	global $attachments, $messages_request, $language, $smcFunc;
+	global $messages_request, $language, $smcFunc;
 
 	// What are you gonna display if these are empty?!
 	if (empty($topic))

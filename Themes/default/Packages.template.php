@@ -519,7 +519,7 @@ function template_examine()
  */
 function template_browse()
 {
-	global $context, $txt, $scripturl, $modSettings, $forum_version;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -1308,7 +1308,7 @@ function template_view_operations()
  */
 function template_file_permissions()
 {
-	global $txt, $scripturl, $context, $settings;
+	global $txt, $scripturl, $context;
 
 	// This will handle expanding the selection.
 	echo '
@@ -1634,7 +1634,7 @@ function template_file_permissions()
  */
 function template_permission_show_contents($ident, $contents, $level, $has_more = false)
 {
-	global $settings, $txt, $scripturl, $context;
+	global $txt, $scripturl, $context;
 	$js_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident);
 
 	// Have we actually done something?

@@ -173,9 +173,6 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function __construct()
 	{
-		global $boardurl, $cachedir;
-
-		// Set our default prefix. setPrefix can still change this.
 		$this->setPrefix('');
 	}
 

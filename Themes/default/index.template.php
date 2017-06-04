@@ -81,7 +81,7 @@ function template_init()
  */
 function template_html_above()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings, $mbname;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>

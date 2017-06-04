@@ -526,7 +526,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $sourcedir, $packagesdir, $smcFunc;
+	global $sourcedir, $packagesdir;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
@@ -1976,7 +1976,7 @@ function listtree($path, $sub_path = '')
  */
 function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $txt, $modSettings, $package_ftp;
+	global $boarddir, $sourcedir, $txt, $modSettings;
 
 	@set_time_limit(600);
 	require_once($sourcedir . '/Class-Package.php');

@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $smcFunc, $modSettings;
+	global $time_start, $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')

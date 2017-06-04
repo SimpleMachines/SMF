@@ -3606,7 +3606,7 @@ function template_css()
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $settings, $txt;
+	global $settings, $txt;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -4320,9 +4320,6 @@ function call_integration_hook($hook, $parameters = array())
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
-
-	// Define some needed vars.
-	$function = false;
 
 	$functions = explode(',', $modSettings[$hook]);
 	// Loop through each function.

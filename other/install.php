@@ -140,7 +140,7 @@ installExit();
 
 function initialize_inputs()
 {
-	global $databases, $incontext;
+	global $databases;
 
 	// Just so people using older versions of PHP aren't left in the cold.
 	if (!isset($_SERVER['PHP_SELF']))
@@ -255,7 +255,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext;
+	global $incontext;
 
 	$incontext['detected_languages'] = array();
 
@@ -891,7 +891,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type, $db_connection;
+	global $txt, $incontext, $databases, $db_type;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -1319,7 +1319,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $db_connection, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
+	global $txt, $db_type, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1496,9 +1496,8 @@ function AdminAccount()
 // Final step, clean up and a complete message!
 function DeleteInstall()
 {
-	global $txt, $incontext;
-	global $smcFunc, $db_character_set, $context, $cookiename;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
+	global $smcFunc, $db_character_set, $context, $txt, $incontext;
+	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';

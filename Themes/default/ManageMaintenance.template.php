@@ -100,7 +100,7 @@ function template_maintain_database()
  */
 function template_maintain_routine()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl;
 
 	// Starts off with general maintenance procedures.
 	echo '

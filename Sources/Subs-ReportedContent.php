@@ -136,8 +136,6 @@ function countReports($closed = 0)
 {
 	global $smcFunc, $user_info, $context;
 
-	$total_reports = 0;
-
 	// Skip entries with id_board = 0 if we're viewing member reports
 	if ($context['report_type'] == 'members')
 	{

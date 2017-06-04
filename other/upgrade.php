@@ -508,7 +508,7 @@ function loadEssentialData()
 
 function initialize_inputs()
 {
-	global $start_time, $upcontext, $db_type;
+	global $start_time, $db_type;
 
 	$start_time = time();
 
@@ -908,7 +908,7 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $db_last_error;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
@@ -1316,7 +1316,7 @@ function DatabaseChanges()
 // Delete the damn thing!
 function DeleteUpgrade()
 {
-	global $command_line, $language, $upcontext, $boarddir, $sourcedir, $forum_version, $user_info, $maintenance, $smcFunc, $db_type;
+	global $command_line, $language, $upcontext, $sourcedir, $forum_version, $user_info, $maintenance, $smcFunc, $db_type;
 
 	// Now it's nice to have some of the basic SMF source files.
 	if (!isset($_GET['ssi']) && !$command_line)
@@ -1575,7 +1575,7 @@ function fixRelativePath($path)
 function parse_sql($filename)
 {
 	global $db_prefix, $db_collation, $boarddir, $boardurl, $command_line, $file_steps, $step_progress, $custom_warning;
-	global $upcontext, $support_js, $is_debug, $smcFunc, $databases, $db_type, $db_character_set;
+	global $upcontext, $support_js, $is_debug, $db_type, $db_character_set;
 
 /*
 	Failure allowed on:
@@ -3677,7 +3677,7 @@ function template_welcome_message()
 
 function template_upgrade_options()
 {
-	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle, $db_type;
+	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle;
 
 	echo '
 			<h3>Before the upgrade gets underway please review the options below - and hit continue when you\'re ready to begin.</h3>

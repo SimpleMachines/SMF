@@ -120,7 +120,7 @@ function template_login()
  */
 function template_login_tfa()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<div class="login">

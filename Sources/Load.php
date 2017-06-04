@@ -3320,7 +3320,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
@@ -3355,7 +3355,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))

@@ -25,8 +25,6 @@ class apcu_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
 
 		if ($test)

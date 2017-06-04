@@ -15,7 +15,7 @@
  */
 function template_admin()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Welcome message for the admin.
 	echo '
@@ -714,7 +714,7 @@ function template_not_done()
  */
 function template_show_settings()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -1041,7 +1041,7 @@ function template_show_custom_profile()
 // Edit a profile field?
 function template_edit_profile_field()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// All the javascript for this page - quite a bit in script.js!
 	echo '
@@ -1274,7 +1274,7 @@ function template_edit_profile_field()
  */
 function template_admin_search_results()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 						<div id="section_header" class="cat_bar">
@@ -1602,7 +1602,7 @@ function template_clean_cache_button_below()
  */
 function template_admin_quick_search()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 	if ($context['user']['is_admin'])
 		echo '
 								<span class="floatright admin_search">

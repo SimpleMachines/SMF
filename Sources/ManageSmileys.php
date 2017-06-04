@@ -1521,7 +1521,6 @@ function InstallSmileySet()
 	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
 
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
-	$has_readme = false;
 	$context['has_failure'] = false;
 	$context['actions'] = array();
 	$context['ftp_needed'] = false;
@@ -1530,7 +1529,6 @@ function InstallSmileySet()
 	{
 		if ($action['type'] == 'readme' || $action['type'] == 'license')
 		{
-			$has_readme = true;
 			$type = 'package_' . $action['type'];
 			if (file_exists($packagesdir . '/temp/' . $base_path . $action['filename']))
 				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($packagesdir . '/temp/' . $base_path . $action['filename']), "\n\r"));
@@ -1595,6 +1593,7 @@ function InstallSmileySet()
 	// Do the actual install
 	else
 	{
+	    // @TODO Does this call have side effects? ($actions is not used)
 		$actions = parsePackageInfo($smileyInfo['xml'], false, 'install');
 		foreach ($context['actions'] as $action)
 		{

@@ -667,7 +667,7 @@ function smf_db_unescape_string($string)
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
-	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
+	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
 

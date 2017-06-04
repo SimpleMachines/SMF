@@ -767,7 +767,7 @@ function PackageInstallTest()
  */
 function PackageInstall()
 {
-	global $boarddir, $txt, $context, $boardurl, $scripturl, $sourcedir, $packagesdir, $modSettings;
+	global $txt, $context, $boardurl, $scripturl, $sourcedir, $packagesdir, $modSettings;
 	global $user_info, $smcFunc;
 
 	// Make sure we don't install this mod twice.

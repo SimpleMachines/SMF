@@ -372,7 +372,6 @@ function html_to_bbc($text)
 		// End tag?
 		if ($matches[4] != '/' && strpos($text, '</' . $matches[1] . '>', $start_pos) !== false)
 		{
-			$end_length = strlen('</' . $matches[1] . '>');
 			$end_pos = strpos($text, '</' . $matches[1] . '>', $start_pos);
 
 			// Remove the align from that tag so it's never checked again.
@@ -2011,7 +2010,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc;
 	global $context, $user_info, $scripturl, $language;
 
 	// First verification means we need to set up some bits...

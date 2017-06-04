@@ -15,7 +15,7 @@
  */
 function template_print_above()
 {
-	global $context, $txt, $topic, $scripturl;
+	global $context, $txt;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
