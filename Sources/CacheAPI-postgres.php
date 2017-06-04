@@ -32,13 +32,13 @@ class postgres_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $db_prefix, $smcFunc, $db_connection;
-		
+		global $db_prefix, $db_connection;
+
 		pg_prepare($db_connection, '', 'SELECT 1 
 			FROM   pg_tables
 			WHERE  schemaname = $1
 			AND    tablename = $2');
-			
+
 		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
 		if(pg_affected_rows($result) === 0)
@@ -50,12 +50,19 @@ class postgres_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $smcFunc;
+		global $smcFunc, $db_connection;
 		
-		if ($smcFunc['db_title'] === 'PostgreSQL')
-			return true;
-		else
+
+		if ($smcFunc['db_title'] !== 'PostgreSQL')
 			return false;
+
+		$result = pg_query($db_connection, 'SHOW server_version_num');
+		$res = pg_fetch_assoc($result);
+		
+		if($res['server_version_num'] < 90500)
+			return false;
+		
+		return true;
 	}
 
 	/**
@@ -63,8 +70,8 @@ class postgres_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		global $db_prefix, $smcFunc, $db_connection;
-		
+		global $db_prefix, $db_connection;
+
 		$ttl = time() - $ttl;
 		pg_prepare($db_connection, '', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
 			
@@ -72,9 +79,9 @@ class postgres_cache extends cache_api
 		
 		if(pg_affected_rows($result) === 0)
 			return null;
-		
+
 		$res = pg_fetch_assoc($result);
-		
+
 		return $res['value'];
 	}
 
@@ -83,20 +90,20 @@ class postgres_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global  $db_prefix, $smcFunc, $db_connection;
-		
+		global  $db_prefix, $db_connection;
+
 		if(!isset($value))
 			$value = '';
-                
+
 		$ttl = time() + $ttl;
-		
+
 		pg_prepare($db_connection, '',
 			'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
 			ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
 		);
-			
+
 		$result = pg_execute($db_connection, '', array($key, $value, $ttl));
-		
+
 		if (pg_affected_rows($result) > 0)
 			return true;
 		else
@@ -109,7 +116,7 @@ class postgres_cache extends cache_api
 	public function cleanCache($type = '')
 	{
 		global $smcFunc;
-		
+
 		$smcFunc['db_query']('',
 				'TRUNCATE TABLE {db_prefix}cache',
 				array()
