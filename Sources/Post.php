@@ -1281,7 +1281,7 @@ function Post($post_errors = array())
 			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
-			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
 			acceptedFiles: '. JavaScriptEscape($acceptedFiles) . ',
 			maxFilesize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : 'null') . ',
 			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
