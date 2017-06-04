@@ -1744,6 +1744,7 @@ function parse_path($path)
  */
 function deltree($dir, $delete_dir = true)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($dir))
@@ -1820,6 +1821,7 @@ function deltree($dir, $delete_dir = true)
  */
 function mktree($strPath, $mode)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (is_dir($strPath))
@@ -1889,6 +1891,7 @@ function mktree($strPath, $mode)
  */
 function copytree($source, $destination)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($destination) || !is_writable($destination))
