@@ -1593,7 +1593,7 @@ function InstallSmileySet()
 	// Do the actual install
 	else
 	{
-	    // @TODO Does this call have side effects? ($actions is not used)
+		// @TODO Does this call have side effects? ($actions is not used)
 		$actions = parsePackageInfo($smileyInfo['xml'], false, 'install');
 		foreach ($context['actions'] as $action)
 		{

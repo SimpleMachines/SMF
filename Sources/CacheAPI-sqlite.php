@@ -25,14 +25,14 @@ class sqlite_cache extends cache_api
 	 */
 	private $cachedir = null;
 
-    /**
-     * @var SQLite3
-     */
+	/**
+	 * @var SQLite3
+	 */
 	private $cacheDB = null;
 
-    /**
-     * @var int
-     */
+	/**
+	 * @var int
+	 */
 	private $cacheTime = 0;
 
 	public function __construct()
