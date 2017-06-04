@@ -1515,7 +1515,7 @@ function InstallSmileySet()
 	);
 
 	if ($smcFunc['db_num_rows']($request) > 0)
-		fata_lang_error('package_installed_warning1');
+		fatal_lang_error('package_installed_warning1');
 
 	// Everything is fine, now it's time to do something
 	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
