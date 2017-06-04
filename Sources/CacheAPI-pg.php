@@ -32,25 +32,17 @@ class pg_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $db_prefix, $smcFunc;
-
-		$request = $smcFunc['db_query']('','
-			SELECT 1 
+		global $db_prefix, $smcFunc, $db_connection;
+		
+		pg_prepare($db_connection, '', 'SELECT 1 
 			FROM   pg_tables
-			WHERE  schemaname = {string:schema}
-			AND    tablename = {string:cache}
-			',
-			array(
-			'schema' => 'public',
-			'cache' => $db_prefix . 'cache',
-			)
-		);
+			WHERE  schemaname = $1
+			AND    tablename = $2');
+			
+		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
-		if($smcFunc['db_num_rows']($request) === 0)		
-			$smcFunc['db_query']('',
-				'CREATE TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))',
-				array()
-			);
+		if(pg_affected_rows($result) === 0)
+			pg_query($db_connection, 'CREATE TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
 	}
 
 	/**
@@ -71,21 +63,17 @@ class pg_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		global $smcFunc;
+		global $db_prefix, $smcFunc, $db_connection;
 		
 		$ttl = time() - $ttl;
-		$request = $smcFunc['db_query']('','
-			SELECT value FROM {db_prefix}cache WHERE key = {string:key} AND ttl >= {int:ttl} LIMIT 1
-			',
-			array(
-				'key' => $key,
-				'ttl' => $ttl,
-			)
-		);
-		if($smcFunc['db_num_rows']($request) === 0)
+		pg_prepare($db_connection, '', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+			
+		$result = pg_execute($db_connection, '', array($key, $ttl));
+		
+		if(pg_affected_rows($result) === 0)
 			return null;
 		
-		$res = $smcFunc['db_fetch_assoc']($request);
+		$res = pg_fetch_assoc($result);
 		
 		return $res['value'];
 	}
@@ -95,21 +83,21 @@ class pg_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global $smcFunc;
+		global  $db_prefix, $smcFunc, $db_connection;
 		
-                if(!isset($value))
-                    $value = '';
+		if(!isset($value))
+			$value = '';
                 
 		$ttl = time() + $ttl;
-		$smcFunc['db_insert'](
-			'replace',
-			'{db_prefix}cache',
-			array('key' => 'string', 'value' => 'string', 'ttl' => 'int'),
-			array($key, $value, $ttl),
-			array('key')
-		);
 		
-		if ($smcFunc['db_affected_rows']() > 0)
+		pg_prepare($db_connection, '',
+			'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+			ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
+		);
+			
+		$result = pg_execute($db_connection, '', array($key, $value, $ttl));
+		
+		if (pg_affected_rows($result) > 0)
 			return true;
 		else
 			return false;
