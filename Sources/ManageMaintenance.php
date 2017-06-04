@@ -98,6 +98,7 @@ function ManageMaintenance()
 			'activities' => array(
 				'usercreate' => 'UserCreate',
 				'postcreate' => 'PostCreate',
+				'postread' => 'PostRead',
 			),
 		),
 	);
@@ -2465,6 +2466,86 @@ function PostCreate()
 	$context['benchmark_result']['test_name'] = $txt['benchmark_post'];
 	
 	deleteMembers($userID);
+}
+
+/**
+ * Benchmakr for Post reads tries to access as many as possible in 1 minute
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=postread.
+ * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
+
+ * @uses the benchmarkresult sub template
+ */
+function PostRead()
+{
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir, $topic, $board;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	require_once($sourcedir . '/Display.php');
+	require_once($sourcedir . '/Load.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$usersID = array();
+	$start = 0;
+	$maxRuntime = 60;
+	$topicid = 0;
+	$boardid = 0;
+	
+	// find a topic
+	$request = $smcFunc['db_query']('', '
+		SELECT id_topic, id_board
+		FROM {db_prefix}topics
+		LIMIT 1',
+		array()
+	);
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$boardid = $row['id_board'];
+	$topicid = $row['id_topic'];
+
+	isAllowedTo('admin_forum');
+
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
+
+	ignore_user_abort(true);
+
+	$context['page_title'] = $txt['benchmark_usercreate'];
+	$context['sub_template'] = 'benchmarkresult';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
+
+	
+	// Try for extra time
+	@set_time_limit(100);
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	// catch all output	
+	ob_start();
+	
+	while (microtime(true) < $end)
+	{
+		$topic = $topicid;
+		$board = $boardid;
+		loadBoard();
+		Display();
+		$count++;
+	}
+	
+	// throw the output away
+	ob_end_clean();
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_postread'];
+	deleteMembers($usersID);
 }
 
 ?>

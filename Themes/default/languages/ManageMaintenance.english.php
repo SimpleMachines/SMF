@@ -232,8 +232,11 @@ $txt['enable_maintenance2'] = 'To proceed, due to the size of your forum, please
 
 $txt['benchmark_usercreate'] = 'Creating User';
 $txt['benchmark_post'] = 'Creating Posts';
-$txt['benchmark_usercreate_info'] = 'Create as many users as possible in one minute';
-$txt['benchmark_post_info'] = 'Create as many posts as possible in one minute'; 
+$txt['benchmark_usercreate_info'] = 'Create as many users as possible in one minute <br/> This test is cpu heavy';
+$txt['benchmark_post_info'] = 'Create as many posts as possible in one minute <br/> This test is db insert imperformance heavy'; 
 $txt['benchmark_topic'] = 'Benchmark methodes';
+$txt['benchmark_postread'] = 'Reading Posts';
+$txt['benchmark_postread_info'] = 'Access a topic how often it can in one minute <br/> This test dipence heavy on the size of your board and active features';
+$txt['benchmark_result'] = 'Result of Benchmark';
 
 ?>

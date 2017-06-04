@@ -643,6 +643,14 @@ function template_maintain_benchmark()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=postread" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['benchmark_postread_info'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
 		</div>';
 
 	echo '
@@ -659,7 +667,7 @@ function template_benchmarkresult()
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['maintain_optimize'], '</h3>
+			<h3 class="catbg">', $txt['benchmark_result'], '</h3>
 		</div>
 		<div class="windowbg">
 			<p>';
