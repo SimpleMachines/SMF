@@ -2296,7 +2296,7 @@ function get_hook_info_from_raw($rawData)
 }
 
 /**
- * Benchmakr for User creation tries to create as many as possible in 1 minute
+ * Benchmark for User creation tries to create as many as possible in 1 minute
  * It requires the admin_forum permission.
  * It shows as the maintain_forum admin area.
  * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=usercreate.
@@ -2469,7 +2469,7 @@ function PostCreate()
 }
 
 /**
- * Benchmakr for Post reads tries to access as many as possible in 1 minute
+ * Benchmark for Post reads tries to access as many as possible in 1 minute
  * It requires the admin_forum permission.
  * It shows as the maintain_forum admin area.
  * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=postread.
