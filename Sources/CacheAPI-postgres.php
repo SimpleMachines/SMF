@@ -18,7 +18,7 @@ if (!defined('SMF'))
  * PostgreSQL Cache API class
  * @package cacheAPI
  */
-class pg_cache extends cache_api
+class postgres_cache extends cache_api
 {
 
 	public function __construct()
