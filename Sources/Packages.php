@@ -1136,8 +1136,8 @@ function PackageInstall()
 				/**
 				 * Table sorting function used in usort
 				 *
-				 * @param type $a
-				 * @param type $b
+				 * @param array $a
+				 * @param array $b
 				 * @return int
 				 */
 				function sort_table_first($a, $b)

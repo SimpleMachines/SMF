@@ -345,7 +345,7 @@ function getReports($closed = 0)
 /**
  * Recount all open reports. Sets a SESSION var with the updated info.
  *
- * @param string the type of reports to count
+ * @param string $type the type of reports to count
  * @return int the update open report count.
  */
 function recountOpenReports($type)

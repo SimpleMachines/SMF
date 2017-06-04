@@ -661,9 +661,9 @@ function smf_db_unescape_string($string)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
- * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @param int $returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
  * @param resource $connection The connection to use (if null, $db_connection is used)
- * @return value of the first key, behavior based on returnmode
+ * @return mixed value of the first key, behavior based on returnmode. null on no data
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {

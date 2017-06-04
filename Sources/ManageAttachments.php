@@ -1684,7 +1684,7 @@ function RepairAttachments()
  * If repairAttachments() has more steps added, this function needs updated!
  *
  * @param array $to_fix IDs of attachments to fix
- * @param int The maximum substep to reach before pausing
+ * @param int $max_substep The maximum substep to reach before pausing
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
