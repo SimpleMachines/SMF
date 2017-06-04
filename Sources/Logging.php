@@ -260,6 +260,7 @@ function displayDebug()
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
+		$missed_entires = array();
 		$entries = array();
 		$total_t = 0;
 		$total_s = 0;
