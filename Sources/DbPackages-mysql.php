@@ -397,8 +397,6 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 		else
 			$index_info['name'] = implode('_', $index_info['columns']);
 	}
-	else
-		$index_info['name'] = $index_info['name'];
 
 	// Log that we are going to want to remove this!
 	$db_package_log[] = array('remove_index', $table_name, $index_info['name']);
