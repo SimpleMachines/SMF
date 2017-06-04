@@ -936,6 +936,7 @@ function ForumSettings()
 			'boardurl' => $_POST['boardurl'],
 			'boarddir' => addslashes(dirname(__FILE__)),
 			'sourcedir' => addslashes(dirname(__FILE__)) . '/Sources',
+			'tasksdir' => addslashes(dirname(__FILE__)) . '/Sources/tasks',
 			'cachedir' => addslashes(dirname(__FILE__)) . '/cache',
 			'packagesdir' => addslashes(dirname(__FILE__)) . '/Packages',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
