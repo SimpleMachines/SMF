@@ -71,6 +71,8 @@ $databases = array(
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
 		'validate_prefix' => function(&$value) {
+			global $txt;
+
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
 			// Is it reserved?
@@ -85,6 +87,8 @@ $databases = array(
 		},
 	),
 );
+
+global $txt;
 
 // Initialize everything and load the language files.
 initialize_inputs();
@@ -325,8 +329,8 @@ function load_lang_file()
 // This handy function loads some settings and the like.
 function load_database()
 {
-	global $db_prefix, $db_connection, $sourcedir;
-	global $smcFunc, $modSettings, $db_type, $db_name, $db_user, $db_persist;
+	global $db_prefix, $db_connection, $sourcedir, $smcFunc, $modSettings;
+	global $db_server, $db_passwd, $db_type, $db_name, $db_user, $db_persist;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -682,6 +686,7 @@ function CheckFilesWritable()
 function DatabaseSettings()
 {
 	global $txt, $databases, $incontext, $smcFunc, $sourcedir;
+	global $db_server, $db_name, $db_user, $db_passwd;
 
 	$incontext['sub_template'] = 'database_settings';
 	$incontext['page_title'] = $txt['db_settings'];
