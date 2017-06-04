@@ -989,19 +989,19 @@ function PackageInstall()
 					$mod_actions = parseModification(file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']), false, $action['reverse'], $theme_paths);
 
 				// Any errors worth noting?
-				foreach ($mod_actions as $key => $action)
+				foreach ($mod_actions as $key => $modAction)
 				{
-					if ($action['type'] == 'failure')
+					if ($modAction['type'] == 'failure')
 						$failed_steps[] = array(
-							'file' => $action['filename'],
+							'file' => $modAction['filename'],
 							'large_step' => $failed_count,
 							'sub_step' => $key,
 							'theme' => 1,
 						);
 
 					// Gather the themes we installed into.
-					if (!empty($action['is_custom']))
-						$themes_installed[] = $action['is_custom'];
+					if (!empty($modAction['is_custom']))
+						$themes_installed[] = $modAction['is_custom'];
 				}
 			}
 			elseif ($action['type'] == 'code' && !empty($action['filename']))
