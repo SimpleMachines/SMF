@@ -2703,6 +2703,7 @@ function package_get_contents($filename)
  */
 function package_put_contents($filename, $data, $testing = false)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache, $modSettings;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2761,6 +2762,7 @@ function package_put_contents($filename, $data, $testing = false)
  */
 function package_flush_cache($trash = false)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2827,6 +2829,7 @@ function package_flush_cache($trash = false)
  */
 function package_chmod($filename, $perm_state = 'writable', $track_change = false)
 {
+    /** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable')
