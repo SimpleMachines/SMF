@@ -62,7 +62,7 @@ class postgres_cache extends cache_api
 		if($res['server_version_num'] < 90500)
 			return false;
 		
-		return true;
+		return $test ? true : parent::isSupported();
 	}
 
 	/**
