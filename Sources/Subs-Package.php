@@ -1168,7 +1168,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	}
 
 	// Bad news, a matching script wasn't found!
-	if ($script === false)
+	if (!($script instanceof xmlArray))
 		return array();
 
 	// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
