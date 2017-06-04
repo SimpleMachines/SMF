@@ -42,7 +42,7 @@ class postgres_cache extends cache_api
 		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
 		if(pg_affected_rows($result) === 0)
-			pg_query($db_connection, 'CREATE TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
+			pg_query($db_connection, 'CREATE UNLOGGED TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
 	}
 
 	/**
