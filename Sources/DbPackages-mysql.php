@@ -312,10 +312,9 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
  * @param string $table_name The name of the table this column is in
  * @param string $old_column The name of the column we want to change
  * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
- * @param array $parameters Not used?
- * @param string $error
+ * @return bool
  */
-function smf_db_change_column($table_name, $old_column, $column_info, $parameters = array(), $error = 'fatal')
+function smf_db_change_column($table_name, $old_column, $column_info)
 {
 	global $smcFunc, $db_prefix;
 
@@ -498,7 +497,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
  * @param string $type_name The data type (int, varchar, smallint, etc.)
  * @param int $type_size The size (8, 255, etc.)
  * @param boolean $reverse
- * @return An array containing the appropriate type and size for this DB type
+ * @return array An array containing the appropriate type and size for this DB type
  */
 function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 {
@@ -546,7 +545,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
  *
  * @param string $table_name The name of the table
  * @param array $parameters Not used?
- * @return An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+ * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
  */
 function smf_db_table_structure($table_name, $parameters = array())
 {
