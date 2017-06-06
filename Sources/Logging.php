@@ -17,6 +17,28 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
+ * Truncate the GET array to a specified length
+ * @param array $arr The array to truncate
+ * @param max_length $max_length The upperbound on the length
+ *
+ * @return array The truncated array
+ */
+function truncateArray($arr, $max_length=1900)
+{
+	$curr_length = array_sum(array_map("strlen", $arr));
+	if ($curr_length <= $max_length)
+		return $arr;
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length/count($arr));
+		foreach ($arr as $key => &$value)
+			$value = substr($value, 0, $param_max - strlen($key) - 5);
+		return $arr;
+	}
+}
+
+/**
  * Put this user in the online log.
  *
  * @param bool $force Whether to force logging the data
@@ -52,7 +74,7 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$serialized = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$serialized = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
@@ -260,6 +282,7 @@ function displayDebug()
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
+		$missed_entries = array();
 		$entries = array();
 		$total_t = 0;
 		$total_s = 0;
@@ -272,11 +295,11 @@ function displayDebug()
 		if (!isset($cache_misses))
 			$cache_misses = array();
 		foreach ($cache_misses as $missed)
-			$missed_entires[] = $missed['d'] . ' ' . $missed['k'];
+			$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 
 		echo '
 	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entires), '</em></span>)<br>';
+	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 	}
 
 	echo '

@@ -674,7 +674,7 @@ CREATE UNLOGGED TABLE {$db_prefix}log_online (
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
   ip inet,
-  url varchar(1024) NOT NULL,
+  url varchar(2048) NOT NULL,
   PRIMARY KEY (session)
 );
 

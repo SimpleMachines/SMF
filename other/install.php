@@ -937,6 +937,8 @@ function ForumSettings()
 			'boarddir' => addslashes(dirname(__FILE__)),
 			'sourcedir' => addslashes(dirname(__FILE__)) . '/Sources',
 			'cachedir' => addslashes(dirname(__FILE__)) . '/cache',
+			'packagesdir' => addslashes(dirname(__FILE__)) . '/Packages',
+			'tasksdir' => addslashes(dirname(__FILE__)) . '/Sources/tasks',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
