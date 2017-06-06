@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Beta 3';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '5.4.45';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -60,10 +60,10 @@ $databases = array(
 		'utf8_required' => true,
 		'utf8_support' => function() {
 			$request = pg_query('SHOW SERVER_ENCODING');
-			
+
 			list ($charcode) = pg_fetch_row($request);
-			
-			if ($charcode == 'UTF8')			
+
+			if ($charcode == 'UTF8')
 				return true;
 			else
 				return false;
@@ -966,7 +966,7 @@ function ForumSettings()
 				$incontext['error'] = sprintf($txt['error_utf8_support']);
 				return false;
 			}
-				
+
 			if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
 			{
 				$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
