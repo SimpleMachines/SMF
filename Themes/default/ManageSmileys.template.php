@@ -15,8 +15,6 @@
  */
 function template_editsets()
 {
-	global $context, $scripturl, $txt, $modSettings;
-
 	echo '
 	<div id="admincenter">';
 

@@ -177,7 +177,7 @@ class Auth
 	public function setRefresh($seconds)
 	{
 		if (!is_numeric($seconds)) {
-			throw \InvalidArgumentException('Seconds must be numeric');
+			throw new \InvalidArgumentException('Seconds must be numeric');
 		}
 		$this->refreshSeconds = $seconds;
 		return $this;

@@ -23,7 +23,7 @@ function template_boardindex_outer_above()
  */
 function template_newsfader()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings;
 
 	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
@@ -313,7 +313,7 @@ function template_ic_block_recent()
  */
 function template_ic_block_calendar()
 {
-	global $context, $scripturl, $txt, $settings;
+	global $context, $scripturl, $txt;
 
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '

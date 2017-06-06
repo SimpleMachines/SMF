@@ -25,8 +25,6 @@ class apc_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = function_exists('apc_fetch') && function_exists('apc_store');
 
 		if ($test)

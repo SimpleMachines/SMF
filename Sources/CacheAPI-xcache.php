@@ -42,8 +42,6 @@ class xcache_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = function_exists('xcache_get') && function_exists('xcache_set') && ini_get('xcache.var_size') > 0;
 
 		if ($test)

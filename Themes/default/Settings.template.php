@@ -145,7 +145,7 @@ function template_options()
  */
 function template_settings()
 {
-	global $context, $scripturl, $txt;
+	global $context, $txt;
 
 	$context['theme_settings'] = array(
 		array(

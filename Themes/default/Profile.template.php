@@ -1630,7 +1630,7 @@ function template_profile_pm_settings()
  */
 function template_profile_theme_settings()
 {
-	global $context, $modSettings, $txt;
+	global $context, $modSettings;
 
 	$skeys = array_keys($context['theme_options']);
 	$first_option_key = array_shift($skeys);
@@ -1759,7 +1759,7 @@ function template_profile_theme_settings()
  */
 function template_alert_configuration()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 		<div class="cat_bar">
@@ -2929,7 +2929,7 @@ function template_max_size($type)
  */
 function template_profile_timeformat_modify()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	echo '
 							<dt>

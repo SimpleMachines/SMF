@@ -258,7 +258,7 @@ class xmlArray
 	 * Example use:
 	 *  foreach ($xml->set('html/body/p') as $p)
 	 * @param $path string The path to search for.
-	 * @return array An array of xmlArray objects
+	 * @return xmlArray[] An array of xmlArray objects
 	 */
 	public function set($path)
 	{

@@ -458,7 +458,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $cacheAPI;
+	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
 	$detected = loadCacheAPIs();
@@ -998,7 +998,7 @@ function prepareDBSettingContext(&$config_vars)
  * - Requires the admin_forum permission.
  * - Contains arrays of the types of data to save into Settings.php.
  *
- * @param $config_vars An array of configuration variables
+ * @param array $config_vars An array of configuration variables
  */
 function saveSettings(&$config_vars)
 {

@@ -25,8 +25,6 @@ class zend_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = function_exists('zend_shm_cache_fetch') || function_exists('output_cache_get');
 
 		if ($test)
