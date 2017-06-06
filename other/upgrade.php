@@ -4298,7 +4298,7 @@ function template_convert_utf8()
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-				<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated.</span>';
+				<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.</span>';
 
 	// Completion notification
 	echo '
