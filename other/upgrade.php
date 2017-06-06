@@ -4282,7 +4282,7 @@ function template_convert_utf8()
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-			<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
+			<div id="debug_section" style="height: ', ($is_debug ? '97' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
 
@@ -4296,10 +4296,11 @@ function template_convert_utf8()
 			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
 
 	// If we dropped their index, let's let them know
-	if ($upcontext['cur_table_num'] == $upcontext['table_count'] && $upcontext['dropping_index'])
+	if ($upcontext['dropping_index'])
 		echo '
-			<br><span style="display:inline;">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated.</span>';
+				<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.</span>';
 
+	// Completion notification
 	echo '
 			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Conversion Complete! Click Continue to Proceed.</span>';
 
@@ -4345,7 +4346,10 @@ function template_convert_utf8()
 				// Get the next update...
 				if (iTableNum == ', $upcontext['table_count'], ')
 				{
-					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'commess\').style.display = ""; 
+					if (document.getElementById(\'indexmsg\') != null) {
+						document.getElementById(\'indexmsg\').style.display = "";						
+					}
 					document.getElementById(\'current_tab_div\').style.display = "none";
 					document.getElementById(\'contbutt\').disabled = 0;
 					document.getElementById(\'utf8_done\').value = 1;
