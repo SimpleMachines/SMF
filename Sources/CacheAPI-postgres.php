@@ -41,7 +41,7 @@ class postgres_cache extends cache_api
 
 		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
-		if(pg_affected_rows($result) === 0)
+		if (pg_affected_rows($result) === 0)
 			pg_query($db_connection, 'CREATE UNLOGGED TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
 	}
 
@@ -59,7 +59,7 @@ class postgres_cache extends cache_api
 		$result = pg_query($db_connection, 'SHOW server_version_num');
 		$res = pg_fetch_assoc($result);
 		
-		if($res['server_version_num'] < 90500)
+		if ($res['server_version_num'] < 90500)
 			return false;
 		
 		return $test ? true : parent::isSupported();
@@ -77,7 +77,7 @@ class postgres_cache extends cache_api
 			
 		$result = pg_execute($db_connection, '', array($key, $ttl));
 		
-		if(pg_affected_rows($result) === 0)
+		if (pg_affected_rows($result) === 0)
 			return null;
 
 		$res = pg_fetch_assoc($result);
@@ -92,7 +92,7 @@ class postgres_cache extends cache_api
 	{
 		global  $db_prefix, $db_connection;
 
-		if(!isset($value))
+		if (!isset($value))
 			$value = '';
 
 		$ttl = time() + $ttl;
