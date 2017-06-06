@@ -1939,7 +1939,7 @@ ALTER url TYPE varchar(1024);
 
 ---# Changing url column in log_online from text to varchar(1024)
 ALTER TABLE {$db_prefix}log_online
-ALTER url TYPE varchar(1024);
+ALTER url TYPE varchar(2048);
 ---#
 
 /******************************************************************************/
