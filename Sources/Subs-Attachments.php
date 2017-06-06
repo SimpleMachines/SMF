@@ -126,7 +126,7 @@ function automanage_attachments_check_directory()
  */
 function automanage_attachments_create_directory($updir)
 {
-	global $modSettings, $initial_error, $context, $boarddir;
+	global $modSettings, $context, $boarddir;
 
 	$tree = get_directory_tree_elements($updir);
 	$count = count($tree);
@@ -879,8 +879,6 @@ function parseAttachBBC($attachID = 0)
 {
 	global $board, $modSettings, $context, $scripturl, $smcFunc;
 
-	$externalParse = false;
-
 	// Meh...
 	if (empty($attachID))
 		return 'attachments_no_data_loaded';
@@ -1171,12 +1169,10 @@ function loadAttachmentContext($id_msg, $attachments)
 						{
 							if (!is_array($modSettings['attachmentUploadDir']))
 								$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
-							$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 							$id_folder_thumb = $modSettings['currentAttachmentUploadDir'];
 						}
 						else
 						{
-							$path = $modSettings['attachmentUploadDir'];
 							$id_folder_thumb = 1;
 						}
 

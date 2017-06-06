@@ -179,7 +179,7 @@ function template_email_members()
  */
 function template_email_members_compose()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
@@ -380,7 +380,7 @@ function template_email_members_compose()
  */
 function template_email_members_send()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">

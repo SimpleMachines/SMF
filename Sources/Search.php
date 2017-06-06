@@ -711,8 +711,6 @@ function PlushSearch2()
 			$context['search_ignored'][] = $value;
 			unset($searchArray[$index]);
 		}
-		else
-			$searchArray[$index] = $searchArray[$index];
 	}
 	$searchArray = array_slice(array_unique($searchArray), 0, 10);
 

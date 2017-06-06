@@ -24,8 +24,16 @@ class sqlite_cache extends cache_api
 	 * @var string The path to the current $cachedir directory.
 	 */
 	private $cachedir = null;
+
+	/**
+	 * @var SQLite3
+	 */
 	private $cacheDB = null;
-	private $cacheTime = null;
+
+	/**
+	 * @var int
+	 */
+	private $cacheTime = 0;
 
 	public function __construct()
 	{

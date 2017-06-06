@@ -526,7 +526,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $sourcedir, $packagesdir, $smcFunc;
+	global $sourcedir, $packagesdir;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
@@ -1168,7 +1168,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	}
 
 	// Bad news, a matching script wasn't found!
-	if ($script === false)
+	if (!($script instanceof xmlArray))
 		return array();
 
 	// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
@@ -1744,6 +1744,7 @@ function parse_path($path)
  */
 function deltree($dir, $delete_dir = true)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($dir))
@@ -1820,6 +1821,7 @@ function deltree($dir, $delete_dir = true)
  */
 function mktree($strPath, $mode)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (is_dir($strPath))
@@ -1889,6 +1891,7 @@ function mktree($strPath, $mode)
  */
 function copytree($source, $destination)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($destination) || !is_writable($destination))
@@ -1973,7 +1976,7 @@ function listtree($path, $sub_path = '')
  */
 function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $txt, $modSettings, $package_ftp;
+	global $boarddir, $sourcedir, $txt, $modSettings;
 
 	@set_time_limit(600);
 	require_once($sourcedir . '/Class-Package.php');
@@ -2700,6 +2703,7 @@ function package_get_contents($filename)
  */
 function package_put_contents($filename, $data, $testing = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache, $modSettings;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2758,6 +2762,7 @@ function package_put_contents($filename, $data, $testing = false)
  */
 function package_flush_cache($trash = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2824,6 +2829,7 @@ function package_flush_cache($trash = false)
  */
 function package_chmod($filename, $perm_state = 'writable', $track_change = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable')

@@ -645,7 +645,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
  */
 function getCalendarList($start_date, $end_date, $calendarOptions)
 {
-	global $scripturl, $modSettings, $user_info, $txt, $context, $sourcedir;
+	global $modSettings, $user_info, $txt, $context, $sourcedir;
 	require_once($sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
@@ -1341,7 +1341,7 @@ function getNewEventDatetimes()
  */
 function setEventStartEnd($eventOptions = array())
 {
-	global $modSettings, $user_info;
+	global $modSettings;
 
 	// Set $span, in case we need it
 	$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
@@ -1604,7 +1604,7 @@ function buildEventDatetimes($row)
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $context, $sourcedir, $user_info, $modSettings;
+	global $smcFunc, $context, $user_info, $modSettings;
 	static $member_cache = array();
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)

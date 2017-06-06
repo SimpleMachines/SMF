@@ -284,7 +284,7 @@ function CalendarMain()
 function CalendarPost()
 {
 	global $context, $txt, $user_info, $sourcedir, $scripturl;
-	global $modSettings, $topic, $smcFunc, $settings;
+	global $modSettings, $topic, $smcFunc;
 
 	// Well - can they?
 	isAllowedTo('calendar_post');
@@ -693,12 +693,6 @@ function clock()
 	{
 		$context['sub_template'] = 'thetime';
 		$time = getdate($_REQUEST['time'] == 'now' ? time() : (int) $_REQUEST['time']);
-		$year = $time['year'] % 100;
-		$month = $time['mon'];
-		$day = $time['mday'];
-		$hour = $time['hours'];
-		$min = $time['minutes'];
-		$sec = $time['seconds'];
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time');
 		$context['clockicons'] = array(
 			'year' => array(

@@ -1851,7 +1851,7 @@ function notification($memID)
  */
 function alert_configuration($memID)
 {
-	global $txt, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;

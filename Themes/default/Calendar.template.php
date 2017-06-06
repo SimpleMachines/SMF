@@ -72,7 +72,7 @@ function template_main()
  */
 function template_show_upcoming_list($grid_name)
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	// Bail out if we have nothing to work with
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -242,7 +242,7 @@ function template_show_upcoming_list($grid_name)
  */
 function template_show_month_grid($grid_name, $is_mini = false)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	// If the grid doesn't exist, no point in proceeding.
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -527,7 +527,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
  */
 function template_show_week_grid($grid_name)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	// We might have no reason to proceed, if the variable isn't there.
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -538,7 +538,6 @@ function template_show_week_grid($grid_name)
 
 	// At the very least, we have one month. Possibly two, though.
 	$iteration = 1;
-	$num_months = count($calendar_data['months']);
 	foreach ($calendar_data['months'] as $month_data)
 	{
 		// For our first iteration, we'll add a nice header!
