@@ -1,25 +1,22 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 3');
-define('SMF_LANG_VERSION', '2.1 Beta 3');
+define('SMF_VERSION', '3.0 Alpha 1');
+define('SMF_LANG_VERSION', '3.0 Alpha 1');
 
 /**
  * The minimum required PHP version.
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 /**
  * A list of supported database systems.
@@ -428,9 +425,6 @@ function loadEssentialData()
 	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
-
 	error_reporting(E_ALL);
 	define('SMF', 1);
 

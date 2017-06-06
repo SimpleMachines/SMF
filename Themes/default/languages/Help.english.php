@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; Help
+// Version: 3.0 Alpha 1; Help
 
 global $helptxt;
 
@@ -249,8 +249,6 @@ $helptxt['pollMode'] = 'This selects whether polls are enabled or not. If polls 
 		can allow and disallow those permissions. Remember this if polls are not working.';
 $helptxt['enableCompressedOutput'] = 'This setting will compress output in order to lower bandwidth consumption, but it requires
 		zlib to be installed.';
-$helptxt['disableTemplateEval'] = 'By default, templates are evaluated instead of just included. This helps with showing more useful debug information in case a template contains an error.<br><br>
-		On large forums however, this customized inclusion process may be significantly slower. Therefore, advanced users may wish to disable it.';
 $helptxt['httponlyCookies'] = 'Cookies won\'t be accessible by scripting languages, such as JavaScript. This setting can help to reduce identity theft through XSS attacks. This can cause issues with third party scripts but should be on wherever possible.';
 $helptxt['databaseSession_enable'] = 'This setting makes use of the database for session storage - it is best for load balanced servers, but helps with all timeout issues and can make the forum faster.';
 $helptxt['databaseSession_loose'] = 'Turning this on will decrease the bandwidth your forum uses, and make it so clicking back will not reload the page - the downside is that the (new) icons won\'t update, among other things. (unless you click to that page instead of going back to it).';

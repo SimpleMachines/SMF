@@ -3,14 +3,11 @@
 /**
  * This file has all the main functions in it that relate to, well, everything.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -1691,21 +1688,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			foreach ($itemcodes as $c => $dummy)
 				$bbc_codes[$c] = array();
-		}
-
-		// Shhhh!
-		if (!isset($disabled['color']))
-		{
-			$codes[] = array(
-				'tag' => 'chrissy',
-				'before' => '<span style="color: #cc0099;">',
-				'after' => ' :-*</span>',
-			);
-			$codes[] = array(
-				'tag' => 'kissy',
-				'before' => '<span style="color: #cc0099;">',
-				'after' => ' :-*</span>',
-			);
 		}
 
 		foreach ($codes as $code)

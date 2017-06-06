@@ -4,21 +4,18 @@
  * This file does a lot of important stuff.  Mainly, this means it handles
  * the query string, request variables, and session management.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Clean the request variables - add html entities to GET and slashes if magic_quotes_gpc is Off.
+ * Clean the request variables - add html entities to GET.
  *
  * What it does:
  * - cleans the request variables (ENV, GET, POST, COOKIE, SERVER) and
@@ -35,9 +32,6 @@ function cleanRequest()
 
 	// Makes it easier to refer to things this way.
 	$scripturl = $boardurl . '/index.php';
-
-	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
-	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
 
 	// Save some memory.. (since we don't use these anyway.)
 	unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS']);
@@ -81,16 +75,9 @@ function cleanRequest()
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 		// @todo smflib
 		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], array(';?' => '&', ';' => '&', '%00' => '', "\0" => ''))), $_GET);
-
-		// Magic quotes still applies with parse_str - so clean it up.
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
-			$_GET = $removeMagicQuoteFunction($_GET);
 	}
 	elseif (strpos(ini_get('arg_separator.input'), ';') !== false)
 	{
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
-			$_GET = $removeMagicQuoteFunction($_GET);
-
 		// Search engines will send action=profile%3Bu=1, which confuses PHP.
 		foreach ($_GET as $k => $v)
 		{
@@ -130,21 +117,8 @@ function cleanRequest()
 		if (strpos($request, basename($scripturl) . '/') !== false)
 		{
 			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename($scripturl)) + strlen(basename($scripturl)))), '/', '&')), 1), $temp);
-			if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
-				$temp = $removeMagicQuoteFunction($temp);
 			$_GET += $temp;
 		}
-	}
-
-	// If magic quotes is on we have some work...
-	if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0)
-	{
-		$_ENV = $removeMagicQuoteFunction($_ENV);
-		$_POST = $removeMagicQuoteFunction($_POST);
-		$_COOKIE = $removeMagicQuoteFunction($_COOKIE);
-		foreach ($_FILES as $k => $dummy)
-			if (isset($_FILES[$k]['name']))
-				$_FILES[$k]['name'] = $removeMagicQuoteFunction($_FILES[$k]['name']);
 	}
 
 	// Add entities to GET.  This is kinda like the slashes on everything else.
@@ -635,8 +609,6 @@ function JavaScriptEscape($string)
  * - handles rewriting URLs for the queryless URLs option.
  * - can be turned off entirely by setting $scripturl to an empty
  *   string, ''. (it wouldn't work well like that anyway.)
- * - because of bugs in certain builds of PHP, does not function in
- *   versions lower than 4.3.0 - please upgrade if this hurts you.
  *
  * @param string $buffer The unmodified output buffer
  * @return string The modified buffer
@@ -649,7 +621,7 @@ function ob_sessrewrite($buffer)
 	if ($scripturl == '' || !defined('SID'))
 		return $buffer;
 
-	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
+	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
 	// @todo smflib
 	if (empty($_COOKIE) && SID != '' && !isBrowser('possibly_robot'))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);

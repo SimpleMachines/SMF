@@ -3,14 +3,11 @@
 /**
  * This file has functions in it to do with authentication, user handling, and the like.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -809,8 +806,8 @@ function rebuildModCache()
 }
 
 /**
- * The same thing as setcookie but gives support for HTTP-Only cookies in PHP < 5.2
- * @todo We can remove this since SMF requires PHP >= 5.3.8 now
+ * A consistent cookie function that can be configured and integrated in
+ * the wider environment, e.g. user configuration, plugins.
  *
  * @param string $name
  * @param string $value = ''

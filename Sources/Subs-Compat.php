@@ -6,14 +6,11 @@
  * systems. It is only included for those older versions or when the respective
  * extension or function cannot be found.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -138,18 +135,6 @@ function sha1_rol($num, $cnt)
 		$a = $num >> (32 - $cnt);
 
 	return ($num << $cnt) | $a;
-}
-
-/**
- * Available since: (PHP 5)
- * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
- * otherwise the returned value is a 40-character hexadecimal number.
- * @param string $text The text to hash
- * @return string The sha1 hash of $text
- */
-function sha1_raw($text)
-{
-	return sha1($text, true);
 }
 
 /**

@@ -1,20 +1,17 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 3';
-$GLOBALS['db_script_version'] = '2-1';
+$GLOBALS['current_smf_version'] = '3.0 Alpha 1';
+$GLOBALS['db_script_version'] = '3-0';
 
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -146,9 +143,7 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Turn off magic quotes runtime and enable error reporting.
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
+	// Enable error reporting.
 	error_reporting(E_ALL);
 
 	// Fun.  Low PHP version...
@@ -188,11 +183,11 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Add slashes, as long as they aren't already being added.
-	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-				$_POST[$k] = addslashes($v);
+	// Add slashes, because they're not being added additionally by the fun that is Magic Quotes.
+	// @todo not suuuuure this is a good idea.
+	foreach ($_POST as $k => $v)
+		if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+			$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
@@ -428,7 +423,7 @@ function Welcome()
 		{
 			if (preg_match('~^\$db_passwd\s=\s\'([^\']+)\';$~', $line))
 				$probably_installed++;
-			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/smf\';~', $line))
+			if (preg_match('~^\$boardurl\s=\s\'([^\']+)\';~', $line) && !preg_match('~^\$boardurl\s=\s\'http://127\.0\.0\.1/storybb\';~', $line))
 				$probably_installed++;
 		}
 
@@ -739,7 +734,7 @@ function DatabaseSettings()
 	}
 	else
 	{
-		$incontext['db']['prefix'] = 'smf_';
+		$incontext['db']['prefix'] = 'sbb_';
 	}
 
 	// Are we submitting?
@@ -1210,32 +1205,6 @@ function DatabasePopulation()
 			$newSettings[] = array('globalCookies', '1');
 		if ($localCookies)
 			$newSettings[] = array('localCookies', '1');
-	}
-
-	// Are we allowing stat collection?
-	if (isset($_POST['stats']) && (strpos($_POST['boardurl'], 'http://localhost') !== 0 || strpos($_POST['boardurl'], 'https://localhost') !== 0))
-	{
-		// Attempt to register the site etc.
-		$fp = @fsockopen("www.simplemachines.org", 80, $errno, $errstr);
-		if ($fp)
-		{
-			$out = "GET /smf/stats/register_stats.php?site=" . base64_encode($_POST['boardurl']) . " HTTP/1.1\r\n";
-			$out .= "Host: www.simplemachines.org\r\n";
-			$out .= "Connection: Close\r\n\r\n";
-			fwrite($fp, $out);
-
-			$return_data = '';
-			while (!feof($fp))
-				$return_data .= fgets($fp, 128);
-
-			fclose($fp);
-
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
-
-			if (!empty($ID[1]))
-				$newSettings[] = array('allow_sm_stats', $ID[1]);
-		}
 	}
 
 	// Are we enabling SSL?
@@ -2123,7 +2092,7 @@ function template_database_settings()
 			</tr><tr id="db_name_contain">
 				<td valign="top" class="textbox"><label for="db_name_input">', $txt['db_settings_database'], ':</label></td>
 				<td>
-					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'smf' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
+					<input type="text" name="db_name" id="db_name_input" value="', empty($incontext['db']['name']) ? 'storybb' : $incontext['db']['name'], '" size="30" class="input_text" /><br>
 					<div class="smalltext block">', $txt['db_settings_database_info'], '
 					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span></div>
 				</td>
@@ -2230,15 +2199,6 @@ function template_forum_settings()
 					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
 					<br>
 					<div class="smalltext block">', $txt['install_settings_utf8_info'], '</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_stats'], ':</td>
-				<td>
-					<input type="checkbox" name="stats" id="stats_check" class="input_check" />&nbsp;
-					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
-					<br>
-					<div class="smalltext block">', $txt['install_settings_stats_info'], '</div>
 				</td>
 			</tr>
 			<tr>

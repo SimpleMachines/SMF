@@ -3,14 +3,11 @@
 /**
  * This file has the hefty job of loading information for the forum.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -1466,7 +1463,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
-			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
+			'posts' => comma_format($profile['posts']),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
 			'ip' => $smcFunc['htmlspecialchars']($profile['member_ip']),
@@ -2955,7 +2952,6 @@ function censorText(&$text, $force = false)
 /**
  * Load the template/language file using eval or require? (with eval we can show an error message!)
  * 	- loads the template or language file specified by filename.
- * 	- uses eval unless disableTemplateEval is enabled.
  * 	- outputs a parse error if the file did not exist or contained errors.
  * 	- attempts to detect the error and line, and show detailed information.
  *
@@ -2979,21 +2975,12 @@ function template_include($filename, $once = false)
 	else
 		$templates[] = $filename;
 
-	// Are we going to use eval?
-	if (empty($modSettings['disableTemplateEval']))
-	{
-		$file_found = file_exists($filename) && eval('?' . '>' . rtrim(file_get_contents($filename))) !== false;
-		$settings['current_include_filename'] = $filename;
-	}
-	else
-	{
-		$file_found = file_exists($filename);
+	$file_found = file_exists($filename);
 
-		if ($once && $file_found)
-			require_once($filename);
-		elseif ($file_found)
-			require($filename);
-	}
+	if ($once && $file_found)
+		require_once($filename);
+	elseif ($file_found)
+		require($filename);
 
 	if ($file_found !== true)
 	{

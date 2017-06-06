@@ -1,13 +1,10 @@
 <?php
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -45,7 +42,7 @@ function template_init()
 	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
 
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
-	$settings['theme_version'] = '2.1';
+	$settings['theme_version'] = '3.0';
 
 	// Use plain buttons - as opposed to text buttons?
 	$settings['use_buttons'] = true;

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; index
+// Version: 3.0 Alpha 1; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -370,7 +370,6 @@ $txt['print_page_images'] = 'Text with Images';
 
 $txt['valid_email'] = 'This must be a valid email address.';
 
-$txt['geek'] = 'I am a geek!!';
 $txt['info_center_title'] = '%1$s - Info Center';
 
 $txt['watch'] = 'Watch';

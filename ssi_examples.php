@@ -1,14 +1,11 @@
 <?php
 
 /**
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -32,8 +29,8 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 // Load the main template.
 template_ssi_above();
 ?>
-			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 Beta 3</p>
+			<h2>StoryBB SSI.php Functions</h2>
+			<p><strong>Current Version:</strong> 3.0 Alpha 1</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -43,7 +40,7 @@ template_ssi_above();
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
 			<p>If it is &quot;echo&quot;, the function will act normally - otherwise, it will return an array containing information about the requested task. For example, it might return a list of topics for ssi_recentTopics.</p>
-			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;https://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
+			<p>This functionality can be used to allow you to present the information in any way you wish.</p>
 
 			<h2>Additional Guides &amp; FAQ</h2>
 			<p>Need more information on using SSI.php? Check out <a href="https://wiki.simplemachines.org/smf/Category:SSI">Using SSI.php article</a>.</p>
@@ -415,7 +412,7 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 Beta 3 SSI.php Examples</title>
+		<title>StoryBB 3.0 Alpha 1 SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
@@ -501,7 +498,7 @@ function template_ssi_above()
 	</head>
 	<body>
 		<div id="header">
-			<h1 class="forumtitle">SMF 2.1 Beta 3 SSI.php Examples</h1>
+			<h1 class="forumtitle">StoryBB 3.0 Alpha 1 SSI.php Examples</h1>
 			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">

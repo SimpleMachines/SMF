@@ -4,14 +4,11 @@
  * The job of this file is to handle everything related to posting replies,
  * new topics, quotes, and modifications to existing posts.  It also handles
  * quoting posts by way of javascript.
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -1782,9 +1779,6 @@ function Post2()
 	}
 	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && $smcFunc['htmltrim']($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';
-	// You are not!
-	if (isset($_POST['message']) && strtolower($_POST['message']) == 'i am the administrator.' && !$user_info['is_admin'])
-		fatal_error('Knave! Masquerader! Charlatan!', false);
 
 	// Validate the poll...
 	if (isset($_REQUEST['poll']) && $modSettings['pollMode'] == '1')

@@ -3,14 +3,11 @@
 /**
  * Helper file for handling themes.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -208,7 +205,7 @@ function get_theme_info($path)
 	}
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = strtr($forum_version, array('StoryBB ' => ''));
 	$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.

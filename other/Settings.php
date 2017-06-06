@@ -3,14 +3,11 @@
 /**
  * The settings file contains all of the basic settings that need to be present when a database/cache is not available.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 ########## Maintenance ##########
@@ -50,7 +47,7 @@ $language = 'english';
  * URL to your forum's folder. (without the trailing /!)
  * @var string
  */
-$boardurl = 'http://127.0.0.1/smf';
+$boardurl = 'http://127.0.0.1/storybb';
 /**
  * Email address to send emails from. (like noreply@yourdomain.com.)
  * @var string
@@ -78,7 +75,7 @@ $db_server = 'localhost';
  * The database name
  * @var string
  */
-$db_name = 'smf';
+$db_name = 'storybb';
 /**
  * Database username
  * @var string
@@ -104,7 +101,7 @@ $ssi_db_passwd = '';
  * This helps to prevent conflicts
  * @var string
  */
-$db_prefix = 'smf_';
+$db_prefix = 'sbb_';
 /**
  * Use a persistent database connection
  * @var int|bool
@@ -153,7 +150,7 @@ $image_proxy_enabled = true;
  * Secret key to be used by the proxy
  * @var string
  */
-$image_proxy_secret = 'smfisawesome';
+$image_proxy_secret = 'storybbisawesome';
 
 /**
  * Maximum file size (in KB) for indiviudal files

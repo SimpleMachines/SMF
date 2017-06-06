@@ -20,14 +20,11 @@
  * - tar and gzip the directory - and you're done!
  * - please include any special license in a license.txt file.
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -1387,7 +1384,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '3.0 - 3.0.99, ' . strtr($forum_version, array('StoryBB ' => '')),
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);

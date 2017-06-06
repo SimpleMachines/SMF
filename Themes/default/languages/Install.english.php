@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; Install
+// Version: 3.0 Alpha 1; Install
 
 // These should be the same as those in index.language.php.
 $txt['lang_character_set'] = 'ISO-8859-1';
@@ -109,9 +109,6 @@ $txt['install_settings_dbsession_info2'] = 'This feature is generally a good ide
 $txt['install_settings_utf8'] = 'UTF-8 Character Set';
 $txt['install_settings_utf8_title'] = 'Use UTF-8 as default character set';
 $txt['install_settings_utf8_info'] = 'This feature lets both the database and the forum use an international character set, UTF-8. This can be useful when working with multiple languages that use different character sets.';
-$txt['install_settings_stats'] = 'Allow Stat Collection';
-$txt['install_settings_stats_title'] = 'Allow Simple Machines to Collect Basic Stats Monthly';
-$txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.';
 $txt['install_settings_proceed'] = 'Proceed';
 
 $txt['db_settings'] = 'Database Server Settings';

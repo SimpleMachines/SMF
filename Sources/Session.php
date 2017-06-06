@@ -7,14 +7,11 @@
  * 	- it uses the databaseSession_lifetime setting for garbage collection.
  * 	- the custom session handler is set by loadSession().
  *
- * Simple Machines Forum (SMF)
+ * @package StoryBB (storybb.org) - A roleplayer's forum software
+ * @copyright 2017 StoryBB and individual contributors (see contributors.txt)
+ * @license 3-clause BSD (see accompanying LICENSE file)
  *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 3
+ * @version 3.0 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -59,7 +56,7 @@ function loadSession()
 			$_POST[session_name()] = $session_id;
 		}
 
-		// Use database sessions? (they don't work in 4.1.x!)
+		// Use database sessions?
 		if (!empty($modSettings['databaseSession_enable']))
 		{
 			@ini_set('session.serialize_handler', 'php');
