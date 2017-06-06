@@ -23,21 +23,20 @@ if (!defined('SMF'))
  *
  * @return array The truncated array
  */
-function truncateArray($arr, $max_length=2048) {
+function truncateArray($arr, $max_length=1900)
+{
 	$curr_length = array_sum(array_map("strlen", $arr));
 	if ($curr_length <= $max_length)
 		return $arr;
-	else {
-		foreach ($arr as $key => $value) {
-			// Pop the last element from the array and reduce the length
-			$curr_length -= strlen(array_pop($arr));
-			if ($curr_length <= $max_length) {
-				return $arr;
-			}
-		}
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length/count($arr));
+		foreach ($arr as $key => &$value)
+			$value = substr($value, 0, $param_max - strlen($key) - 5);
 		return $arr;
 	}
-} 
+}
 
 /**
  * Put this user in the online log.
