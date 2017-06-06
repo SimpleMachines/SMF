@@ -98,6 +98,7 @@ $txt['force_ssl'] = 'Forum SSL mode';
 $txt['force_ssl_off'] = 'Disable SSL';
 $txt['force_ssl_auth'] = 'Enable SSL for Authentication (Login and Register)';
 $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
+$txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.
 $txt['enable_likes'] = 'Enable likes';

@@ -169,14 +169,16 @@ function smf_db_search_language()
 	else
 	{
 		$request = $smcFunc['db_query']('','
-			SHOW default_text_search_config',
-			array()
+			SELECT cfgname FROM pg_ts_config WHERE oid = current_setting({string:default_language})::regconfig',
+			array(
+			'default_language' => 'default_text_search_config'
+			)
 		);
 
 		if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 		{
 			$row = $smcFunc['db_fetch_assoc']($request);
-			$language_ftx = $row['default_text_search_config'];
+			$language_ftx = $row['cfgname'];
 
 			$smcFunc['db_insert']('replace',
 				'{db_prefix}settings',
