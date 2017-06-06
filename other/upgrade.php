@@ -19,7 +19,7 @@ define('SMF_LANG_VERSION', '2.1 Beta 3');
  * The minimum required PHP version.
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.3.8';
+$GLOBALS['required_php_version'] = '5.4.45';
 
 /**
  * A list of supported database systems.
@@ -2701,7 +2701,7 @@ function ConvertUtf8()
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$upcontext['table_count'] = count($queryTables);
-	
+
 		// What ones have we already done?
 		foreach ($queryTables as $id => $table)
 			if ($id < $_GET['substep'])
@@ -2710,13 +2710,13 @@ function ConvertUtf8()
 		$upcontext['cur_table_num'] = $_GET['substep'];
 		$upcontext['cur_table_name'] = str_replace($db_prefix, '', $queryTables[$_GET['substep']]);
 		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-			
-		// Make sure we're ready & have painted the template before proceeding	
+
+		// Make sure we're ready & have painted the template before proceeding
 		if ($support_js && !isset($_GET['xml'])) {
 			$_GET['substep'] = 0;
 			return false;
-		}	
-			
+		}
+
 		// We want to start at the first table.
 		for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++)
 		{
@@ -3846,7 +3846,7 @@ function template_backup_database()
 					getNextTables();
 			}
 			getNextTables();
-		//# sourceURL=dynamicScript-bkup.js 
+		//# sourceURL=dynamicScript-bkup.js
 		</script>';
 	}
 }
@@ -4242,7 +4242,7 @@ function template_database_changes()
 			getNextItem();';
 
 		echo '
-		//# sourceURL=dynamicScript-dbch.js 
+		//# sourceURL=dynamicScript-dbch.js
 		</script>';
 	}
 	return;
@@ -4346,9 +4346,9 @@ function template_convert_utf8()
 				// Get the next update...
 				if (iTableNum == ', $upcontext['table_count'], ')
 				{
-					document.getElementById(\'commess\').style.display = ""; 
+					document.getElementById(\'commess\').style.display = "";
 					if (document.getElementById(\'indexmsg\') != null) {
-						document.getElementById(\'indexmsg\').style.display = "";						
+						document.getElementById(\'indexmsg\').style.display = "";
 					}
 					document.getElementById(\'current_tab_div\').style.display = "none";
 					document.getElementById(\'contbutt\').disabled = 0;
@@ -4358,7 +4358,7 @@ function template_convert_utf8()
 					getNextTables();
 			}
 			getNextTables();
-		//# sourceURL=dynamicScript-conv.js 
+		//# sourceURL=dynamicScript-conv.js
 		</script>';
 	}
 }
@@ -4453,7 +4453,7 @@ function template_serialize_json()
 					getNextTables();
 			}
 			getNextTables();
-		//# sourceURL=dynamicScript-json.js 
+		//# sourceURL=dynamicScript-json.js
 		</script>';
 	}
 }
@@ -4677,7 +4677,7 @@ function upgradeGetColumnInfo($targetTable, $column)
 
  	// This should already be here, but be safe.
  	db_extend('packages');
- 
+
  	$columns = $smcFunc['db_list_columns']($targetTable, true);
 
 	if (isset($columns[$column]))
