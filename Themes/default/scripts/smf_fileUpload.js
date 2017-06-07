@@ -1,7 +1,6 @@
-function smf_fileUpload(oOptions)
-{
+function smf_fileUpload(oOptions) {
 	// Check if the file should be accepted or not...
-	Dropzone.prototype.accept = function(file, done) {
+	Dropzone.prototype.accept = function (file, done) {
 		if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
 			done(this.options.dictMaxFilesExceeded);
 			return this.emit("maxfilesexceeded", file);
@@ -17,10 +16,10 @@ function smf_fileUpload(oOptions)
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
-		parallelUploads : 1,
-		filesizeBase:1024,
+		parallelUploads: 1,
+		filesizeBase: 1024,
 		paramName: 'attachment',
-		uploadMultiple:true,
+		uploadMultiple: true,
 		previewsContainer: '#au-previews',
 		previewTemplate: previewTemplate,
 		acceptedFiles: '.doc,.gif,.jpg,.pdf,.png,.txt,.zip',
@@ -28,71 +27,78 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		smf_insertBBC: function(file, w, h){
+		currentUsedSize: 0,
+		smf_insertBBC: function (file, w, h) {
 
 			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
 
 			var bbcOptionalParams = {
-				width: mime_type.indexOf('image') == 0 && +w > 0 ? (' width='+ w) : '',
-				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height='+ h) : '',
-				name: typeof file.name !== "undefined" ? (' name='+ file.name) : '',
+				width: mime_type.indexOf('image') == 0 && +w > 0 ? (' width=' + w) : '',
+				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height=' + h) : '',
+				name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
 				type: ' type=' + mime_type,
 			};
 
-			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type + ']' + file.attachID + '[/attach]';
 		},
-		createMaxSizeBar: function(){
+		createMaxSizeBar: function () {
 
-				// Update the MaxSize bar to reflect the new size percentage.
-				var range_maxFile = Math.round($.fn.percentToRange($.fn.rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.maxLimitReferenceUploadSize), 0, 100));
+			// Update the MaxSize bar to reflect the new size percentage.
+			var currentSize = Math.round(myDropzone.options.currentUsedSize / 1024);
+			var maxSize = myDropzone.options.maxTotalSize;
 
-				// 3 basic colors.
-				if (range_maxFile <= 33)
-					range_maxFile_class = 'green';
+			var usedPercentage = Math.round($.fn.percentToRange($.fn.rangeToPercent(currentSize, 0, maxSize), 0, 100));
 
-				else if (range_maxFile >= 34 && range_maxFile <= 66)
-					range_maxFile_class = 'yellow';
+			// 3 basic colors.
+			if (usedPercentage <= 33)
+				percentage_class = 'green';
 
-				else
-					range_maxFile_class = 'red';
+			else if (usedPercentage >= 34 && usedPercentage <= 66)
+				percentage_class = 'yellow';
 
-				$('#maxFiles_progress').show();
-				$('#maxFiles_progress_text').show();
-				$('#maxFiles_progress').removeClass().addClass('progressBar progress_'+ range_maxFile_class);
-				$('#maxFiles_progress span').width(range_maxFile + '%');
+			else
+				percentage_class = 'red';
 
-				// Show or update the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', (Math.round(myDropzone.options.maxLimitReferenceUploadSize / 1024))).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize / 1024)));
+			$('#maxFiles_progress').show();
+			$('#maxFiles_progress_text').show();
+			$('#maxFiles_progress').removeClass().addClass('progressBar progress_' + percentage_class);
+			$('#maxFiles_progress span').width(usedPercentage + '%');
 
-				if (myDropzone.options.totalMaxSize == 0){
-					$('#maxFiles_progress').hide();
-					$('#maxFiles_progress_text').hide();
-				}
+			// Show or update the text.
+			$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', maxSize).replace('{currentRemain}', currentSize));
+
+			if (maxSize == 0) {
+				$('#maxFiles_progress').hide();
+				$('#maxFiles_progress_text').hide();
+			}
 		},
-		accept: function(file, done) {
+		accept: function (file, done) {
 
 			// Need to check if the added file doesn't surpass the total max size setting.
-			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
+			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
+
+			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024;
+			var totalKB = myDropzone.options.maxTotalSize;
+			var fileKB = myDropzone.options.maxFileSize;
+			var uploadedFileKB = file.size / 1024;
 
 			// This file has reached the max total size per post.
-			if (myDropzone.options.maxLimitReferenceUploadSize > 0 && myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
-				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', Math.round(myDropzone.options.maxLimitReferenceUploadSize / 1024)).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize / 1024)));
+			if (totalKB > 0 && currentlyUsedKB > totalKB) {
+				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
 			}
-
-			// The file is too big.
-			if ((myDropzone.options.maxFilesize > 0) && (file.size > (myDropzone.options.maxFilesize * 1024))){
+			else if (fileKB > 0 && uploadedFileKB > fileKB) {
 				done(myDropzone.options.dictFileTooBig);
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
 
 				// File wasn't accepted so remove its size.
-				myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+				myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 			}
-			else{
+			else {
 
 				myDropzone.options.createMaxSizeBar();
 
@@ -100,11 +106,10 @@ function smf_fileUpload(oOptions)
 				done();
 			}
 		},
-		totalMaxSize: 0
 	};
 
-	if(oOptions.thumbnailHeight && oOptions.thumbnailWidth) {
-		if(oOptions.thumbnailHeight > oOptions.thumbnailWidth) {
+	if (oOptions.thumbnailHeight && oOptions.thumbnailWidth) {
+		if (oOptions.thumbnailHeight > oOptions.thumbnailWidth) {
 			oOptions.thumbnailWidth = null;
 		}
 
@@ -118,18 +123,18 @@ function smf_fileUpload(oOptions)
 
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
 
-	myDropzone.on('addedfile', function(file) {
+	myDropzone.on('addedfile', function (file) {
 
 		_thisElement = $(file.previewElement);
 
 		// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
 		if (!file.type.match(/image.*/)) {
-			myDropzone.emit('thumbnail', file, smf_images_url +'/generic_attach.png');
+			myDropzone.emit('thumbnail', file, smf_images_url + '/generic_attach.png');
 		}
 
 		// If the file is too small, it won't have a thumbnail, show the regular file.
 		else if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
-			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
+			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) + 'action=dlattach;attach=' + (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
 		}
 
 		file.name = file.name.php_to8bit().php_urlencode();
@@ -138,89 +143,89 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.attach-ui').fadeIn();
 
 		// Create a function to insert the BBC attach tag.
-		file.insertAttachment = function (_innerElement, response){
+		file.insertAttachment = function (_innerElement, response) {
 			insertButton = $('<a />')
-			.addClass('button_submit')
-			.prop('disabled', false)
-			.text(myDropzone.options.text_insertBBC)
-			.on('click', function (e) {
-				e.preventDefault();
+				.addClass('button_submit')
+				.prop('disabled', false)
+				.text(myDropzone.options.text_insertBBC)
+				.on('click', function (e) {
+					e.preventDefault();
 
-				w = _innerElement.find('input[name="attached_BBC_width"]').val();
-				h = _innerElement.find('input[name="attached_BBC_height"]').val();
+					w = _innerElement.find('input[name="attached_BBC_width"]').val();
+					h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
-				// Get the editor stuff.
-				var oEditor = $('#' + oEditorID).data('sceditor');
+					// Get the editor stuff.
+					var oEditor = $('#' + oEditorID).data('sceditor');
 
-				oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
-			})
-			.appendTo(_innerElement.find('.attach-ui'));
+					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
+				})
+				.appendTo(_innerElement.find('.attach-ui'));
 		};
 
 		// Replace the filled with a message when the attachment is deleted.
-		file.deleteAttachment = function (_innerElement, attachmentId, file){
+		file.deleteAttachment = function (_innerElement, attachmentId, file) {
 
 			deleteButton = $('<a />')
-			.addClass('button_submit')
-			.prop('disabled', false)
-			.text(myDropzone.options.text_deleteAttach)
-			.one('click', function (e) {
+				.addClass('button_submit')
+				.prop('disabled', false)
+				.text(myDropzone.options.text_deleteAttach)
+				.one('click', function (e) {
 
-				$this = $(this);
+					$this = $(this);
 
-				// Perform the action only after receiving the confirmation.
-				if (!confirm(smf_you_sure)){
-					return;
-				}
-
-				// Let the server know you want to delete the file you just recently uploaded...
-				$.ajax({
-					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ attachmentId +';' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
-					type: 'GET',
-					dataType: 'json',
-					beforeSend: function(){
-						ajax_indicator(true);
-					},
-					complete: function(jqXHR, textStatus){
-						ajax_indicator(false);
-
-						// Delete the button.
-						$this.fadeOutAndRemove('slow');
-					},
-					success: function (data, textStatus, xhr) {
-
-						// For dramatic purposes only!
-						_innerElement.removeClass('infobox').addClass(data.type +'box');
-
-						// Remove the text field and show a nice confirmation message.
-						_innerElement.find('.attached_BBC').text(data.text);
-						_thisElement.find('.attach-info a.insertBBC').fadeOut();
-
-						// Do stuff only if the file was actually accepted and it doesn't have an error status.
-						if (file.accepted && file.status != Dropzone.ERROR) {
-
-							// Need to remove the file size to make sure theres plenty of room for another one.
-							myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
-
-							// Re-count!
-							myDropzone.options.createMaxSizeBar();
-						}
-					},
-					error: function (xhr, textStatus, errorThrown) {
-
-						// Tell the user something horrible happen!
-						_innerElement.find('span.error').append(textStatus.error.join('<br>'));
-
-						// For dramatic purposes only!
-						_innerElement.removeClass('infobox').addClass('errorbox');
+					// Perform the action only after receiving the confirmation.
+					if (!confirm(smf_you_sure)) {
+						return;
 					}
-				});
-			})
-			.appendTo(_innerElement.find('.attach-ui'));
+
+					// Let the server know you want to delete the file you just recently uploaded...
+					$.ajax({
+						url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach=' + attachmentId + ';' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
+						type: 'GET',
+						dataType: 'json',
+						beforeSend: function () {
+							ajax_indicator(true);
+						},
+						complete: function (jqXHR, textStatus) {
+							ajax_indicator(false);
+
+							// Delete the button.
+							$this.fadeOutAndRemove('slow');
+						},
+						success: function (data, textStatus, xhr) {
+
+							// For dramatic purposes only!
+							_innerElement.removeClass('infobox').addClass(data.type + 'box');
+
+							// Remove the text field and show a nice confirmation message.
+							_innerElement.find('.attached_BBC').text(data.text);
+							_thisElement.find('.attach-info a.insertBBC').fadeOut();
+
+							// Do stuff only if the file was actually accepted and it doesn't have an error status.
+							if (file.accepted && file.status != Dropzone.ERROR) {
+
+								// Need to remove the file size to make sure theres plenty of room for another one.
+								myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
+
+								// Re-count!
+								myDropzone.options.createMaxSizeBar();
+							}
+						},
+						error: function (xhr, textStatus, errorThrown) {
+
+							// Tell the user something horrible happen!
+							_innerElement.find('span.error').append(textStatus.error.join('<br>'));
+
+							// For dramatic purposes only!
+							_innerElement.removeClass('infobox').addClass('errorbox');
+						}
+					});
+				})
+				.appendTo(_innerElement.find('.attach-ui'));
 		};
 
 		// Hookup the upload button.
-		_thisElement.find('.upload').on( 'click', function() {
+		_thisElement.find('.upload').on('click', function () {
 			myDropzone.enqueueFile(file);
 		});
 
@@ -228,36 +233,36 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('descbox');
 
 		// Show the upload and cancel all buttons only if there is something to cancel/upload.
-		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1){
+		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1) {
 			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn();
 		}
 	});
 
 	// Stuff to do when a file gets cancel.
-	myDropzone.on('removedfile', function(file) {
+	myDropzone.on('removedfile', function (file) {
 
 		// Do stuff only if the file was actually accepted and it doesn't have an error status.
 		if (file.accepted && file.status != Dropzone.ERROR) {
 
 			// Need to remove the file size to make sure theres plenty of room for another one.
-			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
 			// Re-count!
 			myDropzone.options.createMaxSizeBar();
 		}
 
 		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
-		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0){
+		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0) {
 			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeOut();
 		}
 	});
 
 	// Update the total progress bar.
-	myDropzone.on('totaluploadprogress', function(progress) {
+	myDropzone.on('totaluploadprogress', function (progress) {
 		$('#total-progress span').width(progress + '%');
 	});
 
-	myDropzone.on('error', function(file, errorMessage, xhr) {
+	myDropzone.on('error', function (file, errorMessage, xhr) {
 
 		_thisElement = $(file.previewElement);
 
@@ -268,7 +273,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('errorbox').removeClass('descbox');
 	});
 
-	myDropzone.on('success', function(file, responseText, e) {
+	myDropzone.on('success', function (file, responseText, e) {
 
 		_thisElement = $(file.previewElement);
 
@@ -276,12 +281,12 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
 		// Don't do anything if there is no response from server.
-		if (!responseText){
+		if (!responseText) {
 			return;
 		}
 
 		// There is a general error.
-		if (responseText.generalErrors){
+		if (responseText.generalErrors) {
 			_thisElement.find('span.error').append(responseText.generalErrors.join('<br>'));
 			return;
 		}
@@ -293,12 +298,12 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.attach-info div.attached_BBC').fadeIn();
 		_thisElement.find('.attach-info a.insertBBC').fadeIn();
 
-		if (typeof response.mime_type == "undefined" || response.mime_type.indexOf('image') != 0){
+		if (typeof response.mime_type == "undefined" || response.mime_type.indexOf('image') != 0) {
 			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
 		}
 
 		// The request was complete but the server returned an error.
-		if (typeof response.errors !== 'undefined' && response.errors.length > 0){
+		if (typeof response.errors !== 'undefined' && response.errors.length > 0) {
 
 			_thisElement.addClass('errorbox').removeClass('descbox');
 
@@ -324,7 +329,7 @@ function smf_fileUpload(oOptions)
 		file.deleteAttachment(_thisElement, response.attachID, file);
 	});
 
-	myDropzone.on('uploadprogress', function(file, progress, bytesSent) {
+	myDropzone.on('uploadprogress', function (file, progress, bytesSent) {
 
 		_thisElement = $(file.previewElement);
 
@@ -332,7 +337,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('div.progressBar span').width(progress + '%');
 	});
 
-	myDropzone.on('complete', function(file, progress, bytesSent) {
+	myDropzone.on('complete', function (file, progress, bytesSent) {
 
 		_thisElement = $(file.previewElement);
 
@@ -340,12 +345,12 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('div.progressBar').fadeOut();
 
 		// Finishing up mocking!
-		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
+		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
 			// Show the input field.
 			_thisElement.find('.attach-info div.attached_BBC').fadeIn();
 			_thisElement.find('.attach-info a.insertBBC').fadeIn();
 
-			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0){
+			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0) {
 				_thisElement.find('.attach-info .attached_BBC_width_height').hide();
 			}
 
@@ -369,7 +374,7 @@ function smf_fileUpload(oOptions)
 			file.deleteAttachment(_thisElement, file.attachID, file);
 
 			// Need to count this towards the max limit.
-			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
+			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
 
 			// Re-count and display the bar.
 			myDropzone.options.createMaxSizeBar();
@@ -377,7 +382,7 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Show each individual's progress bar.
-	myDropzone.on('sending', function(file, xhr, formData) {
+	myDropzone.on('sending', function (file, xhr, formData) {
 
 		_thisElement = $(file.previewElement);
 
@@ -389,19 +394,19 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Update the total progress bar.
-	myDropzone.on("totaluploadprogress", function(progress) {
+	myDropzone.on("totaluploadprogress", function (progress) {
 		$("#total-progress span").width(progress + '%');
 	});
 
 	// Hide the total progress bar when nothing's uploading anymore.
-	myDropzone.on("queuecomplete", function(progress) {
+	myDropzone.on("queuecomplete", function (progress) {
 		$("#total-progress").fadeOut();
 	});
 
 	// Add an event for uploading and cancelling all files.
-	$('a#attach-cancelAll' ).on('click', function() {
+	$('a#attach-cancelAll').on('click', function () {
 
-		if (!confirm(smf_you_sure)){
+		if (!confirm(smf_you_sure)) {
 			return;
 		}
 
@@ -409,9 +414,9 @@ function smf_fileUpload(oOptions)
 		myDropzone.options.createMaxSizeBar();
 	});
 
-	$('a#attach-uploadAll' ).on('click', function() {
+	$('a#attach-uploadAll').on('click', function () {
 
-		if (!confirm(smf_you_sure)){
+		if (!confirm(smf_you_sure)) {
 			return;
 		}
 
@@ -420,12 +425,12 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Need to tell the user they cannot post until all files are either uploaded or canceled.
-	$("input[name ='post']").on('click', function(e) {
+	$("input[name ='post']").on('click', function (e) {
 
 		attachAdded = myDropzone.getFilesWithStatus(Dropzone.ADDED).length;
 		attachQueued = myDropzone.getFilesWithStatus(Dropzone.QUEUED).length;
 
-		if (attachAdded > 0 || attachQueued > 0 ){
+		if (attachAdded > 0 || attachQueued > 0) {
 			alert(myDropzone.options.text_attachLeft);
 			e.preventDefault();
 			e.stopPropagation();
@@ -437,8 +442,8 @@ function smf_fileUpload(oOptions)
 	$('#postAttachment').fadeOutAndRemove('slow');
 
 	// Show any attachments already uploaded.
-	if (typeof current_attachments !== "undefined"){
-		$.each(current_attachments, function(key, mock) {
+	if (typeof current_attachments !== "undefined") {
+		$.each(current_attachments, function (key, mock) {
 
 			// Tell the world this is a mock file!
 			mock.isMock = true;
