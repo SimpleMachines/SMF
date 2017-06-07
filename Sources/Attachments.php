@@ -260,7 +260,7 @@ class Attachments
 					$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
 
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => $smcFunc['htmlspecialchars']($this->sanitize_attachment_filename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'size' => $_FILES['attachment']['size'][$n],
 					'type' => $_FILES['attachment']['type'][$n],
@@ -286,7 +286,7 @@ class Attachments
 			else
 			{
 				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
+					'name' => $smcFunc['htmlspecialchars']($this->sanitize_attachment_filename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'errors' => $errors,
 				);
@@ -313,6 +313,24 @@ class Attachments
 		call_integration_hook('integrate_attachment_upload', array());
 	}
 
+	/**
+	 * sanitize $_FILES['attachment']['name']
+	 *
+	 * @access protected
+	 * @param string $filename The filename to be sanitized
+	 * @return string sanitized filename
+	 */
+	protected function sanitize_attachment_filename($filename)
+	{
+		// Prevent filesystem traversal attacks by removing directory component
+		$i = strrpos($filename, DIRECTORY_SEPARATOR);
+		if ($i !== false) $filename = substr($filename, $i + 1);
+
+		// Additional sanitization may go here.
+		
+		return $filename;	
+	}	
+	
 	protected function createAtttach()
 	{
 		global $txt, $user_info, $modSettings;
