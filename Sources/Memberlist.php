@@ -327,13 +327,17 @@ function MLAll()
 		$limit = $second_offset - ($memberlist_cache['num_members'] - $_REQUEST['start']) - ($second_offset > $memberlist_cache['num_members'] ? $cache_step_size - ($memberlist_cache['num_members'] % $cache_step_size) : 0);
 	}
 
+	$custom_fields_qry = '';
+	if (!empty($context['custom_profile_fields']['join'][$col]))
+		$custom_fields_qry = $context['custom_profile_fields']['join'][$col];
+
 	// Select the members from the database.
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member
 		FROM {db_prefix}members AS mem' . ($_REQUEST['sort'] === 'is_online' ? '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' : '') . '
-			' . (!empty($context['custom_profile_fields']['join']) ? implode(' ', $context['custom_profile_fields']['join']) : '') . '
+			' . $custom_fields_qry . '
 		WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
 			AND ' . $where) . '
 		ORDER BY {raw:sort}
@@ -690,8 +694,8 @@ function getCustFieldsMList()
 		// Get the right sort method depending on the cust field type.
 		if ($row['field_type'] != 'check')
 			$cpf['columns'][$row['col_name']]['sort'] = array(
-				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, COALESCE(t' . $row['col_name'] . '.value, "") DESC',
-				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, COALESCE(t' . $row['col_name'] . '.value, "") ASC'
+				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, COALESCE(t' . $row['col_name'] . '.value, \'\') DESC',
+				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, COALESCE(t' . $row['col_name'] . '.value, \'\') ASC'
 			);
 
 		else
