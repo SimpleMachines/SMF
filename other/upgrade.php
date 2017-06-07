@@ -35,6 +35,7 @@ $databases = array(
 		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
 		'alter_support' => true,
 	),
+	
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
 		'version' => '9.1',
