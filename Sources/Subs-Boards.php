@@ -384,7 +384,7 @@ function MarkRead()
 			);
 			if ($smcFunc['db_num_rows']($result) > 0)
 			{
-				$logBoardInserts = '';
+				$logBoardInserts = array();
 				while ($row = $smcFunc['db_fetch_assoc']($result))
 					$logBoardInserts[] = array($modSettings['maxMsgID'], $user_info['id'], $row['id_board']);
 
