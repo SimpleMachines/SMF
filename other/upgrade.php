@@ -927,41 +927,60 @@ function UpgradeOptions()
 		return false;
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && (substr($boardurl, 0, 16) != 'http://localhost' || substr($boardurl, 0, 16) != 'https://localhost') && empty($modSettings['allow_sm_stats']))
+	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
-		// Attempt to register the site etc.
-		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-		if ($fp)
+		$upcontext['allow_sm_stats'] = true;
+
+		// Don't register if we still have a key.
+		if (empty($modSettings['sm_stats_key']))
 		{
-			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
-			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'Connection: Close' . "\r\n\r\n";
-			fwrite($fp, $out);
+			// Attempt to register the site etc.
+			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+			if ($fp)
+			{
+				$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+				$out .= 'Host: www.simplemachines.org' . "\r\n";
+				$out .= 'Connection: Close' . "\r\n\r\n";
+				fwrite($fp, $out);
 
-			$return_data = '';
-			while (!feof($fp))
-				$return_data .= fgets($fp, 128);
+				$return_data = '';
+				while (!feof($fp))
+					$return_data .= fgets($fp, 128);
 
-			fclose($fp);
+				fclose($fp);
 
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
+				// Get the unique site ID.
+				preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
-			if (!empty($ID[1]))
-				$smcFunc['db_insert']('replace',
-					$db_prefix . 'settings',
-					array('variable' => 'string', 'value' => 'string'),
-					array('allow_sm_stats', $ID[1]),
-					array('variable')
-				);
+				if (!empty($ID[1]))
+					$smcFunc['db_insert']('replace',
+						$db_prefix . 'settings',
+						array('variable' => 'string', 'value' => 'string'),
+						array(
+							array('sm_stats_key', $ID[1]),
+							array('enable_sm_stats', 1),
+						),
+						array('variable')
+					);
+			}
+		}
+		else
+		{
+			$smcFunc['db_insert']('replace',
+				$db_prefix . 'settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('enable_sm_stats', 1),
+				array('variable')
+			);
 		}
 	}
-	else
+	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
+	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
-			WHERE variable = {string:allow_sm_stats}',
+			WHERE variable = {string:enable_sm_stats}',
 			array(
-				'allow_sm_stats' => 'allow_sm_stats',
+				'enable_sm_stats' => 'enable_sm_stats',
 				'db_error_skip' => true,
 			)
 		);
@@ -3749,7 +3768,7 @@ function template_upgrade_options()
 	echo '
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked', ' class="input_check">
+							<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']) ? '' : ' checked="checked"', ' class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="stat">

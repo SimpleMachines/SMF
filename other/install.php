@@ -1216,15 +1216,17 @@ function DatabasePopulation()
 	}
 
 	// Are we allowing stat collection?
-	if (isset($_POST['stats']) && (strpos($_POST['boardurl'], 'http://localhost') !== 0 || strpos($_POST['boardurl'], 'https://localhost') !== 0))
+	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
+		$upcontext['allow_sm_stats'] = true;
+
 		// Attempt to register the site etc.
-		$fp = @fsockopen("www.simplemachines.org", 80, $errno, $errstr);
+		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 		if ($fp)
 		{
-			$out = "GET /smf/stats/register_stats.php?site=" . base64_encode($_POST['boardurl']) . " HTTP/1.1\r\n";
-			$out .= "Host: www.simplemachines.org\r\n";
-			$out .= "Connection: Close\r\n\r\n";
+			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+			$out .= 'Host: www.simplemachines.org' . "\r\n";
+			$out .= 'Connection: Close' . "\r\n\r\n";
 			fwrite($fp, $out);
 
 			$return_data = '';
@@ -1237,9 +1239,27 @@ function DatabasePopulation()
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1]))
-				$newSettings[] = array('allow_sm_stats', $ID[1]);
+				$smcFunc['db_insert']('replace',
+					$db_prefix . 'settings',
+					array('variable' => 'string', 'value' => 'string'),
+					array(
+						array('sm_stats_key', $ID[1]),
+						array('enable_sm_stats', 1),
+					),
+					array('variable')
+				);
 		}
 	}
+	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
+	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable = {string:enable_sm_stats}',
+			array(
+				'enable_sm_stats' => 'enable_sm_stats',
+				'db_error_skip' => true,
+			)
+		);
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
@@ -2237,7 +2257,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_stats'], ':</td>
 				<td>
-					<input type="checkbox" name="stats" id="stats_check" class="input_check" />&nbsp;
+					<input type="checkbox" name="stats" id="stats_check" class="input_check" checked="checked" />&nbsp;
 					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
 					<br>
 					<div class="smalltext block">', $txt['install_settings_stats_info'], '</div>

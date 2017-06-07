@@ -162,6 +162,8 @@ function ModifyGeneralSettings($return_config = false)
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
+		'',
+		array('enable_sm_stats', $txt['sm_state_setting'], 'db', 'check', null, 'enable_sm_stats'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -177,6 +179,16 @@ function ModifyGeneralSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_general_settings');
+
+		// Are we saving the stat collection?
+		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
+		{
+			$registerSMStats = registerSMStats();
+
+			// Failed to register, disable it again.
+			if (empty($registerSMStats))
+				$_POST['enable_sm_stats'] = 0;
+		}
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
@@ -1336,6 +1348,55 @@ function loadCacheAPIs()
 	closedir($dh);
 
 	return $apis;
+}
+
+/**
+ * Registers the site with the Simple Machines Stat collection. This function 
+ * purposely does not use updateSettings.php as it will be called shortly after
+ * this process completes by the saveSettings() function.
+ *
+ * @see Stats.php SMStats() for more information.
+ * @link https://www.simplemachines.org/about/stats.php for more info.
+ *
+ */
+function registerSMStats()
+{
+	global $modSettings, $boardurl, $smcFunc;
+
+	// Already have a key?  Can't register again.
+	if (!empty($modSettings['sm_stats_key']))
+		return true;
+
+	$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+	if ($fp)
+	{
+		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+		$out .= 'Host: www.simplemachines.org' . "\r\n";
+		$out .= 'Connection: Close' . "\r\n\r\n";
+		fwrite($fp, $out);
+
+		$return_data = '';
+		while (!feof($fp))
+			$return_data .= fgets($fp, 128);
+
+		fclose($fp);
+
+		// Get the unique site ID.
+		preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
+
+		if (!empty($ID[1]))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('sm_stats_key', $ID[1]),
+				array('variable')
+			);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 ?>
