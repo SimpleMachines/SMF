@@ -384,6 +384,7 @@ function AdminMain()
 						'members' => array($txt['maintain_sub_members'], 'admin_forum'),
 						'topics' => array($txt['maintain_sub_topics'], 'admin_forum'),
 						'hooks' => array($txt['hooks_title_list'], 'admin_forum'),
+						'benchmark' => array($txt['maintain_sub_benchmark'], 'admin_forum')
 					),
 				),
 				'scheduledtasks' => array(

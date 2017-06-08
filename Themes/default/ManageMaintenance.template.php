@@ -609,4 +609,76 @@ function template_convert_msgbody()
 	</div>';
 }
 
+/**
+ * Tempalte for the benchmark maintenance tasks.
+ */
+function template_maintain_benchmark()
+{
+	global $context, $txt, $scripturl, $modSettings;
+
+	// If maintenance has finished tell the user.
+	if (!empty($context['maintenance_finished']))
+		echo '
+			<div class="infobox">
+				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+			</div>';
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['benchmark_topic'], '</h3>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=usercreate" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['benchmark_usercreate_info'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=postcreate" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['benchmark_post_info'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>
+		<div class="windowbg2 noup">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=benchmark;activity=postread" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['benchmark_postread_info'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+
+	echo '
+	</div>';
+}
+
+/**
+ * Simple template for showing results of our benchmark...
+ */
+function template_benchmarkresult()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['benchmark_result'], '</h3>
+		</div>
+		<div class="windowbg">
+			<p>';
+	
+	echo $context['benchmark_result']['test_name'] . ':' . $context['benchmark_result']['amount'];
+
+	echo '
+			</p>
+			<p><a href="', $scripturl, '?action=admin;area=maintain">', $txt['maintain_return'], '</a></p>
+		</div>
+	</div>';
+}
+
 ?>

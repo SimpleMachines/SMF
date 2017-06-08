@@ -230,4 +230,13 @@ $txt['plain_text'] = 'The best method to backup your database is to create a pla
 $txt['enable_maintenance1'] = 'Due to the size of your forum, it is recommended to place your forum in "maintenance mode" before you start the backup.';
 $txt['enable_maintenance2'] = 'To proceed, due to the size of your forum, please place your forum in "maintenance mode".';
 
+$txt['benchmark_usercreate'] = 'Creating User';
+$txt['benchmark_post'] = 'Creating Posts';
+$txt['benchmark_usercreate_info'] = 'Create as many users as possible in one minute <br/> This test is cpu heavy';
+$txt['benchmark_post_info'] = 'Create as many posts as possible in one minute <br/> This test is db insert performance heavy'; 
+$txt['benchmark_topic'] = 'Benchmark methods';
+$txt['benchmark_postread'] = 'Reading Posts';
+$txt['benchmark_postread_info'] = 'Repeatedly access a topic for 1 minute. <br /> This test depends heavily on the size of your board and the active features.';
+$txt['benchmark_result'] = 'Result of Benchmark';
+
 ?>

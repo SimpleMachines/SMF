@@ -40,6 +40,7 @@ function ManageMaintenance()
 			'database' => array(),
 			'members' => array(),
 			'topics' => array(),
+			'benchmark' => array(),
 		),
 	);
 
@@ -90,6 +91,15 @@ function ManageMaintenance()
 		'destroy' => array(
 			'function' => 'Destroy',
 			'activities' => array(),
+		),
+		'benchmark' => array(
+			'function' => 'MaintainBenchmark',
+			'template' => 'maintain_Benchmark',
+			'activities' => array(
+				'usercreate' => 'UserCreate',
+				'postcreate' => 'PostCreate',
+				'postread' => 'PostRead',
+			),
 		),
 	);
 
@@ -2283,6 +2293,259 @@ function get_hook_info_from_raw($rawData)
 		$hookData['pureFunc'] = $modFunc;
 
 	return $hookData;
+}
+
+/**
+ * Benchmark for User creation tries to create as many as possible in 1 minute
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=usercreate.
+ * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
+
+ * @uses the benchmarkresult sub template
+ */
+function UserCreate()
+{
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$usersID = array();
+	$start = 0;
+	$maxRuntime = 60;
+
+	isAllowedTo('admin_forum');
+
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
+
+	ignore_user_abort(true);
+
+	$context['page_title'] = $txt['benchmark_usercreate'];
+	$context['sub_template'] = 'benchmarkresult';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
+	
+	// Try for extra time
+	@set_time_limit(100);
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	while (microtime(true) < $end)
+	{
+		$regOptions = array(
+			'interface' => 'admin',
+			'username' => $prefixUsername . $count,
+			'email' => $prefixUsername. '_' . $count . '@' . $_SERVER['SERVER_NAME'] . (strpos($_SERVER['SERVER_NAME'], '.') === FALSE ? '.com' : ''),
+			'password' => '',
+			'require' => 'nothing'
+		);
+
+		$usersID[] = registerMember($regOptions);
+		$count++;
+	}
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_usercreate'];
+	deleteMembers($usersID);
+}
+/**
+ *Dummy Function for MaintainBenchmark
+ */
+function MaintainBenchmark()
+{}
+
+/**
+ * Benchmakr for Post creation tries to create as many as possible in 1 minute
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=postcreate.
+
+ * @uses the benchmarkresult sub template
+ */
+function PostCreate()
+{
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	require_once($sourcedir . '/Subs-Post.php');
+	require_once($sourcedir . '/RemoveTopic.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$userID = 0;
+	$start = 0;
+	$maxRuntime = 60;
+	$username = $prefixUsername . '_' . $count;
+	$email = $username . '@' . $_SERVER['SERVER_NAME'] . (strpos($_SERVER['SERVER_NAME'], '.') === FALSE ? '.com' : '');
+	$postid = 0;
+	$boardid = 0;
+	
+	// find a board
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board
+		FROM {db_prefix}boards
+		LIMIT 1',
+		array()
+	);
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$boardid = $row['id_board'];
+
+	isAllowedTo('admin_forum');
+
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
+
+	ignore_user_abort(true);
+
+	$context['page_title'] = $txt['benchmark_usercreate'];
+	$context['sub_template'] = 'benchmarkresult';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
+	
+	$regOptions = array(
+			'interface' => 'admin',
+			'username' => $prefixUsername . $count,
+			'email' => $email,
+			'password' => '',
+			'require' => 'nothing'
+		);
+
+	$userID = registerMember($regOptions);
+	
+	// Try for extra time
+	@set_time_limit(100);
+	
+	//create the inital topic
+	$msgOptions = array(
+		'subject' => 'Post Benchmark Topic',
+		'body' => 'nothing',
+		'approved' => TRUE
+	);
+
+	$topicOptions = $topicOptions = array(
+				'board' => $boardid,
+				'mark_as_read' => TRUE,
+			);
+
+	$posterOptions = array(
+		'id' => $userID,
+		'name' => $username,
+		'email' => $email,
+		'update_post_count' => TRUE,
+	);
+
+	createPost($msgOptions, $topicOptions, $posterOptions);
+	
+	$postid = $topicOptions['id'];
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	while (microtime(true) < $end)
+	{
+		createPost($msgOptions, $topicOptions, $posterOptions);
+		$count++;
+	}
+	
+	removeTopics($postid);
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_post'];
+	
+	deleteMembers($userID);
+}
+
+/**
+ * Benchmark for Post reads tries to access as many as possible in 1 minute
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=benchmark;activity=postread.
+ * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
+
+ * @uses the benchmarkresult sub template
+ */
+function PostRead()
+{
+	global $db_prefix, $txt, $context, $smcFunc, $sourcedir, $topic, $board;
+	
+	require_once($sourcedir . '/Subs-Members.php');
+	require_once($sourcedir . '/Display.php');
+	require_once($sourcedir . '/Load.php');
+	
+	$prefixUsername = 'UserCreateBench';
+	$count = 0;
+	$usersID = array();
+	$start = 0;
+	$maxRuntime = 60;
+	$topicid = 0;
+	$boardid = 0;
+	
+	// find a topic
+	$request = $smcFunc['db_query']('', '
+		SELECT id_topic, id_board
+		FROM {db_prefix}topics
+		LIMIT 1',
+		array()
+	);
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$boardid = $row['id_board'];
+	$topicid = $row['id_topic'];
+
+	isAllowedTo('admin_forum');
+
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
+
+	ignore_user_abort(true);
+
+	$context['page_title'] = $txt['benchmark_usercreate'];
+	$context['sub_template'] = 'benchmarkresult';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
+
+	
+	// Try for extra time
+	@set_time_limit(100);
+	
+	$start = microtime(true);
+	$end = $start + $maxRuntime;
+	
+	// catch all output	
+	ob_start();
+	
+	while (microtime(true) < $end)
+	{
+		$topic = $topicid;
+		$board = $boardid;
+		loadBoard();
+		Display();
+		$count++;
+	}
+	
+	// throw the output away
+	ob_end_clean();
+	
+	$context['benchmark_result']['amount'] = $count;
+	$context['benchmark_result']['test_name'] = $txt['benchmark_postread'];
+	deleteMembers($usersID);
 }
 
 ?>
