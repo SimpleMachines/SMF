@@ -321,6 +321,27 @@ class curl_fetch_web_data
 		$this->options[CURLOPT_REFERER] = $referer_url;
 		$this->curl_request($target_url, true);
 	}
+
+	/**
+	* Callback function to parse returned headers
+	*  - lowercases everything to make it consistent
+	*
+	* @param type $cr Not sure what this is used for?
+	* @param string $header The header
+	* @return int The length of the header
+	*/
+	private function header_callback($cr, $header)
+	{
+		$_header = trim($header);
+		$temp = explode(': ', $_header, 2);
+
+		// set proper headers only
+		if (isset($temp[0]) && isset($temp[1]))
+			$this->headers[strtolower($temp[0])] = strtolower(trim($temp[1]));
+
+		// return the length of what was passed unless you want a Failed writing header error ;)
+		return strlen($header);
+	}
 }
 
 ?>
