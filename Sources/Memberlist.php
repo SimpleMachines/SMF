@@ -328,8 +328,8 @@ function MLAll()
 	}
 
 	$custom_fields_qry = '';
-	if (!empty($context['custom_profile_fields']['join'][$col]))
-		$custom_fields_qry = $context['custom_profile_fields']['join'][$col];
+	if (!empty($context['custom_profile_fields']['join'][$_REQUEST['sort']]))
+		$custom_fields_qry = $context['custom_profile_fields']['join'][$_REQUEST['sort']];
 
 	// Select the members from the database.
 	$request = $smcFunc['db_query']('', '
