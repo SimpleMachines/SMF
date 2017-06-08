@@ -481,6 +481,11 @@ function Welcome()
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
 		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
 
+	// Check for https stream support.
+	$supported_streams = stream_get_wrappers();
+	if (!in_array('https', $supported_streams))
+		$incontext['warning'] = $txt['install_no_https'];
+
 	return false;
 }
 
