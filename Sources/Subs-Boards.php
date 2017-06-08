@@ -641,7 +641,7 @@ function modifyBoard($board_id, &$boardOptions)
 	}
 
 	$id = $board_id;
-	call_integration_hook('integrate_modify_board', array($id, &$boardUpdates, &$boardUpdateParameters));
+	call_integration_hook('integrate_modify_board', array($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters));
 
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
