@@ -280,6 +280,8 @@ foreach ($upcontext['steps'] as $num => $step)
 		elseif (function_exists($step[2])) {
 			//Start each new step with this unset, so the 'normal' template is called first
 			unset($_GET['xml']);
+			//Clear out warnings at the start of each step
+			unset($upcontext['custom_warning']);
 			$_GET['substep'] = 0;
 			$upcontext['current_step']++;
 		}
@@ -716,6 +718,11 @@ function WelcomeLogin()
 				<li>Cache Directory: ' . $cachedir_temp . '</li>
 			</ul>
 			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
+
+	// Check for https stream support.
+	$supported_streams = stream_get_wrappers();
+	if (!in_array('https', $supported_streams))
+		$upcontext['custom_warning'] = $txt['install_no_https'];
 
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
