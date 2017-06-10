@@ -764,7 +764,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$returning = '';
 	$with_returning = false;
 	// lets build the returning string, mysql allow only in normal mode
-	if(!empty($keys) && (count($keys) > 0) && $method !== 'ignore' && $returnmode > 0)
+	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		// we only take the first key
 		$returning = ' RETURNING '.$keys[0];

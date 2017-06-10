@@ -767,7 +767,7 @@ function smf_db_error($db_string, $connection = null)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
- * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method != 'ignore'
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array
  * @param object $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
@@ -776,6 +776,8 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
+	
+	$return_var;
 
 	// With nothing to insert, simply return.
 	if (empty($data))
@@ -783,6 +785,15 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
+	
+	$with_returning = false;
+	
+	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
+	{
+		$with_returning = true;
+		if ($returnmode == 2)
+			$return_var = array();
+	}
 
 	// Inserting data as a single row can be done as a single array.
 	if (!is_array($data[array_rand($data)]))
@@ -811,24 +822,82 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Determine the method of insertion.
 	$queryTitle = $method == 'replace' ? 'REPLACE' : ($method == 'ignore' ? 'INSERT IGNORE' : 'INSERT');
 
-	// Do the insert.
-	$smcFunc['db_query']('', '
-		' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
-		VALUES
-			' . implode(',
-			', $insertRows),
-		array(
-			'security_override' => true,
-			'db_error_skip' => $table === $db_prefix . 'log_errors',
-		),
-		$connection
-	);
-
-	if(!empty($keys) && (count($keys) > 0) && $method !== 'ignore' && $returnmode > 0)
+	if (!$with_returning || $method != 'ingore')
 	{
-		if ($returnmode == 1)
+		// Do the insert.
+		$smcFunc['db_query']('', '
+			' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+			VALUES
+				' . implode(',
+				', $insertRows),
+			array(
+				'security_override' => true,
+				'db_error_skip' => $table === $db_prefix . 'log_errors',
+			),
+			$connection
+		);
+	}
+	else //special way for ignore method with returning
+	{
+		$count = count($insertRows);
+		$ai = 0;
+		for($i = 0; $i < $count; $i++)
+		{
+			$old_id = $smcFunc['db_insert_id']();
+			
+			$smcFunc['db_query']('', '
+				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+				VALUES
+					' . $insertRows[$i],
+				array(
+					'security_override' => true,
+					'db_error_skip' => $table === $db_prefix . 'log_errors',
+				),
+				$connection
+			);
+			$new_id = $smcFunc['db_insert_id']();
+			
+			if ($last_id != $new_id) //the inserted value was new
+			{
+				$ai = $new_id;
+			}
+			else	// the inserted value already exists we need to find the pk
+			{
+				$where_string = '';
+				$count2 = count($indexed_columns);
+				for ($x = 0; $x < $count2; $x++)
+				{
+					$where_string += key($indexed_columns[$x]) . ' = '. $insertRows[$i][$x];
+					if (($x + 1) < $count2)
+						$where_string += ' AND ';
+				}
+
+				$request = $smcFunc['db_query']('','
+					SELECT `'. $keys[0] . '` FROM ' . $table .'
+					WHERE ' . $where_string . ' LIMIT 1',
+					array()
+				);
+				
+				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+				{
+					$row = $smcFunc['db_fetch_assoc']($request);
+					$ai = $row[$keys[0]];
+				}
+			}
+			
+			if ($returnmode == 1)
+				$return_var = $ai;
+			else if ($returnmode == 2)
+				$return_var[] = $ai;
+		}
+	}
+	
+
+	if ($with_returning)
+	{
+		if ($returnmode == 1 && empty($return_var))
 			$return_var = smf_db_insert_id($table, $keys[0]) + count($insertRows) - 1;
-		else if ($returnmode == 2)
+		else if ($returnmode == 2 && empty($return_var))
 		{
 			$return_var = array();
 			$count = count($insertRows);
