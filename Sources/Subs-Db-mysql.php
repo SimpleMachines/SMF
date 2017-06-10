@@ -777,7 +777,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	$connection = $connection === null ? $db_connection : $connection;
 	
-	$return_var;
+	$return_var = null;
 
 	// With nothing to insert, simply return.
 	if (empty($data))
