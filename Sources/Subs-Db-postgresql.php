@@ -662,7 +662,7 @@ function smf_db_unescape_string($string)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
- * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = '' or 'insert'
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method != 'ignore'
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
@@ -764,7 +764,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$returning = '';
 	$with_returning = false;
 	// lets build the returning string, mysql allow only in normal mode
-	if(!empty($keys) && (count($keys) > 0) && ($method === '' || $method === 'insert') && $returnmode > 0)
+	if(!empty($keys) && (count($keys) > 0) && $method !== 'ignore' && $returnmode > 0)
 	{
 		// we only take the first key
 		$returning = ' RETURNING '.$keys[0];
