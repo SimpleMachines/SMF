@@ -19,7 +19,7 @@ define('SMF_LANG_VERSION', '2.1 Beta 3');
  * The minimum required PHP version.
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.4.45';
+$GLOBALS['required_php_version'] = '5.4.0';
 
 /**
  * A list of supported database systems.
