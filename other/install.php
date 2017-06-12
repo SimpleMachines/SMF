@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Beta 3';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.4.45';
+$GLOBALS['required_php_version'] = '5.4.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -457,7 +457,7 @@ function Welcome()
 	}
 
 	// Check the PHP version.
-	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>')))
+	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>=')))
 		$error = 'error_php_too_low';
 	// Make sure we have a supported database
 	elseif (empty($incontext['supported_databases']))
@@ -1372,7 +1372,7 @@ function AdminAccount()
 	// Reload settings & set some global funcs
 	require_once($sourcedir . '/Load.php');
 	reloadSettings();
-	
+
 	// We need this to properly hash the password for Admin
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string) {
 			global $sourcedir;
@@ -1553,7 +1553,7 @@ function DeleteInstall()
 
 	// Reload settings & set some global funcs
 	reloadSettings();
-	
+
 	// Bring a warning over.
 	if (!empty($incontext['account_existed']))
 		$incontext['warning'] = $incontext['account_existed'];
