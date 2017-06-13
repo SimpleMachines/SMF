@@ -3050,8 +3050,9 @@ function template_include($filename, $once = false)
 			require_once($sourcedir . '/Subs-Package.php');
 
 			$error = fetch_web_data($boardurl . strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
-			if (empty($error) && ini_get('track_errors') && !empty($php_errormsg))
-				$error = $php_errormsg;
+			$error_array = error_get_last();
+			if (empty($error) && ini_get('track_errors') && !empty($error_array))
+				$error = $error_array['message'];
 			if (empty($error))
 				$error = $txt['template_parse_errmsg'];
 
