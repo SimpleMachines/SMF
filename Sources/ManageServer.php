@@ -56,7 +56,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -241,23 +241,23 @@ function ModifyDatabaseSettings($return_config = false)
 		'',
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
-	
+
 	// Add PG Stuff
 	if ($smcFunc['db_title'] == "PostgreSQL")
 	{
 		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
 		$fts_language = array();
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$fts_language[$row['cfgname']] = $row['cfgname'];
-		
+
 		$config_vars = array_merge ($config_vars, array(
 				'',
 				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
 			)
 		);
 	}
-		
+
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
 
@@ -1351,7 +1351,7 @@ function loadCacheAPIs()
 }
 
 /**
- * Registers the site with the Simple Machines Stat collection. This function 
+ * Registers the site with the Simple Machines Stat collection. This function
  * purposely does not use updateSettings.php as it will be called shortly after
  * this process completes by the saveSettings() function.
  *

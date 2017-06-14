@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 define('SMF', 'proxy');
@@ -98,7 +98,7 @@ class ProxyServer
 		$request = $_GET['request'];
 		$cached_file = $this->getCachedPath($request);
 		$cached = json_decode(file_get_contents($cached_file), true);
-		
+
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
 		if (is_int($response)) {
@@ -172,7 +172,7 @@ class ProxyServer
 
 		if (empty($response))
 			return false;
-		
+
 		if ($responseCode != 200) {
 			return $request->result('code');
 		}

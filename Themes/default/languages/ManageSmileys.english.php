@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageSmileys
+// Version: 2.1 Beta 4; ManageSmileys
 
 $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';

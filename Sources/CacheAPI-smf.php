@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -33,7 +33,7 @@ class smf_cache extends cache_api
 		parent::__construct();
 
 		// Set our default cachedir.
-		$this->setCachedir();		
+		$this->setCachedir();
 	}
 
 	/**

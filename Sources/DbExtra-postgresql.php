@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -260,7 +260,7 @@ function smf_db_table_sql($tableName)
 			'table' => $tableName,
 		)
 	);
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		if ($row['is_primary'])
