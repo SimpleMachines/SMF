@@ -647,7 +647,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.date !== "undefined" && attrs.date)
 			{
 				attr_date = attrs.date;
-				sDate = '<date timestamp="' + attr_date + '">' + new Date(attrs.date * 1000) + '</date>';
+				tDate = new Date(attrs.date * 1000);
+				sDate_string = tDate.toLocaleString();
+				sDate = '<date timestamp="' + attr_date + '">' + sDate_string + '</date>';
 			}
 
 			if (author == '' && sDate == '')
