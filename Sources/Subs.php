@@ -543,16 +543,22 @@ function updateSettings($changeArray, $update = false)
  * @param int $num_per_page The number of items to be displayed on a given page. $start will be forced to be a multiple of this value.
  * @param bool $flexible_start Whether a ;start=x component should be introduced into the URL automatically (see above)
  * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
+ * @param null|array $options Provide max_id and low_id to evade paging by next page jump
  *
  * @return string The complete HTML of the page index that was requested, formatted by the template.
  */
-function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
+function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true, $options = null)
 {
 	global $modSettings, $context, $smcFunc, $settings, $txt;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
 	$start_invalid = $start < 0;
+	
+	if (!empty($options['low_id']))
+		$low_id = $options['low_id'];
+	if (!empty($options['max_id']))
+		$max_id = $options['max_id'];
 
 	// Make sure $start is a proper variable - not less than 0.
 	if ($start_invalid)
@@ -582,14 +588,19 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	}
 
 	$base_link = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
+	$base_url_page = $base_url . '.%3$s';
+	$base_link_page = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url_page : strtr($base_url_page, array('%' => '%%')) . ';start=%1$d'));
 	$pageindex = $settings['page_index']['extra_before'];
 
 	// Compact pages is off or on?
 	if (empty($modSettings['compactTopicPagesEnable']))
 	{
 		// Show the left arrow.
-		$pageindex .= $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
-
+		if (empty($low_id))
+			$pageindex .= $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+		else
+			$pageindex .= $start == 0 ? ' ' : sprintf($base_link_page, ($start - $num_per_page), $settings['page_index']['previous_page'], 'L'.$low_id);
+		
 		// Show all the pages.
 		$display_page = 1;
 		for ($counter = 0; $counter < $max_value; $counter += $num_per_page)
@@ -597,8 +608,13 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the right arrow.
 		$display_page = ($start + $num_per_page) > $max_value ? $max_value : ($start + $num_per_page);
-		if ($start != $counter - $max_value && !$start_invalid)
-			$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, $settings['page_index']['next_page']);
+		if ($start != $counter - $max_value && !$start_invalid){
+			if (empty($max_id))
+				$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, $settings['page_index']['next_page']);
+			else
+				$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link_page, $display_page , $settings['page_index']['next_page'], 'M'.$max_id);
+		}
+			
 	}
 	else
 	{
@@ -607,7 +623,10 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "prev page" link. (>prev page< 1 ... 6 7 [8] 9 10 ... 15 next page)
 		if (!empty($start) && $show_prevnext)
-			$pageindex .= sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+			if (empty($low_id))
+				$pageindex .= sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+			else
+				$pageindex .= sprintf($base_link_page, $start - $num_per_page, $settings['page_index']['previous_page'], 'L'.$low_id);
 		else
 			$pageindex .= '';
 
@@ -629,7 +648,10 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 			if ($start >= $num_per_page * $nCont)
 			{
 				$tmpStart = $start - $num_per_page * $nCont;
-				$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
+				if($nCont != 1 || empty($low_id))
+					$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
+				else
+					$pageindex .= sprintf($base_link_page, $tmpStart, $tmpStart / $num_per_page + 1, 'L'.$low_id);
 			}
 
 		// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
@@ -644,7 +666,10 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 			if ($start + $num_per_page * $nCont <= $tmpMaxPages)
 			{
 				$tmpStart = $start + $num_per_page * $nCont;
-				$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
+				if($nCont != 1 || empty($max_id))
+					$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
+				else
+					$pageindex .= sprintf($base_link_page, $tmpStart, $tmpStart / $num_per_page + 1, 'M'.$max_id);
 			}
 
 		// Show the '...' part near the end. (prev page 1 ... 6 7 [8] 9 10 >...< 15 next page)
@@ -662,7 +687,10 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "next page" link. (prev page 1 ... 6 7 [8] 9 10 ... 15 >next page<)
 		if ($start != $tmpMaxPages && $show_prevnext)
-			$pageindex .= sprintf($base_link, $start + $num_per_page, $settings['page_index']['next_page']);
+			if (empty($max_id))
+				$pageindex .= sprintf($base_link, $start + $num_per_page, $settings['page_index']['next_page']);
+			else
+				$pageindex .= sprintf($base_link_page, $start + $num_per_page, $settings['page_index']['next_page'], 'M'.$max_id);
 	}
 	$pageindex .= $settings['page_index']['extra_after'];
 
