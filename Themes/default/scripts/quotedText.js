@@ -118,6 +118,9 @@ $(function() {
 			msgID : $(this).data('msgid'),
 		};
 
+		// Revome any 'click' event to the button.
+		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
+
 		// If the button is already visible, hide it!
 		$('#quoteSelected_' + oSelected.msgID).hide();
 
