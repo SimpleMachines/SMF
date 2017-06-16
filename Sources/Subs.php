@@ -1040,13 +1040,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			  not block level, and will not be implicitly closed as easily.
 			  One break following a block level tag may also be removed.
 
-			trim: if set to 'inside', whitespace after the begin tag will be
+			trim: if set, and 'inside' whitespace after the begin tag will be
 			  removed.  If set to 'outside', whitespace after the end tag will
-			  meet the same fate. If set to 'both', both will be done.
-
-			trim_breaks: if set to true, whitespace trimming after the end tag
-			  will trim as many <br> elements as it can. This is mostly useful
-			  for block_level tags.
+			  meet the same fate.
 
 			validate: except when type is missing or 'closed', a callback to
 			  validate the data as $data.  Depending on the tag's type, $data
@@ -1293,7 +1289,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$data = $class . $css;
 				},
 				'trim' => 'outside',
-				'trim_breaks' => true,
 				'block_level' => true,
 			),
 			array(
@@ -2141,7 +2136,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
-					$whitespace_regex .= empty($tag['require_parents']) && empty($tag['trim_breaks']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
 
 				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
@@ -2420,7 +2415,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (!empty($tag['block_level']))
 					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
-					$whitespace_regex .= empty($tag['require_parents']) && empty($tag['trim_breaks']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
 				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
