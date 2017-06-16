@@ -343,6 +343,13 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
 	);
+	
+	// Special optimizer Hints
+	$query_opt = array(
+		'load_board_info' => array(
+			'join_collapse_limit' => 1
+		)
+	);
 
 	if (isset($replacements[$identifier]))
 		$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
@@ -458,7 +465,28 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 	}
 
+	// Set optimize stuff
+	if (isset($query_opt[$identifier]))
+	{
+		$query_hints = $query_opt[$identifier];
+		$query_hints_set = '';
+		$query_hints_undo = '';
+		if (isset($query_hints['join_collapse_limit']))
+		{
+			$query_hints_set .= 'SET LOCAL join_collapse_limit = 1;';
+			$query_hints_undo .= 'SET LOCAL join_collapse_limit = default;';
+		}
+		
+		$db_string = $query_hints_set .'
+		' . $db_string;
+	
+	}
+		
 	$db_last_result = @pg_query($connection, $db_string);
+	
+	// Remove optimiz settings
+	if (isset($query_hints_undo))
+		@pg_query($connection, $query_hints_undo);
 
 	if ($db_last_result === false && empty($db_values['db_error_skip']))
 		$db_last_result = smf_db_error($db_string, $connection);
