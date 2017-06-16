@@ -78,7 +78,7 @@ function getBirthdayRange($low_date, $high_date)
 				'is_activated' => 1,
 				'no_month' => 0,
 				'no_day' => 0,
-				'year_one' => '0001',
+				'year_one' => '1001',
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'year_low_low_date' => $low_date,
@@ -99,7 +99,7 @@ function getBirthdayRange($low_date, $high_date)
 		$bday[$age_year . substr($row['birthdate'], 4)][] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
-			'age' => $row['birth_year'] > 4 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
+			'age' => $row['birth_year'] > 1001 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
 			'is_last' => false
 		);
 	}

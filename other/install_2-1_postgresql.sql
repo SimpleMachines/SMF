@@ -69,7 +69,7 @@ CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS '
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
-  'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
+  'SELECT DATE_PART(''DAY'', $1 - ''1001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION INSTR (text, text) RETURNS integer AS
@@ -303,8 +303,8 @@ CREATE SEQUENCE {$db_prefix}calendar_seq;
 
 CREATE TABLE {$db_prefix}calendar (
   id_event smallint default nextval('{$db_prefix}calendar_seq'),
-  start_date date NOT NULL default '0001-01-01',
-  end_date date NOT NULL default '0001-01-01',
+  start_date date NOT NULL default '1001-01-01',
+  end_date date NOT NULL default '1001-01-01',
   id_board smallint NOT NULL default '0',
   id_topic int NOT NULL default '0',
   title varchar(255) NOT NULL default '',
@@ -336,7 +336,7 @@ CREATE SEQUENCE {$db_prefix}calendar_holidays_seq;
 
 CREATE TABLE {$db_prefix}calendar_holidays (
   id_holiday smallint default nextval('{$db_prefix}calendar_holidays_seq'),
-  event_date date NOT NULL default '0001-01-01',
+  event_date date NOT NULL default '1001-01-01',
   title varchar(255) NOT NULL default '',
   PRIMARY KEY (id_holiday)
 );
@@ -456,7 +456,7 @@ CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions 
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-  date date NOT NULL default '0001-01-01',
+  date date NOT NULL default '1001-01-01',
   hits int NOT NULL default '0',
   topics smallint NOT NULL default '0',
   posts smallint NOT NULL default '0',
@@ -905,7 +905,7 @@ CREATE TABLE {$db_prefix}log_spider_stats (
   id_spider smallint NOT NULL default '0',
   page_hits smallint NOT NULL default '0',
   last_seen bigint NOT NULL default '0',
-  stat_date date NOT NULL default '0001-01-01',
+  stat_date date NOT NULL default '1001-01-01',
   PRIMARY KEY (stat_date, id_spider)
 );
 
@@ -1054,7 +1054,7 @@ CREATE TABLE {$db_prefix}members (
   passwd varchar(64) NOT NULL default '',
   email_address varchar(255) NOT NULL DEFAULT '',
   personal_text varchar(255) NOT NULL DEFAULT '',
-  birthdate date NOT NULL default '0001-01-01',
+  birthdate date NOT NULL default '1001-01-01',
   website_title varchar(255) NOT NULL DEFAULT '',
   website_url varchar(255) NOT NULL DEFAULT '',
   show_online smallint NOT NULL default '1',
