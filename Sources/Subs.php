@@ -16,6 +16,8 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+require_once($sourcedir . '/Class-Data_Validator.php');
+
 /**
  * Update some basic statistics.
  *
