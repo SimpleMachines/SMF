@@ -343,7 +343,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
 	);
-	
+
 	// Special optimizer Hints
 	$query_opt = array(
 		'load_board_info' => array(
@@ -476,14 +476,13 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			$query_hints_set .= 'SET LOCAL join_collapse_limit = 1;';
 			$query_hints_undo .= 'SET LOCAL join_collapse_limit = default;';
 		}
-		
+
 		$db_string = $query_hints_set .'
 		' . $db_string;
-	
 	}
-		
+
 	$db_last_result = @pg_query($connection, $db_string);
-	
+
 	// Remove optimiz settings
 	if (isset($query_hints_undo))
 		@pg_query($connection, $query_hints_undo);
