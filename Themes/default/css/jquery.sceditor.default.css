@@ -111,12 +111,6 @@ img {
 	clear: right;
 	margin: 0 0 1em 1em;
 }
-/* Prevent unnecessary line breaks after floats */
-.floatleft + div > br:first-child,
-.floatright + div > br:first-child {
-	display: none;
-}
-
 @media (max-width: 480px) {
 	.floatleft, .floatright {
 		max-width: 100% !important;
