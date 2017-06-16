@@ -241,23 +241,23 @@ function ModifyDatabaseSettings($return_config = false)
 		'',
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
-
+	
 	// Add PG Stuff
 	if ($smcFunc['db_title'] == "PostgreSQL")
 	{
 		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
 		$fts_language = array();
-
+		
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$fts_language[$row['cfgname']] = $row['cfgname'];
-
+		
 		$config_vars = array_merge ($config_vars, array(
 				'',
 				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
 			)
 		);
 	}
-
+		
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
 
@@ -861,7 +861,7 @@ function prepareDBSettingContext(&$config_vars)
 
 			$context['config_vars'][$config_var[1]] = array(
 				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset($txt[$config_var[1]]) ? $txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
-				'help' => isset($helptxt[$config_var[1]]) ? $helptxt[$config_var[1]] : '',
+				'help' => isset($helptxt[$config_var[1]]) ? $config_var[1] : '',
 				'type' => $config_var[0],
 				'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], array('int', 'float')) ? 6 : 0)),
 				'data' => array(),
@@ -1351,7 +1351,7 @@ function loadCacheAPIs()
 }
 
 /**
- * Registers the site with the Simple Machines Stat collection. This function
+ * Registers the site with the Simple Machines Stat collection. This function 
  * purposely does not use updateSettings.php as it will be called shortly after
  * this process completes by the saveSettings() function.
  *
