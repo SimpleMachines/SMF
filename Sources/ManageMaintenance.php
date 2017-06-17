@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -1725,7 +1725,7 @@ function MaintainRecountPosts()
 	// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 	$request = $smcFunc['db_query']('', '
 		SELECT /*!40001 SQL_NO_CACHE */ m.id_member, COUNT(m.id_member) AS posts
-		FROM {db_prefix}messages AS m 
+		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}
 			AND b.count_posts = {int:zero}

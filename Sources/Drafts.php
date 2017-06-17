@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -465,7 +465,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 		// Post drafts
 		if ($draft_type === 0)
 		{
-			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24); 
+			$tmp_subject = shorten_subject(stripslashes($row['subject']), 24);
 			$context['drafts'][] = array(
 				'subject' => censorText($tmp_subject),
 				'poster_time' => timeformat($row['poster_time']),

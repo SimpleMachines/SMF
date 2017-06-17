@@ -13,7 +13,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -2808,7 +2808,7 @@ function package_flush_cache($trash = false)
 	// Bypass directories when doing so - no data to write & the fopen will crash.
 	foreach ($package_cache as $filename => $data)
 	{
-		if (!is_dir($filename)) 
+		if (!is_dir($filename))
 		{
 			$fp = fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
 			fwrite($fp, $data);
@@ -3042,7 +3042,7 @@ function package_create_backup($id = 'backup')
 		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 		$output_ext = '.tar';
 		$output_ext_target = '.tar.gz';
-		
+
 		if (file_exists($output_file . $output_ext_target))
 		{
 			$i = 2;

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -119,7 +119,7 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 			$db_values['db_error_skip'] = true;
 		}
 	}
-	
+
 	//fix double quotes
 	if ($identifier == 'insert_into_log_messages_fulltext')
 		$db_values = str_replace('"', "'", $db_values);
@@ -161,9 +161,9 @@ function smf_db_create_word_search($size)
 function smf_db_search_language()
 {
 	global $smcFunc, $modSettings;
-	
+
 	$language_ftx = 'english';
-	
+
 	if (!empty($modSettings['search_language']))
 		$language_ftx = $modSettings['search_language'];
 	else
@@ -189,7 +189,7 @@ function smf_db_search_language()
 		}
 	}
 
-	return $language_ftx;	
+	return $language_ftx;
 }
 
 ?>

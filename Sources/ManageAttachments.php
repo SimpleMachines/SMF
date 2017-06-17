@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -1524,7 +1524,7 @@ function RepairAttachments()
 		{
 			$to_remove = array();
 			$ignore_ids = array(0);
-			
+
 			// returns an array of ints of id_attach's that should not be deleted
 			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
 
@@ -1545,7 +1545,7 @@ function RepairAttachments()
 					'attach_thumb' => array(0,3),
 				)
 			);
-			
+
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$to_remove[] = $row['id_attach'];

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -234,7 +234,7 @@ function reloadSettings()
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($modSettings['default_timezone'], timezone_identifiers_list()))
-		{	
+		{
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
 			$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
 		}
@@ -2653,7 +2653,7 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 				// setlocale is required for basename() & pathinfo() to work properly on the selected language
 				if (!empty($txt['lang_locale']) && !empty($modSettings['global_character_set']))
 					setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $modSettings['global_character_set']);
-				
+
 				break;
 			}
 		}

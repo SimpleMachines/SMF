@@ -8,12 +8,12 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 3');
-define('SMF_LANG_VERSION', '2.1 Beta 3');
+define('SMF_VERSION', '2.1 Beta 4');
+define('SMF_LANG_VERSION', '2.1 Beta 4');
 
 /**
  * The minimum required PHP version.
