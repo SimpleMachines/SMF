@@ -69,7 +69,7 @@ CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS '
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
-  'SELECT DATE_PART(''DAY'', $1 - ''1001-01-01bc'')::integer AS result'
+  'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION INSTR (text, text) RETURNS integer AS
