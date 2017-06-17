@@ -470,11 +470,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	{
 		$query_hints = $query_opt[$identifier];
 		$query_hints_set = '';
-		$query_hints_undo = '';
 		if (isset($query_hints['join_collapse_limit']))
 		{
 			$query_hints_set .= 'SET LOCAL join_collapse_limit = 1;';
-			$query_hints_undo .= 'SET LOCAL join_collapse_limit = default;';
 		}
 
 		$db_string = $query_hints_set .'
@@ -482,10 +480,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	}
 
 	$db_last_result = @pg_query($connection, $db_string);
-
-	// Remove optimiz settings
-	if (isset($query_hints_undo))
-		@pg_query($connection, $query_hints_undo);
 
 	if ($db_last_result === false && empty($db_values['db_error_skip']))
 		$db_last_result = smf_db_error($db_string, $connection);
