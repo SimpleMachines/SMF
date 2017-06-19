@@ -106,7 +106,7 @@ function loadProfileFields($force_reload = false)
 					if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1)
 						$value = '1001-01-01';
 					else
-						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 4 ? 4 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 4 ? 4 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1001-01-01';
+						$value = checkdxate($value, $_POST['bday2'], $_POST['bday3'] < 1001 ? 1001 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1001 ? 1001 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1001-01-01';
 				}
 				else
 					$value = '1001-01-01';
@@ -130,8 +130,7 @@ function loadProfileFields($force_reload = false)
 				}
 				else
 				{
-					$value = empty($cur_profile['birthdate']) ? '1
-					001-01-01' : $cur_profile['birthdate'];
+					$value = empty($cur_profile['birthdate']) ? '1001-01-01' : $cur_profile['birthdate'];
 					return false;
 				}
 			},

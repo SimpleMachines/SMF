@@ -23,7 +23,7 @@ WHERE YEAR(stat_date) < 1000;
 
 UPDATE {$db_prefix}members
 SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1001, 1001, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
-WHERE birthdate < '1001-01-01';
+WHERE YEAR(birthdate) < 1000;
 ---#
 
 ---# Changing default values
