@@ -1463,7 +1463,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'title' => $profile['website_title'],
 				'url' => $profile['website_url'],
 			),
-			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '1001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
+			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '1001-01-01' ? '1001-01-01' : (substr($profile['birthdate'], 0, 4) === '0004' ? '1001' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),

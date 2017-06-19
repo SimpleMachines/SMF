@@ -6,23 +6,23 @@
 
 ---# Updating old values
 UPDATE {$db_prefix}calendar
-SET start_date = '1001-01-01'
-WHERE start_date < '1001-01-01';
+SET start_date = DATE(CONCAT(1001, '-', MONTH(start_date), '-', DAY(start_date)))
+WHERE YEAR(start_date) < 1000;
 
 UPDATE {$db_prefix}calendar
-SET end_date = '1001-01-01'
-WHERE end_date < '1001-01-01';
+SET end_date = DATE(CONCAT(1001, '-', MONTH(end_date), '-', DAY(end_date)))
+WHERE YEAR(end_date) < 1000;
 
 UPDATE {$db_prefix}calendar_holidays
-SET event_date = '1001-01-01'
-WHERE event_date < '1001-01-01';
+SET event_date = DATE(CONCAT(1001, '-', MONTH(event_date), '-', DAY(event_date)))
+WHERE YEAR(event_date) < 1000;
 
 UPDATE {$db_prefix}log_spider_stats
-SET stat_date = '1001-01-01'
-WHERE stat_date < '1001-01-01';
+SET stat_date = DATE(CONCAT(1001, '-', MONTH(stat_date), '-', DAY(stat_date)))
+WHERE YEAR(stat_date) < 1000;
 
 UPDATE {$db_prefix}members
-SET birthdate = '1001-01-01'
+SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1001, 1001, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
 WHERE birthdate < '1001-01-01';
 ---#
 

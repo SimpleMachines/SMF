@@ -52,7 +52,7 @@ function getBirthdayRange($low_date, $high_date)
 				'is_activated' => 1,
 				'no_month' => 0,
 				'no_day' => 0,
-				'year_one' => '0001',
+				'year_one' => '1001',
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'low_date' => $low_date,
@@ -298,10 +298,10 @@ function getHolidayRange($low_date, $high_date)
 		array(
 			'low_date' => $low_date,
 			'high_date' => $high_date,
-			'all_year_low' => '0004' . substr($low_date, 4),
-			'all_year_high' => '0004' . substr($high_date, 4),
-			'all_year_jan' => '0004-01-01',
-			'all_year_dec' => '0004-12-31',
+			'all_year_low' => '1001' . substr($low_date, 4),
+			'all_year_high' => '1001' . substr($high_date, 4),
+			'all_year_jan' => '1001-01-01',
+			'all_year_dec' => '1001-12-31',
 		)
 	);
 	$holidays = array();
