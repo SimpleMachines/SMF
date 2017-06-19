@@ -4,7 +4,7 @@
 --- Fixing dates...
 /******************************************************************************/
 
---# Updating old values
+---# Updating old values
 UPDATE {$db_prefix}calendar
 SET start_date = '1001-01-01'
 WHERE start_date < '1001-01-01';
@@ -24,13 +24,15 @@ WHERE stat_date < '1001-01-01';
 UPDATE {$db_prefix}members
 SET birthdate = '1001-01-01'
 WHERE birthdate < '1001-01-01';
+---#
 
---# Changing default values
+---# Changing default values
 ALTER TABLE {$db_prefix}calendar CHANGE start_date start_date date NOT NULL DEFAULT '1001-01-01';
 ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT '1001-01-01';
 ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1001-01-01';
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1001-01-01';
 ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1001-01-01';
+---#
 
 /******************************************************************************/
 --- Adding new settings...
