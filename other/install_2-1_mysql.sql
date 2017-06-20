@@ -151,8 +151,8 @@ CREATE TABLE {$db_prefix}boards (
 
 CREATE TABLE {$db_prefix}calendar (
   id_event SMALLINT UNSIGNED AUTO_INCREMENT,
-  start_date date NOT NULL DEFAULT '1001-01-01',
-  end_date date NOT NULL DEFAULT '1001-01-01',
+  start_date date NOT NULL DEFAULT '1000-01-01',
+  end_date date NOT NULL DEFAULT '1000-01-01',
   id_board SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   title VARCHAR(255) NOT NULL DEFAULT '',
@@ -173,7 +173,7 @@ CREATE TABLE {$db_prefix}calendar (
 
 CREATE TABLE {$db_prefix}calendar_holidays (
   id_holiday SMALLINT UNSIGNED AUTO_INCREMENT,
-  event_date date NOT NULL DEFAULT '1001-01-01',
+  event_date date NOT NULL DEFAULT '1000-01-01',
   title VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_holiday),
   INDEX idx_event_date (event_date)
@@ -589,7 +589,7 @@ CREATE TABLE {$db_prefix}log_spider_stats (
   id_spider SMALLINT UNSIGNED DEFAULT '0',
   page_hits SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  stat_date DATE DEFAULT '1001-01-01',
+  stat_date DATE DEFAULT '1000-01-01',
   PRIMARY KEY (stat_date, id_spider)
 ) ENGINE={$engine};
 
@@ -694,7 +694,7 @@ CREATE TABLE {$db_prefix}members (
   passwd VARCHAR(64) NOT NULL DEFAULT '',
   email_address VARCHAR(255) NOT NULL DEFAULT '',
   personal_text VARCHAR(255) NOT NULL DEFAULT '',
-  birthdate date NOT NULL DEFAULT '1001-01-01',
+  birthdate date NOT NULL DEFAULT '1000-01-01',
   website_title VARCHAR(255) NOT NULL DEFAULT '',
   website_url VARCHAR(255) NOT NULL DEFAULT '',
   show_online TINYINT NOT NULL DEFAULT '1',

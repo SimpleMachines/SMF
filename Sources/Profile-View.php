@@ -76,7 +76,7 @@ function summary($memID)
 		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
 		$datearray = getdate(forum_time());
 		$context['member'] += array(
-			'age' => $birth_year <= 1001 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+			'age' => $birth_year <= 1000 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day
 		);
 	}
