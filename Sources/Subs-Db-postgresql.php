@@ -347,8 +347,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// Special optimizer Hints
 	$query_opt = array(
 		'load_board_info' => array(
-			'join_collapse_limit' => 1
-		)
+			'join_collapse_limit' => 1,
+		),
+		'calendar_get_events' => array(
+			'enable_seqscan' => 'off',
+		),
 	);
 
 	if (isset($replacements[$identifier]))
@@ -472,7 +475,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$query_hints_set = '';
 		if (isset($query_hints['join_collapse_limit']))
 		{
-			$query_hints_set .= 'SET LOCAL join_collapse_limit = 1;';
+			$query_hints_set .= 'SET LOCAL join_collapse_limit = ' . $query_hints['join_collapse_limit'] . ';';
+		}
+		if (isset($query_hints['enable_seqscan']))
+		{
+			$query_hints_set .= 'SET LOCAL enable_seqscan = ' . $query_hints['enable_seqscan'] . ';';
 		}
 
 		$db_string = $query_hints_set .'

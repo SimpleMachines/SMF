@@ -136,7 +136,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$high_object = date_create($high_date);
 
 	// Find all the calendar info...
-	$result = $smcFunc['db_query']('', '
+	$result = $smcFunc['db_query']('calendar_get_events', '
 		SELECT
 			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
 			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
