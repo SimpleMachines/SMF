@@ -482,8 +482,10 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			$query_hints_set .= 'SET LOCAL enable_seqscan = ' . $query_hints['enable_seqscan'] . ';';
 		}
 
-		$db_string = $query_hints_set .'
-		' . $db_string;
+		$db_string = $query_hints_set . $db_string;
+		
+		if (isset($db_show_debug) && $db_show_debug === true && $db_cache[$db_count]['q'] != '...')
+			$db_cache[$db_count]['q'] = "\t\t" . $db_string;
 	}
 
 	$db_last_result = @pg_query($connection, $db_string);
