@@ -2385,3 +2385,11 @@ upgrade_query("
 DROP INDEX IF EXISTS {$db_prefix}members_birthdate2;
 CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_month_day(birthdate));
 ---#
+
+/******************************************************************************/
+--- Create index for messages likes
+/******************************************************************************/
+---# Add Index for messages likes 
+DROP INDEX IF EXISTS {$db_prefix}messages_likes;
+CREATE INDEX {$db_prefix}messages_likes ON  {$db_prefix}messages (likes DESC);
+---#

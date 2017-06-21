@@ -2424,3 +2424,10 @@ ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
 UPDATE {$db_prefix}members
 SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---#
+
+/******************************************************************************/
+--- Create index for messages likes
+/******************************************************************************/
+---# Add Index for messages likes 
+CREATE INDEX idx_likes ON  {$db_prefix}messages (likes DESC);
+---#
