@@ -465,22 +465,23 @@ function banPermissions()
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (!empty($_SESSION['rc']['reports']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
 		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');
-		recountOpenReports('posts');
+		$context['open_mod_reports'] = recountOpenReports('posts');
 	}
 	else
 		$context['open_mod_reports'] = 0;
 
-	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
-		$context['open_member_reports'] = !empty($_SESSION['rc']['member_reports']) ? $_SESSION['rc']['member_reports'] : 0;
-	elseif (allowedTo('moderate_forum'))
+	// Figure out how many reported members need attention
+	if (!empty($_SESSION['rc']['member_reports']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+		$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');
-		recountOpenReports('members');
+		$context['open_member_reports'] = recountOpenReports('members');
 	}
 	else
 		$context['open_member_reports'] = 0;
