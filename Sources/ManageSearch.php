@@ -818,7 +818,7 @@ function detectFulltextIndex()
 			array(
 			)
 		);
-		$context['fulltext_index'] = '';
+		$context['fulltext_index'] = array();
 		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
