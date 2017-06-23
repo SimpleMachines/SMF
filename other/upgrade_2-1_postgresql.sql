@@ -5,20 +5,20 @@
 /******************************************************************************/
 ---# Updating old values
 UPDATE {$db_prefix}calendar
-SET start_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM start_date) < 1000 THEN 1000 END, EXTRACT(MONTH FROM start_date), EXTRACT(DAY FROM start_date))::date
-WHERE EXTRACT(YEAR FROM start_date) < 1000;
+SET start_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM start_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM start_date), EXTRACT(DAY FROM start_date))::date
+WHERE EXTRACT(YEAR FROM start_date) < 1004;
 
 UPDATE {$db_prefix}calendar
-SET end_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM end_date) < 1000 THEN 1000 END, EXTRACT(MONTH FROM end_date), EXTRACT(DAY FROM end_date))::date
-WHERE EXTRACT(YEAR FROM end_date) < 1000;
+SET end_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM end_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM end_date), EXTRACT(DAY FROM end_date))::date
+WHERE EXTRACT(YEAR FROM end_date) < 1004;
 
 UPDATE {$db_prefix}calendar_holidays
-SET event_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM event_date) < 1000 THEN 1000 END, EXTRACT(MONTH FROM event_date), EXTRACT(DAY FROM event_date))::date
-WHERE EXTRACT(YEAR FROM event_date) < 1000;
+SET event_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM event_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM event_date), EXTRACT(DAY FROM event_date))::date
+WHERE EXTRACT(YEAR FROM event_date) < 1004;
 
 UPDATE {$db_prefix}log_spider_stats
-SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1000 THEN 1000 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
-WHERE EXTRACT(YEAR FROM stat_date) < 1000;
+SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
+WHERE EXTRACT(YEAR FROM stat_date) < 1004;
 
 UPDATE {$db_prefix}members
 SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
@@ -26,11 +26,11 @@ WHERE EXTRACT(YEAR FROM birthdate) < 1004;
 ---#
 
 ---# Changing default values
-ALTER TABLE {$db_prefix}calendar ALTER COLUMN start_date SET DEFAULT '1000-01-01'::date;
-ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1000-01-01'::date;
-ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1000-01-01'::date;
-ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN state_date SET DEFAULT '1000-01-01'::date;
-ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1000-01-01'::date;
+ALTER TABLE {$db_prefix}calendar ALTER COLUMN start_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN state_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
 ---#
 
 /******************************************************************************/
