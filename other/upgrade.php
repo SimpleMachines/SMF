@@ -2873,7 +2873,7 @@ function ConvertUtf8()
 					echo " done.\n";
 			}
 			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml']))
+			if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count'])
 				return upgradeExit();
 		}
 
