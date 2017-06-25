@@ -27,6 +27,7 @@ $txt['good_luck'] = 'Good luck!<br>Simple Machines';
 $txt['install_welcome'] = 'Welcome';
 $txt['install_welcome_desc'] = 'Welcome to SMF. This script will guide you through the process for installing %1$s. We\'ll gather a few details about your forum over the next few steps, and after a couple of minutes your forum will be ready for use.';
 $txt['install_no_https'] = 'Your environment does not support https streams.  Certain functions, e.g., receiving updates from SimpleMachines.org, will not work.';
+$txt['install_no_mbstring'] = 'Your environment does not support the required mbstring library.  Please enable mbstring and try again.';
 $txt['install_all_lovely'] = 'We\'ve completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 
 $txt['user_refresh_install'] = 'Forum Refreshed';
