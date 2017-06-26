@@ -170,9 +170,9 @@ function scheduled_approval_notification()
 		SELECT aq.id_msg, aq.id_attach, aq.id_event, m.id_topic, m.id_board, m.subject, t.id_first_msg,
 			b.id_profile
 		FROM {db_prefix}approval_queue AS aq
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = aq.id_msg)
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)',
+			JOIN {db_prefix}messages AS m ON (m.id_msg = aq.id_msg)
+			JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+			JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)',
 		array(
 		)
 	);
@@ -205,7 +205,7 @@ function scheduled_approval_notification()
 
 	// Delete it all!
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}approval_queue',
+		TRUNCATE {db_prefix}approval_queue',
 		array(
 		)
 	);
@@ -450,19 +450,6 @@ function scheduled_daily_maintenance()
 		consolidateSpiderStats();
 	}
 
-	// Check the database version - for some buggy MySQL version.
-	$server_version = $smcFunc['db_server_info']();
-	if (($db_type == 'mysql') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
-		updateSettings(array('db_mysql_group_by_fix' => '1'));
-	elseif (!empty($modSettings['db_mysql_group_by_fix']))
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}settings
-			WHERE variable = {string:mysql_fix}',
-			array(
-				'mysql_fix' => 'db_mysql_group_by_fix',
-			)
-		);
-
 	// Clean up some old login history information.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}member_logins
@@ -493,7 +480,7 @@ function scheduled_daily_digest()
 		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 			mem.lngfile, mem.id_member
 		FROM {db_prefix}log_notify AS ln
-			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
+			JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
 			LEFT JOIN {db_prefix}topics AS t ON (ln.id_topic != {int:empty_topic} AND t.id_topic = ln.id_topic)
 		WHERE mem.is_activated = {int:is_activated}',
 		array(
@@ -551,10 +538,10 @@ function scheduled_daily_digest()
 		SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 			b.name AS board_name
 		FROM {db_prefix}log_digest AS ld
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ld.id_topic
+			JOIN {db_prefix}topics AS t ON (t.id_topic = ld.id_topic
 				AND t.id_board IN ({array_int:board_list}))
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
+			JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 		WHERE ' . ($is_weekly ? 'ld.daily != {int:daily_value}' : 'ld.daily IN (0, 2)'),
 		array(
 			'board_list' => array_keys($boards),
@@ -1283,7 +1270,8 @@ function scheduled_birthdayemails()
 
 	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/Birthday-Notify.php', 'Birthday_Notify_Background', '', 0), array()
+		array('$sourcedir/tasks/Birthday-Notify.php', 'Birthday_Notify_Background', '', 0),
+		array()
 	);
 
 	return true;
@@ -1514,8 +1502,8 @@ function scheduled_paid_subscriptions()
 	$request = $smcFunc['db_query']('', '
 		SELECT ls.id_sublog, m.id_member, m.member_name, m.email_address, m.lngfile, s.name, ls.end_time
 		FROM {db_prefix}log_subscribed AS ls
-			INNER JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
-			INNER JOIN {db_prefix}members AS m ON (m.id_member = ls.id_member)
+			JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
+			JOIN {db_prefix}members AS m ON (m.id_member = ls.id_member)
 		WHERE ls.status = {int:is_active}
 			AND ls.reminder_sent = {int:reminder_sent}
 			AND s.reminder > {int:reminder_wanted}
