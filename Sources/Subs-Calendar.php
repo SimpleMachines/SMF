@@ -1604,7 +1604,7 @@ function buildEventDatetimes($row)
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $context, $user_info, $modSettings;
+	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
 	static $member_cache = array();
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
@@ -1614,6 +1614,13 @@ function getUserTimezone($id_member = null)
 	if (isset($id_member) && isset($member_cache[$id_member]))
 	{
 		return $member_cache[$id_member];
+	}
+
+	//maybe the current user is the one
+	if (isset($user_settings) && $user_settings['id_member'] == $id_member)
+	{
+		$member_cache[$id_member] = $user_settings['timezone'];
+		return $user_settings['timezone'];
 	}
 
 	if (isset($id_member))
