@@ -719,6 +719,10 @@ function WelcomeLogin()
 			</ul>
 			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
+	// Confirm mbstring is loaded...
+	if (!extension_loaded('mbstring'))
+		return throw_error($txt['install_no_mbstring']);
+
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
 	if (!in_array('https', $supported_streams))

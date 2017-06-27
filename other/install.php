@@ -481,6 +481,10 @@ function Welcome()
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
 		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
 
+	// Confirm mbstring is loaded...
+	if (!extension_loaded('mbstring'))
+		$incontext['error'] = $txt['install_no_mbstring'];
+
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
 	if (!in_array('https', $supported_streams))
