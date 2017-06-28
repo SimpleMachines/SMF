@@ -743,10 +743,11 @@ function comma_format($number, $override_decimal_count = false)
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
  * @return string A formatted timestamp
  */
-function timeformat($log_time, $show_today = true, $offset_type = false)
+function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $non_twelve_hour;
+	static $local_cache;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -790,9 +791,19 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 	}
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
+	
+	if (!isset($local_cache))
+		$local_cache = setlocale(LC_TIME, $txt['lang_locale']);
 
-	if (setlocale(LC_TIME, $txt['lang_locale']))
+	if ($local_cache !== false)
 	{
+		//check if other process change the local
+		if ($process_safe === true)
+		{
+			if ( setlocale(LC_TIME, '0') != $local_cache )
+				setlocale(LC_TIME, $txt['lang_locale']);
+		}
+
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
 		if ($non_twelve_hour && strpos($str, '%p') !== false)
