@@ -801,7 +801,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		//check if other process change the local
 		if ($process_safe === true)
 		{
-			if ( setlocale(LC_TIME, '0') != $local_cache )
+			if (setlocale(LC_TIME, '0') != $local_cache)
 				setlocale(LC_TIME, $txt['lang_locale']);
 		}
 
