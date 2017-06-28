@@ -64,7 +64,7 @@ function summary($memID)
 		$context['member']['posts_per_day'] = comma_format($context['member']['real_posts'] / $days_registered, 3);
 
 	// Set the age...
-	if (empty($context['member']['birth_date']))
+	if (empty($context['member']['birth_date']) || substr($context['member']['birthdate'], 0, 4) < 1002)
 	{
 		$context['member'] += array(
 			'age' => $txt['not_applicable'],
@@ -76,7 +76,7 @@ function summary($memID)
 		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
 		$datearray = getdate(forum_time());
 		$context['member'] += array(
-			'age' => $birth_year <= 4 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day
 		);
 	}

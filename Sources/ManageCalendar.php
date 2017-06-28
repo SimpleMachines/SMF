@@ -139,7 +139,7 @@ function ModifyHolidays()
 					'function' => function ($rowData) use ($txt)
 					{
 						// Recurring every year or just a single year?
-						$year = $rowData['year'] == '0004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
+						$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
 
 						// Construct the date.
 						return sprintf('%1$d %2$s %3$s', $rowData['day'], $txt['months'][(int) $rowData['month']], $year);
@@ -231,7 +231,7 @@ function EditHoliday()
 			);
 		else
 		{
-			$date = strftime($_REQUEST['year'] <= 4 ? '0004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
+			$date = strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
 			if (isset($_REQUEST['edit']))
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}calendar_holidays

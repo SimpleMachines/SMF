@@ -52,7 +52,7 @@ function getBirthdayRange($low_date, $high_date)
 				'is_activated' => 1,
 				'no_month' => 0,
 				'no_day' => 0,
-				'year_one' => '0001',
+				'year_one' => '1004',
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'low_date' => $low_date,
@@ -78,7 +78,7 @@ function getBirthdayRange($low_date, $high_date)
 				'is_activated' => 1,
 				'no_month' => 0,
 				'no_day' => 0,
-				'year_one' => '0001',
+				'year_one' => '1004',
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'year_low_low_date' => $low_date,
@@ -99,7 +99,7 @@ function getBirthdayRange($low_date, $high_date)
 		$bday[$age_year . substr($row['birthdate'], 4)][] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
-			'age' => $row['birth_year'] > 4 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
+			'age' => $row['birth_year'] > 1004 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
 			'is_last' => false
 		);
 	}
@@ -298,10 +298,10 @@ function getHolidayRange($low_date, $high_date)
 		array(
 			'low_date' => $low_date,
 			'high_date' => $high_date,
-			'all_year_low' => '0004' . substr($low_date, 4),
-			'all_year_high' => '0004' . substr($high_date, 4),
-			'all_year_jan' => '0004-01-01',
-			'all_year_dec' => '0004-12-31',
+			'all_year_low' => '1004' . substr($low_date, 4),
+			'all_year_high' => '1004' . substr($high_date, 4),
+			'all_year_jan' => '1004-01-01',
+			'all_year_dec' => '1004-12-31',
 		)
 	);
 	$holidays = array();

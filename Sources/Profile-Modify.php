@@ -89,9 +89,9 @@ function loadProfileFields($force_reload = false)
 			'preload' => function() use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
-				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] == '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
+				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) ? '1004-01-01' : $cur_profile['birthdate']);
 				$context['member']['birth_date'] = array(
-					'year' => $uyear == '0004' ? '0000' : $uyear,
+					'year' => $uyear,
 					'month' => $umonth,
 					'day' => $uday,
 				);
@@ -104,12 +104,12 @@ function loadProfileFields($force_reload = false)
 				{
 					// Set to blank?
 					if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1)
-						$value = '0001-01-01';
+						$value = '1004-01-01';
 					else
-						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 4 ? 4 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 4 ? 4 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '0001-01-01';
+						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
 				}
 				else
-					$value = '0001-01-01';
+					$value = '1004-01-01';
 
 				$profile_vars['birthdate'] = $value;
 				$cur_profile['birthdate'] = $value;
@@ -125,12 +125,12 @@ function loadProfileFields($force_reload = false)
 				// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 				if (preg_match('/(\d{4})[\-\., ](\d{2})[\-\., ](\d{2})/', $value, $dates) === 1)
 				{
-					$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '0001-01-01';
+					$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 					return true;
 				}
 				else
 				{
-					$value = empty($cur_profile['birthdate']) ? '0001-01-01' : $cur_profile['birthdate'];
+					$value = empty($cur_profile['birthdate']) ? '1004-01-01' : $cur_profile['birthdate'];
 					return false;
 				}
 			},

@@ -1,6 +1,40 @@
 /* ATTENTION: You don't need to run or use this file!  The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Fixing dates...
+/******************************************************************************/
+
+---# Updating old values
+UPDATE {$db_prefix}calendar
+SET start_date = DATE(CONCAT(1004, '-', MONTH(start_date), '-', DAY(start_date)))
+WHERE YEAR(start_date) < 1004;
+
+UPDATE {$db_prefix}calendar
+SET end_date = DATE(CONCAT(1004, '-', MONTH(end_date), '-', DAY(end_date)))
+WHERE YEAR(end_date) < 1004;
+
+UPDATE {$db_prefix}calendar_holidays
+SET event_date = DATE(CONCAT(1004, '-', MONTH(event_date), '-', DAY(event_date)))
+WHERE YEAR(event_date) < 1004;
+
+UPDATE {$db_prefix}log_spider_stats
+SET stat_date = DATE(CONCAT(1004, '-', MONTH(stat_date), '-', DAY(stat_date)))
+WHERE YEAR(stat_date) < 1004;
+
+UPDATE {$db_prefix}members
+SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
+WHERE YEAR(birthdate) < 1004;
+---#
+
+---# Changing default values
+ALTER TABLE {$db_prefix}calendar CHANGE start_date start_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
+---#
+
+/******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
 
