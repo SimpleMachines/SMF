@@ -1617,7 +1617,7 @@ function getUserTimezone($id_member = null)
 	}
 
 	//maybe the current user is the one
-	if (isset($user_settings) && $user_settings['id_member'] == $id_member)
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member)
 	{
 		$member_cache[$id_member] = $user_settings['timezone'];
 		return $user_settings['timezone'];
