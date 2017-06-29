@@ -4287,9 +4287,7 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 	}
 
-	/**
-	 * @todo For some reason, $context['open_member_reports'] isn't getting set
-	 */
+	// Show number of reported members
 	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
