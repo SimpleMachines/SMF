@@ -259,8 +259,6 @@ function EditSearchMethod()
 				)
 			);
 		}
-
-		$context['fulltext_index'] = 'body';
 	}
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty($context['fulltext_index']))
 	{
@@ -276,7 +274,7 @@ function EditSearchMethod()
 			)
 		);
 
-		$context['fulltext_index'] = '';
+		$context['fulltext_index'] = array();
 
 		// Go back to the default search method.
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')
