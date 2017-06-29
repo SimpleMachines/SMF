@@ -192,13 +192,9 @@ function cleanRequest()
 		// Dots are useful and fun ;).  This is ?topic=1.15.
 		elseif (strpos($_REQUEST['topic'], '.') !== false)
 		{
-			$parts = array();
-			$parts = explode('.', $_REQUEST['topic']);
-			$size = count($parts);
-			$_REQUEST['topic'] = $parts[0];
-			if ($size > 1)
-				$_REQUEST['start'] = $parts[1];
-			if ($size > 2)
+			$parts = explode('.', $_REQUEST['topic']); 
+			list ($_REQUEST['topic'], $_REQUEST['start']) = $parts;
+			if (count($parts) > 2)
 				$_REQUEST['page_id'] = $parts[2];
 		}
 
