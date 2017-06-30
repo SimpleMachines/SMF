@@ -800,7 +800,8 @@ CREATE TABLE {$db_prefix}messages (
   INDEX idx_show_posts (id_member, id_board),
   INDEX idx_id_member_msg (id_member, approved, id_msg),
   INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
-  INDEX idx_related_ip (id_member, poster_ip, id_msg)
+  INDEX idx_related_ip (id_member, poster_ip, id_msg),
+  INDEX idx_likes (likes)
 ) ENGINE={$engine};
 
 #
