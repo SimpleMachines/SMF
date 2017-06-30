@@ -1283,7 +1283,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ((!empty($row['avatar'])) && $image_proxy_enabled && stripos($row['avatar'], 'http://') !== false)
+			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
 			if (isset($row['member_ip']))
