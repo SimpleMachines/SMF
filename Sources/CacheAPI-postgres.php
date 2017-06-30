@@ -71,11 +71,14 @@ class postgres_cache extends cache_api
 	public function getData($key, $ttl = null)
 	{
 		global $db_prefix, $db_connection;
+		static $pg_get_data_prep;
 
 		$ttl = time() - $ttl;
-		pg_prepare($db_connection, '', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+		
+		if (empty($pg_get_data_prep))
+			$pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
 			
-		$result = pg_execute($db_connection, '', array($key, $ttl));
+		$result = pg_execute($db_connection, 'smf_cache_get_data', array($key, $ttl));
 		
 		if (pg_affected_rows($result) === 0)
 			return null;
@@ -91,18 +94,20 @@ class postgres_cache extends cache_api
 	public function putData($key, $value, $ttl = null)
 	{
 		global  $db_prefix, $db_connection;
+		static $pg_put_data_prep;
 
 		if (!isset($value))
 			$value = '';
 
 		$ttl = time() + $ttl;
+		
+		if (empty($pg_put_data_prep))
+			$pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
+				'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+				ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
+			);
 
-		pg_prepare($db_connection, '',
-			'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-			ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
-		);
-
-		$result = pg_execute($db_connection, '', array($key, $value, $ttl));
+		$result = pg_execute($db_connection, 'smf_cache_put_data', array($key, $value, $ttl));
 
 		if (pg_affected_rows($result) > 0)
 			return true;
