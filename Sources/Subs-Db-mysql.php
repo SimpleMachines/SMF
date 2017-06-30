@@ -170,12 +170,8 @@ function smf_db_replacement__callback($matches)
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
 
-	if (!empty($user_info))
-	{
-		foreach (array_keys($user_info) as $key)
-			if (strpos($key, 'query_') !== false && $key === $matches[1])
-				return $user_info[$matches[1]];
-	}
+	if (isset($user_info[$matches[1]]) && strpos($matches[1], 'query_') !== false)
+		return $user_info[$matches[1]];
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
