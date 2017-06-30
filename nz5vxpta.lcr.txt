@@ -1,0 +1,24 @@
+﻿2nd change reverted
+
+short-circuit operator stops prior to evaluating subsequent conditions
+when $row['avatar'] is empty
+
+Signed-off-by: Underdog-01 <github.underdog@gmail.com>
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Thu Jun 29 23:50:18 2017 -0400
+#
+# On branch patch-23
+# Your branch and 'origin/patch-23' have diverged,
+# and have 1 and 1 different commits each, respectively.
+#   (use "git pull" to merge the remote branch into yours)
+#
+# Changes to be committed:
+#	modified:   Sources/Load.php
+#
+# Untracked files:
+#	kl24kj4t.3ah.txt
+#
+
