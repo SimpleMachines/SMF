@@ -135,10 +135,39 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$low_object = date_create($low_date);
 	$high_object = date_create($high_date);
 
+	$modSettings['disableQueryCheck'] = true;
 	// Find all the calendar info...
 	$result = $smcFunc['db_query']('calendar_get_events', '
 		SELECT
-			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
+			to_char(cal.end_date, \'Mon DD, YYYY\') "end_date_local"
+			,to_char(cal.end_date, \'Mon DD, YYYY\') "end_date_orig"
+			,cal.end_time "end_time_local"
+			,cal.end_time "end_time_orig"
+			,cal.end_date::timestamp "end_datetime"
+			,to_char(cal.end_date, \'DD\') "end_day"
+			,to_char(cal.end_time, \'HH\') "end_hour"
+			,to_char(cal.end_time, \'MI\') "end_minute"
+			,to_char(cal.end_time, \'SS\') "end_second"
+			,to_char(cal.end_date, \'MM\') "end_month"
+			,to_char(cal.end_date, \'YYYY\') "end_year"
+			,to_char(cal.start_date, \'Mon DD, YYYY\') "start_date_local"
+			,to_char(cal.start_date, \'Mon DD, YYYY\') "start_date_orig"
+			,cal.start_time "start_time_local"
+			,cal.start_time "start_time_orig"
+			,cal.start_date::timestamp "start_datetime"
+			,to_char(cal.start_date, \'DD\') "start_day"
+			,to_char(cal.start_time, \'HH\') "start_hour"
+			,to_char(cal.start_time, \'MI\') "start_minute"
+			,to_char(cal.start_time, \'SS\') "start_second"
+			,to_char(cal.start_date, \'MM\') "start_month"
+			,to_char(cal.start_date, \'YYYY\') "start_year"
+			,cal.end_date - cal.start_date "diff_days" 
+			,(cal.end_date + coalesce( cal.end_time , \'00:00:00\'::time)) "test_time"
+			,to_char(cal.end_date + coalesce( cal.end_time , \'00:00:00\'::time) at time zone \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SSOF\') "end_iso_gmdate"
+			,to_char(cal.start_date + coalesce( cal.start_time , \'00:00:00\'::time) at time zone \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SSOF\') "start_iso_gmdate"
+			,extract(epoch from cal.end_date + coalesce( cal.end_time , \'00:00:00\'::time)) "end_timestamp"
+			,extract(epoch from cal.start_date + coalesce( cal.end_time , \'00:00:00\'::time)) "start_timestamp"
+			,cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
 			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
 			b.member_groups, t.id_first_msg, t.approved, b.id_board
 		FROM {db_prefix}calendar AS cal
@@ -159,12 +188,37 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// If the attached topic is not approved then for the moment pretend it doesn't exist
 		if (!empty($row['id_first_msg']) && $modSettings['postmod_active'] && !$row['approved'])
 			continue;
+		
+		//new stuff
+		// Set $span, in case we need it
+		$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
+		if ($span > 0)
+			$span = !empty($modSettings['cal_maxspan']) ? min($modSettings['cal_maxspan'], $span - 1) : $span - 1;
+
+		// Define the timezone for this event, falling back to the default if not provided
+		if (!empty($eventOptions['tz']) && in_array($eventOptions['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+			$tz = $eventOptions['tz'];
+		elseif (!empty($_POST['tz']) && in_array($_POST['tz'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+			$tz = $_POST['tz'];
+		else
+			$tz = getUserTimezone();
+
+		// Is this supposed to be an all day event, or should it have specific start and end times?
+		if (isset($eventOptions['allday']))
+			$allday = $eventOptions['allday'];
+		elseif (empty($_POST['allday']))
+			$allday = false;
+		else
+			$allday = true;
+		
+		
+		/////////////////////
 
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
 
 		// Get the various time and date properties for this event
-		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
+		//list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
 		// Sanity check
 		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
@@ -172,6 +226,10 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 		// Get set up for the loop
 		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($tz));
+		/////
+		$tz_abbrev = fix_tz_abbrev($row['timezone'], date_format($start_object, 'T'));
+		/////
+		
 		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($tz));
 		date_timezone_set($start_object, timezone_open(date_default_timezone_get()));
 		date_timezone_set($end_object, timezone_open(date_default_timezone_get()));
@@ -189,36 +247,36 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$eventProperties = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
-					'year' => $start['year'],
-					'month' => $start['month'],
-					'day' => $start['day'],
-					'hour' => !$allday ? $start['hour'] : null,
-					'minute' => !$allday ? $start['minute'] : null,
-					'second' => !$allday ? $start['second'] : null,
+					'year' => $row['start_year'],
+					'month' => $row['start_month'],
+					'day' => $row['start_day'],
+					'hour' => !$allday ? $row['start_hour'] : null,
+					'minute' => !$allday ? $row['start_minute'] : null,
+					'second' => !$allday ? $row['start_second'] : null,
 					'start_date' => $row['start_date'],
-					'start_date_local' => $start['date_local'],
-					'start_date_orig' => $start['date_orig'],
+					'start_date_local' => $row['start_date_local'],
+					'start_date_orig' => $row['start_date_orig'],
 					'start_time' => !$allday ? $row['start_time'] : null,
-					'start_time_local' => !$allday ? $start['time_local'] : null,
-					'start_time_orig' => !$allday ? $start['time_orig'] : null,
-					'start_timestamp' => $start['timestamp'],
-					'start_datetime' => $start['datetime'],
-					'start_iso_gmdate' => $start['iso_gmdate'],
-					'end_year' => $end['year'],
-					'end_month' => $end['month'],
-					'end_day' => $end['day'],
-					'end_hour' => !$allday ? $end['hour'] : null,
-					'end_minute' => !$allday ? $end['minute'] : null,
-					'end_second' => !$allday ? $end['second'] : null,
+					'start_time_local' => !$allday ? $row['start_time_local'] : null,
+					'start_time_orig' => !$allday ? $row['start_time_orig'] : null,
+					'start_timestamp' => $row['start_timestamp'],
+					'start_datetime' => $row['start_datetime'],
+					'start_iso_gmdate' => $row['start_iso_gmdate'],
+					'end_year' => $row['end_year'],
+					'end_month' => $row['end_month'],
+					'end_day' => $row['end_day'],
+					'end_hour' => !$allday ? $row['end_hour'] : null,
+					'end_minute' => !$allday ? $row['end_minute'] : null,
+					'end_second' => !$allday ? $row['end_second'] : null,
 					'end_date' => $row['end_date'],
-					'end_date_local' => $end['date_local'],
-					'end_date_orig' => $end['date_orig'],
+					'end_date_local' => $row['end_date_local'],
+					'end_date_orig' => $row['end_date_orig'],
 					'end_time' => !$allday ? $row['end_time'] : null,
-					'end_time_local' => !$allday ? $end['time_local'] : null,
-					'end_time_orig' => !$allday ? $end['time_orig'] : null,
-					'end_timestamp' => $end['timestamp'],
-					'end_datetime' => $end['datetime'],
-					'end_iso_gmdate' => $end['iso_gmdate'],
+					'end_time_local' => !$allday ? $row['end_time_local'] : null,
+					'end_time_orig' => !$allday ? $row['end_time_orig'] : null,
+					'end_timestamp' => $row['end_timestamp'],
+					'end_datetime' => $row['end_datetime'],
+					'end_iso_gmdate' => $row['end_iso_gmdate'],
 					'allday' => $allday,
 					'tz' => !$allday ? $tz : null,
 					'tz_abbrev' => !$allday ? $tz_abbrev : null,
