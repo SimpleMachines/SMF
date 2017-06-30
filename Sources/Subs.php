@@ -741,12 +741,14 @@ function comma_format($number, $override_decimal_count = false)
  * @param int $log_time A timestamp
  * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
+ * @param bool $process_safe activate setlocale check for changes at runtime -> slower this function 
  * @return string A formatted timestamp
  */
-function timeformat($log_time, $show_today = true, $offset_type = false)
+function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $non_twelve_hour;
+	static $local_cache;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -791,8 +793,18 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
-	if (setlocale(LC_TIME, $txt['lang_locale']))
+	if (!isset($local_cache))
+		$local_cache = setlocale(LC_TIME, $txt['lang_locale']);
+
+	if ($local_cache !== false)
 	{
+		//check if other process change the local
+		if ($process_safe === true)
+		{
+			if (setlocale(LC_TIME, '0') != $local_cache)
+				setlocale(LC_TIME, $txt['lang_locale']);
+		}
+
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
 		if ($non_twelve_hour && strpos($str, '%p') !== false)
@@ -4287,9 +4299,7 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 	}
 
-	/**
-	 * @todo For some reason, $context['open_member_reports'] isn't getting set
-	 */
+	// Show number of reported members
 	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
