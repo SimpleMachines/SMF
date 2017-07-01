@@ -217,7 +217,7 @@
 	#advanced_search dl#search_options {
 		width: 100%;
 	}
-	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+	input#searchfor, input#userspec {
 		width: 75%;
 	}
 	/* Memberlist */
@@ -354,12 +354,12 @@
 		float: left;
 	}
 	#advanced_search dd {
-		width: 100%;
+		width: auto;
 	}
 	#advanced_search dl#search_options {
 		width: 100%;
 	}
-	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+	input#searchfor, input#userspec {
 		width: 75%;
 	}
 }
