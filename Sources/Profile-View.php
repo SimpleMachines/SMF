@@ -64,7 +64,7 @@ function summary($memID)
 		$context['member']['posts_per_day'] = comma_format($context['member']['real_posts'] / $days_registered, 3);
 
 	// Set the age...
-	if (empty($context['member']['birth_date']) || substr($context['member']['birthdate'], 0, 4) < 1002)
+	if (empty($context['member']['birth_date']) || substr($context['member']['birth_date'], 0, 4) < 1002)
 	{
 		$context['member'] += array(
 			'age' => $txt['not_applicable'],
