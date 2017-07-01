@@ -44,6 +44,10 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
+/* Prevent input overflow at smaller screens */
+input[type="text"] {
+	max-width: 100%;
+}
 /* Remove default mozilla dotted borders */
 input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
@@ -2811,11 +2815,11 @@ div#editlang_desc {
 tr.windowbg, tr.windowbg2 {
 	box-shadow: none;
 }
-#postmodify #message{
+#postmodify #message {
 	width: 100%;
 	box-sizing: border-box;
 }
-#postmodify .lastedit{
+#postmodify .lastedit {
 	font-weight: bold;
 }
 
@@ -3514,7 +3518,6 @@ div.cat_bar {
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
 	box-sizing: border-box;
-	margin-bottom: 1px;
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
