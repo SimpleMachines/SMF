@@ -1280,7 +1280,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// If the image proxy is enabled, we still want the original URL when they're editing the profile...
-			$row['avatar_original'] = $row['avatar'];
+			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
