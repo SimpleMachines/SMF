@@ -21,6 +21,16 @@ if (!defined('SMF'))
 class postgres_cache extends cache_api
 {
 
+	/**
+	 * @var false|resource of the pg_prepare from get_data.
+	 */
+	private $pg_get_data_prep;
+	
+	/**
+	 * @var false|resource of the pg_prepare from put_data.
+	 */
+	private $pg_put_data_prep;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -71,12 +81,11 @@ class postgres_cache extends cache_api
 	public function getData($key, $ttl = null)
 	{
 		global $db_prefix, $db_connection;
-		static $pg_get_data_prep;
 
 		$ttl = time() - $ttl;
 		
-		if (empty($pg_get_data_prep))
-			$pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+		if (empty($this->pg_get_data_prep))
+			$this->pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
 			
 		$result = pg_execute($db_connection, 'smf_cache_get_data', array($key, $ttl));
 		
@@ -94,15 +103,14 @@ class postgres_cache extends cache_api
 	public function putData($key, $value, $ttl = null)
 	{
 		global  $db_prefix, $db_connection;
-		static $pg_put_data_prep;
 
 		if (!isset($value))
 			$value = '';
 
 		$ttl = time() + $ttl;
 		
-		if (empty($pg_put_data_prep))
-			$pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
+		if (empty($this->pg_put_data_prep))
+			$this->pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
 				'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
 				ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
 			);
