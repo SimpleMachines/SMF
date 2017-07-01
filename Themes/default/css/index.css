@@ -26,6 +26,9 @@ ul.normallist{
 	list-style-type: disc;
 	padding: 0 0 0 15px;
 }
+img {
+	max-width: 100%;
+}
 table {
 	empty-cells: show;
 }
@@ -395,7 +398,6 @@ blockquote cite::before {
 }
 .bbc_img, .atc_img {
 	border: 0;
-	max-width: 100%;
 	height: auto;
 }
 .bbc_table {
@@ -1112,10 +1114,6 @@ img.sort, .sort {
 	content:"";
 	display: block;
 	clear: both;
-}
-/* Resize the logo if we must, so we do not get an oversized forum. */
-#top > img {
-	max-width: 100%;
 }
 /* The main title. */
 h1.forumtitle {
