@@ -1533,19 +1533,27 @@ function setEventStartEnd($eventOptions = array())
 function buildEventDatetimes($row)
 {
 	global $sourcedir, $user_info;
+	static $date_format = '', $time_format = '';
+
 	require_once($sourcedir . '/Subs.php');
 
 	// First, try to create a better date format, ignoring the "time" elements.
-	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$date_format = '%F';
-	else
-		$date_format = $matches[0];
+	if (empty($date_format))
+	{
+		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$date_format = '%F';
+		else
+			$date_format = $matches[0];
+	}
 
 	// We want a fairly compact version of the time, but as close as possible to the user's settings.
-	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$time_format = '%k:%M';
-	else
-		$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+	if (empty($time_format))
+	{
+		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$time_format = '%k:%M';
+		else
+			$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+	}
 
 	// Should this be an all day event?
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
