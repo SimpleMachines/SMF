@@ -490,12 +490,9 @@ function loadUserSettings()
 				{
 					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
 
-					if (is_null($tfa_data))
-						$tfa_data = safe_unserialize($_COOKIE[$tfacookie]);
-
 					list ($tfamember, $tfasecret) = $tfa_data;
 
-					if ((int) $tfamember != $id_member)
+					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
 				}
 
@@ -647,12 +644,9 @@ function loadUserSettings()
 		{
 			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
-			if (is_null($tfa_data))
-				$tfa_data = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
-
 			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
-			if (!$preserve || time() > $exp)
+			if (!isset($id, $user, $exp, $state, $preserve) || !$preserve || time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');

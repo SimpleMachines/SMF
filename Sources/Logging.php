@@ -74,17 +74,17 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$serialized = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$encoded_get = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
 			$context['session_var'] = $_SESSION['session_var'];
 
-		unset($serialized['sesc'], $serialized[$context['session_var']]);
-		$serialized = json_encode($serialized);
+		unset($encoded_get['sesc'], $encoded_get[$context['session_var']]);
+		$encoded_get = json_encode($encoded_get);
 	}
 	else
-		$serialized = '';
+		$encoded_get = '';
 
 	// Guests use 0, members use their session ID.
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
@@ -118,7 +118,7 @@ function writeLog($force = false)
 			array(
 				'log_time' => time(),
 				'ip' => $user_info['ip'],
-				'url' => $serialized,
+				'url' => $encoded_get,
 				'session' => $session_id,
 			)
 		);
@@ -146,7 +146,7 @@ function writeLog($force = false)
 		$smcFunc['db_insert']($do_delete ? 'ignore' : 'replace',
 			'{db_prefix}log_online',
 			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'),
-			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $serialized),
+			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $encoded_get),
 			array('session')
 		);
 	}
