@@ -530,6 +530,10 @@ function CheckFilesWritable()
 
 		foreach ($writable_files as $file)
 		{
+			// Some files won't exist, try to address up front
+			if (!file_exists(dirname(__FILE__) . '/' . $file))
+				@touch(dirname(__FILE__) . '/' . $file);
+			// NOW do the writable check...
 			if (!is_writable(dirname(__FILE__) . '/' . $file))
 			{
 				@chmod(dirname(__FILE__) . '/' . $file, 0755);
