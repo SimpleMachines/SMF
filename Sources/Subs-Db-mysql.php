@@ -59,6 +59,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_is_resource'            => 'smf_is_resource',
 			'db_mb4'                    => false,
 			'db_ping'                   => 'mysqli_ping',
+			'db_fetch_all'				=> 'smf_db_fetch_all',
 		);
 
 	if (!empty($db_options['persist']))
@@ -924,6 +925,18 @@ function smf_is_resource($result)
 		return true;
 
 	return false;
+}
+
+/**
+ * Fetches all rows from a result as an array 
+ *
+ * @param resource $request A MySQL result resource
+ * @return array An array that contains all rows (records) in the result resource
+ */
+function smf_db_fetch_all($request)
+{
+	// Return the right row.
+	return @mysqli_fetch_all($request);
 }
 
 ?>
