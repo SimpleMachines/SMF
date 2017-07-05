@@ -26,6 +26,9 @@ ul.normallist{
 	list-style-type: disc;
 	padding: 0 0 0 15px;
 }
+img {
+	max-width: 100%;
+}
 table {
 	empty-cells: show;
 }
@@ -41,7 +44,15 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
-/* This is specific issue on Ubuntu - Chrome */
+/* Prevent input overflow at smaller screens */
+input[type="text"] {
+	max-width: 100%;
+}
+/* Remove default mozilla dotted borders */
+input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
+	border: 0;
+}
+/* This is a specific issue on Ubuntu - Chrome */
 #chrome input {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
@@ -152,11 +163,11 @@ hr {
 	box-shadow: 0 1px 0 #bbb inset;
 }
 /* This is about links */
-a:link, a:visited, a.new_win:link, a.new_win:visited {
+a, a:visited {
 	color: #346;
 	text-decoration: none;
 }
-a:hover, a.new_win:hover {
+a:hover {
 	text-decoration: underline;
 	cursor: pointer;
 }
@@ -395,7 +406,6 @@ blockquote cite::before {
 }
 .bbc_img, .atc_img {
 	border: 0;
-	max-width: 100%;
 	height: auto;
 }
 .bbc_table {
@@ -440,9 +450,14 @@ a img {
 	content: '';
 	vertical-align: middle;
 	margin: -5px 5px 0 5px;
+	opacity: 0.8;
 }
 .toggle_down::before {
 	background-position: 0 -17px;
+}
+
+.toggle_up:hover:before, .toggle_down:hover:before {
+	opacity: 1;
 }
 
 /* Generally, those [?] icons. This makes your cursor a help icon. */
@@ -724,6 +739,10 @@ img.sort, .sort {
 	padding: 0 0 0.3em 0;
 	font-size: 0.9em;
 	line-height: 1.9em;
+}
+/* Disable default focus outlines */
+.dropmenu a {
+	outline: 0;
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
 .amt {
@@ -1113,10 +1132,6 @@ img.sort, .sort {
 	display: block;
 	clear: both;
 }
-/* Resize the logo if we must, so we do not get an oversized forum. */
-#top > img {
-	max-width: 100%;
-}
 /* The main title. */
 h1.forumtitle {
 	font-size: 1.8em;
@@ -1240,6 +1255,10 @@ ul li.greeting {
 }
 .navigate_section ul li .board_moderators a {
 	padding: 4px 0;
+}
+
+.navigate_section a:hover span {
+	text-decoration: underline;
 }
 
 /* "Unread posts" and "New replies" links, accessible with header collapsed. */
@@ -1568,6 +1587,10 @@ div#selected, div#not_selected {
 }
 ul.split_messages li a.split_icon {
 	padding: 0 6px;
+	opacity: 0.8;
+}
+ul.split_messages li a.split_icon:hover {
+	opacity: 1;
 }
 /* Styles for the merge topic section. */
 ul.merge_topics li {
@@ -2742,6 +2765,11 @@ dl.addrules dt.floatleft {
 	background: #fdfdfd;
 }
 
+/* Add some hover on table rows */
+tr.windowbg:hover {
+	background: #e2eef8;
+}
+
 /* Special treatment for #forumposts area */
 #forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
@@ -2787,11 +2815,11 @@ div#editlang_desc {
 tr.windowbg, tr.windowbg2 {
 	box-shadow: none;
 }
-#postmodify #message{
+#postmodify #message {
 	width: 100%;
 	box-sizing: border-box;
 }
-#postmodify .lastedit{
+#postmodify .lastedit {
 	font-weight: bold;
 }
 
@@ -3490,7 +3518,6 @@ div.cat_bar {
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
 	box-sizing: border-box;
-	margin-bottom: 1px;
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
