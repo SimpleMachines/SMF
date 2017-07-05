@@ -668,19 +668,19 @@ function clock()
 	{
 		$context['sub_template'] = 'bcd';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;bcd', 'name' => 'BCD');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTo2OntzOjI6ImgxIjthOjI6e2k6MDtpOjI7aToxO2k6MTt9czoyOiJoMiI7YTo0OntpOjA7aTo4O2k6MTtpOjQ7aToyO2k6MjtpOjM7aToxO31zOjI6Im0xIjthOjM6e2k6MDtpOjQ7aToxO2k6MjtpOjI7aToxO31zOjI6Im0yIjthOjQ6e2k6MDtpOjg7aToxO2k6NDtpOjI7aToyO2k6MztpOjE7fXM6MjoiczEiO2E6Mzp7aTowO2k6NDtpOjE7aToyO2k6MjtpOjE7fXM6MjoiczIiO2E6NDp7aTowO2k6ODtpOjE7aTo0O2k6MjtpOjI7aTozO2k6MTt9fQ=='));
+		$context['clockicons'] = smf_json_decode(base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
 	}
 	elseif (!$omfg && !isset($_REQUEST['time']))
 	{
 		$context['sub_template'] = 'hms';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock', 'name' => 'Binary');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTozOntzOjE6ImgiO2E6NTp7aTowO2k6MTY7aToxO2k6ODtpOjI7aTo0O2k6MztpOjI7aTo0O2k6MTt9czoxOiJtIjthOjY6e2k6MDtpOjMyO2k6MTtpOjE2O2k6MjtpOjg7aTozO2k6NDtpOjQ7aToyO2k6NTtpOjE7fXM6MToicyI7YTo2OntpOjA7aTozMjtpOjE7aToxNjtpOjI7aTo4O2k6MztpOjQ7aTo0O2k6MjtpOjU7aToxO319'));
+		$context['clockicons'] = smf_json_decode(base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
 	}
 	elseif ($omfg)
 	{
 		$context['sub_template'] = 'omfg';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;omfg', 'name' => 'OMFG');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTo2OntzOjQ6InllYXIiO2E6Nzp7aTowO2k6NjQ7aToxO2k6MzI7aToyO2k6MTY7aTozO2k6ODtpOjQ7aTo0O2k6NTtpOjI7aTo2O2k6MTt9czo1OiJtb250aCI7YTo0OntpOjA7aTo4O2k6MTtpOjQ7aToyO2k6MjtpOjM7aToxO31zOjM6ImRheSI7YTo1OntpOjA7aToxNjtpOjE7aTo4O2k6MjtpOjQ7aTozO2k6MjtpOjQ7aToxO31zOjQ6ImhvdXIiO2E6NTp7aTowO2k6MTY7aToxO2k6ODtpOjI7aTo0O2k6MztpOjI7aTo0O2k6MTt9czozOiJtaW4iO2E6Njp7aTowO2k6MzI7aToxO2k6MTY7aToyO2k6ODtpOjM7aTo0O2k6NDtpOjI7aTo1O2k6MTt9czozOiJzZWMiO2E6Njp7aTowO2k6MzI7aToxO2k6MTY7aToyO2k6ODtpOjM7aTo0O2k6NDtpOjI7aTo1O2k6MTt9fQ=='));
+		$context['clockicons'] = smf_json_decode(base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
 	}
 	elseif (isset($_REQUEST['time']))
 	{

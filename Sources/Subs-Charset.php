@@ -569,16 +569,23 @@ function fix_serialized_columns()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		/*
+			What is going on here, is after a UTF-8 conversion the number of characters in a UTF-8 string may have changed the serialized string length.  This isn't a problem in JSON as it doesn't store a reference to the string length.  SMF 2.0 doesn't make use of the topic being stored in the extra column for removed or deleted stuff, so this should only be for previous versions.  We will attempt to move it to json if this does trigger and wasn't fixed during the upgrade.
+		*/ 
 		if (safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_actions
-				SET extra = {string:extra}
-				WHERE id_action = {int:current_action}',
-				array(
-					'current_action' => $row['id_action'],
-					'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
-				)
-			);
+		{
+			$temp = $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4];
+			if (safe_unserialize($temp) !== false)
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}log_actions
+					SET extra = {string:extra}
+					WHERE id_action = {int:current_action}',
+					array(
+						'current_action' => $row['id_action'],
+						'extra' => json_encode(safe_unserialize($temp)),
+					)
+				);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 

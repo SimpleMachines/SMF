@@ -5050,7 +5050,7 @@ function smf_list_timezones($when = 'now')
 
 		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
-		$tzkey = serialize($tzinfo);
+		$tzkey = json_encode($tzinfo);
 
 		// Next, get the geographic info for this tzid
 		$tzgeo = timezone_location_get($tz);
@@ -5078,7 +5078,8 @@ function smf_list_timezones($when = 'now')
 	$timezones = array();
 	foreach ($zones as $tzkey => $tzvalue)
 	{
-		$tzinfo = unserialize($tzkey);
+		// !!! TODO: Why encode this and then decode it here?
+		$tzinfo = smf_json_decode($tzkey, true);
 
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 

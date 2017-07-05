@@ -694,14 +694,10 @@ function Logout($internal = false, $redirect = true)
 	{
 		$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
-		// If that failed, try the old method
-		if (is_null($tfadata))
-			$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
-
 		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
 		// If we're preserving the cookie, reset it with updated salt
-		if ($preserve && time() < $exp)
+		if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
 			setTFACookie(3153600, $user_info['id'], hash_salt($user_settings['tfa_backup'], $salt), true);
 		else
 			setTFACookie(-3600, 0, '');
