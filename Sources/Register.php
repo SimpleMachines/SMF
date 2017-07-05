@@ -314,12 +314,38 @@ function Register2()
 	// Needed for isReservedName() and registerMember().
 	require_once($sourcedir . '/Subs-Members.php');
 
-	// Validation... even if we're not a mall.
-	if (isset($_POST['real_name']) && (allowedTo('profile_displayed_name') || allowedTo('moderate_forum')))
+	// Maybe you want set the displayed name during registration
+	if (isset($_POST['real_name']))
 	{
-		$_POST['real_name'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $_POST['real_name']));
-		if (trim($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
-			$possible_strings[] = 'real_name';
+		// Are you already allowed to edit the displayed name?
+		if (allowedTo('profile_displayed_name') || allowedTo('moderate_forum'))
+			$canEditDisplayName = true;
+
+		// If you are a guest, will you be allowed to once you register?
+		else
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT add_deny
+				FROM {db_prefix}permissions
+				WHERE id_group = {int:id_group} AND permission = {string:permission}',
+				array(
+					'id_group' => 0,
+					'permission' => 'profile_displayed_name_own',
+				)
+			);
+			list($canEditDisplayName) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+		}
+
+		if ($canEditDisplayName)
+		{
+			// Sanitize it
+			$_POST['real_name'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $_POST['real_name']));
+
+			// Only set it if we are sure it is good
+			if (trim($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
+				$possible_strings[] = 'real_name';
+		}
 	}
 
 	// Handle a string as a birthdate...
