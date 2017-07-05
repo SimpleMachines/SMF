@@ -422,7 +422,7 @@ class Attachments
 
 	protected function sendResponse()
 	{
-		global $modSettings, $context;
+		global $smcFunc, $modSettings, $context;
 
 		ob_end_clean();
 
@@ -435,7 +435,7 @@ class Attachments
 		// Set the header.
 		header('Content-Type: application/json; charset='. $context['character_set'] .'');
 
-		echo json_encode($this->_response ? $this->_response : array());
+		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
 
 		// Done.
 		obExit(false);

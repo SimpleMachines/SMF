@@ -1775,14 +1775,14 @@ function template_action_permissions()
 		echo '
 				<input type="hidden" name="custom_value" value="', $context['custom_value'], '">
 				<input type="hidden" name="totalItems" value="', $context['total_items'], '">
-				<input type="hidden" name="toProcess" value="', base64_encode(json_encode($context['to_process'])), '">';
+				<input type="hidden" name="toProcess" value="', $context['to_process_encode'], '">';
 	else
 		echo '
 				<input type="hidden" name="predefined" value="', $context['predefined_type'], '">
 				<input type="hidden" name="fileOffset" value="', $context['file_offset'], '">
 				<input type="hidden" name="totalItems" value="', $context['total_items'], '">
-				<input type="hidden" name="dirList" value="', base64_encode(json_encode($context['directory_list'])), '">
-				<input type="hidden" name="specialFiles" value="', base64_encode(json_encode($context['special_files'])), '">';
+				<input type="hidden" name="dirList" value="', $context['directory_list_encode'], '">
+				<input type="hidden" name="specialFiles" value="', $context['special_files_encode'], '">';
 
 	// Are we not using FTP for whatever reason.
 	if (!empty($context['skip_ftp']))

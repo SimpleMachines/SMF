@@ -62,6 +62,7 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
+		// We excpiclity do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 
@@ -218,6 +219,8 @@ function reloadSettings()
 				$words[$i] = $smcFunc['ucfirst']($words[$i]);
 			return implode('', $words);
 		} : 'ucwords',
+		'json_decode' => 'smf_json_decode',
+		'json_encode' => 'json_encode',
 	);
 
 	// Setting the timezone is a requirement for some functions.
@@ -275,7 +278,7 @@ function reloadSettings()
 	if (empty($modSettings['currentAttachmentUploadDir']))
 	{
 		updateSettings(array(
-			'attachmentUploadDir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+			'attachmentUploadDir' => $smcFunc['json_encode'](array(1 => $modSettings['attachmentUploadDir'])),
 			'currentAttachmentUploadDir' => 1,
 		));
 	}
@@ -283,7 +286,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = smf_json_decode(SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = $smcFUnc['json_decode'](SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -406,7 +409,7 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
+		$cookie_data = $smcFunc['json_decode']($_COOKIE[$cookiename], true, false);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
@@ -417,7 +420,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
@@ -488,7 +491,7 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
+					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie]);
 
 					list ($tfamember, $tfasecret) = $tfa_data;
 
@@ -642,7 +645,7 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
+			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
 			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
@@ -1529,7 +1532,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		$memberContext[$user]['custom_fields'] = array();
 
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = smf_json_decode($modSettings['displayFields'], true);
+			$context['display_fields'] = $smcFunc['json_decode']($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -2820,7 +2823,7 @@ function getLanguages($use_cache = true)
 		$language_directories = array_unique($language_directories);
 
 		// Get a list of languages.
-		$langList = !empty($modSettings['langList']) ? json_decode($modSettings['langList'], true) : array();
+		$langList = !empty($modSettings['langList']) ? $smcFunc['json_decode']($modSettings['langList'], true) : array();
 		$langList = is_array($langList) ? $langList : false;
 
 		$catchLang = array();
@@ -2883,7 +2886,7 @@ function getLanguages($use_cache = true)
 
 		// Do we need to store the lang list?
 		if (empty($langList))
-			updateSettings(array('langList' => json_encode($catchLang)));
+			updateSettings(array('langList' => $smcFunc['json_encode']($catchLang)));
 
 		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
@@ -3315,7 +3318,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $cache_enable, $cacheAPI;
+	global $smcFunc, $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
@@ -3324,12 +3327,12 @@ function cache_put_data($key, $value, $ttl = 120)
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(json_encode($value)));
+		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen($smcFunc['json_encode']($value)));
 		$st = microtime();
 	}
 
 	// The API will handle the rest.
-	$value = $value === null ? null : json_encode($value);
+	$value = $value === null ? null : $smcFunc['json_encode']($value);
 	$cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
@@ -3350,7 +3353,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $cache_enable, $cacheAPI;
+	global $smcFunc, $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
@@ -3385,7 +3388,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : smf_json_decode($value, true);
+	return empty($value) ? null : $smcFunc['json_decode']($value, true);
 }
 
 /**

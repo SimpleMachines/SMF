@@ -180,14 +180,14 @@ if ($gatewayClass->isRefund())
 // Otherwise is it what we want, a purchase?
 elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 {
-	$cost = json_decode($subscription_info['cost'], true);
+	$cost = $smcFunc['json_decode']($subscription_info['cost'], true);
 	$total_cost = $gatewayClass->getCost();
 	$notify = false;
 
 	// For one off's we want to only capture them once!
 	if (!$gatewayClass->isSubscription())
 	{
-		$real_details = json_decode($subscription_info['pending_details'], true);
+		$real_details = $smcFunc['json_decode']($subscription_info['pending_details'], true);
 		if (empty($real_details))
 			generateSubscriptionError(sprintf($txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
 
@@ -201,7 +201,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 			break;
 		}
 
-		$subscription_info['pending_details'] = empty($real_details) ? '' : json_encode($real_details);
+		$subscription_info['pending_details'] = empty($real_details) ? '' : $smcFunc['json_encode']($real_details);
 
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_subscribed

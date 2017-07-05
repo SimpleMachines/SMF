@@ -3388,7 +3388,7 @@ function ManageLabels()
 						array(
 							'current_member' => $user_info['id'],
 							'id_rule' => $id,
-							'actions' => json_encode($context['rules'][$id]['actions']),
+							'actions' => $smcFunc['json_encode']($context['rules'][$id]['actions']),
 						)
 					);
 					unset($rule_changes[$k]);
@@ -3831,8 +3831,8 @@ function ManageRules()
 			fatal_lang_error('pm_rule_no_criteria', false);
 
 		// What are we storing?
-		$criteria = json_encode($criteria);
-		$actions = json_encode($actions);
+		$criteria = $smcFunc['json_encode']($criteria);
+		$actions = $smcFunc['json_encode']($actions);
 
 		// Create the rule?
 		if (empty($context['rid']))
@@ -4047,8 +4047,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => smf_json_decode($row['criteria'], true),
-			'actions' => smf_json_decode($row['actions'], true),
+			'criteria' => $smcFunc['json_decode']($row['criteria'], true),
+			'actions' => $smcFunc['json_decode']($row['actions'], true),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

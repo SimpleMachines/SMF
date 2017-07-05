@@ -100,7 +100,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => json_encode(array('happy_birthday' => $alertdata['body'])),
+							'extra' => $smcFunc['json_encode'](array('happy_birthday' => $alertdata['body'])),
 						);
 						updateMemberData($member_id, array('alerts' => '+'));
 					}

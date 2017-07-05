@@ -81,7 +81,7 @@ function writeLog($force = false)
 			$context['session_var'] = $_SESSION['session_var'];
 
 		unset($encoded_get['sesc'], $encoded_get[$context['session_var']]);
-		$encoded_get = json_encode($encoded_get);
+		$encoded_get = $smcFunc['json_encode']($encoded_get);
 	}
 	else
 		$encoded_get = '';
@@ -541,7 +541,7 @@ function logActions($logs)
 
 		$inserts[] = array(
 			time(), $log_types[$log['log_type']], $memID, $user_info['ip'], $log['action'],
-			$board_id, $topic_id, $msg_id, json_encode($log['extra']),
+			$board_id, $topic_id, $msg_id, $smcFunc['json_encode']($log['extra']),
 		);
 	}
 

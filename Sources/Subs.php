@@ -960,7 +960,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunce, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -1765,7 +1765,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
-		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . json_encode($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
+		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
 
 		if (($temp = cache_get_data($cache_key, 240)) != null)
 			return $temp;
@@ -4946,7 +4946,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $modSettings;
+	global $smcFunc, $modSettings;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5050,7 +5050,7 @@ function smf_list_timezones($when = 'now')
 
 		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
-		$tzkey = json_encode($tzinfo);
+		$tzkey = $smcFunc['json_encode']($tzinfo);
 
 		// Next, get the geographic info for this tzid
 		$tzgeo = timezone_location_get($tz);
@@ -5079,7 +5079,7 @@ function smf_list_timezones($when = 'now')
 	foreach ($zones as $tzkey => $tzvalue)
 	{
 		// !!! TODO: Why encode this and then decode it here?
-		$tzinfo = smf_json_decode($tzkey, true);
+		$tzinfo = $smcFunc['json_decode']($tzkey, true);
 
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 

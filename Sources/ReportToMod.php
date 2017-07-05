@@ -326,7 +326,7 @@ function reportPost($msg, $reason)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/MsgReport-Notify.php', 'MsgReport_Notify_Background', json_encode(array(
+			array('$sourcedir/tasks/MsgReport-Notify.php', 'MsgReport_Notify_Background', $smcFunc['json_encode'](array(
 				'report_id' => $id_report,
 				'msg_id' => $_POST['msg'],
 				'topic_id' => $message['id_topic'],
@@ -447,7 +447,7 @@ function reportUser($id_member, $reason)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/MemberReport-Notify.php', 'MemberReport_Notify_Background', json_encode(array(
+			array('$sourcedir/tasks/MemberReport-Notify.php', 'MemberReport_Notify_Background', $smcFunc['json_encode'](array(
 				'report_id' => $id_report,
 				'user_id' => $user['id_member'],
 				'user_name' => $user_name,

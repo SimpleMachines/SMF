@@ -177,7 +177,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
-					'extra' => json_encode(array(
+					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
@@ -226,7 +226,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 	protected static function handleQuoteNotifications($msgOptions, $posterOptions, $quotedMembers, $prefs, &$done_members, &$alert_rows)
 	{
-		global $modSettings, $language, $scripturl;
+		global $smcFunc, $modSettings, $language, $scripturl;
 
 		foreach ($quotedMembers as $id => $member)
 		{
@@ -259,7 +259,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'quote',
 					'is_read' => 0,
-					'extra' => json_encode(array(
+					'extra' => $smcFunc['json_encode'](array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
@@ -337,7 +337,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 	protected static function handleMentionedNotifications($msgOptions, $members, $prefs, &$done_members, &$alert_rows)
 	{
-		global $scripturl, $language, $modSettings;
+		global $smcFunc, $scripturl, $language, $modSettings;
 
 		foreach ($members as $id => $member)
 		{
@@ -371,7 +371,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'mention',
 					'is_read' => 0,
-					'extra' => json_encode(array(
+					'extra' => $smcFunc['json_encode'](array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),

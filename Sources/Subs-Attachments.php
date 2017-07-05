@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function automanage_attachments_check_directory()
 {
-	global $boarddir, $modSettings, $context;
+	global $smcFunc, $boarddir, $modSettings, $context;
 
 	// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
 	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
@@ -55,7 +55,7 @@ function automanage_attachments_check_directory()
 	if (!empty($modSettings['attachment_basedirectories']) && !empty($modSettings['use_subdirectories_for_attachments']))
 	{
 			if (!is_array($modSettings['attachment_basedirectories']))
-				$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+				$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 			$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
 	}
 	else
@@ -66,7 +66,7 @@ function automanage_attachments_check_directory()
 		if (!isset($modSettings['last_attachments_directory']))
 			$modSettings['last_attachments_directory'] = array();
 		if (!is_array($modSettings['last_attachments_directory']))
-			$modSettings['last_attachments_directory'] = smf_json_decode($modSettings['last_attachments_directory'], true);
+			$modSettings['last_attachments_directory'] = $smcFunc['json_decode']($modSettings['last_attachments_directory'], true);
 		if (!isset($modSettings['last_attachments_directory'][$base_dir]))
 			$modSettings['last_attachments_directory'][$base_dir] = 0;
 	}
@@ -98,7 +98,7 @@ function automanage_attachments_check_directory()
 	}
 
 	if (!is_array($modSettings['attachmentUploadDir']))
-		$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 	if (!in_array($updir, $modSettings['attachmentUploadDir']) && !empty($updir))
 		$outputCreation = automanage_attachments_create_directory($updir);
 	elseif (in_array($updir, $modSettings['attachmentUploadDir']))
@@ -126,7 +126,7 @@ function automanage_attachments_check_directory()
  */
 function automanage_attachments_create_directory($updir)
 {
-	global $modSettings, $context, $boarddir;
+	global $smcFunc, $modSettings, $context, $boarddir;
 
 	$tree = get_directory_tree_elements($updir);
 	$count = count($tree);
@@ -181,10 +181,10 @@ function automanage_attachments_create_directory($updir)
 		$modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] = $updir;
 
 		updateSettings(array(
-			'attachmentUploadDir' => json_encode($modSettings['attachmentUploadDir']),
+			'attachmentUploadDir' => $smcFunc['json_encode']($modSettings['attachmentUploadDir']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
 		), true);
-		$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 	}
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
@@ -199,7 +199,7 @@ function automanage_attachments_create_directory($updir)
  */
 function automanage_attachments_by_space()
 {
-	global $modSettings, $boarddir;
+	global $smcFunc, $modSettings, $boarddir;
 
 	if (!isset($modSettings['automanage_attachments']) || (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] != 1))
 		return;
@@ -229,10 +229,10 @@ function automanage_attachments_by_space()
 	{
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
 		updateSettings(array(
-			'last_attachments_directory' => json_encode($modSettings['last_attachments_directory']),
+			'last_attachments_directory' => $smcFunc['json_encode']($modSettings['last_attachments_directory']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
 		));
-		$modSettings['last_attachments_directory'] = smf_json_decode($modSettings['last_attachments_directory'], true);
+		$modSettings['last_attachments_directory'] = $smcFunc['json_decode']($modSettings['last_attachments_directory'], true);
 
 		return true;
 	}
@@ -307,7 +307,7 @@ function processAttachments()
 		automanage_attachments_check_directory();
 
 	if (!is_array($modSettings['attachmentUploadDir']))
-		$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
@@ -700,7 +700,7 @@ function createAttachment(&$attachmentOptions)
 	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
 
 	// Make sure the folder is valid...
-	$tmp = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : smf_json_decode($modSettings['attachmentUploadDir'], true);
+	$tmp = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 	$folders = array_keys($tmp);
 	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
 		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
@@ -1168,7 +1168,7 @@ function loadAttachmentContext($id_msg, $attachments)
 						if (!empty($modSettings['currentAttachmentUploadDir']))
 						{
 							if (!is_array($modSettings['attachmentUploadDir']))
-								$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+								$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 							$id_folder_thumb = $modSettings['currentAttachmentUploadDir'];
 						}
 						else

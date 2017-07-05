@@ -99,7 +99,7 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 		{
-			list (,, $timeout) = smf_json_decode($_COOKIE[$cookiename], true);
+			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 			// That didn't work... Maybe it's using serialize?
 			if (is_null($timeout))
@@ -107,7 +107,7 @@ function Login2()
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
-			list (,, $timeout) = smf_json_decode($_SESSION['login_' . $cookiename]);
+			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
 			// Try for old format
 			if (is_null($timeout))
@@ -122,16 +122,12 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
-
-			// If that didn't work, try unserialize instead...
-			if (is_null($tfadata))
-				$tfadata = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfadata = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
 			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
 
 			// If we're preserving the cookie, reset it with updated salt
-			if ($preserve && time() < $exp)
+			if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
 				setTFACookie(3153600, $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), true);
 			else
 				setTFACookie(-3600, 0, '');

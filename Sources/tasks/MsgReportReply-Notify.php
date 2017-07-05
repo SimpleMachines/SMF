@@ -129,7 +129,7 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['msg_id'],
 					'content_action' => 'report_reply',
 					'is_read' => 0,
-					'extra' => json_encode(
+					'extra' => $smcFunc['json_encode'](
 						array(
 							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)

@@ -269,7 +269,7 @@ function ViewMemberlist()
 
 		$search_params = array();
 		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
-			$search_params = smf_json_decode(base64_decode($_REQUEST['params']), true);
+			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
 			$search_params['types'] = $_POST['types'];
@@ -278,7 +278,7 @@ function ViewMemberlist()
 					$search_params[$param_name] = $_POST[$param_name];
 		}
 
-		$search_url_params = isset($search_params) ? base64_encode(json_encode($search_params)) : null;
+		$search_url_params = isset($search_params) ? base64_encode($smcFunc['json_encode']($search_params)) : null;
 
 		// @todo Validate a little more.
 

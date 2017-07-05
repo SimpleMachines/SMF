@@ -1278,7 +1278,7 @@ function BuddyListToggle()
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', json_encode(array(
+				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', $smcFunc['json_encode'](array(
 					'receiver_id' => $userReceiver,
 					'id_member' => $user_info['id'],
 					'member_name' => $user_info['username'],
