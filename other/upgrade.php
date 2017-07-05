@@ -451,7 +451,14 @@ function loadEssentialData()
 
 	// Get the database going!
 	if (empty($db_type) || $db_type == 'mysqli')
+	{
 		$db_type = 'mysql';
+		// If overriding $db_type, need to set its settings.php entry too
+		$changes = array();
+		$changes['db_type'] = '\'mysql\'';
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile($changes);
+	}
 
 	if (file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
 	{
@@ -1086,10 +1093,6 @@ function UpgradeOptions()
 
 	if (empty($cachedir) || substr($cachedir, 0, 1) == '.')
 		$changes['cachedir'] = '\'' . fixRelativePath($boarddir) . '/cache\'';
-
-	// Not had the database type added before?
-	if (empty($db_type))
-		$changes['db_type'] = 'mysql';
 
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
