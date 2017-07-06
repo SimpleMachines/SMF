@@ -2365,14 +2365,19 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Some files have not yet been updated properly.');
 
 	// Make sure Settings.php is writable.
-		quickFileWritable($boarddir . '/Settings.php');
+	quickFileWritable($boarddir . '/Settings.php');
 	if (!is_writable($boarddir . '/Settings.php'))
 		print_error('Error: Unable to obtain write access to "Settings.php".', true);
 
 	// Make sure Settings_bak.php is writable.
-		quickFileWritable($boarddir . '/Settings_bak.php');
+	quickFileWritable($boarddir . '/Settings_bak.php');
 	if (!is_writable($boarddir . '/Settings_bak.php'))
 		print_error('Error: Unable to obtain write access to "Settings_bak.php".');
+
+	// Make sure db_last_error.php is writable.
+	quickFileWritable($boarddir . '/db_last_error.php');
+	if (!is_writable($boarddir . '/db_last_error.php'))
+		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 
 	if (isset($modSettings['agreement']) && (!is_writable($boarddir) || file_exists($boarddir . '/agreement.txt')) && !is_writable($boarddir . '/agreement.txt'))
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
