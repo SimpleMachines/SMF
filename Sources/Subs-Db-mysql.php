@@ -936,7 +936,7 @@ function smf_is_resource($result)
 function smf_db_fetch_all($request)
 {
 	// Return the right row.
-	return @mysqli_fetch_all($request);
+	return mysqli_fetch_all($request);
 }
 
 ?>
