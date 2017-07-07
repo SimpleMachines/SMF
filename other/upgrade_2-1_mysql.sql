@@ -2177,7 +2177,7 @@ ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
 ---#
 
 ---# Add the ip index for log errors
-CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
+CREATE INDEX idx_ip ON {$db_prefix}log_errors (ip);
 ---#
 
 /******************************************************************************/
@@ -2283,11 +2283,11 @@ ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
 ---# Add the index again to messages poster ip topic
-CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+CREATE INDEX idx_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 ---#
 
 ---# Add the index again to messages poster ip msg
-CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+CREATE INDEX idx_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#
 
 /******************************************************************************/
