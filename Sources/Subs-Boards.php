@@ -1329,7 +1329,7 @@ function getBoardTree()
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-		WHERE {query_wanna_see_board}
+		WHERE {query_see_board}
 		ORDER BY c.cat_order, b.child_level, b.board_order',
 		$boardParameters
 	);
