@@ -155,7 +155,7 @@ function template_main()
 
 				echo '
 					<div id="board_', $board['id'], '_children" class="children">
-						<p><strong id="child_list">', $txt['sub_boards'], '</strong>', implode($children), '</p>
+						<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
 					</div>';
 				}
 

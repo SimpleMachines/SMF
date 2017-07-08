@@ -493,7 +493,7 @@ a img {
 	clear: both;
 }
 .pages::after, .jump_to::after, .code::after,
-#child_list::after {
+strong[id^='child_list_']::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
