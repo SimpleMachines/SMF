@@ -838,6 +838,9 @@ function EditBoardSettings($return_config = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
+	
+	if (empty($recycle_boards))
+		return;
 
 	require_once($sourcedir . '/Subs-Boards.php');
 	sortBoards($recycle_boards);
