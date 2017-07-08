@@ -118,7 +118,7 @@ fieldset legend {
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */
 /* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight. */
-strong {
+strong, .strong {
 	font-weight: bold;
 	color: #444;
 }
@@ -492,7 +492,8 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after, .code::after {
+.pages::after, .jump_to::after, .code::after,
+#child_list::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -2936,10 +2937,10 @@ h3 .collapse {
 .children p {
 	font-size: 0.9em;
 }
-.children a::after {
+.children span::after {
 	content: ", ";
 }
-.children a:last-of-type::after {
+.children span:last-of-type::after {
 	content: "";
 }
 p.moderators {
