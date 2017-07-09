@@ -647,7 +647,7 @@ function iCalDownload()
  */
 function clock()
 {
-	global $settings, $context, $scripturl;
+	global $smcFunc, $settings, $context, $scripturl;
 
 	$context['onimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
 	$context['offimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
@@ -668,19 +668,19 @@ function clock()
 	{
 		$context['sub_template'] = 'bcd';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;bcd', 'name' => 'BCD');
-		$context['clockicons'] = smf_json_decode(base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
 	}
 	elseif (!$omfg && !isset($_REQUEST['time']))
 	{
 		$context['sub_template'] = 'hms';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock', 'name' => 'Binary');
-		$context['clockicons'] = smf_json_decode(base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
 	}
 	elseif ($omfg)
 	{
 		$context['sub_template'] = 'omfg';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;omfg', 'name' => 'OMFG');
-		$context['clockicons'] = smf_json_decode(base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
 	}
 	elseif (isset($_REQUEST['time']))
 	{

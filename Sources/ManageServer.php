@@ -830,7 +830,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = $modSettings[$config_var[1]];
 						break;
 					case 'json':
-						$value = $smcFunc['htmlspecialchars'](json_encode($modSettings[$config_var[1]]));
+						$value = $smcFunc['htmlspecialchars']($smcFunc['json_encode']($modSettings[$config_var[1]]));
 						break;
 					case 'boards':
 						$value = explode(',', $modSettings[$config_var[1]]);
@@ -849,7 +849,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = 0;
 						break;
 					case 'select':
-						$value = !empty($config_var['multiple']) ? json_encode(array()) : '';
+						$value = !empty($config_var['multiple']) ? $smcFunc['json_encode'](array()) : '';
 						break;
 					case 'boards':
 						$value = array();
@@ -898,7 +898,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
 					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? smf_json_decode($context['config_vars'][$config_var[1]]['value'], true) : array();
+					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? $smcFunc['json_decode']($context['config_vars'][$config_var[1]]['value'], true) : array();
 				}
 
 				// If it's associative
@@ -1172,7 +1172,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = json_encode($lOptions);
+			$setArray[$var[1]] = $smcFunc['json_encode']($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')

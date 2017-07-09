@@ -2091,7 +2091,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				$id_question = $row['id_question'];
 				unset ($row['id_question']);
 				// Make them all lowercase. We can't directly use $smcFunc['strtolower'] with array_walk, so do it manually, eh?
-				$row['answers'] = smf_json_decode($row['answers'], true);
+				$row['answers'] = $smcFunc['json_decode']($row['answers'], true);
 				foreach ($row['answers'] as $k => $v)
 					$row['answers'][$k] = $smcFunc['strtolower']($v);
 
@@ -2304,7 +2304,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
  */
 function AutoSuggestHandler($checkRegistered = null)
 {
-	global $context;
+	global $smcFunc, $context;
 
 	// These are all registered types.
 	$searchTypes = array(
@@ -2323,7 +2323,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	loadTemplate('Xml');
 
 	// Any parameters?
-	$context['search_param'] = isset($_REQUEST['search_param']) ? smf_json_decode(base64_decode($_REQUEST['search_param']), true) : array();
+	$context['search_param'] = isset($_REQUEST['search_param']) ? $smcFunc['json_decode'](base64_decode($_REQUEST['search_param']), true) : array();
 
 	if (isset($_REQUEST['suggest_type'], $_REQUEST['search']) && isset($searchTypes[$_REQUEST['suggest_type']]))
 	{

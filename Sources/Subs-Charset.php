@@ -582,7 +582,7 @@ function fix_serialized_columns()
 					WHERE id_action = {int:current_action}',
 					array(
 						'current_action' => $row['id_action'],
-						'extra' => json_encode(safe_unserialize($temp)),
+						'extra' => $smcFunc['json_encode'](safe_unserialize($temp)),
 					)
 				);
 		}

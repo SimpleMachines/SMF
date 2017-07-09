@@ -1045,7 +1045,7 @@ function insertEvent(&$eventOptions)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', json_encode(array(
+			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', $smcFunc['json_encode'](array(
 				'event_title' => $eventOptions['title'],
 				'event_id' => $eventOptions['id'],
 				'sender_id' => $eventOptions['member'],

@@ -457,7 +457,7 @@ function updateAdminPreferences()
 		return false;
 
 	// This is what we'll be saving.
-	$options['admin_preferences'] = json_encode($context['admin_preferences']);
+	$options['admin_preferences'] = $smcFunc['json_encode']($context['admin_preferences']);
 
 	// Just check we haven't ended up with something theme exclusive somehow.
 	$smcFunc['db_query']('', '

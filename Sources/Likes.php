@@ -326,7 +326,7 @@ class Likes
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', json_encode(array(
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', $smcFunc['json_encode'](array(
 					'content_id' => $content,
 					'content_type' => $type,
 					'sender_id' => $user['id'],
@@ -605,6 +605,8 @@ class Likes
 	 */
 	protected function jsonResponse()
 	{
+		global $smcFunc;
+
 		$print = array(
 			'data' => $this->_data,
 		);
@@ -622,7 +624,7 @@ class Likes
 		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
-		smf_serverResponse(json_encode($print));
+		smf_serverResponse($smcFunc['json_encode']($print));
 		die;
 	}
 }

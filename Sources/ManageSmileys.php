@@ -1606,7 +1606,7 @@ function InstallSmileySet()
 		package_flush_cache();
 
 		// Credits tag?
-		$credits_tag = (empty($credits_tag)) ? '' : json_encode($credits_tag);
+		$credits_tag = (empty($credits_tag)) ? '' : $smcFunc['json_encode']($credits_tag);
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_packages',
 			array(

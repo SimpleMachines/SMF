@@ -80,7 +80,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['event_id'],
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
-					'extra' => json_encode(
+					'extra' => $smcFunc['json_encode'](
 					    array(
 					        "event_id" => $this->_details['event_id'],
 							"event_title" => $this->_details['event_title']

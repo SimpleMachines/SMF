@@ -502,8 +502,15 @@ function log_error_online($error, $sprintf = array())
 	);
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
+		// If this happened very early on in SMF startup, $smcFunc may not fully be defined.
+		if (!isset($smcFunc['json_decode']))
+		{
+			$smcFunc['json_decode'] = 'smf_json_decode';
+			$smcFunc['json_encode'] = 'json_encode';
+		}
+
 		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = smf_json_decode($url, true);
+		$url = $smcFunc['json_decode']($url, true);
 		$url['error'] = $error;
 
 		if (!empty($sprintf))
@@ -514,7 +521,7 @@ function log_error_online($error, $sprintf = array())
 			SET url = {string:url}
 			WHERE session = {string:session}',
 			array(
-				'url' => json_encode($url),
+				'url' => $smcFunc['json_encode']($url),
 				'session' => $session_id,
 			)
 		);

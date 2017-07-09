@@ -204,7 +204,7 @@ function ShowXmlFeed()
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_REQUEST[$var]))
 			$cachekey[] = $_REQUEST[$var];
-	$cachekey = md5(json_encode($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
+	$cachekey = md5($smcFunc['json_encode']($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
 	$cache_t = microtime();
 
 	// Get the associative array representing the xml.
