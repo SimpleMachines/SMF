@@ -3327,12 +3327,12 @@ function cache_put_data($key, $value, $ttl = 120)
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen($smcFunc['json_encode']($value)));
+		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value)));
 		$st = microtime();
 	}
 
 	// The API will handle the rest.
-	$value = $value === null ? null : $smcFunc['json_encode']($value);
+	$value = $value === null ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value));
 	$cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
@@ -3388,7 +3388,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : $smcFunc['json_decode']($value, true);
+	return empty($value) ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
 }
 
 /**
