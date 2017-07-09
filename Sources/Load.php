@@ -3332,7 +3332,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	}
 
 	// The API will handle the rest.
-	$value = $value === null ? null : $smcFunc['json_encode']($value);
+	$value = $value === null ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value));
 	$cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
@@ -3388,7 +3388,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : $smcFunc['json_decode']($value, true);
+	return empty($value) ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
 }
 
 /**
