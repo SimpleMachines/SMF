@@ -118,7 +118,7 @@ fieldset legend {
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */
 /* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight. */
-strong {
+strong, .strong {
 	font-weight: bold;
 	color: #444;
 }
@@ -230,23 +230,24 @@ a.button_link {
 	text-decoration: none;
 }
 /* the new "button" */
-a.new_posts, span.new_posts {
+.new_posts {
 	color: #fff;
 	font-weight: bold;
 	line-height: 1.12px;
 	border-radius: 2px;
 	background: orange;
-}
-span.new_posts {
 	display: inline;
-	margin: 0 5px 0 -2px;
-	padding: 0 4px 1px 4px;
+	margin: 0 2px;
+	padding: 2px 4px;
 	font-size: 9px;
 	font-family: verdana, sans-serif; /* @todo Might add extra fallbacks. Possibly monospace. */
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
+	opacity: 0.7;
+	transition: 0.5s all;
 }
-a span.new_posts:hover {
+.new_posts:hover {
 	text-decoration: underline;
+	opacity: 1;
 }
 
 /* Common classes to easy styling.
@@ -492,7 +493,8 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after, .code::after {
+.pages::after, .jump_to::after, .code::after,
+strong[id^='child_list_']::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -2936,10 +2938,10 @@ h3 .collapse {
 .children p {
 	font-size: 0.9em;
 }
-.children a::after {
+.children span::after {
 	content: ", ";
 }
-.children a:last-of-type::after {
+.children span:last-of-type::after {
 	content: "";
 }
 p.moderators {
