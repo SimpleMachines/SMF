@@ -166,6 +166,13 @@ if (isset($_GET['ssi']))
 	require_once($sourcedir . '/Security.php');
 	require_once($sourcedir . '/Subs-Package.php');
 
+	// SMF isn't started up properly, but loadUserSettings calls our cookies.
+	if (!isset($smcFunc['json_encode']))
+	{
+		$smcFunc['json_encode'] = 'json_encode';
+		$smcFunc['json_decode'] = 'smf_json_decode';
+	}
+
 	loadUserSettings();
 	loadPermissions();
 }
