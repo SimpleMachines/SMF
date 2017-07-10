@@ -3032,7 +3032,7 @@ function serialize_to_json()
 					'displayFields',
 					'last_attachments_directory',
 					'memberlist_cache',
-					'search_index_custom_config',
+					'search_custom_index_config',
 					'spider_name_cache'
 				);
 
