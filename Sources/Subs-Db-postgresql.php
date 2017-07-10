@@ -60,6 +60,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_is_resource' => 'is_resource',
 			'db_mb4' => true,
 			'db_ping' => 'pg_ping',
+			'db_fetch_all' => 'smf_db_fetch_all',
 		);
 
 	if (!empty($db_options['persist']))
@@ -955,6 +956,18 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 		);
 
 	return strtr($string, $replacements);
+}
+
+/**
+ * Fetches all rows from a result as an array 
+ *
+ * @param resource $request A PostgreSQL result resource
+ * @return array An array that contains all rows (records) in the result resource
+ */
+function smf_db_fetch_all($request)
+{
+	// Return the right row.
+	return @pg_fetch_all($request);
 }
 
 ?>
