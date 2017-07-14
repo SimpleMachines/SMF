@@ -442,6 +442,7 @@ function Display()
 		$_REQUEST['start'] = -1;
 
 	// Construct allowing for the .START method...
+	//$context['page_index'] = constructPageIndex($scripturl . '?topic=' . $topic . '.%1$d', $_REQUEST['start'], $context['total_visible_posts'], $context['messages_per_page'], true);
 	$context['start'] = $_REQUEST['start'];
 
 	// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireles..)
@@ -460,6 +461,23 @@ function Display()
 			'last' => $_REQUEST['start'] + $context['messages_per_page'] < $context['total_visible_posts'] ? $scripturl . '?topic=' . $topic . '.' . (floor($context['total_visible_posts'] / $context['messages_per_page']) * $context['messages_per_page']) : '',
 			'up' => $scripturl . '?board=' . $board . '.0'
 		);
+	}
+
+	// If they are viewing all the posts, show all the posts, otherwise limit the number.
+	if ($can_show_all)
+	{
+		if (isset($_REQUEST['all']))
+		{
+			// No limit! (actually, there is a limit, but...)
+			$context['messages_per_page'] = -1;
+			$context['page_index'] .= empty($modSettings['compactTopicPagesEnable']) ? '<strong>' . $txt['all'] . '</strong> ' : '[<strong>' . $txt['all'] . '</strong>] ';
+
+			// Set start back to 0...
+			$_REQUEST['start'] = 0;
+		}
+		// They aren't using it, but the *option* is there, at least.
+		else
+			$context['page_index'] .= '&nbsp;<a href="' . $scripturl . '?topic=' . $topic . '.0;all">' . $txt['all'] . '</a> ';
 	}
 
 	// Build the link tree.
@@ -921,23 +939,6 @@ function Display()
 		'max_id' => end($messages),
 	);
 	$context['page_index'] = constructPageIndex($scripturl . '?topic=' . $topic . '.%1$d', $_REQUEST['start'], $context['total_visible_posts'], $context['messages_per_page'], true, true, $page_options);
-	
-	// If they are viewing all the posts, show all the posts, otherwise limit the number.
-	if ($can_show_all)
-	{
-		if (isset($_REQUEST['all']))
-		{
-			// No limit! (actually, there is a limit, but...)
-			$context['messages_per_page'] = -1;
-			$context['page_index'] .= empty($modSettings['compactTopicPagesEnable']) ? '<strong>' . $txt['all'] . '</strong> ' : '[<strong>' . $txt['all'] . '</strong>] ';
-
-			// Set start back to 0...
-			$_REQUEST['start'] = 0;
-		}
-		// They aren't using it, but the *option* is there, at least.
-		else
-			$context['page_index'] .= '&nbsp;<a href="' . $scripturl . '?topic=' . $topic . '.0;all">' . $txt['all'] . '</a> ';
-	}
 	
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
