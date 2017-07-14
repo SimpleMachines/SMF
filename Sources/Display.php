@@ -441,6 +441,19 @@ function Display()
 	elseif (isset($_REQUEST['all']))
 		$_REQUEST['start'] = -1;
 
+	$_REQUEST['start'] = (int) $_REQUEST['start'];
+	$start_invalid = $_REQUEST['start'] < 0;
+	
+	// Make sure $start is a proper variable - not less than 0.
+	if ($start_invalid)
+		$_REQUEST['start']= 0;
+	// Not greater than the upper bound.
+	elseif ($_REQUEST['start'] >= $context['total_visible_posts'])
+		$_REQUEST['start'] = max(0, (int) $context['total_visible_posts']- (((int) $context['total_visible_posts'] % (int) $context['messages_per_page']) == 0 ? $context['messages_per_page'] : ((int) $context['total_visible_posts'] % (int) $context['messages_per_page'])));
+	// And it has to be a multiple of $num_per_page!
+	else
+		$_REQUEST['start'] = max(0, (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % (int) $context['messages_per_page']));
+	
 	// Construct allowing for the .START method...
 	$context['start'] = $_REQUEST['start'];
 
