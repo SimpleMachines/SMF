@@ -195,10 +195,38 @@ function cleanRequest()
 			list ($_REQUEST['topic'], $_REQUEST['start'], $_REQUEST['page_id']) = explode('.', $_REQUEST['topic'] . '.');
 		}
 
-		$topic = (int) $_REQUEST['topic'];
+		// Topic should always be an integer
+		$topic = $_GET['topic'] = $_REQUEST['topic'] = (int) $_REQUEST['topic'];
 
-		// Now make sure the online log gets the right number.
-		$_GET['topic'] = $topic;
+		// Start could be a lot of things...
+		// ... a simple number ...
+		if (is_numeric($_REQUEST['start']))
+		{
+			$_REQUEST['start'] = (int) $_REQUEST['start'];
+		}
+		// ... or a specific message ...
+		elseif (strpos($_REQUEST['start'], 'msg') === 0)
+		{
+			$virtual_msg = (int) substr($_REQUEST['start'], 3);
+			$_REQUEST['start'] = $virtual_msg === 0 ? 0 : 'msg' . $virtual_msg;
+		}
+		// ... or whatever is new ...
+		elseif (strpos($_REQUEST['start'], 'new') === 0)
+		{
+			$_REQUEST['start'] = 'new';
+		}
+		// ... or since a certain time ...
+		elseif (strpos($_REQUEST['start'], 'from') === 0)
+		{
+			$timestamp = (int) substr($_REQUEST['start'], 4);
+			$_REQUEST['start'] = $timestamp === 0 ? 0 : 'from' . $timestamp;
+		}
+		// ... or something invalid, in which case we reset it to 0.
+		else
+		{
+			$_REQUEST['start'] = 0;
+			unset($_REQUEST['page_id']);
+		}
 	}
 	else
 		$topic = 0;
