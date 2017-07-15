@@ -905,7 +905,11 @@ function Display()
 			}
 			//page_id not found? -> fallback
 			if (!$found_msg)
+			{
+				$messages = array();
+				$all_posters = array();
 				unset($start_char);
+			}
 		}
 	}
 
