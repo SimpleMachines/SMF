@@ -849,6 +849,9 @@ function Display()
 
 	$limit = $context['messages_per_page'];
 	
+	$messages = array();
+	$all_posters = array();
+	
 	if (isset($start_char))
 	{
 		$firstIndex = 0;
@@ -856,12 +859,12 @@ function Display()
 		if ($start_char === 'M')
 		{
 			$ascending = true;
-			$page_operator = '>';
+			$page_operator = '>=';
 		}
 		else
 		{
 			$ascending = false;
-			$page_operator = '<';
+			$page_operator = '<=';
 		}
 		
 		$request = $smcFunc['db_query']('', '
@@ -877,16 +880,35 @@ function Display()
 				'current_topic' => $topic,
 				'is_approved' => 1,
 				'blank_id_member' => 0,
-				'limit' => $limit,
+				'limit' => $limit + 1,
 				'page_id' => $page_id,
 			)
 		);
 		
+		$found_msg = false;
+		
 		// Fallback
 		if ($smcFunc['db_num_rows']($request) < 1)
 			unset($start_char);
+		else
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				if ($row['id_msg'] != $page_id)
+				{
+					if (!empty($row['id_member']))
+						$all_posters[$row['id_msg']] = $row['id_member'];
+					$messages[] = $row['id_msg'];
+				}
+				else
+					$found_msg = true;
+			}
+			//page_id not found? -> fallback
+			if (!$found_msg)
+				unset($start_char);
+		}
 	}
- 
+
 	// Jump to page
 	if (empty($start_char))
 	{
@@ -919,22 +941,19 @@ function Display()
 				'max' => $limit,
 			)
 		);
-	}
-	
 
-	$messages = array();
-	$all_posters = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (!empty($row['id_member']))
-			$all_posters[$row['id_msg']] = $row['id_member'];
-		$messages[] = $row['id_msg'];
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['id_member']))
+				$all_posters[$row['id_msg']] = $row['id_member'];
+			$messages[] = $row['id_msg'];
+		}
 	}
-	
+
 	// Before Page bring in the right order
 	if (!empty($start_char) && $start_char === 'L')
 		krsort($messages);
-	
+
 	// Construct the page index, allowing for the .START method...
 	$page_options = array(
 		'low_id' => $messages[0],
