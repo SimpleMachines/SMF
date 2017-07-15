@@ -842,10 +842,50 @@ function Display()
 	else
 		$start_char = null;
 
-	if ($start_char === 'M' || $start_char === 'L')
+	if (isset($start_char) && ($start_char === 'M' || $start_char === 'L'))
 		$page_id = substr($_REQUEST['page_id'], 1);
+	else
+		$start_char = null;
 
 	$limit = $context['messages_per_page'];
+	
+	if (isset($start_char))
+	{
+		$firstIndex = 0;
+		
+		if ($start_char === 'M')
+		{
+			$ascending = true;
+			$page_operator = '>';
+		}
+		else
+		{
+			$ascending = false;
+			$page_operator = '<';
+		}
+		
+		$request = $smcFunc['db_query']('', '
+			SELECT id_msg, id_member, approved
+			FROM {db_prefix}messages
+			WHERE id_topic = {int:current_topic} 
+			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			LIMIT {int:limit}'),
+			array(
+				'current_member' => $user_info['id'],
+				'current_topic' => $topic,
+				'is_approved' => 1,
+				'blank_id_member' => 0,
+				'limit' => $limit,
+				'page_id' => $page_id,
+			)
+		);
+		
+		// Fallback
+		if ($smcFunc['db_num_rows']($request) < 1)
+			unset($start_char);
+	}
  
 	// Jump to page
 	if (empty($start_char))
@@ -877,39 +917,6 @@ function Display()
 				'blank_id_member' => 0,
 				'start' => $start,
 				'max' => $limit,
-			)
-		);
-	}
-	else //next or before page
-	{
-		$firstIndex = 0;
-		
-		if ($start_char === 'M')
-		{
-			$ascending = true;
-			$page_operator = '>';
-		}
-		else
-		{
-			$ascending = false;
-			$page_operator = '<';
-		}
-		
-		$request = $smcFunc['db_query']('', '
-			SELECT id_msg, id_member, approved
-			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic} 
-			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-			LIMIT {int:limit}'),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'is_approved' => 1,
-				'blank_id_member' => 0,
-				'limit' => $limit,
-				'page_id' => $page_id,
 			)
 		);
 	}
