@@ -227,6 +227,15 @@ function cleanRequest()
 			$_REQUEST['start'] = 0;
 			unset($_REQUEST['page_id']);
 		}
+
+		if (isset($_REQUEST['page_id']))
+		{
+			$page_id_firstchar = substr($_REQUEST['page_id'], 0, 1);
+			if (in_array($page_id_firstchar, array('L', 'M')))
+				$_REQUEST['page_id'] = $page_id_firstchar . (int) substr($_REQUEST['page_id'], 1);
+			else
+				unset($_REQUEST['page_id']);
+		}
 	}
 	else
 		$topic = 0;
