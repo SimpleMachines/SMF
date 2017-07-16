@@ -1542,8 +1542,6 @@ function buildEventDatetimes($row)
 	global $sourcedir, $user_info;
 	require_once($sourcedir . '/Subs.php');
 	static $timezone_array = array();
-	
-	
 
 	// First, try to create a better date format, ignoring the "time" elements.
 	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
@@ -1559,14 +1557,14 @@ function buildEventDatetimes($row)
 
 	// Should this be an all day event?
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
-	
+
 	// How many days does this event span?
 	$span = 1 + date_interval_format(date_diff(date_create($row['start_date']), date_create($row['end_date'])), '%d');
 
 	// We need to have a defined timezone in the steps below
 	if (empty($row['timezone']))
 		$row['timezone'] = getUserTimezone();
-	
+
 	if (empty($timezone_array[$row['timezone']]))
 		$timezone_array[$row['timezone']] = timezone_open($row['timezone']);
 
