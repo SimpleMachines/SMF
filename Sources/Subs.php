@@ -713,7 +713,7 @@ function comma_format($number, $override_decimal_count = false)
  * @param int $log_time A timestamp
  * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
- * @param bool $process_safe activate setlocale check for changes at runtime -> slower this function 
+ * @param bool $process_safe activate setlocale check for changes at runtime -> slower this function
  * @return string A formatted timestamp
  */
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
@@ -932,7 +932,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunce, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
