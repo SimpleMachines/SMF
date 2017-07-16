@@ -1591,14 +1591,12 @@ function buildEventDatetimes($row)
 	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
 
 	// Strings showing the datetimes in the user's preferred format, relative to the user's time zone
-	$test = timeformat($start['timestamp'], $date_format . ' § ' . $time_format);
-	$test_array = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format));
-	list($start['date_local'], $start['time_local']) = explode('§', timeformat($start['timestamp'], $date_format . '§' . $time_format));
-	list($end['date_local'], $end['time_local']) = explode('||',timeformat($end['timestamp'], $date_format . '||' . $time_format));
+	list($start['date_local'], $start['time_local']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format));
+	list($end['date_local'], $end['time_local']) = explode(' § ',timeformat($end['timestamp'], $date_format . ' § ' . $time_format));
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
-	list($start['date_orig'], $start['time_orig']) = explode('||',timeformat($start['timestamp'], $date_format . '||' . $time_format, 'none'));
-	list($end['date_orig'], $end['time_orig']) = explode('||',timeformat($end['timestamp'], $date_format . '' . $time_format, 'none'));
+	list($start['date_orig'], $start['time_orig']) = explode(' § ',timeformat($start['timestamp'], $date_format . ' § ' . $time_format, 'none'));
+	list($end['date_orig'], $end['time_orig']) = explode(' § ',timeformat($end['timestamp'], $date_format . ' § ' . $time_format, 'none'));
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');

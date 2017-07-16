@@ -829,6 +829,9 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	if ($context['server']['is_windows'] && strpos($str, '%e') !== false)
 		$str = str_replace('%e', ltrim(strftime('%d', $time), '0'), $str);
 
+	// fix unkown %l with %I
+	$str = str_replace('%l','%I',$str);
+
 	// Format any other characters..
 	return strftime($str, $time);
 }
