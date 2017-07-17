@@ -720,7 +720,6 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $non_twelve_hour, $locale_cache;
-	static $unsupportedFormats = array(), $finalizedFormats = array();
 
 	// Offset the time.
 	if (!$offset_type)
@@ -765,6 +764,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
+	$finalizedFormats = cache_get_data('timeformatstrings', 86400);
+
 	if (empty($finalizedFormats[$str]))
 	{
 		$timeformat = $str;
@@ -791,6 +792,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		);
 
 		// No need to do this part again if we already did it once
+		$unsupportedFormats = cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
@@ -802,6 +804,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 				if ($value === false || $value === $format)
 					$unsupportedFormats[] = $format;
 			}
+			cache_put_data('unsupportedtimeformats', $unsupportedFormats, 86400);
 		}
 
 		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
@@ -815,6 +818,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 		// Remember this so we don't need to do it again
 		$finalizedFormats[$str] = $timeformat;
+		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
 	}
 
 	$str = $finalizedFormats[$str];
