@@ -719,8 +719,8 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour;
-	static $local_cache;
+	static $non_twelve_hour, $local_cache;
+	static $unsupportedFormats = array(), $finalizedFormats = array();
 
 	// Offset the time.
 	if (!$offset_type)
@@ -765,6 +765,60 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
+	if (empty($finalizedFormats[$str]))
+	{
+		$timeformat = $str;
+
+		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
+		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
+		// turn into static strings, some (i.e. %a, %A, $b, %B, %p) have special handling below.
+		$strftimeFormatSubstitutions = array(
+			// Day
+			'a' => '%a', 'A' => '%A', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
+			// Week
+			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
+			// Month
+			'b' => '%b', 'B' => '%B', 'h' => '%b', 'm' => '%b',
+			// Year
+			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
+			// Time
+			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '%p', 'P' => '%p',
+			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
+			// Time and Date Stamps
+			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
+			// Miscellaneous
+			'n' => "\n", 't' => "\t", '%' => '%%',
+		);
+
+		// No need to do this part again if we already did it once
+		if (empty($unsupportedFormats))
+		{
+			foreach($strftimeFormatSubstitutions as $format => $substitution)
+			{
+				$value = @strftime('%' . $format);
+
+				// Windows will return false for unsupported formats
+				// Other operating systems return the format string as a literal
+				if ($value === false || $value === $format)
+					$unsupportedFormats[] = $format;
+			}
+		}
+
+		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
+		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
+
+		// Substitute unsupported formats with supported ones
+		if (!empty($unsupportedFormats))
+			while (preg_match('~%(' . implode('|', $unsupportedFormats) . ')~', $timeformat, $matches))
+				$timeformat = preg_replace('~' . $matches[0] . '~', $strftimeFormatSubstitutions[$matches[1]], $timeformat);
+
+		// Remember this so we don't need to do it again
+		$finalizedFormats[$str] = $timeformat;
+	}
+
+	$str = $finalizedFormats[$str];
+
 	if (!isset($local_cache))
 		$local_cache = setlocale(LC_TIME, $txt['lang_locale']);
 
@@ -797,12 +851,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
 	}
 
-	// Windows doesn't support %e; on some versions, strftime fails altogether if used, so let's prevent that.
-	if ($context['server']['is_windows'] && strpos($str, '%e') !== false)
-		$str = str_replace('%e', ltrim(strftime('%d', $time), '0'), $str);
-
-	// Format any other characters..
-	return strftime($str, $time);
+	// Format the time and then restore any literal percent characters
+	return str_replace('&#37;', '%', strftime($str, $time));
 }
 
 /**
