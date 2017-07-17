@@ -713,13 +713,13 @@ function comma_format($number, $override_decimal_count = false)
  * @param int $log_time A timestamp
  * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
- * @param bool $process_safe activate setlocale check for changes at runtime -> slower this function
+ * @param bool $process_safe Activate setlocale check for changes at runtime. Slower, but safer.
  * @return string A formatted timestamp
  */
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $local_cache;
+	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats = array(), $finalizedFormats = array();
 
 	// Offset the time.
@@ -819,17 +819,14 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	$str = $finalizedFormats[$str];
 
-	if (!isset($local_cache))
-		$local_cache = setlocale(LC_TIME, $txt['lang_locale']);
+	if (!isset($locale_cache))
+		$locale_cache = setlocale(LC_TIME, $txt['lang_locale']);
 
-	if ($local_cache !== false)
+	if ($locale_cache !== false)
 	{
-		//check if other process change the local
-		if ($process_safe === true)
-		{
-			if (setlocale(LC_TIME, '0') != $local_cache)
-				setlocale(LC_TIME, $txt['lang_locale']);
-		}
+		// Check if another process changed the locale
+		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
+			setlocale(LC_TIME, $txt['lang_locale']);
 
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
