@@ -130,7 +130,11 @@ function getBirthdayRange($low_date, $high_date)
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
 	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
+	static $timezone_array = array();
 	require_once($sourcedir . '/Subs.php');
+	
+	if (empty($timezone_array['default']))
+		$timezone_array['default'] = timezone_open(date_default_timezone_get());
 
 	$low_object = date_create($low_date);
 	$high_object = date_create($high_date);
@@ -165,16 +169,19 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 		// Get the various time and date properties for this event
 		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
+		
+		if (empty($timezone_array[$tz]))
+			$timezone_array[$tz] = timezone_open($tz);
 
 		// Sanity check
 		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
 			continue;
 
 		// Get set up for the loop
-		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($tz));
-		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($tz));
-		date_timezone_set($start_object, timezone_open(date_default_timezone_get()));
-		date_timezone_set($end_object, timezone_open(date_default_timezone_get()));
+		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), $timezone_array[$tz]);
+		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), $timezone_array[$tz]);
+		date_timezone_set($start_object, $timezone_array['default']);
+		date_timezone_set($end_object, $timezone_array['default']);
 		date_time_set($start_object, 0, 0, 0);
 		date_time_set($end_object, 0, 0, 0);
 		$start_date_string = date_format($start_object, 'Y-m-d');
@@ -1536,6 +1543,7 @@ function buildEventDatetimes($row)
 	static $date_format = '', $time_format = '';
 
 	require_once($sourcedir . '/Subs.php');
+	static $timezone_array = array();
 
 	// First, try to create a better date format, ignoring the "time" elements.
 	if (empty($date_format))
@@ -1565,13 +1573,16 @@ function buildEventDatetimes($row)
 	if (empty($row['timezone']))
 		$row['timezone'] = getUserTimezone();
 
+	if (empty($timezone_array[$row['timezone']]))
+		$timezone_array[$row['timezone']] = timezone_open($row['timezone']);
+
 	// Get most of the standard date information for the start and end datetimes
 	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
 	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
 
 	// But we also want more info, so make some DateTime objects we can use
-	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($row['timezone']));
-	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($row['timezone']));
+	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), $timezone_array[$row['timezone']]);
+	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), $timezone_array[$row['timezone']]);
 
 	// Unix timestamps are good
 	$start['timestamp'] = date_format($start_object, 'U');
@@ -1586,16 +1597,12 @@ function buildEventDatetimes($row)
 	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
 
 	// Strings showing the datetimes in the user's preferred format, relative to the user's time zone
-	$start['date_local'] = timeformat($start['timestamp'], $date_format);
-	$start['time_local'] = timeformat($start['timestamp'], $time_format);
-	$end['date_local'] = timeformat($end['timestamp'], $date_format);
-	$end['time_local'] = timeformat($end['timestamp'], $time_format);
+	list($start['date_local'], $start['time_local']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format));
+	list($end['date_local'], $end['time_local']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format));
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
-	$start['date_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format, 'none');
-	$start['time_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_format, 'none');
-	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
-	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
+	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format, 'none'));
+	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format, 'none'));
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
