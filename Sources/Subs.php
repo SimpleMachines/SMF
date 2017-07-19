@@ -5654,6 +5654,10 @@ function set_tld_regex($update = false)
 	{
 		require_once($sourcedir . '/Subs-Package.php');
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+
+		// If the Internet Assigned Numbers Authority can't be reached, the Internet is gone. We're probably running on a server hidden in a bunker deep underground to protect it from marauding bandits roaming on the surface. We don't want to waste precious electricity on pointlessly repeating background tasks, so we'll wait until the next regularly scheduled update to see if civilization has been restored.
+		if ($tlds === false)
+			$postapocalypticNightmare = true;
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -5779,8 +5783,6 @@ function set_tld_regex($update = false)
 
 			return implode('.', $output_parts);
 		}, $tlds);
-
-		$schedule_update = false;
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -5807,7 +5809,8 @@ function set_tld_regex($update = false)
 			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
 			'yt', 'yu', 'za', 'zm', 'zw');
 
-		$schedule_update = true;
+		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
+		$schedule_update = empty($postapocalypticNightmare);
 	}
 
 	// build_regex() returns an array. We only need the first item.
