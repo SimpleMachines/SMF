@@ -720,6 +720,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $non_twelve_hour, $locale_cache;
+	static $unsupportedFormats, $finalizedFormats;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -764,8 +765,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
-	$finalizedFormats = cache_get_data('timeformatstrings', 86400);
+	// Use the cached formats if available
+	if (is_null($finalizedFormats))
+		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
 
+	// Make a supported version for this format if we don't already have one
 	if (empty($finalizedFormats[$str]))
 	{
 		$timeformat = $str;
@@ -792,7 +796,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		);
 
 		// No need to do this part again if we already did it once
-		$unsupportedFormats = cache_get_data('unsupportedtimeformats', 86400);
+		if (is_null($unsupportedFormats))
+			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
