@@ -5810,9 +5810,8 @@ function set_tld_regex($update = false)
 		$schedule_update = true;
 	}
 
-	// build_regex() returns an array. We only need the first item.
+	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
-	$tld_regex = array_shift($tld_regex);
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
@@ -5840,18 +5839,18 @@ function set_tld_regex($update = false)
  * takes to execute the simple regex. Therefore, it is only worth calling this function if the
  * resulting regex will be used more than once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays may be
- * split and returned as multiple regexes. In such cases, you will need to iterate through all
- * elements of the returned array in order to test all possible matches. (Note: if your array of
- * alternative strings is large enough to require multiple regexes to accomodate it all, it is
- * probably time to reconsider your coding choices. There is almost certainly a better way to do
- * whatever you are trying to do with these giant regexes.)
+ * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
+ * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
+ * the $returnArray parameter is set to true, this function will build as many regexes as necessary
+ * to accomodate everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
- * @return array An array of one or more regular expressions to match any of the input strings.
+ * @param string $returnArray If true, returns an array of regexes.
+ * @return string|array One or more regular expressions to match any of the input strings.
  */
-function build_regex($strings, $delim = null)
+function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
 
@@ -5963,19 +5962,25 @@ function build_regex($strings, $delim = null)
 
 	// Now that the functions are defined, let's do this thing
 	$index = array();
-	$regexes = array();
+	$regex = '';
 
 	foreach ($strings as $string)
 		$index = $add_string_to_index($string, $index);
 
-	while (!empty($index))
-		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+	if ($returnArray === true)
+	{
+		$regex = array();
+		while (!empty($index))
+			$regex[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+	}
+	else
+		$regex = '(?'.'>' . $index_to_regex($index, $delim) . ')';
 
 	// Restore PHP's internal character encoding to whatever it was originally
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
-	return $regexes;
+	return $regex;
 }
 
 ?>
