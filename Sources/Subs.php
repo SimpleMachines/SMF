@@ -792,7 +792,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			// Time and Date Stamps
 			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
 			// Miscellaneous
-			'n' => "\n", 't' => "\t", '%' => '%%',
+			'n' => "\n", 't' => "\t", '%' => '&#37;',
 		);
 
 		// No need to do this part again if we already did it once
