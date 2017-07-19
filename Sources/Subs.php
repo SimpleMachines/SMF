@@ -819,7 +819,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		// Substitute unsupported formats with supported ones
 		if (!empty($unsupportedFormats))
 			while (preg_match('~%(' . implode('|', $unsupportedFormats) . ')~', $timeformat, $matches))
-				$timeformat = preg_replace('~' . $matches[0] . '~', $strftimeFormatSubstitutions[$matches[1]], $timeformat);
+				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
 
 		// Remember this so we don't need to do it again
 		$finalizedFormats[$str] = $timeformat;
