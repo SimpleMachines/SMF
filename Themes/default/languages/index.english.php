@@ -691,7 +691,7 @@ $txt['merge_custom_subject'] = 'Custom subject';
 $txt['merge_include_notifications'] = 'Include notifications?';
 $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
-$txt['merge_why'] = 'Please enter a brief description as to<br>why these topics are being merged.';
+$txt['merge_why'] = 'Please enter a brief description as to why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
 $txt['mergetopic_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
 
@@ -747,7 +747,7 @@ $txt['previous_next_forward'] = 'next topic';
 $txt['mark_unread'] = 'Mark unread';
 
 $txt['ssi_not_direct'] = 'Please don\'t access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
-$txt['ssi_session_broken'] = 'SSI.php was unable to load a session!  This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
+$txt['ssi_session_broken'] = 'SSI.php was unable to load a session! This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['preview_title'] = 'Preview post';
