@@ -2460,7 +2460,7 @@ function addInlineCss($css)
 /**
  * Add a Javascript file for output later
  *
- * @param string $filename The name of the file to load
+ * @param string $fileName The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
  * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
@@ -3203,8 +3203,8 @@ function loadDatabase()
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
  * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
- * @param string $fallbackSMF Use the default SMF method if the accelerator fails.
- * @return object A object of $cacheAPI.
+ * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
+ * @return object|false A object of $cacheAPI, or False on failure.
 */
 function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 {

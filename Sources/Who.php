@@ -256,7 +256,7 @@ function Who()
  *    $allowedActions array, using ACTION as the key.
  *
  * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
- * @param string $preferred_prefix = false
+ * @param string|bool $preferred_prefix = false
  * @return array, an array of descriptions if you passed an array, otherwise the string describing their current location.
  */
 function determineActions($urls, $preferred_prefix = false)

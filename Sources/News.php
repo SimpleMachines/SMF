@@ -537,6 +537,7 @@ function cdata_parse($data, $ns = '', $force = false)
  *
  * @param array $data The array to output as xml data
  * @param int $i The amount of indentation to use.
+ * @param null|string $tag
  * @param string $xml_format The format to use ('atom', 'rss', 'rss2' or empty for plain XML)
  * @param array $forceCdataKeys A list of keys on which to force cdata wrapping (used by mods, maybe)
  * @param array $nsKeys Key-value pairs of namespace prefixes to pass to cdata_parse() (used by mods, maybe)

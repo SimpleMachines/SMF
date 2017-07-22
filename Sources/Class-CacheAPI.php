@@ -169,7 +169,6 @@ abstract class cache_api implements cache_api_interface
 	 * Does basic setup of a cache method when we create the object but before we call connect.
 	 *
 	 * @access public
-	 * @return void No return is needed.
 	 */
 	public function __construct()
 	{
