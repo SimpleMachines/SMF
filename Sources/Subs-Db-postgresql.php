@@ -498,9 +498,8 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 }
 
 /**
- * affected_rows
+ * Returns the amount of affected rows for a query.
  *
- * !!! Not sure what this is supposed to do.
  * @param mixed $result
  *
  * @return int
@@ -523,7 +522,7 @@ function smf_db_affected_rows($result = null)
  *
  * @param string $table The table (only used for Postgres)
  * @param string $field = null The specific field (not used here)
- * @param resource $connection = null The connection (if null, $db_connection is used) (not used here?)
+ * @param resource $connection = null The connection (if null, $db_connection is used) (not used here)
  * @return int The ID of the most recently inserted row
  */
 function smf_db_insert_id($table, $field = null, $connection = null)
