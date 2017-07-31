@@ -5583,6 +5583,10 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 /**
  * Check the given String if he is a valid IPv4 or IPv6
  * return true or false
+ *
+ * @param string $IPString
+ *
+ * @return bool
  */
 function isValidIP($IPString)
 {
@@ -5850,7 +5854,7 @@ function set_tld_regex($update = false)
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
- * @param string $returnArray If true, returns an array of regexes.
+ * @param bool $returnArray If true, returns an array of regexes.
  * @return string|array One or more regular expressions to match any of the input strings.
  */
 function build_regex($strings, $delim = null, $returnArray = false)

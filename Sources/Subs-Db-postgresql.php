@@ -498,8 +498,12 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 }
 
 /**
- * affected_rows
- * @param resource $connection
+ * Returns the amount of affected rows for a query.
+ *
+ * @param mixed $result
+ *
+ * @return int
+ *
  */
 function smf_db_affected_rows($result = null)
 {
@@ -518,7 +522,7 @@ function smf_db_affected_rows($result = null)
  *
  * @param string $table The table (only used for Postgres)
  * @param string $field = null The specific field (not used here)
- * @param resource $connection = null The connection (if null, $db_connection is used)
+ * @param resource $connection = null The connection (if null, $db_connection is used) (not used here)
  * @return int The ID of the most recently inserted row
  */
 function smf_db_insert_id($table, $field = null, $connection = null)
@@ -614,7 +618,7 @@ function smf_db_error($db_string, $connection = null)
  * A PostgreSQL specific function for tracking the current row...
  *
  * @param resource $request A PostgreSQL result resource
- * @param int $counter The row number in the result to fetch (false to fetch the next one)
+ * @param bool|int $counter The row number in the result to fetch (false to fetch the next one)
  * @return array The contents of the row that was fetched
  */
 function smf_db_fetch_row($request, $counter = false)
@@ -636,7 +640,7 @@ function smf_db_fetch_row($request, $counter = false)
  * Get an associative array
  *
  * @param resource $request A PostgreSQL result resource
- * @param int $counter The row to get. If false, returns the next row.
+ * @param int|bool $counter The row to get. If false, returns the next row.
  * @return array An associative array of row contents
  */
 function smf_db_fetch_assoc($request, $counter = false)

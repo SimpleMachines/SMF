@@ -2554,7 +2554,7 @@ function PackagePermissionsAction()
 			/**
 			 * Counts all the directories under a given path
 			 *
-			 * @param type $dir
+			 * @param string $dir
 			 * @return integer
 			 */
 			function count_directories__recursive($dir)
@@ -2596,8 +2596,8 @@ function PackagePermissionsAction()
 			/**
 			 * Builds a list of special files recursively for a given path
 			 *
-			 * @param type $path
-			 * @param type $data
+			 * @param string $path
+			 * @param array $data
 			 */
 			function build_special_files__recursive($path, &$data)
 			{

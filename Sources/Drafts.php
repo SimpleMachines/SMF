@@ -420,7 +420,7 @@ function DeleteDraft($id_draft, $check = true)
  * Will load a draft if selected is supplied via post
  *
  * @param int $member_id ID of the member to show drafts for
- * @param boolean|integer If $type is 1, this can be set to only load drafts for posts in the specific topic
+ * @param boolean|integer $topic If $type is 1, this can be set to only load drafts for posts in the specific topic
  * @param int $draft_type The type of drafts to show - 0 for post drafts, 1 for PM drafts
  * @return boolean False if the drafts couldn't be loaded, nothing otherwise
  */

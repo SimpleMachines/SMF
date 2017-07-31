@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Truncate the GET array to a specified length
  * @param array $arr The array to truncate
- * @param max_length $max_length The upperbound on the length
+ * @param int $max_length The upperbound on the length
  *
  * @return array The truncated array
  */
