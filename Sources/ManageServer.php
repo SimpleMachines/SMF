@@ -317,7 +317,7 @@ function ModifyCookieSettings($return_config = false)
 			2 => $txt['tfa_mode_forced'],
 		)) + (empty($user_settings['tfa_secret']) ? array() : array(
 			3 => $txt['tfa_mode_forcedall'],
-		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
+		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavaScript('

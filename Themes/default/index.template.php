@@ -576,7 +576,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 					$button .= '
 								<a href="' . $element['url'] . '"><strong>' . $txt[$element['text']] . '</strong>';
 					if (isset($txt[$element['text'] . '_desc']))
-						$button .= '<br /><span>' . $txt[$element['text'] . '_desc'] . '</span>';
+						$button .= '<br><span>' . $txt[$element['text'] . '_desc'] . '</span>';
 					$button .= '</a>';
 				}
 				$button .= '
