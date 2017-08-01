@@ -42,7 +42,7 @@ $txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
 $txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
 $txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
 $txt['theme_install_already_dir'] = 'The name you specified is already been used by another theme, please try a different name.';
-$txt['theme_install_invalid_id'] = 'This is not a valid ID theme.';
+$txt['theme_install_invalid_id'] = 'This is not a valid theme ID.';
 
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
