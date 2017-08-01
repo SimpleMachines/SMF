@@ -368,7 +368,7 @@ function template_set_options()
 			{
 				$titled_section = true;
 				echo '
-					<dt><b>' . $setting . '</b></dt><dd></dd>';
+					<dt><strong>' . $setting . '</strong></dt><dd></dd>';
 			}
 			else
 				$titled_section = false;
@@ -389,7 +389,7 @@ function template_set_options()
 						</select>&nbsp;</span>';
 
 		echo '
-						<label for="options_', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>';
+						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>';
 		if (isset($setting['description']))
 			echo '
 						<br><span class="smalltext">', $setting['description'], '</span>';
@@ -603,7 +603,7 @@ function template_set_settings()
 			{
 				$titled_section = true;
 				echo '
-					<dt><b>' . $setting . '</b></dt><dd></dd>';
+					<dt><strong>' . $setting . '</strong></dt><dd></dd>';
 			}
 			else
 				$titled_section = false;
@@ -613,7 +613,7 @@ function template_set_settings()
 
 		echo '
 					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<b>' : '', $setting['label'], !$titled_section ? '</b>' : '', '</label>:';
+						<label for="', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>:';
 
 		if (isset($setting['description']))
 			echo '<br>

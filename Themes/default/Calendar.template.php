@@ -183,7 +183,7 @@ function template_show_upcoming_list($grid_name)
 		{
 			echo '
 					<p class="inline">
-						<b>', $date['date_local'], '</b>: ';
+						<strong>', $date['date_local'], '</strong>: ';
 
 			unset($date['date_local']);
 
