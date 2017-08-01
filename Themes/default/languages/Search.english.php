@@ -2,7 +2,7 @@
 // Version: 2.1 Beta 4; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';
-$txt['choose_board'] = 'Choose a board to search in, or search all';
+$txt['choose_board'] = 'Choose boards to search in, or search all';
 $txt['all_words'] = 'Match all words';
 $txt['any_words'] = 'Match any words';
 $txt['by_user'] = 'By user';
