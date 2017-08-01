@@ -343,7 +343,7 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;ins&gt;, &lt;del&gt;</li>
 		<li>&lt;a href=&quot;&quot;&gt;</li>
 		<li>&lt;img src=&quot;&quot; alt=&quot;&quot; /&gt;</li>
-		<li>&lt;br /&gt;, &lt;hr /&gt;</li>
+		<li>&lt;br&gt;, &lt;hr&gt;</li>
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
