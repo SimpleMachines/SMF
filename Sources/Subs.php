@@ -5989,4 +5989,50 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	return $regex;
 }
 
+/*
+//*** Check if current domain has a cert
+// Adapted from: https://stackoverflow.com/questions/27689147/how-to-check-if-domain-has-ssl-certificate-or-not
+*/ 
+function ssl_cert_found() {
+
+	$url = 'https://' . $_SERVER["SERVER_NAME"];
+
+	$result = false;
+	$stream = stream_context_create (array("ssl" => array("capture_peer_cert" => true)));
+	$read = @fopen($url, "rb", false, $stream);
+	if ($read !== false) {
+		$cont = stream_context_get_params($read);
+		$result = isset($cont["options"]["ssl"]["peer_certificate"]) ? true : false;
+	}
+    return $result;
+}
+
+/* 
+//*** Check if $boardurl has a redirect to https:// by querying headers
+*/ 
+function https_redirect_active($url) {
+
+	// Ask for the headers for the current $boardurl, but via http...
+	// Need to add the trailing slash, or it puts it there & thinks there's a redirect when there isn't...
+	$url = str_ireplace('https://', 'http://', $url) . '/';
+	$headers = get_headers($url);
+	if ($headers === false)
+		return false;
+
+	// Now to see if it came back https...   
+	// First check for a redirect status code in first row (301, 302, 307)
+	if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false)
+		return false;
+	
+	// Search for the location entry to confirm https
+	$result = false;
+	foreach ($headers as $header) {
+		if (stristr($header, 'Location: https://') !== false) {
+			$result = true;
+			break;
+		}
+	}
+	return $result;		
+}
+
 ?>
