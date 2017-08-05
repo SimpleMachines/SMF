@@ -848,17 +848,17 @@ function Display()
 	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $start)
 	{	// yes we call the next page
 		$start_char = 'M'; 
-		$page_id = $_SESSION['page_next_id'];
+		$page_id = $_SESSION['page_last_id'];
 	}
 	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $start)
 	{	// yes we go backward
 		$start_char = 'L';
-		$page_id = $_SESSION['page_before_id'];
+		$page_id = $_SESSION['page_first_id'];
 	}
 	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $start)
 	{	// refresh of current page
 		$start_char = 'C';
-		$page_id = $_SESSION['page_current_id'];
+		$page_id = $_SESSION['page_first_id'];
 	}
 	elseif ($start == 0) //special case start page
 	{	// special case start page
@@ -941,6 +941,10 @@ function Display()
 				unset($start_char);
 			}
 		}
+
+		// Before Page bring in the right order
+		if (!empty($start_char) && $start_char === 'L')
+			krsort($messages);
 	}
 
 	// Jump to page
@@ -981,21 +985,20 @@ function Display()
 				$all_posters[$row['id_msg']] = $row['id_member'];
 			$messages[] = $row['id_msg'];
 		}
+
+		// get the message in this order how they shown
+		if (!$ascending)
+			sort($messages);
 	}
 
-	// Before Page bring in the right order
-	if (!empty($start_char) && $start_char === 'L')
-		krsort($messages);
-	
 	// Save the next start of the next page and the end of the page before
-	$_SESSION['page_before_id'] = $messages[0];
-	$_SESSION['page_before_start'] = $start - $limit;
-	$_SESSION['page_next_id'] = end($messages);
-	$_SESSION['page_next_start'] = $start + $limit;
-	$_SESSION['page_current_id'] = $messages[0];
-	$_SESSION['page_current_start'] = $start;
+	$_SESSION['page_first_id'] = $messages[0];
+	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
+	$_SESSION['page_last_id'] = end($messages);
+	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
+	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
-	
+
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
 
