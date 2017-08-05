@@ -842,23 +842,25 @@ function Display()
 		call_integration_hook('integrate_poll_buttons');
 	}
 
+	$start = $_REQUEST['start'];
+
 	// Check if we can use seek
-	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $_REQUEST['start'])
+	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $start)
 	{	// yes we call the next page
 		$start_char = 'M'; 
 		$page_id = $_SESSION['page_next_id'];
 	}
-	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'])
+	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $start)
 	{	// yes we go backward
 		$start_char = 'L';
 		$page_id = $_SESSION['page_before_id'];
 	}
-	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $_REQUEST['start'])
+	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $start)
 	{	// refresh of current page
 		$start_char = 'C';
 		$page_id = $_SESSION['page_current_id'];
 	}
-	elseif ($_REQUEST['start'] == 0) //special case start page
+	elseif ($start == 0) //special case start page
 	{	// special case start page
 		$start_char = 'C';
 		$page_id = $context['topicinfo']['id_first_msg'];
@@ -946,7 +948,6 @@ function Display()
 	{
 		// Calculate the fastest way to get the messages!
 		$ascending = empty($options['view_newest_first']);
-		$start = $_REQUEST['start'];
 		$firstIndex = 0;
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
@@ -988,11 +989,11 @@ function Display()
 	
 	// Save the next start of the next page and the end of the page before
 	$_SESSION['page_before_id'] = $messages[0];
-	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
+	$_SESSION['page_before_start'] = $start - $limit;
 	$_SESSION['page_next_id'] = end($messages);
-	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
+	$_SESSION['page_next_start'] = $start + $limit;
 	$_SESSION['page_current_id'] = $messages[0];
-	$_SESSION['page_current_start'] = $_REQUEST['start'];
+	$_SESSION['page_current_start'] = $start;
 	$_SESSION['page_topic'] = $topic;
 	
 	$smcFunc['db_free_result']($request);
