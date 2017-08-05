@@ -875,7 +875,7 @@ function Display()
 	{
 		$firstIndex = 0;
 		
-		if ($start_char === 'M' or $start_char === 'S')
+		if ($start_char === 'M' or $start_char === 'S' or $start_char === 'C')
 		{
 			$ascending = true;
 			$page_operator = '>=';
