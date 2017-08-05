@@ -844,23 +844,23 @@ function Display()
 
 	// Check if we can use seek
 	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $_REQUEST['start'])
-	{	//yes we call the next page
+	{	// yes we call the next page
 		$start_char = 'M'; 
 		$page_id = $_SESSION['page_next_id'];
 	}
-	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'])
-	{	//yes we go backward
+	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'])
+	{	// yes we go backward
 		$start_char = 'L';
 		$page_id = $_SESSION['page_before_id'];
 	}
-	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $_REQUEST['start'])
-	{	//refresh of corrent page
+	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $_REQUEST['start'])
+	{	// refresh of current page
 		$start_char = 'C';
 		$page_id = $_SESSION['page_current_id'];
 	}
-	else if ($_REQUEST['start'] == 0) //special case start page
-	{
-		$start_char = 'S';
+	elseif ($_REQUEST['start'] == 0) //special case start page
+	{	// special case start page
+		$start_char = 'C';
 		$page_id = $context['topicinfo']['id_first_msg'];
 	}
 	else
@@ -874,7 +874,7 @@ function Display()
 	if (isset($start_char))
 	{
 		$firstIndex = 0;
-		
+
 		if ($start_char === 'M' or $start_char === 'S' or $start_char === 'C')
 		{
 			$ascending = true;
@@ -885,12 +885,12 @@ function Display()
 			$ascending = false;
 			$page_operator = '<=';
 		}
-		
-		if ($start_char === 'S' || $start_char === 'C')
+
+		if ($start_char === 'C')
 			$limit_seek = $limit;
 		else
 			$limit_seek  = $limit + 1;
-		
+
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
@@ -908,13 +908,9 @@ function Display()
 				'page_id' => $page_id,
 			)
 		);
-		
+
 		$found_msg = false;
-		
-		// the start msg can not be "lost"
-		if ($start_char === 'S')
-			$found_msg = true;
-		
+
 		// Fallback
 		if ($smcFunc['db_num_rows']($request) < 1)
 			unset($start_char);
@@ -922,7 +918,7 @@ function Display()
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				if ($row['id_msg'] != $page_id || $found_msg || $start_char === 'C')
+				if ($row['id_msg'] != $page_id || $start_char === 'C')
 				{
 					if (!empty($row['id_member']))
 						$all_posters[$row['id_msg']] = $row['id_member'];
