@@ -844,14 +844,19 @@ function Display()
 
 	// Check if we can use seek
 	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $_REQUEST['start'])
-	{
-		$start_char = 'M'; //yes we call the next page
+	{	//yes we call the next page
+		$start_char = 'M'; 
 		$page_id = $_SESSION['page_next_id'];
 	}
-	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'] )
-	{
-		$start_char = 'L'; //yes we go backward
+	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'])
+	{	//yes we go backward
+		$start_char = 'L';
 		$page_id = $_SESSION['page_before_id'];
+	}
+	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $_REQUEST['start'])
+	{	//refresh of corrent page
+		$start_char = 'C';
+		$page_id = $_SESSION['page_current_id'];
 	}
 	else if ($_REQUEST['start'] == 0) //special case start page
 	{
@@ -881,7 +886,7 @@ function Display()
 			$page_operator = '<=';
 		}
 		
-		if ($start_char === 'S')
+		if ($start_char === 'S' || $start_char === 'C')
 			$limit_seek = $limit;
 		else
 			$limit_seek  = $limit + 1;
@@ -917,17 +922,20 @@ function Display()
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				if ($row['id_msg'] != $page_id || $found_msg)
+				if ($row['id_msg'] != $page_id || $found_msg || $start_char === 'C')
 				{
 					if (!empty($row['id_member']))
 						$all_posters[$row['id_msg']] = $row['id_member'];
 					$messages[] = $row['id_msg'];
+
+					if ($start_char === 'C' && $row['id_msg'] == $page_id) // find the start message of current page
+						$found_msg = true;
 				}
 				else
-					$found_msg = true;
+					$found_msg = true; // find the start message of next or before page
 			}
 
-			//page_id not found? -> fallback
+			// page_id not found? -> fallback
 			if (!$found_msg)
 			{
 				$messages = array();
@@ -987,6 +995,8 @@ function Display()
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
 	$_SESSION['page_next_id'] = end($messages);
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
+	$_SESSION['page_current_id'] = $messages[0];
+	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
 	
 	$smcFunc['db_free_result']($request);
