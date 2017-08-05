@@ -842,45 +842,153 @@ function Display()
 		call_integration_hook('integrate_poll_buttons');
 	}
 
-	// Calculate the fastest way to get the messages!
-	$ascending = empty($options['view_newest_first']);
-	$start = $_REQUEST['start'];
-	$limit = $context['messages_per_page'];
-	$firstIndex = 0;
-	if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
+	// Check if we can use seek
+	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $_REQUEST['start'])
 	{
-		$ascending = !$ascending;
-		$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
-		$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-		$firstIndex = $limit - 1;
+		$start_char = 'M'; //yes we call the next page
+		$page_id = $_SESSION['page_next_id'];
 	}
+	else if (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $_REQUEST['start'] )
+	{
+		$start_char = 'L'; //yes we go backward
+		$page_id = $_SESSION['page_before_id'];
+	}
+	else if ($_REQUEST['start'] == 0) //special case start page
+	{
+		$start_char = 'S';
+		$page_id = $context['topicinfo']['id_first_msg'];
+	}
+	else
+		$start_char = null;
 
-	// Get each post and poster in this topic.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_msg, id_member, approved
-		FROM {db_prefix}messages
-		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-		AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-		LIMIT {int:start}, {int:max}'),
-		array(
-			'current_member' => $user_info['id'],
-			'current_topic' => $topic,
-			'is_approved' => 1,
-			'blank_id_member' => 0,
-			'start' => $start,
-			'max' => $limit,
-		)
-	);
-
+	$limit = $context['messages_per_page'];
+	
 	$messages = array();
 	$all_posters = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	
+	if (isset($start_char))
 	{
-		if (!empty($row['id_member']))
-			$all_posters[$row['id_msg']] = $row['id_member'];
-		$messages[] = $row['id_msg'];
+		$firstIndex = 0;
+		
+		if ($start_char === 'M' or $start_char === 'S')
+		{
+			$ascending = true;
+			$page_operator = '>=';
+		}
+		else
+		{
+			$ascending = false;
+			$page_operator = '<=';
+		}
+		
+		if ($start_char === 'S')
+			$limit_seek = $limit;
+		else
+			$limit_seek  = $limit + 1;
+		
+		$request = $smcFunc['db_query']('', '
+			SELECT id_msg, id_member, approved
+			FROM {db_prefix}messages
+			WHERE id_topic = {int:current_topic} 
+			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			LIMIT {int:limit}'),
+			array(
+				'current_member' => $user_info['id'],
+				'current_topic' => $topic,
+				'is_approved' => 1,
+				'blank_id_member' => 0,
+				'limit' => $limit_seek,
+				'page_id' => $page_id,
+			)
+		);
+		
+		$found_msg = false;
+		
+		// the start msg can not be "lost"
+		if ($start_char === 'S')
+			$found_msg = true;
+		
+		// Fallback
+		if ($smcFunc['db_num_rows']($request) < 1)
+			unset($start_char);
+		else
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				if ($row['id_msg'] != $page_id || $found_msg)
+				{
+					if (!empty($row['id_member']))
+						$all_posters[$row['id_msg']] = $row['id_member'];
+					$messages[] = $row['id_msg'];
+				}
+				else
+					$found_msg = true;
+			}
+
+			//page_id not found? -> fallback
+			if (!$found_msg)
+			{
+				$messages = array();
+				$all_posters = array();
+				unset($start_char);
+			}
+		}
 	}
+
+	// Jump to page
+	if (empty($start_char))
+	{
+		// Calculate the fastest way to get the messages!
+		$ascending = empty($options['view_newest_first']);
+		$start = $_REQUEST['start'];
+		$firstIndex = 0;
+		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
+		{
+			$ascending = !$ascending;
+			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
+			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
+			$firstIndex = $limit - 1;
+		}
+
+		// Get each post and poster in this topic.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_msg, id_member, approved
+			FROM {db_prefix}messages
+			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			LIMIT {int:start}, {int:max}'),
+			array(
+				'current_member' => $user_info['id'],
+				'current_topic' => $topic,
+				'is_approved' => 1,
+				'blank_id_member' => 0,
+				'start' => $start,
+				'max' => $limit,
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['id_member']))
+				$all_posters[$row['id_msg']] = $row['id_member'];
+			$messages[] = $row['id_msg'];
+		}
+	}
+
+	// Before Page bring in the right order
+	if (!empty($start_char) && $start_char === 'L')
+		krsort($messages);
+	
+	// Save the next start of the next page and the end of the page before
+	$_SESSION['page_before_id'] = $messages[0];
+	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
+	$_SESSION['page_next_id'] = end($messages);
+	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
+	$_SESSION['page_topic'] = $topic;
+	
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
 
