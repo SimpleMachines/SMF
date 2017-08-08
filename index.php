@@ -382,7 +382,8 @@ function smf_main()
 	}
 
 	// Otherwise, it was set - so let's go to that action.
-	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
+	if (!empty($actionArray[$_REQUEST['action']][0]))
+		require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 
 	// Do the right thing.
 	return call_helper($actionArray[$_REQUEST['action']][1], true);
