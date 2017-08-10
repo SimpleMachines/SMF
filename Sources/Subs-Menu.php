@@ -146,6 +146,9 @@ function createMenu($menuData, $menuOptions = array())
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area_id);
 
+						// This is a shortcut for Font-Icon users so they don't have to re-do whole CSS.
+						$menu_context['sections'][$section_id]['areas'][$area_id]['plain_class'] = $area['icon'];
+
 						// Some areas may be listed but not active, which we show as greyed out.
 						$menu_context['sections'][$section_id]['areas'][$area_id]['inactive'] = !empty($area['inactive']);
 
