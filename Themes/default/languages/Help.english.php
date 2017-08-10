@@ -340,7 +340,7 @@ $helptxt['spamWaitTime'] = 'Here you can select the amount of time that must pas
 
 $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tags:
 	<ul class="normallist">
-		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;ins&gt;, &lt;del&gt;</li>
+		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;strong&gt;, &lt;ins&gt;, &lt;del&gt;</li>
 		<li>&lt;a href=&quot;&quot;&gt;</li>
 		<li>&lt;img src=&quot;&quot; alt=&quot;&quot; /&gt;</li>
 		<li>&lt;br&gt;, &lt;hr&gt;</li>
