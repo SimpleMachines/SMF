@@ -1066,6 +1066,12 @@ function UpgradeOptions()
 			'image_proxy_enabled' => 0,
 		);
 
+	// If $boardurl reflects https, set force_ssl
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+	if (stripos($boardurl, 'https://') !== false)
+		updateSettings(array('force_ssl' => '2'));
+
 	// If we're overriding the language follow it through.
 	if (isset($_GET['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $_GET['lang'] . '.php'))
 		$changes['language'] = '\'' . $_GET['lang'] . '\'';
