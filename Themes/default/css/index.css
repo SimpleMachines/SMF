@@ -3083,7 +3083,6 @@ span.postby {
 }
 /* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
-	margin-top: 3px;
 	padding: 1px 6px;
 }
 
