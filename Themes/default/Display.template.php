@@ -228,8 +228,9 @@ function template_main()
 	echo '
 			<div class="pagesection top">
 				', template_button_strip($context['normal_buttons'], 'right'), '
-				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
+				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
+					<a href="#bot" class="button floatleft">', $txt['go_down'], '</a>
 					', $context['page_index'], '
 				</div>
 			</div>';
@@ -270,8 +271,9 @@ function template_main()
 	echo '
 			<div class="pagesection">
 				', template_button_strip($context['normal_buttons'], 'right'), '
-				', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft" id="bot">', $txt['go_up'], '</a>
+				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
+					<a href="#main_content_section" class="button floatleft" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>
 			</div>';
