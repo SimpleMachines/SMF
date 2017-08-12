@@ -2277,6 +2277,7 @@ dl {
 
 .profile_pie {
 	background: url(../images/stats_pie.png);
+	background-size: auto 20px;
 	float: left;
 	height: 20px;
 	width: 20px;
