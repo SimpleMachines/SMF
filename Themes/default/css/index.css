@@ -2870,7 +2870,7 @@ h3 .collapse {
 	margin: 4px 4px 0 0;
 }
 .board_icon a {
-	background: url(../images/boardicons.png) no-repeat 0 0;
+	background: url(../images/boardicons.png) no-repeat 0 0 / 90px;
 	display: inline-block;
 	width: 45px;
 	height: 45px;
