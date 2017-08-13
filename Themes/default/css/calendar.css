@@ -47,9 +47,6 @@ td.days:hover {
 	margin: 1px 0 0 0;
 	border: 1px solid #ddd;
 	overflow: auto;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	margin-left: 1px;
 }
 #main_grid .cat_bar {

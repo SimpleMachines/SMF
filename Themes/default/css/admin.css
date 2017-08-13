@@ -124,7 +124,6 @@ body#chrome #quick_search form input {
 /* Live news from smorg and support information. */
 #live_news, #supportVersionsTable {
 	width: 70%;
-	box-sizing: border-box;
 }
 #supportVersionsTable {
 	width: 30%;
@@ -604,9 +603,6 @@ h3.grid_header {
 #error_log tr.windowbg td, #error_log tr.windowbg2 td {
 	padding: 8px;
 	line-height: 160%;
-}
-#error_log td div {
-	box-sizing: border-box;
 }
 #error_log td.checkbox_column {
 	width: 15px;

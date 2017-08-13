@@ -13,8 +13,8 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
-/* <p> is a possible exception for margins. Must test that one a bit. */
-p, ul, ol, li, dl, dd ,dt, fieldset, form {
+/* General reset */
+* {
 	box-sizing: border-box;
 	padding: 0;
 	margin: 0;
@@ -34,7 +34,6 @@ table {
 }
 input, button, select, textarea, textarea.editor {
 	color: #222;
-	box-sizing: border-box;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
 	outline: none !important;
@@ -176,7 +175,6 @@ a:hover {
 /* Deprecated? */
 body#help_popup {
 	padding: 12px;
-	box-sizing: border-box;
 }
 
 #likes li {
@@ -315,7 +313,6 @@ h3.largetext {
 	padding-bottom: 6px;
 }
 .half_content {
-	box-sizing: border-box;
 	width: 50%;
 	display: inline-block;
 	vertical-align: top;
@@ -732,7 +729,6 @@ img.sort, .sort {
 ------------------------------------------------------- */
 .dropmenu, #top_info {
 	position: relative;
-	box-sizing: border-box;
 }
 /* Level 1 button background. */
 .dropmenu li, #top_info > li {
@@ -816,12 +812,19 @@ img.sort, .sort {
 }
 .profile_user_links ol {
 	margin: 0 10px;
+	font-size: 0; /* fix for extra space between inline-blocks */
 	clear: both;
 }
 .profile_user_links li {
 	display: inline-block;
-	width: 11em;
+	font-size: .8rem;
+	min-width: 18ex;
+	width: 50%;
 	margin-bottom: 4px;
+}
+/* Fixes bug with border-box on scrollable js */
+.scrollable, .scrollable * {
+	box-sizing: content-box;
 }
 .top_menu.scrollable {
 	max-height: 30em;
@@ -1041,12 +1044,6 @@ img.sort, .sort {
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
-/* Do all these here to save repetition. */
-#header, #top_section, #upper_wrap, #upper_section, #upper_section .user,
-#upper_section .news, .navigate_section, #content_section, #main_content_section,
-#footer {
-	box-sizing: border-box;
-}
 
 /* Box-shadow only on this one. */
 #wrapper {
@@ -1232,7 +1229,6 @@ ul li.greeting {
 	border: 1px solid #ddd;
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
-	box-sizing: border-box;
 }
 .navigate_section ul li {
 	float: left;
@@ -1430,7 +1426,6 @@ ul li.greeting {
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
-	box-sizing: border-box;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
 .quickbuttons li > ul > li {
@@ -1508,12 +1503,10 @@ div.event_options {
 	width: 49%;
 	padding-right: 1em;
 	min-width: 238px;
-	box-sizing: border-box;
 }
 .event_options_right {
 	display: inline-block;
 	width: 50%;
-	box-sizing: border-box;
 }
 .event_options_left div, .event_options_right div {
     min-height: 25px;
@@ -2757,7 +2750,6 @@ dl.addrules dt.floatleft {
 	border-radius: 6px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
-	box-sizing: border-box;
 }
 /* Here comes the glory... */
 .windowbg:nth-of-type(even) {
@@ -2819,7 +2811,6 @@ tr.windowbg, tr.windowbg2 {
 }
 #postmodify #message {
 	width: 100%;
-	box-sizing: border-box;
 }
 #postmodify .lastedit {
 	font-weight: bold;
@@ -2925,7 +2916,6 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	box-sizing: border-box;
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;
@@ -3487,7 +3477,6 @@ ul.post_options li {
 	box-shadow: 0 1px 0 #fff inset;
 	line-height: 1.4em;
 	font-size: 0.9em;
-	box-sizing: border-box;
 }
 .under_message {
 	overflow: visible;
@@ -3519,7 +3508,6 @@ div.cat_bar {
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
-	box-sizing: border-box;
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
@@ -3555,7 +3543,6 @@ h3.catbg .icon {
 }
 /* Roundframe */
 .roundframe {
-	box-sizing: border-box;
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
 	background: #F8F8F8;
@@ -3608,7 +3595,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	border-radius: 0 0 7px 7px;
 	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
-	box-sizing: border-box;
 }
 .generic_list_wrapper .information div {
 	background: none;
@@ -3851,9 +3837,8 @@ h3.profile_hd {
 }
 #au-previews div.descbox > div,
 #au-previews div.errorbox > div,
-#au-previews div.infobox > div{
+#au-previews div.infobox > div {
 	padding: 10px;
-	box-sizing: border-box;
 }
 #au-previews .attach-preview {
 	flex: 0 0 auto;
