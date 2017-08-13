@@ -47,11 +47,9 @@ td.days:hover {
 	margin: 1px 0 0 0;
 	border: 1px solid #ddd;
 	overflow: auto;
-	margin-left: 1px;
 }
 #main_grid .cat_bar {
 	border-radius: 5px 5px 0 0;
-	margin: 0 0 0 1px;
 }
 #month_grid table th:first-child {
 	background: #e7eaef;
