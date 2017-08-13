@@ -2254,7 +2254,7 @@ dl {
 .activity_stats li div.bar {
 	margin: 0 auto;
 	width: 15px;
-	border: 1px solid #ddd;
+	border: 1px solid #cacaca;
 	border-bottom: none;
 	background: #fff;
 }
@@ -2423,19 +2423,19 @@ dl.stats dd {
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
-	border: 1px solid #aaa;
+	border: 1px solid #cecaca;
 	border-radius: 2px;
 	position: relative;
 }
 .statsbar div.bar {
 	float: left;
 	background: orange;
-	border-right: 1px solid #999;
-	border-radius: 1px 0 0 1px;
+	border-radius: 1px;
 	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
 	margin: 0 4px 0 0;
 	height: 1.4em;
+	text-shadow: 1px 1px rgba(255,255,255,0.4);
 }
 .statsbar div.bar.empty {
 	width: 0;
@@ -3130,22 +3130,19 @@ span.postby {
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
-	border: 1px solid #aaa;
+	border: 1px solid #cecaca;
 	border-radius: 2px;
 	position: relative;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 #poll_options dl.options .percentage {
 	display: block;
-	float: right;
-	margin: -2px;
-	padding: 0 2px;
+	padding: 0 4px;
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: -1px;
 	z-index: 2;
-	background: none;
-	white-space: pre;
+	text-shadow: 1px 1px rgba(255,255,255,0.4);
 }
 
 /* Poll notices */
