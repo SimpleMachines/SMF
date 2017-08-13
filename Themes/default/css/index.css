@@ -3619,18 +3619,17 @@ p.information img {
 	display: inline-block;
 	width: 14px;
 	height: 14px;
-	border-radius: 12px;
-	border: 1px solid none;
+	border-radius: 50%;
+	border: 1px solid transparent;
 	vertical-align: middle;
 }
 .on {
-	background: #99FF66;
+	background: #89E75A;
+	border-color: #74d246;
 }
 .off {
-	background: grey;
-}
-#firefox .on, #firefox .off {
-	margin: 0 0 5px 0;
+	background: #a7a2a2;
+	border-color: #969292;
 }
 #userstatus .smalltext {
 	margin: 0 0 0 5px !important;
