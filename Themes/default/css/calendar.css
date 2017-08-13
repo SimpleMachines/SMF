@@ -85,7 +85,7 @@ td.days:hover {
 }
 #main_grid table th.days {
 	width: 14%;
-	padding: 0 10px;
+	padding: 5px 10px;
 	text-align: left;
 	background: #e7eaef;
 }
@@ -193,7 +193,8 @@ td.days:hover {
 div.week_month_title {
 	font-weight: bold;
 	font-size: xx-large;
-	margin: 10px 0 12px 2px;
+	margin: 0.8em 0 0.4em 0.15em;
+	line-height: 1.2em;
 }
 div.week_month_title a {
 	color: #555;
