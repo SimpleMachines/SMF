@@ -146,9 +146,17 @@ td.days:hover {
 	padding: 5px;
 }
 #month_grid table td.days {
-	padding: 5px;
+	padding: 0;
 	width: 12.5%;
 	text-align: center;
+}
+#month_grid table td.days a {
+	display: block;
+	padding: 5px;
+}
+#month_grid table td.days a:hover {
+	text-decoration: none;
+	background: rgba(97, 135, 166, 0.2);
 }
 #main_grid table tbody tr:nth-child(2) td.days,
 #month_grid table tbody tr:nth-child(2) {
@@ -217,11 +225,8 @@ span.hidelink {
 	margin: 5px 0;
 	padding: 0
 }
-#month_grid .compact {
+#month_grid .compact.days a {
 	padding: 2px;
-}
-#month_grid .comfortable {
-	padding: 5px;
 }
 #main_grid .compact,
 .calendar_week .compact {
