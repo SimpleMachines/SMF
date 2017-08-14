@@ -390,7 +390,7 @@ blockquote cite::before {
 }
 .bbc_link:hover {
 	text-decoration: none;
-	border-bottom-color: #346;
+	border-bottom: 1px solid #346;
 }
 .bbc_size {
 	line-height: 1.4em;
