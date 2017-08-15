@@ -197,7 +197,8 @@ div.sceditor-dropdown div {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 13px;
   color: #111;
-  padding: 5px 0;
+  box-sizing: border-box;
+  padding: 5px;
   margin: 0px;
   resize: none;
   background: #fff;
