@@ -2605,7 +2605,7 @@ dl.addrules dt.floatleft {
 	color: #333;
 	background: #fff;
 	border: 1px solid #aaa;
-	border-radius: 4px 4px 4px 4px;
+	border-radius: 4px;
 	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
 }
 
@@ -3065,7 +3065,6 @@ span.postby {
 	width: 30%;
 	max-width: 30em;
 	float: left;
-	margin: 0;
 	clear: left;
 }
 #poll_options dl.options .voted {
@@ -3076,7 +3075,6 @@ span.postby {
 	max-width: 45em;
 	float: left;
 	margin: 0 0 4px 0;
-	padding: 0;
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
@@ -3102,8 +3100,6 @@ span.postby {
 }
 
 div#pollmoderation {
-	margin: 0;
-	padding: 0;
 	overflow: auto;
 }
 
@@ -3477,7 +3473,7 @@ h3.catbg {
 	padding: 8px;
 	background: none;
 }
-h3.catbg, h3.catbg a:link, h3.catbg a:visited, h3.catbg a:hover {
+h3.catbg, h3.catbg a, h3.catbg a:hover {
 	color: #fff;
 }
 h3.catbg a:hover {
@@ -3500,8 +3496,7 @@ h3.catbg .icon {
 }
 /* TitleBar & SubBar */
 .title_bar {
-	border-right: 1px solid #ddd;
-	border-left: 1px solid #ddd;
+	border: 1px solid #ddd;
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
@@ -3572,7 +3567,7 @@ p.information img {
 }
 /* Mentions */
 .atwho-view {
-	position:absolute;
+	position: absolute;
 	top: 0;
 	left: 0;
 	display: none;
@@ -3599,9 +3594,9 @@ p.information img {
 	font-weight: bold;
 }
 .atwho-view ul {
-	list-style:none;
-	padding:0;
-	margin:auto;
+	list-style: none;
+	padding: 0;
+	margin: auto;
 }
 .atwho-view ul li {
 	display: block;
@@ -3637,13 +3632,11 @@ p.information img {
 
 /* Styles for print media. */
 @media print {
-	#headerarea
-	{
+	#headerarea {
 		display: none;
 	}
 
-	.tborder
-	{
+	.tborder {
 		border: none;
 	}
 }
@@ -3759,10 +3752,18 @@ h3.profile_hd {
 }
 
 /* Alternating colors */
-.stripes:nth-of-type(even) { background-color:#F2F2F2; }
-.stripes:nth-of-type(odd) { background-color:#f0f4f7; }
-.alternative { background-color:#F2F2F2; }
-.alternative2{ background-color:#E8EDF0; }
+.stripes:nth-of-type(even) {
+	background-color: #F2F2F2;
+}
+.stripes:nth-of-type(odd) {
+	background-color: #f0f4f7;
+}
+.alternative {
+	background-color: #F2F2F2;
+}
+.alternative2 {
+	background-color: #E8EDF0;
+}
 
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
@@ -3898,7 +3899,6 @@ a.button_submit {
 }
 
 /* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
-.g-recaptcha
-{
+.g-recaptcha {
 	display: inline-block;
 }
