@@ -75,6 +75,8 @@ smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 smf_DraftAutoSave.prototype.draftSave = function ()
 {
 	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText(true);
+	var sPosticon = (typeof document.forms.postmodify['icon'] === 'undefined' ? 'xx' : document.forms.postmodify['icon'].value);
+	var sPostsubj = (typeof document.forms.postmodify['subject'] === 'undefined' ? '' : document.forms.postmodify['subject'].value);
 
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
@@ -92,9 +94,9 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	var aSections = [
 		'topic=' + parseInt(document.forms.postmodify.elements['topic'].value),
 		'id_draft=' + (('id_draft' in document.forms.postmodify.elements) ? parseInt(document.forms.postmodify.elements['id_draft'].value) : 0),
-		'subject=' + escape(document.forms.postmodify['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
+		'subject=' + escape(sPostsubj.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'message=' + escape(sPostdata.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
-		'icon=' + escape(document.forms.postmodify['icon'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
+		'icon=' + escape(sPosticon.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'save_draft=true',
 		smf_session_var + '=' + smf_session_id,
 	];
