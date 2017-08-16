@@ -194,7 +194,6 @@ div.sceditor-dropdown div {
   line-height: 1;
   border: 0;
   outline: none;
-  font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 13px;
   color: #111;
   box-sizing: border-box;
@@ -206,6 +205,12 @@ div.sceditor-dropdown div {
   min-width: 100%;
   max-width: 100%;
 
+}
+.sceditor-container iframe {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+.sceditor-container textarea {
+  font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
 }
 div.sceditor-resize-cover {
   position: absolute;
