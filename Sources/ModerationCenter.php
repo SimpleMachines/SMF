@@ -1564,7 +1564,7 @@ function ViewWarningLog()
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ':
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit">',
 				'class' => 'floatright',
 			),
@@ -1760,14 +1760,14 @@ function ViewWarningTemplates()
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
+						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '">';
 					},
 					'class' => 'centercol',
 				),

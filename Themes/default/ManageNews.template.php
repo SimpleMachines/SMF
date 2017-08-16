@@ -41,11 +41,11 @@ function template_email_members()
 
 	foreach ($context['groups'] as $group)
 				echo '
-						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
+						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
 
 	echo '
 						<br>
-						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');" class="input_check"> <em>', $txt['check_all'], '</em></label>';
+						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>';
 
 	echo '
 					</dd>
@@ -70,7 +70,7 @@ function template_email_members()
 							<span class="smalltext">', $txt['admin_news_select_members_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="members" id="members" value="" size="30" class="input_text">
+							<input type="text" name="members" id="members" value="" size="30">
 							<span id="members_container"></span>
 						</dd>
 					</dl>
@@ -84,18 +84,18 @@ function template_email_members()
 
 	foreach ($context['groups'] as $group)
 				echo '
-							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '" class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
+							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
 
 	echo '
 							<br>
-							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');" class="input_check"> <em>', $txt['check_all'], '</em></label><br>
+							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', $txt['check_all'], '</em></label><br>
 						</dd>
 						<dt>
 							<strong>', $txt['admin_news_select_excluded_members'], ':</strong><br>
 							<span class="smalltext">', $txt['admin_news_select_excluded_members_desc'], '</span>
 						</dt>
 							<dd>
-							<input type="text" name="exclude_members" id="exclude_members" value="" size="30" class="input_text">
+							<input type="text" name="exclude_members" id="exclude_members" value="" size="30">
 							<span id="exclude_members_container"></span>
 						</dd>
 					</dl>
@@ -106,7 +106,7 @@ function template_email_members()
 							<span class="smalltext">', $txt['email_force'], '</span>
 						</dt>
 						<dd>
-							<input type="checkbox" name="email_force" id="email_force" value="1" class="input_check">
+							<input type="checkbox" name="email_force" id="email_force" value="1">
 						</dd>
 					</dl>
 				</div>
@@ -222,7 +222,7 @@ function template_email_members_compose()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '/>
 					</dd>
 				</dl><hr class="clear">
 				<div id="bbcBox_message"></div>';
@@ -238,9 +238,9 @@ function template_email_members_compose()
 
 					echo '
 				<ul>
-					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty($context['send_pm']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_pms'], '</label></li>
-					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
-					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled class="input_check"> ', $txt['email_parsed_html'], '</label></li>
+					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty($context['send_pm']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', $txt['email_as_pms'], '</label></li>
+					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
+					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled> ', $txt['email_parsed_html'], '</label></li>
 				</ul>
 				<br class="clear_right">
 				<span id="post_confirm_buttons">

@@ -247,12 +247,12 @@ function BanList()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
 						'params' => array(
 							'id_ban_group' => false,
 						),
@@ -438,12 +438,12 @@ function BanEdit()
 					),
 					'checkboxes' => array(
 						'header' => array(
-							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check">',
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');">',
 							'style' => 'width: 5%; text-align: center;',
 						),
 						'data' => array(
 							'sprintf' => array(
-								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check">',
+								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d">',
 								'params' => array(
 									'id' => false,
 								),
@@ -1758,12 +1758,12 @@ function BanBrowseTriggers()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
 						'params' => array(
 							'id_ban' => false,
 						),
@@ -2042,12 +2042,12 @@ function BanLog()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
 						'params' => array(
 							'id_ban_log' => false,
 						),

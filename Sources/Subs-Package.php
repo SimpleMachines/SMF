@@ -707,12 +707,12 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				),
 				'check' => array(
 					'header' => array(
-						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<input type="checkbox" name="restore_files[]" value="%1$s" class="input_check">',
+							'format' => '<input type="checkbox" name="restore_files[]" value="%1$s">',
 							'params' => array(
 								'path' => false,
 							),

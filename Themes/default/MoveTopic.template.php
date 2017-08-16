@@ -51,13 +51,13 @@ function template_move()
 	// Disable the reason textarea when the postRedirect checkbox is unchecked...
 	echo '
 					</dl>
-					<label for="reset_subject"><input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';" class="input_check"> ', $txt['movetopic_change_subject'], '.</label><br>
+					<label for="reset_subject"><input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.</label><br>
    					<fieldset id="subjectArea" style="display: none;">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
-							<dd><input type="text" name="custom_subject" size="30" value="', $context['subject'], '" class="input_text"></dd>
+							<dd><input type="text" name="custom_subject" size="30" value="', $context['subject'], '"></dd>
 						</dl>
-						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" class="input_check"> ', $txt['movetopic_change_all_subjects'], '.</label>
+						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', $txt['movetopic_change_all_subjects'], '.</label>
 					</fieldset>';
 
 	// Stick our "create a redirection topic" template in here...
@@ -89,7 +89,7 @@ function template_redirect_options($type)
     global $txt, $context, $modSettings;
 
     echo '
-					<label for="postRedirect"><input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';" class="input_check"> ', $txt['post_redirection'], '.</label>
+					<label for="postRedirect"><input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.</label>
 					<fieldset id="reasonArea" style="margin-top: 1ex;', $context['is_approved'] ? '' : 'display: none;', '">
 						<dl class="settings">
 							<dt>
@@ -102,7 +102,7 @@ function template_redirect_options($type)
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>
 							</dt>
 							<dd>
-								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked class="input_check">
+								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
 							</dd>';
 	if (!empty($modSettings['allow_expire_redirect']))
 	{
@@ -271,7 +271,7 @@ function template_merge()
 						</dt>
 						<dd>
 								<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
-								<input type="text" name="topics[]" class="input_text">
+								<input type="text" name="topics[]">
 								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 
 						</dd>
@@ -310,7 +310,7 @@ function template_merge_extra_options()
 			echo '
 					<tr class="windowbg">
 						<td>
-							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked>
+							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
 							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" class="new_win">' . $topic['subject'] . '</a>
@@ -324,7 +324,7 @@ function template_merge_extra_options()
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
 						<td>
-							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked>
+							<input type="checkbox" name="notifications[]" value="' . $topic['id'] . '" checked>
 						</td>
 					</tr>';
 		echo '
@@ -343,9 +343,9 @@ function template_merge_extra_options()
 	echo '
 						<option value="0">', $txt['merge_custom_subject'], ':</option>
 					</select>
-					<br><input type="text" name="custom_subject" size="60" id="custom_subject" class="input_text custom_subject" style="display: none;">
+					<br><input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;">
 					<br>
-					<label for="enforce_subject"><input type="checkbox" class="input_check" name="enforce_subject" id="enforce_subject" value="1"> ', $txt['movetopic_change_all_subjects'], '</label>
+					<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" value="1"> ', $txt['movetopic_change_all_subjects'], '</label>
 				</fieldset>';
 
 	// Show an option to create a redirection topic as well...
@@ -360,7 +360,7 @@ function template_merge_extra_options()
 		foreach ($context['boards'] as $board)
 			echo '
 						<li>
-							<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . ' class="input_radio"> ' . $board['name'] . '
+							<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . '> ' . $board['name'] . '
 						</li>';
 		echo '
 					</ul>
@@ -375,11 +375,11 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . ' class="input_radio"> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>
-							<input type="radio" name="poll" value="-1" class="input_radio"> (' . $txt['merge_no_poll'] . ')
+							<input type="radio" name="poll" value="-1"> (' . $txt['merge_no_poll'] . ')
 						</li>
 					</ul>
 				</fieldset>';

@@ -550,12 +550,12 @@ function BrowseFiles()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[%1$d]" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[%1$d]">',
 						'params' => array(
 							'id_attach' => false,
 						),
@@ -2269,7 +2269,7 @@ function ManageAttachmentPaths()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . ' class="input_radio">';
+						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . '>';
 					},
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
@@ -2282,7 +2282,7 @@ function ManageAttachmentPaths()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' class="input_text" style="width: 100%">';
+						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' style="width: 100%">';
 					},
 					'style' => 'width: 40%;',
 				),
@@ -2361,7 +2361,7 @@ function ManageAttachmentPaths()
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . ' class="input_radio">';
+							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . '>';
 						},
 						'style' => 'width: 10%;',
 						'class' => 'centercol',

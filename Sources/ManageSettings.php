@@ -659,13 +659,13 @@ function ModifyAntispamSettings($return_config = false)
 	});
 	$(".qa_add_question a").click(function() {
 		var id = $(this).closest("fieldset").attr("id").substring(6);
-		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="input_text verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="input_text verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
+		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
 	function addAnswer(obj)
 	{
 		var attr = $(obj).closest("dd").find(".verification_answer:last").attr("name");
-		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="input_text verification_answer">\').insertBefore($(obj).closest("div"));
+		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(obj).closest("div"));
 		return false;
 	}
 	$("#qa_dt_' . strtr($language, array('-utf8' => '')) . ' a").click();', true);
@@ -1338,7 +1338,7 @@ function ShowCustomProfiles()
 					{
 						$isChecked = $rowData['disabled'] ? '' : ' checked';
 						$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
-						return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
+						return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
 					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',
@@ -1354,7 +1354,7 @@ function ShowCustomProfiles()
 					{
 						$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
 						$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
-						return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
+						return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" %2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
 					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',

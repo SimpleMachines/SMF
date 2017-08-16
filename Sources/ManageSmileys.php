@@ -449,13 +449,13 @@ function EditSmileySets()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
+						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]">', $rowData['id']);
 					},
 					'class' => 'centercol',
 				),
@@ -1058,12 +1058,12 @@ function EditSmileys()
 				),
 				'check' => array(
 					'header' => array(
-						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d" class="input_check">',
+							'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d">',
 							'params' => array(
 								'id_smiley' => false,
 							),
@@ -1917,12 +1917,12 @@ function EditMessageIcons()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d">',
 						'params' => array(
 							'id_icon' => false,
 						),

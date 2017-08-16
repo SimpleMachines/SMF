@@ -746,9 +746,9 @@ function template_calendar_top($calendar_data)
 	{
 		echo '
 			<form action="', $scripturl, '?action=calendar;viewlist" id="calendar_range" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
+				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date">
+				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">
 				<input type="submit" class="button_submit" style="float:none" id="view_button" value="', $txt['view'], '">
 			</form>';
 	}
@@ -828,7 +828,7 @@ function template_event_post()
 					<input type="hidden" name="calendar" value="1">
 					<div class="event_options_left" id="event_title">
 						<div>
-							<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+							<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
 						</div>
 					</div>';
 
@@ -839,7 +839,7 @@ function template_event_post()
 					<div class="event_options_right" id="event_board">
 						<div>
 							<span class="label">', $txt['calendar_post_in'], '</span>
-							<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
+							<input type="checkbox" style="vertical-align: middle;" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 							<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
 		foreach ($context['event']['categories'] as $category)
 		{
@@ -865,13 +865,13 @@ function template_event_post()
 					<div class="event_options_left" id="event_time_input">
 						<div>
 							<span class="label">', $txt['start'], '</span>
-							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
-							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 						<div>
 							<span class="label">', $txt['end'], '</span>
-							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 					</div>
 					<div class="event_options_right" id="event_time_options">
@@ -893,7 +893,7 @@ function template_event_post()
 					</div>
 					<div>
 						<span class="label">', $txt['location'], '</span>
-						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '" class="input_text">
+						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '">
 					</div>
 				</fieldset>';
 

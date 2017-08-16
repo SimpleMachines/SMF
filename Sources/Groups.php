@@ -622,13 +622,13 @@ function GroupRequests()
 			),
 			'action' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="groupr[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="groupr[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),
