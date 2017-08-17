@@ -730,10 +730,12 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 	$result = $smcFunc['db_query']('', '
 		SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 		FROM information_schema.columns
-		WHERE table_name = \'' . $table_name . '\'
+		WHERE table_schema = {string:schema_public}
+		 AND table_name = {string:table_name}
 		ORDER BY ordinal_position',
 		array(
-			'security_override' => true,
+			'schema_public' => 'public',
+			'table_name' => $table_name,
 		)
 	);
 	$columns = array();
@@ -795,11 +797,11 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 			c2.relname AS name,
 			pg_get_indexdef(i.indexrelid) AS inddef
 		FROM pg_class AS c, pg_class AS c2, pg_index AS i
-		WHERE c.relname = \'' . $table_name . '\'
+		WHERE c.relname = {string:table_name}
 			AND c.oid = i.indrelid
 			AND i.indexrelid = c2.oid',
 		array(
-			'security_override' => true,
+			'table_name' => $table_name,
 		)
 	);
 	$indexes = array();
