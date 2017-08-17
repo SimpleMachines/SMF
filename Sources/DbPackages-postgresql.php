@@ -128,6 +128,13 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		if (!empty($column['auto']))
 		{
 			$smcFunc['db_query']('', '
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
+				array(
+					'security_override' => true,
+				)
+			);
+						
+			$smcFunc['db_query']('', '
 				CREATE SEQUENCE ' . $table_name . '_seq',
 				array(
 					'security_override' => true,
