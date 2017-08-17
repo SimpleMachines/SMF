@@ -566,8 +566,13 @@ div.sceditor-group {
 
 /* SMF buttons styles */
 .sceditor-button-pre div {
-  background: url(../images/bbc/pre.png);
-  margin: 0 0 0 -3px;
+  background-position: 0 -696px;
+}
+.sceditor-button-floatleft div {
+  background-position: 0px -680px;
+}
+.sceditor-button-floatright div {
+  background-position: 0px -664px;
 }
 .sceditor-insertemoticon img {
   margin: 6px 7px 0 0;
@@ -575,12 +580,4 @@ div.sceditor-group {
 .sceditor-insertemoticon img,
 div.sceditor-dropdown img {
   cursor: pointer;
-}
-.sceditor-button-floatleft div {
-  background: url('../images/float_icons.png');
-  background-position: 0px 0px;
-}
-.sceditor-button-floatright div {
-  background: url('../images/float_icons.png');
-  background-position: 0px -16px;
 }

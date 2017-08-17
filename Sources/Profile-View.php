@@ -1251,7 +1251,7 @@ function statPanel($memID)
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['statPanel_generalStats'] . ' - ' . $context['member']['name'],
-		'icon' => 'stats_info_hd.png'
+		'icon' => 'stats_info.png'
 	);
 
 	// Number of topics started.
