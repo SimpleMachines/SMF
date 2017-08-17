@@ -7,14 +7,12 @@ body {
 	background: #e9eef2;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	color: #4d4d4d;
-	margin: 0;
-	padding: 0;
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
 }
-/* <p> is a possible exception for margins. Must test that one a bit. */
-p, ul, ol, li, dl, dd ,dt, fieldset, form {
+/* General reset */
+* {
 	box-sizing: border-box;
 	padding: 0;
 	margin: 0;
@@ -34,7 +32,6 @@ table {
 }
 input, button, select, textarea, textarea.editor {
 	color: #222;
-	box-sizing: border-box;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
 	outline: none !important;
@@ -131,8 +128,6 @@ em {
 /* Default <strong> color on these tags. */
 h1, h2, h3, h4, h5, h6 {
 	font-size: 1em;
-	margin: 0;
-	padding: 0;
 	color: #444;
 }
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
@@ -176,7 +171,6 @@ a:hover {
 /* Deprecated? */
 body#help_popup {
 	padding: 12px;
-	box-sizing: border-box;
 }
 
 #likes li {
@@ -315,7 +309,6 @@ h3.largetext {
 	padding-bottom: 6px;
 }
 .half_content {
-	box-sizing: border-box;
 	width: 50%;
 	display: inline-block;
 	vertical-align: top;
@@ -392,7 +385,7 @@ blockquote cite::before {
 	font-size: 1em;
 }
 /* Styling for BBC tags */
-.bbc_link:link, .bbc_link:visited {
+.bbc_link {
 	border-bottom: 1px solid #A8B6CF;
 }
 .bbc_link:hover {
@@ -497,7 +490,6 @@ a img {
 	font-size: 0.9em;
 	padding: 2px 0;
 	overflow: hidden;
-	margin: 0;
 	clear: both;
 }
 .pages::after, .jump_to::after, .code::after,
@@ -577,7 +569,7 @@ strong[id^='child_list_']::after {
 }
 
 .holiday > span {
-	color: rgb(0, 92, 255);
+	color: #025dff;
 }
 /* Events that are currently selected on the calendar. Won't see it much, probably. */
 .sel_event {
@@ -739,7 +731,6 @@ img.sort, .sort {
 ------------------------------------------------------- */
 .dropmenu, #top_info {
 	position: relative;
-	box-sizing: border-box;
 }
 /* Level 1 button background. */
 .dropmenu li, #top_info > li {
@@ -775,7 +766,6 @@ img.sort, .sort {
 
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
-	margin: 0;
 	display: block;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -823,12 +813,19 @@ img.sort, .sort {
 }
 .profile_user_links ol {
 	margin: 0 10px;
+	font-size: 0; /* fix for extra space between inline-blocks */
 	clear: both;
 }
 .profile_user_links li {
 	display: inline-block;
-	width: 11em;
+	font-size: .8rem;
+	min-width: 18ex;
+	width: 50%;
 	margin-bottom: 4px;
+}
+/* Fixes bug with border-box on scrollable js */
+.scrollable, .scrollable * {
+	box-sizing: content-box;
 }
 .top_menu.scrollable {
 	max-height: 30em;
@@ -1048,12 +1045,6 @@ img.sort, .sort {
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
-/* Do all these here to save repetition. */
-#header, #top_section, #upper_wrap, #upper_section, #upper_section .user,
-#upper_section .news, .navigate_section, #content_section, #main_content_section,
-#footer {
-	box-sizing: border-box;
-}
 
 /* Box-shadow only on this one. */
 #wrapper {
@@ -1069,7 +1060,6 @@ img.sort, .sort {
 /* The framing graphics */
 /* The top bar. */
 #top_section {
-	margin: 0;
 	padding: 0 5%;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
@@ -1082,7 +1072,6 @@ img.sort, .sort {
 	clear: both;
 }
 #top_info {
-	margin: 0;
 	padding: 5px 9px 4px 9px;
 	line-height: 1.3em;
 	width: auto;
@@ -1092,7 +1081,6 @@ img.sort, .sort {
 	max-width: 18px;
 	margin: 2px 5px 0 0;
 	float: left;
-	padding: 0;
 }
 /*#top_section ul li {
 	margin-bottom: 2px;
@@ -1145,7 +1133,6 @@ img.sort, .sort {
 h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
-	margin: 0;
 	padding: 22px 12px 6px 10px;
 	float: left;
 	font-weight: normal;
@@ -1156,7 +1143,6 @@ h1.forumtitle a {
 }
 /* Float these items to the right */
 #siteslogan, img#smflogo {
-	margin: 0;
 	padding-right: 2px;
 	float: right;
 	line-height: 50px;
@@ -1167,8 +1153,7 @@ img#smflogo {
 	margin: 16px 0 0 0;
 }
 /* Even guests need to be aligned */
-.welcome
-{
+.welcome {
 	padding-left: 10px;
 	padding-top: 5px;
 }
@@ -1176,7 +1161,6 @@ img#smflogo {
 /* The user info, news, etc.*/
 #upper_section {
 	padding: 2px 2px 0 2px;
-	margin: 0;
 }
 #inner_section {
 	padding: 12px 10px 2px 10px;
@@ -1239,7 +1223,6 @@ ul li.greeting {
 	border: 1px solid #ddd;
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
-	box-sizing: border-box;
 }
 .navigate_section ul li {
 	float: left;
@@ -1281,7 +1264,6 @@ ul li.greeting {
 /* The content section */
 #content_section {
 	margin: 0 auto;
-	padding: 0;
 	clear: both;
 }
 #main_content_section {
@@ -1354,7 +1336,6 @@ ul li.greeting {
 .quickbuttons li {
 	float: left;
 	display: inline;
-	margin: 0;
 	font-size: 0.9em;
 	height: 23px;
 	border: 1px solid #ddd;
@@ -1370,7 +1351,6 @@ ul li.greeting {
 	padding: 0 4px 0 5px;
 	display: block;
 	line-height: 1.9em;
-	float: left;
 }
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
@@ -1437,7 +1417,6 @@ ul li.greeting {
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
-	box-sizing: border-box;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
 .quickbuttons li > ul > li {
@@ -1474,11 +1453,8 @@ ul li.greeting {
 /* The jump to box */
 #display_jump_to {
 	padding: 11px 5px 5px 0;
-	margin: 0;
-	border: none;
 	float: right;
 	font-size: 1em;
-	background: none;
 }
 #display_jump_to select {
 	margin: 0 -12px 0 0;
@@ -1515,12 +1491,10 @@ div.event_options {
 	width: 49%;
 	padding-right: 1em;
 	min-width: 238px;
-	box-sizing: border-box;
 }
 .event_options_right {
 	display: inline-block;
 	width: 50%;
-	box-sizing: border-box;
 }
 .event_options_left div, .event_options_right div {
     min-height: 25px;
@@ -1714,10 +1688,7 @@ dl.register_form dd {
 #admin_login .centertext .error {
 	padding: 0 0 12px 0;
 }
-#admin_login .centertext a.help img {
-	vertical-align: middle;
-}
-.custom_field a img {
+#admin_login .centertext a.help img, .custom_field a img {
 	vertical-align: middle;
 }
 
@@ -2209,18 +2180,14 @@ dl {
 }
 #detailedinfo dt, #tracking dt {
 	width: 35%;
-	float: left;
 	margin: 0 0 3px 0;
-	padding: 0;
 	font-weight: bold;
 	color: #444;
-	clear: both;
 }
 #detailedinfo dd, #tracking dd {
 	width: 65%;
 	float: left;
 	margin: 0 0 3px 0;
-	padding: 0;
 }
 #detailedinfo .noborder {
 	border-bottom: 0;
@@ -2245,18 +2212,14 @@ dl {
 }
 .activity_stats {
 	margin: 10px 0;
-	padding: 0;
 }
 .activity_stats li {
-	margin: 0;
-	padding: 0;
 	width: 4.16%;
 	float: left;
 }
 .activity_stats li span {
 	display: block;
-	border: solid #666;
-	border-width: 1px 1px 1px 1px;
+	border: 1px solid #666;
 	border-left: none;
 	border-right: none;
 	background: #eee;
@@ -2268,7 +2231,7 @@ dl {
 .activity_stats li div.bar {
 	margin: 0 auto;
 	width: 15px;
-	border: 1px solid #ddd;
+	border: 1px solid #cacaca;
 	border-bottom: none;
 	background: #fff;
 }
@@ -2289,7 +2252,6 @@ dl {
 	height: 20px;
 	width: 20px;
 	margin: 0 12px 0 0;
-	padding: 0;
 	text-indent: -1000em;
 }
 
@@ -2298,7 +2260,6 @@ dl {
 	float: right;
 }
 .counter {
-	margin: 0;
 	padding: 5px 6px 1px 2px;
 	font-size: 2.2em;
 	font-weight: bold;
@@ -2312,7 +2273,6 @@ dl {
 	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
-	margin: 0;
 	overflow: auto;
 	word-break: hyphenate;
 	word-wrap: break-word;
@@ -2333,15 +2293,10 @@ dl {
 
 #creator dt {
 	width: 40%;
-	float: left;
-	clear: both;
-	margin: 0 0 10px 0;
 }
 #creator dd {
-	float: right;
 	width: 55%;
 	margin: 0 0 10px 2px;
-	overflow: auto;
 }
 .centericon {
 	vertical-align: middle;
@@ -2425,7 +2380,6 @@ dl.stats dt {
 	width: 50%;
 	float: left;
 	margin: 0 0 4px 0;
-	padding: 0;
 	line-height: 1.5em;
 	clear: both;
 	font-size: 1em;
@@ -2438,23 +2392,22 @@ dl.stats dd {
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
-	border: 1px solid #aaa;
+	border: 1px solid #cecaca;
 	border-radius: 2px;
 	position: relative;
 }
 .statsbar div.bar {
 	float: left;
 	background: orange;
-	border-right: 1px solid #999;
-	border-radius: 1px 0 0 1px;
+	border-radius: 1px;
 	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
 	margin: 0 4px 0 0;
 	height: 1.4em;
+	text-shadow: 1px 1px rgba(255,255,255,0.4);
 }
 .statsbar div.bar.empty {
 	width: 0;
-	border-right: none;
 }
 #profileview dd, .nobb, .nobb dd {
 	background: none !important;
@@ -2470,7 +2423,6 @@ dl.stats dd span {
 	right: 0;
 	top: 0;
 	z-index: 2;
-	white-space: pre;
 }
 
 /* Forum history table. */
@@ -2547,8 +2499,8 @@ dl.addrules dt.floatleft {
 	clear: both;
 }
 #to_item_list_container div, #bcc_item_list_container div {
-	float:left;
-	margin-right:10px;
+	float: left;
+	margin-right: 10px;
 }
 .unread_pm {
 	background: #CFC;
@@ -2589,7 +2541,6 @@ dl.addrules dt.floatleft {
 	border-radius: 0;
 	margin: 0;
 	padding: 32px;
-	overflow: auto;
 }
 #searchform .alt {
 	border-top: 0;
@@ -2601,7 +2552,6 @@ dl.addrules dt.floatleft {
 }
 #advanced_search {
 	text-align: center !important;
-	margin: 0;
 }
 #advanced_search dl#search_options {
 	margin: 0 auto;
@@ -2610,8 +2560,6 @@ dl.addrules dt.floatleft {
 	overflow: hidden;
 }
 #advanced_search dt {
-	clear: both;
-	float: left;
 	padding: 2px;
 	text-align: right;
 	width: 20%;
@@ -2628,9 +2576,7 @@ dl.addrules dt.floatleft {
 ------------------------------------------------- */
 
 #help_container {
-	margin: 0;
 	padding: 0 0 8px 0;
-	overflow: auto;
 }
 #helpmain {
 	margin: 12px 0 0 0;
@@ -2648,7 +2594,7 @@ dl.addrules dt.floatleft {
 	line-height: 2em;
 	margin: 0 0 0 25px;
 }
-#helpmain ul li{
+#helpmain ul li {
 	list-style-type: disc;
 }
 #helpmain ul li a {
@@ -2667,7 +2613,7 @@ dl.addrules dt.floatleft {
 	color: #333;
 	background: #fff;
 	border: 1px solid #aaa;
-	border-radius: 4px 4px 4px 4px;
+	border-radius: 4px;
 	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
 }
 
@@ -2696,17 +2642,14 @@ dl.addrules dt.floatleft {
 	margin: 0 auto;
 }
 .popup_heading {
-	margin: 0;
 	padding: 10px 8px;
 	color: #bf6900;
-	background: none;
 }
 .popup_content {
 	color: #222;
 	line-height: 1.6em;
 	max-height: 30em;
 	overflow: auto;
-	margin: 0;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
@@ -2765,7 +2708,6 @@ dl.addrules dt.floatleft {
 	border-radius: 6px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
-	box-sizing: border-box;
 }
 /* Here comes the glory... */
 .windowbg:nth-of-type(even) {
@@ -2827,7 +2769,6 @@ tr.windowbg, tr.windowbg2 {
 }
 #postmodify #message {
 	width: 100%;
-	box-sizing: border-box;
 }
 #postmodify .lastedit {
 	font-weight: bold;
@@ -2933,7 +2874,6 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	box-sizing: border-box;
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;
@@ -3133,7 +3073,6 @@ span.postby {
 	width: 30%;
 	max-width: 30em;
 	float: left;
-	margin: 0;
 	clear: left;
 }
 #poll_options dl.options .voted {
@@ -3144,26 +3083,22 @@ span.postby {
 	max-width: 45em;
 	float: left;
 	margin: 0 0 4px 0;
-	padding: 0;
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
-	border: 1px solid #aaa;
+	border: 1px solid #cecaca;
 	border-radius: 2px;
 	position: relative;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 #poll_options dl.options .percentage {
 	display: block;
-	float: right;
-	margin: -2px;
-	padding: 0 2px;
+	padding: 0 4px;
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: -1px;
 	z-index: 2;
-	background: none;
-	white-space: pre;
+	text-shadow: 1px 1px rgba(255,255,255,0.4);
 }
 
 /* Poll notices */
@@ -3173,8 +3108,6 @@ span.postby {
 }
 
 div#pollmoderation {
-	margin: 0;
-	padding: 0;
 	overflow: auto;
 }
 
@@ -3495,7 +3428,6 @@ ul.post_options li {
 	box-shadow: 0 1px 0 #fff inset;
 	line-height: 1.4em;
 	font-size: 0.9em;
-	box-sizing: border-box;
 }
 .under_message {
 	overflow: visible;
@@ -3527,7 +3459,6 @@ div.cat_bar {
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
-	box-sizing: border-box;
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
@@ -3550,7 +3481,7 @@ h3.catbg {
 	padding: 8px;
 	background: none;
 }
-h3.catbg, h3.catbg a:link, h3.catbg a:visited, h3.catbg a:hover {
+h3.catbg, h3.catbg a, h3.catbg a:hover {
 	color: #fff;
 }
 h3.catbg a:hover {
@@ -3563,7 +3494,6 @@ h3.catbg .icon {
 }
 /* Roundframe */
 .roundframe {
-	box-sizing: border-box;
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
 	background: #F8F8F8;
@@ -3574,8 +3504,7 @@ h3.catbg .icon {
 }
 /* TitleBar & SubBar */
 .title_bar {
-	border-right: 1px solid #ddd;
-	border-left: 1px solid #ddd;
+	border: 1px solid #ddd;
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
@@ -3616,7 +3545,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	border-radius: 0 0 7px 7px;
 	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
-	box-sizing: border-box;
 }
 .generic_list_wrapper .information div {
 	background: none;
@@ -3647,7 +3575,7 @@ p.information img {
 }
 /* Mentions */
 .atwho-view {
-	position:absolute;
+	position: absolute;
 	top: 0;
 	left: 0;
 	display: none;
@@ -3674,9 +3602,9 @@ p.information img {
 	font-weight: bold;
 }
 .atwho-view ul {
-	list-style:none;
-	padding:0;
-	margin:auto;
+	list-style: none;
+	padding: 0;
+	margin: auto;
 }
 .atwho-view ul li {
 	display: block;
@@ -3694,18 +3622,17 @@ p.information img {
 	display: inline-block;
 	width: 14px;
 	height: 14px;
-	border-radius: 12px;
-	border: 1px solid none;
+	border-radius: 50%;
+	border: 1px solid transparent;
 	vertical-align: middle;
 }
 .on {
-	background: #99FF66;
+	background: #89E75A;
+	border-color: #74d246;
 }
 .off {
-	background: grey;
-}
-#firefox .on, #firefox .off {
-	margin: 0 0 5px 0;
+	background: #a7a2a2;
+	border-color: #969292;
 }
 #userstatus .smalltext {
 	margin: 0 0 0 5px !important;
@@ -3713,13 +3640,11 @@ p.information img {
 
 /* Styles for print media. */
 @media print {
-	#headerarea
-	{
+	#headerarea {
 		display: none;
 	}
 
-	.tborder
-	{
+	.tborder {
 		border: none;
 	}
 }
@@ -3835,10 +3760,18 @@ h3.profile_hd {
 }
 
 /* Alternating colors */
-.stripes:nth-of-type(even) { background-color:#F2F2F2; }
-.stripes:nth-of-type(odd) { background-color:#f0f4f7; }
-.alternative { background-color:#F2F2F2; }
-.alternative2{ background-color:#E8EDF0; }
+.stripes:nth-of-type(even) {
+	background-color: #F2F2F2;
+}
+.stripes:nth-of-type(odd) {
+	background-color: #f0f4f7;
+}
+.alternative {
+	background-color: #F2F2F2;
+}
+.alternative2 {
+	background-color: #E8EDF0;
+}
 
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
@@ -3859,9 +3792,8 @@ h3.profile_hd {
 }
 #au-previews div.descbox > div,
 #au-previews div.errorbox > div,
-#au-previews div.infobox > div{
+#au-previews div.infobox > div {
 	padding: 10px;
-	box-sizing: border-box;
 }
 #au-previews .attach-preview {
 	flex: 0 0 auto;
@@ -3975,7 +3907,6 @@ a.button_submit {
 }
 
 /* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
-.g-recaptcha
-{
+.g-recaptcha {
 	display: inline-block;
 }
