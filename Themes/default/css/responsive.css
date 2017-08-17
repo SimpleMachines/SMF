@@ -574,7 +574,7 @@
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, td.reg_group, td.reg_date,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
-	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time, .hidden,
+	#main_content_section .navigate_section, .pagesection.top, .time, .hidden,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
 		display: none !important;

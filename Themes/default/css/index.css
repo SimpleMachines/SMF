@@ -507,6 +507,10 @@ strong[id^='child_list_']::after {
 .pagelinks p {
 	display: inline;
 }
+.pagelinks .button {
+	margin: -2px 5px 0 0;
+	padding: 0 5px;
+}
 .navPages {
 	padding: 0 1px;
 }
@@ -525,27 +529,6 @@ strong[id^='child_list_']::after {
 }
 .current_page::after, .codeoperation::after {
 	content: "]";
-}
-/* Go up and go down links. */
-.topbottom {
-	display: block;
-	cursor: pointer;
-	border: 1px solid #ddd;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 2px 7px 1px 7px;
-	margin: 5px 8px 0 0;
-	color: #222;
-}
-.topbottom:hover {
-	text-decoration: none;
-	color: #af6700;
-	border: 1px solid #ddd;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 }
 
 /* Posts and personal messages displayed throughout the forum. */
@@ -3050,7 +3033,6 @@ span.postby {
 }
 /* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
-	margin-top: 3px;
 	padding: 1px 6px;
 }
 
@@ -3680,7 +3662,7 @@ h3.profile_hd {
 
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
-.button_submit, .button_reset, .button_link, .topbottom,
+.button_submit, .button_reset, .button_link,
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
 #top_section, #search_form .button_submit, .quickbuttons li,
@@ -3691,7 +3673,7 @@ h3.profile_hd {
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
-.topbottom:hover,#search_form .button_submit:hover, .quickbuttons li:hover {
+#search_form .button_submit:hover, .quickbuttons li:hover {
 	background: #FFFFFF;
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
