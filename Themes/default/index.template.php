@@ -254,7 +254,7 @@ function template_body_above()
 	{
 		echo '
 		<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="search" name="search" value="" class="input_text">&nbsp;';
+			<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
 		$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');

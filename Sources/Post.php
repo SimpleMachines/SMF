@@ -1306,14 +1306,14 @@ function Post($post_errors = array())
 	{
 		$context['posting_fields']['guestname'] = array(
 			'dt' => '<span id="caption_guestname"' .  (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . '>' . $txt['name'] . '</span>',
-			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" class="input_text" required>',
+			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" required>',
 		);
 
 		if (empty($modSettings['guest_post_no_email']))
 		{
 			$context['posting_fields']['email'] = array(
 				'dt' => '<span id="caption_email"' .  (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . '>' . $txt['email'] . '</span>',
-				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" class="input_text" required>',
+				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" required>',
 			);
 		}
 	}
@@ -1321,7 +1321,7 @@ function Post($post_errors = array())
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
 		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
-		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" class="input_text" required>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>',
 	);
 
 	// Icons are fun.

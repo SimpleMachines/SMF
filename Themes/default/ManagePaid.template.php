@@ -37,7 +37,7 @@ function template_modify_subscription()
 						', $txt['paid_mod_name'], ':
 					</dt>
 					<dd>
-						<input type="text" name="name" value="', $context['sub']['name'], '" size="30" class="input_text">
+						<input type="text" name="name" value="', $context['sub']['name'], '" size="30">
 					</dd>
 					<dt>
 						', $txt['paid_mod_desc'], ':
@@ -49,13 +49,13 @@ function template_modify_subscription()
 						<label for="repeatable_check">', $txt['paid_mod_repeatable'], '</label>:
 					</dt>
 					<dd>
-						<input type="checkbox" name="repeatable" id="repeatable_check"', empty($context['sub']['repeatable']) ? '' : ' checked', ' class="input_check">
+						<input type="checkbox" name="repeatable" id="repeatable_check"', empty($context['sub']['repeatable']) ? '' : ' checked', '>
 					</dd>
 					<dt>
 						<label for="activated_check">', $txt['paid_mod_active'], '</label>:<br><span class="smalltext">', $txt['paid_mod_active_desc'], '</span>
 					</dt>
 					<dd>
-						<input type="checkbox" name="active" id="activated_check"', empty($context['sub']['active']) ? '' : ' checked', ' class="input_check">
+						<input type="checkbox" name="active" id="activated_check"', empty($context['sub']['active']) ? '' : ' checked', '>
 					</dd>
 				</dl>
 				<hr>
@@ -83,7 +83,7 @@ function template_modify_subscription()
 	// Put a checkbox in for each group
 	foreach ($context['groups'] as $id => $name)
 		echo '
-						<label for="addgroup_', $id, '"><input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', ' class="input_check">&nbsp;<span class="smalltext">', $name, '</span></label><br>';
+						<label for="addgroup_', $id, '"><input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>&nbsp;<span class="smalltext">', $name, '</span></label><br>';
 
 	echo '
 					</dd>
@@ -91,7 +91,7 @@ function template_modify_subscription()
 						', $txt['paid_mod_reminder'], ':<br><span class="smalltext">', $txt['paid_mod_reminder_desc'], ' ', $txt['zero_to_disable'], '</span>
 					</dt>
 					<dd>
-						<input type="number" name="reminder" value="', $context['sub']['reminder'], '" size="6" class="input_text">
+						<input type="number" name="reminder" value="', $context['sub']['reminder'], '" size="6">
 					</dd>
 					<dt>
 						', $txt['paid_mod_email'], ':<br><span class="smalltext">', $txt['paid_mod_email_desc'], '</span>
@@ -101,7 +101,7 @@ function template_modify_subscription()
 					</dd>
 				</dl>
 				<hr>
-				<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'fixed\');">
+				<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' onclick="toggleDuration(\'fixed\');">
 				<strong><label for="duration_type_fixed">', $txt['paid_mod_fixed_price'], '</label></strong>
 				<br>
 				<div id="fixed_area" ', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? '' : 'style="display: none;"', '>
@@ -111,13 +111,13 @@ function template_modify_subscription()
 								', $txt['paid_cost'], ' (', str_replace('%1.2f', '', $modSettings['paid_currency_symbol']), '):
 							</dt>
 							<dd>
-								<input type="number" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '0' : $context['sub']['cost']['fixed'], '" size="4" class="input_text">
+								<input type="number" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '0' : $context['sub']['cost']['fixed'], '" size="4">
 							</dd>
 							<dt>
 								', $txt['paid_mod_span'], ':
 							</dt>
 							<dd>
-								<input type="number" name="span_value" value="', $context['sub']['span']['value'], '" size="4" class="input_text">
+								<input type="number" name="span_value" value="', $context['sub']['span']['value'], '" size="4">
 								<select name="span_unit">
 									<option value="D"', $context['sub']['span']['unit'] == 'D' ? ' selected' : '', '>', $txt['paid_mod_span_days'], '</option>
 									<option value="W"', $context['sub']['span']['unit'] == 'W' ? ' selected' : '', '>', $txt['paid_mod_span_weeks'], '</option>
@@ -128,7 +128,7 @@ function template_modify_subscription()
 						</dl>
 					</fieldset>
 				</div>
-				<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'flexible\');">
+				<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? ' checked' : '', ' onclick="toggleDuration(\'flexible\');">
 				<strong><label for="duration_type_flexible">', $txt['paid_mod_flexible_price'], '</label></strong>
 				<br>
 				<div id="flexible_area" ', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
@@ -142,7 +142,7 @@ function template_modify_subscription()
 								<label for="allow_partial_check">', $txt['paid_mod_allow_partial'], '</label>:<br><span class="smalltext">', $txt['paid_mod_allow_partial_desc'], '</span>
 							</dt>
 							<dd>
-								<input type="checkbox" name="allow_partial" id="allow_partial_check"', empty($context['sub']['allow_partial']) ? '' : ' checked', ' class="input_check">
+								<input type="checkbox" name="allow_partial" id="allow_partial_check"', empty($context['sub']['allow_partial']) ? '' : ' checked', '>
 							</dd>
 						</dl>';
 
@@ -162,25 +162,25 @@ function template_modify_subscription()
 								', $txt['paid_per_day'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5" class="input_text">
+								<input type="number" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_week'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5" class="input_text">
+								<input type="number" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_month'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5" class="input_text">
+								<input type="number" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_year'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5" class="input_text">
+								<input type="number" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5">
 							</dd>
 						</dl>
 					</fieldset>
@@ -253,7 +253,7 @@ function template_modify_user_subscription()
 						<span class="smalltext">', $txt['one_username'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="name" id="name_control" value="', $context['sub']['username'], '" size="30" class="input_text">
+						<input type="text" name="name" id="name_control" value="', $context['sub']['username'], '" size="30">
 					</dd>';
 
 	echo '
@@ -298,8 +298,8 @@ function template_modify_user_subscription()
 
 	echo '
 					</select>
-					', $txt['hour'], ': <input type="text" name="hour" value="', $context['sub']['start']['hour'], '" size="2" class="input_text">
-					', $txt['minute'], ': <input type="text" name="minute" value="', $context['sub']['start']['min'], '" size="2" class="input_text">
+					', $txt['hour'], ': <input type="text" name="hour" value="', $context['sub']['start']['hour'], '" size="2">
+					', $txt['minute'], ': <input type="text" name="minute" value="', $context['sub']['start']['min'], '" size="2">
 				</fieldset>
 				<fieldset>
 					<legend>', $txt['end_date_and_time'], '</legend>
@@ -332,8 +332,8 @@ function template_modify_user_subscription()
 
 	echo '
 					</select>
-					', $txt['hour'], ': <input type="number" name="hourend" value="', $context['sub']['end']['hour'], '" size="2" class="input_text">
-					', $txt['minute'], ': <input type="number" name="minuteend" value="', $context['sub']['end']['min'], '" size="2" class="input_text">
+					', $txt['hour'], ': <input type="number" name="hourend" value="', $context['sub']['end']['hour'], '" size="2">
+					', $txt['minute'], ': <input type="number" name="minuteend" value="', $context['sub']['end']['min'], '" size="2">
 				</fieldset>
 				<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button_submit">
 			</div>

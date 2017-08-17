@@ -177,14 +177,14 @@ function EditNews()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function($news)
 					{
 						if (is_numeric($news['id']))
-							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
+							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '">';
 						else
 							return '';
 					},

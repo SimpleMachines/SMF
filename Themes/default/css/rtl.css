@@ -328,7 +328,8 @@ ul.post_options li {
 #post_event ul.event_options {
 	padding: 0 .7em .7em 0;
 }
-#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check {
+#post_event #event_main select, #post_event ul.event_options li select, 
+#post_event ul.event_options li input[type="checkbox"] {
 	margin: 0 0 0 1em;
 }
 

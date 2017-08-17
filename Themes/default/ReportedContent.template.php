@@ -80,7 +80,7 @@ function template_reported_posts()
 
 		if (!$context['view_closed'])
 			echo '
-				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>';
+				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
 			echo '
 				</ul>
@@ -450,7 +450,7 @@ function template_reported_members()
 
 		if (!$context['view_closed'])
 			echo '
-				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>';
+				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
 			echo '
 				</ul>

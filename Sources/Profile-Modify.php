@@ -2362,13 +2362,13 @@ function alert_notifications_topics($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -2480,13 +2480,13 @@ function alert_notifications_boards($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),

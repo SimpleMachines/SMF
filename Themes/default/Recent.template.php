@@ -120,7 +120,7 @@ function template_unread()
 		if ($context['showCheckboxes'])
 			echo '
 					<div class="moderation">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
 
 		echo '
@@ -176,7 +176,7 @@ function template_unread()
 			if ($context['showCheckboxes'])
 				echo '
 						<div class="moderation">
-							<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
+							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
 
 				echo '
@@ -261,7 +261,7 @@ function template_replies()
 		if ($context['showCheckboxes'])
 				echo '
 					<div class="moderation">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
 
 		echo '
@@ -317,7 +317,7 @@ function template_replies()
 			if ($context['showCheckboxes'])
 				echo '
 							<div class="moderation">
-								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
+								<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 							</div>';
 			echo '
 						</div>';

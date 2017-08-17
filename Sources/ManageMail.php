@@ -181,12 +181,12 @@ function BrowseMailQueue()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '" class="input_check">';
+						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '">';
 					},
 					'class' => 'smalltext',
 				),

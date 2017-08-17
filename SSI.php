@@ -1193,10 +1193,10 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 			<table style="border: none" class="ssi_table">
 				<tr>
 					<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
-					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
+					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '"></td>
 				</tr><tr>
 					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
-					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
+					<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
 				</tr>
 				<tr>
 					<td>
@@ -1329,7 +1329,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '">'
 		);
 	}
 
@@ -1497,7 +1497,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">'
 		);
 	}
 
@@ -1688,7 +1688,7 @@ function ssi_quickSearch($output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30" class="input_text"> <input type="submit" value="', $txt['search'], '" class="button_submit">
+			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30"> <input type="submit" value="', $txt['search'], '" class="button_submit">
 		</form>';
 }
 

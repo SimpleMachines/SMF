@@ -183,7 +183,7 @@ function template_main()
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<div class="moderation"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check"></div>';
+					<div class="moderation"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');"></div>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
@@ -267,7 +267,7 @@ function template_main()
 					<div class="moderation">';
 				if ($options['display_quick_mod'] == 1)
 					echo '
-						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">';
+						<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
 				else
 				{
 					// Check permissions on each and show only the ones they are allowed to use.

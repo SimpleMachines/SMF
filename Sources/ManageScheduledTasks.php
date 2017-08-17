@@ -261,7 +261,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
+							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -278,7 +278,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s class="input_check">',
+							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s>',
 						'params' => array(
 							'id' => false,
 							'checked_state' => false,

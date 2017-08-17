@@ -56,7 +56,7 @@ function template_modifyset()
 						<strong><label for="smiley_sets_name">', $txt['smiley_sets_name'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="smiley_sets_name" id="smiley_sets_name" value="', $context['current_set']['name'], '" class="input_text">
+						<input type="text" name="smiley_sets_name" id="smiley_sets_name" value="', $context['current_set']['name'], '">
 					</dd>
 					<dt>
 						<strong><label for="smiley_sets_path">', $txt['smiley_sets_url'], '</label>: </strong>
@@ -67,7 +67,7 @@ function template_modifyset()
 			echo '<strong>default</strong><input type="hidden" name="smiley_sets_path" id="smiley_sets_path" value="default">';
 		elseif (empty($context['smiley_set_dirs']))
 			echo '
-						<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', $context['current_set']['path'], '" class="input_text"> ';
+						<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', $context['current_set']['path'], '"> ';
 		else
 		{
 			echo '
@@ -85,7 +85,7 @@ function template_modifyset()
 						<strong><label for="smiley_sets_default">', $txt['smiley_set_select_default'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked' : '', ' class="input_check">
+						<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked' : '', '>
 					</dd>';
 
 		// If this is a new smiley set they have the option to import smileys already in the directory.
@@ -95,7 +95,7 @@ function template_modifyset()
 						<strong><label for="smiley_sets_import">', $txt['smiley_set_import_directory'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="checkbox" name="smiley_sets_import" id="smiley_sets_import" value="1" class="input_check">
+						<input type="checkbox" name="smiley_sets_import" id="smiley_sets_import" value="1">
 					</dd>';
 
 		echo '
@@ -141,7 +141,7 @@ function template_modifysmiley()
 						<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="smiley_code" id="smiley_code" value="', $context['current_smiley']['code'], '" class="input_text">
+						<input type="text" name="smiley_code" id="smiley_code" value="', $context['current_smiley']['code'], '">
 					</dd>
 					<dt>
 						<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
@@ -149,7 +149,7 @@ function template_modifysmiley()
 					<dd>';
 			if (empty($context['filenames']))
 				echo '
-						<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '" class="input_text">';
+						<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '">';
 			else
 			{
 				echo '
@@ -166,7 +166,7 @@ function template_modifysmiley()
 						<strong><label for="smiley_description">', $txt['smileys_description'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="smiley_description" id="smiley_description" value="', $context['current_smiley']['description'], '" class="input_text">
+						<input type="text" name="smiley_description" id="smiley_description" value="', $context['current_smiley']['description'], '">
 					</dd>
 					<dt>
 						<strong><label for="smiley_location">', $txt['smileys_location'], '</label>: </strong>
@@ -210,10 +210,10 @@ function template_addsmiley()
 			<div class="windowbg2">
 				<ul>
 					<li>
-						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked class="input_radio"> ', $txt['smileys_add_existing'], '</label>
+						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked> ', $txt['smileys_add_existing'], '</label>
 					</li>
 					<li>
-						<label for="method-upload"><input type="radio" onclick="switchType();" name="method" id="method-upload" value="upload" class="input_radio"> ', $txt['smileys_add_upload'], '</label>
+						<label for="method-upload"><input type="radio" onclick="switchType();" name="method" id="method-upload" value="upload"> ', $txt['smileys_add_upload'], '</label>
 					</li>
 				</ul>
 				<br>
@@ -238,7 +238,7 @@ function template_addsmiley()
 						<dd>';
 	if (empty($context['filenames']))
 		echo '
-							<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '" onchange="selectMethod(\'existing\');" class="input_text">';
+							<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '" onchange="selectMethod(\'existing\');">';
 	else
 	{
 		echo '
@@ -261,13 +261,13 @@ function template_addsmiley()
 							<span class="smalltext">', $txt['smileys_add_upload_choose_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="file" name="uploadSmiley" id="uploadSmiley" onchange="selectMethod(\'upload\');" class="input_file">
+							<input type="file" name="uploadSmiley" id="uploadSmiley" onchange="selectMethod(\'upload\');">
 						</dd>
 						<dt>
 							<strong><label for="sameall">', $txt['smileys_add_upload_all'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="sameall" id="sameall" checked class="input_check" onclick="swapUploads(); selectMethod(\'upload\');">
+							<input type="checkbox" name="sameall" id="sameall" checked onclick="swapUploads(); selectMethod(\'upload\');">
 						</dd>
 					</dl>
 				</fieldset>
@@ -279,7 +279,7 @@ function template_addsmiley()
 						', $txt['smileys_add_upload_for1'], ' <strong>', $smiley_set['name'], '</strong> ', $txt['smileys_add_upload_for2'], ':
 					</dt>
 					<dd>
-						<input type="file" name="individual_', $smiley_set['name'], '" onchange="selectMethod(\'upload\');" class="input_file">
+						<input type="file" name="individual_', $smiley_set['name'], '" onchange="selectMethod(\'upload\');">
 					</dd>';
 	echo '
 				</dl>
@@ -293,13 +293,13 @@ function template_addsmiley()
 						<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="smiley_code" id="smiley_code" value="" class="input_text">
+						<input type="text" name="smiley_code" id="smiley_code" value="">
 					</dd>
 					<dt>
 						<strong><label for="smiley_description">', $txt['smileys_description'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="smiley_description" id="smiley_description" value="" class="input_text">
+						<input type="text" name="smiley_description" id="smiley_description" value="">
 					</dd>
 					<dt>
 						<strong><label for="smiley_location">', $txt['smileys_location'], '</label>: </strong>
@@ -415,13 +415,13 @@ function template_editicon()
 						<strong><label for="icon_filename">', $txt['smileys_filename'], '</label>: </strong><br><span class="smalltext">', $txt['icons_filename_all_png'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="icon_filename" id="icon_filename" value="', !empty($context['icon']['filename']) ? $context['icon']['filename'] . '.png' : '', '" class="input_text">
+						<input type="text" name="icon_filename" id="icon_filename" value="', !empty($context['icon']['filename']) ? $context['icon']['filename'] . '.png' : '', '">
 					</dd>
 					<dt>
 						<strong><label for="icon_description">', $txt['smileys_description'], '</label>: </strong>
 					</dt>
 					<dd>
-						<input type="text" name="icon_description" id="icon_description" value="', !empty($context['icon']['title']) ? $context['icon']['title'] : '', '" class="input_text">
+						<input type="text" name="icon_description" id="icon_description" value="', !empty($context['icon']['title']) ? $context['icon']['title'] : '', '">
 					</dd>
 					<dt>
 						<strong><label for="icon_board_select">', $txt['icons_board'], '</label>: </strong>

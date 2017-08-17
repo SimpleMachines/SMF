@@ -481,13 +481,13 @@ function UnapprovedAttachments()
 			),
 			'action' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" checked>',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" checked>',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="item[]" value="%1$d" checked class="input_check">',
+						'format' => '<input type="checkbox" name="item[]" value="%1$d" checked>',
 						'params' => array(
 							'id' => false,
 						),

@@ -163,7 +163,7 @@ function template_search()
 						<label><strong>', $txt['search_for'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="search" value="', $context['old_search'], '" size="40" class="input_text">
+						<input type="text" name="search" value="', $context['old_search'], '" size="40">
 					</dd>
 					<dt>
 						<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
@@ -175,7 +175,7 @@ function template_search()
 	{
 		echo '
 							<li>
-								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check">
+								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', '>
 								<label for="fields-', $id, '">', $title, '</label>
 							</li>';
 	}

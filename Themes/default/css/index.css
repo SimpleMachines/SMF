@@ -83,7 +83,7 @@ select {
 select option {
 	padding: 0 4px;
 }
-select[size], input.input_check, input.input_radio {
+select[size], input[type="checkbox"], input[type="radio"] {
 	height: auto;
 }
 input:hover, textarea:hover, button:hover, select:hover {
@@ -131,7 +131,7 @@ h1, h2, h3, h4, h5, h6 {
 	color: #444;
 }
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
-input.input_check, input.input_radio {
+input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: top;
@@ -139,8 +139,10 @@ input.input_check, input.input_radio {
 .moderationbuttons_mobile_check {
 	display: none;
 }
-/* Give disabled text input elements a different background color. */
-input[disabled].input_text {
+/* Give disabled input elements a different background color. */
+input[type="text"][disabled], input[type="number"][disabled],
+input[type="search"][disabled], input[type="email"][disabled],
+input[type="date"][disabled] {
 	background: #eee;
 }
 select[disabled] {
@@ -1100,7 +1102,7 @@ img.sort, .sort {
 	text-align: right;
 	min-width: 30em;
 }
-#search_form .input_text, #search_form select, #search_form .button_submit {
+#search_form input[type="search"], #search_form select, #search_form .button_submit {
 	padding: 2px;
 	margin: 2px;
 	background: #fff;
@@ -1518,7 +1520,7 @@ div.event_options {
     height: auto;
     vertical-align: baseline;
 }
-#post_event input[disabled].input_text {
+#post_event input[type="text"][disabled] {
 	color: transparent;
 }
 #post_event select, #event_options input[type="text"], #tz {
@@ -1527,7 +1529,7 @@ div.event_options {
 #post_event select, #event_location {
     width: calc(100% - 75px);
 }
-#post_event .input_check + select {
+#post_event input[type="checkbox"] + select {
     max-width: calc(100% - 95px);
 }
 

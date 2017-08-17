@@ -77,7 +77,7 @@ span#quick_search {
 	display: block;
 }
 /* Browser tweaks. */
-body#chrome #quick_search form .input_text {
+body#chrome #quick_search form input[type="search"] {
 	padding: 2px;
 }
 body#chrome #quick_search form input {
