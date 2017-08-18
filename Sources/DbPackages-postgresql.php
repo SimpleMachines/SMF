@@ -336,8 +336,8 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 		{
 			// If there is an auto we need remove it!
 			if ($column['auto'])
-				$smcFunc['db_query']('',
-					'DROP SEQUENCE ' . $table_name . '_seq',
+				$smcFunc['db_query']('', '
+					DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
 					array(
 						'security_override' => true,
 					)
@@ -488,7 +488,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 				)
 			);
 			$smcFunc['db_query']('', '
-				DROP SEQUENCE ' . $table_name . '_seq',
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
 				array(
 					'security_override' => true,
 				)
@@ -497,6 +497,13 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		// Otherwise add it!
 		else
 		{
+			$smcFunc['db_query']('', '
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
+				array(
+					'security_override' => true,
+				)
+			);
+
 			$smcFunc['db_query']('', '
 				CREATE SEQUENCE ' . $table_name . '_seq',
 				array(
