@@ -937,6 +937,23 @@ function ForumSettings()
 
 	$incontext['continue'] = 1;
 
+	// Setup the SSL checkbox...
+	$incontext['ssl_chkbx_protected'] = false;
+	$incontext['ssl_chkbx_checked'] = false;
+
+	// If redirect in effect, force ssl ON
+	require_once(dirname(__FILE__) . '/Sources/Subs.php');
+	if (https_redirect_active($incontext['detected_url'])) {
+		$incontext['ssl_chkbx_protected'] = true;
+		$incontext['ssl_chkbx_checked'] = true;
+		$_POST['force_ssl'] = true;
+	}
+	// If no cert, make sure ssl stays OFF
+	if (!ssl_cert_found($incontext['detected_url'])) {
+		$incontext['ssl_chkbx_protected'] = true;
+		$incontext['ssl_chkbx_checked'] = false;
+	}
+
 	// Submitting?
 	if (isset($_POST['boardurl']))
 	{
@@ -946,6 +963,12 @@ function ForumSettings()
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://')
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
+
+		//Make sure boardurl is aligned with ssl setting
+		if (empty($_POST['force_ssl']))
+			$_POST['boardurl'] = strtr($_POST['boardurl'], array('https://' => 'http://'));
+		else
+			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));		
 
 		// Save these variables.
 		$vars = array(
@@ -2286,7 +2309,8 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['force_ssl'], ':</td>
 				<td>
-					<input type="checkbox" name="force_ssl" id="force_ssl" />&nbsp;
+					<input type="checkbox" name="force_ssl" id="force_ssl"', $incontext['ssl_chkbx_checked'] ? ' checked' : '',
+					$incontext['ssl_chkbx_protected'] ? ' disabled' : '', ' />&nbsp;
 					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
 					<br>
 					<div class="smalltext block">', $txt['force_ssl_info'], '</div>
