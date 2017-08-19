@@ -1869,7 +1869,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
 				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\S+?)\\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
-				
+
 				// <br> should be empty.
 				$empty_tags = array('br', 'hr');
 				foreach ($empty_tags as $tag)
@@ -5077,7 +5077,8 @@ function smf_list_timezones($when = 'now')
 
 		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
 
-		$tzkey = $smcFunc['json_encode']($tzinfo);
+		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
+		$tzkey = serialize($tzinfo);
 
 		// Next, get the geographic info for this tzid
 		$tzgeo = timezone_location_get($tz);
@@ -5105,8 +5106,7 @@ function smf_list_timezones($when = 'now')
 	$timezones = array();
 	foreach ($zones as $tzkey => $tzvalue)
 	{
-		// !!! TODO: Why encode this and then decode it here?
-		$tzinfo = $smcFunc['json_decode']($tzkey, true);
+		$tzinfo = unserialize($tzkey, true);
 
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
