@@ -5989,12 +5989,13 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	return $regex;
 }
 
-/*
-//*** Check if current domain has a cert
-// Adapted from: https://stackoverflow.com/questions/27689147/how-to-check-if-domain-has-ssl-certificate-or-not
-// * @param string $url to check, in $boardurl format (no trailing slash).
-*/ 
-function ssl_cert_found($url) {
+/**
+ * Check if the passed url has an SSL certificate.
+ *
+ * Returns true if a cert was found & false if not.
+ * @param string $url to check, in $boardurl format (no trailing slash).
+ */
+ function ssl_cert_found($url) {
 
 	// Ask for the headers for the passed url, but via https...
 	$url = str_ireplace('http://', 'https://', $url) . '/';
@@ -6009,10 +6010,12 @@ function ssl_cert_found($url) {
     return $result;
 }
 
-/* 
-//*** Check if $boardurl has a redirect to https:// by querying headers
-// * @param string $url to check, in $boardurl format (no trailing slash).
-*/ 
+/**
+ * Check if the passed url has a redirect to https:// by querying headers.
+ * 
+ * Returns true if a redirect was found & false if not.
+ * @param string $url to check, in $boardurl format (no trailing slash).
+ */
 function https_redirect_active($url) {
 
 	// Ask for the headers for the passed url, but via http...
