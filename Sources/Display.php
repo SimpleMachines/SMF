@@ -999,7 +999,7 @@ function Display()
 			sort($messages);
 	}
 
-	// Save the next start of the next page and the end of the page before
+	// Remember the paging data for next time
 	$_SESSION['page_first_id'] = $messages[0];
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
 	$_SESSION['page_last_id'] = end($messages);
