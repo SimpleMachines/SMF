@@ -100,7 +100,7 @@ function template_error_log()
 
 	echo '
 				<tr>
-					<td colspan="3" class="righttext" style="padding: 4px 8px;">
+					<td colspan="3" class="righttext">
 						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
 						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;">
 					</td>
@@ -118,8 +118,7 @@ function template_error_log()
 	{
 		echo '
 				<tr class="windowbg">
-					<td>
-
+					<td colspan="2">
 						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px 4px 4px; vertical-align: bottom;">
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="generic_icons filter centericon"></span></a>
 							<strong>', $error['member']['link'], '</strong><br>
@@ -133,7 +132,6 @@ function template_error_log()
 
 		echo '
 						</div>
-
 						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px;">';
 
 		if ($error['member']['session'] != '')
@@ -187,15 +185,11 @@ function template_error_log()
 					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button_submit you_sure">
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button_submit you_sure">
 				</div>
-			</div>
-			<br>';
+			</div>';
 
 	if ($context['sort_direction'] == 'down')
 		echo '
 			<input type="hidden" name="desc" value="1">';
-
-	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

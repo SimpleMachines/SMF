@@ -292,10 +292,19 @@
 		float: left;
 		margin: 0;
 	}
+	#header_news_lists_preview, tr[id^="list_news_lists_"] td:nth-child(even),
+	#header_smiley_set_list_default, #header_smiley_set_list_url, #header_smiley_set_list_check,
+	tr[id^="list_smiley_set_list_"] td:nth-child(odd),
+	#header_mail_queue_priority,
+	tr[id^="list_mail_queue_"] td:nth-child(odd),
 	#header_member_list_user_name, #header_member_list_ip,
 	#header_member_list_last_active, #header_member_list_posts,
 	.hidden {
 		display: none;
+	}
+	tr[id^="list_mail_queue_"] td:first-of-type,
+	tr[id^="list_mail_queue_"] td:last-of-type	{
+		display: table-cell;
 	}
 	.msearch_details {
 		width: 100% !important;
