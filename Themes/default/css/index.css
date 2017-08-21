@@ -134,7 +134,7 @@ h1, h2, h3, h4, h5, h6 {
 input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
-	vertical-align: top;
+	vertical-align: middle;
 }
 .moderationbuttons_mobile_check {
 	display: none;
