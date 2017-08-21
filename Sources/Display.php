@@ -931,6 +931,7 @@ function Display()
 				{
 					if (!empty($row['id_member']))
 						$all_posters[$row['id_msg']] = $row['id_member'];
+
 					$messages[] = $row['id_msg'];
 
 					if ($start_char === 'C' && $row['id_msg'] == $page_id) // find the start message of current page
@@ -993,7 +994,7 @@ function Display()
 			$messages[] = $row['id_msg'];
 		}
 
-		// get the message in this order how they shown
+		// Sort the messages into the correct display order
 		if (!$ascending)
 			sort($messages);
 	}
