@@ -737,19 +737,21 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  * widens the search range by an extra 24 hours to support time offset shifts.
  * used by the cache_getRecentEvents function to get the information needed to calculate the events taking the users time offset into account.
  *
- * @param int $days_to_index How many days' worth of info to index
+ * @param array $eventOptions With the keys 'num_days_shown', 'include_holidays', 'include_birthdays' and 'include_events'
  * @return array An array containing the data that was cached as well as an expression to calculate whether the data should be refreshed and when it expires
  */
-function cache_getOffsetIndependentEvents($days_to_index)
+function cache_getOffsetIndependentEvents($eventOptions)
 {
+	$days_to_index = $eventOptions['num_days_shown'];
+	
 	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
 	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
 	return array(
 		'data' => array(
-			'holidays' => getHolidayRange($low_date, $high_date),
-			'birthdays' => getBirthdayRange($low_date, $high_date),
-			'events' => getEventRange($low_date, $high_date, false),
+			'holidays' => ($eventOptions['include_holidays'] ? getHolidayRange($low_date, $high_date) : array()),
+			'birthdays' => ($eventOptions['include_birthdays'] ? getBirthdayRange($low_date, $high_date) : array()),
+			'events' => ($eventOptions['include_events'] ? getEventRange($low_date, $high_date, false) : array()),
 		),
 		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
@@ -760,13 +762,13 @@ function cache_getOffsetIndependentEvents($days_to_index)
  * cache callback function used to retrieve the upcoming birthdays, holidays, and events within the given period, taking into account the users time offset.
  * Called from the BoardIndex to display the current day's events on the board index
  * used by the board index and SSI to show the upcoming events.
- * @param array $eventOptions An array of event options. Only 'num_days_shown' is used here
+ * @param array $eventOptions An array of event options.
  * @return array An array containing the info that was cached as well as a few other relevant things
  */
 function cache_getRecentEvents($eventOptions)
 {
 	// With the 'static' cached data we can calculate the user-specific data.
-	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions['num_days_shown']));
+	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions));
 
 	// Get the information about today (from user perspective).
 	$today = getTodayInfo();
@@ -783,58 +785,67 @@ function cache_getRecentEvents($eventOptions)
 	// Get the current member time/date.
 	$now = forum_time();
 
-	// Holidays between now and now + days.
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+	if ($eventOptions['include_holidays'])
 	{
-		if (isset($cached_data['holidays'][strftime('%Y-%m-%d', $i)]))
-			$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
-	}
-
-	// Happy Birthday, guys and gals!
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
-	{
-		$loop_date = strftime('%Y-%m-%d', $i);
-		if (isset($cached_data['birthdays'][$loop_date]))
+		// Holidays between now and now + days.
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
-				$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
-			$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
+			if (isset($cached_data['holidays'][strftime('%Y-%m-%d', $i)]))
+				$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
 		}
 	}
-
-	$duplicates = array();
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+	
+	if ($eventOptions['include_birthdays'])
 	{
-		// Determine the date of the current loop step.
-		$loop_date = strftime('%Y-%m-%d', $i);
-
-		// No events today? Check the next day.
-		if (empty($cached_data['events'][$loop_date]))
-			continue;
-
-		// Loop through all events to add a few last-minute values.
-		foreach ($cached_data['events'][$loop_date] as $ev => $event)
+		// Happy Birthday, guys and gals!
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			// Create a shortcut variable for easier access.
-			$this_event = &$cached_data['events'][$loop_date][$ev];
-
-			// Skip duplicates.
-			if (isset($duplicates[$this_event['topic'] . $this_event['title']]))
+			$loop_date = strftime('%Y-%m-%d', $i);
+			if (isset($cached_data['birthdays'][$loop_date]))
 			{
-				unset($cached_data['events'][$loop_date][$ev]);
-				continue;
+				foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
+					$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
+				$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
 			}
-			else
-				$duplicates[$this_event['topic'] . $this_event['title']] = true;
+		}	
+	}
+	
+	if ($eventOptions['include_events'])
+	{
+		$duplicates = array();
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+		{
+			// Determine the date of the current loop step.
+			$loop_date = strftime('%Y-%m-%d', $i);
 
-			// Might be set to true afterwards, depending on the permissions.
-			$this_event['can_edit'] = false;
-			$this_event['is_today'] = $loop_date === $today['date'];
-			$this_event['date'] = $loop_date;
+			// No events today? Check the next day.
+			if (empty($cached_data['events'][$loop_date]))
+				continue;
+
+			// Loop through all events to add a few last-minute values.
+			foreach ($cached_data['events'][$loop_date] as $ev => $event)
+			{
+				// Create a shortcut variable for easier access.
+				$this_event = &$cached_data['events'][$loop_date][$ev];
+
+				// Skip duplicates.
+				if (isset($duplicates[$this_event['topic'] . $this_event['title']]))
+				{
+					unset($cached_data['events'][$loop_date][$ev]);
+					continue;
+				}
+				else
+					$duplicates[$this_event['topic'] . $this_event['title']] = true;
+
+				// Might be set to true afterwards, depending on the permissions.
+				$this_event['can_edit'] = false;
+				$this_event['is_today'] = $loop_date === $today['date'];
+				$this_event['date'] = $loop_date;
+			}
+
+			if (!empty($cached_data['events'][$loop_date]))
+				$return_data['calendar_events'] = array_merge($return_data['calendar_events'], $cached_data['events'][$loop_date]);
 		}
-
-		if (!empty($cached_data['events'][$loop_date]))
-			$return_data['calendar_events'] = array_merge($return_data['calendar_events'], $cached_data['events'][$loop_date]);
 	}
 
 	// Mark the last item so that a list separator can be used in the template.
