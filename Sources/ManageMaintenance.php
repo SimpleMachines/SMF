@@ -676,10 +676,6 @@ function ConvertEntities()
 		$context['start'] = 0;
 	}
 
-	// Make sure all serialized strings are all right.
-	require_once($sourcedir . '/Subs-Charset.php');
-	fix_serialized_columns();
-
 	// If we're here, we must be done.
 	$context['continue_percent'] = 100;
 	$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;done=convertentities';
