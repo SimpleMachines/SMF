@@ -156,7 +156,7 @@ function summary($memID)
 
 		// So... are they banned?  Dying to know!
 		$request = $smcFunc['db_query']('', '
-			SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post, bg.cannot_register,
+			SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post,
 				bg.cannot_login, bg.reason
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:time}))
@@ -167,7 +167,7 @@ function summary($memID)
 		{
 			// Work out what restrictions we actually have.
 			$ban_restrictions = array();
-			foreach (array('access', 'register', 'login', 'post') as $type)
+			foreach (array('access', 'login', 'post') as $type)
 				if ($row['cannot_' . $type])
 					$ban_restrictions[] = $txt['ban_type_' . $type];
 
@@ -182,7 +182,6 @@ function summary($memID)
 				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
 				'cannot' => array(
 					'access' => !empty($row['cannot_access']),
-					'register' => !empty($row['cannot_register']),
 					'post' => !empty($row['cannot_post']),
 					'login' => !empty($row['cannot_login']),
 				),
