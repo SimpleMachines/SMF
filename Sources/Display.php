@@ -844,24 +844,31 @@ function Display()
 
 	$start = $_REQUEST['start'];
 
-	// Check if we can use seek
-	if (isset($_SESSION['page_topic']) && isset($_SESSION['page_next_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_next_start'] == $start)
-	{	// yes we call the next page
-		$start_char = 'M'; 
-		$page_id = $_SESSION['page_last_id'];
+	// Check if we can use the seek method to speed things up
+	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic)
+	{
+		// User moved to the next page
+		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
+		{	
+			$start_char = 'M'; 
+			$page_id = $_SESSION['page_last_id'];
+		}
+		// User moved to the previous page
+		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
+		{	
+			$start_char = 'L';
+			$page_id = $_SESSION['page_first_id'];
+		}
+		// User refreshed the current page
+		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
+		{
+			$start_char = 'C';
+			$page_id = $_SESSION['page_first_id'];
+		}
 	}
-	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_before_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_before_start'] == $start)
-	{	// yes we go backward
-		$start_char = 'L';
-		$page_id = $_SESSION['page_first_id'];
-	}
-	elseif (isset($_SESSION['page_topic']) && isset($_SESSION['page_current_start']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_current_start'] == $start)
-	{	// refresh of current page
-		$start_char = 'C';
-		$page_id = $_SESSION['page_first_id'];
-	}
-	elseif ($start == 0) //special case start page
-	{	// special case start page
+	// Special case start page
+	elseif ($start == 0)
+	{
 		$start_char = 'C';
 		$page_id = $context['topicinfo']['id_first_msg'];
 	}
