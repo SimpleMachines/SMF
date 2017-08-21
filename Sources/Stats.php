@@ -163,10 +163,11 @@ function DisplayStats()
 			$result = $smcFunc['db_query']('', '
 				SELECT COUNT(id_member) AS total_members, value AS gender
 				FROM {db_prefix}themes
-				WHERE variable = {string:gender_var}
+				WHERE variable = {string:gender_var} AND id_theme = {int:default_theme}
 				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
+					'default_theme' => 1,
 				)
 			);
 			$context['gender'] = array();
