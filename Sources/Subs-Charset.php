@@ -550,4 +550,5 @@ function utf8_strtoupper($string)
 
 	return strtr($string, $case_folding);
 }
+
 ?>
