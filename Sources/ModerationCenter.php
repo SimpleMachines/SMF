@@ -690,10 +690,6 @@ function ReportedMembers()
 
 	isAllowedTo('moderate_forum');
 
-	// Are they wanting to view a particular report?
-	if (!empty($_REQUEST['report']))
-		return MemberReport();
-
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_members'];
 	$context['sub_template'] = 'reported_members';
