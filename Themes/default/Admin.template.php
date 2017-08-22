@@ -167,7 +167,7 @@ function template_credits()
 						<div id="support_credits" class="roundframe">
 							<div class="sub_bar">
 								<h3 class="subbg">
-									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.png" id="credits_logo" alt="">
+									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
 								</h3>
 							</div>
 							<div class="padding">
