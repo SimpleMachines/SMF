@@ -394,12 +394,13 @@ function smf_mysql_free_result($rs)
 }
 
 /**
- * @param $rs
+ * @param $rs Ignored
  * @return int|string
  */
 function smf_mysql_insert_id($rs)
 {
-	return mysqli_insert_id($rs);
+	global $db_connection;
+	return mysqli_insert_id($db_connection);
 }
 
 /**
