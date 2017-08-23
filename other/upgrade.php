@@ -4610,7 +4610,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	while (!$is_done)
 	{
 		// Keep looping at the current step.
-		nextSubStep($current_substep);
+		nextSubstep($current_substep);
 
 		$arIp = array();
 
