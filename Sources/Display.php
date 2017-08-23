@@ -876,15 +876,15 @@ function Display()
 		$start_char = null;
 
 	$limit = $context['messages_per_page'];
-	
+
 	$messages = array();
 	$all_posters = array();
-	
+
 	if (isset($start_char))
 	{
 		$firstIndex = 0;
 
-		if ($start_char === 'M' or $start_char === 'S' or $start_char === 'C')
+		if ($start_char === 'M' or $start_char === 'C')
 		{
 			$ascending = true;
 			$page_operator = '>=';
@@ -927,18 +927,18 @@ function Display()
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				if ($row['id_msg'] != $page_id || $start_char === 'C')
+				// Check if the start msg is in our result
+				if ($row['id_msg'] == $page_id)
+					$found_msg = true;
+
+				// Skip the the start msg if we not in mode C
+				if ($start_char === 'C' || $row['id_msg'] != $page_id)
 				{
 					if (!empty($row['id_member']))
 						$all_posters[$row['id_msg']] = $row['id_member'];
 
 					$messages[] = $row['id_msg'];
-
-					if ($start_char === 'C' && $row['id_msg'] == $page_id) // find the start message of current page
-						$found_msg = true;
 				}
-				else
-					$found_msg = true; // find the start message of next or before page
 			}
 
 			// page_id not found? -> fallback
