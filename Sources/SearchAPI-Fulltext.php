@@ -166,6 +166,9 @@ class fulltext_search extends search_api
 		$query_where = array();
 		$query_params = $search_data['params'];
 
+		if( $smcFunc['db_title'] == "PostgreSQL")
+			$modSettings['search_simple_fulltext'] = true;
+
 		if ($query_params['id_search'])
 			$query_select['id_search'] = '{int:id_search}';
 
