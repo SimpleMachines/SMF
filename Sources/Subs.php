@@ -1869,7 +1869,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
 				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\S+?)\\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
-				
+
 				// <br> should be empty.
 				$empty_tags = array('br', 'hr');
 				foreach ($empty_tags as $tag)
@@ -5075,16 +5075,18 @@ function smf_list_timezones($when = 'now')
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get($tz, $when, $later);
 
-		$tzinfo[0]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
-
-		$tzkey = $smcFunc['json_encode']($tzinfo);
+		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
+		$tzkey = serialize($tzinfo);
 
 		// Next, get the geographic info for this tzid
 		$tzgeo = timezone_location_get($tz);
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
+		{
 			$zones[$tzkey]['tzid'] = $tzid;
+			$zones[$tzkey]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
+		}
 
 		// A time zone from a prioritized country?
 		if (in_array($tzid, $priority_tzids))
@@ -5105,9 +5107,6 @@ function smf_list_timezones($when = 'now')
 	$timezones = array();
 	foreach ($zones as $tzkey => $tzvalue)
 	{
-		// !!! TODO: Why encode this and then decode it here?
-		$tzinfo = $smcFunc['json_decode']($tzkey, true);
-
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
 		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
@@ -5116,9 +5115,9 @@ function smf_list_timezones($when = 'now')
 			$desc = implode(', ', array_unique($tzvalue['locations']));
 
 		if (isset($priority_zones[$tzkey]))
-			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+			$priority_timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
 	$timezones = array_merge(
