@@ -191,7 +191,7 @@ div.sceditor-dropdown div {
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
-  line-height: 1;
+  line-height: normal;
   border: 0;
   outline: none;
   font-size: 13px;
@@ -350,7 +350,7 @@ div.sceditor-dropdown textarea:focus {
 div.sceditor-dropdown .button {
   font-weight: bold;
   color: #444;
-  padding: 6px 12px;
+  padding: 0 12px;
   background: #ececec;
   border: solid 1px #ccc;
   border-radius: 2px;
