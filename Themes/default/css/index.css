@@ -3894,3 +3894,12 @@ a.button_submit {
 .g-recaptcha {
 	display: inline-block;
 }
+
+/* If its collapsed you know what to do */
+.collapsed {
+	opacity: 0.5;
+	transition: 1s;
+}
+.collapsed:hover {
+	opacity: 1;
+}
