@@ -626,7 +626,7 @@ function smf_db_error($db_string, $connection = null)
  */
 function smf_db_fetch_row($request, $counter = false)
 {
-	global $db_row_count;
+	global $db_row_count, $boardurl;
 
 	if ($counter !== false)
 		$row = pg_fetch_row($request, $counter);
@@ -660,7 +660,7 @@ function smf_db_fetch_row($request, $counter = false)
  */
 function smf_db_fetch_assoc($request, $counter = false)
 {
-	global $db_row_count;
+	global $db_row_count, $boardurl;
 
 	if ($counter !== false)
 		$row = pg_fetch_assoc($request, $counter);
