@@ -1309,7 +1309,7 @@ function template_admin_search_results()
 				echo '
 							<li>
 								<p>
-									<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" class="new_win"><strong>', $result['title'], '</strong></a>
+									<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank"><strong>', $result['title'], '</strong></a>
 								</p>
 								<p class="double_height">
 									', $result['snippet'], '

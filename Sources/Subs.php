@@ -1337,7 +1337,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
-				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
+				'disabled_content' => '<a href="$1" target="_blank">$1</a>',
 			),
 			array(
 				'tag' => 'float',
