@@ -389,12 +389,12 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		// Inject the values passed to this function.
 		$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', 'smf_db_replacement__callback', $db_string);
 
-		// Replace $boardurl with a token (we restore it when we retrieve the value)
-		$db_string = str_replace($boardurl, '{$boardurl}', $db_string);
-
 		// This shouldn't be residing in global space any longer.
 		$db_callback = array();
 	}
+
+	// Replace $boardurl with a token (we restore it when we retrieve the value)
+	$db_string = str_replace($boardurl, '{$boardurl}', $db_string);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
