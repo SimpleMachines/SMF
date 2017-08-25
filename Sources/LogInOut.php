@@ -852,7 +852,7 @@ function validatePasswordFlood($id_member, $member_name, $password_flood_value =
 
 	// Broken the law?
 	if ($number_tries > 5)
-		fatal_lang_error('login_threshold_brute_fail', 'critical', [$member_name]);
+		fatal_lang_error('login_threshold_brute_fail', 'login', [$member_name]);
 
 	// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 	updateMemberData($id_member, array('passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries));
