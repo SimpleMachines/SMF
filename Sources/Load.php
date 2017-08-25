@@ -477,7 +477,12 @@ function loadUserSettings()
 		if (!$id_member)
 		{
 			require_once($sourcedir . '/LogInOut.php');
-			validatePasswordFlood(!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member, !empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false, $id_member != 0);
+			validatePasswordFlood(
+				!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member,
+				!empty($user_settings['member_name']) ? $user_settings['member_name'] : '',
+				!empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false,
+				$id_member != 0
+			);
 		}
 		// Validate for Two Factor Authentication
 		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], array('login2', 'logintfa'))))

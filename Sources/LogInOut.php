@@ -179,7 +179,7 @@ function Login2()
 
 	// Been guessing a lot, haven't we?
 	if (isset($_SESSION['failed_login']) && $_SESSION['failed_login'] >= $modSettings['failed_login_threshold'] * 3)
-		fatal_lang_error('login_threshold_fail', 'critical');
+		fatal_lang_error('login_threshold_fail', 'login');
 
 	// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
 	if (isset($_POST['cookieneverexp']) || (!empty($_POST['cookielength']) && $_POST['cookielength'] == -1))
@@ -283,7 +283,7 @@ function Login2()
 	if (!hash_verify_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']), $user_settings['passwd']))
 	{
 		// Let's be cautious, no hacking please. thanx.
-		validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
+		validatePasswordFlood($user_settings['id_member'], $user_settings['member_name'], $user_settings['passwd_flood']);
 
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = array();
@@ -392,7 +392,7 @@ function Login2()
 	elseif (!empty($user_settings['passwd_flood']))
 	{
 		// Let's be sure they weren't a little hacker.
-		validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood'], true);
+		validatePasswordFlood($user_settings['id_member'], $user_settings['member_name'], $user_settings['passwd_flood'], true);
 
 		// If we got here then we can reset the flood counter.
 		updateMemberData($user_settings['id_member'], array('passwd_flood' => ''));
@@ -457,7 +457,7 @@ function LoginTFA()
 		}
 		else
 		{
-			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+			validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
 
 			$context['tfa_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
@@ -484,7 +484,7 @@ function LoginTFA()
 		}
 		else
 		{
-			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+			validatePasswordFlood($member['id_member'], $member['member_name'], $member['passwd_flood'], false, true);
 
 			$context['tfa_backup_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
@@ -794,11 +794,12 @@ function phpBB3_password_check($passwd, $passwd_hash)
  * Importantly, even if the password was right we DON'T TELL THEM!
  *
  * @param int $id_member The ID of the member
+ * @param string $member_name The name of the member.
  * @param bool|string $password_flood_value False if we don't have a flood value, otherwise a string with a timestamp and number of tries separated by a |
  * @param bool $was_correct Whether or not the password was correct
  * @param bool $tfa Whether we're validating for two-factor authentication
  */
-function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false, $tfa = false)
+function validatePasswordFlood($id_member, $member_name, $password_flood_value = false, $was_correct = false, $tfa = false)
 {
 	global $cookiename, $sourcedir;
 
@@ -851,7 +852,7 @@ function validatePasswordFlood($id_member, $password_flood_value = false, $was_c
 
 	// Broken the law?
 	if ($number_tries > 5)
-		fatal_lang_error('login_threshold_brute_fail', 'critical');
+		fatal_lang_error('login_threshold_brute_fail', 'login', [$member_name]);
 
 	// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 	updateMemberData($id_member, array('passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries));
