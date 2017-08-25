@@ -179,7 +179,7 @@ function Login2()
 
 	// Been guessing a lot, haven't we?
 	if (isset($_SESSION['failed_login']) && $_SESSION['failed_login'] >= $modSettings['failed_login_threshold'] * 3)
-		fatal_lang_error('login_threshold_fail', 'critical');
+		fatal_lang_error('login_threshold_fail', 'login');
 
 	// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
 	if (isset($_POST['cookieneverexp']) || (!empty($_POST['cookielength']) && $_POST['cookielength'] == -1))
