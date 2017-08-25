@@ -527,9 +527,12 @@ function smf_db_fetch_assoc($request)
 
 	$row = mysqli_fetch_assoc($request);
 
-	array_walk($row, function(&$column) use ($boardurl) {
-		$column = str_replace('{$boardurl}', $boardurl, $column);
-	});
+	if (is_array($row))
+	{
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+	}
 
 	return $row;
 }
@@ -545,9 +548,12 @@ function smf_db_fetch_row($request)
 
 	$row = mysqli_fetch_row($request);
 
-	array_walk($row, function(&$column) use ($boardurl) {
-		$column = str_replace('{$boardurl}', $boardurl, $column);
-	});
+	if (is_array($row))
+	{
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+	}
 
 	return $row;
 }

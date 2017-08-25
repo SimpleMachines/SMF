@@ -641,9 +641,12 @@ function smf_db_fetch_row($request, $counter = false)
 		$row = @pg_fetch_row($request, $db_row_count[(int) $request]++);
 	}
 
-	array_walk($row, function(&$column) use ($boardurl) {
-		$column = str_replace('{$boardurl}', $boardurl, $column);
-	});
+	if (is_array($row))
+	{
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+	}
 
 	return $row;
 }
@@ -672,9 +675,10 @@ function smf_db_fetch_assoc($request, $counter = false)
 		$row = @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
 	}
 
-	array_walk($row, function(&$column) use ($boardurl) {
-		$column = str_replace('{$boardurl}', $boardurl, $column);
-	});
+	if (is_array($row))
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
 
 	return $row;
 }
