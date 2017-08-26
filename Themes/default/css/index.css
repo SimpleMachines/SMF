@@ -3614,7 +3614,7 @@ h3.profile_hd {
 /* Well some of them has different gradient effect on hover */
 .button:hover, #search_form .button:hover, .quickbuttons li:hover {
 	background: #fff;
-	background-image: linear-gradient(to bottom, #fff 0%, #e2e9F3 70%);
+	background-image: linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
 }
 /* If it fits I sits... */
 .navigate_section ul, .popup_content, .up_contain {
