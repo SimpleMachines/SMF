@@ -286,7 +286,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = $smcFUnc['json_decode'](SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = $smcFunc['json_decode'](SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
