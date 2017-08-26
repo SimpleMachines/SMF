@@ -72,7 +72,7 @@ function template_main()
 
 		echo '
 		<div class="main_container">
-			<div class="cat_bar" id="category_', $category['id'], '">
+			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '','" id="category_', $category['id'], '">
 				<h3 class="catbg">';
 
 		// If this category even can collapse, show a link to collapse it.

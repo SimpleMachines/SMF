@@ -935,9 +935,17 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 			else
 			{
 				if (bCollapse)
+				{
+					if (this.opt.aHeader != null && this.opt.aHeader.hasClass('cat_bar'))
+						$(this.opt.aHeader).addClass('collapsed');
 					$(oContainer).slideUp();
+				}
 				else
+				{
+					if (this.opt.aHeader != null && this.opt.aHeader.hasClass('cat_bar'))
+						$(this.opt.aHeader).removeClass('collapsed');
 					$(oContainer).slideDown();
+				}
 			}
 		}
 	}
