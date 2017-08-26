@@ -416,8 +416,8 @@ function template_main()
 									</div>
 									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="attach-ui">
-										<a data-dz-remove class="button_submit cancel">', $txt['modify_cancel'] ,'</a>
-										<a class="button_submit upload">', $txt['upload'] ,'</a>
+										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
+										<a class="button upload">', $txt['upload'] ,'</a>
 									</div>
 								</div>
 							</div>
@@ -436,9 +436,9 @@ function template_main()
 							<dd class="smalltext fallback">
 								<div id="attachUpload" class="descbox">
 									<h5>', $txt['attach_drop_zone'] ,'</h5>
-									<a class="button_submit" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
-									<a class="button_submit" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
-									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
+									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
+									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
+									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
 									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="fallback">
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
@@ -545,7 +545,7 @@ function template_main()
 	// Option to delete an event if user is editing one.
 	if ($context['make_event'] && !$context['event']['new'])
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button_submit you_sure">';
+						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button you_sure">';
 
 	echo '
 					</span>
@@ -972,10 +972,10 @@ function template_spellcheck()
 				</td>
 			</tr></table>
 			<div class="righttext" style="padding: 4px;">
-				<input type="button" name="change" value="', $txt['spellcheck_change'], '" onclick="replaceWord();" class="button_submit">
-				<input type="button" name="changeall" value="', $txt['spellcheck_change_all'], '" onclick="replaceAll();" class="button_submit">
-				<input type="button" name="ignore" value="', $txt['spellcheck_ignore'], '" onclick="nextWord(false);" class="button_submit">
-				<input type="button" name="ignoreall" value="', $txt['spellcheck_ignore_all'], '" onclick="nextWord(true);" class="button_submit">
+				<input type="button" name="change" value="', $txt['spellcheck_change'], '" onclick="replaceWord();" class="button">
+				<input type="button" name="changeall" value="', $txt['spellcheck_change_all'], '" onclick="replaceAll();" class="button">
+				<input type="button" name="ignore" value="', $txt['spellcheck_ignore'], '" onclick="nextWord(false);" class="button">
+				<input type="button" name="ignoreall" value="', $txt['spellcheck_ignore_all'], '" onclick="nextWord(true);" class="button">
 			</div>
 		</form>
 	</body>
@@ -1071,7 +1071,7 @@ function template_announce()
 				</ul>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" value="', $txt['post'], '" class="button_submit">
+					<input type="submit" value="', $txt['post'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="topic" value="', $context['current_topic'], '">
 					<input type="hidden" name="move" value="', $context['move'], '">
@@ -1102,7 +1102,7 @@ function template_announcement_send()
 				</div>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
+					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="topic" value="', $context['current_topic'], '">
 					<input type="hidden" name="move" value="', $context['move'], '">

@@ -93,7 +93,7 @@ function template_main()
 		// Button to add a new board.
 		echo '
 				</ul>
-				<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit">
+				<input type="submit" value="', $txt['mboards_new_board'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>';
 	}
@@ -186,11 +186,11 @@ function template_modify_category()
 
 	if (isset($context['category']['is_new']))
 		echo '
-					<input type="submit" name="add" value="', $txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button_submit">';
+					<input type="submit" name="add" value="', $txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button">';
 	else
 		echo '
-					<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button_submit">
-					<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['catConfirm'], '" class="button_submit you_sure">';
+					<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button">
+					<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['catConfirm'], '" class="button you_sure">';
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
@@ -249,8 +249,8 @@ function template_confirm_category_delete()
 	echo '
 					</select>
 				</p>
-				<input type="submit" name="delete" value="', $txt['mboards_delete_confirm'], '" class="button_submit">
-				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button_submit">
+				<input type="submit" name="delete" value="', $txt['mboards_delete_confirm'], '" class="button">
+				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
@@ -594,14 +594,14 @@ function template_modify_board()
 	if (isset($context['board']['is_new']))
 		echo '
 				<input type="hidden" name="cur_cat" value="', $context['board']['category'], '">
-				<input type="submit" name="add" value="', $txt['mboards_new_board'], '" onclick="return !isEmptyText(this.form.board_name);" class="button_submit">';
+				<input type="submit" name="add" value="', $txt['mboards_new_board'], '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.board_name);" class="button_submit">';
+				<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 
 	if (!isset($context['board']['is_new']) && empty($context['board']['is_recycle']))
 		echo '
-				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['boardConfirm'], '" class="button_submit you_sure">';
+				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['boardConfirm'], '" class="button you_sure">';
 	echo '
 			</div>
 		</form>
@@ -741,8 +741,8 @@ function template_confirm_board_delete()
 	echo '
 					</select>
 				</p>
-				<input type="submit" name="delete" value="', $txt['mboards_delete_confirm'], '" class="button_submit">
-				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button_submit">
+				<input type="submit" name="delete" value="', $txt['mboards_delete_confirm'], '" class="button">
+				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '"

@@ -380,11 +380,11 @@ function ViewSubscriptions()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_table_headers',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
 			),
 		),
 	);
@@ -922,16 +922,16 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit">
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button_submit you_sure">
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button_submit you_sure">
+					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button">
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button you_sure">
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button you_sure">
 				',
 			),
 			array(
 				'position' => 'top_of_list',
 				'value' => '
 					<div class="flow_auto">
-						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" style="margin-top: 3px;">
+						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button" style="margin-top: 3px;">
 						<input type="text" name="sub_search" value="" class="floatright">
 					</div>
 				',

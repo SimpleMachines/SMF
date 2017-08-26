@@ -39,11 +39,6 @@
 	clear: left;
 }
 
-/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-.button_submit, .button_reset, .button_link {
-	margin: 0 2px;
-}
-
 /* the page navigation area */
 .generic_icons.move, .generic_icons.next_page {
 	background-position: -31px -57px;
@@ -176,10 +171,6 @@ img#smflogo {
 	float: right;
 }
 
-/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-.button_submit, .button_reset, .button_link {
-	float: left;
-}
 /* The framing graphics */
 #search_form {
 	text-align: left;

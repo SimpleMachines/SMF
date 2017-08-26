@@ -81,7 +81,7 @@ function template_modify_weights()
 						<span class="search_weight"><strong>100%</strong></span>
 					</dd>
 				</dl>
-				<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '">
 			</div>
@@ -210,7 +210,7 @@ function template_select_search_method()
 					<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 				</fieldset>
 				<br class="clear"/>
-				<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '">
 			</div>
@@ -245,7 +245,7 @@ function template_create_index()
 					</dd>
 				</dl>
 				<hr>
-				<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 	</form>
@@ -273,7 +273,7 @@ function template_create_index_progress()
 					</div>
 				</div>
 				<hr>
-				<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit">
+				<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button">
 			</div>
 			<input type="hidden" name="step" value="', $context['step'], '">
 			<input type="hidden" name="start" value="', $context['start'], '">
@@ -361,7 +361,7 @@ function template_spider_edit()
 					</dd>
 				</dl>
 				<hr>
-				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
+				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '">
 			</div>
@@ -393,7 +393,7 @@ function template_show_spider_logs()
 					<input type="text" name="older" id="older" value="7" size="3">
 					', $txt['spider_logs_delete_day'], '
 				</p>
-				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit">
+				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '">
 			</div>
@@ -425,7 +425,7 @@ function template_show_spider_stats()
 				</p>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ss_token_var'], '" value="', $context['admin-ss_token'], '">
-				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit">
+				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
 				<br>
 			</div>
 		</form>

@@ -24,7 +24,7 @@
 		padding: 0;
 		margin: 0 auto;
 	}
-	.button_submit {
+	.button {
 		min-width: 15%;
 		margin: 0 0 0 2px;
 	}
@@ -121,7 +121,7 @@
 		display: none;
 	}
 	/* Register Page */
-	#registration .button_submit {
+	#registration .button {
 		font-size: 0.67em;
 	}
 	dl.register_form {
@@ -434,7 +434,7 @@
 	dl.register_form dt span {
 		display: inline;
 	}
-	.button_submit.qaction {
+	.button.qaction {
 		width: 10%;
 		margin: 0;
 	}

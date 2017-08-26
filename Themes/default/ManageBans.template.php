@@ -173,7 +173,7 @@ function template_ban_edit()
 	}
 
 	echo '
-				<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button_submit">
+				<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button">
 				<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '">
 				<input type="hidden" name="bg" value="', $context['ban']['id'], '">', isset($context['ban']['from_user']) ? '
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
@@ -295,7 +295,7 @@ function template_ban_edit_trigger()
 						</dd>
 					</dl>
 				</fieldset>
-				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit">
+				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button">
 			</div>
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '">
 			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '">

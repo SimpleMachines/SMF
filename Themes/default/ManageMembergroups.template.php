@@ -128,7 +128,7 @@ function template_new_group()
 	echo '
 					</dd>
 				</dl>
-				<input type="submit" value="', $txt['membergroups_add_group'], '" class="button_submit">
+				<input type="submit" value="', $txt['membergroups_add_group'], '" class="button">
 			</div>';
 	if ($context['undefined_group'])
 	{
@@ -343,8 +343,8 @@ function template_edit_group()
 	}
 	echo '
 				</dl>
-				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit">', $context['group']['allow_delete'] ? '
-				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button_submit you_sure">' : '', '
+				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
+				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
@@ -644,7 +644,7 @@ function template_group_members()
 	if (!empty($context['group']['assignable']))
 		echo '
 			<div class="floatright">
-				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button_submit ">
+				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button ">
 			</div>';
 
 	echo '
@@ -669,7 +669,7 @@ function template_group_members()
 						<div id="toAddItemContainer"></div>
 					</dd>
 				</dl>
-				<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button_submit">
+				<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button">
 			</div>';
 	}
 
@@ -728,7 +728,7 @@ function template_group_request_reason()
 
 	echo '
 				</dl>
-				<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button_submit">
+				<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button">
 				<input type="hidden" name="req_action" value="got_reason">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['mod-gr_token_var'], '" value="', $context['mod-gr_token'], '">

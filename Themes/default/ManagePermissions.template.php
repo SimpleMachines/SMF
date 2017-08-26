@@ -189,7 +189,7 @@ function template_permission_index()
 						</dd>
 					</dl>
 				</fieldset>
-				<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button_submit">
+				<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button">
 			</div>';
 
 		// Javascript for the advanced stuff.
@@ -338,10 +338,10 @@ function template_by_board()
 
 	if ($context['edit_all'])
 		echo '
-			<input type="submit" name="save_changes" value="', $txt['save'], '" class="button_submit">';
+			<input type="submit" name="save_changes" value="', $txt['save'], '" class="button">';
 	else
 		echo '
-			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
+			<a class="button" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -408,10 +408,10 @@ function template_edit_profiles()
 
 	if ($context['can_edit_something'])
 		echo '
-				<input type="submit" name="rename" value="', empty($context['show_rename_boxes']) ? $txt['permissions_profile_rename'] : $txt['permissions_commit'], '" class="button_submit">';
+				<input type="submit" name="rename" value="', empty($context['show_rename_boxes']) ? $txt['permissions_profile_rename'] : $txt['permissions_commit'], '" class="button">';
 
 	echo '
-				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button_submit" ', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '/>
+				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button" ', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '/>
 			</div>
 		</form>
 		<br>
@@ -443,7 +443,7 @@ function template_edit_profiles()
 				</dl>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '">
-				<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit">
+				<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button">
 			</div>
 		</form>
 	</div>';
@@ -524,7 +524,7 @@ function template_modify_group()
 	if ($context['profile']['can_modify'])
 		echo '
 			<div class="padding">
-				<input type="submit" value="', $txt['permissions_commit'], '" class="button_submit">
+				<input type="submit" value="', $txt['permissions_commit'], '" class="button">
 			</div>';
 
 	foreach ($context['hidden_perms'] as $hidden_perm)
@@ -801,7 +801,7 @@ function template_postmod_permissions()
 
 		echo '
 									</select>
-									<input type="submit" value="', $txt['go'], '" class="button_submit">
+									<input type="submit" value="', $txt['go'], '" class="button">
 								</span>
 							</div>
 							<table class="table_grid" id="postmod">
@@ -905,7 +905,7 @@ function template_postmod_permissions()
 
 	echo '
 							<div class="righttext padding">
-								<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button_submit">
+								<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button">
 								<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '">
 							</div>
 						</form>';

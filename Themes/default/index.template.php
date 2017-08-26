@@ -291,7 +291,7 @@ function template_body_above()
 			<input type="hidden" name="sd_brd" value="', $context['current_board'], '">';
 
 		echo '
-			<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit">
+			<input type="submit" name="search2" value="', $txt['search'], '" class="button">
 			<input type="hidden" name="advanced" value="0">
 		</form>';
 	}

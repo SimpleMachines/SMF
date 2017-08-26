@@ -46,7 +46,7 @@ function template_fatal_error()
 		// Show a back button (using javascript.)
 		echo '
 	<div class="centertext">
-		<a class="button_link" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
+		<a class="button" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
 	</div>';
 	}
 }
@@ -72,8 +72,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button_submit you_sure">
-					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button_submit you_sure">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
 				</div>
 			</div>
 			<table class="table_grid" id="error_log">
@@ -182,8 +182,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button_submit you_sure">
-					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button_submit you_sure">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
 				</div>
 			</div>';
 
@@ -248,9 +248,9 @@ function template_attachment_errors()
 				<div class="noticebox">',
 					$context['error_message'], '
 				</div>',
-				!empty($context['back_link']) ? ('<a class="button_link" href="' . $scripturl . $context['back_link'] . '">' . $txt['back'] . '</a>') : '',
+				!empty($context['back_link']) ? ('<a class="button" href="' . $scripturl . $context['back_link'] . '">' . $txt['back'] . '</a>') : '',
 				'<span style="float: right; margin:.5em;"></span>
-				<a class="button_link" href="', $scripturl, $context['redirect_link'], '">', $txt['continue'], '</a>
+				<a class="button" href="', $scripturl, $context['redirect_link'], '">', $txt['continue'], '</a>
 			</div>
 		</div>
 	</div>';

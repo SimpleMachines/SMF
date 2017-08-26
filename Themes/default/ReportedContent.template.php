@@ -99,7 +99,7 @@ function template_reported_posts()
 			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">' . $context['page_index'] . '</div>' : '', '
 			<div class="floatright">', !$context['view_closed'] ? '
 				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
-				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
+				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -269,7 +269,7 @@ function template_viewmodreport()
 					</div>
 					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 					<div class="padding">
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
 						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 					</div>
 				</div>
@@ -304,7 +304,7 @@ function template_edit_comment()
 	echo '
 				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'], '</textarea>
 				<div>
-					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
+					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button">
 				</div>
 			</div>
 			<br>';
@@ -468,7 +468,7 @@ function template_reported_members()
 		<div class="pagesection">
 			<div class="pagelinks floatleft">', $context['page_index'], '</div>
 			<div class="floatright">
-				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
+				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -565,7 +565,7 @@ function template_viewmemberreport()
 					</div>
 					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 					<div class="padding">
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
 						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 					</div>
 				</div>

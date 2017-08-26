@@ -71,7 +71,7 @@ input, button, select {
 	font-size: 0.9em;
 }
 /* Height fixation */
-input, select {
+input, select, .button {
 	height: 25px;
 }
 input[type="checkbox"] {
@@ -193,38 +193,6 @@ body#help_popup {
 	font-size: 0.9em;
 }
 
-/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-#frmLogin input.button_submit, #guest_form input.button_submit, #calendar_navigation input.button_submit, #mergeSelectBoard input.button_submit {
-	float: none;
-	margin-left: inherit;
-}
-.button_submit, .button_reset, .button_link {
-	margin: 0 0 0 12px;
-	padding: 0 4px;
-	float: right;
-	cursor: pointer;
-	border: 1px solid #ddd;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-}
-.button_submit:hover, .button_reset:hover, .button_link:hover {
-	color: #af6700;
-	border: 1px solid #ddd;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-}
-a.button_link {
-	color: #000;
-	padding: 1px 5px;
-	margin: 0 !important;
-	font-size: 0.9em;
-}
-.button_link:hover {
-	text-decoration: none;
-}
 /* the new "button" */
 .new_posts {
 	color: #fff;
@@ -445,7 +413,7 @@ a img {
 	overflow: hidden;
 	content: '';
 	vertical-align: middle;
-	margin: -5px 5px 0 5px;
+	margin: 0 5px 0 5px;
 	border: 1px solid #c5c5c5;
 	border-radius: 3px;
 	box-shadow: 0 1px 2px rgba(0,0,0,.2),
@@ -475,10 +443,6 @@ a img {
 .help .icon:hover {
 	opacity: 1;
 }
-/* /me uses this a lot. (emote, try typing /me in a post.) */
-.meaction {
-	color: red;
-}
 
 /* Highlighted text - such as search results. */
 .highlight {
@@ -501,14 +465,8 @@ strong[id^='child_list_']::after {
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
-.pagelinks {
-	margin: 8px 0 0 0;
-}
-.pagelinks p {
-	display: inline;
-}
 .pagelinks .button {
-	margin: -2px 5px 0 0;
+	margin: 0 5px 0 0;
 	padding: 0 5px;
 }
 .navPages {
@@ -538,12 +496,6 @@ strong[id^='child_list_']::after {
 	padding: 1px 0;
 }
 
-/* Sometimes there will be an error when you post */
-/* Messages that somehow need to attract the attention. */
-.error, .alert {
-	color: red;
-}
-
 /* Calendar colors for birthdays, events and holidays */
 .birthday {
 	color: #920ac4;
@@ -559,11 +511,6 @@ strong[id^='child_list_']::after {
 /* Events that are currently selected on the calendar. Won't see it much, probably. */
 .sel_event {
 	font-weight: bold;
-}
-
-/* Colors for warnings */
-.warn_mute {
-	color: red;
 }
 
 .warn_moderate {
@@ -962,7 +909,7 @@ img.sort, .sort {
 
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
-.buttonlist, .buttonrow {
+.buttonlist, .buttonrow, .pagelinks {
 	z-index: 100;
 	padding: 5px 0 5px 0;
 	margin: 5px 0 5px 0;
@@ -981,7 +928,6 @@ img.sort, .sort {
 	overflow: visible;
 	color: #444;
 	font-size: 0.8em;
-	height: 2.2em;
 	line-height: 2.2em;
 }
 /* Keep a consistent size when wrapped in pagesection. */
@@ -1085,7 +1031,7 @@ img.sort, .sort {
 	text-align: right;
 	min-width: 30em;
 }
-#search_form input[type="search"], #search_form select, #search_form .button_submit {
+#search_form input[type="search"], #search_form select, #search_form .button {
 	padding: 2px;
 	margin: 2px;
 	background: #fff;
@@ -1097,10 +1043,10 @@ img.sort, .sort {
 #search_form select, #language_select {
 	margin: 1px;
 }
-#search_form .button_submit {
+#search_form .button {
 	color: #333;
 }
-#search_form .button_submit:hover {
+#search_form .button:hover {
 	color: #a85400;
 	text-decoration: none;
 }
@@ -3005,7 +2951,7 @@ span.postby {
 	padding: 4px 0;
 }
 /* Investigate default select and button sizing. Something is slightly off there.*/
-.qaction.button_submit {
+.qaction.button {
 	margin: 1px 4px 0 4px;
 }
 /* Icons and jump to */
@@ -3030,10 +2976,6 @@ span.postby {
 #message_index_jump_to_select {
 	font-size: 1em;
 	padding: 0;
-}
-/* This is a bit of a kludge too */
-#message_index_jump_to .button_submit {
-	padding: 1px 6px;
 }
 
 /* Display */
@@ -3661,18 +3603,16 @@ h3.profile_hd {
 
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
-.button_submit, .button_reset, .button_link,
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, #search_form .button_submit, .quickbuttons li,
+#top_section, #search_form .button, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
 .popup_window, #inner_section {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 }
 /* Well some of them has different gradient effect on hover */
-.button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
-#search_form .button_submit:hover, .quickbuttons li:hover {
+.button:hover, #search_form .button:hover, .quickbuttons li:hover {
 	background: #fff;
 	background-image: linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
 }
@@ -3728,7 +3668,10 @@ h3.profile_hd {
 }
 
 /* Some colors for generic usage */
-.red {
+/* Sometimes there will be an error when you post */
+/* Messages that somehow need to attract the attention. */
+.red, .meaction, 
+.error, .alert, .warn_mute {
 	color: red;
 }
 .blue {
@@ -3803,12 +3746,6 @@ input[name="attachBBC"] {
 .attached_BBC_width, .attached_BBC_height {
 	margin: 10px 1em 0 0;
 	display: inline-block;
-}
-a.button_submit {
-	margin-top:15px;
-	text-decoration: none;
-	display: inline-block;
-	min-width: 0;
 }
 .attach-info input[type="number"] {
 	width: 5em;
