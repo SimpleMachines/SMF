@@ -120,7 +120,7 @@ strong, .strong {
 	color: #444;
 }
 .cat_bar strong {
-	color: #FFF;
+	color: #fff;
 }
 em {
 	font-style: italic;
@@ -388,7 +388,7 @@ blockquote cite::before {
 }
 /* Styling for BBC tags */
 .bbc_link {
-	border-bottom: 1px solid #A8B6CF;
+	border-bottom: 1px solid #a8b6cf;
 }
 .bbc_link:hover {
 	text-decoration: none;
@@ -733,7 +733,7 @@ img.sort, .sort {
 .amt {
 	margin-left: 3px;
 	padding: 0 5px;
-	color: white;
+	color: #fff;
 	background: #6d90ad;
 	border-radius: 8px;
 }
@@ -859,7 +859,7 @@ img.sort, .sort {
 	border-top: solid 1px #ccc;
 	border-radius: 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
-	background: #FFFFFF;
+	background: #fff;
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -1691,7 +1691,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .errorfile_table td.current {
 	font-weight: bold;
-	border: 1px solid black;
+	border: 1px solid #000;
 	border-width: 1px 0 1px 1px;
 }
 
@@ -2488,7 +2488,7 @@ dl.addrules dt.floatleft {
 	margin-right: 10px;
 }
 .unread_pm {
-	background: #CFC;
+	background: #cfc;
 }
 
 /* Styles for the memberlist section.
@@ -2622,7 +2622,7 @@ dl.addrules dt.floatleft {
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
 	overflow: visible !important;
-	background: #FFFFFF;
+	background: #fff;
 	top: 15%;
 	margin: 0 auto;
 }
@@ -2652,8 +2652,8 @@ dl.addrules dt.floatleft {
 /* Styles for the progress bar */
 .progress_bar {
 	height: 15pt;
-	border: 1px solid #DDD;
-	background-color: #FFF;
+	border: 1px solid #ddd;
+	background-color: #fff;
 	width: 80%;
 	margin: 20px auto 0 auto; /* Top padding should get rid of the <br /> tags in admin for these bars. */
 	position: relative;
@@ -2830,7 +2830,7 @@ h3 .collapse {
 .info .subject {
 	font-weight: 600;
 	font-size: 1.1em;
-	color: #A85400;
+	color: #a85400;
 }
 .board_stats {
 	width: 14%;
@@ -2838,8 +2838,8 @@ h3 .collapse {
 	font-size: 0.9em;
 }
 .board_stats p {
-	border-left: 1px solid #DDD;
-	border-right: 1px solid #DDD;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
 	text-align: center;
 	margin: 3px 0 0;
 }
@@ -2859,13 +2859,13 @@ h3 .collapse {
 }
 .up_contain {
 	overflow: hidden;
-	border: 1px solid #DDD;
+	border: 1px solid #ddd;
 	margin-bottom: 3px;
 	margin-top: -1px;
 }
 /* Child boards */
 .children {
-	border-top: 1px solid #DDD;
+	border-top: 1px solid #ddd;
 	padding: 5px;
 }
 .children p {
@@ -3172,7 +3172,7 @@ div#pollmoderation {
 	margin: 3px 10px;
 }
 .poster li.poster_online a {
-	color: #C06002;
+	color: #c06002;
 	line-height: 1.6em;
 }
 .poster li.poster_online:hover, .poster li.poster_online:hover a {
@@ -3450,7 +3450,7 @@ div.cat_bar {
 /* Styles for rounded headers. */
 .cat_bar .desc
 {
-	color: #FFF;
+	color: #fff;
 	font-size: 12px;
 	line-height: 1.5em;
 	font-weight: normal;
@@ -3480,7 +3480,7 @@ h3.catbg .icon {
 .roundframe {
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
-	background: #F8F8F8;
+	background: #f8f8f8;
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
@@ -3521,7 +3521,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 /* Other */
 /* Information */
 .information {
-	background: #F8F8F8;
+	background: #f8f8f8;
 	overflow: auto;
 	padding-bottom: .5em;
 	border: 1px solid #ddd;
@@ -3564,25 +3564,25 @@ p.information img {
 	left: 0;
 	display: none;
 	margin-top: 18px;
-	background: white;
-	border: 1px solid #DDD;
+	background: #fff;
+	border: 1px solid #ddd;
 	border-radius: 3px;
 	box-shadow: 0 0 5px rgba(0,0,0,0.1);
 	min-width: 120px;
 	z-index: 11110 !important;
 }
 .atwho-view .cur {
-	background: #3366FF;
-	color: white;
+	background: #3366ff;
+	color: #fff;
 }
 .atwho-view .cur small {
-	color: white;
+	color: #fff;
 }
 .atwho-view strong {
-	color: #3366FF;
+	color: #3366ff;
 }
 .atwho-view .cur strong {
-	color: white;
+	color: #fff;
 	font-weight: bold;
 }
 .atwho-view ul {
@@ -3593,7 +3593,7 @@ p.information img {
 .atwho-view ul li {
 	display: block;
 	padding: 5px 10px;
-	border-bottom: 1px solid #DDD;
+	border-bottom: 1px solid #ddd;
 	cursor: pointer;
 }
 .atwho-view small {
@@ -3611,7 +3611,7 @@ p.information img {
 	vertical-align: middle;
 }
 .on {
-	background: #89E75A;
+	background: #89e75a;
 	border-color: #74d246;
 }
 .off {
@@ -3668,19 +3668,19 @@ h3.profile_hd {
 #top_section, #search_form .button_submit, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
 .popup_window, #inner_section {
-	background: #FFFFFF; /* fallback for some browsers */
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background: #fff; /* fallback for some browsers */
+	background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
 #search_form .button_submit:hover, .quickbuttons li:hover {
-	background: #FFFFFF;
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
+	background: #fff;
+	background-image: linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
 }
 /* If it fits I sits... */
 .navigate_section ul, .popup_content, .up_contain {
-	background: #FFFFFF;
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background: #fff;
+	background-image: linear-gradient(to bottom, #fff 0%, #f1f3f5 95%);
 }
 
 /* Topic/Board follow-alert menu */
@@ -3745,21 +3745,21 @@ h3.profile_hd {
 
 /* Alternating colors */
 .stripes:nth-of-type(even) {
-	background-color: #F2F2F2;
+	background-color: #f2f2f2;
 }
 .stripes:nth-of-type(odd) {
 	background-color: #f0f4f7;
 }
 .alternative {
-	background-color: #F2F2F2;
+	background-color: #f2f2f2;
 }
 .alternative2 {
-	background-color: #E8EDF0;
+	background-color: #e8edf0;
 }
 
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
-	border-right: 1px solid #DDD;
+	border-right: 1px solid #ddd;
 }
 
 .centerbox {
@@ -3825,8 +3825,8 @@ a.button_submit {
 .progressBar {
 	height: 20px;
 	margin: 1px;
-	background: #F8F8F8;
-	border: 1px solid #C5C5C5;
+	background: #f8f8f8;
+	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
 	vertical-align: middle;
@@ -3856,7 +3856,7 @@ a.button_submit {
 }
 
 .progress_red span {
-	background-color: #F45D4C;
+	background-color: #f45d4c;
 }
 
 .progress_blue span {
@@ -3870,7 +3870,7 @@ a.button_submit {
 
 /* Two-Factor Auth code container */
 .tfacode {
-	background: #D0E7F8;
+	background: #d0e7f8;
 	padding: 5px;
 	width: 20%;
 }

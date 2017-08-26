@@ -102,7 +102,7 @@ td.days:hover {
 /* Main Highlighting */
 #main_grid td.disabled,
 #month_grid td.disabled {
-	background: rgba(238, 238, 238, 1.0);
+	background: #eee;
 	border: 1px solid #ddd;
 }
 #main_grid td.events,
