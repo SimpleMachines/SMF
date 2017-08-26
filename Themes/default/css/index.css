@@ -20,7 +20,7 @@ body {
 ul, ol {
 	list-style: none;
 }
-ul.normallist{
+ul.normallist {
 	list-style-type: disc;
 	padding: 0 0 0 15px;
 }
@@ -1164,7 +1164,7 @@ img#smflogo {
 	padding: 0 4px 6px 4px;
 	font-size: 0.9em;
 }
-.user ul{
+.user ul {
 	padding: 0 0 5px 0;
 	font-size: 0.9em;
 	line-height: 1.8em;
@@ -2349,7 +2349,7 @@ dl {
 	float: left;
 }
 /*Issue a warning*/
-#warn_body{
+#warn_body {
 	width: 80%;
 	font-size: 0.9em;
 }
@@ -3357,16 +3357,16 @@ ul.post_options li {
 	border-top: none;
 	border-radius: 0 0 4px 4px;
 }
-#postDraftOptions .settings dd, #postDraftOptions .settings dt{
+#postDraftOptions .settings dd, #postDraftOptions .settings dt {
 	width: 50%;
 	border-top: 1px solid #e4e4e4;
 	padding: 5px 10px;
 	margin: 0;
 }
-#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child{
+#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child {
 	border-top: none; /* Some people are OCD, like me. :P */
 }
-#postDraftOptions .settings strong{
+#postDraftOptions .settings strong {
 	color: #555;
 }
 #post_confirm_strip /* < That may be deprecated. */, #shortcuts {
@@ -3448,8 +3448,7 @@ div.cat_bar {
 	padding: 8px 12px 6px 12px;
 }
 /* Styles for rounded headers. */
-.cat_bar .desc
-{
+.cat_bar .desc {
 	color: #fff;
 	font-size: 12px;
 	line-height: 1.5em;
