@@ -167,8 +167,6 @@ fieldset.admin_group a {
 	vertical-align: top;
 }
 fieldset.admin_group .inactive {
-	filter:Alpha(opacity=40);
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
 	opacity: 0.4;
 }
 
