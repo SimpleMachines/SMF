@@ -277,7 +277,7 @@ $txt['search_invalid_weights'] = 'Search weights are not properly configured. At
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
 
 $txt['package_no_file'] = 'Unable to find package file!';
-$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank" class="new_win">this URL</a> instead.';
+$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank">this URL</a> instead.';
 $txt['not_on_simplemachines'] = 'Sorry, packages can only be downloaded like this from the simplemachines.org server.';
 $txt['package_cant_uninstall'] = 'This package was either never installed or was already uninstalled - you can\'t uninstall it now.';
 $txt['package_cant_download'] = 'You cannot download or install new packages because the Packages directory or one of the files in it are not writable!';
