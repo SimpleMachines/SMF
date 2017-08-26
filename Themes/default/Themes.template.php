@@ -99,7 +99,7 @@ function template_main()
 						<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=0;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
 					</dd>
 				</dl>
-				<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit">
+				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '">
 			</div>
@@ -136,7 +136,7 @@ function template_main()
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-t-file_token_var'], '" value="', $context['admin-t-file_token'], '">
 						<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';">
-						<input type="submit" name="save_file" value="' . $txt['upload'] . '" class="button_submit">
+						<input type="submit" name="save_file" value="' . $txt['upload'] . '" class="button">
 					</form>
 				</fieldset>';
 
@@ -148,7 +148,7 @@ function template_main()
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-t-copy_token_var'], '" value="', $context['admin-t-copy_token'], '">
 						<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40">
-						<input type="submit" name="save_copy" value="' . $txt['save'] . '" class="button_submit">
+						<input type="submit" name="save_copy" value="' . $txt['save'] . '" class="button">
 					</form>
 				</fieldset>';
 	}
@@ -161,7 +161,7 @@ function template_main()
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-t-dir_token_var'], '" value="', $context['admin-t-dir_token'], '">
 						<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;">
-						<input type="submit" name="save_dir" value="' . $txt['save'] . '" class="button_submit">
+						<input type="submit" name="save_dir" value="' . $txt['save'] . '" class="button">
 					</form>
 				</fieldset>';
 
@@ -273,7 +273,7 @@ function template_list_themes()
 						<input type="text" name="reset_url" id="reset_url" value="', $context['reset_url'], '" size="40" style="width: 80%;">
 					</dd>
 				</dl>
-				<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-tl_token_var'], '" value="', $context['admin-tl_token'], '">
 			</div>
@@ -458,7 +458,7 @@ function template_set_options()
 	// close the option page up
 	echo '
 				</dl>
-				<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit">
+				<input type="submit" name="submit" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sto_token_var'], '" value="', $context['admin-sto_token'], '">
 			</div>
@@ -688,7 +688,7 @@ function template_set_settings()
 
 	echo '
 				</dl>
-				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '">
 			</div>
@@ -755,7 +755,7 @@ function template_pick()
 			echo '
 					</select>
 					<noscript>
-						<input type="submit" name="save[', $theme['id'], ']" value="', $txt['save'], '" class="button_submit">
+						<input type="submit" name="save[', $theme['id'], ']" value="', $txt['save'], '" class="button">
 					</noscript>';
 		}
 
@@ -1124,8 +1124,8 @@ function template_edit_style()
 	echo '
 				<textarea name="entire_file" cols="80" rows="20" style="width: 96%; font-family: monospace; margin-top: 1ex; white-space: pre;" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea><br>
 				<div class="padding righttext">
-					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' style="margin-top: 1ex;" class="button_submit">
-					<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button_submit">
+					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' style="margin-top: 1ex;" class="button">
+					<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button">
 				</div>
 			</div>
 			<input type="hidden" name="filename" value="', $context['edit_filename'], '">
@@ -1183,7 +1183,7 @@ function template_edit_template()
 
 	echo '
 				<div class="padding righttext">
-					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button_submit">
+					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 					<input type="hidden" name="filename" value="', $context['edit_filename'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
 
@@ -1228,7 +1228,7 @@ function template_edit_file()
 			</div>
 			<div class="windowbg">
 				<textarea name="entire_file" id="entire_file" cols="80" rows="20" class="edit_file">', $context['entire_file'], '</textarea><br>
-				<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button_submit">
+				<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 				<input type="hidden" name="filename" value="', $context['edit_filename'], '">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
 

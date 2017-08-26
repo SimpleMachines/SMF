@@ -30,7 +30,7 @@ function template_main()
 					<dt>', $txt['user_email'], ':</dt>
 					<dd><input type="text" name="user" size="30"></dd>
 				</dl>
-				<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit">
+				<input type="submit" value="', $txt['reminder_continue'], '" class="button">
 				<br class="clear">
 			</div>
 		</div>
@@ -64,7 +64,7 @@ function template_reminder_pick()
 					<label for="reminder_type_secret">', $txt['authentication_password_secret'], '</label>
 				</p>
 				<div class="flow_auto">
-					<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit">
+					<input type="submit" value="', $txt['reminder_continue'], '" class="button">
 					<input type="hidden" name="uid" value="', $context['current_member']['id'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '">
@@ -122,7 +122,7 @@ function template_set_password()
 						</span>
 					</dd>
 				</dl>
-				<p class="align_center"><input type="submit" value="', $txt['save'], '" class="button_submit"></p>
+				<p class="align_center"><input type="submit" value="', $txt['save'], '" class="button"></p>
 			</div>
 		</div>
 		<input type="hidden" name="code" value="', $context['code'], '">
@@ -179,7 +179,7 @@ function template_ask()
 					</dd>
 				</dl>
 				<div class="auto_flow">
-					<input type="submit" value="', $txt['save'], '" class="button_submit">
+					<input type="submit" value="', $txt['save'], '" class="button">
 					<input type="hidden" name="uid" value="', $context['remind_user'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '">

@@ -145,7 +145,7 @@ function smf_fileUpload(oOptions) {
 		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, response) {
 			insertButton = $('<a />')
-				.addClass('button_submit')
+				.addClass('button')
 				.prop('disabled', false)
 				.text(myDropzone.options.text_insertBBC)
 				.on('click', function (e) {
@@ -166,7 +166,7 @@ function smf_fileUpload(oOptions) {
 		file.deleteAttachment = function (_innerElement, attachmentId, file) {
 
 			deleteButton = $('<a />')
-				.addClass('button_submit')
+				.addClass('button')
 				.prop('disabled', false)
 				.text(myDropzone.options.text_deleteAttach)
 				.one('click', function (e) {

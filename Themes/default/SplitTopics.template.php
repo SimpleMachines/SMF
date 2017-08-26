@@ -42,7 +42,7 @@ function template_ask()
 				</ul>
 				<hr>
 				<div class="auto_flow">
-					<input type="submit" value="', $txt['split'], '" class="button_submit">
+					<input type="submit" value="', $txt['split'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 			</div>
@@ -150,7 +150,7 @@ function template_select()
 			<div class="flow_auto">
 				<input type="hidden" name="topic" value="', $context['current_topic'], '">
 				<input type="hidden" name="subname" value="', $context['new_subject'], '">
-				<input type="submit" value="', $txt['split'], '" class="button_submit">
+				<input type="submit" value="', $txt['split'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>

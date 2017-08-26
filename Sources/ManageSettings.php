@@ -1369,7 +1369,7 @@ function ShowCustomProfiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="button">',
 			),
 		),
 	);
@@ -1507,7 +1507,7 @@ function ShowCustomProfiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="new" value="' . $txt['custom_profile_make_new'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="new" value="' . $txt['custom_profile_make_new'] . '" class="button">',
 			),
 		),
 	);

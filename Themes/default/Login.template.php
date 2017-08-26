@@ -57,7 +57,7 @@ function template_login()
 						<dd><input type="checkbox" name="undelete"></dd>';
 	echo '
 					</dl>
-					<p><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
+					<p><input type="submit" value="', $txt['login'], '" class="button"></p>
 					<p class="smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -140,17 +140,17 @@ function template_login_tfa()
 						<div>
 							<strong>', $txt['tfa_code'], ':</strong>
 							<input type="text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
-							<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br>
+							<input type="submit" class="button" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br>
 						</div><br>
 						<div><input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/><label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label></div>
 						<hr>
-						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
+						<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
 					</div>
 					<div id="tfaBackup" style="display: none;">
 						', $txt['tfa_backup_desc'], '<br>
 						<strong>', $txt['tfa_backup_code'], ': </strong>
 						<input type="text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
-						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
+						<input type="submit" class="button" name="submit" value="', $txt['login'], '">
 					</div>
 				</form>
 				<script>
@@ -229,7 +229,7 @@ function template_kick_guest()
 					<dt>', $txt['always_logged_in'], ':</dt>
 					<dd><input type="checkbox" name="cookieneverexp" onclick="this.form.cookielength.disabled = this.checked;"></dd>
 				</dl>
-				<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
+				<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button"></p>
 				<p class="centertext smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -277,7 +277,7 @@ function template_maintenance()
 				<dt>', $txt['always_logged_in'], ':</dt>
 				<dd><input type="checkbox" name="cookieneverexp"></dd>
 			</dl>
-			<input type="submit" value="', $txt['login'], '" class="button_submit">
+			<input type="submit" value="', $txt['login'], '" class="button">
 			<br class="clear">
 		</div>
 		<input type="hidden" name="hash_passwrd" value="">
@@ -315,7 +315,7 @@ function template_admin_login()
 			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
-			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';
+			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
@@ -357,7 +357,7 @@ function template_retry_activate()
 					<dt>', $txt['invalid_activation_retry'], ':</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>
-				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button_submit"></p>
+				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button"></p>
 			</div>
 		</form>';
 }
@@ -397,7 +397,7 @@ function template_resend()
 				</dl>';
 
 	echo '
-				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button_submit"></p>
+				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button"></p>
 			</div>
 		</form>';
 }

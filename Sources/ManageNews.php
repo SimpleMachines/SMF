@@ -203,10 +203,10 @@ function EditNews()
 				'position' => 'bottom_of_list',
 				'value' => '
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
-					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
+					<a class="button" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit">
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button_submit you_sure">',
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button">
+				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button you_sure">',
 			),
 		),
 		'javascript' => '
@@ -225,7 +225,7 @@ function EditNews()
 
 					function make_preview_btn (preview_id)
 					{
-						$("#preview_" + preview_id).addClass("button_link");
+						$("#preview_" + preview_id).addClass("button");
 						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
 							$.ajax({
 								type: "POST",

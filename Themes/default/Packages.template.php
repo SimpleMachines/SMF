@@ -302,7 +302,7 @@ function template_view_package()
 	{
 		echo '
 			<div class="righttext padding">
-				<input type="submit" value="', $context['uninstalling'] ? $txt['package_uninstall_now'] : $txt['package_install_now'], '" onclick="return ', !empty($context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . ($context['uninstalling'] ? $txt['package_will_fail_popup_uninstall'] : $txt['package_will_fail_popup']) . '\'))' : 'submitThisOnce(this)', ';" class="button_submit">
+				<input type="submit" value="', $context['uninstalling'] ? $txt['package_uninstall_now'] : $txt['package_install_now'], '" onclick="return ', !empty($context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . ($context['uninstalling'] ? $txt['package_will_fail_popup_uninstall'] : $txt['package_will_fail_popup']) . '\'))' : 'submitThisOnce(this)', ';" class="button">
 			</div>';
 	}
 	// If we need ftp information then demand it!
@@ -630,7 +630,7 @@ function template_browse()
 						</dd>
 					</dl>
 					<div class="righttext padding">
-						<input type="submit" value="', $txt['package_apply'], '" class="button_submit">
+						<input type="submit" value="', $txt['package_apply'], '" class="button">
 					</div>
 				</div>
 			</div>
@@ -702,7 +702,7 @@ function template_servers()
 						<input type="file" name="package" size="38">
 					</dd>
 				</dl>
-				<input type="submit" value="' . $txt['upload'] . '" class="button_submit">
+				<input type="submit" value="' . $txt['upload'] . '" class="button">
 				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 			</form>
 		</div>
@@ -755,7 +755,7 @@ function template_servers()
 						</dd>
 					</dl>
 					<div class="righttext">
-						<input type="submit" value="', $txt['package_proceed'], '" class="button_submit">
+						<input type="submit" value="', $txt['package_proceed'], '" class="button">
 					</div>
 				</form>
 			</div>';
@@ -794,7 +794,7 @@ function template_servers()
 							</dd>
 						</dl>
 						<div class="righttext">
-							<input type="submit" value="' . $txt['add_server'] . '" class="button_submit">
+							<input type="submit" value="' . $txt['add_server'] . '" class="button">
 							<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 						</div>
 					</form>
@@ -817,7 +817,7 @@ function template_servers()
 								<span class="smalltext">', $txt['package_download_filename_info'], '</span>
 							</dd>
 						</dl>
-						<input type="submit" value="', $txt['download'], '" class="button_submit">
+						<input type="submit" value="', $txt['download'], '" class="button">
 					</form>
 				</fieldset>
 			</div>
@@ -1087,7 +1087,7 @@ function template_install_options()
 					</dd>
 				</dl>
 
-				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
 		</div>
@@ -1177,7 +1177,7 @@ function template_control_chmod()
 
 					<div class="righttext" style="margin: 1ex;">
 						<span id="test_ftp_placeholder_full"></span>
-						<input type="submit" value="', $txt['package_proceed'], '" class="button_submit">
+						<input type="submit" value="', $txt['package_proceed'], '" class="button">
 					</div>';
 
 	if (!empty($context['package_ftp']['destination']))
@@ -1613,7 +1613,7 @@ function template_file_permissions()
 	echo '
 			<span id="test_ftp_placeholder_full"></span>
 			<input type="hidden" name="action_changes" value="1">
-			<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit">
+			<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button">
 		</div>';
 
 	// Any looks fors we've already done?
@@ -1798,7 +1798,7 @@ function template_action_permissions()
 				<input type="hidden" name="method" value="', $context['method'], '">
 				<input type="hidden" name="action_changes" value="1">
 				<div class="righttext padding">
-					<input type="submit" name="go" id="cont" value="', $txt['not_done_continue'], '" class="button_submit">
+					<input type="submit" name="go" id="cont" value="', $txt['not_done_continue'], '" class="button">
 				</div>
 			</div>
 		</form>

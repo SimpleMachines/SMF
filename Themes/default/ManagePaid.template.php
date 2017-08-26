@@ -185,7 +185,7 @@ function template_modify_subscription()
 						</dl>
 					</fieldset>
 				</div>
-				<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '">
 			</div>
@@ -210,7 +210,7 @@ function template_delete_subscription()
 			<div class="windowbg">
 				<p>', $txt['paid_mod_delete_warning'], '</p>
 
-				<input type="submit" name="delete_confirm" value="', $txt['paid_delete_subscription'], '" class="button_submit">
+				<input type="submit" name="delete_confirm" value="', $txt['paid_delete_subscription'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-pmsd_token_var'], '" value="', $context['admin-pmsd_token'], '">
 			</div>
@@ -335,7 +335,7 @@ function template_modify_user_subscription()
 					', $txt['hour'], ': <input type="number" name="hourend" value="', $context['sub']['end']['hour'], '" size="2">
 					', $txt['minute'], ': <input type="number" name="minuteend" value="', $context['sub']['end']['min'], '" size="2">
 				</fieldset>
-				<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button_submit">
+				<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
@@ -462,7 +462,7 @@ function template_user_subscription()
 
 				echo '
 					<hr>
-					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit">';
+					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button">';
 			}
 			else
 				echo '
@@ -578,7 +578,7 @@ function template_choose_payment()
 					<input type="hidden" id="', $gateway['id'], '_', $name, '" name="', $name, '" value="', $value, '">';
 
 		echo '
-					<br><input type="submit" value="', $gateway['submit'], '" class="button_submit">
+					<br><input type="submit" value="', $gateway['submit'], '" class="button">
 				</form>
 		</div>';
 	}

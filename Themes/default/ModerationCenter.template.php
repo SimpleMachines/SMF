@@ -360,7 +360,7 @@ function template_notes()
 						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
 						</div>
 						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
-						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit">
+						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
 					</div>
 				</div>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -440,7 +440,7 @@ function template_unapproved_posts()
 					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 				</select>
-				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button_submit"></noscript>
+				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button"></noscript>
 			</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -519,7 +519,7 @@ function template_moderation_settings()
 				</dl>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
-				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 			</div>
 		</form>';
 	}
@@ -635,8 +635,8 @@ function template_warn_template()
 
 	echo '
 				<hr>
-				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit">
-				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
+				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
+				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '">

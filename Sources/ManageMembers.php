@@ -588,7 +588,7 @@ function ViewMemberlist()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -955,7 +955,7 @@ function MembersAwaitingActivation()
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
-					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit"><br class="clear_right"></noscript>
+					<noscript><input type="submit" value="' . $txt['go'] . '" class="button"><br class="clear_right"></noscript>
 				',
 				'class' => 'floatright',
 			),
@@ -983,7 +983,7 @@ function MembersAwaitingActivation()
 				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
 		$filterOptions .= '
 			</select>
-			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button_submit"></noscript>';
+			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button"></noscript>';
 		$listOptions['additional_rows'][] = array(
 			'position' => 'top_of_list',
 			'value' => $filterOptions,

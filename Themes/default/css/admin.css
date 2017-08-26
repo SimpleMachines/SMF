@@ -6,6 +6,9 @@
 	margin: 5px 0 5px 0;
 	box-shadow: none;
 }
+#admin_content .button {
+	float: right;
+}
 .action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;
@@ -51,7 +54,7 @@ h3.catbg #quick_search form {
 	padding-top: 2px;
 	font-size: 0.9em;
 }
-h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
+h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button {
 	margin: 0 3px !important;
 	padding: 4px 3px 3px 3px;
 	border-radius: 4px;
@@ -66,11 +69,11 @@ h3.catbg #quick_search form select {
 h3.catbg #quick_search form select option {
 	padding: 2px 4px;
 }
-h3.catbg #quick_search form .button_submit {
+h3.catbg #quick_search form .button {
 	font-weight: bold;
 	padding: 3px 6px 2px 6px;
 }
-h3.catbg #quick_search form .button_submit:hover {
+h3.catbg #quick_search form .button:hover {
 	background: #fff;
 }
 span#quick_search {
@@ -455,7 +458,7 @@ tr[id^="operation_"] .table_grid {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
-#manage_boards .button_submit {
+#manage_boards .button {
 	margin: 2px 2px 0px 12px;
 }
 .select_all_box {
@@ -634,7 +637,7 @@ h3.grid_header {
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
 }
-#taskpad .button_submit, #admincenter, #admin_form_wrapper {
+#taskpad .button, #admincenter, #admin_form_wrapper {
 	margin: 5px 0 5px 0;
 }
 h3.config_hd {

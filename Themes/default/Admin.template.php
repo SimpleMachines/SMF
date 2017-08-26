@@ -603,7 +603,7 @@ function template_edit_censored()
 									<input type="text" name="censor_vulgar[]" size="30"> =&gt; <input type="text" name="censor_proper[]" size="30">
 								</div>
 								<div id="moreCensoredWords"></div><div class="block" style="display: none;" id="moreCensoredWords_link">
-									<a class="button_link" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
+									<a class="button" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
 								<script>
 									document.getElementById("moreCensoredWords_link").style.display = "";
@@ -629,7 +629,7 @@ function template_edit_censored()
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
 								</dl>
-								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit">
+								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button">
 							</div>';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
@@ -642,7 +642,7 @@ function template_edit_censored()
 							<div class="windowbg2 noup">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '">
-									<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit">
+									<input type="submit" value="', $txt['censor_test_save'], '" class="button">
 								</p>
 							</div>
 
@@ -685,7 +685,7 @@ function template_not_done()
 
 	echo '
 							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
-								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit">
+								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
 								', $context['continue_post_data'], '
 							</form>
 						</div>
@@ -964,7 +964,7 @@ function template_show_settings()
 
 	if (empty($context['settings_save_dont_show']))
 		echo '
-								<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit">';
+								<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button">';
 
 	if ($is_open)
 		echo '
@@ -1249,11 +1249,11 @@ function template_edit_profile_field()
 										</dd>
 									</dl>
 								</fieldset>
-									<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">';
+									<input type="submit" name="save" value="', $txt['save'], '" class="button">';
 
 	if ($context['fid'])
 		echo '
-									<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button_submit you_sure">';
+									<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button you_sure">';
 
 	echo '
 							</div>
@@ -1283,7 +1283,7 @@ function template_admin_search_results()
 									<span id="quick_search" class="floatright">
 										<input type="search" name="search_term" value="', $context['search_term'], '">
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
-										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit">
+										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button">
 									</span>
 									<span class="generic_icons filter"></span>
 									<span id="quick_search_results">&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '</span>
@@ -1590,7 +1590,7 @@ function template_clean_cache_button_below()
 					<div class="windowbg2 noup">
 						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
 							<p>', $txt['maintain_cache_info'], '</p>
-							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit"></span>
+							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button"></span>
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 						</form>
@@ -1613,7 +1613,7 @@ function template_admin_quick_search()
 										<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', $txt['admin_search_type_member'], '</option>
 										<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', $txt['admin_search_type_online'], '</option>
 									</select>
-									<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit">
+									<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button">
 								</span>';
 }
 

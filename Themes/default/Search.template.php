@@ -119,7 +119,7 @@ function template_main()
 		echo '
 				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
 				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
-				<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">';
+				<input type="submit" name="b_search" value="', $txt['search'], '" class="button">';
 
 	echo '
 			</div>
@@ -181,7 +181,7 @@ function template_main()
 				<div class="padding flow_auto">
 					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="floatleft">
 					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
-					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">
+					<input type="submit" name="b_search" value="', $txt['search'], '" class="button">
 				</div>
 			</div>
 		</fieldset>';
@@ -264,7 +264,7 @@ function template_results()
 					</dd>
 				</dl>
 				<div class="flow_auto" >
-					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button_submit">
+					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button">
 					<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
 					<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
 					<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '">
@@ -407,7 +407,7 @@ function template_results()
 
 			echo '
 					<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit" style="float: none;font-size: .8em;"/>
+					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
 				</div>
 			</div>';
 		}

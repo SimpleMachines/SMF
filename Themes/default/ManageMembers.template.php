@@ -208,7 +208,7 @@ function template_search_members()
 				</tbody>
 			</table>
 			<br>
-			<input type="submit" value="', $txt['search'], '" class="button_submit">
+			<input type="submit" value="', $txt['search'], '" class="button">
 		</form>
 	</div>';
 }
@@ -282,7 +282,7 @@ function template_admin_browse()
 						</select>
 					</dd>
 				</dl>
-				<input type="submit" value="', $txt['admin_browse_outstanding_go'], '" class="button_submit">
+				<input type="submit" value="', $txt['admin_browse_outstanding_go'], '" class="button">
 				<input type="hidden" name="type" value="', $context['browse_type'], '">
 				<input type="hidden" name="sort" value="', $context['approve_list']['sort']['id'], '">
 				<input type="hidden" name="start" value="', $context['approve_list']['start'], '">

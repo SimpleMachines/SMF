@@ -64,7 +64,7 @@ function template_move()
 	template_redirect_options('move');
 
     echo '
-					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">
+					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 				</div>
 			</div>';
 
@@ -214,7 +214,7 @@ function template_merge()
 		echo '
 						</select>)
 						<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
-						<input type="submit" value="', $txt['go'], '" class="button_submit">
+						<input type="submit" value="', $txt['go'], '" class="button">
 					</form>';
 
 	}
@@ -246,7 +246,7 @@ function template_merge()
 
 		echo '
 					</ul>
-					<input type="submit" value="', $txt['merge'], '" class="button_submit">
+					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 				<div class="pagesection">
 					', $context['page_index'], '
@@ -276,7 +276,7 @@ function template_merge()
 
 						</dd>
 					</dl>
-					<input type="submit" value="', $txt['merge'], '" class="button_submit">
+					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 			</form>
 		</div>';
@@ -387,7 +387,7 @@ function template_merge_extra_options()
 
 	echo '
 				<div class="auto_flow">
-					<input type="submit" value="' . $txt['merge'] . '" class="button_submit">
+					<input type="submit" value="' . $txt['merge'] . '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="execute">
 				</div>

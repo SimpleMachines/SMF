@@ -749,7 +749,7 @@ function template_calendar_top($calendar_data)
 				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 				<span>', strtolower($txt['to']), '</span>
 				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">
-				<input type="submit" class="button_submit" style="float:none" id="view_button" value="', $txt['view'], '">
+				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
 			</form>';
 	}
 	else
@@ -776,7 +776,7 @@ function template_calendar_top($calendar_data)
 				}
 
 				echo '</select>
-				<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
+				<input type="submit" class="button" id="view_button" value="', $txt['view'], '">
 			</form>';
 	}
 
@@ -898,11 +898,11 @@ function template_event_post()
 				</fieldset>';
 
 	echo '
-				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit">';
+				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button">';
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button_submit you_sure">';
+				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button you_sure">';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

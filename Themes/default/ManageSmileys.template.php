@@ -100,7 +100,7 @@ function template_modifyset()
 
 		echo '
 				</dl>
-				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit">
+				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mss_token_var'], '" value="', $context['admin-mss_token'], '">
@@ -185,8 +185,8 @@ function template_modifysmiley()
 						</select>
 					</dd>
 				</dl>
-				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit">
-				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" data-confirm="', $txt['smileys_delete_confirm'], '" class="button_submit you_sure">
+				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
+				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" data-confirm="', $txt['smileys_delete_confirm'], '" class="button you_sure">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '">
@@ -318,7 +318,7 @@ function template_addsmiley()
 						</select>
 					</dd>
 				</dl>
-				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit">
+				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
@@ -466,7 +466,7 @@ function template_editicon()
 				<input type="hidden" name="icon" value="', $context['icon']['id'], '">';
 
 	echo '
-				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button_submit">
+				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>

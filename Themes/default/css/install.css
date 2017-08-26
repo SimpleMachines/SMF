@@ -101,10 +101,10 @@ h1.forumtitle {
 .error_message {
 	padding: 0.5em 0;
 }
-.panel .button_submit, .panel .button_link {
+.panel .button {
 	font-weight: bold;
 }
-.panel .button_submit:hover, .panel .button_link:hover {
+.panel .button:hover {
 	color: #af6700;
 	text-decoration: none;
 }

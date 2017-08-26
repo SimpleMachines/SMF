@@ -108,7 +108,7 @@ function template_edit_scheduled_tasks()
 				<div class="righttext">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-st_token_var'], '" value="', $context['admin-st_token'], '">
-					<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button_submit">
+					<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button">
 				</div>
 			</div>
 		</form>

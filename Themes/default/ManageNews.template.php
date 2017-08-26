@@ -111,7 +111,7 @@ function template_email_members()
 					</dl>
 				</div>
 				<br>
-				<input type="submit" value="', $txt['admin_next'], '" class="button_submit">
+				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>
@@ -396,7 +396,7 @@ function template_email_members_send()
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
 				</div>
 				<hr>
-				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit">
+				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="subject" value="', $context['subject'], '">
 				<input type="hidden" name="message" value="', $context['message'], '">
