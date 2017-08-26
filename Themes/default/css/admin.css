@@ -167,8 +167,6 @@ fieldset.admin_group a {
 	vertical-align: top;
 }
 fieldset.admin_group .inactive {
-	filter:Alpha(opacity=40);
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
 	opacity: 0.4;
 }
 
@@ -429,7 +427,7 @@ tr[id^="operation_"] .table_grid {
 	border-bottom: 1px solid #ddd;
 }
 #manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
-	background: #D0E7F8;
+	background: #d0e7f8;
 }
 #manage_boards li .floatleft {
 	font-weight: bold;
@@ -584,7 +582,7 @@ ul.moderation_notes {
 }
 ul.moderation_notes li {
 	padding: 0.2em;
-	border-bottom: 1px solid #cccccc;
+	border-bottom: 1px solid #ccc;
 }
 .notes {
 	margin-top: 0.4em;
@@ -656,5 +654,5 @@ h3.config_hd {
 
 .windowbg.highlight2,
 .windowbg2.highlight2 {
-	background: #D0E7F8;
+	background: #d0e7f8;
 }
