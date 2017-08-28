@@ -37,8 +37,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 		$smcFunc += array(
 			'db_query'                  => 'smf_db_query',
 			'db_quote'                  => 'smf_db_quote',
-			'db_fetch_assoc'            => 'mysqli_fetch_assoc',
-			'db_fetch_row'              => 'mysqli_fetch_row',
+			'db_fetch_assoc'            => 'smf_db_fetch_assoc',
+			'db_fetch_row'              => 'smf_db_fetch_row',
 			'db_free_result'            => 'mysqli_free_result',
 			'db_insert'                 => 'smf_db_insert',
 			'db_insert_id'              => 'smf_db_insert_id',
@@ -350,7 +350,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
-	global $db_unbuffered, $db_callback, $modSettings;
+	global $db_unbuffered, $db_callback, $modSettings, $boardurl;
 
 	// Comments that are allowed in a query are preg_removed.
 	static $allowed_comments_from = array(
@@ -425,6 +425,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		// This shouldn't be residing in global space any longer.
 		$db_callback = array();
 	}
+
+	// Replace $boardurl with a token (we restore it when we retrieve the value)
+	$db_string = str_replace($boardurl, '{$boardurl}', $db_string);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -511,6 +514,44 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
 
 	return $ret;
+}
+
+/**
+ * Wrapper for mysqli_fetch_assoc that restores {$boardurl} to $boardurl
+ * @param object $request A mysqli_result object from a previous query
+ * @return array An associative array that corresponds to the fetched row or NULL if there are no more rows
+ */
+function smf_db_fetch_assoc($request)
+{
+	global $boardurl;
+
+	$row = mysqli_fetch_assoc($request);
+
+	if (is_array($row))
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+
+	return $row;
+}
+
+/**
+ * Wrapper for mysqli_fetch_row that restores {$boardurl} to $boardurl
+ * @param object $request A mysqli_result object from a previous query
+ * @return array An associative array that corresponds to the fetched row or NULL if there are no more rows
+ */
+function smf_db_fetch_row($request)
+{
+	global $boardurl;
+
+	$row = mysqli_fetch_row($request);
+
+	if (is_array($row))
+		array_walk($row, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+
+	return $row;
 }
 
 /**
@@ -773,7 +814,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
-	
+
 	$return_var = null;
 
 	// With nothing to insert, simply return.
@@ -782,9 +823,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-	
+
 	$with_returning = false;
-	
+
 	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		$with_returning = true;
@@ -841,7 +882,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		for($i = 0; $i < $count; $i++)
 		{
 			$old_id = $smcFunc['db_insert_id']();
-			
+
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
@@ -853,7 +894,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$connection
 			);
 			$new_id = $smcFunc['db_insert_id']();
-			
+
 			if ($last_id != $new_id) //the inserted value was new
 			{
 				$ai = $new_id;
@@ -874,21 +915,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					WHERE ' . $where_string . ' LIMIT 1',
 					array()
 				);
-				
+
 				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 				{
 					$row = $smcFunc['db_fetch_assoc']($request);
 					$ai = $row[$keys[0]];
 				}
 			}
-			
+
 			if ($returnmode == 1)
 				$return_var = $ai;
 			else if ($returnmode == 2)
 				$return_var[] = $ai;
 		}
 	}
-	
+
 
 	if ($with_returning)
 	{
@@ -997,15 +1038,24 @@ function smf_is_resource($result)
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A MySQL result resource
  * @return array An array that contains all rows (records) in the result resource
  */
 function smf_db_fetch_all($request)
 {
+	global $boardurl;
+
 	// Return the right row.
-	return mysqli_fetch_all($request);
+	$rows = mysqli_fetch_all($request);
+
+	if (is_array($rows))
+		array_walk_recursive($rows, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+
+	return $rows
 }
 
 ?>

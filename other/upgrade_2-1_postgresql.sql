@@ -998,7 +998,7 @@ $request = $smcFunc['db_query']('', '
 		'theme_dir' => 'theme_dir',
 	)
 );
-// Check which themes exist in the filesystem & save off their IDs 
+// Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = $GLOBALS['boarddir'] . '/Themes/core';
@@ -2422,7 +2422,7 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 /******************************************************************************/
 --- Create index for messages likes
 /******************************************************************************/
----# Add Index for messages likes 
+---# Add Index for messages likes
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 ---#
