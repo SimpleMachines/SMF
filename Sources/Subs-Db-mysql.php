@@ -1045,8 +1045,17 @@ function smf_is_resource($result)
  */
 function smf_db_fetch_all($request)
 {
+	global $boardurl;
+
 	// Return the right row.
-	return mysqli_fetch_all($request);
+	$rows = mysqli_fetch_all($request);
+
+	if (is_array($rows))
+		array_walk_recursive($rows, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+
+	return $rows
 }
 
 ?>

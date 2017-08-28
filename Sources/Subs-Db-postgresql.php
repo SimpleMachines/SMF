@@ -995,8 +995,17 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
  */
 function smf_db_fetch_all($request)
 {
+	global $boardurl;
+
 	// Return the right row.
-	return @pg_fetch_all($request);
+	$rows = @pg_fetch_all($request);
+
+	if (is_array($rows))
+		array_walk_recursive($rows, function(&$column) use ($boardurl) {
+			$column = str_replace('{$boardurl}', $boardurl, $column);
+		});
+
+	return $rows
 }
 
 ?>
