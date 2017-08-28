@@ -2066,14 +2066,6 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 ---#
 
 /******************************************************************************/
---- Tokenizing references to forum URL in posts and personal messages
-/******************************************************************************/
----# Replacing $boardurl with token
-UPDATE {$db_prefix}messages SET body = REPLACE(body, '{$boardurl}', CONCAT('{$', 'boardurl}')) WHERE body LIKE '%{$boardurl}%';
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '{$boardurl}', CONCAT('{$', 'boardurl}')) WHERE body LIKE '%{$boardurl}%';
----#
-
-/******************************************************************************/
 --- Remove redundant indexes
 /******************************************************************************/
 ---# Duplicates to messages_current_topic
