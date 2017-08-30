@@ -1288,6 +1288,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
+			// Keep track of the member's normal member group
+			$row['primary_group'] = $row['member_group'];
+
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
 			if (isset($row['member_ip2']))
@@ -1486,6 +1489,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'is_banned' => isset($profile['is_activated']) ? $profile['is_activated'] >= 10 : 0,
 			'options' => $profile['options'],
 			'is_guest' => false,
+			'primary_group' => $profile['primary_group'],
 			'group' => $profile['member_group'],
 			'group_color' => $profile['member_group_color'],
 			'group_id' => $profile['id_group'],
