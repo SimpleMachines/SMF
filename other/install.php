@@ -150,8 +150,8 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Enable error reporting.
-	error_reporting(E_ALL);
+	// Enable error reporting for fatal errors.
+	error_reporting(E_ERROR | E_PARSE);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
