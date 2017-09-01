@@ -6013,6 +6013,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Check if the passed url has a redirect to https:// by querying headers.
  * 
  * Returns true if a redirect was found & false if not.
+ * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
+ * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
 function https_redirect_active($url) {
