@@ -203,7 +203,7 @@ function cleanRequest()
 			$_REQUEST['start'] = 0;
 		}
 		// ... a simple number ...
-		if (is_numeric($_REQUEST['start']))
+		elseif (is_numeric($_REQUEST['start']))
 		{
 			$_REQUEST['start'] = (int) $_REQUEST['start'];
 		}
