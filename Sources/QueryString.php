@@ -197,8 +197,13 @@ function cleanRequest()
 		$topic = $_GET['topic'] = $_REQUEST['topic'] = (int) $_REQUEST['topic'];
 
 		// Start could be a lot of things...
+		// ... empty ...
+		if (empty($_REQUEST['start']))
+		{
+			$_REQUEST['start'] = 0;
+		}
 		// ... a simple number ...
-		if (is_numeric($_REQUEST['start']))
+		elseif (is_numeric($_REQUEST['start']))
 		{
 			$_REQUEST['start'] = (int) $_REQUEST['start'];
 		}
