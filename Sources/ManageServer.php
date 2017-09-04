@@ -138,7 +138,14 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $scripturl, $context, $txt;
+	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir;
+
+	// If no cert, force_ssl must remain 0
+	require_once($sourcedir . '/Subs.php');
+	if (!ssl_cert_found($boardurl) && empty($modSettings['force_ssl']))
+		$disable_force_ssl = true;
+	else
+		$disable_force_ssl = false;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -158,7 +165,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl'),
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
@@ -190,6 +197,13 @@ function ModifyGeneralSettings($return_config = false)
 				$_POST['enable_sm_stats'] = 0;
 		}
 
+		// Ensure all URLs are aligned with the new force_ssl setting
+		// Treat unset like 0
+		if (isset($_POST['force_ssl']))
+			AlignURLsWithSSLSetting($_POST['force_ssl']);
+		else
+			AlignURLsWithSSLSetting(0);
+			
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -210,6 +224,146 @@ $(function()
 		$("#image_proxy_maxsize").prop("disabled", mode);
 	}).change();
 });');
+}
+
+/**
+ * Align URLs with SSL Setting.
+ *
+ * If force_ssl has changed, ensure all URLs are aligned with the new setting.
+ * This includes:
+ *     - $boardurl
+ *     - $modSettings['smileys_url']
+ *     - $modSettings['avatar_url']
+ *     - $modSettings['custom_avatar_url'] - if found
+ *     - theme_url - all entries in the themes table
+ *     - images_url - all entries in the themes table
+ *
+ * This function will NOT overwrite URLs that are not subfolders of $boardurl.
+ * The admin must have pointed those somewhere else on purpose, so they must be updated manually.
+ * 
+ * A word of caution: You can't trust the http/https scheme reflected for these URLs in $globals
+ * (e.g., $boardurl) or in $modSettings.  This is because SMF may change them in memory to comply
+ * with the force_ssl setting - a soft redirect may be in effect...  Thus, conditional updates
+ * to these values do not work.  You gotta just brute force overwrite them based on force_ssl.
+ *
+ * @param int $new_force_ssl is the current force_ssl setting.
+ * @return void Returns nothing, just does its job
+ */
+function AlignURLsWithSSLSetting($new_force_ssl = 0)
+{
+	global $boardurl, $modSettings, $sourcedir, $db_prefix, $smcFunc;
+	require_once($sourcedir . '/Subs-Admin.php');
+
+	// Check $boardurl
+	if ($new_force_ssl == 2)
+		$newval = strtr($boardurl, array('http://' => 'https://'));
+	else
+		$newval = strtr($boardurl, array('https://' => 'http://'));
+	updateSettingsFile(array('boardurl' => '\'' . addslashes($newval) . '\''));
+
+	$new_settings = array();
+
+	// Check $smileys_url, but only if it points to a subfolder of $boardurl
+	if (BoardurlMatch($modSettings['smileys_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['smileys_url'], array('https://' => 'http://'));
+		$new_settings['smileys_url'] = $newval;
+	}
+
+	// Check $avatar_url, but only if it points to a subfolder of $boardurl
+	if (BoardurlMatch($modSettings['avatar_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['avatar_url'], array('https://' => 'http://'));
+		$new_settings['avatar_url'] = $newval;
+	}
+
+	// Check $custom_avatar_url, but only if it points to a subfolder of $boardurl
+	// This one had been optional in the past, make sure it is set first
+	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['custom_avatar_url'], array('https://' => 'http://'));
+		$new_settings['custom_avatar_url'] = $newval;
+	}
+
+	// Save updates to the settings table
+	if (!empty($new_settings))
+		updateSettings($new_settings, true);
+
+	// Now we move onto the themes.
+	// First, get a list of theme URLs...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_theme, variable, value
+		  FROM {db_prefix}themes
+		 WHERE variable in ({string:themeurl}, {string:imagesurl})
+		   AND id_member = {int:zero}',
+		array(
+			'themeurl' => 'theme_url',
+			'imagesurl' => 'images_url',
+			'zero' => 0,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// First check to see if it points to a subfolder of $boardurl
+		if (BoardurlMatch($row['value']))
+		{
+			if ($new_force_ssl == 2)
+				$newval = strtr($row['value'], array('http://' => 'https://'));
+			else
+				$newval = strtr($row['value'], array('https://' => 'http://'));
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}themes
+				   SET value = {string:theme_val}
+				 WHERE variable = {string:theme_var}
+				   AND id_theme = {string:theme_id}
+				   AND id_member = {int:zero}',
+				array(
+					'theme_val' => $newval,
+					'theme_var' => $row['variable'],
+					'theme_id' => $row['id_theme'],
+					'zero' => 0,
+				)
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * $boardurl Match.
+ *
+ * Helper function to see if the url being checked is based off of $boardurl.
+ * If not, it was overridden by the admin to some other value on purpose, and should not
+ * be stepped on by SMF when aligning URLs with the force_ssl setting.
+ * The site admin must change URLs that are not aligned with $boardurl manually.
+ *
+ * @param string $url is the url to check.
+ * @return bool Returns true if the url is based off of $boardurl (without the scheme), false if not
+ */
+function BoardurlMatch($url = '')
+{
+	global $boardurl;
+
+	// Strip the schemes
+	$urlpath = strtr($url, array('http://' => '', 'https://' => ''));
+	$boardurlpath = strtr($boardurl, array('http://' => '', 'https://' => ''));
+
+	// If leftmost portion of path matches boardurl, return true
+	$result = strpos($urlpath, $boardurlpath);
+	if ($result === false || $result != 0)
+		return false;
+	else
+		return true;
 }
 
 /**
