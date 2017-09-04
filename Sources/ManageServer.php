@@ -264,7 +264,8 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	$new_settings = array();
 
 	// Check $smileys_url, but only if it points to a subfolder of $boardurl
-	if (BoardurlMatch($modSettings['smileys_url'])) {
+	if (BoardurlMatch($modSettings['smileys_url']))
+	{
 		if ($new_force_ssl == 2)
 			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
 		else
@@ -273,7 +274,8 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	}
 
 	// Check $avatar_url, but only if it points to a subfolder of $boardurl
-	if (BoardurlMatch($modSettings['avatar_url'])) {
+	if (BoardurlMatch($modSettings['avatar_url']))
+	{
 		if ($new_force_ssl == 2)
 			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
 		else
@@ -283,7 +285,8 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 
 	// Check $custom_avatar_url, but only if it points to a subfolder of $boardurl
 	// This one had been optional in the past, make sure it is set first
-	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url'])) {
+	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
+	{
 		if ($new_force_ssl == 2)
 			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
 		else
@@ -309,9 +312,11 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request)) {
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
 		// First check to see if it points to a subfolder of $boardurl
-		if (BoardurlMatch($row['value'])) {
+		if (BoardurlMatch($row['value']))
+		{
 			if ($new_force_ssl == 2)
 				$newval = strtr($row['value'], array('http://' => 'https://'));
 			else
