@@ -228,14 +228,12 @@ function template_credits()
 		// Display the credits.
 		if (!empty($context['credits_modifications']))
 			echo '
-			', implode('
-			<br>', $context['credits_modifications']);
+			<dl><dd>', implode('</dd><dd>', $context['credits_modifications']), '</dd></dl>';
 
 		// Legacy.
 		if (!empty($context['copyrights']['mods']))
-			echo (empty($context['credits_modifications']) ? '<br>' : ''),
-			implode('
-			<br>', $context['copyrights']['mods']);
+			echo '
+			<dl><dd>', implode('</dd><dd>', $context['copyrights']['mods']), '</dd></dl>';
 
 		echo '
 		</div>';
