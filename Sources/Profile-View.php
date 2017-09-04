@@ -1657,7 +1657,7 @@ function trackActivity($memID)
 	{
 		// Get member ID's which are in messages...
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member
+			SELECT DISTINCT mem.id_member
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.poster_ip IN ({array_inet:ip_list})
