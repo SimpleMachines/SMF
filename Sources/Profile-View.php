@@ -1253,34 +1253,19 @@ function statPanel($memID)
 		'icon' => 'stats_info.png'
 	);
 
-	// Number of topics started.
+	// Number of topics started and Number polls started
 	$result = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(*), COUNT( CASE WHEN id_poll != {int:no_poll} THEN 1 ELSE NULL END )
 		FROM {db_prefix}topics
 		WHERE id_member_started = {int:current_member}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			AND id_board != {int:recycle_board}' : ''),
 		array(
 			'current_member' => $memID,
 			'recycle_board' => $modSettings['recycle_board'],
-		)
-	);
-	list ($context['num_topics']) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	// Number polls started.
-	$result = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}topics
-		WHERE id_member_started = {int:current_member}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND id_board != {int:recycle_board}' : '') . '
-			AND id_poll != {int:no_poll}',
-		array(
-			'current_member' => $memID,
-			'recycle_board' => $modSettings['recycle_board'],
 			'no_poll' => 0,
 		)
 	);
-	list ($context['num_polls']) = $smcFunc['db_fetch_row']($result);
+	list ($context['num_topics'], $context['num_polls']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Number polls voted in.
