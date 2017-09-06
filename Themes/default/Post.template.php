@@ -110,18 +110,18 @@ function template_main()
 	if (!$context['becomes_approved'])
 	{
 		echo '
-					<p class="information">
+					<div class="noticebox">
 						<em>', $txt['wait_for_approval'], '</em>
 						<input type="hidden" name="not_approved" value="1">
-					</p>';
+					</div>';
 	}
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
 	echo '
-					<p class="errorbox">
+					<div class="errorbox">
 						', $txt['topic_locked_no_reply'], '
-					</p>';
+					</div>';
 
 	if (!empty($modSettings['drafts_post_enabled']))
 		echo '
@@ -539,7 +539,7 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<br class="clear_right">
-					<span id="post_confirm_buttons">
+					<span id="post_confirm_buttons" class="floatright">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.

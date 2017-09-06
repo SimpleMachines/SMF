@@ -928,7 +928,7 @@ img.sort, .sort {
 	overflow: visible;
 	color: #444;
 	font-size: 0.8em;
-	line-height: 2.2em;
+	line-height: 25px;
 }
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .button {
@@ -1386,10 +1386,6 @@ ul li.greeting {
 	padding: 11px 5px 5px 0;
 	float: right;
 	font-size: 1em;
-}
-#display_jump_to select {
-	margin: 0 -12px 0 0;
-	padding: 2px;
 }
 
 .quickModifyMargin {
