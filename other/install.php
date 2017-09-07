@@ -1936,7 +1936,7 @@ function template_install_below()
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
 		echo '
-								<div>';
+								<div class="floatright">';
 
 		if (!empty($incontext['continue']))
 			echo '
