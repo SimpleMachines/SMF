@@ -223,19 +223,21 @@ function template_credits()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_modifications'], '</h3>
 		</div>
-		<div class="windowbg noup">';
+		<div class="windowbg noup">
+			<ul>';
 
 		// Display the credits.
 		if (!empty($context['credits_modifications']))
 			echo '
-			<dl><dd>', implode('</dd><dd>', $context['credits_modifications']), '</dd></dl>';
+				<li>', implode('</li><li>', $context['credits_modifications']), '</li>';
 
 		// Legacy.
 		if (!empty($context['copyrights']['mods']))
 			echo '
-			<dl><dd>', implode('</dd><dd>', $context['copyrights']['mods']), '</dd></dl>';
+				<li>', implode('</li><li>', $context['copyrights']['mods']), '</li>';
 
 		echo '
+			</ul>
 		</div>';
 	}
 
