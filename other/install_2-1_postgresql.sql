@@ -1442,7 +1442,7 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 # Sequence for table `scheduled_tasks`
 #
 
-CREATE SEQUENCE {$db_prefix}scheduled_tasks_seq START WITH 9;
+CREATE SEQUENCE {$db_prefix}scheduled_tasks_seq START WITH 14;
 
 #
 # Table structure for table `scheduled_tasks`
