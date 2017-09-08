@@ -325,17 +325,26 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 			continue;
 		if (isset($alert['extra']['board']))
 			if ($boards[$alert['extra']['board']] == $txt['board_na'])
+			{
 				unset($alerts[$id_alert]);
+				continue;
+			}
 			else
 				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
 		if (isset($alert['extra']['topic']))
 			if ($alert['extra']['topic'] == $txt['topic_na'])
+			{
 				unset($alerts[$id_alert]);
+				continue;
+			}
 			else
 				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
 		if ($alert['content_type'] == 'msg')
 			if ($msgs[$alert['content_id']] == $txt['topic_na'])
+			{
 				unset($alerts[$id_alert]);
+				continue;
+			}				
 			else
 				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
 		if ($alert['content_type'] == 'profile')
