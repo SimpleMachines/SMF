@@ -1924,7 +1924,6 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	if (!empty($modSettings['enable_likes']))
 	{
 		$context['can_like'] = allowedTo('likes_like');
-		$context['can_see_likes'] = allowedTo('likes_view');
 	}
 
 	// Find the post ids.
@@ -2068,7 +2067,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 						<li class="like_button" id="msg_', $news['message_id'], '_likes"><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 			}
 
-			if (!empty($news['likes']['count']) && !empty($context['can_see_likes']))
+			if (!empty($news['likes']['count']))
 			{
 				$context['some_likes'] = true;
 				$count = $news['likes']['count'];

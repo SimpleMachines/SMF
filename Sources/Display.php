@@ -1251,7 +1251,6 @@ function Display()
 		'can_issue_warning' => 'issue_warning',
 		'can_restore_topic' => 'move_any',
 		'can_restore_msg' => 'move_any',
-		'can_see_likes' => 'likes_view',
 		'can_like' => 'likes_like',
 	);
 	foreach ($common_permissions as $contextual => $perm)
