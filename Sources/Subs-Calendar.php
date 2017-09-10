@@ -132,7 +132,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
 	static $timezone_array = array();
 	require_once($sourcedir . '/Subs.php');
-	
+
 	if (empty($timezone_array['default']))
 		$timezone_array['default'] = timezone_open(date_default_timezone_get());
 
@@ -169,7 +169,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 		// Get the various time and date properties for this event
 		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
-		
+
 		if (empty($timezone_array[$tz]))
 			$timezone_array[$tz] = timezone_open($tz);
 
@@ -743,7 +743,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 function cache_getOffsetIndependentEvents($eventOptions)
 {
 	$days_to_index = $eventOptions['num_days_shown'];
-	
+
 	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
 	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
@@ -794,7 +794,7 @@ function cache_getRecentEvents($eventOptions)
 				$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
 		}
 	}
-	
+
 	if ($eventOptions['include_birthdays'])
 	{
 		// Happy Birthday, guys and gals!
@@ -807,9 +807,9 @@ function cache_getRecentEvents($eventOptions)
 					$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
 				$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
 			}
-		}	
+		}
 	}
-	
+
 	if ($eventOptions['include_events'])
 	{
 		$duplicates = array();
@@ -1612,8 +1612,8 @@ function buildEventDatetimes($row)
 	list($end['date_local'], $end['time_local']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format));
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
-	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format, 'none'));
-	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format, 'none'));
+	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
+	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
