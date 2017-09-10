@@ -2221,24 +2221,15 @@ function alert_delete($toDelete, $memID = false)
  */
 function alert_count($memID, $unread = false)
 {
-	global $smcFunc;
+	global $smcFunc, $sourcedir;
 
 	if (empty($memID))
 		return false;
 
-	$request = $smcFunc['db_query']('', '
-		SELECT id_alert
-		FROM {db_prefix}user_alerts
-		WHERE id_member = {int:id_member}
-			'.($unread ? '
-			AND is_read = 0' : ''),
-		array(
-			'id_member' => $memID,
-		)
-	);
+	require_once($sourcedir . '/Profile-View.php');
 
-	$count = $smcFunc['db_num_rows']($request);
-	$smcFunc['db_free_result']($request);
+	$count = count(fetch_alerts($memID, false, 0, array(), false));
+
 
 	return $count;
 }

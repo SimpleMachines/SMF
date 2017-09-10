@@ -752,6 +752,15 @@ function loadUserSettings()
 	else
 		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0)' . (!empty($modSettings['deny_boards_access']) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
 
+	// Check alerts
+	if ($user_settings['alerts'] === null)
+	{
+		require_once($sourcedir . '/Profile-View.php');
+		$user_settings['alerts'] = count(fetch_alerts($id_member, false, 0, array(), false));
+		$user_info['alerts'] = empty($user_settings['alerts']) ? 0 : $user_settings['alerts'];
+		updateMemberData($id_member, array('alerts' => $user_settings['alerts']));
+	}
+	
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
@@ -1197,7 +1206,7 @@ function loadPermissions()
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
-	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
+	global $user_profile, $modSettings, $board_info, $smcFunc, $context, $sourcedir;
 	global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 	// Can't just look for no users :P.
@@ -1290,6 +1299,14 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 			// Keep track of the member's normal member group
 			$row['primary_group'] = $row['member_group'];
+			
+			// Check alerts
+			if ( array_key_exists('alerts', $row) && $row['alerts'] === null)
+			{
+				require_once($sourcedir . '/Profile-View.php');
+				$row['alerts'] = count(fetch_alerts($row['id_member'], false, 0, array(), false));
+				updateMemberData($row['id_member'], array('alerts' => $row['alerts']));
+			}
 
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);

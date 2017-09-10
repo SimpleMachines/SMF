@@ -2426,3 +2426,10 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 ---#
+
+/******************************************************************************/
+--- Change alerts field of members
+/******************************************************************************/
+---# Allow Null value 
+ALTER TABLE {$db_prefix}members ALTER COLUMN alerts DROP NOT NULL;
+---#
