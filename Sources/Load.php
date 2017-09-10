@@ -753,7 +753,7 @@ function loadUserSettings()
 		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0)' . (!empty($modSettings['deny_boards_access']) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
 
 	// Check alerts
-	if ($user_settings['alerts'] === null)
+	if (array_key_exists('alerts', $user_settings) && $user_settings['alerts'] === null)
 	{
 		require_once($sourcedir . '/Profile-View.php');
 		$user_settings['alerts'] = count(fetch_alerts($id_member, false, 0, array(), false));
