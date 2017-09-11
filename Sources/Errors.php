@@ -490,7 +490,7 @@ function log_error_online($error, $sprintf = array())
 	if (SMF == 'SSI' || SMF == 'BACKGROUND')
 		return;
 
-	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+	$session_id = isset($user_info['is_guest']) && $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
 
 	// First, we have to get the online log, because we need to break apart the serialized string.
 	$request = $smcFunc['db_query']('', '
