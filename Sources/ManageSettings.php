@@ -373,7 +373,6 @@ function ModifyLikesSettings($return_config = false)
 
 	$config_vars = array(
 		array('check', 'enable_likes'),
-		array('permissions', 'likes_view'),
 		array('permissions', 'likes_like'),
 	);
 

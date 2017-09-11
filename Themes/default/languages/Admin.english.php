@@ -745,7 +745,6 @@ $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
 
 $txt['likes_like'] = 'Membergroups allowed to like posts';
-$txt['likes_view'] = 'Membergroups allowed to view likes';
 
 $txt['mention'] = 'Membergroups allowed to mention users';
 

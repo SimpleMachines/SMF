@@ -794,7 +794,7 @@ function template_single_post($message)
 	}
 
 	// And stuff below the attachments.
-	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
 							<div class="under_message">';
 
@@ -817,7 +817,7 @@ function template_single_post($message)
 									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="generic_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 		}
 
-		if (!empty($message['likes']['count']) && !empty($context['can_see_likes']))
+		if (!empty($message['likes']['count']))
 		{
 			$context['some_likes'] = true;
 			$count = $message['likes']['count'];
@@ -913,7 +913,7 @@ function template_single_post($message)
 								</ul>';
 	}
 
-	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
 							</div>';
 

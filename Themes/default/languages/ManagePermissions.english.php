@@ -237,8 +237,6 @@ $txt['permissionname_report_any'] = 'Report posts to the moderators';
 $txt['permissionhelp_report_any'] = 'This permission adds a link to each message, allowing a user to report a post to a moderator. On reporting, all moderators on that board will receive an email with a link to the reported post and a description of the problem (as given by the reporting user).';
 
 $txt['permissiongroup_likes'] = 'Likes';
-$txt['permissionname_likes_view'] = 'View likes';
-$txt['permissionhelp_likes_view'] = 'This permission allows an user to view any likes. Without this permission, the user will only see the likes she/he has made.';
 $txt['permissionname_likes_like'] = 'Can like any content';
 $txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
 
