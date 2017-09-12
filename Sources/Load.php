@@ -1915,7 +1915,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'is_mod' => &$user_info['is_mod'],
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
 			'can_mod' => allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap'])))),
-			'username' => $user_info['username'],
+			'name' => $user_info['username'],
 			'language' => $user_info['language'],
 			'email' => $user_info['email'],
 			'ignoreusers' => $user_info['ignoreusers'],
@@ -1931,6 +1931,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	}
 	else
 	{
+		// What to do when there is no $user_info (e.g., an error very early in the login process)
 		$context['user'] = array(
 			'id' => -1,
 			'is_logged' => false,
@@ -1942,6 +1943,21 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'email' => '',
 			'ignoreusers' => array(),
 		);
+		// Note we should stuff $user_info with some guest values also...
+		$user_info['id'] = 0;
+		$user_info['is_guest'] = true;
+		$user_info['is_admin'] = false;
+		$user_info['is_mod'] = false;
+		$user_info['username'] = $txt['guest_title'];
+		$user_info['language'] = $language;
+		$user_info['email'] = '';
+		$user_info['smiley_set'] = '';
+		$user_info['permissions'] = array();
+		$user_info['groups'] = array();
+		$user_info['ignoreusers'] = array();
+		$user_info['possibly_robot'] = true;
+		$user_info['time_offset'] = 0;
+		$user_info['time_format'] = $modSettings['time_format'];
 	}
 
 	// Some basic information...
@@ -1975,6 +1991,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 	detectBrowser();
 
 	// Set the top level linktree up.
+	// Note that if we're dealing with certain very early errors (e.g., login) the linktree might not be set yet...
+	if (empty($context['linktree']))
+		$context['linktree'] = array();
 	array_unshift($context['linktree'], array(
 		'url' => $scripturl,
 		'name' => $context['forum_name_html_safe']
