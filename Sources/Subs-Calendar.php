@@ -1613,7 +1613,7 @@ function buildEventDatetimes($row)
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
 	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
-	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
+	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
