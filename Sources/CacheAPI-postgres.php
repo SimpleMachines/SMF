@@ -20,7 +20,6 @@ if (!defined('SMF'))
  */
 class postgres_cache extends cache_api
 {
-
 	/**
 	 * @var false|resource of the pg_prepare from get_data.
 	 */
@@ -34,7 +33,6 @@ class postgres_cache extends cache_api
 	public function __construct()
 	{
 		parent::__construct();
-
 	}
 
 	/**
@@ -61,7 +59,6 @@ class postgres_cache extends cache_api
 	public function isSupported($test = false)
 	{
 		global $smcFunc, $db_connection;
-		
 
 		if ($smcFunc['db_title'] !== 'PostgreSQL')
 			return false;
@@ -108,7 +105,7 @@ class postgres_cache extends cache_api
 			$value = '';
 
 		$ttl = time() + $ttl;
-		
+
 		if (empty($this->pg_put_data_prep))
 			$this->pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
 				'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
@@ -136,6 +133,16 @@ class postgres_cache extends cache_api
 			);
 
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		global $smcFunc;
+
+		return $smcFunc['db_server_info']();
 	}
 }
 

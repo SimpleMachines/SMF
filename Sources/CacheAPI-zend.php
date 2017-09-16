@@ -68,6 +68,14 @@ class zend_cache extends cache_api
 
 		return zend_shm_cache_clear('SMF');
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		return zend_version();
+	}
 }
 
 ?>

@@ -138,6 +138,14 @@ interface cache_api_interface
 	 * @return string the value of $key.
 	 */
 	public function getMiniumnVersion();
+
+	/**
+	 * Gets the Version of the Caching API.
+	 *
+	 * @access public
+	 * @return string the value of $key.
+	 */
+	public function getVersion();
 }
 
 /**
@@ -300,6 +308,14 @@ abstract class cache_api implements cache_api_interface
 	 * {@inheritDoc}
 	 */
 	public function getMiniumnVersion()
+	{
+		return $this->min_smf_version;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
 	{
 		return $this->min_smf_version;
 	}

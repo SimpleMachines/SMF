@@ -74,6 +74,14 @@ class apc_cache extends cache_api
 		$this->invalidateCache();
 		return true;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		return phpversion('apc');
+	}
 }
 
 ?>

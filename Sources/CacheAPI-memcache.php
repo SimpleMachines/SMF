@@ -141,6 +141,14 @@ class memcache_cache extends cache_api
 				$("#cache_memcached").prop("disabled", cache_type != "memcache");
 			});';
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		return $this->memcache->getVersion();
+	}
 }
 
 ?>

@@ -64,6 +64,14 @@ class apcu_cache extends cache_api
 		$this->invalidateCache();
 		return apcu_clear_cache();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		return phpversion('apcu');
+	}
 }
 
 ?>
