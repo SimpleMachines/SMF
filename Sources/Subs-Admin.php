@@ -84,7 +84,7 @@ function getServerVersions($checkFor)
 	if (in_array('apc', $checkFor) && extension_loaded('apc'))
 		$versions['apc'] = array('title' => 'Alternative PHP Cache', 'version' => phpversion('apc'));
 	if (in_array('memcache', $checkFor) && function_exists('memcache_set'))
-		$versions['memcache'] = array('title' => 'Memcached', 'version' => $memcache_version;
+		$versions['memcache'] = array('title' => 'Memcached', 'version' => $memcache_version);
 	if (in_array('xcache', $checkFor) && function_exists('xcache_set'))
 		$versions['xcache'] = array('title' => 'XCache', 'version' => XCACHE_VERSION);
 
