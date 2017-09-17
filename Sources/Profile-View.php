@@ -208,12 +208,16 @@ function summary($memID)
  * @param bool $all Whether to fetch all alerts or just unread ones
  * @param int $counter How many alerts to display (0 if displaying all or using pagination)
  * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
+ * @param bool $withSender With $memberContext from sender
  * @return array An array of information about the fetched alerts
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
+	$query_see_board = build_query_board($memID);
+	$query_see_board = $query_see_board['query_see_board'];
+	
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
@@ -246,9 +250,12 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 	}
 	$smcFunc['db_free_result']($request);
 
-	$senders = loadMemberData($senders);
-	foreach ($senders as $member)
-		loadMemberContext($member);
+	if($withSender)
+	{
+		$senders = loadMemberData($senders);
+		foreach ($senders as $member)
+			loadMemberContext($member);
+	}
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
@@ -276,7 +283,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board, name
 			FROM {db_prefix}boards AS b
-			WHERE {query_see_board}
+			WHERE ' . $query_see_board . '
 				AND id_board IN ({array_int:boards})',
 			array(
 				'boards' => array_keys($boards),
@@ -292,7 +299,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE {query_see_board}
+			WHERE ' . $query_see_board . '
 				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => array_keys($topics),
@@ -308,7 +315,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE {query_see_board}
+			WHERE ' . $query_see_board . '
 				AND m.id_msg IN ({array_int:msgs})',
 			array(
 				'msgs' => array_keys($msgs),
