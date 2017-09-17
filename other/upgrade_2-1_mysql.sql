@@ -1167,10 +1167,9 @@ ALTER TABLE `{$db_prefix}members`
 				'mlist' => $row['show_mlist'],
 			);
 		}
-
 		$smcFunc['db_free_result']($request);
 
-		$smcFunc['db_insert']('',
+		$smcFunc['db_insert']('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', json_encode($fields)),
