@@ -292,7 +292,8 @@ function ViewModlog()
 	createToken('mod-ml');
 
 	// Overriding this with a hook?
-	call_integration_hook('integrate_viewModLog', array(&$listOptions, $moderation_menu_name));
+	$moderation_menu_name = array();
+	call_integration_hook('integrate_viewModLog', array(&$listOptions, &$moderation_menu_name));
 
 	// Create the watched user list.
 	createList($listOptions);
