@@ -379,7 +379,6 @@ function updateMemberData($members, $data)
 			$type = 'inet';
 
 		// Doing an increment?
-				// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
 		{
 			include_once($sourcedir . '/Profile-View.php');
@@ -396,8 +395,6 @@ function updateMemberData($members, $data)
 				$blub = fetch_alerts($members, false, 0, array(), false);
 				$val = count($blub);
 			}
-				
-			
 		}
 		else if ($type == 'int' && ($val === '+' || $val === '-'))
 		{
@@ -6097,7 +6094,7 @@ function build_query_board($userid)
 					'id_member' => $userid,
 				)
 			);
-			
+
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		if (empty($row['additional_groups']))
@@ -6107,15 +6104,15 @@ function build_query_board($userid)
 					array($row['id_group'], $user_settings['id_post_group']),
 					explode(',', $row['additional_groups'])
 			);
-	
+
 		// Because history has proven that it is possible for groups to go bad - clean up in case.
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
-			
+
 		$is_admin = in_array(1, $groups);
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-		
+
 		// What boards are they the moderator of?
 		$boards_mod = array();
 
@@ -6148,10 +6145,9 @@ function build_query_board($userid)
 		$boards_mod = array_unique($boards_mod);
 
 		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
-		
 	}
 	
-		// Just build this here, it makes it easier to change/use - administrators can see all boards.
+	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($is_admin)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
@@ -6168,7 +6164,6 @@ function build_query_board($userid)
 	else
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
 
-	
 	return $query_part;
 }
 
