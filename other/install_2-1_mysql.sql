@@ -90,8 +90,8 @@ CREATE TABLE {$db_prefix}ban_groups (
 CREATE TABLE {$db_prefix}ban_items (
   id_ban MEDIUMINT UNSIGNED AUTO_INCREMENT,
   id_ban_group SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-  ip_low VARBINARY(16),
-  ip_high VARBINARY(16),
+  ip_low VARBINARY(16) DEFAULT NULL,
+  ip_high VARBINARY(16) DEFAULT NULL,
   hostname VARCHAR(255) NOT NULL DEFAULT '',
   email_address VARCHAR(255) NOT NULL DEFAULT '',
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
@@ -204,11 +204,11 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type VARCHAR(8) NOT NULL DEFAULT 'text',
   field_length SMALLINT NOT NULL DEFAULT '255',
   field_options TEXT NOT NULL,
-  field_order TINYINT NOT NULL DEFAULT '0',
+  field_order SMALLINT NOT NULL DEFAULT '0',
   mask VARCHAR(255) NOT NULL DEFAULT '',
   show_reg TINYINT NOT NULL DEFAULT '0',
   show_display TINYINT NOT NULL DEFAULT '0',
-  show_mlist TINYINT NOT NULL DEFAULT '0',
+  show_mlist SMALLINT NOT NULL DEFAULT '0',
   show_profile VARCHAR(20) NOT NULL DEFAULT 'forumprofile',
   private TINYINT NOT NULL DEFAULT '0',
   active TINYINT NOT NULL DEFAULT '1',
@@ -240,7 +240,7 @@ CREATE TABLE {$db_prefix}log_actions (
   id_log TINYINT UNSIGNED NOT NULL DEFAULT '1',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
-  ip VARBINARY(16),
+  ip VARBINARY(16) DEFAULT NULL,
   action VARCHAR(30) NOT NULL DEFAULT '',
   id_board SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
@@ -266,7 +266,8 @@ CREATE TABLE {$db_prefix}log_activity (
   posts SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   registers SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   most_on SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (date)
+  PRIMARY KEY (date),
+  INDEX idx_most_on (most_on)
 ) ENGINE={$engine};
 
 #
@@ -276,7 +277,7 @@ CREATE TABLE {$db_prefix}log_activity (
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log MEDIUMINT UNSIGNED AUTO_INCREMENT,
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
-  ip VARBINARY(16),
+  ip VARBINARY(16) DEFAULT NULL,
   email VARCHAR(255) NOT NULL DEFAULT '',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban_log),
@@ -320,8 +321,8 @@ CREATE TABLE {$db_prefix}log_comments (
 #
 
 CREATE TABLE {$db_prefix}log_digest (
-  id_topic MEDIUMINT UNSIGNED NOT NULL,
-  id_msg INT(10) UNSIGNED NOT NULL,
+  id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
   note_type VARCHAR(10) NOT NULL DEFAULT 'post',
   daily TINYINT UNSIGNED NOT NULL DEFAULT '0',
   exclude MEDIUMINT UNSIGNED NOT NULL DEFAULT '0'
@@ -335,7 +336,7 @@ CREATE TABLE {$db_prefix}log_errors (
   id_error MEDIUMINT UNSIGNED AUTO_INCREMENT,
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
-  ip VARBINARY(16),
+  ip VARBINARY(16) DEFAULT NULL,
   url TEXT NOT NULL,
   message TEXT NOT NULL,
   session VARCHAR(128) NOT NULL DEFAULT '',
@@ -353,7 +354,7 @@ CREATE TABLE {$db_prefix}log_errors (
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
-  ip VARBINARY(16),
+  ip VARBINARY(16) NOT NULL,
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   log_type VARCHAR(8) DEFAULT 'post',
   PRIMARY KEY (ip, log_type(8))
@@ -422,8 +423,8 @@ CREATE TABLE {$db_prefix}log_online (
   log_time INT(10) NOT NULL DEFAULT '0',
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-  ip VARBINARY(16),
-  url VARCHAR(2048) NOT NULL,
+  ip VARBINARY(16) DEFAULT NULL,
+  url VARCHAR(2048) NOT NULL DEFAULT '',
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member)
@@ -459,9 +460,9 @@ CREATE TABLE {$db_prefix}log_packages (
 #
 
 CREATE TABLE {$db_prefix}log_polls (
-  id_poll MEDIUMINT UNSIGNED DEFAULT '0',
-  id_member MEDIUMINT UNSIGNED DEFAULT '0',
-  id_choice TINYINT UNSIGNED DEFAULT '0',
+  id_poll MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_choice TINYINT UNSIGNED NOT NULL DEFAULT '0',
   INDEX idx_id_poll (id_poll, id_member, id_choice)
 ) ENGINE={$engine};
 
@@ -500,7 +501,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report MEDIUMINT NOT NULL DEFAULT '0',
   id_member MEDIUMINT NOT NULL,
   membername VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip VARBINARY(16),
+  member_ip VARBINARY(16) DEFAULT NULL,
   comment VARCHAR(255) NOT NULL DEFAULT '',
   time_sent INT(10) NOT NULL,
   PRIMARY KEY (id_comment),
@@ -703,8 +704,8 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL DEFAULT '0',
   avatar VARCHAR(255) NOT NULL DEFAULT '',
   usertitle VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip VARBINARY(16),
-  member_ip2 VARBINARY(16),
+  member_ip VARBINARY(16) DEFAULT NULL,
+  member_ip2 VARBINARY(16) DEFAULT NULL,
   secret_question VARCHAR(255) NOT NULL DEFAULT '',
   secret_answer VARCHAR(64) NOT NULL DEFAULT '',
   id_theme TINYINT UNSIGNED NOT NULL DEFAULT '0',
@@ -747,8 +748,8 @@ CREATE TABLE {$db_prefix}member_logins (
   id_login INT(10) AUTO_INCREMENT,
   id_member MEDIUMINT NOT NULL DEFAULT '0',
   time INT(10) NOT NULL DEFAULT '0',
-  ip VARBINARY(16),
-  ip2 VARBINARY(16),
+  ip VARBINARY(16) DEFAULT NULL,
+  ip2 VARBINARY(16) DEFAULT NULL,
   PRIMARY KEY (id_login),
   INDEX idx_id_member (id_member),
   INDEX idx_time (time)
@@ -782,7 +783,7 @@ CREATE TABLE {$db_prefix}messages (
   subject VARCHAR(255) NOT NULL DEFAULT '',
   poster_name VARCHAR(255) NOT NULL DEFAULT '',
   poster_email VARCHAR(255) NOT NULL DEFAULT '',
-  poster_ip VARBINARY(16),
+  poster_ip VARBINARY(16) DEFAULT NULL,
   smileys_enabled TINYINT NOT NULL DEFAULT '1',
   modified_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   modified_name VARCHAR(255) NOT NULL DEFAULT '',
@@ -794,6 +795,7 @@ CREATE TABLE {$db_prefix}messages (
   PRIMARY KEY (id_msg),
   UNIQUE idx_id_board (id_board, id_msg),
   UNIQUE idx_id_member (id_member, id_msg),
+  UNIQUE idx_id_topic (id_topic, id_msg),
   INDEX idx_approved (approved),
   INDEX idx_ip_index (poster_ip, id_topic),
   INDEX idx_participation (id_member, id_topic),
@@ -905,7 +907,7 @@ CREATE TABLE {$db_prefix}pm_recipients (
   is_read TINYINT UNSIGNED NOT NULL DEFAULT '0',
   is_new TINYINT UNSIGNED NOT NULL DEFAULT '0',
   deleted TINYINT UNSIGNED NOT NULL DEFAULT '0',
-  in_inbox TINYINT UNSIGNED NOT NULL DEFAULT '1',
+  in_inbox TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (id_pm, id_member),
   UNIQUE idx_id_member (id_member, deleted, id_pm)
 ) ENGINE={$engine};
@@ -942,7 +944,7 @@ CREATE TABLE {$db_prefix}polls (
   guest_vote TINYINT UNSIGNED NOT NULL DEFAULT '0',
   num_guest_voters INT(10) UNSIGNED NOT NULL DEFAULT '0',
   reset_poll INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_member MEDIUMINT NOT NULL DEFAULT '0',
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   poster_name VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_poll)
 ) ENGINE={$engine};
@@ -1006,8 +1008,8 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id VARCHAR(128),
-  last_update INT(10) UNSIGNED NOT NULL,
+  session_id VARCHAR(128) NOT NULL DEFAULT '',
+  last_update INT(10) UNSIGNED NOT NULL DEFAULT '0',
   data TEXT NOT NULL,
   PRIMARY KEY (session_id)
 ) ENGINE={$engine};
@@ -1181,7 +1183,7 @@ CREATE TABLE {$db_prefix}mentions (
   content_id INT DEFAULT '0',
   content_type VARCHAR(10) DEFAULT '',
   id_mentioned INT DEFAULT 0,
-  id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
+  id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT 0,
   `time` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (content_id, content_type, id_mentioned),
   INDEX content (content_id, content_type),
