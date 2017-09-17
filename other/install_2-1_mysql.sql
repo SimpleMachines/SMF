@@ -686,7 +686,7 @@ CREATE TABLE {$db_prefix}members (
   instant_messages SMALLINT NOT NULL DEFAULT 0,
   unread_messages SMALLINT NOT NULL DEFAULT 0,
   new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0',
-  alerts INT(10) UNSIGNED DEFAULT '0',
+  alerts INT(10) UNSIGNED NOT NULL DEFAULT '0',
   buddy_list TEXT NOT NULL,
   pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '',
   pm_prefs MEDIUMINT NOT NULL DEFAULT '0',

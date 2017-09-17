@@ -1046,7 +1046,7 @@ CREATE TABLE {$db_prefix}members (
   instant_messages smallint NOT NULL default 0,
   unread_messages smallint NOT NULL default 0,
   new_pm smallint NOT NULL default '0',
-  alerts bigint default '0',
+  alerts bigint NOT NULL default '0',
   buddy_list text NOT NULL,
   pm_ignore_list varchar(255) NOT NULL DEFAULT '',
   pm_prefs int NOT NULL default '0',

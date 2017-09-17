@@ -2465,10 +2465,3 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---# Add Index for messages likes 
 CREATE INDEX idx_likes ON {$db_prefix}messages (likes DESC);
 ---#
-
-/******************************************************************************/
---- Change alerts field of members
-/******************************************************************************/
----# Allow Null value 
-ALTER TABLE {$db_prefix}members MODIFY alerts int(10) null;
----#

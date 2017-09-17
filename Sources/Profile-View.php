@@ -208,10 +208,9 @@ function summary($memID)
  * @param bool $all Whether to fetch all alerts or just unread ones
  * @param int $counter How many alerts to display (0 if displaying all or using pagination)
  * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
- * @param bool $withSender With $memberContext from sender
  * @return array An array of information about the fetched alerts
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
@@ -247,12 +246,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	if($withSender)
-	{
-		$senders = loadMemberData($senders);
-		foreach ($senders as $member)
-			loadMemberContext($member);
-	}
+	$senders = loadMemberData($senders);
+	foreach ($senders as $member)
+		loadMemberContext($member);
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');

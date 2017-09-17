@@ -191,8 +191,6 @@ function smf_db_replacement__callback($matches)
 	switch ($matches[1])
 	{
 		case 'int':
-			if ($replacement === 'null')
-				return 'null';
 			if (!is_numeric($replacement) || (string) $replacement !== (string) (int) $replacement)
 				smf_db_error_backtrace('Wrong value type sent to the database. Integer expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return (string) (int) $replacement;

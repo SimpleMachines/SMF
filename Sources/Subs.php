@@ -291,7 +291,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc;
 
 	$parameters = array();
 	if (is_array($members))
@@ -379,11 +379,7 @@ function updateMemberData($members, $data)
 			$type = 'inet';
 
 		// Doing an increment?
-		if ($var == 'alerts' && ($val === '+' || $val === '-'))
-		{
-			$val = 'null';
-		}
-		elseif ($type == 'int' && ($val === '+' || $val === '-'))
+		if ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
 			$type = 'raw';
