@@ -291,13 +291,19 @@ function ViewModlog()
 
 	createToken('mod-ml');
 
+	// Overriding this with a hook?
+	call_integration_hook('integrate_viewModLog', array(&$listOptions, $moderation_menu_name));
+
 	// Create the watched user list.
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
 	$context['default_list'] = 'moderation_log_list';
 
-	if (isset($context['moderation_menu_name']))
+	// If a hook has changed this, respect it.
+	if (!empty($moderation_menu_name))
+		$context[$context['moderation_menu_name']]['tab_data'] = $moderation_menu_name;
+	elseif (isset($context['moderation_menu_name']))
 		$context[$context['moderation_menu_name']]['tab_data'] = array(
 			'title' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
 			'help' => $context['log_type'] == 3 ? 'adminlog' : 'modlog',
