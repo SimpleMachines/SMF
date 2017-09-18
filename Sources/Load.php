@@ -1944,20 +1944,22 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'ignoreusers' => array(),
 		);
 		// Note we should stuff $user_info with some guest values also...
-		$user_info['id'] = 0;
-		$user_info['is_guest'] = true;
-		$user_info['is_admin'] = false;
-		$user_info['is_mod'] = false;
-		$user_info['username'] = $txt['guest_title'];
-		$user_info['language'] = $language;
-		$user_info['email'] = '';
-		$user_info['smiley_set'] = '';
-		$user_info['permissions'] = array();
-		$user_info['groups'] = array();
-		$user_info['ignoreusers'] = array();
-		$user_info['possibly_robot'] = true;
-		$user_info['time_offset'] = 0;
-		$user_info['time_format'] = $modSettings['time_format'];
+		$user_info = array(
+			'id' => 0,
+			'is_guest' => true,
+			'is_admin' => false,
+			'is_mod' => false,
+			'username' => $txt['guest_title'],
+			'language' => $language,
+			'email' => '',
+			'smiley_set' => '',
+			'permissions' => array(),
+			'groups' => array(),
+			'ignoreusers' => array(),
+			'possibly_robot' => true,
+			'time_offset' => 0,
+			'time_format' => $modSettings['time_format'],
+		);
 	}
 
 	// Some basic information...
