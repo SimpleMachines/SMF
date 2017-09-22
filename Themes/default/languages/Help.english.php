@@ -623,6 +623,6 @@ $helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy w
 
 $helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.';
 
-$helptxt['field_reg_require'] = 'When the field get require, than is this field also mandatory on profile changes.';
+$helptxt['field_reg_require'] = 'If this field is required during registration, it will also be required on profile changes.';
 
 ?>
