@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
 	id_member MEDIUMINT NOT NULL DEFAULT '0',
 	time INT(10) NOT NULL DEFAULT '0',
-	ip VARBINARY(16) DEFAULT NULL,
-	ip2 VARBINARY(16) DEFAULT NULL,
+	ip VARBINARY(16),
+	ip2 VARBINARY(16),
 	PRIMARY KEY id_login(id_login),
 	INDEX idx_id_member (id_member),
 	INDEX idx_time (time)
@@ -2083,8 +2083,8 @@ DROP INDEX idx_id_board on {$db_prefix}topics;
 /******************************************************************************/
 ---# Add columns to ban_items
 ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low varbinary(16) DEFAULT NULL,
-ADD COLUMN ip_high varbinary(16) DEFAULT NULL;
+ADD COLUMN ip_low varbinary(16),
+ADD COLUMN ip_high varbinary(16);
 ---#
 
 ---# Convert data for ban_items
@@ -2136,7 +2136,7 @@ if ($doChange)
 ---#
 
 ---# Add the new one
-ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
@@ -2155,7 +2155,7 @@ if ($doChange)
 ---#
 
 ---# Add the new log banned ip
-ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
@@ -2174,7 +2174,7 @@ if ($doChange)
 ---#
 
 ---# Add the new ip columns to log errors
-ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
 ---#
 
 ---# Add the ip index for log errors
@@ -2201,8 +2201,8 @@ if ($doChange)
 
 ---# Add the new ip columns to members
 ALTER TABLE {$db_prefix}members
-ADD COLUMN member_ip VARBINARY(16) DEFAULT NULL,
-ADD COLUMN member_ip2 VARBINARY(16) DEFAULT NULL;
+ADD COLUMN member_ip VARBINARY(16),
+ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
 ---# Create an ip index for old ips
@@ -2254,7 +2254,7 @@ if ($doChange)
 ---#
 
 ---# Add the new ip column to messages
-ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
 ---# Create an ip index for old ips
@@ -2334,7 +2334,7 @@ if ($doChange)
 ---#
 
 ---# Add the new ip column for log online
-ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
@@ -2353,7 +2353,7 @@ if ($doChange)
 ---#
 
 ---# Add the new ip column for reported comments
-ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
@@ -2375,8 +2375,8 @@ if ($doChange)
 ---#
 
 ---# Add the new ip columns for member logins
-ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
-ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
 
 /******************************************************************************/
@@ -2395,7 +2395,7 @@ if ($doChange)
 ---#
 
 ---# Add the new log banned ip
-ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16) DEFAULT NULL;
+ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
