@@ -263,8 +263,9 @@ if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
 }
 
 $request = upgrade_query("
-	SELECT MAX(id_attach)
-	FROM {$db_prefix}attachments");
+	SELECT COUNT(*)
+	FROM {$db_prefix}attachments
+	WHERE attachment_type != 1");
 list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
 $smcFunc['db_free_result']($request);
 
