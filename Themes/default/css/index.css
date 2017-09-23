@@ -3135,7 +3135,7 @@ div#pollmoderation {
 .messageicon {
 	display: inline-block;
 }
-.messageicon img {
+.messageicon img, #iconList img {
 	vertical-align: middle;
 }
 .keyinfo h5 {
