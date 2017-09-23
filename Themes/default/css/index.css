@@ -982,13 +982,18 @@ img.sort, .sort {
 
 /* Box-shadow only on this one. */
 #wrapper {
-	margin: 0 auto;
 	width: 90%;
 	clear: both;
 	background: #fff;
 	border: 1px solid #b8b8b8;
 	border-radius: 8px;
 	box-shadow: 0 2px 3px rgba(0,0,0,0.14);
+}
+
+/* Set maximum width limit for content */
+#top_section .inner_wrap, #wrapper, #header, #footer ul {
+	max-width: 1200px;
+	margin: 0 auto;
 }
 
 /* The framing graphics */
@@ -1006,7 +1011,7 @@ img.sort, .sort {
 	clear: both;
 }
 #top_info {
-	padding: 5px 9px 5px 9px;
+	padding: 5px 0;
 	line-height: 1.3em;
 	width: auto;
 }
@@ -1056,7 +1061,7 @@ img.sort, .sort {
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
-	margin: 0 5%;
+	width: 90%;
 }
 #header::after {
 	content:"";
