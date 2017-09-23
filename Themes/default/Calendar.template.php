@@ -111,7 +111,7 @@ function template_show_upcoming_list($grid_name)
 			{
 				echo '
 					<li class="windowbg">
-						<b class="event_title">', $event['link'], '</b>';
+						<strong class="event_title">', $event['link'], '</strong>';
 
 				if ($event['can_edit'])
 					echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
