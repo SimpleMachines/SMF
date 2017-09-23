@@ -2526,7 +2526,7 @@ function PackagePermissionsAction()
 			unset($context['to_process'][$path]);
 
 			// See if we're out of time?
-			if (time() - array_sum(explode(' ', $time_start)) > $timeout_limit)
+			if ((time() - $time_start) > $timeout_limit)
 			{
 				// Prepare template usage for to_process.
 				$context['to_process_encode'] = base64_encode($smcFunc['json_encode']($context['to_process']));
@@ -2639,7 +2639,7 @@ function PackagePermissionsAction()
 				}
 
 				// See if we're out of time?
-				if (!$dont_chmod && time() - array_sum(explode(' ', $time_start)) > $timeout_limit)
+				if (!$dont_chmod && (time() - $time_start) > $timeout_limit)
 				{
 					$dont_chmod = true;
 					// Don't do this again.
@@ -2664,7 +2664,7 @@ function PackagePermissionsAction()
 			unset($context['directory_list'][$path]);
 
 			// See if we're out of time?
-			if (time() - array_sum(explode(' ', $time_start)) > $timeout_limit)
+			if ((time() - $time_start) > $timeout_limit)
 			{
 				// Prepare this for usage on templates.
 				$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));
