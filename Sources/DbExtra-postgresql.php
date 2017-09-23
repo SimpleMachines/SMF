@@ -287,12 +287,13 @@ function smf_db_table_sql($tableName)
  */
 function smf_db_get_version()
 {
+	global $db_connection;
 	static $ver;
 
 	if(!empty($ver))
 		return $ver;
 
-	$ver = pg_version()['server'];
+	$ver = pg_version($db_connection)['server'];
 
 	return $ver;
 }
