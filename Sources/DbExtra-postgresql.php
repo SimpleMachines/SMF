@@ -292,15 +292,7 @@ function smf_db_get_version()
 	if(!empty($ver))
 		return $ver;
 
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
-		SHOW server_version',
-		array(
-		)
-	);
-	list ($ver) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$ver = pg_version()['server'];
 
 	return $ver;
 }
