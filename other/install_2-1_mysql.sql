@@ -266,8 +266,7 @@ CREATE TABLE {$db_prefix}log_activity (
   posts SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   registers SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   most_on SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (date),
-  INDEX idx_most_on (most_on)
+  PRIMARY KEY (date)
 ) ENGINE={$engine};
 
 #

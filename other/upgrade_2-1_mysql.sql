@@ -2548,6 +2548,11 @@ ALTER TABLE {$db_prefix}log_actions
 ADD INDEX id_topic_id_log (id_topic, id_log);
 ---#
 
+---# Updating log_activity
+ALTER TABLE {$db_prefix}log_activity
+DROP INDEX mostOn;
+---#
+
 ---# Updating log_subscribed
 ALTER TABLE {$db_prefix}log_subscribed
 ADD INDEX status (status);
