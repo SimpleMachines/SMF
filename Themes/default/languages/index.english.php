@@ -805,7 +805,6 @@ $txt['calendar_menu'] = 'View Calendar';
 
 // @todo Send email strings - should move?
 $txt['send_email'] = 'Send Email';
-$txt['send_email_disclosed'] = 'Note this will be visible to the recipient.';
 
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';
