@@ -2468,41 +2468,11 @@ CREATE INDEX idx_likes ON {$db_prefix}messages (likes DESC);
 ---#
 
 /******************************************************************************/
---- Legacy column data
+--- Aligning legacy column data
 /******************************************************************************/
----# Updating admin_info_files
-ALTER TABLE {$db_prefix}admin_info_files
-MODIFY COLUMN data TEXT NOT NULL;
----#
-
----# Updating ban_groups
-ALTER TABLE {$db_prefix}ban_groups
-MODIFY COLUMN notes TEXT NOT NULL;
----#
-
----# Updating boards
-ALTER TABLE {$db_prefix}boards
-MODIFY COLUMN description TEXT NOT NULL;
----#
-
 ---# Updating board_permissions
 ALTER TABLE {$db_prefix}board_permissions
 MODIFY COLUMN id_profile SMALLINT UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Updating custom_fields
-ALTER TABLE {$db_prefix}custom_fields
-MODIFY COLUMN enclose TEXT NOT NULL;
----#
-
----# Updating log_actions
-ALTER TABLE {$db_prefix}log_actions
-MODIFY COLUMN extra TEXT NOT NULL;
----#
-
----# Updating log_comments
-ALTER TABLE {$db_prefix}log_comments
-MODIFY COLUMN body TEXT NOT NULL;
 ---#
 
 ---# Updating log_digest id_topic
@@ -2515,36 +2485,6 @@ ALTER TABLE {$db_prefix}log_digest
 MODIFY COLUMN id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
----# Updating log_errors url
-ALTER TABLE {$db_prefix}log_errors
-MODIFY COLUMN url TEXT NOT NULL;
----#
-
----# Updating log_errors message
-ALTER TABLE {$db_prefix}log_errors
-MODIFY COLUMN message TEXT NOT NULL;
----#
-
----# Updating log_group_requests
-ALTER TABLE {$db_prefix}log_group_requests
-MODIFY COLUMN reason TEXT NOT NULL;
----#
-
----# Updating log_member_notices
-ALTER TABLE {$db_prefix}log_member_notices
-MODIFY COLUMN body TEXT NOT NULL;
----#
-
----# Updating log_packages steps
-ALTER TABLE {$db_prefix}log_packages
-MODIFY COLUMN failed_steps TEXT NOT NULL;
----#
-
----# Updating log_packages db_changes
-ALTER TABLE {$db_prefix}log_packages
-MODIFY COLUMN db_changes TEXT NOT NULL;
----#
-
 ---# Updating log_reported
 ALTER TABLE {$db_prefix}log_reported
 MODIFY COLUMN body MEDIUMTEXT NOT NULL;
@@ -2555,39 +2495,14 @@ ALTER TABLE {$db_prefix}log_spider_hits
 MODIFY COLUMN processed TINYINT NOT NULL DEFAULT '0';
 ---#
 
----# Updating log_subscribed
-ALTER TABLE {$db_prefix}log_subscribed
-MODIFY COLUMN pending_details TEXT NOT NULL;
----#
-
----# Updating mail_queue
-ALTER TABLE {$db_prefix}mail_queue
-MODIFY COLUMN headers TEXT NOT NULL;
----#
-
----# Updating membergroups
-ALTER TABLE {$db_prefix}membergroups
-MODIFY COLUMN description TEXT NOT NULL;
----#
-
 ---# Updating members new_pm
 ALTER TABLE {$db_prefix}members
 MODIFY COLUMN new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
----# Updating members buddy_list
-ALTER TABLE {$db_prefix}members
-MODIFY COLUMN buddy_list TEXT NOT NULL;
----#
-
 ---# Updating members pm_ignore_list
 ALTER TABLE {$db_prefix}members
 MODIFY COLUMN pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '';
----#
-
----# Updating members signature
-ALTER TABLE {$db_prefix}members
-MODIFY COLUMN signature TEXT NOT NULL;
 ---#
 
 ---# Updating member_logins id_member
@@ -2600,29 +2515,9 @@ ALTER TABLE {$db_prefix}member_logins
 MODIFY COLUMN time INT(10) NOT NULL DEFAULT '0';
 ---#
 
----# Updating messages body
-ALTER TABLE {$db_prefix}messages
-MODIFY COLUMN body TEXT NOT NULL;
----#
-
----# Updating personal_messages body
-ALTER TABLE {$db_prefix}personal_messages
-MODIFY COLUMN body TEXT NOT NULL;
----#
-
 ---# Updating pm_recipients is_new
 ALTER TABLE {$db_prefix}pm_recipients
 MODIFY COLUMN is_new TINYINT UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Updating pm_rules actions
-ALTER TABLE {$db_prefix}pm_rules
-MODIFY COLUMN actions TEXT NOT NULL;
----#
-
----# Updating pm_rules criteria
-ALTER TABLE {$db_prefix}pm_rules
-MODIFY COLUMN criteria TEXT NOT NULL;
 ---#
 
 ---# Updating pm_rules id_member
@@ -2643,31 +2538,6 @@ MODIFY COLUMN id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 ---# Updating sessions last_update
 ALTER TABLE {$db_prefix}sessions
 MODIFY COLUMN last_update INT UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Updating sessions data
-ALTER TABLE {$db_prefix}sessions
-MODIFY COLUMN data TEXT NOT NULL;
----#
-
----# Updating settings value
-ALTER TABLE {$db_prefix}settings
-MODIFY COLUMN value TEXT NOT NULL;
----#
-
----# Updating subscriptions cost
-ALTER TABLE {$db_prefix}subscriptions
-MODIFY COLUMN cost TEXT NOT NULL;
----#
-
----# Updating subscriptions email_complete
-ALTER TABLE {$db_prefix}subscriptions
-MODIFY COLUMN email_complete TEXT NOT NULL;
----#
-
----# Updating themes value
-ALTER TABLE {$db_prefix}themes
-MODIFY COLUMN value TEXT NOT NULL;
 ---#
 
 /******************************************************************************/
