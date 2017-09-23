@@ -27,8 +27,7 @@ $txt['smileys_add_upload'] = 'Upload new smiley';
 $txt['smileys_add_upload_choose'] = 'File to upload';
 $txt['smileys_add_upload_choose_desc'] = 'Image to be used by all smiley sets.';
 $txt['smileys_add_upload_all'] = 'Same image for all sets';
-$txt['smileys_add_upload_for1'] = 'Image for the';
-$txt['smileys_add_upload_for2'] = 'set';
+$txt['smileys_add_upload_for'] = 'Image for the %1$s set';
 
 $txt['smileys_enable_note'] = '(otherwise, the default smileys will be used.)';
 $txt['smileys_code'] = 'Code';
