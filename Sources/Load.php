@@ -1717,7 +1717,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// The theme is the forum's default.
 	else
 		$id_theme = $modSettings['theme_guests'];
-	
+
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
