@@ -668,7 +668,6 @@ img.sort, .sort {
 .dropmenu li, #top_info > li {
 	display: inline-block;
 	margin: 0 2px 0 1px;
-	padding: 0 0 0.3em 0;
 	font-size: 0.9em;
 	line-height: 1.9em;
 }
@@ -728,6 +727,10 @@ img.sort, .sort {
 	color: #444;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
 	text-shadow: none;
+}
+
+#main_menu {
+	margin: 0 0 4px 0;
 }
 
 /* User information. */
@@ -1003,7 +1006,7 @@ img.sort, .sort {
 	clear: both;
 }
 #top_info {
-	padding: 5px 9px 4px 9px;
+	padding: 5px 9px 5px 9px;
 	line-height: 1.3em;
 	width: auto;
 }
@@ -1027,7 +1030,7 @@ img.sort, .sort {
 	padding: 4px 0 0 0;
 }
 #search_form {
-	padding: 4px 0 0 0;
+	padding: 3px 0 3px 0;
 	text-align: right;
 	min-width: 30em;
 }
