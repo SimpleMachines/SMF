@@ -1037,7 +1037,7 @@ img.sort, .sort {
 #search_form {
 	padding: 3px 0 3px 0;
 	text-align: right;
-	min-width: 30em;
+	min-width: 25em;
 }
 #search_form input[type="search"], #search_form select, #search_form .button {
 	padding: 2px;
