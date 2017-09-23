@@ -662,7 +662,7 @@ $txt['powered_by_php'] = 'Powered by PHP';
 $txt['powered_by_mysql'] = 'Powered by MySQL';
 $txt['valid_css'] = 'Valid CSS';
 
-// Current footer strings, no longer used
+// Footer strings, no longer used
 $txt['valid_html'] = 'Valid HTML 4.01';
 $txt['valid_xhtml'] = 'Valid XHTML 1.0';
 $txt['wap2'] = 'WAP2';
@@ -676,6 +676,7 @@ $txt['guests'] = 'Guests';
 $txt['user'] = 'User';
 $txt['users'] = 'Users';
 $txt['hidden'] = 'Hidden';
+
 // Plural form of hidden for languages other than English
 $txt['hidden_s'] = 'Hidden';
 $txt['buddy'] = 'Buddy';
