@@ -41,7 +41,7 @@ ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
-	id_member MEDIUMINT(8) NOT NULL DEFAULT '0',
+	id_member MEDIUMINT NOT NULL DEFAULT '0',
 	time INT(10) NOT NULL DEFAULT '0',
 	ip VARBINARY(16) DEFAULT NULL,
 	ip2 VARBINARY(16) DEFAULT NULL,
@@ -480,7 +480,7 @@ elseif (empty($modSettings['json_done']))
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN id_member_acted MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN id_member_acted MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN member_name_acted VARCHAR(255) NOT NULL DEFAULT '',
 ADD COLUMN time_acted INT(10) UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN act_reason TEXT NOT NULL;
@@ -520,7 +520,7 @@ CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL DEFAULT '';
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
 ADD COLUMN redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN id_redirect_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
+ADD COLUMN id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -699,8 +699,8 @@ ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	id_alert INT(10) UNSIGNED AUTO_INCREMENT,
 	alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+	id_member_started MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	member_name VARCHAR(255) NOT NULL DEFAULT '',
 	content_type VARCHAR(255) NOT NULL DEFAULT '',
 	content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -715,7 +715,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 
 ---# Adding alert preferences.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	alert_pref VARCHAR(32) DEFAULT '',
 	alert_value TINYINT(3) NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, alert_pref)
@@ -1186,12 +1186,12 @@ ALTER TABLE `{$db_prefix}members`
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
-	id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
 	id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	type TINYINT(4) NOT NULL DEFAULT '0',
 	poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	subject VARCHAR(255) NOT NULL DEFAULT '',
 	smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
 	body mediumtext NOT NULL,
@@ -1266,7 +1266,7 @@ VALUES
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	content_type CHAR(6) DEFAULT '',
 	content_id INT(10) UNSIGNED DEFAULT '0',
 	like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -1289,7 +1289,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
 	content_type VARCHAR(10) DEFAULT '',
 	id_mentioned INT DEFAULT 0,
-	id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT 0,
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	`time` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned),
 	INDEX idx_content (content_id, content_type),
@@ -1601,7 +1601,7 @@ $request = upgrade_query("
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 	id_label INT(10) UNSIGNED AUTO_INCREMENT,
-	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	name VARCHAR(30) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_label)
 ) ENGINE=MyISAM;
