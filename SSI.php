@@ -25,7 +25,7 @@ global $db_connection, $modSettings, $context, $sc, $user_info, $topic, $board, 
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cachedir;
 
 // Remember the current configuration so it can be set back.
-$time_start = microtime();
+$time_start = microtime(true);
 
 // Just being safe...
 foreach (array('db_character_set', 'cachedir') as $variable)

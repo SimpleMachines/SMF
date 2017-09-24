@@ -124,7 +124,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 		@apache_reset_timeout();
 
 	// Errr, wait.  How much time has this taken already?
-	if (!$force && time() - array_sum(explode(' ', $time_start)) < 3)
+	if (!$force && (time() - $time_start) < 3)
 		return;
 
 	// Restore the query cache if interested.
