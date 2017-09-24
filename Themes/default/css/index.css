@@ -3044,6 +3044,7 @@ div#pollmoderation {
 /* Linked events */
 .event_title {
 	font-size: larger;
+	vertical-align: middle;
 }
 .event_title + a {
 	margin-left: 1em;
@@ -3135,7 +3136,7 @@ div#pollmoderation {
 .messageicon {
 	display: inline-block;
 }
-.messageicon img {
+.messageicon img, #iconList img {
 	vertical-align: middle;
 }
 .keyinfo h5 {
@@ -3409,7 +3410,7 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .icon {
+h3.catbg .generic_icons, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
