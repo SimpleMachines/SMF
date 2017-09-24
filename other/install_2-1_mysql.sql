@@ -794,7 +794,6 @@ CREATE TABLE {$db_prefix}messages (
   PRIMARY KEY (id_msg),
   UNIQUE idx_id_board (id_board, id_msg),
   UNIQUE idx_id_member (id_member, id_msg),
-  UNIQUE idx_id_topic (id_topic, id_msg),
   INDEX idx_approved (approved),
   INDEX idx_ip_index (poster_ip, id_topic),
   INDEX idx_participation (id_member, id_topic),

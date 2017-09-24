@@ -2069,12 +2069,11 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 --- Remove redundant indexes
 /******************************************************************************/
 ---# Duplicates to messages_current_topic
-DROP INDEX id_topic on {$db_prefix}messages;
+DROP INDEX idx_id_topic on {$db_prefix}messages;
 DROP INDEX idx_topic on {$db_prefix}messages;
 ---#
 
 ---# Duplicate to topics_last_message_sticky and topics_board_news
-DROP INDEX id_board on {$db_prefix}topics;
 DROP INDEX idx_id_board on {$db_prefix}topics;
 ---#
 
@@ -2581,4 +2580,19 @@ DROP INDEX ip_index;
 ---# Updating messages drop old related_ip
 ALTER TABLE {$db_prefix}messages
 DROP INDEX related_ip;
+---#
+
+---# Updating messages drop old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX topic;
+---#
+
+---# Updating messages drop another old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX id_topic;
+---#
+
+---# Updating topics drop old id_board ix
+ALTER TABLE {$db_prefix}topics;
+DROP INDEX id_board;
 ---#
