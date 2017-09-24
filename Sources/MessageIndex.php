@@ -65,7 +65,7 @@ function MessageIndex()
 	// View all the topics, or just a few?
 	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
 	$context['messages_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
-	$maxindex = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $board_info['total_topics'] : $context['topics_per_page'];
+	$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $board_info['total_topics'] : $context['topics_per_page'];
 
 	// Right, let's only index normal stuff!
 	if (count($_GET) > 1)
@@ -94,15 +94,15 @@ function MessageIndex()
 
 	// Make sure the starting place makes sense and construct the page index.
 	if (isset($_REQUEST['sort']))
-		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], $maxindex, true);
+		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
 	else
-		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d', $_REQUEST['start'], $board_info['total_topics'], $maxindex, true);
+		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d', $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
 	$context['start'] = &$_REQUEST['start'];
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?board=' . $board . '.' . $context['start'];
 
-	$can_show_all = !empty($modSettings['enableAllMessages']) && $maxindex > $modSettings['enableAllMessages'];
+	$can_show_all = !empty($modSettings['enableAllMessages']) && $context['maxindex'] > $modSettings['enableAllMessages'];
 
 	if (!($can_show_all && isset($_REQUEST['all'])))
 	{
@@ -122,7 +122,7 @@ function MessageIndex()
 
 	if (isset($_REQUEST['all']) && $can_show_all)
 	{
-		$maxindex = $modSettings['enableAllMessages'];
+		$context['maxindex'] = $modSettings['enableAllMessages'];
 		$_REQUEST['start'] = 0;
 	}
 
@@ -257,6 +257,9 @@ function MessageIndex()
 	$context['sort_direction'] = $ascending ? 'up' : 'down';
 	$txt['starter'] = $txt['started_by'];
 
+	// Bring in any changes we want to make before the query.
+	call_integration_hook('integrate_pre_messageindex', array(&$sort_methods));
+
 	foreach ($sort_methods as $key => $val)
 		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="sort sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
 
@@ -266,8 +269,8 @@ function MessageIndex()
 	{
 		$ascending = !$ascending;
 		$fake_ascending = true;
-		$maxindex = $board_info['total_topics'] < $start + $maxindex + 1 ? $board_info['total_topics'] - $start : $maxindex;
-		$start = $board_info['total_topics'] < $start + $maxindex + 1 ? 0 : $board_info['total_topics'] - $start - $maxindex;
+		$context['maxindex'] = $board_info['total_topics'] < $start + $context['maxindex'] + 1 ? $board_info['total_topics'] - $start : $context['maxindex'];
+		$start = $board_info['total_topics'] < $start + $context['maxindex'] + 1 ? 0 : $board_info['total_topics'] - $start - $context['maxindex'];
 	}
 	else
 		$fake_ascending = false;
@@ -282,8 +285,21 @@ function MessageIndex()
 
 	// Sequential pages are often not optimized, so we add an additional query.
 	$pre_query = $start > 0;
-	if ($pre_query && $maxindex > 0)
+	if ($pre_query && $context['maxindex'] > 0)
 	{
+		$message_pre_index_parameters = array(
+			'current_board' => $board,
+			'current_member' => $user_info['id'],
+			'is_approved' => 1,
+			'id_member_guest' => 0,
+			'start' => $start,
+			'maxindex' => $context['maxindex'],
+			'sort' => $_REQUEST['sort'],
+		);
+		$message_pre_index_tables = array();
+		$message_pre_index_wheres = array();
+		call_integration_hook('integrate_message_pre_index', array(&$message_pre_index_tables, &$message_pre_index_parameters, &$message_pre_index_wheres));
+
 		$request = $smcFunc['db_query']('', '
 			SELECT t.id_topic
 			FROM {db_prefix}topics AS t' . ($context['sort_by'] === 'last_poster' ? '
@@ -291,19 +307,13 @@ function MessageIndex()
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)' : '')) . ($context['sort_by'] === 'starter' ? '
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' : '') . ($context['sort_by'] === 'last_poster' ? '
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
+				' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 			WHERE t.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
+				' . (!empty($message_pre_index_wheres) ? 'AND ' . implode("\n\t\t\t\tAND ", $message_pre_index_wheres) : '') . '
 			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {raw:sort}' . ($ascending ? '' : ' DESC') . '
 			LIMIT {int:start}, {int:maxindex}',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-				'is_approved' => 1,
-				'id_member_guest' => 0,
-				'start' => $start,
-				'maxindex' => $maxindex,
-				'sort' => $_REQUEST['sort'],
-			)
+			$message_pre_index_parameters
 		);
 		$topic_ids = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -323,11 +333,12 @@ function MessageIndex()
 			'is_approved' => 1,
 			'find_set_topics' => implode(',', $topic_ids),
 			'start' => $start,
-			'maxindex' => $maxindex,
+			'maxindex' => $context['maxindex'],
 		);
 		$message_index_selects = array();
 		$message_index_tables = array();
-		call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters));
+		$message_index_wheres = array();
+		call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
 
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
@@ -352,9 +363,10 @@ function MessageIndex()
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
-				' . (!empty($message_index_tables) ? implode("\n\t", $message_index_tables) : '') . '
+				' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
+				' . (!empty($message_index_wheres) ? 'AND ' . implode("\n\t\t\t\tAND ", $message_index_wheres) : '') . '
 			ORDER BY ' . ($pre_query ? 'FIND_IN_SET(t.id_topic, {string:find_set_topics})' : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
 			LIMIT ' . ($pre_query ? '' : '{int:start}, ') . '{int:maxindex}',
 			$message_index_parameters
