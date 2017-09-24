@@ -353,7 +353,7 @@ CREATE TABLE {$db_prefix}log_errors (
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
-  ip VARBINARY(16) NOT NULL,
+  ip VARBINARY(16),
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   log_type VARCHAR(8) DEFAULT 'post',
   PRIMARY KEY (ip, log_type(8))

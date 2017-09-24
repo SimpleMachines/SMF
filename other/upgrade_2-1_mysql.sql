@@ -2310,7 +2310,7 @@ if ($doChange)
 ---#
 
 ---# Add the new floodcontrol ip column
-ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null;
+ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
 ---#
 
 ---# Create primary key for floodcontrol
