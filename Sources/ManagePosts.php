@@ -60,7 +60,7 @@ function ManagePostSettings()
 				'description' => $txt['manageposts_topic_settings_description'],
 			),
 			'drafts' => array(
-				'description' => $txt['drafts_show_desc'],
+				'description' => $txt['managedrafts_settings_description'],
 			),
 		),
 	);

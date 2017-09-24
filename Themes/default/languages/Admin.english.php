@@ -18,7 +18,6 @@ $txt['admin_censored_words'] = 'Censored Words';
 $txt['admin_censored_where'] = 'Put the word to be censored on the left, and what to change it to on the right.';
 $txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br>Clear a box to remove that word from the censor.';
 $txt['admin_reserved_names'] = 'Reserved Names';
-$txt['admin_template_edit'] = 'Edit your forum template';
 $txt['admin_modifications'] = 'Modification Settings';
 $txt['admin_server_settings'] = 'Server Settings';
 $txt['admin_reserved_set'] = 'Set reserved names';
@@ -30,7 +29,6 @@ $txt['cookie_name'] = 'Cookie name';
 $txt['admin_webmaster_email'] = 'Webmaster email address';
 $txt['cachedir'] = 'Cache Directory';
 $txt['admin_news'] = 'Enable News';
-$txt['admin_guest_post'] = 'Enable guest posting';
 $txt['admin_manage_members'] = 'Members';
 $txt['admin_main'] = 'Main';
 $txt['admin_config'] = 'Configuration';
@@ -39,7 +37,6 @@ $txt['admin_smffile'] = 'SMF File';
 $txt['admin_smfpackage'] = 'SMF Package';
 $txt['admin_logoff'] = 'End Admin Session';
 $txt['admin_maintenance'] = 'Maintenance';
-$txt['admin_image_text'] = 'Show buttons as images instead of text';
 $txt['admin_credits'] = 'Credits';
 $txt['admin_agreement'] = 'Show and require agreement letter when registering';
 $txt['admin_agreement_default'] = 'Default';
@@ -52,13 +49,11 @@ $txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can 
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
-$txt['admin_activation_email'] = 'Send activation email to new members upon registration';
 $txt['admin_match_whole'] = 'Match whole name only. If unchecked, search within names.';
 $txt['admin_match_case'] = 'Match case. If unchecked, search will be case insensitive.';
 $txt['admin_check_user'] = 'Check username.';
 $txt['admin_check_display'] = 'Check display name.';
-$txt['admin_newsletter_send'] = 'You can email anyone from this page. The email addresses of the selected membergroups should appear below, but you may remove or add any email addresses you wish. Be sure that each address is separated in this fashion: \'address1; address2\'.';
-$txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
+$txt['admin_fader_delay'] = 'Fading delay between items for the news fader, in milliseconds';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
@@ -92,7 +87,6 @@ $txt['attachmentdir_files_current'] = 'Total files in current attachment directo
 $txt['attachment_space'] = 'Total space available';
 $txt['attachment_files'] = 'Total files remaining';
 
-$txt['attachment_options'] = 'File Attachment Options';
 $txt['attachment_log'] = 'Attachment Log';
 $txt['attachment_remove_old'] = 'Remove attachments older than';
 $txt['attachment_remove_size'] = 'Remove attachments larger than';
@@ -103,7 +97,6 @@ $txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set'
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
 $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear Log';
-$txt['approve_new_members'] = 'Admin must approve all new members';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
 
 $txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank">www.simplemachines.org</a>.';
@@ -118,7 +111,6 @@ $txt['smileys_manage'] = 'Smileys and Message Icons';
 $txt['theme_admin'] = 'Themes and Layout';
 $txt['registration_center'] = 'Registration';
 
-$txt['viewmembers_name'] = 'Username (display name)';
 $txt['viewmembers_online'] = 'Last Online';
 $txt['viewmembers_today'] = 'Today';
 $txt['viewmembers_day_ago'] = 'day ago';
@@ -132,7 +124,6 @@ $txt['member_id'] = 'ID';
 $txt['unknown'] = 'unknown';
 $txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referrer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
 
-$txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
 $txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
@@ -145,9 +136,6 @@ $txt['warnings'] = 'Warnings';
 $txt['warnings_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
 
 $txt['ban_title'] = 'Ban List';
-$txt['ban_ip'] = 'IP banning: (e.g. 192.168.12.213 or 128.0.*.*) - one entry per line';
-$txt['ban_email'] = 'Email banning: (e.g. badguy@somewhere.com) - one entry per line';
-$txt['ban_username'] = 'User name banning: (e.g. l33tuser) - one entry per line';
 
 $txt['ban_errors_detected'] = 'The following error or errors occurred while saving or editing the ban';
 $txt['ban_description'] = 'Here you can ban troublesome people either by IP, hostname, username, or email.';
@@ -279,7 +267,6 @@ $txt['admin_confirm_password'] = '(confirm)';
 $txt['admin_incorrect_password'] = 'Incorrect Password';
 
 $txt['date_format'] = '(YYYY-MM-DD)';
-$txt['undefined_gender'] = 'Undefined';
 $txt['age'] = 'User age';
 $txt['activation_status'] = 'Activation Status';
 $txt['activated'] = 'Activated';
@@ -297,7 +284,6 @@ $txt['support_credits_title'] = 'Support and Credits';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
-$txt['support_versions_php'] = 'PHP version';
 $txt['support_versions_db'] = '%1$s version';
 $txt['support_versions_db_engine'] = '%1$s engine';
 $txt['support_versions_server'] = 'Server version';
@@ -358,7 +344,6 @@ $txt['attachment_img_enc_warning'] = 'Neither the GD module nor the IMagick or M
 $txt['attachment_postsize_warning'] = 'The current php.ini setting \'post_max_size\' may not support this.';
 $txt['attachment_filesize_warning'] = 'The current php.ini setting \'upload_max_filesize\' may not support this.';
 $txt['attachment_image_reencode'] = 'Re-encode potentially dangerous image attachments';
-$txt['attachment_image_reencode_note'] = '(requires GD module or ImageMagick with IMagick or MagickWand extension)';
 $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected attachments.';
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
@@ -469,7 +454,6 @@ $txt['avatar_upload_groups'] = 'Membergroups allowed to upload an avatar to the 
 $txt['avatar_external_url_groups'] = 'Membergroups allowed to select an external URL';
 $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
-$txt['option_attachment_dir'] = 'Attachment directory';
 $txt['option_specified_dir'] = 'Specific directory...';
 $txt['custom_avatar_dir_wrong'] = 'The Attachments directory is not valid. This will prevent attachments from working properly.';
 $txt['custom_avatar_dir'] = 'Upload directory';
@@ -477,7 +461,6 @@ $txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory,
 $txt['custom_avatar_url'] = 'Upload URL';
 $txt['custom_avatar_check_empty'] = 'The custom avatar directory you have specified may be empty or invalid. Please ensure these settings are correct.';
 $txt['avatar_reencode'] = 'Re-encode potentially dangerous avatars';
-$txt['avatar_reencode_note'] = '(requires GD module or ImageMagick with IMagick or MagickWand extension)';
 $txt['avatar_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected avatars.';
 $txt['avatar_paranoid'] = 'Perform extensive security checks on uploaded avatars';
 $txt['gravatar_settings'] = 'Gravatars (Globally Recognized Avatars)';
@@ -516,7 +499,6 @@ $txt['attach_repair_files_without_attachment'] = '%1$d files do not have a corre
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';
-$txt['news_settings_submit'] = 'Save';
 $txt['news_mailing_desc'] = 'From this menu you can send messages to all members who\'ve registered and entered their email addresses. You may edit the distribution list, or send messages to all. Useful for important update/news information.';
 $txt['news_error_no_news'] = 'Nothing written';
 $txt['groups_edit_news'] = 'Groups allowed to edit news items';
@@ -552,20 +534,16 @@ $txt['manageposts_topics'] = 'topics';
 
 $txt['manageposts_settings'] = 'Post Settings';
 $txt['manageposts_settings_description'] = 'Here you can set everything related to posts and posting.';
-$txt['manageposts_settings_submit'] = 'Save';
 
 $txt['manageposts_bbc_settings'] = 'Bulletin Board Code';
 $txt['manageposts_bbc_settings_description'] = 'Bulletin board code can be used to add markup to forum messages. For example, to highlight the word \'house\' you can type [b]house[/b]. All Bulletin board code tags are surrounded by square brackets (\'[\' and \']\').';
 $txt['manageposts_bbc_settings_title'] = 'Bulletin Board Code settings';
-$txt['manageposts_bbc_settings_submit'] = 'Save';
 
 $txt['manageposts_topic_settings'] = 'Topic Settings';
 $txt['manageposts_topic_settings_description'] = 'Here you can set all settings involving topics.';
-$txt['manageposts_topic_settings_submit'] = 'Save';
 
 $txt['managedrafts_settings'] = 'Draft Settings';
 $txt['managedrafts_settings_description'] = 'Here you can set all settings involving drafts.';
-$txt['managedrafts_submit'] = 'Save';
 $txt['manage_drafts'] = 'Drafts';
 
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
