@@ -2593,6 +2593,6 @@ DROP INDEX id_topic;
 ---#
 
 ---# Updating topics drop old id_board ix
-ALTER TABLE {$db_prefix}topics;
+ALTER TABLE {$db_prefix}topics
 DROP INDEX id_board;
 ---#
