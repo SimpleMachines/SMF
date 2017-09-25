@@ -122,9 +122,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			$smcFunc['db_drop_table']($table_name);
 		else if ($if_exists == 'update')
 		{
+			$smcFunc['db_drop_table']($table_name.'_old');
 			$smcFunc['db_transaction']('begin');
 			$db_trans = true;
-			$smcFunc['db_drop_table']($table_name.'_old');
 			$smcFunc['db_query']('','
 				ALTER TABLE '. $table_name .' RENAME TO ' . $table_name . '_old',
 				array(
@@ -239,8 +239,6 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			FROM ' . $table_name . '_old',
 			array()
 		);
-
-		$smcFunc['db_drop_table']($table_name . '_old');
 	}
 
 	// And the indexes...
@@ -253,6 +251,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 	// Go, go power rangers!
 	$smcFunc['db_transaction']('commit');
+
+	if ($old_table_exists)
+		$smcFunc['db_drop_table']($table_name . '_old');
 
 	return true;
 }
