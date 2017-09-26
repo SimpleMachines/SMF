@@ -16,10 +16,6 @@
 		padding: 0;
 		margin: 0 auto;
 	}
-	.button {
-		min-width: 15%;
-		margin: 0 0 0 2px;
-	}
 	h1.forumtitle a, h1.forumtitle {
 		padding: 5px 0 0 4px !important;
 		max-width: 300px;
@@ -28,8 +24,20 @@
 	span.board_moderators {
 		display: none !important;
 	}
+	#top_info {
+		width: 100%;
+	}
+	#pm_menu, #alerts_menu, #profile_menu {
+		left: 0;
+		right: 0;
+		width: 95%;
+		max-width: 100%;
+	}
+	#profile_menu {
+		width: 100%;
+	}
 	#pm_menu, #alerts_menu {
-		left: 5%;
+		padding-right: 9px;
 	}
 	#main_menu, .generic_menu {
 		display: none;
@@ -462,9 +470,6 @@
 	}
 	.login {
 		width: 100%;
-	}
-	.top_menu {
-		width: 23em !important;
 	}
 	.unread_links {
 		width: 95%;
