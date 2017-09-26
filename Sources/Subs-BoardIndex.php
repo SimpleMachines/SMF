@@ -133,6 +133,7 @@ function getBoardIndex($boardIndexOptions)
 				$this_category[$row_board['id_board']] = array(
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
+					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
 					'name' => $row_board['board_name'],
 					'description' => $row_board['description'],
 					'moderators' => array(),
