@@ -2490,6 +2490,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			}
 		}
 
+		// Can't read past the end of the message
+		$pos1 = min(strlen($message), $pos1);
+
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))
 		{
@@ -6011,7 +6014,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 
 /**
  * Check if the passed url has a redirect to https:// by querying headers.
- * 
+ *
  * Returns true if a redirect was found & false if not.
  * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
  * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
@@ -6026,11 +6029,11 @@ function https_redirect_active($url) {
 	if ($headers === false)
 		return false;
 
-	// Now to see if it came back https...   
+	// Now to see if it came back https...
 	// First check for a redirect status code in first row (301, 302, 307)
 	if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false)
 		return false;
-	
+
 	// Search for the location entry to confirm https
 	$result = false;
 	foreach ($headers as $header) {
@@ -6039,7 +6042,7 @@ function https_redirect_active($url) {
 			break;
 		}
 	}
-	return $result;		
+	return $result;
 }
 
 ?>
