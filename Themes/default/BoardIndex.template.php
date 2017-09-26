@@ -132,7 +132,7 @@ function template_main()
 }
 
 /**
- * Outs the board icon for a standard board.
+ * Outputs the board icon for a standard board.
  *
  * @param array $board Current board information.
  */
@@ -145,7 +145,7 @@ function template_bi_board_icon($board)
 }
 
 /**
- * Outs the board icon for a redirect.
+ * Outputs the board icon for a redirect.
  *
  * @param array $board Current board information.
  */
@@ -158,7 +158,7 @@ function template_bi_redirect_icon($board)
 }
 
 /**
- * Outs the board info for a standard board or redirect.
+ * Outputs the board info for a standard board or redirect.
  *
  * @param array $board Current board information.
  */
@@ -187,7 +187,7 @@ function template_bi_board_info($board)
 }
 
 /**
- * Outs the board stats for a standard board.
+ * Outputs the board stats for a standard board.
  *
  * @param array $board Current board information.
  */
@@ -202,7 +202,7 @@ function template_bi_board_stats($board)
 }
 
 /**
- * Outs the board stats for a redirect.
+ * Outputs the board stats for a redirect.
  *
  * @param array $board Current board information.
  */
@@ -216,8 +216,8 @@ function template_bi_redirect_stats($board)
 }
 
 /**
- * Outs the board lastposts for a standard board or a redirect.
- * This gets hidden on mobile if $board['last_post']['id'] is empty by the main template.
+ * Outputs the board lastposts for a standard board or a redirect.
+ * When on a mobile device, this may be hidden if no last post exists.
  *
  * @param array $board Current board information.
  */
@@ -229,7 +229,7 @@ function template_bi_board_lastpost($board)
 }
 
 /**
- * Outs the board children for a standard board.
+ * Outputs the board children for a standard board.
  *
  * @param array $board Current board information.
  */
