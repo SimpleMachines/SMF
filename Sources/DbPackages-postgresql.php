@@ -83,7 +83,7 @@ function db_packages_init()
  *  	- 'ignore' will do nothing if the table exists. (And will return true)
  *  	- 'overwrite' will drop any existing table of the same name.
  *  	- 'error' will return false if the table already exists.
- *		- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
+ *  	- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
  *
  * @param string $table_name The name of the table to create
  * @param array $columns An array of column info in the specified format
