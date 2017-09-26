@@ -30,7 +30,8 @@
 	#pm_menu, #alerts_menu, #profile_menu {
 		left: 0;
 		right: 0;
-		width: 95%;
+		border-radius: 0;
+		width: calc(100% - 17px);
 		max-width: 100%;
 	}
 	#profile_menu {
