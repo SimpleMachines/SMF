@@ -3013,12 +3013,12 @@ function template_tfasetup()
 			($modSettings['tfa_mode'] == 2 ? '
 									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
-									<div id="basicinfo" style="width: 60%">
+									<div class="floatleft">
 										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
 											<div class="title_top">
 												<strong>', $txt['tfa_step1'], '</strong><br>
 												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
-												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
+												<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
 											</div>
 											<div class="title_top">
 												<strong>', $txt['tfa_step2'], '</strong>
@@ -3028,17 +3028,16 @@ function template_tfasetup()
 											<div class="title_top">
 												<strong>', $txt['tfa_step3'], '</strong><br>
 												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
-												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
-												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button" style="float: none;" />
+												<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
+												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
 											</div>
 											<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
 											<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 										</form>
 									</div>
-									<div id="detailedinfo" style="width: 30%;">
-										<img src="', $context['tfa_qr_url'], '" alt="" style="max-width: 120px;" />
-									</div>
-									<div class="clear"></div>';
+									<div class="floatright tfa_qrcode">
+										<img src="', $context['tfa_qr_url'], '" alt="">
+									</div>';
 
 	if (!empty($context['from_ajax']))
 		echo '

@@ -3813,7 +3813,16 @@ input[name="attachBBC"] {
 .tfacode {
 	background: #d0e7f8;
 	padding: 5px;
-	width: 20%;
+	display: inline-block;
+}
+
+/* TFA QR block */
+.tfa_qrcode {
+	padding: 6% 8%;
+}
+
+.tfa_qrcode img {
+	width: 140px;
 }
 
 /* This was named as "winfo" before, but its better named noup */
