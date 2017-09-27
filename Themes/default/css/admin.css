@@ -552,9 +552,9 @@ ul.theme_options li {
 	margin: -2px 3px 0 0;
 }
 .edit_file {
-	width: 96%;
+	width: 100%;
 	font-family: monospace;
-	margin-top: 1ex;
+	margin: 1ex 0;
 	white-space: pre;
 }
 
@@ -658,4 +658,12 @@ h3.config_hd {
 .windowbg.highlight2,
 .windowbg2.highlight2 {
 	background: #d0e7f8;
+}
+
+/* Css edit page */
+#css_preview_box {
+	margin-bottom: 2ex;
+	border: 1px solid #777;
+	width: 100%;
+	height: 400px;
 }

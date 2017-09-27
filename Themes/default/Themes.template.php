@@ -1107,7 +1107,7 @@ function template_edit_style()
 				}
 			}
 		</script>
-		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" width="99%" height="300" frameborder="0" style="display: none; margin-bottom: 2ex; border: 1px solid black;"></iframe>';
+		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" frameborder="0" style="display: none;"></iframe>';
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
@@ -1122,9 +1122,10 @@ function template_edit_style()
 				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br>';
 
 	echo '
-				<textarea name="entire_file" cols="80" rows="20" style="width: 96%; font-family: monospace; margin-top: 1ex; white-space: pre;" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea><br>
+				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea>
+				<br>
 				<div class="padding righttext">
-					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' style="margin-top: 1ex;" class="button">
+					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 					<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button">
 				</div>
 			</div>
