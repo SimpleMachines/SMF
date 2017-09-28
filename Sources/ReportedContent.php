@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -87,7 +87,7 @@ function ReportedContent()
  */
 function ShowReports()
 {
-	global $context, $txt, $scripturl;
+	global $context, $scripturl;
 
 	// Showing closed or open ones? regardless, turn this to an integer for better handling.
 	$context['view_closed'] = 0;
@@ -140,7 +140,7 @@ function ShowReports()
  */
 function ShowClosedReports()
 {
-	global $context, $txt, $scripturl;
+	global $context, $scripturl;
 
 	// Showing closed ones.
 	$context['view_closed'] = 1;

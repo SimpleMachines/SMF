@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -449,13 +449,13 @@ function EditSmileySets()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
+						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]">', $rowData['id']);
 					},
 					'class' => 'centercol',
 				),
@@ -468,11 +468,11 @@ function EditSmileySets()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_table_headers',
-				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button_submit you_sure"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button_submit you_sure"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button you_sure"> <a class="button" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 		),
 	);
@@ -1058,12 +1058,12 @@ function EditSmileys()
 				),
 				'check' => array(
 					'header' => array(
-						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d" class="input_check">',
+							'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d">',
 							'params' => array(
 								'id_smiley' => false,
 							),
@@ -1094,7 +1094,7 @@ function EditSmileys()
 							<option value="delete">' . $txt['smileys_remove'] . '</option>
 						</select>
 						<noscript>
-							<input type="submit" name="perform_action" value="' . $txt['go'] . '" class="button_submit">
+							<input type="submit" name="perform_action" value="' . $txt['go'] . '" class="button">
 						</noscript>',
 					'class' => 'righttext',
 				),
@@ -1435,7 +1435,8 @@ function InstallSmileySet()
 		$context['filename'] = $base_name;
 
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
-		if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
+		// @ TODO: Our current xml files serve http links.  Allowing both for now until we serve https.
+		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
 			fatal_lang_error('not_on_simplemachines');
 
 		$destination = $packagesdir . '/' . $base_name;
@@ -1480,7 +1481,7 @@ function InstallSmileySet()
 
 	$extracted = read_tgz_file($destination, $packagesdir . '/temp');
 	if (!$extracted)
-		fatal_lang_error('packageget_unable', false, array('http://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
+		fatal_lang_error('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
 	if ($extracted && !file_exists($packagesdir . '/temp/package-info.xml'))
 		foreach ($extracted as $file)
 			if (basename($file['filename']) == 'package-info.xml')
@@ -1514,13 +1515,12 @@ function InstallSmileySet()
 	);
 
 	if ($smcFunc['db_num_rows']($request) > 0)
-		fata_lang_error('package_installed_warning1');
+		fatal_lang_error('package_installed_warning1');
 
 	// Everything is fine, now it's time to do something
 	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
 
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
-	$has_readme = false;
 	$context['has_failure'] = false;
 	$context['actions'] = array();
 	$context['ftp_needed'] = false;
@@ -1529,7 +1529,6 @@ function InstallSmileySet()
 	{
 		if ($action['type'] == 'readme' || $action['type'] == 'license')
 		{
-			$has_readme = true;
 			$type = 'package_' . $action['type'];
 			if (file_exists($packagesdir . '/temp/' . $base_path . $action['filename']))
 				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($packagesdir . '/temp/' . $base_path . $action['filename']), "\n\r"));
@@ -1594,6 +1593,7 @@ function InstallSmileySet()
 	// Do the actual install
 	else
 	{
+		// @TODO Does this call have side effects? ($actions is not used)
 		$actions = parsePackageInfo($smileyInfo['xml'], false, 'install');
 		foreach ($context['actions'] as $action)
 		{
@@ -1606,7 +1606,7 @@ function InstallSmileySet()
 		package_flush_cache();
 
 		// Credits tag?
-		$credits_tag = (empty($credits_tag)) ? '' : json_encode($credits_tag);
+		$credits_tag = (empty($credits_tag)) ? '' : $smcFunc['json_encode']($credits_tag);
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_packages',
 			array(
@@ -1745,7 +1745,7 @@ function EditMessageIcons()
 	$smcFunc['db_free_result']($request);
 
 	// Submitting a form?
-	if (isset($_POST['icons_save']))
+	if (isset($_POST['icons_save']) || isset($_POST['delete']))
 	{
 		checkSession();
 
@@ -1917,12 +1917,12 @@ function EditMessageIcons()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d">',
 						'params' => array(
 							'id_icon' => false,
 						),
@@ -1937,7 +1937,7 @@ function EditMessageIcons()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=editicon">' . $txt['icons_add_new'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=smileys;sa=editicon">' . $txt['icons_add_new'] . '</a>',
 			),
 		),
 	);

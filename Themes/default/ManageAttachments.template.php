@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -67,7 +67,7 @@ function template_maintenance()
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
-				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button_submit">
+				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button">
 			</form>
 		</div>
 		<div class="cat_bar">
@@ -77,10 +77,10 @@ function template_maintenance()
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_old'], '</dt>
-					<dd><input type="number" name="age" value="25" size="4" class="input_text"> ', $txt['days_word'], '</dd>
+					<dd><input type="number" name="age" value="25" size="4"> ', $txt['days_word'], '</dd>
 					<dt>', $txt['attachment_pruning_message'], '</dt>
-					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"></dd>
-					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40"></dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="byAge">
@@ -89,10 +89,10 @@ function template_maintenance()
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_size'], '</dt>
-					<dd><input type="number" name="size" id="size" value="100" size="4" class="input_text"> ', $txt['kilobyte'], '</dd>
+					<dd><input type="number" name="size" id="size" value="100" size="4"> ', $txt['kilobyte'], '</dd>
 					<dt>', $txt['attachment_pruning_message'], '</dt>
-					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"></dd>
-					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<dd><input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40"></dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="bySize">
@@ -101,8 +101,8 @@ function template_maintenance()
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
 				<dl class="settings">
 					<dt>', $txt['attachment_manager_avatars_older'], '</dt>
-					<dd><input type="number" name="age" value="45" size="4" class="input_text"> ', $txt['days_word'], '</dd>
-					<input type="submit" name="remove" value="', $txt['remove'], '" class="button_submit">
+					<dd><input type="number" name="age" value="45" size="4"> ', $txt['days_word'], '</dd>
+					<input type="submit" name="remove" value="', $txt['remove'], '" class="button">
 					<input type="hidden" name="type" value="avatars">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="byAge">
@@ -166,7 +166,7 @@ function template_maintenance()
 	echo '
 					</dl>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button_submit">
+					<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button">
 					<div id="progress_msg"></div>
 					<div id="show_progress" class="padding"></div>
 				</form>
@@ -240,13 +240,13 @@ function template_attachment_repair()
 		{
 			if (!empty($number))
 			echo '
-				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '" class="input_check">
+				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
 				<label for="', $error, '">', sprintf($txt['attach_repair_' . $error], $number), '</label><br>';
 		}
 
 		echo '		<br>
-				<input type="submit" value="', $txt['repair_attachments_continue'], '" class="button_submit">
-				<input type="submit" name="cancel" value="', $txt['repair_attachments_cancel'], '" class="button_submit">
+				<input type="submit" value="', $txt['repair_attachments_continue'], '" class="button">
+				<input type="submit" name="cancel" value="', $txt['repair_attachments_cancel'], '" class="button">
 			</div>
 		</form>
 	</div>';

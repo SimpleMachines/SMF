@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -135,7 +135,7 @@ function MoveTopic()
  */
 function MoveTopic2()
 {
-	global $txt, $board, $topic, $scripturl, $sourcedir, $modSettings, $context;
+	global $txt, $topic, $scripturl, $sourcedir, $context;
 	global $board, $language, $user_info, $smcFunc;
 
 	if (empty($topic))

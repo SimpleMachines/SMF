@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -340,7 +340,7 @@ function issueWarning($memID)
 						if (!empty($warning['id_notice']))
 							$ret .= '
 						<div class="floatright">
-							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>
+							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>
 						</div>';
 
 						return $ret;
@@ -734,7 +734,7 @@ function subscriptions($memID)
 	foreach ($context['subscriptions'] as $id => $sub)
 	{
 		// Work out the costs.
-		$costs = smf_json_decode($sub['real_cost'], true);
+		$costs = $smcFunc['json_decode']($sub['real_cost'], true);
 
 		$cost_array = array();
 		if ($sub['real_length'] == 'F')
@@ -815,7 +815,7 @@ function subscriptions($memID)
 		if (isset($context['current'][$_GET['sub_id']]))
 		{
 			// What are the details like?
-			$current_pending = smf_json_decode($context['current'][$_GET['sub_id']]['pending_details'], true);
+			$current_pending = $smcFunc['json_decode']($context['current'][$_GET['sub_id']]['pending_details'], true);
 			if (!empty($current_pending))
 			{
 				$current_pending = array_reverse($current_pending);
@@ -830,7 +830,7 @@ function subscriptions($memID)
 				}
 
 				// Save the details back.
-				$pending_details = json_encode($current_pending);
+				$pending_details = $smcFunc['json_encode']($current_pending);
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_subscribed
@@ -913,7 +913,7 @@ function subscriptions($memID)
 			// What are the details like?
 			$current_pending = array();
 			if ($context['current'][$context['sub']['id']]['pending_details'] != '')
-				$current_pending = smf_json_decode($context['current'][$context['sub']['id']]['pending_details'], true);
+				$current_pending = $smcFunc['json_decode']($context['current'][$context['sub']['id']]['pending_details'], true);
 			// Don't get silly.
 			if (count($current_pending) > 9)
 				$current_pending = array();
@@ -926,7 +926,7 @@ function subscriptions($memID)
 			if (!in_array($new_data, $current_pending))
 			{
 				$current_pending[] = $new_data;
-				$pending_details = json_encode($current_pending);
+				$pending_details = $smcFunc['json_encode']($current_pending);
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_subscribed
@@ -946,7 +946,7 @@ function subscriptions($memID)
 		// Never had this before, lovely.
 		else
 		{
-			$pending_details = json_encode(array($new_data));
+			$pending_details = $smcFunc['json_encode'](array($new_data));
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_subscribed',
 				array(

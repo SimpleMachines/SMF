@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -527,7 +527,7 @@ function GroupRequests()
 			$smcFunc['db_free_result']($request);
 
 			// Add a background task to handle notifying people of this request
-			$data = json_encode(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
+			$data = $smcFunc['json_encode'](array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
@@ -622,13 +622,13 @@ function GroupRequests()
 			),
 			'action' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="groupr[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="groupr[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -657,7 +657,7 @@ function GroupRequests()
 						<option value="reject">' . $txt['mc_groupr_reject'] . '</option>
 						<option value="reason">' . $txt['mc_groupr_reject_w_reason'] . '</option>
 					</select>
-					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button_submit">',
+					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button">',
 				'class' => 'floatright',
 			),
 		),

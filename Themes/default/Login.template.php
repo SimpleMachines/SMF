@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -41,23 +41,23 @@ function template_login()
 	echo '
 					<dl>
 						<dt>', $txt['username'], ':</dt>
-						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
+						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '"></dd>
 						<dt>', $txt['password'], ':</dt>
-						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
+						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20"></dd>
 					</dl>
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
-						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1"></dd>
+						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' min="1"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
-						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
+						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' onclick="this.form.cookielength.disabled = this.checked;"></dd>';
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset($context['login_show_undelete']))
 		echo '
 						<dt class="alert">', $txt['undelete_account'], ':</dt>
-						<dd><input type="checkbox" name="undelete" class="input_check"></dd>';
+						<dd><input type="checkbox" name="undelete"></dd>';
 	echo '
 					</dl>
-					<p><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
+					<p><input type="submit" value="', $txt['login'], '" class="button"></p>
 					<p class="smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -120,7 +120,7 @@ function template_login()
  */
 function template_login_tfa()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<div class="login">
@@ -139,18 +139,18 @@ function template_login_tfa()
 						', $txt['tfa_login_desc'], '<br>
 						<div>
 							<strong>', $txt['tfa_code'], ':</strong>
-							<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
-							<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br />
-						</div><br />
+							<input type="text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
+							<input type="submit" class="button" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br>
+						</div><br>
 						<div><input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/><label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label></div>
-						<hr />
-						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
+						<hr>
+						<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
 					</div>
 					<div id="tfaBackup" style="display: none;">
 						', $txt['tfa_backup_desc'], '<br>
 						<strong>', $txt['tfa_backup_code'], ': </strong>
-						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
-						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
+						<input type="text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
+						<input type="submit" class="button" name="submit" value="', $txt['login'], '">
 					</div>
 				</form>
 				<script>
@@ -221,15 +221,15 @@ function template_kick_guest()
 			<div class="roundframe noup">
 				<dl>
 					<dt>', $txt['username'], ':</dt>
-					<dd><input type="text" name="user" size="20" class="input_text"></dd>
+					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
+					<dd><input type="password" name="passwrd" size="20"></dd>
 					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
+					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
 					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp" class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>
+					<dd><input type="checkbox" name="cookieneverexp" onclick="this.form.cookielength.disabled = this.checked;"></dd>
 				</dl>
-				<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
+				<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button"></p>
 				<p class="centertext smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -269,15 +269,15 @@ function template_maintenance()
 		<div class="roundframe">
 			<dl>
 				<dt>', $txt['username'], ':</dt>
-				<dd><input type="text" name="user" size="20" class="input_text"></dd>
+				<dd><input type="text" name="user" size="20"></dd>
 				<dt>', $txt['password'], ':</dt>
-				<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
+				<dd><input type="password" name="passwrd" size="20"></dd>
 				<dt>', $txt['mins_logged_in'], ':</dt>
-				<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
+				<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
 				<dt>', $txt['always_logged_in'], ':</dt>
-				<dd><input type="checkbox" name="cookieneverexp" class="input_check"></dd>
+				<dd><input type="checkbox" name="cookieneverexp"></dd>
 			</dl>
-			<input type="submit" value="', $txt['login'], '" class="button_submit">
+			<input type="submit" value="', $txt['login'], '" class="button">
 			<br class="clear">
 		</div>
 		<input type="hidden" name="hash_passwrd" value="">
@@ -311,11 +311,11 @@ function template_admin_login()
 
 	echo '
 			<strong>', $txt['password'], ':</strong>
-			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
+			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24">
 			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
-			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';
+			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
@@ -351,13 +351,13 @@ function template_retry_activate()
 		echo '
 				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
-					<dd><input type="text" name="user" size="30" class="input_text"></dd>';
+					<dd><input type="text" name="user" size="30"></dd>';
 
 	echo '
 					<dt>', $txt['invalid_activation_retry'], ':</dt>
-					<dd><input type="text" name="code" size="30" class="input_text"></dd>
+					<dd><input type="text" name="code" size="30"></dd>
 				</dl>
-				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button_submit"></p>
+				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button"></p>
 			</div>
 		</form>';
 }
@@ -378,14 +378,14 @@ function template_resend()
 			<div class="roundframe">
 				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
-					<dd><input type="text" name="user" size="40" value="', $context['default_username'], '" class="input_text"></dd>
+					<dd><input type="text" name="user" size="40" value="', $context['default_username'], '"></dd>
 				</dl>
 				<p>', $txt['invalid_activation_new'], '</p>
 				<dl>
 					<dt>', $txt['invalid_activation_new_email'], ':</dt>
-					<dd><input type="text" name="new_email" size="40" class="input_text"></dd>
+					<dd><input type="text" name="new_email" size="40"></dd>
 					<dt>', $txt['invalid_activation_password'], ':</dt>
-					<dd><input type="password" name="passwd" size="30" class="input_password"></dd>
+					<dd><input type="password" name="passwd" size="30"></dd>
 				</dl>';
 
 	if ($context['can_activate'])
@@ -393,11 +393,11 @@ function template_resend()
 				<p>', $txt['invalid_activation_known'], '</p>
 				<dl>
 					<dt>', $txt['invalid_activation_retry'], ':</dt>
-					<dd><input type="text" name="code" size="30" class="input_text"></dd>
+					<dd><input type="text" name="code" size="30"></dd>
 				</dl>';
 
 	echo '
-				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button_submit"></p>
+				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button"></p>
 			</div>
 		</form>';
 }

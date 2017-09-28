@@ -1,6 +1,39 @@
 /* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Fixing dates...
+/******************************************************************************/
+---# Updating old values
+UPDATE {$db_prefix}calendar
+SET start_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM start_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM start_date), EXTRACT(DAY FROM start_date))::date
+WHERE EXTRACT(YEAR FROM start_date) < 1004;
+
+UPDATE {$db_prefix}calendar
+SET end_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM end_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM end_date), EXTRACT(DAY FROM end_date))::date
+WHERE EXTRACT(YEAR FROM end_date) < 1004;
+
+UPDATE {$db_prefix}calendar_holidays
+SET event_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM event_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM event_date), EXTRACT(DAY FROM event_date))::date
+WHERE EXTRACT(YEAR FROM event_date) < 1004;
+
+UPDATE {$db_prefix}log_spider_stats
+SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
+WHERE EXTRACT(YEAR FROM stat_date) < 1004;
+
+UPDATE {$db_prefix}members
+SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
+WHERE EXTRACT(YEAR FROM birthdate) < 1004;
+---#
+
+---# Changing default values
+ALTER TABLE {$db_prefix}calendar ALTER COLUMN start_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN state_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
+---#
+
+/******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
 
@@ -561,6 +594,31 @@ VALUES
 ---}
 ---#
 
+---# Remove old mod tasks...
+---{
+	$vanilla_tasks = array(
+		'approval_notification',
+		'birthdayemails',
+		'daily_digest',
+		'daily_maintenance',
+		'fetchSMfiles',
+		'paid_subscriptions',
+		'remove_temp_attachments',
+		'remove_topic_redirect',
+		'remove_old_drafts',
+		'weekly_digest',
+		'weekly_maintenance');
+
+	$smcFunc['db_query']('',
+		'DELETE FROM {db_prefix}scheduled_tasks
+			WHERE task NOT IN ({array_string:keep_tasks});',
+		array(
+			'keep_tasks' => $vanilla_tasks
+		)
+	);
+---}
+---#
+
 /******************************************************************************/
 ---- Adding background tasks support
 /******************************************************************************/
@@ -803,10 +861,12 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
----# Adding new columns to log_topics...
+---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
 ADD COLUMN unwatched int NOT NULL DEFAULT '0';
+---#
 
+---# Initializing new column in log_topics...
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
 ---#
@@ -815,7 +875,7 @@ SET unwatched = 0;
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
-	RENAME disregarded TO unwatched");
+	DROP COLUMN disregarded");
 ---}
 ---#
 
@@ -941,44 +1001,47 @@ foreach ($toMove as $move)
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
----# Checking for "core" and removing it if necessary...
+---# Clean up settings for unused themes
 ---{
-// Do they have "core" installed?
-if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
-{
-	$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
-	$theme_request = upgrade_query("
-		SELECT id_theme
-		FROM {$db_prefix}themes
-		WHERE variable = 'theme_dir'
-			AND value ='$core_dir'");
-
-	// Don't do anything if this theme is already uninstalled
-	if ($smcFunc['db_num_rows']($theme_request) == 1)
-	{
-		list($id_theme) = $smcFunc['db_fetch_row']($theme_request, 0);
-		$smcFunc['db_free_result']($theme_request);
-
-		$known_themes = explode(', ', $modSettings['knownThemes']);
-
-		// Remove this value...
-		$known_themes = array_diff($known_themes, array($id_theme));
-
-		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
-
-		// Update the database
-		upgrade_query("
-			UPDATE {$db_prefix}settings
-			SET value = '$known_themes'
-			WHERE variable = 'knownThemes'");
-
-		// Delete any info about this theme
-		upgrade_query("
-			DELETE FROM {$db_prefix}themes
-			WHERE id_theme = $id_theme");
+// Fetch list of theme directories
+$request = $smcFunc['db_query']('', '
+	SELECT id_theme, variable, value
+	  FROM {db_prefix}themes
+	WHERE variable = {string:theme_dir}
+	  AND id_theme != {int:default_theme};',
+	array(
+		'default_theme' => 1,
+		'theme_dir' => 'theme_dir',
+	)
+);
+// Check which themes exist in the filesystem & save off their IDs 
+// Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
+$known_themes = array('1');
+$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
+while ($row = $smcFunc['db_fetch_assoc']($request))	{
+	if ($row['value'] != $core_dir && is_dir($row['value'])) {
+		$known_themes[] = $row['id_theme'];
 	}
 }
+// Cleanup unused theme settings
+$smcFunc['db_query']('', '
+	DELETE FROM {db_prefix}themes
+	WHERE id_theme NOT IN ({array_int:known_themes});',
+	array(
+		'known_themes' => $known_themes,
+	)
+);
+// Set knownThemes
+$known_themes = implode(',', $known_themes);
+$smcFunc['db_query']('', '
+	UPDATE {db_prefix}settings
+	SET value = {string:known_themes}
+	WHERE variable = {string:known_theme_str};',
+	array(
+		'known_theme_str' => 'knownThemes',
+		'known_themes' => $known_themes,
+	)
+);
 ---}
 ---#
 
@@ -1346,6 +1409,36 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
+---#
+
+---# Update the SM Stat collection.
+---{
+	// First get the original value
+	$request = $smcFunc['db_query']('', '
+		SELECT value
+		FROM {db_prefix}settings
+		WHERE variable = {literal:allow_sm_stats}');
+	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!empty($row['value']))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array(
+					array('sm_stats_key', $row['value']),
+					array('enable_sm_stats', '1'),
+				),
+				array('variable')
+			);
+
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}settings
+				WHERE variable = {literal:allow_sm_stats}');
+		}
+	}
+	$smcFunc['db_free_result']($request);
+---}
 ---#
 
 ---# Adding new "httponlyCookies" setting
@@ -1925,7 +2018,7 @@ ALTER url TYPE varchar(1024);
 
 ---# Changing url column in log_online from text to varchar(1024)
 ALTER TABLE {$db_prefix}log_online
-ALTER url TYPE varchar(1024);
+ALTER url TYPE varchar(2048);
 ---#
 
 /******************************************************************************/
@@ -1941,7 +2034,7 @@ ALTER TABLE {$db_prefix}members
 ADD COLUMN tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
 
----# Force 2FA per membergroup?
+---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
 ADD COLUMN tfa_required smallint NOT NULL default '0';
 ---#
@@ -2322,4 +2415,30 @@ ALTER TABLE {$db_prefix}members DROP COLUMN IF EXISTS pm_email_notify;
 ---# Update the members' languages
 UPDATE {$db_prefix}members
 SET lngfile = REPLACE(lngfile, '-utf8', '');
+---#
+
+/******************************************************************************/
+--- Create index for birthday calendar query
+/******************************************************************************/
+---# Create help function for index
+---{
+upgrade_query("
+	CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
+    SELECT to_char($1, ''MM-DD'');'
+	LANGUAGE 'sql' IMMUTABLE STRICT;"
+);
+---}
+---#
+
+---# Create index members_birthdate2
+DROP INDEX IF EXISTS {$db_prefix}members_birthdate2;
+CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_month_day(birthdate));
+---#
+
+/******************************************************************************/
+--- Create index for messages likes
+/******************************************************************************/
+---# Add Index for messages likes 
+DROP INDEX IF EXISTS {$db_prefix}messages_likes;
+CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 ---#

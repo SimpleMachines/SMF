@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -70,7 +70,7 @@ function template_modifydone()
 		$modified .= empty($context['message']['modified']['reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $context['message']['modified']['reason']);
 
 		echo '
-		<modified><![CDATA[', empty($modified) ? '' : cleanXml('&#171; <em>' . $modified . '</em>&#187;'), ']]></modified>
+		<modified><![CDATA[', empty($modified) ? '' : cleanXml($modified), ']]></modified>
 		<subject is_first="', $context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>
 		<body><![CDATA[', $context['message']['body'], ']]></body>
 		<success><![CDATA[', $txt['quick_modify_message'], ']]></success>';

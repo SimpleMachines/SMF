@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 // Don't do anything if SMF is already loaded.
@@ -25,9 +25,6 @@ global $db_connection, $modSettings, $context, $sc, $user_info, $topic, $board, 
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cachedir;
 
 // Remember the current configuration so it can be set back.
-$ssi_magic_quotes_runtime = function_exists('get_magic_quotes_gpc') && get_magic_quotes_runtime();
-if (function_exists('set_magic_quotes_runtime'))
-	@set_magic_quotes_runtime(0);
 $time_start = microtime();
 
 // Just being safe...
@@ -177,21 +174,22 @@ if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['
 // Have the ability to easily add functions to SSI.
 call_integration_hook('integrate_SSI');
 
-// Call a function passed by GET.
-if (isset($_GET['ssi_function']) && function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
+if (basename($_SERVER['PHP_SELF']) == 'SSI.php')
 {
-	call_user_func('ssi_' . $_GET['ssi_function']);
+	// You shouldn't just access SSI.php directly by URL!!
+	if (!isset($_GET['ssi_function']))
+		die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+	// Call a function passed by GET.
+	if (function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
+		call_user_func('ssi_' . $_GET['ssi_function']);
 	exit;
 }
-if (isset($_GET['ssi_function']))
-	exit;
-// You shouldn't just access SSI.php directly by URL!!
-elseif (basename($_SERVER['PHP_SELF']) == 'SSI.php')
-	die(sprintf($txt['ssi_not_direct'], $user_info['is_admin'] ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''));
+
+// To avoid side effects later on.
+unset($_GET['ssi_function']);
 
 error_reporting($ssi_error_reporting);
-if (function_exists('set_magic_quotes_runtime'))
-	@set_magic_quotes_runtime($ssi_magic_quotes_runtime);
 
 return true;
 
@@ -1195,10 +1193,10 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 			<table style="border: none" class="ssi_table">
 				<tr>
 					<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
-					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
+					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '"></td>
 				</tr><tr>
 					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
-					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
+					<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
 				</tr>
 				<tr>
 					<td>
@@ -1206,7 +1204,7 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 					</td>
-					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
+					<td><input type="submit" value="', $txt['login'], '" class="button"></td>
 				</tr>
 			</table>
 		</form>';
@@ -1331,7 +1329,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '">'
 		);
 	}
 
@@ -1355,7 +1353,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 		echo '
-			<input type="submit" value="', $txt['poll_vote'], '" class="button_submit">
+			<input type="submit" value="', $txt['poll_vote'], '" class="button">
 			<input type="hidden" name="poll" value="', $return['id'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>';
@@ -1499,7 +1497,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">'
 		);
 	}
 
@@ -1523,7 +1521,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 				<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 		echo '
-				<input type="submit" value="', $txt['poll_vote'], '" class="button_submit">
+				<input type="submit" value="', $txt['poll_vote'], '" class="button">
 				<input type="hidden" name="poll" value="', $return['id'], '">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>';
@@ -1690,7 +1688,7 @@ function ssi_quickSearch($output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30" class="input_text"> <input type="submit" value="', $txt['search'], '" class="button_submit">
+			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30"> <input type="submit" value="', $txt['search'], '" class="button">
 		</form>';
 }
 
@@ -1926,7 +1924,6 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	if (!empty($modSettings['enable_likes']))
 	{
 		$context['can_like'] = allowedTo('likes_like');
-		$context['can_see_likes'] = allowedTo('likes_view');
 	}
 
 	// Find the post ids.
@@ -2070,7 +2067,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 						<li class="like_button" id="msg_', $news['message_id'], '_likes"><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 			}
 
-			if (!empty($news['likes']['count']) && !empty($context['can_see_likes']))
+			if (!empty($news['likes']['count']))
 			{
 				$context['some_likes'] = true;
 				$count = $news['likes']['count'];

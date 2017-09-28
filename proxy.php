@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 define('SMF', 'proxy');
@@ -99,6 +99,14 @@ class ProxyServer
 		$cached_file = $this->getCachedPath($request);
 		$cached = json_decode(file_get_contents($cached_file), true);
 
+		// Did we get an error when trying to fetch the image
+		$response = $this->checkRequest();
+		if (!$response) {
+			// Throw a 404
+			header('HTTP/1.0 404 Not Found');
+			exit;
+		}
+
 		// Is the cache expired?
 		if (!$cached || time() - $cached['time'] > (5 * 86400))
 		{
@@ -109,7 +117,7 @@ class ProxyServer
 		}
 
 		// Right, image not cached? Simply redirect, then.
-		if (!$this->checkRequest())
+		if (!$response)
 		    redirectexit($request);
 
 		// Make sure we're serving an image
@@ -151,7 +159,7 @@ class ProxyServer
 	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return bool Whether the specified image was cached
+	 * @return bool|int Whether the specified image was cached or error code when accessing
 	 */
 	protected function cacheImage($request)
 	{
@@ -159,10 +167,15 @@ class ProxyServer
 
 		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
 		$request = $curl->get_url_data($request);
+		$responseCode = $request->result('code');
 		$response = $request->result();
 
 		if (empty($response))
 			return false;
+
+		if ($responseCode != 200) {
+			return false;
+		}
 
 		$headers = $response['headers'];
 
@@ -180,7 +193,7 @@ class ProxyServer
 			'size' => $response['size'],
 			'time' => time(),
 			'body' => base64_encode($response['body']),
-		)));
+		))) === false ? 1 : null;
 	}
 }
 

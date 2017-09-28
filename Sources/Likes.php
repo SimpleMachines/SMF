@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -58,9 +58,8 @@ class Likes
 
 	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
-	 * => 'can_see' boolean|string whether or not the current user can see the like.
 	 * => 'can_like' boolean|string whether or not the current user can actually like your content.
-	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
+	 * for can_like: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
 	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid URL to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
@@ -68,7 +67,6 @@ class Likes
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
 	 */
 	protected $_validLikes = array(
-		'can_see' => false,
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
@@ -221,7 +219,6 @@ class Likes
 			$this->_validLikes['type'] = 'msg';
 			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
-			$this->_validLikes['can_see'] = allowedTo('likes_view') ? true : 'cannot_view_likes';
 
 			$this->_validLikes['can_like'] = ($this->_user['id'] == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
@@ -231,7 +228,7 @@ class Likes
 			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
 			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
 			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists) Remember that users can't like their own content.
-			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
+			// If the user can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
 			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
 
@@ -259,10 +256,6 @@ class Likes
 			if (!$found)
 				return $this->_error = 'cannot_';
 		}
-
-		// Does the user can see this?
-		if (isset($this->_validLikes['can_see']) && is_string($this->_validLikes['can_see']))
-			return $this->_error = $this->_validLikes['can_see'];
 
 		// Does the user can like this? Viewing a list of likes doesn't require this permission.
 			if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
@@ -326,7 +319,7 @@ class Likes
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', json_encode(array(
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', $smcFunc['json_encode'](array(
 					'content_id' => $content,
 					'content_type' => $type,
 					'sender_id' => $user['id'],
@@ -434,7 +427,6 @@ class Likes
 			'id_content' => $this->_content,
 			'count' => $this->_numLikes,
 			'can_like' => $this->_validLikes['can_like'],
-			'can_see' => $this->_validLikes['can_see'],
 			'already_liked' => empty($this->_alreadyLiked),
 			'type' => $this->_type,
 		);
@@ -605,6 +597,8 @@ class Likes
 	 */
 	protected function jsonResponse()
 	{
+		global $smcFunc;
+
 		$print = array(
 			'data' => $this->_data,
 		);
@@ -622,7 +616,7 @@ class Likes
 		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
-		smf_serverResponse(json_encode($print));
+		smf_serverResponse($smcFunc['json_encode']($print));
 		die;
 	}
 }

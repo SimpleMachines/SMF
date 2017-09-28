@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -33,31 +33,61 @@ function getBirthdayRange($low_date, $high_date)
 	$year_low = (int) substr($low_date, 0, 4);
 	$year_high = (int) substr($high_date, 0, 4);
 
-	// Collect all of the birthdays for this month.  I know, it's a painful query.
-	$result = $smcFunc['db_query']('birthday_array', '
-		SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
-		FROM {db_prefix}members
-		WHERE YEAR(birthdate) != {string:year_one}
-			AND MONTH(birthdate) != {int:no_month}
-			AND DAYOFMONTH(birthdate) != {int:no_day}
-			AND YEAR(birthdate) <= {int:max_year}
-			AND (
-				DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
-				OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
+	if ($smcFunc['db_title'] != "PostgreSQL")
+	{
+		// Collect all of the birthdays for this month.  I know, it's a painful query.
+		$result = $smcFunc['db_query']('birthday_array', '
+			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+			FROM {db_prefix}members
+			WHERE YEAR(birthdate) != {string:year_one}
+				AND MONTH(birthdate) != {int:no_month}
+				AND DAYOFMONTH(birthdate) != {int:no_day}
+				AND YEAR(birthdate) <= {int:max_year}
+				AND (
+					DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
+					OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
+				)
+				AND is_activated = {int:is_activated}',
+			array(
+				'is_activated' => 1,
+				'no_month' => 0,
+				'no_day' => 0,
+				'year_one' => '1004',
+				'year_low' => $year_low . '-%m-%d',
+				'year_high' => $year_high . '-%m-%d',
+				'low_date' => $low_date,
+				'high_date' => $high_date,
+				'max_year' => $year_high,
 			)
-			AND is_activated = {int:is_activated}',
-		array(
-			'is_activated' => 1,
-			'no_month' => 0,
-			'no_day' => 0,
-			'year_one' => '0001',
-			'year_low' => $year_low . '-%m-%d',
-			'year_high' => $year_high . '-%m-%d',
-			'low_date' => $low_date,
-			'high_date' => $high_date,
-			'max_year' => $year_high,
-		)
-	);
+		);
+	}
+	else
+	{
+		$result = $smcFunc['db_query']('birthday_array', '
+			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
+			FROM {db_prefix}members
+			WHERE YEAR(birthdate) != {string:year_one}
+				AND MONTH(birthdate) != {int:no_month}
+				AND DAYOFMONTH(birthdate) != {int:no_day}
+				AND (
+					indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_low_low_date}) AND indexable_month_day({date:year_low_high_date})' . ($year_low == $year_high ? '' : '
+					OR  indexable_month_day(birthdate) BETWEEN indexable_month_day({date:year_high_low_date}) AND indexable_month_day({date:year_high_high_date})') . '
+				)
+				AND is_activated = {int:is_activated}',
+			array(
+				'is_activated' => 1,
+				'no_month' => 0,
+				'no_day' => 0,
+				'year_one' => '1004',
+				'year_low' => $year_low . '-%m-%d',
+				'year_high' => $year_high . '-%m-%d',
+				'year_low_low_date' => $low_date,
+				'year_low_high_date' => ($year_low == $year_high ? $high_date : $year_low . '-12-31'),
+				'year_high_low_date' => ($year_low == $year_high ? $low_date : $year_high . '-01-01'),
+				'year_high_high_date' => $high_date,
+			)
+		);
+	}
 	$bday = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
@@ -69,7 +99,7 @@ function getBirthdayRange($low_date, $high_date)
 		$bday[$age_year . substr($row['birthdate'], 4)][] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
-			'age' => $row['birth_year'] > 4 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
+			'age' => $row['birth_year'] > 1004 && $row['birth_year'] <= $age_year ? $age_year - $row['birth_year'] : null,
 			'is_last' => false
 		);
 	}
@@ -100,13 +130,17 @@ function getBirthdayRange($low_date, $high_date)
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
 	global $scripturl, $modSettings, $user_info, $smcFunc, $context, $sourcedir;
+	static $timezone_array = array();
 	require_once($sourcedir . '/Subs.php');
+
+	if (empty($timezone_array['default']))
+		$timezone_array['default'] = timezone_open(date_default_timezone_get());
 
 	$low_object = date_create($low_date);
 	$high_object = date_create($high_date);
 
 	// Find all the calendar info...
-	$result = $smcFunc['db_query']('', '
+	$result = $smcFunc['db_query']('calendar_get_events', '
 		SELECT
 			cal.id_event, cal.title, cal.id_member, cal.id_topic, cal.id_board,
 			cal.start_date, cal.end_date, cal.start_time, cal.end_time, cal.timezone, cal.location,
@@ -136,15 +170,18 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// Get the various time and date properties for this event
 		list($start, $end, $allday, $span, $tz, $tz_abbrev) = buildEventDatetimes($row);
 
+		if (empty($timezone_array[$tz]))
+			$timezone_array[$tz] = timezone_open($tz);
+
 		// Sanity check
 		if (!empty($start['error_count']) || !empty($start['warning_count']) || !empty($end['error_count']) || !empty($end['warning_count']))
 			continue;
 
 		// Get set up for the loop
-		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($tz));
-		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($tz));
-		date_timezone_set($start_object, timezone_open(date_default_timezone_get()));
-		date_timezone_set($end_object, timezone_open(date_default_timezone_get()));
+		$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), $timezone_array[$tz]);
+		$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), $timezone_array[$tz]);
+		date_timezone_set($start_object, $timezone_array['default']);
+		date_timezone_set($end_object, $timezone_array['default']);
 		date_time_set($start_object, 0, 0, 0);
 		date_time_set($end_object, 0, 0, 0);
 		$start_date_string = date_format($start_object, 'Y-m-d');
@@ -268,10 +305,10 @@ function getHolidayRange($low_date, $high_date)
 		array(
 			'low_date' => $low_date,
 			'high_date' => $high_date,
-			'all_year_low' => '0004' . substr($low_date, 4),
-			'all_year_high' => '0004' . substr($high_date, 4),
-			'all_year_jan' => '0004-01-01',
-			'all_year_dec' => '0004-12-31',
+			'all_year_low' => '1004' . substr($low_date, 4),
+			'all_year_high' => '1004' . substr($high_date, 4),
+			'all_year_jan' => '1004-01-01',
+			'all_year_dec' => '1004-12-31',
 		)
 	);
 	$holidays = array();
@@ -615,7 +652,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
  */
 function getCalendarList($start_date, $end_date, $calendarOptions)
 {
-	global $scripturl, $modSettings, $user_info, $txt, $context, $sourcedir;
+	global $modSettings, $user_info, $txt, $context, $sourcedir;
 	require_once($sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
@@ -668,8 +705,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 
 	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
 	addInlineJavaScript('
 	$("#calendar_range .date_input").datepicker({
 		dateFormat: "yy-mm-dd",
@@ -691,17 +726,6 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		nextText: "' . $txt['next_month'] . '",
 	});
 	var date_entry = document.getElementById("calendar_range");
-	var date_entry_pair = new Datepair(date_entry, {
-		dateClass: "date_input",
-		autoclose: true,
-		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
 	', true);
 
 	return $calendarGrid;
@@ -713,19 +737,21 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  * widens the search range by an extra 24 hours to support time offset shifts.
  * used by the cache_getRecentEvents function to get the information needed to calculate the events taking the users time offset into account.
  *
- * @param int $days_to_index How many days' worth of info to index
+ * @param array $eventOptions With the keys 'num_days_shown', 'include_holidays', 'include_birthdays' and 'include_events'
  * @return array An array containing the data that was cached as well as an expression to calculate whether the data should be refreshed and when it expires
  */
-function cache_getOffsetIndependentEvents($days_to_index)
+function cache_getOffsetIndependentEvents($eventOptions)
 {
+	$days_to_index = $eventOptions['num_days_shown'];
+
 	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
 	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
 	return array(
 		'data' => array(
-			'holidays' => getHolidayRange($low_date, $high_date),
-			'birthdays' => getBirthdayRange($low_date, $high_date),
-			'events' => getEventRange($low_date, $high_date, false),
+			'holidays' => ($eventOptions['include_holidays'] ? getHolidayRange($low_date, $high_date) : array()),
+			'birthdays' => ($eventOptions['include_birthdays'] ? getBirthdayRange($low_date, $high_date) : array()),
+			'events' => ($eventOptions['include_events'] ? getEventRange($low_date, $high_date, false) : array()),
 		),
 		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
@@ -736,13 +762,13 @@ function cache_getOffsetIndependentEvents($days_to_index)
  * cache callback function used to retrieve the upcoming birthdays, holidays, and events within the given period, taking into account the users time offset.
  * Called from the BoardIndex to display the current day's events on the board index
  * used by the board index and SSI to show the upcoming events.
- * @param array $eventOptions An array of event options. Only 'num_days_shown' is used here
+ * @param array $eventOptions An array of event options.
  * @return array An array containing the info that was cached as well as a few other relevant things
  */
 function cache_getRecentEvents($eventOptions)
 {
 	// With the 'static' cached data we can calculate the user-specific data.
-	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions['num_days_shown']));
+	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions));
 
 	// Get the information about today (from user perspective).
 	$today = getTodayInfo();
@@ -759,58 +785,67 @@ function cache_getRecentEvents($eventOptions)
 	// Get the current member time/date.
 	$now = forum_time();
 
-	// Holidays between now and now + days.
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+	if ($eventOptions['include_holidays'])
 	{
-		if (isset($cached_data['holidays'][strftime('%Y-%m-%d', $i)]))
-			$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
-	}
-
-	// Happy Birthday, guys and gals!
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
-	{
-		$loop_date = strftime('%Y-%m-%d', $i);
-		if (isset($cached_data['birthdays'][$loop_date]))
+		// Holidays between now and now + days.
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
-				$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
-			$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
+			if (isset($cached_data['holidays'][strftime('%Y-%m-%d', $i)]))
+				$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
 		}
 	}
 
-	$duplicates = array();
-	for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+	if ($eventOptions['include_birthdays'])
 	{
-		// Determine the date of the current loop step.
-		$loop_date = strftime('%Y-%m-%d', $i);
-
-		// No events today? Check the next day.
-		if (empty($cached_data['events'][$loop_date]))
-			continue;
-
-		// Loop through all events to add a few last-minute values.
-		foreach ($cached_data['events'][$loop_date] as $ev => $event)
+		// Happy Birthday, guys and gals!
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			// Create a shortcut variable for easier access.
-			$this_event = &$cached_data['events'][$loop_date][$ev];
-
-			// Skip duplicates.
-			if (isset($duplicates[$this_event['topic'] . $this_event['title']]))
+			$loop_date = strftime('%Y-%m-%d', $i);
+			if (isset($cached_data['birthdays'][$loop_date]))
 			{
-				unset($cached_data['events'][$loop_date][$ev]);
-				continue;
+				foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
+					$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
+				$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
 			}
-			else
-				$duplicates[$this_event['topic'] . $this_event['title']] = true;
-
-			// Might be set to true afterwards, depending on the permissions.
-			$this_event['can_edit'] = false;
-			$this_event['is_today'] = $loop_date === $today['date'];
-			$this_event['date'] = $loop_date;
 		}
+	}
 
-		if (!empty($cached_data['events'][$loop_date]))
-			$return_data['calendar_events'] = array_merge($return_data['calendar_events'], $cached_data['events'][$loop_date]);
+	if ($eventOptions['include_events'])
+	{
+		$duplicates = array();
+		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
+		{
+			// Determine the date of the current loop step.
+			$loop_date = strftime('%Y-%m-%d', $i);
+
+			// No events today? Check the next day.
+			if (empty($cached_data['events'][$loop_date]))
+				continue;
+
+			// Loop through all events to add a few last-minute values.
+			foreach ($cached_data['events'][$loop_date] as $ev => $event)
+			{
+				// Create a shortcut variable for easier access.
+				$this_event = &$cached_data['events'][$loop_date][$ev];
+
+				// Skip duplicates.
+				if (isset($duplicates[$this_event['topic'] . $this_event['title']]))
+				{
+					unset($cached_data['events'][$loop_date][$ev]);
+					continue;
+				}
+				else
+					$duplicates[$this_event['topic'] . $this_event['title']] = true;
+
+				// Might be set to true afterwards, depending on the permissions.
+				$this_event['can_edit'] = false;
+				$this_event['is_today'] = $loop_date === $today['date'];
+				$this_event['date'] = $loop_date;
+			}
+
+			if (!empty($cached_data['events'][$loop_date]))
+				$return_data['calendar_events'] = array_merge($return_data['calendar_events'], $cached_data['events'][$loop_date]);
+		}
 	}
 
 	// Mark the last item so that a list separator can be used in the template.
@@ -1028,7 +1063,7 @@ function insertEvent(&$eventOptions)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', json_encode(array(
+			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', $smcFunc['json_encode'](array(
 				'event_title' => $eventOptions['title'],
 				'event_id' => $eventOptions['id'],
 				'sender_id' => $eventOptions['member'],
@@ -1324,7 +1359,7 @@ function getNewEventDatetimes()
  */
 function setEventStartEnd($eventOptions = array())
 {
-	global $modSettings, $user_info;
+	global $modSettings;
 
 	// Set $span, in case we need it
 	$span = isset($eventOptions['span']) ? $eventOptions['span'] : (isset($_POST['span']) ? $_POST['span'] : 0);
@@ -1516,19 +1551,28 @@ function setEventStartEnd($eventOptions = array())
 function buildEventDatetimes($row)
 {
 	global $sourcedir, $user_info;
+	static $date_format = '', $time_format = '';
+
 	require_once($sourcedir . '/Subs.php');
+	static $timezone_array = array();
 
 	// First, try to create a better date format, ignoring the "time" elements.
-	if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$date_format = '%F';
-	else
-		$date_format = $matches[0];
+	if (empty($date_format))
+	{
+		if (preg_match('~%[AaBbCcDdeGghjmuYy](?:[^%]*%[AaBbCcDdeGghjmuYy])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$date_format = '%F';
+		else
+			$date_format = $matches[0];
+	}
 
 	// We want a fairly compact version of the time, but as close as possible to the user's settings.
-	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$time_format = '%k:%M';
-	else
-		$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+	if (empty($time_format))
+	{
+		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
+			$time_format = '%k:%M';
+		else
+			$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+	}
 
 	// Should this be an all day event?
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
@@ -1540,13 +1584,16 @@ function buildEventDatetimes($row)
 	if (empty($row['timezone']))
 		$row['timezone'] = getUserTimezone();
 
+	if (empty($timezone_array[$row['timezone']]))
+		$timezone_array[$row['timezone']] = timezone_open($row['timezone']);
+
 	// Get most of the standard date information for the start and end datetimes
 	$start = date_parse($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''));
 	$end = date_parse($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''));
 
 	// But we also want more info, so make some DateTime objects we can use
-	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), timezone_open($row['timezone']));
-	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), timezone_open($row['timezone']));
+	$start_object = date_create($row['start_date'] . (!$allday ? ' ' . $row['start_time'] : ''), $timezone_array[$row['timezone']]);
+	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), $timezone_array[$row['timezone']]);
 
 	// Unix timestamps are good
 	$start['timestamp'] = date_format($start_object, 'U');
@@ -1561,42 +1608,16 @@ function buildEventDatetimes($row)
 	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
 
 	// Strings showing the datetimes in the user's preferred format, relative to the user's time zone
-	$start['date_local'] = timeformat($start['timestamp'], $date_format);
-	$start['time_local'] = timeformat($start['timestamp'], $time_format);
-	$end['date_local'] = timeformat($end['timestamp'], $date_format);
-	$end['time_local'] = timeformat($end['timestamp'], $time_format);
+	list($start['date_local'], $start['time_local']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format));
+	list($end['date_local'], $end['time_local']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format));
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
-	$start['date_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format, 'none');
-	$start['time_orig'] = timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $time_format, 'none');
-	$end['date_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format, 'none');
-	$end['time_orig'] = timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $time_format, 'none');
+	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
+	list($end['date_orig'], $end['time_orig']) = explode(' § ', timeformat(strtotime(date_format($end_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
-	$tz_abbrev = date_format($start_object, 'T');
-
-	// There are a handful of time zones that PHP doesn't know the abbreviation for. Fix 'em if we can.
-	if (strspn($tz_abbrev, '+-') > 0)
-	{
-		$tz_location = timezone_location_get(timezone_open($row['timezone']));
-
-		// Kazakstan
-		if ($tz_location['country_code'] == 'KZ')
-			$tz_abbrev = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tz_abbrev);
-
-		// Russia likes to experiment with time zones
-		if ($tz_location['country_code'] == 'RU')
-		{
-			$msk_offset = intval($tz_abbrev) - 3;
-			$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-			$tz_abbrev = 'MSK' . $msk_offset;
-		}
-
-		// Still no good? We'll just mark it as a UTC offset
-		if (strspn($tz_abbrev, '+-') > 0)
-			$tz_abbrev = 'UTC' . $tz_abbrev;
-	}
+	$tz_abbrev = fix_tz_abbrev($row['timezone'], date_format($start_object, 'T'));
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
@@ -1609,10 +1630,24 @@ function buildEventDatetimes($row)
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $context, $sourcedir, $user_info, $modSettings;
+	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
+	static $member_cache = array();
 
 	if (is_null($id_member) && $user_info['is_guest'] == false)
 		$id_member = $context['user']['id'];
+
+	//check if the cache got the data
+	if (isset($id_member) && isset($member_cache[$id_member]))
+	{
+		return $member_cache[$id_member];
+	}
+
+	//maybe the current user is the one
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member)
+	{
+		$member_cache[$id_member] = $user_settings['timezone'];
+		return $user_settings['timezone'];
+	}
 
 	if (isset($id_member))
 	{
@@ -1630,6 +1665,9 @@ function getUserTimezone($id_member = null)
 
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+
+	if (isset($id_member))
+		$member_cache[$id_member] = $timezone;
 
 	return $timezone;
 }

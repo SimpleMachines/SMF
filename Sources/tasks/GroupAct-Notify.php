@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -114,7 +114,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => $pref_name,
 						'is_read' => 0,
-						'extra' => json_encode(array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
+						'extra' => $smcFunc['json_encode'](array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
 					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}

@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -70,11 +70,11 @@ function template_edit_holiday()
 
 	if ($context['is_new'])
 		echo '
-				<input type="submit" value="', $txt['holidays_button_add'], '" class="button_submit">';
+				<input type="submit" value="', $txt['holidays_button_add'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" class="button_submit">
-				<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" class="button_submit">
+				<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" class="button">
+				<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" class="button">
 				<input type="hidden" name="holiday" value="', $context['holiday']['id'], '">';
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

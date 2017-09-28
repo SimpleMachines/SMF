@@ -151,8 +151,8 @@ CREATE TABLE {$db_prefix}boards (
 
 CREATE TABLE {$db_prefix}calendar (
   id_event SMALLINT UNSIGNED AUTO_INCREMENT,
-  start_date date NOT NULL DEFAULT '0001-01-01',
-  end_date date NOT NULL DEFAULT '0001-01-01',
+  start_date date NOT NULL DEFAULT '1004-01-01',
+  end_date date NOT NULL DEFAULT '1004-01-01',
   id_board SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   title VARCHAR(255) NOT NULL DEFAULT '',
@@ -173,7 +173,7 @@ CREATE TABLE {$db_prefix}calendar (
 
 CREATE TABLE {$db_prefix}calendar_holidays (
   id_holiday SMALLINT UNSIGNED AUTO_INCREMENT,
-  event_date date NOT NULL DEFAULT '0001-01-01',
+  event_date date NOT NULL DEFAULT '1004-01-01',
   title VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_holiday),
   INDEX idx_event_date (event_date)
@@ -423,7 +423,7 @@ CREATE TABLE {$db_prefix}log_online (
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   ip VARBINARY(16),
-  url VARCHAR(1024) NOT NULL,
+  url VARCHAR(2048) NOT NULL,
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member)
@@ -589,7 +589,7 @@ CREATE TABLE {$db_prefix}log_spider_stats (
   id_spider SMALLINT UNSIGNED DEFAULT '0',
   page_hits SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  stat_date DATE DEFAULT '0001-01-01',
+  stat_date DATE DEFAULT '1004-01-01',
   PRIMARY KEY (stat_date, id_spider)
 ) ENGINE={$engine};
 
@@ -694,7 +694,7 @@ CREATE TABLE {$db_prefix}members (
   passwd VARCHAR(64) NOT NULL DEFAULT '',
   email_address VARCHAR(255) NOT NULL DEFAULT '',
   personal_text VARCHAR(255) NOT NULL DEFAULT '',
-  birthdate date NOT NULL DEFAULT '0001-01-01',
+  birthdate date NOT NULL DEFAULT '1004-01-01',
   website_title VARCHAR(255) NOT NULL DEFAULT '',
   website_url VARCHAR(255) NOT NULL DEFAULT '',
   show_online TINYINT NOT NULL DEFAULT '1',
@@ -800,7 +800,8 @@ CREATE TABLE {$db_prefix}messages (
   INDEX idx_show_posts (id_member, id_board),
   INDEX idx_id_member_msg (id_member, approved, id_msg),
   INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
-  INDEX idx_related_ip (id_member, poster_ip, id_msg)
+  INDEX idx_related_ip (id_member, poster_ip, id_msg),
+  INDEX idx_likes (likes)
 ) ENGINE={$engine};
 
 #
@@ -1734,7 +1735,7 @@ VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machin
 
 INSERT INTO {$db_prefix}package_servers
 	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
 # --------------------------------------------------------
 
 #
@@ -2030,6 +2031,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('tfa_mode', '1'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
+	('displayFields', '[{"col_name":"cust_aolins","title":"AOL Instant Messenger","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"aim\\" href=\\"aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?\\" target=\\"_blank\\" title=\\"AIM - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/aim.png\\" alt=\\"AIM - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_icq","title":"ICQ","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"3","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_yahoo","title":"Yahoo! Messenger","type":"text","order":"4","bbc":"0","placement":"1","enclose":"<a class=\\"yim\\" href=\\"\\/\\/edit.yahoo.com\\/config\\/send_webmesg?.target={INPUT}\\" target=\\"_blank\\" title=\\"Yahoo! Messenger - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/yahoo.png\\" alt=\\"Yahoo! Messenger - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"5","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"6","bbc":"0","placement":"1","enclose":"<span class=\\" generic_icons gender_{INPUT}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0"}]'),
 	('minimize_files', '1');
 
 # --------------------------------------------------------

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 3',
+	'forum_version' => 'SMF 2.1 Beta 4',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
@@ -711,8 +711,6 @@ function PlushSearch2()
 			$context['search_ignored'][] = $value;
 			unset($searchArray[$index]);
 		}
-		else
-			$searchArray[$index] = $searchArray[$index];
 	}
 	$searchArray = array_slice(array_unique($searchArray), 0, 10);
 
@@ -1226,17 +1224,15 @@ function PlushSearch2()
 					$smcFunc['db_search_query']('drop_tmp_log_search_topics', '
 						DROP TABLE IF EXISTS {db_prefix}tmp_log_search_topics',
 						array(
-							'db_error_skip' => true,
 						)
 					);
 					$createTemporary = $smcFunc['db_search_query']('create_tmp_log_search_topics', '
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
-							id_topic mediumint(8) unsigned NOT NULL default {string:string_zero},
+							id_topic int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_topic)
 						) ENGINE=MEMORY',
 						array(
 							'string_zero' => '0',
-							'db_error_skip' => true,
 						)
 					) !== false;
 
@@ -1403,18 +1399,16 @@ function PlushSearch2()
 					$smcFunc['db_search_query']('drop_tmp_log_search_messages', '
 						DROP TABLE IF EXISTS {db_prefix}tmp_log_search_messages',
 						array(
-							'db_error_skip' => true,
 						)
 					);
 
 					$createTemporary = $smcFunc['db_search_query']('create_tmp_log_search_messages', '
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
-							id_msg int(10) unsigned NOT NULL default {string:string_zero},
+							id_msg int NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_msg)
 						) ENGINE=MEMORY',
 						array(
 							'string_zero' => '0',
-							'db_error_skip' => true,
 						)
 					) !== false;
 
@@ -1767,6 +1761,21 @@ function PlushSearch2()
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
 
+		// PG optimization to evade FIND_IN_SET
+		if ($smcFunc['db_title'] == 'PostgreSQL')
+		{
+			$orderJoin = '';
+			$msg_list_size = count($msg_list);
+			for ($i = 0; $i < $msg_list_size; $i++)
+			{
+				if ($i > 0)
+					$orderJoin .= ',';
+				$orderJoin .= '(' . $i . ',' . $msg_list[$i] . ')';
+			}
+
+			$orderJoin = 'JOIN ( VALUES ' . $orderJoin . ') as sort(ordering, id) on m.id_msg = sort.id';
+		}
+
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT
@@ -1786,9 +1795,10 @@ function PlushSearch2()
 				INNER JOIN {db_prefix}messages AS last_m ON (last_m.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}members AS first_mem ON (first_mem.id_member = first_m.id_member)
 				LEFT JOIN {db_prefix}members AS last_mem ON (last_mem.id_member = first_m.id_member)
+				' . (isset($orderJoin) ? $orderJoin : '') . '
 			WHERE m.id_msg IN ({array_int:message_list})' . ($modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '') . '
-			ORDER BY FIND_IN_SET(m.id_msg, {string:message_list_in_set})
+			ORDER BY ' . (isset($orderJoin) ? ' sort.ordering' : ' FIND_IN_SET(m.id_msg, {string:message_list_in_set})') . '
 			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,

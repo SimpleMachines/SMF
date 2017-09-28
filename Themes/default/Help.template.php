@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -82,18 +82,18 @@ function template_find_members()
 				</div>
 				<div class="padding">
 					<strong>', $txt['find_username'], ':</strong><br>
-					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text"><br>
+					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;"><br>
 					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br>';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
+					<span class="smalltext"><label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
 
 	echo '
 					<div class="padding righttext">
-						<input type="submit" value="', $txt['search'], '" class="button_submit">
-						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit">
+						<input type="submit" value="', $txt['search'], '" class="button">
+						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button">
 					</div>
 				</div>
 			</div>
@@ -115,7 +115,7 @@ function template_find_members()
 		{
 			echo '
 					<li class="windowbg">
-						<a href="', $result['href'], '" target="_blank" class="new_win"> <span class="generic_icons profile_sm"></span>
+						<a href="', $result['href'], '" target="_blank"> <span class="generic_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
 		}
@@ -166,7 +166,7 @@ function template_manual()
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
 	{
 		echo '
-						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 	}
 
 	echo '

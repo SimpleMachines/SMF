@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -64,7 +64,7 @@ function summary($memID)
 		$context['member']['posts_per_day'] = comma_format($context['member']['real_posts'] / $days_registered, 3);
 
 	// Set the age...
-	if (empty($context['member']['birth_date']))
+	if (empty($context['member']['birth_date']) || substr($context['member']['birth_date'], 0, 4) < 1002)
 	{
 		$context['member'] += array(
 			'age' => $txt['not_applicable'],
@@ -76,7 +76,7 @@ function summary($memID)
 		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
 		$datearray = getdate(forum_time());
 		$context['member'] += array(
-			'age' => $birth_year <= 4 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day
 		);
 	}
@@ -156,7 +156,7 @@ function summary($memID)
 
 		// So... are they banned?  Dying to know!
 		$request = $smcFunc['db_query']('', '
-			SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post, bg.cannot_register,
+			SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post,
 				bg.cannot_login, bg.reason
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:time}))
@@ -167,7 +167,7 @@ function summary($memID)
 		{
 			// Work out what restrictions we actually have.
 			$ban_restrictions = array();
-			foreach (array('access', 'register', 'login', 'post') as $type)
+			foreach (array('access', 'login', 'post') as $type)
 				if ($row['cannot_' . $type])
 					$ban_restrictions[] = $txt['ban_type_' . $type];
 
@@ -182,7 +182,6 @@ function summary($memID)
 				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
 				'cannot' => array(
 					'access' => !empty($row['cannot_access']),
-					'register' => !empty($row['cannot_register']),
 					'post' => !empty($row['cannot_post']),
 					'login' => !empty($row['cannot_login']),
 				),
@@ -239,7 +238,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 	{
 		$id_alert = array_shift($row);
 		$row['time'] = timeformat($row['alert_time']);
-		$row['extra'] = !empty($row['extra']) ? smf_json_decode($row['extra'], true) : array();
+		$row['extra'] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 		$alerts[$id_alert] = $row;
 
 		if (!empty($row['sender_id']))
@@ -1251,37 +1250,22 @@ function statPanel($memID)
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['statPanel_generalStats'] . ' - ' . $context['member']['name'],
-		'icon' => 'stats_info_hd.png'
+		'icon' => 'stats_info.png'
 	);
 
-	// Number of topics started.
+	// Number of topics started and Number polls started
 	$result = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(*), COUNT( CASE WHEN id_poll != {int:no_poll} THEN 1 ELSE NULL END )
 		FROM {db_prefix}topics
 		WHERE id_member_started = {int:current_member}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			AND id_board != {int:recycle_board}' : ''),
 		array(
 			'current_member' => $memID,
 			'recycle_board' => $modSettings['recycle_board'],
-		)
-	);
-	list ($context['num_topics']) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	// Number polls started.
-	$result = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}topics
-		WHERE id_member_started = {int:current_member}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND id_board != {int:recycle_board}' : '') . '
-			AND id_poll != {int:no_poll}',
-		array(
-			'current_member' => $memID,
-			'recycle_board' => $modSettings['recycle_board'],
 			'no_poll' => 0,
 		)
 	);
-	list ($context['num_polls']) = $smcFunc['db_fetch_row']($result);
+	list ($context['num_topics'], $context['num_polls']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Number polls voted in.
@@ -1658,7 +1642,7 @@ function trackActivity($memID)
 	{
 		// Get member ID's which are in messages...
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member
+			SELECT DISTINCT mem.id_member
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.poster_ip IN ({array_inet:ip_list})
@@ -2101,18 +2085,18 @@ function TrackIP($memID = 0)
 		$context['whois_servers'] = array(
 			'afrinic' => array(
 				'name' => $txt['whois_afrinic'],
-				'url' => 'http://www.afrinic.net/cgi-bin/whois?searchtext=' . $context['ip'],
+				'url' => 'https://www.afrinic.net/cgi-bin/whois?searchtext=' . $context['ip'],
 				'range' => array(41, 154, 196),
 			),
 			'apnic' => array(
 				'name' => $txt['whois_apnic'],
-				'url' => 'http://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . $context['ip'],
+				'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . $context['ip'],
 				'range' => array(58, 59, 60, 61, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
 					125, 126, 133, 150, 153, 163, 171, 202, 203, 210, 211, 218, 219, 220, 221, 222),
 			),
 			'arin' => array(
 				'name' => $txt['whois_arin'],
-				'url' => 'http://whois.arin.net/rest/ip/' . $context['ip'],
+				'url' => 'https://whois.arin.net/rest/ip/' . $context['ip'],
 				'range' => array(7, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 96, 97, 98, 99,
 					128, 129, 130, 131, 132, 134, 135, 136, 137, 138, 139, 140, 142, 143, 144, 146, 147, 148, 149,
 					152, 155, 156, 157, 158, 159, 160, 161, 162, 164, 165, 166, 167, 168, 169, 170, 172, 173, 174,
@@ -2120,7 +2104,7 @@ function TrackIP($memID = 0)
 			),
 			'lacnic' => array(
 				'name' => $txt['whois_lacnic'],
-				'url' => 'http://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
+				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
 				'range' => array(186, 187, 189, 190, 191, 200, 201),
 			),
 			'ripe' => array(
@@ -2437,7 +2421,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 	$members = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$extra = smf_json_decode($row['extra'], true);
+		$extra = $smcFunc['json_decode']($row['extra'], true);
 		if (!empty($extra['applicator']))
 			$members[] = $extra['applicator'];
 

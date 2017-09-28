@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -37,7 +37,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit">
+							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button">
 						</noscript>
 					</div>
 				</div>
@@ -109,7 +109,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" value="', $txt['go'], '" class="button_submit">
+							<input type="submit" value="', $txt['go'], '" class="button">
 						</noscript>
 					</div>
 				</div>
@@ -223,21 +223,21 @@ function template_credits()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_modifications'], '</h3>
 		</div>
-		<div class="windowbg noup">';
+		<div class="windowbg noup">
+			<ul>';
 
 		// Display the credits.
 		if (!empty($context['credits_modifications']))
 			echo '
-			', implode('
-			<br>', $context['credits_modifications']);
+				<li>', implode('</li><li>', $context['credits_modifications']), '</li>';
 
 		// Legacy.
 		if (!empty($context['copyrights']['mods']))
-			echo (empty($context['credits_modifications']) ? '<br>' : ''),
-			implode('
-			<br>', $context['copyrights']['mods']);
+			echo '
+				<li>', implode('</li><li>', $context['copyrights']['mods']), '</li>';
 
 		echo '
+			</ul>
 		</div>';
 	}
 

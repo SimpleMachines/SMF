@@ -17,16 +17,14 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 $software_year = '2017';
-$forum_version = 'SMF 2.1 Beta 3';
+$forum_version = 'SMF 2.1 Beta 4';
 
 // Get everything started up...
 define('SMF', 1);
-if (function_exists('set_magic_quotes_runtime') && strnatcmp(phpversion(), '5.3.0') < 0)
-	@set_magic_quotes_runtime(0);
 error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : E_ALL);
 $time_start = microtime();
 
@@ -384,7 +382,8 @@ function smf_main()
 	}
 
 	// Otherwise, it was set - so let's go to that action.
-	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
+	if (!empty($actionArray[$_REQUEST['action']][0]))
+		require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 
 	// Do the right thing.
 	return call_helper($actionArray[$_REQUEST['action']][1], true);

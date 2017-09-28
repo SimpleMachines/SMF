@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -372,7 +372,6 @@ function html_to_bbc($text)
 		// End tag?
 		if ($matches[4] != '/' && strpos($text, '</' . $matches[1] . '>', $start_pos) !== false)
 		{
-			$end_length = strlen('</' . $matches[1] . '>');
 			$end_pos = strpos($text, '</' . $matches[1] . '>', $start_pos);
 
 			// Remove the align from that tag so it's never checked again.
@@ -1599,7 +1598,7 @@ function create_control_richedit($editorOptions)
 		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
 			loadJavaScriptFile($scripturl . '?action=loadeditorlocale', array('external' => true), 'sceditor_language');
 
-		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (isBrowser('is_firefox') ? '_firefox' : '')];
+		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 		if ($context['show_spellchecking'])
 		{
@@ -1682,6 +1681,15 @@ function create_control_richedit($editorOptions)
 			),
 		);
 		$context['bbc_tags'][] = array(
+			array(
+				'code' => 'floatleft',
+				'description' => $editortxt['float_left']
+			),
+			array(
+				'code' => 'floatright',
+				'description' => $editortxt['float_right']
+			),
+			array(),
 			array(
 				'code' => 'flash',
 				'description' => $editortxt['flash']
@@ -2002,7 +2010,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc;
 	global $context, $user_info, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
@@ -2083,7 +2091,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				$id_question = $row['id_question'];
 				unset ($row['id_question']);
 				// Make them all lowercase. We can't directly use $smcFunc['strtolower'] with array_walk, so do it manually, eh?
-				$row['answers'] = smf_json_decode($row['answers'], true);
+				$row['answers'] = $smcFunc['json_decode']($row['answers'], true);
 				foreach ($row['answers'] as $k => $v)
 					$row['answers'][$k] = $smcFunc['strtolower']($v);
 
@@ -2296,7 +2304,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
  */
 function AutoSuggestHandler($checkRegistered = null)
 {
-	global $context;
+	global $smcFunc, $context;
 
 	// These are all registered types.
 	$searchTypes = array(
@@ -2315,7 +2323,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	loadTemplate('Xml');
 
 	// Any parameters?
-	$context['search_param'] = isset($_REQUEST['search_param']) ? smf_json_decode(base64_decode($_REQUEST['search_param']), true) : array();
+	$context['search_param'] = isset($_REQUEST['search_param']) ? $smcFunc['json_decode'](base64_decode($_REQUEST['search_param']), true) : array();
 
 	if (isset($_REQUEST['suggest_type'], $_REQUEST['search']) && isset($searchTypes[$_REQUEST['suggest_type']]))
 	{

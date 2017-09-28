@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -222,7 +222,7 @@ function PackageInstallTest()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : smf_json_decode($row['db_changes'], true);
+		$db_changes = empty($row['db_changes']) ? array() : $smcFunc['json_decode']($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -729,7 +729,7 @@ function PackageInstallTest()
 								'type' => $txt['package_delete'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
 								'action' => strtr($real_path, array('\\' => '/', $boarddir => '.')),
 								'description' => '',
-								'value' => base64_encode(json_encode(array('type' => $action_data['type'], 'orig' => $action_data['filename'], 'future' => $real_path, 'id' => $id))),
+								'value' => base64_encode($smcFunc['json_encode'](array('type' => $action_data['type'], 'orig' => $action_data['filename'], 'future' => $real_path, 'id' => $id))),
 								'not_mod' => true,
 							);
 						else
@@ -737,7 +737,7 @@ function PackageInstallTest()
 								'type' => $txt['package_extract'] . ' ' . ($action_data['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
 								'action' => strtr($real_path, array('\\' => '/', $boarddir => '.')),
 								'description' => '',
-								'value' => base64_encode(json_encode(array('type' => $action_data['type'], 'orig' => $action_data['destination'], 'future' => $real_path, 'id' => $id))),
+								'value' => base64_encode($smcFunc['json_encode'](array('type' => $action_data['type'], 'orig' => $action_data['destination'], 'future' => $real_path, 'id' => $id))),
 								'not_mod' => true,
 							);
 					}
@@ -767,7 +767,7 @@ function PackageInstallTest()
  */
 function PackageInstall()
 {
-	global $boarddir, $txt, $context, $boardurl, $scripturl, $sourcedir, $packagesdir, $modSettings;
+	global $txt, $context, $boardurl, $scripturl, $sourcedir, $packagesdir, $modSettings;
 	global $user_info, $smcFunc;
 
 	// Make sure we don't install this mod twice.
@@ -873,7 +873,7 @@ function PackageInstall()
 		{
 			if (empty($change))
 				continue;
-			$theme_data = smf_json_decode(base64_decode($change), true);
+			$theme_data = $smcFunc['json_decode'](base64_decode($change), true);
 			if (empty($theme_data['type']))
 				continue;
 
@@ -921,7 +921,7 @@ function PackageInstall()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : smf_json_decode($row['db_changes'], true);
+		$db_changes = empty($row['db_changes']) ? array() : $smcFunc['json_decode']($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -989,19 +989,19 @@ function PackageInstall()
 					$mod_actions = parseModification(file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']), false, $action['reverse'], $theme_paths);
 
 				// Any errors worth noting?
-				foreach ($mod_actions as $key => $action)
+				foreach ($mod_actions as $key => $modAction)
 				{
-					if ($action['type'] == 'failure')
+					if ($modAction['type'] == 'failure')
 						$failed_steps[] = array(
-							'file' => $action['filename'],
+							'file' => $modAction['filename'],
 							'large_step' => $failed_count,
 							'sub_step' => $key,
 							'theme' => 1,
 						);
 
 					// Gather the themes we installed into.
-					if (!empty($action['is_custom']))
-						$themes_installed[] = $action['is_custom'];
+					if (!empty($modAction['is_custom']))
+						$themes_installed[] = $modAction['is_custom'];
 				}
 			}
 			elseif ($action['type'] == 'code' && !empty($action['filename']))
@@ -1114,7 +1114,7 @@ function PackageInstall()
 			else
 			{
 				$is_upgrade = true;
-				$old_db_changes = empty($row['db_changes']) ? array() : smf_json_decode($row['db_changes'], true);
+				$old_db_changes = empty($row['db_changes']) ? array() : $smcFunc['json_decode']($row['db_changes'], true);
 			}
 		}
 
@@ -1136,8 +1136,8 @@ function PackageInstall()
 				/**
 				 * Table sorting function used in usort
 				 *
-				 * @param type $a
-				 * @param type $b
+				 * @param array $a
+				 * @param array $b
 				 * @return int
 				 */
 				function sort_table_first($a, $b)
@@ -1154,7 +1154,7 @@ function PackageInstall()
 					elseif (in_array($log[1], $tables))
 						unset($db_package_log[$k]);
 				}
-				$db_changes = json_encode($db_package_log);
+				$db_changes = $smcFunc['json_encode']($db_package_log);
 			}
 			else
 				$db_changes = '';
@@ -1164,7 +1164,7 @@ function PackageInstall()
 			$themes_installed = implode(',', $themes_installed);
 
 			// What failed steps?
-			$failed_step_insert = json_encode($failed_steps);
+			$failed_step_insert = $smcFunc['json_encode']($failed_steps);
 
 			// Un-sanitize things before we insert them...
 			$keys = array('filename', 'name', 'id', 'version');
@@ -1175,7 +1175,7 @@ function PackageInstall()
 			}
 
 			// Credits tag?
-			$credits_tag = (empty($credits_tag)) ? '' : json_encode($credits_tag);
+			$credits_tag = (empty($credits_tag)) ? '' : $smcFunc['json_encode']($credits_tag);
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_packages',
 				array(
@@ -1509,7 +1509,7 @@ function PackageBrowse()
 	$smcFunc['db_free_result']($get_versions);
 
 	// Decode the data.
-	$items = smf_json_decode($data['data'], true);
+	$items = $smcFunc['json_decode']($data['data'], true);
 
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
@@ -2095,7 +2095,7 @@ function PackagePermissions()
 		unset($context['file_tree'][strtr($boarddir, array('\\' => '/'))]['contents']['attachments']);
 
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 
 		// @todo Should we suggest non-current directories be read only?
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
@@ -2198,7 +2198,7 @@ function PackagePermissions()
 	// Have we got a load of back-catalogue trees to expand from a submit etc?
 	if (!empty($_GET['back_look']))
 	{
-		$potententialTrees = smf_json_decode(base64_decode($_GET['back_look']), true);
+		$potententialTrees = $smcFunc['json_decode'](base64_decode($_GET['back_look']), true);
 		foreach ($potententialTrees as $tree)
 			$context['look_for'][] = $tree;
 	}
@@ -2206,7 +2206,7 @@ function PackagePermissions()
 	if (!empty($_POST['back_look']))
 		$context['only_find'] = array_merge($context['only_find'], $_POST['back_look']);
 
-	$context['back_look_data'] = base64_encode(json_encode(array_slice($context['look_for'], 0, 15)));
+	$context['back_look_data'] = base64_encode($smcFunc['json_encode'](array_slice($context['look_for'], 0, 15)));
 
 	// Are we finding more files than first thought?
 	$context['file_offset'] = !empty($_REQUEST['fileoffset']) ? (int) $_REQUEST['fileoffset'] : 0;
@@ -2432,7 +2432,7 @@ function fetchPerms__recursive($path, &$data, $level)
  */
 function PackagePermissionsAction()
 {
-	global $context, $txt, $time_start, $package_ftp;
+	global $smcFunc, $context, $txt, $time_start, $package_ftp;
 
 	umask(0);
 
@@ -2456,7 +2456,7 @@ function PackagePermissionsAction()
 
 		// Continuing?
 		if (isset($_POST['toProcess']))
-			$_POST['permStatus'] = smf_json_decode(base64_decode($_POST['toProcess']), true);
+			$_POST['permStatus'] = $smcFunc['json_decode'](base64_decode($_POST['toProcess']), true);
 
 		if (isset($_POST['permStatus']))
 		{
@@ -2496,7 +2496,7 @@ function PackagePermissionsAction()
 
 			// Nothing to do?
 			if (empty($context['to_process']))
-				redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(json_encode($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
+				redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode($smcFunc['json_encode']($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
 		}
 		// Should never get here,
 		else
@@ -2527,8 +2527,16 @@ function PackagePermissionsAction()
 
 			// See if we're out of time?
 			if (time() - array_sum(explode(' ', $time_start)) > $timeout_limit)
+			{
+				// Prepare template usage for to_process.
+				$context['to_process_encode'] = base64_encode($smcFunc['json_encode']($context['to_process']));
+
 				return false;
+			}
 		}
+
+		// Prepare template usage for to_process.
+		$context['to_process_encode'] = base64_encode($smcFunc['json_encode']($context['to_process']));
 	}
 	// If predefined this is a little different.
 	else
@@ -2536,7 +2544,7 @@ function PackagePermissionsAction()
 		$context['predefined_type'] = isset($_POST['predefined']) ? $_POST['predefined'] : 'restricted';
 
 		$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : 0;
-		$context['directory_list'] = isset($_POST['dirList']) ? smf_json_decode(base64_decode($_POST['dirList']), true) : array();
+		$context['directory_list'] = isset($_POST['dirList']) ? $smcFunc['json_decode'](base64_decode($_POST['dirList']), true) : array();
 
 		$context['file_offset'] = isset($_POST['fileOffset']) ? (int) $_POST['fileOffset'] : 0;
 
@@ -2546,7 +2554,7 @@ function PackagePermissionsAction()
 			/**
 			 * Counts all the directories under a given path
 			 *
-			 * @param type $dir
+			 * @param string $dir
 			 * @return integer
 			 */
 			function count_directories__recursive($dir)
@@ -2588,8 +2596,8 @@ function PackagePermissionsAction()
 			/**
 			 * Builds a list of special files recursively for a given path
 			 *
-			 * @param type $path
-			 * @param type $data
+			 * @param string $path
+			 * @param array $data
 			 */
 			function build_special_files__recursive($path, &$data)
 			{
@@ -2611,7 +2619,7 @@ function PackagePermissionsAction()
 		elseif ($context['predefined_type'] == 'free')
 			$context['special_files'] = array();
 		else
-			$context['special_files'] = smf_json_decode(base64_decode($_POST['specialFiles']), true);
+			$context['special_files'] = $smcFunc['json_decode'](base64_decode($_POST['specialFiles']), true);
 
 		// Now we definitely know where we are, we need to go through again doing the chmod!
 		foreach ($context['directory_list'] as $path => $dummy)
@@ -2657,12 +2665,22 @@ function PackagePermissionsAction()
 
 			// See if we're out of time?
 			if (time() - array_sum(explode(' ', $time_start)) > $timeout_limit)
+			{
+				// Prepare this for usage on templates.
+				$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));
+				$context['special_files_encode'] = base64_encode($smcFunc['json_encode']($context['special_files']));
+
 				return false;
+			}
 		}
+
+		// Prepare this for usage on templates.
+		$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));
+		$context['special_files_encode'] = base64_encode($smcFunc['json_encode']($context['special_files']));
 	}
 
 	// If we're here we are done!
-	redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(json_encode($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
+	redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode($smcFunc['json_encode']($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
 }
 
 /**

@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -74,17 +74,7 @@ function CalendarMain()
 			);
 			if ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				// We know the format is going to be in yyyy-mm-dd from the database, so let's run with that.
-				list($_REQUEST['year'], $_REQUEST['month']) = explode('-', $row['start_date']);
-				$_REQUEST['year'] = (int) $_REQUEST['year'];
-				$_REQUEST['month'] = (int) $_REQUEST['month'];
-
-				// We want month view.
-				if (empty($_GET['viewmonth']))
-					$_GET['viewmonth'] = true;
-
-				// And we definitely don't want weekly view.
-				unset ($_GET['viewweek']);
+				$_REQUEST['start_date'] = $row['start_date'];
 
 				// We might use this later.
 				$context['selected_event'] = $evid;
@@ -99,15 +89,15 @@ function CalendarMain()
 
 	// Ensure a default view is defined
 	if (empty($modSettings['calendar_default_view']))
-		$modSettings['calendar_default_view'] = 'view_list';
+		$modSettings['calendar_default_view'] = 'viewlist';
 
 	// What view do we want?
 	if (isset($_GET['viewweek']))
-		$context['calendar_view'] = 'view_week';
+		$context['calendar_view'] = 'viewweek';
 	elseif (isset($_GET['viewmonth']))
-		$context['calendar_view'] = 'view_month';
+		$context['calendar_view'] = 'viewmonth';
 	elseif (isset($_GET['viewlist']))
-		$context['calendar_view'] = 'view_list';
+		$context['calendar_view'] = 'viewlist';
 	else
 		$context['calendar_view'] = $modSettings['calendar_default_view'];
 
@@ -132,7 +122,7 @@ function CalendarMain()
 	}
 	$year = !empty($_REQUEST['year']) ? (int) $_REQUEST['year'] : $today['year'];
 	$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
-	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : $today['day'];
+	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
 	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day))) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])));
 
@@ -179,7 +169,7 @@ function CalendarMain()
 	if ($curPage['year'] < $modSettings['cal_minyear'] || $curPage['year'] > $modSettings['cal_maxyear'])
 		fatal_lang_error('invalid_year', false);
 	// If we have a day clean that too.
-	if ($context['calendar_view'] != 'view_month')
+	if ($context['calendar_view'] != 'viewmonth')
 	{
 		$isValid = checkdate($curPage['month'], $curPage['day'], $curPage['year']);
 		if (!$isValid)
@@ -205,9 +195,9 @@ function CalendarMain()
 	);
 
 	// Load up the main view.
-	if ($context['calendar_view'] == 'view_list')
+	if ($context['calendar_view'] == 'viewlist')
 		$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
-	elseif ($context['calendar_view'] == 'view_week')
+	elseif ($context['calendar_view'] == 'viewweek')
 		$context['calendar_grid_main'] = getCalendarWeek($curPage['month'], $curPage['year'], $curPage['day'], $calendarOptions);
 	else
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
@@ -241,8 +231,8 @@ function CalendarMain()
 	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
-	if ($context['calendar_view'] != 'view_list')
-		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'view_week' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+	if ($context['calendar_view'] != 'viewlist')
+		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -255,7 +245,7 @@ function CalendarMain()
 		'name' => $txt['months'][$context['current_month']] . ' ' . $context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
-	if ($context['calendar_view'] == 'view_week')
+	if ($context['calendar_view'] == 'viewweek')
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
 			'name' => $context['calendar_grid_main']['week_title'],
@@ -284,7 +274,7 @@ function CalendarMain()
 function CalendarPost()
 {
 	global $context, $txt, $user_info, $sourcedir, $scripturl;
-	global $modSettings, $topic, $smcFunc, $settings;
+	global $modSettings, $topic, $smcFunc;
 
 	// Well - can they?
 	isAllowedTo('calendar_post');
@@ -366,20 +356,23 @@ function CalendarPost()
 			$d = date_parse($_POST['start_date']);
 			$year = $d['year'];
 			$month = $d['month'];
+			$day = $d['day'];
 		}
 		elseif (isset($_POST['start_datetime']))
 		{
 			$d = date_parse($_POST['start_datetime']);
 			$year = $d['year'];
 			$month = $d['month'];
+			$day = $d['day'];
 		}
 		else
 		{
 			$today = getdate();
 			$year = isset($_POST['year']) ? $_POST['year'] : $today['year'];
 			$month = isset($_POST['month']) ? $_POST['month'] : $today['mon'];
+			$day = isset($_POST['day']) ? $_POST['day'] : $today['mday'];
 		}
-		redirectexit($scripturl . '?action=calendar;month=' . $month . ';year=' . $year);
+		redirectexit($scripturl . '?action=calendar;month=' . $month . ';year=' . $year . ';day=' . $day);
 	}
 
 	// If we are not enabled... we are not enabled.
@@ -439,8 +432,8 @@ function CalendarPost()
 	// Otherwise, just adjust these to look nice on the input form
 	else
 	{
-		$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-		$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+		$context['event']['start_time'] = $context['event']['start_time_orig'];
+		$context['event']['end_time'] = $context['event']['end_time_orig'];
 	}
 
 	// Need this so the user can select a timezone for the event.
@@ -450,8 +443,8 @@ function CalendarPost()
 	// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 	{
-		$d = date_create($context['event']['tz']);
-		$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+		$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+		$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 	}
 
 	// Get list of boards that can be posted in.
@@ -536,7 +529,7 @@ function CalendarPost()
 /**
  * This function offers up a download of an event in iCal 2.0 format.
  *
- * Follows the conventions in {@link http://tools.ietf.org/html/rfc5546 RFC5546}
+ * Follows the conventions in {@link https://tools.ietf.org/html/rfc5546 RFC5546}
  * Sets events as all day events since we don't have hourly events
  * Will honor and set multi day events
  * Sets a sequence number if the event has been modified
@@ -654,7 +647,7 @@ function iCalDownload()
  */
 function clock()
 {
-	global $settings, $context, $scripturl;
+	global $smcFunc, $settings, $context, $scripturl;
 
 	$context['onimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
 	$context['offimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
@@ -675,30 +668,24 @@ function clock()
 	{
 		$context['sub_template'] = 'bcd';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;bcd', 'name' => 'BCD');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTo2OntzOjI6ImgxIjthOjI6e2k6MDtpOjI7aToxO2k6MTt9czoyOiJoMiI7YTo0OntpOjA7aTo4O2k6MTtpOjQ7aToyO2k6MjtpOjM7aToxO31zOjI6Im0xIjthOjM6e2k6MDtpOjQ7aToxO2k6MjtpOjI7aToxO31zOjI6Im0yIjthOjQ6e2k6MDtpOjg7aToxO2k6NDtpOjI7aToyO2k6MztpOjE7fXM6MjoiczEiO2E6Mzp7aTowO2k6NDtpOjE7aToyO2k6MjtpOjE7fXM6MjoiczIiO2E6NDp7aTowO2k6ODtpOjE7aTo0O2k6MjtpOjI7aTozO2k6MTt9fQ=='));
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoMSI6WzIsMV0sImgyIjpbOCw0LDIsMV0sIm0xIjpbNCwyLDFdLCJtMiI6WzgsNCwyLDFdLCJzMSI6WzQsMiwxXSwiczIiOls4LDQsMiwxXX0='), true);
 	}
 	elseif (!$omfg && !isset($_REQUEST['time']))
 	{
 		$context['sub_template'] = 'hms';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock', 'name' => 'Binary');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTozOntzOjE6ImgiO2E6NTp7aTowO2k6MTY7aToxO2k6ODtpOjI7aTo0O2k6MztpOjI7aTo0O2k6MTt9czoxOiJtIjthOjY6e2k6MDtpOjMyO2k6MTtpOjE2O2k6MjtpOjg7aTozO2k6NDtpOjQ7aToyO2k6NTtpOjE7fXM6MToicyI7YTo2OntpOjA7aTozMjtpOjE7aToxNjtpOjI7aTo4O2k6MztpOjQ7aTo0O2k6MjtpOjU7aToxO319'));
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJoIjpbMTYsOCw0LDIsMV0sIm0iOlszMiwxNiw4LDQsMiwxXSwicyI6WzMyLDE2LDgsNCwyLDFdfQ'), true);
 	}
 	elseif ($omfg)
 	{
 		$context['sub_template'] = 'omfg';
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;omfg', 'name' => 'OMFG');
-		$context['clockicons'] = safe_unserialize(base64_decode('YTo2OntzOjQ6InllYXIiO2E6Nzp7aTowO2k6NjQ7aToxO2k6MzI7aToyO2k6MTY7aTozO2k6ODtpOjQ7aTo0O2k6NTtpOjI7aTo2O2k6MTt9czo1OiJtb250aCI7YTo0OntpOjA7aTo4O2k6MTtpOjQ7aToyO2k6MjtpOjM7aToxO31zOjM6ImRheSI7YTo1OntpOjA7aToxNjtpOjE7aTo4O2k6MjtpOjQ7aTozO2k6MjtpOjQ7aToxO31zOjQ6ImhvdXIiO2E6NTp7aTowO2k6MTY7aToxO2k6ODtpOjI7aTo0O2k6MztpOjI7aTo0O2k6MTt9czozOiJtaW4iO2E6Njp7aTowO2k6MzI7aToxO2k6MTY7aToyO2k6ODtpOjM7aTo0O2k6NDtpOjI7aTo1O2k6MTt9czozOiJzZWMiO2E6Njp7aTowO2k6MzI7aToxO2k6MTY7aToyO2k6ODtpOjM7aTo0O2k6NDtpOjI7aTo1O2k6MTt9fQ=='));
+		$context['clockicons'] = $smcFunc['json_decode'](base64_decode('eyJ5ZWFyIjpbNjQsMzIsMTYsOCw0LDIsMV0sIm1vbnRoIjpbOCw0LDIsMV0sImRheSI6WzE2LDgsNCwyLDFdLCJob3VyIjpbMTYsOCw0LDIsMV0sIm1pbiI6WzMyLDE2LDgsNCwyLDFdLCJzZWMiOlszMiwxNiw4LDQsMiwxXX0='), true);
 	}
 	elseif (isset($_REQUEST['time']))
 	{
 		$context['sub_template'] = 'thetime';
 		$time = getdate($_REQUEST['time'] == 'now' ? time() : (int) $_REQUEST['time']);
-		$year = $time['year'] % 100;
-		$month = $time['mon'];
-		$day = $time['mday'];
-		$hour = $time['hours'];
-		$min = $time['minutes'];
-		$sec = $time['seconds'];
 		$context['linktree'][] = array('url' => $scripturl . '?action=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time');
 		$context['clockicons'] = array(
 			'year' => array(

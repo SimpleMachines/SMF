@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 // This won't be dedicated without this - this must exist in each gateway!
@@ -132,7 +132,7 @@ class paypal_display
 		// If it's repeatable do some javascript to respect this idea.
 		if (!empty($sub_data['repeatable']))
 			$return_data['javascript'] = '
-				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();" class="input_check">' . $txt['paid_make_recurring'] . '</label><br>\');
+				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . $txt['paid_make_recurring'] . '</label><br>\');
 
 				function switchPaypalRecur()
 				{
@@ -203,7 +203,7 @@ class paypal_payment
 			$requestString .= '&' . $k . '=' . urlencode($v);
 
 		// Can we use curl?
-		if (function_exists('curl_init') && $curl = curl_init((!empty($modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'http://www.') . 'paypal.com/cgi-bin/webscr'))
+		if (function_exists('curl_init') && $curl = curl_init((!empty($modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr'))
 		{
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);
@@ -383,7 +383,6 @@ class paypal_payment
 		// If it's a subscription record the reference.
 		if ($_POST['txn_type'] == 'subscr_payment' && !empty($_POST['subscr_id']))
 		{
-			$_POST['subscr_id'] = $_POST['subscr_id'];
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_subscribed
 				SET vendor_ref = {string:vendor_ref}

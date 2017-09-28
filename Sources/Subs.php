@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -713,12 +713,14 @@ function comma_format($number, $override_decimal_count = false)
  * @param int $log_time A timestamp
  * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
+ * @param bool $process_safe Activate setlocale check for changes at runtime. Slower, but safer.
  * @return string A formatted timestamp
  */
-function timeformat($log_time, $show_today = true, $offset_type = false)
+function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour;
+	static $non_twelve_hour, $locale_cache;
+	static $unsupportedFormats, $finalizedFormats;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -763,8 +765,78 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
-	if (setlocale(LC_TIME, $txt['lang_locale']))
+	// Use the cached formats if available
+	if (is_null($finalizedFormats))
+		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
+
+	// Make a supported version for this format if we don't already have one
+	if (empty($finalizedFormats[$str]))
 	{
+		$timeformat = $str;
+
+		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
+		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
+		// turn into static strings, some (i.e. %a, %A, $b, %B, %p) have special handling below.
+		$strftimeFormatSubstitutions = array(
+			// Day
+			'a' => '%a', 'A' => '%A', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
+			// Week
+			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
+			// Month
+			'b' => '%b', 'B' => '%B', 'h' => '%b', 'm' => '%b',
+			// Year
+			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
+			// Time
+			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '%p', 'P' => '%p',
+			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
+			// Time and Date Stamps
+			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
+			// Miscellaneous
+			'n' => "\n", 't' => "\t", '%' => '&#37;',
+		);
+
+		// No need to do this part again if we already did it once
+		if (is_null($unsupportedFormats))
+			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
+		if (empty($unsupportedFormats))
+		{
+			foreach($strftimeFormatSubstitutions as $format => $substitution)
+			{
+				$value = @strftime('%' . $format);
+
+				// Windows will return false for unsupported formats
+				// Other operating systems return the format string as a literal
+				if ($value === false || $value === $format)
+					$unsupportedFormats[] = $format;
+			}
+			cache_put_data('unsupportedtimeformats', $unsupportedFormats, 86400);
+		}
+
+		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
+		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
+
+		// Substitute unsupported formats with supported ones
+		if (!empty($unsupportedFormats))
+			while (preg_match('~%(' . implode('|', $unsupportedFormats) . ')~', $timeformat, $matches))
+				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
+
+		// Remember this so we don't need to do it again
+		$finalizedFormats[$str] = $timeformat;
+		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
+	}
+
+	$str = $finalizedFormats[$str];
+
+	if (!isset($locale_cache))
+		$locale_cache = setlocale(LC_TIME, $txt['lang_locale']);
+
+	if ($locale_cache !== false)
+	{
+		// Check if another process changed the locale
+		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
+			setlocale(LC_TIME, $txt['lang_locale']);
+
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
 		if ($non_twelve_hour && strpos($str, '%p') !== false)
@@ -785,12 +857,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
 	}
 
-	// Windows doesn't support %e; on some versions, strftime fails altogether if used, so let's prevent that.
-	if ($context['server']['is_windows'] && strpos($str, '%e') !== false)
-		$str = str_replace('%e', ltrim(strftime('%d', $time), '0'), $str);
-
-	// Format any other characters..
-	return strftime($str, $time);
+	// Format the time and then restore any literal percent characters
+	return str_replace('&#37;', '%', strftime($str, $time));
 }
 
 /**
@@ -920,7 +988,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -1132,9 +1200,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '"></a>';
+							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '" class="atc_img"></a>';
 						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . '/>';
+							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
 					}
 
 					// No image. Show a link.
@@ -1269,7 +1337,27 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
-				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
+				'disabled_content' => '<a href="$1" target="_blank">$1</a>',
+			),
+			array(
+				'tag' => 'float',
+				'type' => 'unparsed_equals',
+				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
+				'before' => '<div $1>',
+				'after' => '</div>',
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
+
+					if (preg_match('~\bmax=(\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)~', $data, $matches))
+						$css = ' style="max-width:' . $matches[1] . (is_numeric($matches[1]) ? 'px' : '') . '"';
+					else
+						$css = '';
+
+					$data = $class . $css;
+				},
+				'trim' => 'outside',
+				'block_level' => true,
 			),
 			array(
 				'tag' => 'font',
@@ -1407,7 +1495,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'list',
 				'parameters' => array(
-					'type' => array('match' => '(none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha)'),
+					'type' => array('match' => '(none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|upper-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha)'),
 				),
 				'before' => '<ul class="bbc_list" style="list-style-type: {type};">',
 				'after' => '</ul>',
@@ -1705,7 +1793,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
-		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . json_encode($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
+		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
 
 		if (($temp = cache_get_data($cache_key, 240)) != null)
 			return $temp;
@@ -1761,7 +1849,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	while ($pos !== false)
 	{
 		$last_pos = isset($last_pos) ? max($pos, $last_pos) : $pos;
-		preg_match('~\[/?(?=' . $alltags_regex . ')~', $message, $matches, PREG_OFFSET_CAPTURE, $pos + 1);
+		preg_match('~\[/?(?=' . $alltags_regex . ')~i', $message, $matches, PREG_OFFSET_CAPTURE, $pos + 1);
 		$pos = isset($matches[0][1]) ? $matches[0][1] : false;
 
 		// Failsafe.
@@ -1780,16 +1868,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
-				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:)\S+?)\\1&gt;~i', '[url=&quot;$2&quot;]', $data);
-				$data = preg_replace('~&lt;/a&gt;~i', '[/url]', $data);
+				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\S+?)\\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
 
 				// <br> should be empty.
 				$empty_tags = array('br', 'hr');
 				foreach ($empty_tags as $tag)
-					$data = str_replace(array('&lt;' . $tag . '&gt;', '&lt;' . $tag . '/&gt;', '&lt;' . $tag . ' /&gt;'), '[' . $tag . ' /]', $data);
+					$data = str_replace(array('&lt;' . $tag . '&gt;', '&lt;' . $tag . '/&gt;', '&lt;' . $tag . ' /&gt;'), '<' . $tag . '>', $data);
 
 				// b, u, i, s, pre... basic tags.
-				$closable_tags = array('b', 'u', 'i', 's', 'em', 'ins', 'del', 'pre', 'blockquote');
+				$closable_tags = array('b', 'u', 'i', 's', 'em', 'ins', 'del', 'pre', 'blockquote', 'strong');
 				foreach ($closable_tags as $tag)
 				{
 					$diff = substr_count($data, '&lt;' . $tag . '&gt;') - substr_count($data, '&lt;/' . $tag . '&gt;');
@@ -1980,8 +2067,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}, $data);
 					}
 
-					// Next, emails...
-					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false)
+					// Next, emails...  Must be careful not to step on enablePostHTML logic above...
+					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false)
 					{
 						$email_regex = '
 						# Preceded by a non-domain character or start of line
@@ -2111,9 +2198,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+				// Trim one line of whitespace after unnested tags, but all of it after nested ones
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
 
@@ -2386,9 +2478,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += $ot_strlen + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 4) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
-				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
+				$whitespace_regex = '';
+				if (!empty($tag['block_level']))
+					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
 				array_pop($open_tags);
@@ -3578,7 +3673,7 @@ function template_css()
  */
 function custMinify($data, $type, $do_deferred = false)
 {
-	global $sourcedir, $settings, $txt;
+	global $settings, $txt;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
@@ -3677,6 +3772,9 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
 
+	// Just make sure that attachment id is only a int
+	$attachment_id = (int) $attachment_id;
+
 	// Grab the file hash if it wasn't added.
 	// Left this for legacy.
 	if ($file_hash === '')
@@ -3701,7 +3799,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
-	if (!empty($modSettings['currentAttachmentUploadDir']))
+	if (is_array($modSettings['attachmentUploadDir']))
 		$path = $modSettings['attachmentUploadDir'][$dir];
 
 	else
@@ -4228,9 +4326,7 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 	}
 
-	/**
-	 * @todo For some reason, $context['open_member_reports'] isn't getting set
-	 */
+	// Show number of reported members
 	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
@@ -4289,9 +4385,6 @@ function call_integration_hook($hook, $parameters = array())
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
-
-	// Define some needed vars.
-	$function = false;
 
 	$functions = explode(',', $modSettings[$hook]);
 	// Loop through each function.
@@ -4669,9 +4762,9 @@ function sanitizeMSCutPaste($string)
 
 	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
-		"\xe2\80\x9a",	// single low-9 quotation mark
-		"\xe2\80\x9e",	// double low-9 quotation mark
-		"\xe2\80\xa6",	// horizontal ellipsis
+		"\xe2\x80\x9a",	// single low-9 quotation mark
+		"\xe2\x80\x9e",	// double low-9 quotation mark
+		"\xe2\x80\xa6",	// horizontal ellipsis
 		"\xe2\x80\x98",	// left single curly quote
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
@@ -4880,7 +4973,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $modSettings;
+	global $smcFunc, $modSettings;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -4901,14 +4994,14 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
-	// We'll need this too
-	$later = (int) date_format(date_add(date_create('@' . $when), date_interval_create_from_date_string('1 year')), 'U');
+	// We'll need these too
+	$date_when = date_create('@' . $when);
+	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
 
 	// Prefer and give custom descriptions for these time zones
 	// If the description is left empty, it will be filled in with the names of matching cities
 	$timezone_descriptions = array(
-		'America/Adak' => 'Hawaii-Aleutian',
-		'Pacific/Honolulu' => 'Hawaii',
+		'America/Adak' => 'Aleutian Islands',
 		'Pacific/Marquesas' => 'Marquesas Islands',
 		'Pacific/Gambier' => 'Gambier Islands',
 		'America/Anchorage' => 'Alaska',
@@ -4947,6 +5040,7 @@ function smf_list_timezones($when = 'now')
 		'Asia/Rangoon' => 'Yangon/Rangoon',
 		'Indian/Christmas' => 'Christmas Island',
 		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
+		'Antarctica/Vostok' => 'Vostok Station',
 		'Australia/Lord_Howe' => 'Lord Howe Island',
 		'Pacific/Guadalcanal' => 'Solomon Islands',
 		'Pacific/Norfolk' => 'Norfolk Island',
@@ -4976,36 +5070,23 @@ function smf_list_timezones($when = 'now')
 		if ($tzid == 'UTC')
 			continue;
 
+		$tz = timezone_open($tzid);
+
 		// First, get the set of transition rules for this tzid
-		$tzinfo = timezone_transitions_get(timezone_open($tzid), $when, $later);
+		$tzinfo = timezone_transitions_get($tz, $when, $later);
 
-		// There are a handful of time zones that PHP doesn't know the proper shortform for. Fix 'em if we can.
-		if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-		{
-			$tz_location = timezone_location_get(timezone_open($tzid));
-
-			// Kazakstan
-			if ($tz_location['country_code'] == 'KZ')
-				$tzinfo[0]['abbr'] = str_replace(array('+05', '+06'), array('AQTT', 'ALMT'), $tzinfo[0]['abbr']);
-
-			// Russia likes to experiment with time zones
-			if ($tz_location['country_code'] == 'RU')
-			{
-				$msk_offset = intval($tzinfo[0]['abbr']) - 3;
-				$msk_offset = !empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '';
-				$tzinfo[0]['abbr'] = 'MSK' . $msk_offset;
-			}
-
-			// Still no good? We'll just mark it as a UTC offset
-			if (strspn($tzinfo[0]['abbr'], '+-') > 0)
-				$tzinfo[0]['abbr'] = 'UTC' . $tzinfo[0]['abbr'];
-		}
-
+		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
 		$tzkey = serialize($tzinfo);
+
+		// Next, get the geographic info for this tzid
+		$tzgeo = timezone_location_get($tz);
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
+		{
 			$zones[$tzkey]['tzid'] = $tzid;
+			$zones[$tzkey]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
+		}
 
 		// A time zone from a prioritized country?
 		if (in_array($tzid, $priority_tzids))
@@ -5015,17 +5096,18 @@ function smf_list_timezones($when = 'now')
 		$tzid_parts = explode('/', $tzid);
 		$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
+		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
 	}
 
-	// Sort by offset
-	array_multisort($offsets, SORT_ASC, $zones);
+	// Sort by offset then longitude
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
 	$timezones = array();
 	foreach ($zones as $tzkey => $tzvalue)
 	{
-		$tzinfo = unserialize($tzkey);
+		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
 		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
 			$desc = $timezone_descriptions[$tzvalue['tzid']];
@@ -5033,9 +5115,9 @@ function smf_list_timezones($when = 'now')
 			$desc = implode(', ', array_unique($tzvalue['locations']));
 
 		if (isset($priority_zones[$tzkey]))
-			$priority_timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$priority_timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 		else
-			$timezones[$tzvalue['tzid']] = $tzinfo[0]['abbr'] . ' - ' . $desc . ' [UTC' . date_format(date_create($tzvalue['tzid']), 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
 	$timezones = array_merge(
@@ -5048,8 +5130,74 @@ function smf_list_timezones($when = 'now')
 }
 
 /**
+ * Reformats certain time zone abbreviations to look better.
+ *
+ * Some of PHP's time zone abbreviations are just numerical offsets from UTC, e.g. '+04'
+ * These look weird and are kind of useless, so we make them look better.
+ *
+ * @param string $tzid The Olsen time zome identifier for a time zone.
+ * @param string $tz_abbrev The abbreviation PHP provided for this time zone.
+ * @return string The fixed version of $tz_abbrev.
+ */
+function fix_tz_abbrev($tzid, $tz_abbrev)
+{
+	// Is this abbreviation just a numerical offset?
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
+		$missing_tz_abbrs = array(
+			'Antarctica/Casey' => 'CAST',
+			'Antarctica/Davis' => 'DAVT',
+			'Antarctica/DumontDUrville' => 'DDUT',
+			'Antarctica/Mawson' => 'MAWT',
+			'Antarctica/Rothera' => 'ART',
+			'Antarctica/Syowa' => 'SYOT',
+			'Antarctica/Vostok' => 'VOST',
+			'Asia/Almaty' => 'ALMT',
+			'Asia/Aqtau' => 'ORAT',
+			'Asia/Aqtobe' => 'AQTT',
+			'Asia/Ashgabat' => 'TMT',
+			'Asia/Bishkek' => 'KGT',
+			'Asia/Colombo' => 'IST',
+			'Asia/Dushanbe' => 'TJT',
+			'Asia/Oral' => 'ORAT',
+			'Asia/Qyzylorda' => 'QYZT',
+			'Asia/Samarkand' => 'UZT',
+			'Asia/Tashkent' => 'UZT',
+			'Asia/Tbilisi' => 'GET',
+			'Asia/Yerevan' => 'AMT',
+			'Europe/Istanbul' => 'TRT',
+			'Europe/Minsk' => 'MSK',
+			'Indian/Kerguelen' => 'TFT',
+		);
+
+		if (!empty($missing_tz_abbrs[$tzid]))
+			$tz_abbrev = $missing_tz_abbrs[$tzid];
+		else
+		{
+			// Russia likes to experiment with time zones often, and names them as offsets from Moscow
+			$tz_location = timezone_location_get(timezone_open($tzid));
+			if ($tz_location['country_code'] == 'RU')
+			{
+				$msk_offset = intval($tz_abbrev) - 3;
+				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
+			}
+		}
+
+		// Still no good? We'll just mark it as a UTC offset
+		if (strspn($tz_abbrev, '+-') > 0)
+		{
+			$tz_abbrev = intval($tz_abbrev);
+			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
+		}
+	}
+
+	return $tz_abbrev;
+}
+
+/**
  * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
- * @return binary The IP address in binary or false
+ * @return string|false The IP address in binary or false
  */
 function inet_ptod($ip_address)
 {
@@ -5061,8 +5209,8 @@ function inet_ptod($ip_address)
 }
 
 /**
- * @param binary $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
- * @return string The IP address in presentation format or false on error
+ * @param string $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
+ * @return string|false The IP address in presentation format or false on error
  */
 function inet_dtop($bin)
 {
@@ -5433,6 +5581,10 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 /**
  * Check the given String if he is a valid IPv4 or IPv6
  * return true or false
+ *
+ * @param string $IPString
+ *
+ * @return bool
  */
 function isValidIP($IPString)
 {
@@ -5503,7 +5655,11 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		require_once($sourcedir . '/Subs-Package.php');
-		$tlds = fetch_web_data('http://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+
+		// If the Internet Assigned Numbers Authority can't be reached, the Internet is gone. We're probably running on a server hidden in a bunker deep underground to protect it from marauding bandits roaming on the surface. We don't want to waste precious electricity on pointlessly repeating background tasks, so we'll wait until the next regularly scheduled update to see if civilization has been restored.
+		if ($tlds === false)
+			$postapocalypticNightmare = true;
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -5629,8 +5785,6 @@ function set_tld_regex($update = false)
 
 			return implode('.', $output_parts);
 		}, $tlds);
-
-		$schedule_update = false;
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -5657,12 +5811,12 @@ function set_tld_regex($update = false)
 			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
 			'yt', 'yu', 'za', 'zm', 'zw');
 
-		$schedule_update = true;
+		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
+		$schedule_update = empty($postapocalypticNightmare);
 	}
 
-	// build_regex() returns an array. We only need the first item.
+	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
-	$tld_regex = array_shift($tld_regex);
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
@@ -5690,18 +5844,18 @@ function set_tld_regex($update = false)
  * takes to execute the simple regex. Therefore, it is only worth calling this function if the
  * resulting regex will be used more than once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays may be
- * split and returned as multiple regexes. In such cases, you will need to iterate through all
- * elements of the returned array in order to test all possible matches. (Note: if your array of
- * alternative strings is large enough to require multiple regexes to accomodate it all, it is
- * probably time to reconsider your coding choices. There is almost certainly a better way to do
- * whatever you are trying to do with these giant regexes.)
+ * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
+ * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
+ * the $returnArray parameter is set to true, this function will build as many regexes as necessary
+ * to accomodate everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
- * @return array An array of one or more regular expressions to match any of the input strings.
+ * @param bool $returnArray If true, returns an array of regexes.
+ * @return string|array One or more regular expressions to match any of the input strings.
  */
-function build_regex($strings, $delim = null)
+function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
 
@@ -5813,19 +5967,79 @@ function build_regex($strings, $delim = null)
 
 	// Now that the functions are defined, let's do this thing
 	$index = array();
-	$regexes = array();
+	$regex = '';
 
 	foreach ($strings as $string)
 		$index = $add_string_to_index($string, $index);
 
-	while (!empty($index))
-		$regexes[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+	if ($returnArray === true)
+	{
+		$regex = array();
+		while (!empty($index))
+			$regex[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+	}
+	else
+		$regex = '(?'.'>' . $index_to_regex($index, $delim) . ')';
 
 	// Restore PHP's internal character encoding to whatever it was originally
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
-	return $regexes;
+	return $regex;
+}
+
+/**
+ * Check if the passed url has an SSL certificate.
+ *
+ * Returns true if a cert was found & false if not.
+ * @param string $url to check, in $boardurl format (no trailing slash).
+ */
+ function ssl_cert_found($url) {
+
+	// Ask for the headers for the passed url, but via https...
+	$url = str_ireplace('http://', 'https://', $url) . '/';
+
+	$result = false;
+	$stream = stream_context_create (array("ssl" => array("capture_peer_cert" => true)));
+	$read = @fopen($url, "rb", false, $stream);
+	if ($read !== false) {
+		$cont = stream_context_get_params($read);
+		$result = isset($cont["options"]["ssl"]["peer_certificate"]) ? true : false;
+	}
+    return $result;
+}
+
+/**
+ * Check if the passed url has a redirect to https:// by querying headers.
+ * 
+ * Returns true if a redirect was found & false if not.
+ * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
+ * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
+ * @param string $url to check, in $boardurl format (no trailing slash).
+ */
+function https_redirect_active($url) {
+
+	// Ask for the headers for the passed url, but via http...
+	// Need to add the trailing slash, or it puts it there & thinks there's a redirect when there isn't...
+	$url = str_ireplace('https://', 'http://', $url) . '/';
+	$headers = @get_headers($url);
+	if ($headers === false)
+		return false;
+
+	// Now to see if it came back https...   
+	// First check for a redirect status code in first row (301, 302, 307)
+	if (strstr($headers[0], '301') === false && strstr($headers[0], '302') === false && strstr($headers[0], '307') === false)
+		return false;
+	
+	// Search for the location entry to confirm https
+	$result = false;
+	foreach ($headers as $header) {
+		if (stristr($header, 'Location: https://') !== false) {
+			$result = true;
+			break;
+		}
+	}
+	return $result;		
 }
 
 ?>

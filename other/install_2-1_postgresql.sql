@@ -4,7 +4,7 @@
 #
 # Create PostgreSQL functions.
 # Some taken from http://www.xach.com/aolserver/mysql-functions.sql and http://pgfoundry.org/projects/mysqlcompat/.
-# IP Regex in inet_aton from http://www.mkyong.com/database/regular-expression-in-postgresql/.
+# IP Regex in inet_aton from https://www.mkyong.com/database/regular-expression-in-postgresql/.
 
 CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
   'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
@@ -79,6 +79,10 @@ LANGUAGE 'sql';
 CREATE OR REPLACE FUNCTION bool_not_eq_int (boolean, integer) RETURNS boolean AS
   'SELECT CAST($1 AS integer) != $2 AS result'
 LANGUAGE 'sql';
+
+CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
+    SELECT to_char($1, ''MM-DD'');'
+LANGUAGE 'sql' IMMUTABLE STRICT;
 
 #
 # Create PostgreSQL operators.
@@ -299,8 +303,8 @@ CREATE SEQUENCE {$db_prefix}calendar_seq;
 
 CREATE TABLE {$db_prefix}calendar (
   id_event smallint default nextval('{$db_prefix}calendar_seq'),
-  start_date date NOT NULL default '0001-01-01',
-  end_date date NOT NULL default '0001-01-01',
+  start_date date NOT NULL default '1004-01-01',
+  end_date date NOT NULL default '1004-01-01',
   id_board smallint NOT NULL default '0',
   id_topic int NOT NULL default '0',
   title varchar(255) NOT NULL default '',
@@ -332,7 +336,7 @@ CREATE SEQUENCE {$db_prefix}calendar_holidays_seq;
 
 CREATE TABLE {$db_prefix}calendar_holidays (
   id_holiday smallint default nextval('{$db_prefix}calendar_holidays_seq'),
-  event_date date NOT NULL default '0001-01-01',
+  event_date date NOT NULL default '1004-01-01',
   title varchar(255) NOT NULL default '',
   PRIMARY KEY (id_holiday)
 );
@@ -452,7 +456,7 @@ CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions 
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-  date date NOT NULL default '0001-01-01',
+  date date NOT NULL default '1004-01-01',
   hits int NOT NULL default '0',
   topics smallint NOT NULL default '0',
   posts smallint NOT NULL default '0',
@@ -670,7 +674,7 @@ CREATE UNLOGGED TABLE {$db_prefix}log_online (
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
   ip inet,
-  url varchar(1024) NOT NULL,
+  url varchar(2048) NOT NULL,
   PRIMARY KEY (session)
 );
 
@@ -901,7 +905,7 @@ CREATE TABLE {$db_prefix}log_spider_stats (
   id_spider smallint NOT NULL default '0',
   page_hits smallint NOT NULL default '0',
   last_seen bigint NOT NULL default '0',
-  stat_date date NOT NULL default '0001-01-01',
+  stat_date date NOT NULL default '1004-01-01',
   PRIMARY KEY (stat_date, id_spider)
 );
 
@@ -1050,7 +1054,7 @@ CREATE TABLE {$db_prefix}members (
   passwd varchar(64) NOT NULL default '',
   email_address varchar(255) NOT NULL DEFAULT '',
   personal_text varchar(255) NOT NULL DEFAULT '',
-  birthdate date NOT NULL default '0001-01-01',
+  birthdate date NOT NULL default '1004-01-01',
   website_title varchar(255) NOT NULL DEFAULT '',
   website_url varchar(255) NOT NULL DEFAULT '',
   show_online smallint NOT NULL default '1',
@@ -1092,6 +1096,7 @@ CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_add
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);
+CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_month_day(birthdate));
 CREATE INDEX {$db_prefix}members_posts ON {$db_prefix}members (posts);
 CREATE INDEX {$db_prefix}members_last_login ON {$db_prefix}members (last_login);
 CREATE INDEX {$db_prefix}members_lngfile ON {$db_prefix}members (lngfile varchar_pattern_ops);
@@ -1199,6 +1204,7 @@ CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member,
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 #
 # Table structure for table `moderators`
 #
@@ -1436,7 +1442,7 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 # Sequence for table `scheduled_tasks`
 #
 
-CREATE SEQUENCE {$db_prefix}scheduled_tasks_seq START WITH 9;
+CREATE SEQUENCE {$db_prefix}scheduled_tasks_seq START WITH 14;
 
 #
 # Table structure for table `scheduled_tasks`
@@ -2278,7 +2284,7 @@ VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machine
 
 INSERT INTO {$db_prefix}package_servers
 	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
 # --------------------------------------------------------
 
 #
@@ -2574,6 +2580,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('tfa_mode', '1'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
+	('displayFields', '[{"col_name":"cust_aolins","title":"AOL Instant Messenger","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"aim\\" href=\\"aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?\\" target=\\"_blank\\" title=\\"AIM - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/aim.png\\" alt=\\"AIM - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_icq","title":"ICQ","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"3","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_yahoo","title":"Yahoo! Messenger","type":"text","order":"4","bbc":"0","placement":"1","enclose":"<a class=\\"yim\\" href=\\"\\/\\/edit.yahoo.com\\/config\\/send_webmesg?.target={INPUT}\\" target=\\"_blank\\" title=\\"Yahoo! Messenger - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/yahoo.png\\" alt=\\"Yahoo! Messenger - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"5","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"6","bbc":"0","placement":"1","enclose":"<span class=\\" generic_icons gender_{INPUT}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0"}]'),
 	('minimize_files', '1');
 # --------------------------------------------------------
 

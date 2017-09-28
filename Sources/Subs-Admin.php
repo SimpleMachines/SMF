@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -53,7 +53,7 @@ function getServerVersions($checkFor)
 		}
 
 		// We already know it's ImageMagick and the website isn't needed...
-		$im_version = str_replace(array('ImageMagick ', ' http://www.imagemagick.org'), '', $im_version);
+		$im_version = str_replace(array('ImageMagick ', ' https://www.imagemagick.org'), '', $im_version);
 		$versions['imagemagick'] = array('title' => $txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')');
 	}
 
@@ -457,7 +457,7 @@ function updateAdminPreferences()
 		return false;
 
 	// This is what we'll be saving.
-	$options['admin_preferences'] = json_encode($context['admin_preferences']);
+	$options['admin_preferences'] = $smcFunc['json_encode']($context['admin_preferences']);
 
 	// Just check we haven't ended up with something theme exclusive somehow.
 	$smcFunc['db_query']('', '

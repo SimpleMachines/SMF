@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -177,14 +177,14 @@ function EditNews()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function($news)
 					{
 						if (is_numeric($news['id']))
-							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
+							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '">';
 						else
 							return '';
 					},
@@ -203,10 +203,10 @@ function EditNews()
 				'position' => 'bottom_of_list',
 				'value' => '
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
-					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
+					<a class="button" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit">
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button_submit you_sure">',
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button">
+				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button you_sure">',
 			),
 		),
 		'javascript' => '
@@ -225,7 +225,7 @@ function EditNews()
 
 					function make_preview_btn (preview_id)
 					{
-						$("#preview_" + preview_id).addClass("button_link");
+						$("#preview_" + preview_id).addClass("button");
 						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
 							$.ajax({
 								type: "POST",
@@ -713,7 +713,7 @@ function SendMailing($clean_only = false)
 	checkSession();
 
 	// Where are we actually to?
-	$context['start'] = isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 	$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 	$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
@@ -786,7 +786,8 @@ function SendMailing($clean_only = false)
 			foreach ($_POST['exclude_groups'] as $group => $dummy)
 				$context['recipients']['exclude_groups'][] = (int) $group;
 		}
-		else
+		// Ignore an empty string - we don't want to exclude "Regular Members" unless it's specifically selected
+		elseif ($_POST['exclude_groups'] != '')
 		{
 			$groups = explode(',', $_POST['exclude_groups']);
 			foreach ($groups as $group)
@@ -861,7 +862,7 @@ function SendMailing($clean_only = false)
 		array(
 			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
 			timeformat(forum_time(), false),
-			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
+			!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $scripturl . '?action=profile;u=' . $modSettings['latestMember']),
 			$modSettings['latestMember'],
 			$cleanLatestMember
 		), $_POST['message']);
@@ -985,7 +986,7 @@ function SendMailing($clean_only = false)
 		foreach ($rows as $row)
 		{
 			// Force them to have it?
-			if (empty($context['email_force']) || empty($prefs[$row['id_member']]['announcements']))
+			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
 				continue;
 
 			// What groups are we looking at here?
@@ -1008,7 +1009,7 @@ function SendMailing($clean_only = false)
 			$message = str_replace($from_member,
 				array(
 					$row['email_address'],
-					!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : $cleanMemberName),
+					!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : $scripturl . '?action=profile;u=' . $row['id_member']),
 					$row['id_member'],
 					$cleanMemberName,
 				), $_POST['message']);

@@ -7,7 +7,7 @@ namespace TOTP;
  * clients.
  *
  * NOTE: A lot of the logic from this class has been borrowed from this class:
- * http://www.idontplaydarts.com/wp-content/uploads/2011/07/ga.php_.txt
+ * https://www.idontplaydarts.com/wp-content/uploads/2011/07/ga.php_.txt
  *
  * @author Chris Cornutt <ccornutt@phpdeveloper.org>
  * @package GAuth
@@ -20,7 +20,7 @@ namespace TOTP;
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -177,7 +177,7 @@ class Auth
 	public function setRefresh($seconds)
 	{
 		if (!is_numeric($seconds)) {
-			throw \InvalidArgumentException('Seconds must be numeric');
+			throw new \InvalidArgumentException('Seconds must be numeric');
 		}
 		$this->refreshSeconds = $seconds;
 		return $this;

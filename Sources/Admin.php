@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
 function AdminMain()
 {
 	global $txt, $context, $scripturl, $modSettings, $settings;
-	global $sourcedir, $options, $boarddir;
+	global $smcFunc, $sourcedir, $options, $boarddir;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
@@ -39,7 +39,7 @@ function AdminMain()
 	require_once($sourcedir . '/Subs-Menu.php');
 
 	// Some preferences.
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
 
 	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
@@ -557,18 +557,18 @@ function AdminHome()
 
 	// Lastly, fill in the blanks in the support resources paragraphs.
 	$txt['support_resources_p1'] = sprintf($txt['support_resources_p1'],
-		'http://wiki.simplemachines.org/',
-		'http://wiki.simplemachines.org/smf/features2',
-		'http://wiki.simplemachines.org/smf/options2',
-		'http://wiki.simplemachines.org/smf/themes2',
-		'http://wiki.simplemachines.org/smf/packages2'
+		'https://wiki.simplemachines.org/',
+		'https://wiki.simplemachines.org/smf/features2',
+		'https://wiki.simplemachines.org/smf/options2',
+		'https://wiki.simplemachines.org/smf/themes2',
+		'https://wiki.simplemachines.org/smf/packages2'
 	);
 	$txt['support_resources_p2'] = sprintf($txt['support_resources_p2'],
-		'http://www.simplemachines.org/community/',
-		'http://www.simplemachines.org/redirect/english_support',
-		'http://www.simplemachines.org/redirect/international_support_boards',
-		'http://www.simplemachines.org/redirect/smf_support',
-		'http://www.simplemachines.org/redirect/customize_support'
+		'https://www.simplemachines.org/community/',
+		'https://www.simplemachines.org/redirect/english_support',
+		'https://www.simplemachines.org/redirect/international_support_boards',
+		'https://www.simplemachines.org/redirect/smf_support',
+		'https://www.simplemachines.org/redirect/customize_support'
 	);
 
 	if ($context['admin_area'] == 'admin')
@@ -834,8 +834,8 @@ function AdminSearchOM()
 {
 	global $context, $sourcedir;
 
-	$context['doc_apiurl'] = 'http://wiki.simplemachines.org/api.php';
-	$context['doc_scripturl'] = 'http://wiki.simplemachines.org/smf/';
+	$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
+	$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
 
 	// Set all the parameters search might expect.
 	$postVars = explode(' ', $context['search_term']);
@@ -850,7 +850,7 @@ function AdminSearchOM()
 	// Get the results from the doc site.
 	require_once($sourcedir . '/Subs-Package.php');
 	// Demo URL:
-	// http://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
+	// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
 	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 	// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?

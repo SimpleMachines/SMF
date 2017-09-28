@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -97,8 +97,11 @@ function template_unread()
 	{
 		echo '
 			<div class="pagesection">
-				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
-				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', $context['menu_separator'], '
+				<div class="pagelinks floatleft">
+					<a href="#bot" class="button">', $txt['go_down'], '</a>
+					', $context['page_index'], '
+				</div>
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
@@ -120,7 +123,7 @@ function template_unread()
 		if ($context['showCheckboxes'])
 			echo '
 					<div class="moderation">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
 
 		echo '
@@ -176,7 +179,7 @@ function template_unread()
 			if ($context['showCheckboxes'])
 				echo '
 						<div class="moderation">
-							<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
+							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
 
 				echo '
@@ -194,8 +197,11 @@ function template_unread()
 		echo '
 			<div class="pagesection">
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', $context['menu_separator'], '<a href="#recent" class="topbottom floatleft">', $txt['go_up'], '</a>
-				<div class="pagelinks">', $context['page_index'], '</div>
+				', $context['menu_separator'], '
+				<div class="pagelinks">
+					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					', $context['page_index'], '
+				</div>
 			</div>';
 	}
 	else
@@ -238,8 +244,11 @@ function template_replies()
 	{
 		echo '
 			<div class="pagesection">
-				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
-				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', $context['menu_separator'], '
+				<div class="pagelinks floatleft">
+					<a href="#bot" class="button">', $txt['go_down'], '</a>
+					', $context['page_index'], '
+				</div>
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
@@ -261,7 +270,7 @@ function template_replies()
 		if ($context['showCheckboxes'])
 				echo '
 					<div class="moderation">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
 
 		echo '
@@ -317,7 +326,7 @@ function template_replies()
 			if ($context['showCheckboxes'])
 				echo '
 							<div class="moderation">
-								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
+								<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 							</div>';
 			echo '
 						</div>';
@@ -328,8 +337,11 @@ function template_replies()
 			</div>
 			<div class="pagesection">
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', $context['menu_separator'], '<a href="#recent" class="topbottom floatleft">', $txt['go_up'], '</a>
-				<div class="pagelinks">', $context['page_index'], '</div>
+				', $context['menu_separator'], '
+				<div class="pagelinks">
+					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					', $context['page_index'], '
+				</div>
 			</div>';
 	}
 	else

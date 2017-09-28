@@ -10,11 +10,33 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
+
+/**
+ * Truncate the GET array to a specified length
+ * @param array $arr The array to truncate
+ * @param int $max_length The upperbound on the length
+ *
+ * @return array The truncated array
+ */
+function truncateArray($arr, $max_length=1900)
+{
+	$curr_length = array_sum(array_map("strlen", $arr));
+	if ($curr_length <= $max_length)
+		return $arr;
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length/count($arr));
+		foreach ($arr as $key => &$value)
+			$value = substr($value, 0, $param_max - strlen($key) - 5);
+		return $arr;
+	}
+}
 
 /**
  * Put this user in the online log.
@@ -52,17 +74,17 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$serialized = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$encoded_get = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
 			$context['session_var'] = $_SESSION['session_var'];
 
-		unset($serialized['sesc'], $serialized[$context['session_var']]);
-		$serialized = json_encode($serialized);
+		unset($encoded_get['sesc'], $encoded_get[$context['session_var']]);
+		$encoded_get = $smcFunc['json_encode']($encoded_get);
 	}
 	else
-		$serialized = '';
+		$encoded_get = '';
 
 	// Guests use 0, members use their session ID.
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
@@ -96,7 +118,7 @@ function writeLog($force = false)
 			array(
 				'log_time' => time(),
 				'ip' => $user_info['ip'],
-				'url' => $serialized,
+				'url' => $encoded_get,
 				'session' => $session_id,
 			)
 		);
@@ -124,7 +146,7 @@ function writeLog($force = false)
 		$smcFunc['db_insert']($do_delete ? 'ignore' : 'replace',
 			'{db_prefix}log_online',
 			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'),
-			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $serialized),
+			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $user_info['ip'], $encoded_get),
 			array('session')
 		);
 	}
@@ -260,6 +282,7 @@ function displayDebug()
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
+		$missed_entries = array();
 		$entries = array();
 		$total_t = 0;
 		$total_s = 0;
@@ -272,15 +295,15 @@ function displayDebug()
 		if (!isset($cache_misses))
 			$cache_misses = array();
 		foreach ($cache_misses as $missed)
-			$missed_entires[] = $missed['d'] . ' ' . $missed['k'];
+			$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 
 		echo '
 	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entires), '</em></span>)<br>';
+	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 	}
 
 	echo '
-	<a href="', $scripturl, '?action=viewquery" target="_blank" class="new_win">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br>
+	<a href="', $scripturl, '?action=viewquery" target="_blank">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br>
 	<br>';
 
 	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
@@ -306,7 +329,7 @@ function displayDebug()
 				$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
 
 			echo '
-	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" class="new_win" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
+	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
 	&nbsp;&nbsp;&nbsp;';
 			if (!empty($qq['f']) && !empty($qq['l']))
 				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
@@ -518,7 +541,7 @@ function logActions($logs)
 
 		$inserts[] = array(
 			time(), $log_types[$log['log_type']], $memID, $user_info['ip'], $log['action'],
-			$board_id, $topic_id, $msg_id, json_encode($log['extra']),
+			$board_id, $topic_id, $msg_id, $smcFunc['json_encode']($log['extra']),
 		);
 	}
 

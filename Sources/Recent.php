@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -272,7 +272,7 @@ function RecentPosts()
 	if ($context['is_redirect'])
 		$messages = 0;
 
-	$key = 'recent-' . $user_info['id'] . '-' . md5(json_encode(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
+	$key = 'recent-' . $user_info['id'] . '-' . md5($smcFunc['json_encode'](array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
 	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageCalendar
+// Version: 2.1 Beta 4; ManageCalendar
 
 $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';
 
@@ -28,9 +28,9 @@ $txt['setting_cal_maxyear'] = 'Maximum year';
 $txt['setting_cal_maxspan'] = 'Max number of days an event can span';
 $txt['setting_cal_showInTopic'] = 'Show linked events in topic display';
 $txt['setting_calendar_default_view'] = 'Default view on calendar page';
-$txt['setting_cal_view_list'] = 'List view';
-$txt['setting_cal_view_month'] = 'Month view';
-$txt['setting_cal_view_week'] = 'Week view';
+$txt['setting_cal_viewlist'] = 'List view';
+$txt['setting_cal_viewmonth'] = 'Month view';
+$txt['setting_cal_viewweek'] = 'Week view';
 
 $txt['setting_cal_display_type'] = 'Cell Display Type';
 $txt['setting_cal_display_comfortable'] = 'Comfortable';

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info, $sourcedir, $options;
+	global $smcFunc, $txt, $context, $scripturl, $modSettings, $user_info, $sourcedir, $options;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset($context['admin_area']))
@@ -45,7 +45,7 @@ function ModerationMain($dont_call = false)
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
 	$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -245,7 +245,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $options;
+	global $smcFunc, $txt, $context, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavaScriptFile('admin.js', array(), 'smf_admin');
@@ -285,7 +285,7 @@ function ModerationHome()
 			$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -336,7 +336,7 @@ function ModBlockWatchedUsers()
  */
 function ModBlockNotes()
 {
-	global $context, $smcFunc, $scripturl, $txt, $user_info;
+	global $context, $smcFunc, $scripturl, $user_info;
 
 	// Set a nice and informative message.
 	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
@@ -502,7 +502,7 @@ function ModBlockReportedPosts()
 	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(json_encode($user_info['mod_cache']['bq']));
+	$cachekey = md5($smcFunc['json_encode']($user_info['mod_cache']['bq']));
 	$context['reported_posts'] = array();
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		return 'reported_posts_block';
@@ -616,7 +616,7 @@ function ModBlockReportedMembers()
 	global $context, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(json_encode((int) allowedTo('moderate_forum')));
+	$cachekey = md5($smcFunc['json_encode']((int) allowedTo('moderate_forum')));
 	$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
@@ -689,10 +689,6 @@ function ReportedMembers()
 	);
 
 	isAllowedTo('moderate_forum');
-
-	// Are they wanting to view a particular report?
-	if (!empty($_REQUEST['report']))
-		return MemberReport();
 
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_members'];
@@ -1141,7 +1137,7 @@ function ViewWatchedUsers()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">',
+					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button">',
 				'class' => 'floatright',
 			) : array(),
 		),
@@ -1425,7 +1421,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = smf_json_decode($search_params, true);
+		$search_params = $smcFunc['json_decode']($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -1461,7 +1457,7 @@ function ViewWarningLog()
 	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort=' . $context['order'];
 
 	// Setup the search context.
-	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(json_encode($search_params));
+	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode($smcFunc['json_encode']($search_params));
 	$context['search'] = array(
 		'string' => $search_params['string'],
 		'type' => $search_params['type'],
@@ -1536,7 +1532,7 @@ function ViewWarningLog()
 
 						if (!empty($rowData['id_notice']))
 							$output .= '
-								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
+								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
 						return $output;
 					},
 				),
@@ -1564,8 +1560,8 @@ function ViewWarningLog()
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ':
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit">',
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button">',
 				'class' => 'floatright',
 			),
 		),
@@ -1760,14 +1756,14 @@ function ViewWarningTemplates()
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
+						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '">';
 					},
 					'class' => 'centercol',
 				),
@@ -1780,11 +1776,11 @@ function ViewWarningTemplates()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" data-confirm="' . $txt['mc_warning_template_delete_confirm'] . '" class="button_submit you_sure">',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" data-confirm="' . $txt['mc_warning_template_delete_confirm'] . '" class="button you_sure">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button">',
 			),
 		),
 	);

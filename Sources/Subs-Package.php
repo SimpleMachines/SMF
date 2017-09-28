@@ -13,7 +13,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -526,7 +526,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $sourcedir, $packagesdir, $smcFunc;
+	global $sourcedir, $packagesdir;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
@@ -707,12 +707,12 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				),
 				'check' => array(
 					'header' => array(
-						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<input type="checkbox" name="restore_files[]" value="%1$s" class="input_check">',
+							'format' => '<input type="checkbox" name="restore_files[]" value="%1$s">',
 							'params' => array(
 								'path' => false,
 							),
@@ -739,7 +739,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="restore_perms" value="' . $txt['package_restore_permissions_restore'] . '" class="button_submit">',
+					'value' => '<input type="submit" name="restore_perms" value="' . $txt['package_restore_permissions_restore'] . '" class="button">',
 					'class' => 'titlebg',
 				),
 				array(
@@ -1168,7 +1168,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	}
 
 	// Bad news, a matching script wasn't found!
-	if ($script === false)
+	if (!($script instanceof xmlArray))
 		return array();
 
 	// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
@@ -1744,6 +1744,7 @@ function parse_path($path)
  */
 function deltree($dir, $delete_dir = true)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($dir))
@@ -1820,6 +1821,7 @@ function deltree($dir, $delete_dir = true)
  */
 function mktree($strPath, $mode)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (is_dir($strPath))
@@ -1889,6 +1891,7 @@ function mktree($strPath, $mode)
  */
 function copytree($source, $destination)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($destination) || !is_writable($destination))
@@ -1973,7 +1976,7 @@ function listtree($path, $sub_path = '')
  */
 function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $txt, $modSettings, $package_ftp;
+	global $boarddir, $sourcedir, $txt, $modSettings;
 
 	@set_time_limit(600);
 	require_once($sourcedir . '/Class-Package.php');
@@ -2700,6 +2703,7 @@ function package_get_contents($filename)
  */
 function package_put_contents($filename, $data, $testing = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache, $modSettings;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2758,6 +2762,7 @@ function package_put_contents($filename, $data, $testing = false)
  */
 function package_flush_cache($trash = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp, $package_cache;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2803,7 +2808,7 @@ function package_flush_cache($trash = false)
 	// Bypass directories when doing so - no data to write & the fopen will crash.
 	foreach ($package_cache as $filename => $data)
 	{
-		if (!is_dir($filename)) 
+		if (!is_dir($filename))
 		{
 			$fp = fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
 			fwrite($fp, $data);
@@ -2824,6 +2829,7 @@ function package_flush_cache($trash = false)
  */
 function package_chmod($filename, $perm_state = 'writable', $track_change = false)
 {
+	/** @var ftp_connection $package_ftp */
 	global $package_ftp;
 
 	if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable')
@@ -3035,11 +3041,12 @@ function package_create_backup($id = 'backup')
 			package_chmod($packagesdir . '/backups');
 		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 		$output_ext = '.tar';
+		$output_ext_target = '.tar.gz';
 
-		if (file_exists($output_file . $output_ext))
+		if (file_exists($output_file . $output_ext_target))
 		{
 			$i = 2;
-			while (file_exists($output_file . '_' . $i . $output_ext))
+			while (file_exists($output_file . '_' . $i . $output_ext_target))
 				$i++;
 			$output_file = $output_file . '_' . $i . $output_ext;
 		}
@@ -3252,7 +3259,7 @@ if (!function_exists('smf_crc32'))
 {
 	/**
 	 * crc32 doesn't work as expected on 64-bit functions - make our own.
-	 * http://www.php.net/crc32#79567
+	 * https://php.net/crc32#79567
 	 *
 	 * @param string $number
 	 * @return string The crc32

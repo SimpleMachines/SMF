@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -549,44 +549,6 @@ function utf8_strtoupper($string)
 	);
 
 	return strtr($string, $case_folding);
-}
-
-/**
- * Fixes corrupted serialized strings after a character set conversion.
- */
-function fix_serialized_columns()
-{
-	global $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_action, extra
-		FROM {db_prefix}log_actions
-		WHERE action IN ({string:remove}, {string:delete})',
-		array(
-			'remove' => 'remove',
-			'delete' => 'delete',
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_actions
-				SET extra = {string:extra}
-				WHERE id_action = {int:current_action}',
-				array(
-					'current_action' => $row['id_action'],
-					'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
-				)
-			);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Refresh some cached data.
-	updateSettings(array(
-		'memberlist_updated' => time(),
-	));
-
 }
 
 ?>

@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -25,8 +25,6 @@ class zend_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = function_exists('zend_shm_cache_fetch') || function_exists('output_cache_get');
 
 		if ($test)

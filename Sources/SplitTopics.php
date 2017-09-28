@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -987,7 +987,7 @@ function MergeIndex()
 				'id' => $row['id_member'],
 				'name' => $row['poster_name'],
 				'href' => empty($row['id_member']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member'],
-				'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" target="_blank" class="new_win">' . $row['poster_name'] . '</a>'
+				'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" target="_blank">' . $row['poster_name'] . '</a>'
 			),
 			'subject' => $row['subject'],
 			'js_subject' => addcslashes(addslashes($row['subject']), '/')

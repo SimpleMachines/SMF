@@ -12,7 +12,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -85,6 +85,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'cron',
 		'paidsubs',
 		'backup',
+		'login',
 	);
 
 	// This prevents us from infinite looping if the hook or call produces an error.
@@ -154,7 +155,7 @@ function fatal_error($error, $log = 'general', $status = 500)
  *  - the information is logged if log is specified.
  *
  * @param string $error The error message
- * @param string $log The type of error, or false to not log it
+ * @param string|false $log The type of error, or false to not log it
  * @param array $sprintf An array of data to be sprintf()'d into the specified message
  * @param int $status = false The HTTP status code associated with this error
  */
@@ -202,7 +203,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
- * @param int $error_level A pre-defined error-handling constant (see {@link http://www.php.net/errorfunc.constants})
+ * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
  * @param int $line The line where the error occurred
@@ -502,8 +503,15 @@ function log_error_online($error, $sprintf = array())
 	);
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
+		// If this happened very early on in SMF startup, $smcFunc may not fully be defined.
+		if (!isset($smcFunc['json_decode']))
+		{
+			$smcFunc['json_decode'] = 'smf_json_decode';
+			$smcFunc['json_encode'] = 'json_encode';
+		}
+
 		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = smf_json_decode($url, true);
+		$url = $smcFunc['json_decode']($url, true);
 		$url['error'] = $error;
 
 		if (!empty($sprintf))
@@ -514,7 +522,7 @@ function log_error_online($error, $sprintf = array())
 			SET url = {string:url}
 			WHERE session = {string:session}',
 			array(
-				'url' => json_encode($url),
+				'url' => $smcFunc['json_encode']($url),
 				'session' => $session_id,
 			)
 		);

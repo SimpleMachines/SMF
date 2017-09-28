@@ -39,11 +39,6 @@
 	clear: left;
 }
 
-/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-.button_submit, .button_reset, .button_link {
-	margin: 0 2px;
-}
-
 /* the page navigation area */
 .generic_icons.move, .generic_icons.next_page {
 	background-position: -31px -57px;
@@ -176,10 +171,6 @@ img#smflogo {
 	float: right;
 }
 
-/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-.button_submit, .button_reset, .button_link {
-	float: left;
-}
 /* The framing graphics */
 #search_form {
 	text-align: left;
@@ -234,12 +225,6 @@ img#smflogo {
 	padding: 0;
 	margin: 0 1.5em 0 1em;
 }
-
-.messageicon {
-	float: right;
-	margin: 0 0 0 0.5em;
-}
-
 
 /* The quick buttons */
 ul.quickbuttons {
@@ -334,7 +319,8 @@ ul.post_options li {
 #post_event ul.event_options {
 	padding: 0 .7em .7em 0;
 }
-#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check {
+#post_event #event_main select, #post_event ul.event_options li select, 
+#post_event ul.event_options li input[type="checkbox"] {
 	margin: 0 0 0 1em;
 }
 

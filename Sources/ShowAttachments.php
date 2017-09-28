@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -180,17 +180,6 @@ function showAttachment()
 			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
-	// Update the download counter (unless it's a thumbnail).
-	if ($file['attachment_type'] != 3 && empty($showThumb))
-		$smcFunc['db_query']('attach_download_increase', '
-			UPDATE LOW_PRIORITY {db_prefix}attachments
-			SET downloads = downloads + 1
-			WHERE id_attach = {int:id_attach}',
-			array(
-				'id_attach' => $attachId,
-			)
-		);
-
 	// Replace the normal file with its thumbnail if it has one!
 	if (!empty($showThumb) && !empty($thumbFile))
 		$file = $thumbFile;
@@ -228,6 +217,30 @@ function showAttachment()
 		header('HTTP/1.1 304 Not Modified');
 		exit;
 	}
+
+	// If this is a partial download, we need to determine what data range to send
+	$range = 0;
+	$size = filesize($file['filePath']);
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+		list($range) = explode(",", $range, 2);
+		list($range, $range_end) = explode("-", $range);
+		$range = intval($range);
+		$range_end = !$range_end ? $size - 1 : intval($range_end);
+		$new_length = $range_end - $range + 1;
+	}
+
+	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
+	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0)
+		$smcFunc['db_query']('attach_download_increase', '
+			UPDATE LOW_PRIORITY {db_prefix}attachments
+			SET downloads = downloads + 1
+			WHERE id_attach = {int:id_attach}',
+			array(
+				'id_attach' => $attachId,
+			)
+		);
 
 	// Send the attachment headers.
 	header('Pragma: ');
@@ -280,13 +293,46 @@ function showAttachment()
 	else
 		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
 
-	header('Content-Length: ' . filesize($file['filePath']));
+	// Multipart and resuming support
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		header("HTTP/1.1 206 Partial Content");
+		header("Content-Length: $new_length");
+		header("Content-Range: bytes $range-$range_end/$size");
+	}
+	else
+		header("Content-Length: " . $size);
+
 
 	// Try to buy some time...
 	@set_time_limit(600);
 
+	// For multipart/resumable downloads, send the requested chunk(s) of the file
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		while (@ob_get_level() > 0)
+			@ob_end_clean();
+
+		// 40 kilobytes is a good-ish amount
+		$chunksize = 40 * 1024;
+		$bytes_sent = 0;
+
+		$fp = fopen($file['filePath'], 'rb');
+
+		fseek($fp, $range);
+
+		while (!feof($fp) && (!connection_aborted()) && ($bytes_sent < $new_length))
+		{
+			$buffer = fread($fp, $chunksize);
+			echo($buffer);
+			flush();
+			$bytes_sent += strlen($buffer);
+		}
+		fclose($fp);
+	}
+
 	// Since we don't do output compression for files this large...
-	if (filesize($file['filePath']) > 4194304)
+	elseif ($size > 4194304)
 	{
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)

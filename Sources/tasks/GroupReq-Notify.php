@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -82,7 +82,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => 'group_request',
 						'is_read' => 0,
-						'extra' => json_encode(array('group_name' => $this->_details['group_name'])),
+						'extra' => $smcFunc['json_encode'](array('group_name' => $this->_details['group_name'])),
 					);
 				}
 

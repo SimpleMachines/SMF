@@ -56,7 +56,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -138,7 +138,14 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $scripturl, $context, $txt;
+	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir;
+
+	// If no cert, force_ssl must remain 0
+	require_once($sourcedir . '/Subs.php');
+	if (!ssl_cert_found($boardurl) && empty($modSettings['force_ssl']))
+		$disable_force_ssl = true;
+	else
+		$disable_force_ssl = false;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
@@ -158,10 +165,12 @@ function ModifyGeneralSettings($return_config = false)
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl'),
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
+		'',
+		array('enable_sm_stats', $txt['sm_state_setting'], 'db', 'check', null, 'enable_sm_stats'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -178,6 +187,23 @@ function ModifyGeneralSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_general_settings');
 
+		// Are we saving the stat collection?
+		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
+		{
+			$registerSMStats = registerSMStats();
+
+			// Failed to register, disable it again.
+			if (empty($registerSMStats))
+				$_POST['enable_sm_stats'] = 0;
+		}
+
+		// Ensure all URLs are aligned with the new force_ssl setting
+		// Treat unset like 0
+		if (isset($_POST['force_ssl']))
+			AlignURLsWithSSLSetting($_POST['force_ssl']);
+		else
+			AlignURLsWithSSLSetting(0);
+			
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -201,6 +227,146 @@ $(function()
 }
 
 /**
+ * Align URLs with SSL Setting.
+ *
+ * If force_ssl has changed, ensure all URLs are aligned with the new setting.
+ * This includes:
+ *     - $boardurl
+ *     - $modSettings['smileys_url']
+ *     - $modSettings['avatar_url']
+ *     - $modSettings['custom_avatar_url'] - if found
+ *     - theme_url - all entries in the themes table
+ *     - images_url - all entries in the themes table
+ *
+ * This function will NOT overwrite URLs that are not subfolders of $boardurl.
+ * The admin must have pointed those somewhere else on purpose, so they must be updated manually.
+ * 
+ * A word of caution: You can't trust the http/https scheme reflected for these URLs in $globals
+ * (e.g., $boardurl) or in $modSettings.  This is because SMF may change them in memory to comply
+ * with the force_ssl setting - a soft redirect may be in effect...  Thus, conditional updates
+ * to these values do not work.  You gotta just brute force overwrite them based on force_ssl.
+ *
+ * @param int $new_force_ssl is the current force_ssl setting.
+ * @return void Returns nothing, just does its job
+ */
+function AlignURLsWithSSLSetting($new_force_ssl = 0)
+{
+	global $boardurl, $modSettings, $sourcedir, $db_prefix, $smcFunc;
+	require_once($sourcedir . '/Subs-Admin.php');
+
+	// Check $boardurl
+	if ($new_force_ssl == 2)
+		$newval = strtr($boardurl, array('http://' => 'https://'));
+	else
+		$newval = strtr($boardurl, array('https://' => 'http://'));
+	updateSettingsFile(array('boardurl' => '\'' . addslashes($newval) . '\''));
+
+	$new_settings = array();
+
+	// Check $smileys_url, but only if it points to a subfolder of $boardurl
+	if (BoardurlMatch($modSettings['smileys_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['smileys_url'], array('https://' => 'http://'));
+		$new_settings['smileys_url'] = $newval;
+	}
+
+	// Check $avatar_url, but only if it points to a subfolder of $boardurl
+	if (BoardurlMatch($modSettings['avatar_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['avatar_url'], array('https://' => 'http://'));
+		$new_settings['avatar_url'] = $newval;
+	}
+
+	// Check $custom_avatar_url, but only if it points to a subfolder of $boardurl
+	// This one had been optional in the past, make sure it is set first
+	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
+	{
+		if ($new_force_ssl == 2)
+			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
+		else
+			$newval = strtr($modSettings['custom_avatar_url'], array('https://' => 'http://'));
+		$new_settings['custom_avatar_url'] = $newval;
+	}
+
+	// Save updates to the settings table
+	if (!empty($new_settings))
+		updateSettings($new_settings, true);
+
+	// Now we move onto the themes.
+	// First, get a list of theme URLs...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_theme, variable, value
+		  FROM {db_prefix}themes
+		 WHERE variable in ({string:themeurl}, {string:imagesurl})
+		   AND id_member = {int:zero}',
+		array(
+			'themeurl' => 'theme_url',
+			'imagesurl' => 'images_url',
+			'zero' => 0,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// First check to see if it points to a subfolder of $boardurl
+		if (BoardurlMatch($row['value']))
+		{
+			if ($new_force_ssl == 2)
+				$newval = strtr($row['value'], array('http://' => 'https://'));
+			else
+				$newval = strtr($row['value'], array('https://' => 'http://'));
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}themes
+				   SET value = {string:theme_val}
+				 WHERE variable = {string:theme_var}
+				   AND id_theme = {string:theme_id}
+				   AND id_member = {int:zero}',
+				array(
+					'theme_val' => $newval,
+					'theme_var' => $row['variable'],
+					'theme_id' => $row['id_theme'],
+					'zero' => 0,
+				)
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * $boardurl Match.
+ *
+ * Helper function to see if the url being checked is based off of $boardurl.
+ * If not, it was overridden by the admin to some other value on purpose, and should not
+ * be stepped on by SMF when aligning URLs with the force_ssl setting.
+ * The site admin must change URLs that are not aligned with $boardurl manually.
+ *
+ * @param string $url is the url to check.
+ * @return bool Returns true if the url is based off of $boardurl (without the scheme), false if not
+ */
+function BoardurlMatch($url = '')
+{
+	global $boardurl;
+
+	// Strip the schemes
+	$urlpath = strtr($url, array('http://' => '', 'https://' => ''));
+	$boardurlpath = strtr($boardurl, array('http://' => '', 'https://' => ''));
+
+	// If leftmost portion of path matches boardurl, return true
+	$result = strpos($urlpath, $boardurlpath);
+	if ($result === false || $result != 0)
+		return false;
+	else
+		return true;
+}
+
+/**
  * Basic database and paths settings - database name, host, etc.
  *
  * - It shows an interface for the settings in Settings.php to be changed.
@@ -214,7 +380,7 @@ $(function()
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $scripturl, $context, $txt;
+	global $scripturl, $context, $txt, $smcFunc;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -229,6 +395,23 @@ function ModifyDatabaseSettings($return_config = false)
 		'',
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
+
+	// Add PG Stuff
+	if ($smcFunc['db_title'] == "PostgreSQL")
+	{
+		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
+		$fts_language = array();
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$fts_language[$row['cfgname']] = $row['cfgname'];
+
+		$config_vars = array_merge ($config_vars, array(
+				'',
+				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
+			)
+		);
+	}
+
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
 
@@ -272,7 +455,7 @@ function ModifyCookieSettings($return_config = false)
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
-		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
+		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !isset($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on'),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
 		// Sessions
@@ -288,7 +471,7 @@ function ModifyCookieSettings($return_config = false)
 			2 => $txt['tfa_mode_forced'],
 		)) + (empty($user_settings['tfa_secret']) ? array() : array(
 			3 => $txt['tfa_mode_forcedall'],
-		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
+		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavaScript('
@@ -441,7 +624,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $cacheAPI;
+	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
 	$detected = loadCacheAPIs();
@@ -801,7 +984,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = $modSettings[$config_var[1]];
 						break;
 					case 'json':
-						$value = $smcFunc['htmlspecialchars'](json_encode($modSettings[$config_var[1]]));
+						$value = $smcFunc['htmlspecialchars']($smcFunc['json_encode']($modSettings[$config_var[1]]));
 						break;
 					case 'boards':
 						$value = explode(',', $modSettings[$config_var[1]]);
@@ -820,7 +1003,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = 0;
 						break;
 					case 'select':
-						$value = !empty($config_var['multiple']) ? json_encode(array()) : '';
+						$value = !empty($config_var['multiple']) ? $smcFunc['json_encode'](array()) : '';
 						break;
 					case 'boards':
 						$value = array();
@@ -869,7 +1052,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
 					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? smf_json_decode($context['config_vars'][$config_var[1]]['value'], true) : array();
+					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? $smcFunc['json_decode']($context['config_vars'][$config_var[1]]['value'], true) : array();
 				}
 
 				// If it's associative
@@ -981,7 +1164,7 @@ function prepareDBSettingContext(&$config_vars)
  * - Requires the admin_forum permission.
  * - Contains arrays of the types of data to save into Settings.php.
  *
- * @param $config_vars An array of configuration variables
+ * @param array $config_vars An array of configuration variables
  */
 function saveSettings(&$config_vars)
 {
@@ -1143,7 +1326,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = json_encode($lOptions);
+			$setArray[$var[1]] = $smcFunc['json_encode']($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')
@@ -1319,6 +1502,55 @@ function loadCacheAPIs()
 	closedir($dh);
 
 	return $apis;
+}
+
+/**
+ * Registers the site with the Simple Machines Stat collection. This function
+ * purposely does not use updateSettings.php as it will be called shortly after
+ * this process completes by the saveSettings() function.
+ *
+ * @see Stats.php SMStats() for more information.
+ * @link https://www.simplemachines.org/about/stats.php for more info.
+ *
+ */
+function registerSMStats()
+{
+	global $modSettings, $boardurl, $smcFunc;
+
+	// Already have a key?  Can't register again.
+	if (!empty($modSettings['sm_stats_key']))
+		return true;
+
+	$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+	if ($fp)
+	{
+		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
+		$out .= 'Host: www.simplemachines.org' . "\r\n";
+		$out .= 'Connection: Close' . "\r\n\r\n";
+		fwrite($fp, $out);
+
+		$return_data = '';
+		while (!feof($fp))
+			$return_data .= fgets($fp, 128);
+
+		fclose($fp);
+
+		// Get the unique site ID.
+		preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
+
+		if (!empty($ID[1]))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('sm_stats_key', $ID[1]),
+				array('variable')
+			);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 ?>

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -42,16 +42,17 @@ function db_packages_init()
 	}
 
 	// We setup an array of SMF tables we can't do auto-remove on - in case a mod writer cocks it up!
-	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'ban_groups', 'ban_items',
+	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'background_tasks', 'ban_groups', 'ban_items',
 		'board_permissions', 'boards', 'calendar', 'calendar_holidays', 'categories',
-		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards',
-		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read',
+		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards', 'log_comments',
+		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read', 'log_member_notices',
 		'log_notify', 'log_online', 'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
 		'log_scheduled_tasks', 'log_search_messages', 'log_search_results', 'log_search_subjects',
-		'log_search_topics', 'log_topics', 'mail_queue', 'membergroups', 'members', 'message_icons',
-		'messages', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
-		'pm_recipients', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
-		'themes', 'topics');
+		'log_search_topics', 'log_spider_hits', 'log_spider_stats', 'log_subscribed', 'log_topics',
+		'mail_queue', 'membergroups', 'members', 'mentions', 'message_icons',
+		'messages', 'moderator_groups', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
+		'pm_labeled_messages', 'pm_labels', 'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
+		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts', 'user_alerts_prefs', 'user_drafts', 'user_likes');
 	foreach ($reservedTables as $k => $table_name)
 		$reservedTables[$k] = strtolower($db_prefix . $table_name);
 
@@ -312,10 +313,9 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
  * @param string $table_name The name of the table this column is in
  * @param string $old_column The name of the column we want to change
  * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
- * @param array $parameters Not used?
- * @param string $error
+ * @return bool
  */
-function smf_db_change_column($table_name, $old_column, $column_info, $parameters = array(), $error = 'fatal')
+function smf_db_change_column($table_name, $old_column, $column_info)
 {
 	global $smcFunc, $db_prefix;
 
@@ -397,8 +397,6 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 		else
 			$index_info['name'] = implode('_', $index_info['columns']);
 	}
-	else
-		$index_info['name'] = $index_info['name'];
 
 	// Log that we are going to want to remove this!
 	$db_package_log[] = array('remove_index', $table_name, $index_info['name']);
@@ -500,7 +498,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
  * @param string $type_name The data type (int, varchar, smallint, etc.)
  * @param int $type_size The size (8, 255, etc.)
  * @param boolean $reverse
- * @return An array containing the appropriate type and size for this DB type
+ * @return array An array containing the appropriate type and size for this DB type
  */
 function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 {
@@ -547,10 +545,9 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
  * Get table structure.
  *
  * @param string $table_name The name of the table
- * @param array $parameters Not used?
- * @return An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+ * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
  */
-function smf_db_table_structure($table_name, $parameters = array())
+function smf_db_table_structure($table_name)
 {
 	global $smcFunc, $db_prefix;
 

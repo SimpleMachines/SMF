@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -231,19 +231,7 @@ function EditSearchMethod()
 				)
 			);
 
-			$request = $smcFunc['db_query']('', '
-				SHOW default_text_search_config',
-				array()
-			);
-
-			$language_ftx = 'simple';
-
-			if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-			{
-				$row = $smcFunc['db_fetch_assoc']($request);
-				$language_ftx = $row['default_text_search_config'];
-			}
-
+			$language_ftx = $smcFunc['db_search_language']();
 
 			$smcFunc['db_query']('', '
 				CREATE INDEX {db_prefix}messages_ftx ON {db_prefix}messages
@@ -271,8 +259,6 @@ function EditSearchMethod()
 				)
 			);
 		}
-
-		$context['fulltext_index'] = 'body';
 	}
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty($context['fulltext_index']))
 	{
@@ -288,7 +274,7 @@ function EditSearchMethod()
 			)
 		);
 
-		$context['fulltext_index'] = '';
+		$context['fulltext_index'] = array();
 
 		// Go back to the default search method.
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')
@@ -530,7 +516,7 @@ function CreateMessageIndex()
 
 	if (isset($_REQUEST['resume']) && !empty($modSettings['search_custom_index_resume']))
 	{
-		$context['index_settings'] = smf_json_decode($modSettings['search_custom_index_resume'], true);
+		$context['index_settings'] = $smcFunc['json_decode']($modSettings['search_custom_index_resume'], true);
 		$context['start'] = (int) $context['index_settings']['resume_at'];
 		unset($context['index_settings']['resume_at']);
 		$context['step'] = 1;
@@ -663,7 +649,7 @@ function CreateMessageIndex()
 					break;
 				}
 				else
-					updateSettings(array('search_custom_index_resume' => json_encode(array_merge($context['index_settings'], array('resume_at' => $context['start'])))));
+					updateSettings(array('search_custom_index_resume' => $smcFunc['json_encode'](array_merge($context['index_settings'], array('resume_at' => $context['start'])))));
 			}
 
 			// Since there are still two steps to go, 80% is the maximum here.
@@ -728,7 +714,7 @@ function CreateMessageIndex()
 	{
 		$context['sub_template'] = 'create_index_done';
 
-		updateSettings(array('search_index' => 'custom', 'search_custom_index_config' => json_encode($context['index_settings'])));
+		updateSettings(array('search_index' => 'custom', 'search_custom_index_config' => $smcFunc['json_encode']($context['index_settings'])));
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:search_custom_index_resume}',
@@ -830,7 +816,7 @@ function detectFulltextIndex()
 			array(
 			)
 		);
-		$context['fulltext_index'] = '';
+		$context['fulltext_index'] = array();
 		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))

@@ -12,7 +12,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -26,8 +26,7 @@ if (!defined('SMF'))
 function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
-	global $modSettings, $memberContext, $profile_vars, $post_errors, $user_settings;
-	global $db_show_debug, $smcFunc;
+	global $modSettings, $memberContext, $profile_vars, $post_errors, $smcFunc;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -643,11 +642,6 @@ function ModifyProfile($post_errors = array())
 			// Whatever we've done, we have nothing else to do here...
 			redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=groupmembership' . (!empty($msg) ? ';msg=' . $msg : ''));
 		}
-		// Authentication changes?
-		elseif ($current_area == 'authentication')
-		{
-			authentication($memID, true);
-		}
 		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
 			saveProfileFields();
 		else
@@ -913,7 +907,7 @@ function loadCustomFields($memID, $area = 'summary')
 		if ($row['field_type'] == 'check')
 		{
 			$true = (!$exists && $row['default_value']) || $value;
-			$input_html = '<input type="checkbox" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($true ? ' checked' : '') . ' class="input_check">';
+			$input_html = '<input type="checkbox" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($true ? ' checked' : '') . '>';
 			$output_html = $true ? $txt['yes'] : $txt['no'];
 		}
 		elseif ($row['field_type'] == 'select')
@@ -937,7 +931,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" class="input_radio" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . $v . '</label><br>';
+				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . $v . '</label><br>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -945,7 +939,7 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 		elseif ($row['field_type'] == 'text')
 		{
-			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . un_htmlspecialchars($value) . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
+			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . un_htmlspecialchars($value) . '"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
 		}
 		else
 		{

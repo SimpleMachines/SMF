@@ -335,7 +335,7 @@ smf_ViewVersions.prototype.determineVersions = function ()
 
 function addNewWord()
 {
-	setOuterHTML(document.getElementById('moreCensoredWords'), '<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="30" class="input_text"> => <input type="text" name="censor_proper[]" size="30" class="input_text"><' + '/div><div id="moreCensoredWords"><' + '/div>');
+	setOuterHTML(document.getElementById('moreCensoredWords'), '<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="30"> => <input type="text" name="censor_proper[]" size="30"><' + '/div><div id="moreCensoredWords"><' + '/div>');
 }
 
 function toggleBBCDisabled(section, disable)
@@ -381,12 +381,12 @@ function updateInputBoxes()
 
 function addOption()
 {
-	setOuterHTML(document.getElementById("addopt"), '<br><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '" class="input_radio"><input type="text" name="select_option[' + startOptID + ']" value="" class="input_text"><span id="addopt"></span>');
+	setOuterHTML(document.getElementById("addopt"), '<br><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '"><input type="text" name="select_option[' + startOptID + ']" value=""><span id="addopt"></span>');
 	startOptID++;
 }
 
 
-//Create a named element dynamically - thanks to: http://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
+//Create a named element dynamically - thanks to: https://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
 function createNamedElement(type, name, customFields)
 {
 	var element = null;

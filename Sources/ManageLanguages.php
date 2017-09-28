@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -146,7 +146,7 @@ function list_getLanguagesList()
 	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
 
 	// We're going to use this URL.
-	$url = 'http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
+	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
 
 	// Load the class file and stick it into an array.
 	require_once($sourcedir . '/Class-Package.php');
@@ -196,7 +196,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $forum_version, $boarddir, $txt, $smcFunc, $scripturl, $modSettings;
+	global $context, $sourcedir, $forum_version, $boarddir, $txt, $scripturl, $modSettings;
 
 	loadLanguage('ManageSettings');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -240,7 +240,7 @@ function DownloadLanguage()
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			read_tgz_file('http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
 
 			// Make sure the files aren't stuck in the cache.
 			package_flush_cache();
@@ -252,7 +252,7 @@ function DownloadLanguage()
 
 	// Open up the old china.
 	if (!isset($archive_content))
-		$archive_content = read_tgz_file('http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), null);
+		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), null);
 
 	if (empty($archive_content))
 		fatal_error($txt['add_language_error_no_response']);
@@ -468,7 +468,7 @@ function DownloadLanguage()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="copy_file[]" value="' . $rowData['generaldest'] . '"' . ($rowData['default_copy'] ? ' checked' : '') . ' class="input_check">';
+						return '<input type="checkbox" name="copy_file[]" value="' . $rowData['generaldest'] . '"' . ($rowData['default_copy'] ? ' checked' : '') . '>';
 					},
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
@@ -547,7 +547,7 @@ function ModifyLanguages()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="radio" name="def_language" value="' . $rowData['id'] . '"' . ($rowData['default'] ? ' checked' : '') . ' onclick="highlightSelected(\'list_language_list_' . $rowData['id'] . '\');" class="input_radio">';
+						return '<input type="radio" name="def_language" value="' . $rowData['id'] . '"' . ($rowData['default'] ? ' checked' : '') . ' onclick="highlightSelected(\'list_language_list_' . $rowData['id'] . '\');">';
 					},
 					'style' => 'width: 8%;',
 					'class' => 'centercol',
@@ -596,11 +596,11 @@ function ModifyLanguages()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button_submit">',
+				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button_submit">',
+				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
 			),
 		),
 	);

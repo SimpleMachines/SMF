@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -24,8 +24,16 @@ class sqlite_cache extends cache_api
 	 * @var string The path to the current $cachedir directory.
 	 */
 	private $cachedir = null;
+
+	/**
+	 * @var SQLite3
+	 */
 	private $cacheDB = null;
-	private $cacheTime = null;
+
+	/**
+	 * @var int
+	 */
+	private $cacheTime = 0;
 
 	public function __construct()
 	{

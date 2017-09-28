@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -139,7 +139,7 @@ function ModifyHolidays()
 					'function' => function ($rowData) use ($txt)
 					{
 						// Recurring every year or just a single year?
-						$year = $rowData['year'] == '0004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
+						$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
 
 						// Construct the date.
 						return sprintf('%1$d %2$s %3$s', $rowData['day'], $txt['months'][(int) $rowData['month']], $year);
@@ -152,12 +152,12 @@ function ModifyHolidays()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="holiday[%1$d]" class="input_check">',
+						'format' => '<input type="checkbox" name="holiday[%1$d]">',
 						'params' => array(
 							'id_holiday' => false,
 						),
@@ -173,13 +173,13 @@ function ModifyHolidays()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">
-					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
+					<a class="button" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">
-					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
+					<a class="button" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
 			),
 		),
 	);
@@ -231,7 +231,7 @@ function EditHoliday()
 			);
 		else
 		{
-			$date = strftime($_REQUEST['year'] <= 4 ? '0004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
+			$date = strftime($_REQUEST['year'] <= 1004 ? '1004-%m-%d' : '%Y-%m-%d', mktime(0, 0, 0, $_REQUEST['month'], $_REQUEST['day'], $_REQUEST['year']));
 			if (isset($_REQUEST['edit']))
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}calendar_holidays
@@ -338,7 +338,7 @@ function ModifyCalendarSettings($return_config = false)
 				array('permissions', 'calendar_edit_any'),
 			'',
 				// How many days to show on board index, and where to display events etc?
-				array('select', 'calendar_default_view', array('view_list' => $txt['setting_cal_view_list'], 'view_month' => $txt['setting_cal_view_month'], 'view_week' => $txt['setting_cal_view_week'])),
+				array('select', 'calendar_default_view', array('viewlist' => $txt['setting_cal_viewlist'], 'viewmonth' => $txt['setting_cal_viewmonth'], 'viewweek' => $txt['setting_cal_viewweek'])),
 				array('int', 'cal_days_for_index', 6, 'postinput' => $txt['days_word']),
 				array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 				array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),

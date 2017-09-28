@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,9 @@ if (!defined('SMF'))
  *
  * @param string $action The action to perform. Accepts "closed" and "ignore".
  * @param integer $value The new value to update.
- * @params integer|array $report_id The affected report(s).
+ * @param integer|array $report_id The affected report(s).
+ *
+ * @return bool
  */
 function updateReport($action, $value, $report_id)
 {
@@ -135,8 +137,6 @@ function updateReport($action, $value, $report_id)
 function countReports($closed = 0)
 {
 	global $smcFunc, $user_info, $context;
-
-	$total_reports = 0;
 
 	// Skip entries with id_board = 0 if we're viewing member reports
 	if ($context['report_type'] == 'members')
@@ -345,7 +345,7 @@ function getReports($closed = 0)
 /**
  * Recount all open reports. Sets a SESSION var with the updated info.
  *
- * @param string the type of reports to count
+ * @param string $type the type of reports to count
  * @return int the update open report count.
  */
 function recountOpenReports($type)
@@ -621,7 +621,7 @@ function saveModComment($report_id, $data)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', $prefix . 'ReportReply_Notify_Background', json_encode($data), 0),
+			array('$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', $prefix . 'ReportReply_Notify_Background', $smcFunc['json_encode']($data), 0),
 			array('id_task')
 		);
 }
@@ -630,7 +630,7 @@ function saveModComment($report_id, $data)
  * Saves the new information whenever a moderator comment is edited.
  *
  * @param int $comment_id The edited moderator comment ID.
- * @param array $data The new data to de inserted. Should be already properly sanitized.
+ * @param string $edited_comment The edited moderator comment text.
  * @return bool  Boolean false if no data or no comment ID was provided.
  */
 function editModComment($comment_id, $edited_comment)
@@ -649,6 +649,7 @@ function editModComment($comment_id, $edited_comment)
 			'id_comment' => $comment_id,
 		)
 	);
+	return true;
 }
 
 /**

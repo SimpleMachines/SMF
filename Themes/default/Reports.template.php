@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -34,13 +34,13 @@ function template_report_type()
 					<dt>', $type['description'], '</dt>';
 		echo '
 					<dd>
-						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
+						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', '>
 						<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
 					</dd>';
 	}
 		echo '
 				</dl>
-				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>

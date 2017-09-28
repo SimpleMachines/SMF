@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -33,7 +33,7 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 template_ssi_above();
 ?>
 			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 Beta 3</p>
+			<p><strong>Current Version:</strong> 2.1 Beta 4</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -43,10 +43,10 @@ template_ssi_above();
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
 			<p>If it is &quot;echo&quot;, the function will act normally - otherwise, it will return an array containing information about the requested task. For example, it might return a list of topics for ssi_recentTopics.</p>
-			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;http://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
+			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;https://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
 
 			<h2>Additional Guides &amp; FAQ</h2>
-			<p>Need more information on using SSI.php? Check out <a href="http://wiki.simplemachines.org/smf/Category:SSI">Using SSI.php article</a>.</p>
+			<p>Need more information on using SSI.php? Check out <a href="https://wiki.simplemachines.org/smf/Category:SSI">Using SSI.php article</a>.</p>
 
 			<div id="sidenav" class="windowbg">
 				<span class="topslice"><span></span></span>
@@ -415,7 +415,7 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 Beta 3 SSI.php Examples</title>
+		<title>SMF 2.1 Beta 4 SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
@@ -501,8 +501,8 @@ function template_ssi_above()
 	</head>
 	<body>
 		<div id="header">
-			<h1 class="forumtitle">SMF 2.1 Beta 3 SSI.php Examples</h1>
-			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
+			<h1 class="forumtitle">SMF 2.1 Beta 4 SSI.php Examples</h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">
 			<div id="upper_section"><p><br></p></div>
@@ -525,7 +525,7 @@ function template_ssi_below()
 				<a href="#header" id="bot" class="go_up"></a>
 				<ul>
 					<li class="copyright">
-						<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
+						<span class="smalltext"><a href="https://www.simplemachines.org">Simple Machines Forum</a></span>
 					</li>
 				</ul>
 			</div>
@@ -572,8 +572,8 @@ function template_homepage_sample1($method = 'source')
 
 	$footer = '
 	<div id="footer">
-		<a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/publicdomain/88x31.png"></a>
-		This sample website layout is dedicated to the <a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
+		<a target="_blank" rel="license" href="https://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/publicdomain/88x31.png"></a>
+		This sample website layout is dedicated to the <a target="_blank" rel="license" href="https://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
 	</div>
 </div>
 </body>

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -838,11 +838,15 @@ function EditBoardSettings($return_config = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
-
-	require_once($sourcedir . '/Subs-Boards.php');
-	sortBoards($recycle_boards);
-
-        $recycle_boards = array('') + $recycle_boards;
+	
+	if (!empty($recycle_boards))
+	{
+		require_once($sourcedir . '/Subs-Boards.php');
+		sortBoards($recycle_boards);
+		$recycle_boards = array('') + $recycle_boards;
+	}
+	else
+		$recycle_boards = array('');
 
 	// Here and the board settings...
 	$config_vars = array(

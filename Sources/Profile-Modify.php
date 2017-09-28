@@ -12,7 +12,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -89,9 +89,9 @@ function loadProfileFields($force_reload = false)
 			'preload' => function() use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
-				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] == '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
+				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) ? '1004-01-01' : $cur_profile['birthdate']);
 				$context['member']['birth_date'] = array(
-					'year' => $uyear == '0004' ? '0000' : $uyear,
+					'year' => $uyear,
 					'month' => $umonth,
 					'day' => $uday,
 				);
@@ -104,12 +104,12 @@ function loadProfileFields($force_reload = false)
 				{
 					// Set to blank?
 					if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1)
-						$value = '0001-01-01';
+						$value = '1004-01-01';
 					else
-						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 4 ? 4 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 4 ? 4 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '0001-01-01';
+						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
 				}
 				else
-					$value = '0001-01-01';
+					$value = '1004-01-01';
 
 				$profile_vars['birthdate'] = $value;
 				$cur_profile['birthdate'] = $value;
@@ -125,12 +125,12 @@ function loadProfileFields($force_reload = false)
 				// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 				if (preg_match('/(\d{4})[\-\., ](\d{2})[\-\., ](\d{2})/', $value, $dates) === 1)
 				{
-					$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '0001-01-01';
+					$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 					return true;
 				}
 				else
 				{
-					$value = empty($cur_profile['birthdate']) ? '0001-01-01' : $cur_profile['birthdate'];
+					$value = empty($cur_profile['birthdate']) ? '1004-01-01' : $cur_profile['birthdate'];
 					return false;
 				}
 			},
@@ -1851,7 +1851,7 @@ function notification($memID)
  */
 function alert_configuration($memID)
 {
-	global $txt, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;
@@ -2362,13 +2362,13 @@ function alert_notifications_topics($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -2391,8 +2391,8 @@ function alert_notifications_topics($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button_submit" />
-							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button" />
+							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button" />',
 				'class' => 'floatright',
 			),
 		),
@@ -2480,13 +2480,13 @@ function alert_notifications_boards($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -2509,8 +2509,8 @@ function alert_notifications_boards($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">
-							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button">
+							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button" />',
 				'class' => 'floatright',
 			),
 		),
@@ -3476,7 +3476,7 @@ function profileValidateSignature(&$value)
 			// Get all BBC tags...
 			preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br>)*([^<">]+?)(?:<br>)*\[/img\]~i', $unparsed_signature, $matches);
 			// ... and all HTML ones.
-			preg_match_all('~<img\s+src=(?:")?((?:http://|ftp://|https://|ftps://).+?)(?:")?(?:\s+alt=(?:")?(.*?)(?:")?)?(?:\s?/)?>~i', $unparsed_signature, $matches2, PREG_PATTERN_ORDER);
+			preg_match_all('~<img\s+src=(?:")?((?:http://|ftp://|https://|ftps://).+?)(?:")?(?:\s+alt=(?:")?(.*?)(?:")?)?(?:\s?/)?' . '>~i', $unparsed_signature, $matches2, PREG_PATTERN_ORDER);
 			// And stick the HTML in the BBC.
 			if (!empty($matches2))
 			{
@@ -3666,7 +3666,7 @@ function profileSendActivation()
 		)
 	);
 	$_SESSION['log_time'] = 0;
-	$_SESSION['login_' . $cookiename] = json_encode(array(0, '', 0));
+	$_SESSION['login_' . $cookiename] = $smcFunc['json_encode'](array(0, '', 0));
 
 	if (isset($_COOKIE[$cookiename]))
 		$_COOKIE[$cookiename] = '';
@@ -3941,7 +3941,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		);
 
 		// Set up some data for our background task...
-		$data = json_encode(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
+		$data = $smcFunc['json_encode'](array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
 
 		// Add a background task to handle notifying people of this request
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',

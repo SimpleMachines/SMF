@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -33,7 +33,7 @@ function template_main()
 	}
 
 	// What view are we showing?
-	if ($context['calendar_view'] == 'view_list')
+	if ($context['calendar_view'] == 'viewlist')
 	{
 		echo '
 			<div id="main_grid">
@@ -41,7 +41,7 @@ function template_main()
 			</div>
 		';
 	}
-	elseif ($context['calendar_view'] == 'view_week')
+	elseif ($context['calendar_view'] == 'viewweek')
 	{
 		echo '
 			<div id="main_grid">
@@ -72,7 +72,7 @@ function template_main()
  */
 function template_show_upcoming_list($grid_name)
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	// Bail out if we have nothing to work with
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -183,7 +183,7 @@ function template_show_upcoming_list($grid_name)
 		{
 			echo '
 					<p class="inline">
-						<b>', $date['date_local'], '</b>: ';
+						<strong>', $date['date_local'], '</strong>: ';
 
 			unset($date['date_local']);
 
@@ -242,7 +242,7 @@ function template_show_upcoming_list($grid_name)
  */
 function template_show_month_grid($grid_name, $is_mini = false)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	// If the grid doesn't exist, no point in proceeding.
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -285,7 +285,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				}
 
 				// Arguably the most exciting part, the title!
-				echo '<a href="', $scripturl, '?action=calendar;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
+				echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
 
 				echo '
 				</h3>
@@ -394,6 +394,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// The actual day number - be it a link, or just plain old text!
 				if (!empty($modSettings['cal_daysaslink']) && $context['can_post'])
 					echo '<a href="', $scripturl, '?action=calendar;sa=post;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
+				elseif ($is_mini)
+					echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
 				else
 					echo '<span class="day_text">', $title_prefix, $day['day'], '</span>';
 
@@ -527,7 +529,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
  */
 function template_show_week_grid($grid_name)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	// We might have no reason to proceed, if the variable isn't there.
 	if (!isset($context['calendar_grid_' . $grid_name]))
@@ -538,7 +540,6 @@ function template_show_week_grid($grid_name)
 
 	// At the very least, we have one month. Possibly two, though.
 	$iteration = 1;
-	$num_months = count($calendar_data['months']);
 	foreach ($calendar_data['months'] as $month_data)
 	{
 		// For our first iteration, we'll add a nice header!
@@ -735,20 +736,20 @@ function template_calendar_top($calendar_data)
 	echo '
 		<div class="calendar_top roundframe', empty($calendar_data['disable_title']) ? ' noup' : '', '">
 			<div id="calendar_viewselector" class="buttonrow floatleft">
-				<a href="', $scripturl, '?action=calendar;viewlist;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'view_list' ? ' active' : '', '">', $txt['calendar_list'], '</a>
-				<a href="', $scripturl, '?action=calendar;viewmonth;year=', $context['current_year'], ';month=', $context['current_month'], '" class="button', $context['calendar_view'] == 'view_month' ? ' active' : '', '">', $txt['calendar_month'], '</a>
-				<a href="', $scripturl, '?action=calendar;viewweek;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'view_week' ? ' active' : '', '">', $txt['calendar_week'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewlist;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewlist' ? ' active' : '', '">', $txt['calendar_list'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewmonth;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', $txt['calendar_month'], '</a>
+				<a href="', $scripturl, '?action=calendar;viewweek;year=', $context['current_year'], ';month=', $context['current_month'], ';day=', $context['current_day'], '" class="button', $context['calendar_view'] == 'viewweek' ? ' active' : '', '">', $txt['calendar_week'], '</a>
 			</div>
 			', template_button_strip($context['calendar_buttons'], 'right');
 
-	if ($context['calendar_view'] == 'view_list')
+	if ($context['calendar_view'] == 'viewlist')
 	{
 		echo '
 			<form action="', $scripturl, '?action=calendar;viewlist" id="calendar_range" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
+				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date">
-				<input type="submit" class="button_submit" style="float:none" id="view_button" value="', $txt['view'], '">
+				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">
+				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
 			</form>';
 	}
 	else
@@ -775,7 +776,7 @@ function template_calendar_top($calendar_data)
 				}
 
 				echo '</select>
-				<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
+				<input type="submit" class="button" id="view_button" value="', $txt['view'], '">
 			</form>';
 	}
 
@@ -827,7 +828,7 @@ function template_event_post()
 					<input type="hidden" name="calendar" value="1">
 					<div class="event_options_left" id="event_title">
 						<div>
-							<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+							<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
 						</div>
 					</div>';
 
@@ -838,7 +839,7 @@ function template_event_post()
 					<div class="event_options_right" id="event_board">
 						<div>
 							<span class="label">', $txt['calendar_post_in'], '</span>
-							<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
+							<input type="checkbox" style="vertical-align: middle;" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 							<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
 		foreach ($context['event']['categories'] as $category)
 		{
@@ -864,13 +865,13 @@ function template_event_post()
 					<div class="event_options_left" id="event_time_input">
 						<div>
 							<span class="label">', $txt['start'], '</span>
-							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input start" data-type="date">
-							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 						<div>
 							<span class="label">', $txt['end'], '</span>
-							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="input_text date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="input_text time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
 					</div>
 					<div class="event_options_right" id="event_time_options">
@@ -892,16 +893,16 @@ function template_event_post()
 					</div>
 					<div>
 						<span class="label">', $txt['location'], '</span>
-						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '" class="input_text">
+						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '">
 					</div>
 				</fieldset>';
 
 	echo '
-				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit">';
+				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button">';
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button_submit you_sure">';
+				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button you_sure">';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

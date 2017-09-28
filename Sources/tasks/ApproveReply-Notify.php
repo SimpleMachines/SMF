@@ -9,7 +9,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -84,7 +84,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => 'reply',
 					'is_read' => 0,
-					'extra' => json_encode(array(
+					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageBoards
+// Version: 2.1 Beta 4; ManageBoards
 
 $txt['boards_and_cats'] = 'Manage Boards and Categories';
 $txt['order'] = 'Order';
@@ -60,7 +60,7 @@ $txt['mboards_count_posts'] = 'Count Posts';
 $txt['mboards_count_posts_desc'] = 'Makes new replies and topics raise members\' post counts.';
 $txt['mboards_unchanged'] = 'Unchanged';
 $txt['mboards_theme'] = 'Board Theme';
-$txt['mboards_theme_desc'] = 'This allows you to change the look of your forum inside only this board.';
+$txt['mboards_theme_desc'] = 'This allows you to change the look of your forum only inside this board.';
 $txt['mboards_theme_default'] = '(overall forum default.)';
 $txt['mboards_override_theme'] = 'Override Member\'s Theme';
 $txt['mboards_override_theme_desc'] = 'Use this board\'s theme even if the member didn\'t choose to use the defaults.';
@@ -68,7 +68,7 @@ $txt['mboards_override_theme_desc'] = 'Use this board\'s theme even if the membe
 $txt['mboards_redirect'] = 'Redirect to a web address';
 $txt['mboards_redirect_desc'] = 'Enable this option to redirect anyone who clicks on this board to another web address.';
 $txt['mboards_redirect_url'] = 'Address to redirect users to';
-$txt['mboards_redirect_url_desc'] = 'For example: &quot;http://www.simplemachines.org&quot;.';
+$txt['mboards_redirect_url_desc'] = 'For example: &quot;https://www.simplemachines.org&quot;.';
 $txt['mboards_redirect_reset'] = 'Reset redirect count';
 $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection count for this board to zero.';
 $txt['mboards_current_redirects'] = 'Currently: %1$s';

@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -166,6 +166,9 @@ class fulltext_search extends search_api
 		$query_where = array();
 		$query_params = $search_data['params'];
 
+		if( $smcFunc['db_title'] == "PostgreSQL")
+			$modSettings['search_simple_fulltext'] = true;
+
 		if ($query_params['id_search'])
 			$query_select['id_search'] = '{int:id_search}';
 
@@ -208,19 +211,8 @@ class fulltext_search extends search_api
 		{
 			if($smcFunc['db_title'] == "PostgreSQL")
 			{
-				//we use the default language "default_text_search_config", otherwise we had to assgine the language here
-				//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-				$language_ftx = 'english';
-				$request = $smcFunc['db_query']('','
-					SHOW default_text_search_config',
-					array()
-				);
+				$language_ftx = $smcFunc['db_search_language']();
 
-				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-				{
-					$row = $smcFunc['db_fetch_assoc']($request);
-					$language_ftx = $row['default_text_search_config'];
-				}
 				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:body_match})';
 				$query_params['language_ftx'] = $language_ftx;
 			}
@@ -253,19 +245,8 @@ class fulltext_search extends search_api
 			if ($query_params['boolean_match']) {
 				if($smcFunc['db_title'] == "PostgreSQL")
 				{
-					//we use the default language "default_text_search_config", otherwise we had to assgine the language here
-					//to_tsvector(body) -> to_tsvector($language,body) to_tsquery(...) -> to_tsquery($language,...)
-					$language_ftx = 'english';
-					$request = $smcFunc['db_query']('','
-						SHOW default_text_search_config',
-						array()
-					);
+					$language_ftx = $smcFunc['db_search_language']();
 
-					if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
-					{
-						$row = $smcFunc['db_fetch_assoc']($request);
-						$language_ftx = $row['default_text_search_config'];
-					}
 					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:boolean_match})';
 					$query_params['language_ftx'] = $language_ftx;
 				}

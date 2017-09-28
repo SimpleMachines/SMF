@@ -12,7 +12,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -922,7 +922,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Check whether we have to apply anything...
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$criteria = smf_json_decode($row['criteria'], true);
+		$criteria = $smcFunc['json_decode']($row['criteria'], true);
 		// Note we don't check the buddy status, cause deletion from buddy = madness!
 		$delete = false;
 		foreach ($criteria as $criterium)
@@ -1614,7 +1614,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 		$task_rows[] = array(
-			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
+			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 				'msgOptions' => array(
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
@@ -1948,7 +1948,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', json_encode(array(
+				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', $smcFunc['json_encode'](array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -1996,7 +1996,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array(
-				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', json_encode(array(
+				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', $smcFunc['json_encode'](array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -2039,7 +2039,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
+			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 				'msgOptions' => $msgOptions,
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
@@ -2152,7 +2152,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$smcFunc['db_insert']('',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
+				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
@@ -2458,7 +2458,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		$task_rows = array();
 		foreach (array_merge($notification_topics, $notification_posts) as $topic)
 			$task_rows[] = array(
-				'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', json_encode(array(
+				'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 					'msgOptions' => array(
 						'id' => $topic['msg'],
 						'body' => $topic['body'],
@@ -2733,7 +2733,7 @@ function adminNotify($type, $memberID, $member_name = null)
 	$smcFunc['db_insert']('insert',
 		'{db_prefix}background_tasks',
 		array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/Register-Notify.php', 'Register_Notify_Background', json_encode(array(
+		array('$sourcedir/tasks/Register-Notify.php', 'Register_Notify_Background', $smcFunc['json_encode'](array(
 			'new_member_id' => $memberID,
 			'new_member_name' => $member_name,
 			'notify_type' => $type,

@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  *
  * This file contains helper functions for upgrade.php
  */
@@ -99,6 +99,10 @@ function makeFilesWritable(&$files)
 
 		foreach ($files as $k => $file)
 		{
+			// Some files won't exist, try to address up front
+			if (!file_exists($file))
+				@touch($file);
+			// NOW do the writable check...
 			if (!is_writable($file))
 			{
 				@chmod($file, 0755);
@@ -288,6 +292,12 @@ function makeFilesWritable(&$files)
  */
 function quickFileWritable($file)
 {
+
+	// Some files won't exist, try to address up front
+	if (!file_exists($file))
+		@touch($file);
+
+	// NOW do the writable check...
 	if (is_writable($file))
 		return true;
 
@@ -384,12 +394,13 @@ function smf_mysql_free_result($rs)
 }
 
 /**
- * @param $rs
+ * @param $rs Ignored
  * @return int|string
  */
 function smf_mysql_insert_id($rs)
 {
-	return mysqli_insert_id($rs);
+	global $db_connection;
+	return mysqli_insert_id($db_connection);
 }
 
 /**

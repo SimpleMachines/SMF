@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
-	global $smcFunc, $mysql_set_mode;
+	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
@@ -57,6 +57,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_case_sensitive'         => false,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
 			'db_is_resource'            => 'smf_is_resource',
+			'db_mb4'                    => false,
+			'db_ping'                   => 'mysqli_ping',
+			'db_fetch_all'              => 'smf_db_fetch_all',
 			'db_update_from'			=> 'smf_db_update_from',
 		);
 
@@ -89,9 +92,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	// This makes it possible to have SMF automatically change the sql_mode and autocommit if needed.
-	if (isset($mysql_set_mode) && $mysql_set_mode === true)
-		$smcFunc['db_query']('', 'SET sql_mode = \'\', AUTOCOMMIT = 1',
+	$smcFunc['db_query']('', 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'',
 		array(),
 		false
 	);
@@ -153,7 +154,7 @@ function smf_db_get_server_info($connection = null)
 
 /**
  * Callback for preg_replace_callback on the query.
- * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board'), with
+ * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board', etc), with
  * their current values from $user_info.
  * In addition, it performs checks and sanitization on the values sent to the database.
  *
@@ -171,11 +172,8 @@ function smf_db_replacement__callback($matches)
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
 
-	if ($matches[1] === 'query_see_board')
-		return $user_info['query_see_board'];
-
-	if ($matches[1] === 'query_wanna_see_board')
-		return $user_info['query_wanna_see_board'];
+	if (isset($user_info[$matches[1]]) && strpos($matches[1], 'query_') !== false)
+		return $user_info[$matches[1]];
 
 	if ($matches[1] === 'empty')
 		return '\'\'';
@@ -254,6 +252,15 @@ function smf_db_replacement__callback($matches)
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 		break;
 
+		case 'datetime':
+			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
+				return 'str_to_date('.
+					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5] ,$datetime_matches[6]).
+					',\'%Y-%m-%d %h:%i:%s\')';
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
+
 		case 'float':
 			if (!is_numeric($replacement))
 				smf_db_error_backtrace('Wrong value type sent to the database. Floating point number expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -262,7 +269,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'identifier':
 			// Backticks inside identifiers are supported as of MySQL 4.1. We don't need them for SMF.
-			return '`' . strtr($replacement, array('`' => '', '.' => '')) . '`';
+			return '`' . strtr($replacement, array('`' => '', '.' => '`.`')) . '`';
 		break;
 
 		case 'raw':
@@ -758,9 +765,9 @@ function smf_db_error($db_string, $connection = null)
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
  * @param array $keys The keys for the table
- * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method = ''
+ * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array
  * @param object $connection The connection to use (if null, $db_connection is used)
- * @return value of the first key, behavior based on returnmode
+ * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
@@ -768,12 +775,23 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	$connection = $connection === null ? $db_connection : $connection;
 
+	$return_var = null;
+
 	// With nothing to insert, simply return.
 	if (empty($data))
 		return;
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
+
+	$with_returning = false;
+
+	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
+	{
+		$with_returning = true;
+		if ($returnmode == 2)
+			$return_var = array();
+	}
 
 	// Inserting data as a single row can be done as a single array.
 	if (!is_array($data[array_rand($data)]))
@@ -802,24 +820,82 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Determine the method of insertion.
 	$queryTitle = $method == 'replace' ? 'REPLACE' : ($method == 'ignore' ? 'INSERT IGNORE' : 'INSERT');
 
-	// Do the insert.
-	$smcFunc['db_query']('', '
-		' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
-		VALUES
-			' . implode(',
-			', $insertRows),
-		array(
-			'security_override' => true,
-			'db_error_skip' => $table === $db_prefix . 'log_errors',
-		),
-		$connection
-	);
-
-	if(!empty($keys) && (count($keys) > 0) && $method == '' && $returnmode > 0)
+	if (!$with_returning || $method != 'ingore')
 	{
-		if ($returnmode == 1)
+		// Do the insert.
+		$smcFunc['db_query']('', '
+			' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+			VALUES
+				' . implode(',
+				', $insertRows),
+			array(
+				'security_override' => true,
+				'db_error_skip' => $table === $db_prefix . 'log_errors',
+			),
+			$connection
+		);
+	}
+	else //special way for ignore method with returning
+	{
+		$count = count($insertRows);
+		$ai = 0;
+		for($i = 0; $i < $count; $i++)
+		{
+			$old_id = $smcFunc['db_insert_id']();
+
+			$smcFunc['db_query']('', '
+				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
+				VALUES
+					' . $insertRows[$i],
+				array(
+					'security_override' => true,
+					'db_error_skip' => $table === $db_prefix . 'log_errors',
+				),
+				$connection
+			);
+			$new_id = $smcFunc['db_insert_id']();
+
+			if ($last_id != $new_id) //the inserted value was new
+			{
+				$ai = $new_id;
+			}
+			else	// the inserted value already exists we need to find the pk
+			{
+				$where_string = '';
+				$count2 = count($indexed_columns);
+				for ($x = 0; $x < $count2; $x++)
+				{
+					$where_string += key($indexed_columns[$x]) . ' = '. $insertRows[$i][$x];
+					if (($x + 1) < $count2)
+						$where_string += ' AND ';
+				}
+
+				$request = $smcFunc['db_query']('','
+					SELECT `'. $keys[0] . '` FROM ' . $table .'
+					WHERE ' . $where_string . ' LIMIT 1',
+					array()
+				);
+
+				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+				{
+					$row = $smcFunc['db_fetch_assoc']($request);
+					$ai = $row[$keys[0]];
+				}
+			}
+
+			if ($returnmode == 1)
+				$return_var = $ai;
+			else if ($returnmode == 2)
+				$return_var[] = $ai;
+		}
+	}
+
+
+	if ($with_returning)
+	{
+		if ($returnmode == 1 && empty($return_var))
 			$return_var = smf_db_insert_id($table, $keys[0]) + count($insertRows) - 1;
-		else if ($returnmode == 2)
+		else if ($returnmode == 2 && empty($return_var))
 		{
 			$return_var = array();
 			$count = count($insertRows);
@@ -919,6 +995,18 @@ function smf_is_resource($result)
 		return true;
 
 	return false;
+}
+
+/**
+ * Fetches all rows from a result as an array
+ *
+ * @param resource $request A MySQL result resource
+ * @return array An array that contains all rows (records) in the result resource
+ */
+function smf_db_fetch_all($request)
+{
+	// Return the right row.
+	return mysqli_fetch_all($request);
 }
 
 /**

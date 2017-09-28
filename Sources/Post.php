@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -45,7 +45,6 @@ function Post($post_errors = array())
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
-	$context['posting_fields'] = array();
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -187,7 +186,11 @@ function Post($post_errors = array())
 
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
-	unset($_SESSION['already_attached']);
+
+	// Clear out prior attachment activity when starting afresh
+	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
+		unset($_SESSION['already_attached']);
+	}
 
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
@@ -315,8 +318,8 @@ function Post($post_errors = array())
 		// Otherwise, just adjust these to look nice on the input form
 		else
 		{
-			$context['event']['start_time'] = timeformat(strtotime($context['event']['start_iso_gmdate']), $time_string);
-			$context['event']['end_time'] = timeformat(strtotime($context['event']['end_iso_gmdate']), $time_string);
+			$context['event']['start_time'] = $context['event']['start_time_orig'];
+			$context['event']['end_time'] = $context['event']['end_time_orig'];
 		}
 
 		// Need this so the user can select a timezone for the event.
@@ -326,8 +329,8 @@ function Post($post_errors = array())
 		// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 		{
-			$d = date_create($context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => date_format($d, 'T') . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 		}
 
 		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
@@ -1207,12 +1210,9 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
-				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type], 0));
-				// Show some numbers. If they exist.
-				if ($type == 'attachmentNumPerPostLimit' && $context['attachments']['quantity'] > 0)
+				// Show the max number of attachments if not 0.
+				if ($type == 'attachmentNumPerPostLimit')
 					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
-				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
-					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)), 0));
 			}
 	}
 
@@ -1278,19 +1278,18 @@ function Post($post_errors = array())
 			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) . ',
 			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) . ',
 			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) . ',
+			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) . ',
 			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) . ',
 			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
 			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
-			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
 			acceptedFiles: '. JavaScriptEscape($acceptedFiles) . ',
-			maxFilesize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : 'null') . ',
 			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
 			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
-			maxFiles: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
-			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) . ',
 			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
-			maxLimitReferenceUploadSize: '. $modSettings['attachmentPostLimit'] * 1024 . ',
+			maxFileAmount: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
+			maxTotalSize: ' . (!empty($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] : '0') . ',
+			maxFileSize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
 		});
 	});', true);
 	}
@@ -1298,6 +1297,47 @@ function Post($post_errors = array())
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
 	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+
+	// Now let's set up the fields for the posting form header...
+	$context['posting_fields'] = array();
+
+	// Guests must supply their name and email.
+	if (isset($context['name']) && isset($context['email']))
+	{
+		$context['posting_fields']['guestname'] = array(
+			'dt' => '<span id="caption_guestname"' .  (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . '>' . $txt['name'] . '</span>',
+			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" required>',
+		);
+
+		if (empty($modSettings['guest_post_no_email']))
+		{
+			$context['posting_fields']['email'] = array(
+				'dt' => '<span id="caption_email"' .  (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . '>' . $txt['email'] . '</span>',
+				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" required>',
+			);
+		}
+	}
+
+	// Gotta have a subject.
+	$context['posting_fields']['subject'] = array(
+		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>',
+	);
+
+	// Icons are fun.
+	$context['posting_fields']['icon'] = array(
+		'dt' => $txt['message_icon'],
+		'dd' => '<select name="icon" id="icon" onchange="showimage()">',
+	);
+	foreach ($context['icons'] as $icon)
+	{
+		$context['posting_fields']['icon']['dd'] .= '
+							<option value="' . $icon['value'] . '"' . ($icon['value'] == $context['icon'] ? ' selected' : '') . '>' . $icon['name'] . '</option>';
+	}
+	$context['posting_fields']['icon']['dd'] .= '
+						</select>
+						<img id="icons" src="' . $context['icon_url'] . '">';
+
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
@@ -2265,7 +2305,7 @@ function AnnounceTopic()
  */
 function AnnouncementSelectMembergroup()
 {
-	global $txt, $context, $topic, $board, $board_info, $smcFunc;
+	global $txt, $context, $topic, $board_info, $smcFunc;
 
 	$groups = array_merge($board_info['groups'], array(1));
 	foreach ($groups as $id => $group)

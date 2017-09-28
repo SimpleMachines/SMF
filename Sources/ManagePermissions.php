@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -1124,7 +1124,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Standard - ie. members.  They can do anything Restrictive can.
 	$groupLevels['global']['standard'] = array_merge($groupLevels['global']['restrict'], array(
 		'view_mlist',
-		'likes_view',
 		'likes_like',
 		'mention',
 		'pm_read',
@@ -1486,7 +1485,6 @@ function loadAllPermissions()
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
 			'view_warning' => array(true, 'profile_account'),
-			'likes_view' => array(false, 'likes'),
 			'likes_like' => array(false, 'likes'),
 			'mention' => array(false, 'mentions'),
 		),
@@ -1584,7 +1582,6 @@ function loadAllPermissions()
 	// Hide Likes/Mentions permissions...
 	if (empty($modSettings['enable_likes']))
 	{
-		$hiddenPermissions[] = 'likes_view';
 		$hiddenPermissions[] = 'likes_like';
 	}
 	if (empty($modSettings['enable_mentions']))

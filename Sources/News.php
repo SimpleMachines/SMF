@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -34,7 +34,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $forum_version;
+	global $query_this_board, $smcFunc, $forum_version, $settings;
 
 	// If it's not enabled, die.
 	if (empty($modSettings['xmlnews_enable']))
@@ -52,7 +52,8 @@ function ShowXmlFeed()
 		'author' => $context['forum_name'],
 		'source' => $scripturl,
 		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],
-		'icon' => $boardurl . '/favicon.ico',
+		'icon' => !empty($settings['og_image']) ? $settings['og_image'] : $boardurl . '/favicon.ico',
+		'language' => !empty($txt['lang_locale']) ? str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) : 'en',
 	);
 
 	// Handle the cases where a board, boards, or category is asked for.
@@ -164,6 +165,7 @@ function ShowXmlFeed()
 		$smcFunc['db_free_result']($request);
 
 		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
+		$feed_meta['source'] .= '?board=' . $board . '.0' ;
 
 		$query_this_board = 'b.id_board = ' . $board;
 
@@ -179,7 +181,7 @@ function ShowXmlFeed()
 	}
 
 	// Show in rss or proprietary format?
-	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'smf';
+	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
 
 	// @todo Birthdays?
 
@@ -202,22 +204,22 @@ function ShowXmlFeed()
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_REQUEST[$var]))
 			$cachekey[] = $_REQUEST[$var];
-	$cachekey = md5(json_encode($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
+	$cachekey = md5($smcFunc['json_encode']($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
 	$cache_t = microtime();
 
 	// Get the associative array representing the xml.
 	if (!empty($modSettings['cache_enable']) && (!$user_info['is_guest'] || $modSettings['cache_enable'] >= 3))
-		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
-	if (empty($xml))
+		$xml_data = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
+	if (empty($xml_data))
 	{
 		$call = call_helper($subActions[$_GET['sa']][0], true);
 
 		if (!empty($call))
-			$xml = call_user_func($call, $xml_format);
+			$xml_data = call_user_func($call, $xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))
-			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml, 240);
+			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
 	}
 
 	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
@@ -253,21 +255,16 @@ function ShowXmlFeed()
 	$orig_feed_meta = $feed_meta;
 
 	// If mods want to do somthing with this feed, let them do that now.
-	// Provide the feed's data, title, format, content type, keys that need special handling, etc.
-	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
+	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
 
 	// These can't be empty
-	$feed_meta['title'] = !empty($feed_meta['title']) ? $feed_meta['title'] : $orig_feed_meta['title'];
-	$feed_meta['desc'] = !empty($feed_meta['desc']) ? $feed_meta['desc'] : $orig_feed_meta['desc'];
-	$feed_meta['source'] = !empty($feed_meta['source']) ? $feed_meta['source'] : $orig_feed_meta['source'];
+	foreach (array('title', 'desc', 'source') as $mkey)
+		$feed_meta[$mkey] = !empty($feed_meta[$mkey]) ? $feed_meta[$mkey] : $orig_feed_meta[$mkey];
 
 	// Sanitize basic feed metadata values
-	$feed_meta['title'] = cdata_parse(strip_tags($feed_meta['title']));
-	$feed_meta['desc'] = cdata_parse(strip_tags($feed_meta['desc']));
-	$feed_meta['author'] = cdata_parse(strip_tags($feed_meta['author']));
-	$feed_meta['rights'] = cdata_parse(strip_tags($feed_meta['rights']));
-	$feed_meta['source'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['source'])));
-	$feed_meta['icon'] = cdata_parse(strip_tags(fix_possible_url($feed_meta['icon'])));
+	foreach ($feed_meta as $mkey => $mvalue)
+		$feed_meta[$mkey] = cdata_parse(strip_tags(fix_possible_url($feed_meta[$mkey])));
 
 	$ns_string = '';
 	if (!empty($namespaces[$xml_format]))
@@ -279,8 +276,9 @@ function ShowXmlFeed()
 	$extraFeedTags_string = '';
 	if (!empty($extraFeedTags[$xml_format]))
 	{
+		$indent = "\t" . ($xml_format !== 'atom' ? "\t" : '');
 		foreach ($extraFeedTags[$xml_format] as $extraTag)
-			$extraFeedTags_string .= "\n\t\t" . $extraTag;
+			$extraFeedTags_string .= "\n" . $indent . $extraTag;
 	}
 
 	// This is an xml file....
@@ -324,7 +322,9 @@ function ShowXmlFeed()
 			<link>' . $feed_meta['source'] . '</link>
 		</image>' : '',
 		!empty($feed_meta['rights']) ? '
-		<copyright>' . $feed_meta['rights'] . '</copyright>' : '';
+		<copyright>' . $feed_meta['rights'] . '</copyright>' : '',
+		!empty($feed_meta['language']) ? '
+		<language>' . $feed_meta['language'] . '</language>' : '';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
@@ -334,7 +334,7 @@ function ShowXmlFeed()
 		echo $extraFeedTags_string;
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
-		dumpTags($xml, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		// Output the footer of the xml.
 		echo '
@@ -348,14 +348,14 @@ function ShowXmlFeed()
 				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		echo '
-<feed', $ns_string, '>
+<feed', $ns_string, !empty($feed_meta['language']) ? ' xml:lang="' . $feed_meta['language'] . '"' : '', '>
 	<title>', $feed_meta['title'], '</title>
 	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
 	<link rel="self" type="application/atom+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
 	<id>', $feed_meta['source'], '</id>
 	<subtitle>', $feed_meta['desc'], '</subtitle>
-	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
+	<generator uri="https://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
 	!empty($feed_meta['icon']) ? '
 	<icon>' . $feed_meta['icon'] . '</icon>' : '',
 	!empty($feed_meta['author']) ? '
@@ -367,7 +367,7 @@ function ShowXmlFeed()
 
 		echo $extraFeedTags_string;
 
-		dumpTags($xml, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </feed>';
@@ -387,7 +387,7 @@ function ShowXmlFeed()
 		<items>
 			<rdf:Seq>';
 
-		foreach ($xml as $item)
+		foreach ($xml_data as $item)
 		{
 			$link = array_filter($item['content'], function ($e) { return ($e['tag'] == 'link'); });
 			$link = array_pop($link);
@@ -402,7 +402,7 @@ function ShowXmlFeed()
 	</channel>
 ';
 
-		dumpTags($xml, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </rdf:RDF>';
@@ -417,7 +417,7 @@ function ShowXmlFeed()
 		echo $extraFeedTags_string;
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
-		dumpTags($xml, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
 
 		echo '
 </smf:xml-feed>';
@@ -537,6 +537,7 @@ function cdata_parse($data, $ns = '', $force = false)
  *
  * @param array $data The array to output as xml data
  * @param int $i The amount of indentation to use.
+ * @param null|string $tag
  * @param string $xml_format The format to use ('atom', 'rss', 'rss2' or empty for plain XML)
  * @param array $forceCdataKeys A list of keys on which to force cdata wrapping (used by mods, maybe)
  * @param array $nsKeys Key-value pairs of namespace prefixes to pass to cdata_parse() (used by mods, maybe)
@@ -628,7 +629,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
  * The array will be generated to match the format.
  * @todo get the list of members from Subs-Members.
  *
- * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array of arrays of feed items. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlMembers($xml_format)
@@ -651,6 +652,9 @@ function getXmlMembers($xml_format)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// Create a GUID for each member using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
@@ -674,7 +678,10 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?action=profile;u=' . $row['id_member'],
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 				),
 			);
@@ -723,7 +730,7 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?action=profile;u=' . $row['id_member'],
+						'content' => $guid,
 					),
 				),
 			);
@@ -759,10 +766,10 @@ function getXmlMembers($xml_format)
 /**
  * Get the latest topics information from a specific board,
  * to display later.
- * The returned array will be generated to match the xmf_format.
+ * The returned array will be generated to match the xml_format.
  * @todo does not belong here
  *
- * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'.
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'.
  * @return array An array of arrays of topic data for the feed. Each array has keys corresponding to the tags for the specified format.
  */
 function getXmlNews($xml_format)
@@ -872,6 +879,9 @@ function getXmlNews($xml_format)
 		else
 			$loaded_attachments = null;
 
+		// Create a GUID for this topic using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -921,7 +931,10 @@ function getXmlNews($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 					array(
 						'tag' => 'enclosure',
@@ -1022,7 +1035,7 @@ function getXmlNews($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+						'content' => $guid,
 					),
 					array(
 						'tag' => 'link',
@@ -1152,7 +1165,7 @@ function getXmlNews($xml_format)
  * The returned array will be generated to match the xml_format.
  * @todo does not belong here.
  *
- * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array of arrays containing data for the feed. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlRecent($xml_format)
@@ -1282,6 +1295,9 @@ function getXmlRecent($xml_format)
 		else
 			$loaded_attachments = null;
 
+		// Create a GUID for this post using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -1331,7 +1347,10 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'guid',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
 					),
 					array(
 						'tag' => 'enclosure',
@@ -1432,7 +1451,7 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'id',
-						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+						'content' => $guid,
 					),
 					array(
 						'tag' => 'link',
@@ -1592,7 +1611,7 @@ function getXmlRecent($xml_format)
  * which will be generated to match the xml_format.
  * @todo refactor.
  *
- * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
  * @return array An array profile data
  */
 function getXmlProfile($xml_format)
@@ -1611,6 +1630,9 @@ function getXmlProfile($xml_format)
 
 	// Okay, I admit it, I'm lazy.  Stupid $_GET['u'] is long and hard to type.
 	$profile = &$memberContext[$_GET['u']];
+
+	// Create a GUID for this member using the tag URI scheme
+	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $user_profile[$profile['id']]['date_registered']) . ':member=' . $profile['id'];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
@@ -1639,7 +1661,10 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'guid',
-					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
+					'content' => $guid,
+					'attributes' => array(
+						'isPermaLink' => 'false',
+					),
 				),
 			)
 		);
@@ -1718,7 +1743,7 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'id',
-					'content' => $scripturl . '?action=profile;u=' . $profile['id'],
+					'content' => $guid,
 				),
 			)
 		);

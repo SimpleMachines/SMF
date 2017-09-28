@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -62,6 +62,7 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
+		// We excpiclity do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 
@@ -84,9 +85,9 @@ function reloadSettings()
 		{
 			return $string;
 		};
-	$fix_utf8mb4 = function($string) use ($utf8)
+	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
 	{
-		if (!$utf8)
+		if (!$utf8 || $smcFunc['db_mb4'])
 			return $string;
 
 		$i = 0;
@@ -218,6 +219,8 @@ function reloadSettings()
 				$words[$i] = $smcFunc['ucfirst']($words[$i]);
 			return implode('', $words);
 		} : 'ucwords',
+		'json_decode' => 'smf_json_decode',
+		'json_encode' => 'json_encode',
 	);
 
 	// Setting the timezone is a requirement for some functions.
@@ -234,7 +237,7 @@ function reloadSettings()
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($modSettings['default_timezone'], timezone_identifiers_list()))
-		{	
+		{
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
 			$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
 		}
@@ -275,7 +278,7 @@ function reloadSettings()
 	if (empty($modSettings['currentAttachmentUploadDir']))
 	{
 		updateSettings(array(
-			'attachmentUploadDir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+			'attachmentUploadDir' => $smcFunc['json_encode'](array(1 => $modSettings['attachmentUploadDir'])),
 			'currentAttachmentUploadDir' => 1,
 		));
 	}
@@ -283,7 +286,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = smf_json_decode(SMF_INTEGRATION_SETTINGS, true);
+		$integration_settings = $smcFunc['json_decode'](SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -406,7 +409,7 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		$cookie_data = smf_json_decode($_COOKIE[$cookiename], true, false);
+		$cookie_data = $smcFunc['json_decode']($_COOKIE[$cookiename], true, false);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
@@ -417,7 +420,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = smf_json_decode($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
@@ -474,7 +477,12 @@ function loadUserSettings()
 		if (!$id_member)
 		{
 			require_once($sourcedir . '/LogInOut.php');
-			validatePasswordFlood(!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member, !empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false, $id_member != 0);
+			validatePasswordFlood(
+				!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member,
+				!empty($user_settings['member_name']) ? $user_settings['member_name'] : '',
+				!empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false,
+				$id_member != 0
+			);
 		}
 		// Validate for Two Factor Authentication
 		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], array('login2', 'logintfa'))))
@@ -488,14 +496,11 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = smf_json_decode($_COOKIE[$tfacookie]);
-
-					if (is_null($tfa_data))
-						$tfa_data = safe_unserialize($_COOKIE[$tfacookie]);
+					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie]);
 
 					list ($tfamember, $tfasecret) = $tfa_data;
 
-					if ((int) $tfamember != $id_member)
+					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
 				}
 
@@ -645,14 +650,11 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$tfa_data = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
-
-			if (is_null($tfa_data))
-				$tfa_data = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
 			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
-			if (!$preserve || time() > $exp)
+			if (!isset($id, $user, $exp, $state, $preserve) || !$preserve || time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
@@ -850,7 +852,7 @@ function loadBoard()
 
 	if (empty($temp))
 	{
-		$request = $smcFunc['db_query']('', '
+		$request = $smcFunc['db_query']('load_board_info', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
 				b.id_parent, c.name AS cname, COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name,
@@ -1280,11 +1282,14 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// If the image proxy is enabled, we still want the original URL when they're editing the profile...
-			$row['avatar_original'] = $row['avatar'];
+			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
+
+			// Keep track of the member's normal member group
+			$row['primary_group'] = $row['member_group'];
 
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
@@ -1463,7 +1468,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'title' => $profile['website_title'],
 				'url' => $profile['website_url'],
 			),
-			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
+			'birth_date' => empty($profile['birthdate']) ? '1004-01-01' : (substr($profile['birthdate'], 0, 4) === '0004' ? '1004' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
@@ -1484,6 +1489,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'is_banned' => isset($profile['is_activated']) ? $profile['is_activated'] >= 10 : 0,
 			'options' => $profile['options'],
 			'is_guest' => false,
+			'primary_group' => $profile['primary_group'],
 			'group' => $profile['member_group'],
 			'group_color' => $profile['member_group_color'],
 			'group_id' => $profile['id_group'],
@@ -1535,7 +1541,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		$memberContext[$user]['custom_fields'] = array();
 
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = smf_json_decode($modSettings['displayFields'], true);
+			$context['display_fields'] = $smcFunc['json_decode']($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -2463,7 +2469,7 @@ function addInlineCss($css)
 /**
  * Add a Javascript file for output later
  *
- * @param string $filename The name of the file to load
+ * @param string $fileName The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
  * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
@@ -2650,6 +2656,10 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 				// Note that we found it.
 				$found = true;
 
+				// setlocale is required for basename() & pathinfo() to work properly on the selected language
+				if (!empty($txt['lang_locale']) && !empty($modSettings['global_character_set']))
+					setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $modSettings['global_character_set']);
+
 				break;
 			}
 		}
@@ -2822,7 +2832,7 @@ function getLanguages($use_cache = true)
 		$language_directories = array_unique($language_directories);
 
 		// Get a list of languages.
-		$langList = !empty($modSettings['langList']) ? json_decode($modSettings['langList'], true) : array();
+		$langList = !empty($modSettings['langList']) ? $smcFunc['json_decode']($modSettings['langList'], true) : array();
 		$langList = is_array($langList) ? $langList : false;
 
 		$catchLang = array();
@@ -2885,7 +2895,7 @@ function getLanguages($use_cache = true)
 
 		// Do we need to store the lang list?
 		if (empty($langList))
-			updateSettings(array('langList' => json_encode($catchLang)));
+			updateSettings(array('langList' => $smcFunc['json_encode']($catchLang)));
 
 		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
@@ -3046,8 +3056,9 @@ function template_include($filename, $once = false)
 			require_once($sourcedir . '/Subs-Package.php');
 
 			$error = fetch_web_data($boardurl . strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
-			if (empty($error) && ini_get('track_errors') && !empty($php_errormsg))
-				$error = $php_errormsg;
+			$error_array = error_get_last();
+			if (empty($error) && ini_get('track_errors') && !empty($error_array))
+				$error = $error_array['message'];
 			if (empty($error))
 				$error = $txt['template_parse_errmsg'];
 
@@ -3201,8 +3212,8 @@ function loadDatabase()
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
  * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
- * @param string $fallbackSMF Use the default SMF method if the accelerator fails.
- * @return object A object of $cacheAPI.
+ * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
+ * @return object|false A object of $cacheAPI, or False on failure.
 */
 function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 {
@@ -3303,10 +3314,10 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
- *	 memcache: http://www.php.net/memcache
- *	 APC: http://www.php.net/apc
- *   APCu: http://www.php.net/book.apcu
+ *	 Xcache: https://xcache.lighttpd.net/wiki/XcacheApi
+ *	 memcache: https://php.net/memcache
+ *	 APC: https://php.net/apc
+ *   APCu: https://php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
@@ -3316,7 +3327,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $smcFunc, $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
@@ -3325,12 +3336,12 @@ function cache_put_data($key, $value, $ttl = 120)
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(json_encode($value)));
+		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value)));
 		$st = microtime();
 	}
 
 	// The API will handle the rest.
-	$value = $value === null ? null : json_encode($value);
+	$value = $value === null ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value));
 	$cacheAPI->putData($key, $value, $ttl);
 
 	if (function_exists('call_integration_hook'))
@@ -3351,7 +3362,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $modSettings, $cache_enable, $cacheAPI;
+	global $smcFunc, $cache_enable, $cacheAPI;
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
@@ -3386,7 +3397,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : smf_json_decode($value, true);
+	return empty($value) ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
 }
 
 /**

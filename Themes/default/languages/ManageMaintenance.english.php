@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageMaintenance
+// Version: 2.1 Beta 4; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -132,6 +132,8 @@ $txt['errortype_paidsubs'] = 'Paid Subs';
 $txt['errortype_paidsubs_desc'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
 $txt['errortype_backup'] = 'Backups';
 $txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the proceedure failed.';
+$txt['errortype_login'] = 'Logins';
+$txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute force attempts.';
 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';
@@ -223,7 +225,7 @@ $txt['reattribute_cannot_find_member'] = 'Could not find member to attribute pos
 $txt['maintain_recountposts'] = 'Recount User Posts';
 $txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count. It will recount all (countable) posts made by each user and then update their profile post count totals';
 
-$txt['safe_mode_enabled'] = '<a href="http://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br>The backup done with this tool cannot be considered reliable!';
+$txt['safe_mode_enabled'] = '<a href="https://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br>The backup done with this tool cannot be considered reliable!';
 $txt['use_external_tool'] = 'Please consider using an external tool to backup your database, any backup created with this utility cannot be considered 100% reliable.';
 $txt['zipped_file'] = 'If you want you can create a compressed (zipped) backup.';
 $txt['plain_text'] = 'The best method to backup your database is to create a plain text file, a compressed package may not be completely reliable.';

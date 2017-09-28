@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; Errors
+// Version: 2.1 Beta 4; Errors
 
 global $scripturl, $modSettings;
 
@@ -198,7 +198,7 @@ $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';
 $txt['post_already_deleted'] = 'The topic or message has already been moved to the recycle board. Are you sure you want to delete it completely?<br>If so follow <a href="%1$s">this link</a>';
 
 $txt['login_threshold_fail'] = 'Sorry, you are out of login chances. Please come back and try again later.';
-$txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login attempts threshold. Please wait 30 seconds and try again later.';
+$txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login attempts threshold for account %1$s. Please wait 30 seconds and try again later.';
 
 $txt['who_off'] = 'You cannot access Who\'s Online right now because it is disabled.';
 
@@ -277,7 +277,7 @@ $txt['search_invalid_weights'] = 'Search weights are not properly configured. At
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
 
 $txt['package_no_file'] = 'Unable to find package file!';
-$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank" class="new_win">this URL</a> instead.';
+$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank">this URL</a> instead.';
 $txt['not_on_simplemachines'] = 'Sorry, packages can only be downloaded like this from the simplemachines.org server.';
 $txt['package_cant_uninstall'] = 'This package was either never installed or was already uninstalled - you can\'t uninstall it now.';
 $txt['package_cant_download'] = 'You cannot download or install new packages because the Packages directory or one of the files in it are not writable!';

@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -103,7 +103,7 @@ function ViewModlog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = smf_json_decode($search_params, true);
+		$search_params = $smcFunc['json_decode']($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -131,7 +131,7 @@ function ViewModlog()
 	);
 
 	// Setup the search context.
-	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(json_encode($search_params));
+	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode($smcFunc['json_encode']($search_params));
 	$context['search'] = array(
 		'string' => $search_params['string'],
 		'type' => $search_params['type'],
@@ -252,13 +252,13 @@ function ViewModlog()
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" name="all" class="input_check" onclick="invertAll(this, this.form);">',
+					'value' => '<input type="checkbox" name="all" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function ($entry)
 					{
-						return '<input type="checkbox" class="input_check" name="delete[]" value="' . $entry['id'] . '"' . ($entry['editable'] ? '' : ' disabled') . '>';
+						return '<input type="checkbox" name="delete[]" value="' . $entry['id'] . '"' . ($entry['editable'] ? '' : ' disabled') . '>';
 					},
 					'class' => 'centercol',
 				),
@@ -279,11 +279,11 @@ function ViewModlog()
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
 					' . ($context['can_delete'] ? '&nbsp;
-					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button_submit you_sure">
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button_submit you_sure">' : ''),
+					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
 				'class' => 'floatright',
 			),
 		),
@@ -399,7 +399,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 	$entries = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		$row['extra'] = smf_json_decode($row['extra'], true);
+		$row['extra'] = $smcFunc['json_decode']($row['extra'], true);
 
 		// Corrupt?
 		$row['extra'] = is_array($row['extra']) ? $row['extra'] : array();

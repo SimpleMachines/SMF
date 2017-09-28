@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -42,16 +42,17 @@ function db_packages_init()
 	}
 
 	// We setup an array of SMF tables we can't do auto-remove on - in case a mod writer cocks it up!
-	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'ban_groups', 'ban_items',
+	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'background_tasks', 'ban_groups', 'ban_items',
 		'board_permissions', 'boards', 'calendar', 'calendar_holidays', 'categories',
-		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards',
-		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read',
+		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards', 'log_comments',
+		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read', 'log_member_notices',
 		'log_notify', 'log_online', 'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
 		'log_scheduled_tasks', 'log_search_messages', 'log_search_results', 'log_search_subjects',
-		'log_search_topics', 'log_topics', 'mail_queue', 'membergroups', 'members', 'message_icons',
-		'messages', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
-		'pm_recipients', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
-		'themes', 'topics');
+		'log_search_topics', 'log_spider_hits', 'log_spider_stats', 'log_subscribed', 'log_topics',
+		'mail_queue', 'membergroups', 'members', 'mentions', 'message_icons',
+		'messages', 'moderator_groups', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
+		'pm_labeled_messages', 'pm_labels', 'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
+		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts', 'user_alerts_prefs', 'user_drafts', 'user_likes');
 	foreach ($reservedTables as $k => $table_name)
 		$reservedTables[$k] = strtolower($db_prefix . $table_name);
 
@@ -127,6 +128,13 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		// If we have an auto increment do it!
 		if (!empty($column['auto']))
 		{
+			$smcFunc['db_query']('', '
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
+				array(
+					'security_override' => true,
+				)
+			);
+						
 			$smcFunc['db_query']('', '
 				CREATE SEQUENCE ' . $table_name . '_seq',
 				array(
@@ -329,8 +337,8 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 		{
 			// If there is an auto we need remove it!
 			if ($column['auto'])
-				$smcFunc['db_query']('',
-					'DROP SEQUENCE ' . $table_name . '_seq',
+				$smcFunc['db_query']('', '
+					DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
 					array(
 						'security_override' => true,
 					)
@@ -355,12 +363,11 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
  * Change a column.
  *
  * @param string $table_name The name of the table this column is in
- * @param $old_column The name of the column we want to change
- * @param $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
- * @param array $parameters Not used?
- * @param string $error
+ * @param string $old_column The name of the column we want to change
+ * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+ * @return bool
  */
-function smf_db_change_column($table_name, $old_column, $column_info, $parameters = array(), $error = 'fatal')
+function smf_db_change_column($table_name, $old_column, $column_info)
 {
 	global $smcFunc, $db_prefix;
 
@@ -482,7 +489,7 @@ function smf_db_change_column($table_name, $old_column, $column_info, $parameter
 				)
 			);
 			$smcFunc['db_query']('', '
-				DROP SEQUENCE ' . $table_name . '_seq',
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
 				array(
 					'security_override' => true,
 				)
@@ -491,6 +498,13 @@ function smf_db_change_column($table_name, $old_column, $column_info, $parameter
 		// Otherwise add it!
 		else
 		{
+			$smcFunc['db_query']('', '
+				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
+				array(
+					'security_override' => true,
+				)
+			);
+
 			$smcFunc['db_query']('', '
 				CREATE SEQUENCE ' . $table_name . '_seq',
 				array(
@@ -699,10 +713,9 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
  * Get table structure.
  *
  * @param string $table_name The name of the table
- * @param array $parameters Not used?
- * @return An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+ * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
  */
-function smf_db_table_structure($table_name, $parameters = array())
+function smf_db_table_structure($table_name)
 {
 	global $smcFunc, $db_prefix;
 
@@ -732,10 +745,12 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 	$result = $smcFunc['db_query']('', '
 		SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 		FROM information_schema.columns
-		WHERE table_name = \'' . $table_name . '\'
+		WHERE table_schema = {string:schema_public}
+		 AND table_name = {string:table_name}
 		ORDER BY ordinal_position',
 		array(
-			'security_override' => true,
+			'schema_public' => 'public',
+			'table_name' => $table_name,
 		)
 	);
 	$columns = array();
@@ -797,11 +812,11 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 			c2.relname AS name,
 			pg_get_indexdef(i.indexrelid) AS inddef
 		FROM pg_class AS c, pg_class AS c2, pg_index AS i
-		WHERE c.relname = \'' . $table_name . '\'
+		WHERE c.relname = {string:table_name}
 			AND c.oid = i.indrelid
 			AND i.indexrelid = c2.oid',
 		array(
-			'security_override' => true,
+			'table_name' => $table_name,
 		)
 	);
 	$indexes = array();

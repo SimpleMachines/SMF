@@ -3,7 +3,7 @@
  * A Compatibility library with PHP 5.5's simplified password hashing API.
  *
  * @author Anthony Ferrara <ircmaxell@php.net>
- * @license http://www.opensource.org/licenses/mit-license.html MIT License
+ * @license https://opensource.org/licenses/mit-license.html MIT License
  * @copyright 2012 The Authors
  *
  * Simple Machines Forum (SMF)
@@ -13,7 +13,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 namespace {
@@ -103,7 +103,13 @@ namespace {
 			} else {
 				$buffer = '';
 				$buffer_valid = false;
-				if (function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
+				if (function_exists('random_bytes')) {
+					$buffer = random_bytes($raw_salt_len);
+					if ($buffer) {
+						$buffer_valid = true;
+					}
+				}
+				if (!$buffer_valid && function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
 					$buffer = mcrypt_create_iv($raw_salt_len, MCRYPT_DEV_URANDOM);
 					if ($buffer) {
 						$buffer_valid = true;

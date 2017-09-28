@@ -6,7 +6,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 (function ($) {
@@ -230,6 +230,26 @@ $.sceditor.command.set(
 	}
 );
 
+$.sceditor.command.set(
+	'floatleft', {
+		tooltip: 'Float left',
+		txtExec: ["[float=left max=45%]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
+		}
+	}
+);
+
+$.sceditor.command.set(
+	'floatright', {
+		tooltip: 'Float right',
+		txtExec: ["[float=right max=45%]", "[/float]"],
+		exec: function () {
+			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
+		}
+	}
+);
+
 $.sceditor.plugins.bbcode.bbcode.set(
 	'abbr', {
 		tags: {
@@ -257,9 +277,16 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		html: function (element, attrs, content) {
 			var style = '';
 			var code = 'ul';
+			var olTypes = new Array('decimal', 'decimal-leading-zero', 'lower-roman', 'upper-roman', 'lower-alpha', 'upper-alpha', 'lower-greek', 'upper-greek', 'lower-latin', 'upper-latin', 'hebrew', 'armenian', 'georgian', 'cjk-ideographic', 'hiragana', 'katakana', 'hiragana-iroha', 'katakana-iroha');
 
-			if (attrs.type)
-					style = ' style="list-style-type: ' + attrs.type + '"';
+			if (attrs.type) {
+				style = ' style="list-style-type: ' + attrs.type + '"';
+
+				if (olTypes.indexOf(attrs.type) > -1)
+					code = 'ol';
+			}
+			else
+				style = ' style="list-style-type: disc"';
 
 			return '<' + code + style + '>' + content + '</' + code + '>';
 		}
@@ -275,7 +302,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		html: '<ul>{0}</ul>',
 		format: function (element, content) {
-			if ($(element[0]).style == undefined || $(element[0]).css('list-style-type') == 'disc')
+			if ($(element[0]).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
 				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
@@ -290,8 +317,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		},
 		breakStart: true,
 		isInline: false,
-		format: "[list type=decimal]{0}[/list]",
-		html: '<ol>{0}</ol>'
+		html: '<ol>{0}</ol>',
+		format: function (element, content) {
+			if ($(element[0]).css('list-style-type') == 'none')
+				return '[list type=decimal]' + content + '[/list]';
+			else
+				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+		}
 	}
 );
 
@@ -310,17 +342,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					return element.style ? element.style[name] : null;
 				};
 
-			// Is this an attachment?
-			if (element.attr('data-attachment'))
-			{
-				if (element.attr('name'))
-					attribs += ' name=' + element.attr('name');
-				if (element.attr('type'))
-					attribs += ' type=' + 	element.attr('type');
-
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
-			}
-
 			// check if this is an emoticon image
 			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
 				return content;
@@ -332,7 +353,18 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('title'))
+
+			// Is this an attachment?
+			if (element.attr('data-attachment'))
+			{
+				if (element.attr('title'))
+					attribs += ' name=' + element.attr('title');
+				if (element.attr('data-type'))
+					attribs += ' type=' + 	element.attr('data-type');
+
+				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+			}
+			else if (element.attr('title'))
 				attribs += " title=" + element.attr('title');
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
@@ -378,17 +410,35 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('name'))
-				attribs += " name=" + element.attr('name');
-			if (element.attr('type'))
-				attribs += " type=" + element.attr('type');
+			if (element.attr('title'))
+				attribs += " name=" + element.attr('title');
+			if (element.attr('data-type'))
+				attribs += " type=" + element.attr('data-type');
 
-			return '[attach' + attribs + ']' + content + '[/attach]';
+			return '[attach' + attribs + ']' + (element.attr('data-attachment') ? element.attr('data-attachment') : content) + '[/attach]';
 		},
-		html: function (token, attrs, content) {
+		html: function (token, attrs, id) {
 			var parts,
 				attribs = '';
 
+			// If id is not an integer, bail out
+			if (!$.isNumeric(id) || Math.floor(id) != +id || +id <= 0) {
+
+				if (typeof attrs.width !== "undefined")
+					attribs += ' width=' + attrs.width;
+				if (typeof attrs.height !== "undefined")
+					attribs += ' height=' + attrs.height;
+				if (typeof attrs.alt !== "undefined")
+					attribs += ' alt=' + attrs.alt;
+				if (typeof attrs.name !== "undefined")
+					attribs += ' name=' + attrs.name;
+				if (typeof attrs.type !== "undefined")
+					attribs += ' type=' + attrs.type;
+
+				return '[attach' + attribs + ']' + id + '[/attach]';
+			}
+
+			attribs += ' data-attachment="' + id + '"'
 			if (typeof attrs.width !== "undefined")
 				attribs += ' width="' + attrs.width + '"';
 			if (typeof attrs.height !== "undefined")
@@ -396,27 +446,23 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 			if (typeof attrs.type !== "undefined")
-				attribs += ' type="' + attrs.type + '"';
+				attribs += ' data-type="' + attrs.type + '"';
 			if (typeof attrs.name !== "undefined")
-				attribs += ' name="' + attrs.name + '"';
+				attribs += ' title="' + attrs.name + '"';
 
 			// Is this an image?
-			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
-			contentIMG = new Image();
-				contentIMG.src = contentUrl;
-
-			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
-			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') == 0){
-				var name='';
-				if (typeof attrs.name !== "undefined")
-					name = ' name="' + attrs.name + '"';
-
-				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'"'+name+'>'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
+			if ((typeof attrs.type !== "undefined" && attrs.type.indexOf("image") === 0)) {
+				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
+				contentIMG = new Image();
+					contentIMG.src = contentUrl;
 			}
 
-			else{
-				return '<img' + attribs + ' src="' + contentUrl +'" data-attachment="' + content + '">';
-			}
+			// If not an image, show a boring ol' link
+			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
+				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + (typeof attrs.name !== "undefined" ? attrs.name : id) + '</a>';
+			// Show our purdy li'l picture
+			else
+				return '<img' + attribs + ' src="' + contentUrl + '">';
 		}
 	}
 );
@@ -450,12 +496,12 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			else if (typeof element.attr('data-attachment') !== "undefined")
 			{
 				var attribs = '';
-				if (typeof element.attr('name') !== "undefined")
-					attribs += ' name=' + element.attr('name');
-				if (typeof element.attr('type') !== "undefined")
-					attribs += ' type=' + element.attr("type");
+				if (typeof element.attr('title') !== "undefined")
+					attribs += ' name=' + element.attr('title');
+				if (typeof element.attr('data-type') !== "undefined")
+					attribs += ' type=' + element.attr("data-type");
 
-				return '[attach'+attribs+']'+content+'[/attach]';
+				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}
 
 			else
@@ -601,7 +647,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.date !== "undefined" && attrs.date)
 			{
 				attr_date = attrs.date;
-				sDate = '<date timestamp="' + attr_date + '">' + new Date(attrs.date * 1000) + '</date>';
+				tDate = new Date(attr_date * 1000);
+				sDate_string = tDate.toLocaleString();
+				sDate = '<date timestamp="' + attr_date + '">' + sDate_string + '</date>';
 			}
 
 			if (author == '' && sDate == '')
@@ -643,6 +691,36 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attrs.defaultattr = content;
 
 			return '<a href="' + smf_scripturl +'?action=profile;u='+ attrs.defaultattr + '" class="mention" data-mention="'+ attrs.defaultattr + '">@'+ content.replace('@','') +'</a>';
+		}
+	}
+);
+
+$.sceditor.plugins.bbcode.bbcode.set(
+	'float', {
+		tags: {
+			div: {
+				"class": ["floatleft", "floatright"],
+			},
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: function ($element, content) {
+			if (!$element.css('float'))
+				return content;
+
+			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			max = ' max=' + ($element.css('max-width') != "none" ? $element.css('max-width') : '45%');
+
+			return '[float=' + side + max + ']' + content + '[/float]';
+		},
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined")
+				return content;
+
+			floatclass = attrs.defaultattr.indexOf('left') == 0 ? 'floatleft' : 'floatright';
+			style = typeof attrs.max !== "undefined" ? ' style="max-width:' + attrs.max + (+attrs.max === parseInt(attrs.max) ? 'px' : '') + ';"' : '';
+
+			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
 	}
 );

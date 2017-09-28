@@ -8,7 +8,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -130,7 +130,7 @@ class memcache_cache extends cache_api
 		global $context, $txt;
 
 		$config_vars[] = $txt['cache_memcache_settings'];
-		$config_vars[] = array('cache_memcached', $txt['cache_memcache_servers'], 'file', 'text', 0, 'cache_memcached', 'postinput' => '<br /><div class="smalltext"><em>' . $txt['cache_memcache_servers_subtext'] . '</em></div>');
+		$config_vars[] = array('cache_memcached', $txt['cache_memcache_servers'], 'file', 'text', 0, 'cache_memcached', 'postinput' => '<br><div class="smalltext"><em>' . $txt['cache_memcache_servers_subtext'] . '</em></div>');
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';

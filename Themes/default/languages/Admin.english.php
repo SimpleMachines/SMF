@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; Admin
+// Version: 2.1 Beta 4; Admin
 
 global $settings, $scripturl;
 
@@ -47,8 +47,8 @@ $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
-$txt['admin_repair'] = 'Repair All boards and topics';
-$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="generic_icons help" title="%3$s"></span> symbols for more information on the related functions.';
+$txt['admin_repair'] = 'Repair all boards and topics';
+$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="generic_icons help" title="%3$s"></span> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
@@ -106,7 +106,7 @@ $txt['remove_all'] = 'Clear Log';
 $txt['approve_new_members'] = 'Admin must approve all new members';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
 
-$txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>.';
+$txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank">www.simplemachines.org</a>.';
 $txt['version_check_more'] = '(more detailed)';
 
 $txt['lfyi'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
@@ -130,11 +130,11 @@ $txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
-$txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
+$txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referrer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
 
 $txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
-$txt['email_parsed_html'] = 'Add &lt;br /&gt;s and &amp;nbsp;s to this message.';
+$txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
 $txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
@@ -377,16 +377,16 @@ $txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
 $txt['attach_dir_basedir'] = 'Base directory';
 $txt['attach_dir_desc'] = 'Create new directories or change the current directory below. <br>To create a new directory within the forum directory structure, use just the directory name. <br>To remove a directory, blank the path input field. Only empty directories can be removed. To see if a directory is empty, check for files or sub-directories in brackets next to the file count. <br> To rename a directory, simply change its name in the input field. Only directories without sub-directories may be renamed. Directories can be renamed as long as they do not contain a sub-directory.';
-$txt['attach_dir_base_desc'] = 'You may use below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
+$txt['attach_dir_base_desc'] = 'You may use the area below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
 $txt['attach_dir_save_problem'] = 'Oops, there seems to be a problem.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Please do so using a FTP client or your site file manager.';
 $txt['attachments_no_write'] = 'This directory has been created but is not writable. Please attempt to do so using a FTP client or your site file manager.';
 $txt['attach_dir_duplicate_msg'] = 'Unable to add. This directory already exists.';
 $txt['attach_dir_exists_msg'] = 'Unable to move. A directory already exists at that path.';
 $txt['attach_dir_base_dupe_msg'] = 'Unable to add. This base directory has already been created.';
-$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or site file manager and re-try.';
+$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or your site file manager and retry.';
 $txt['attach_dir_no_rename'] = 'Unable to move or rename. Please verify that the path is correct or that this directory does not contain any sub-directories.';
-$txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or site file manager.';
+$txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or your site file manager.';
 $txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
 $txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
 $txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
@@ -501,7 +501,7 @@ $txt['repair_attachments'] = 'Maintain Attachments';
 $txt['repair_attachments_complete'] = 'Maintenance Complete';
 $txt['repair_attachments_complete_desc'] = 'All selected errors have now been corrected';
 $txt['repair_attachments_no_errors'] = 'No errors were found';
-$txt['repair_attachments_error_desc'] = 'The follow errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
+$txt['repair_attachments_error_desc'] = 'The following errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
 $txt['repair_attachments_continue'] = 'Continue';
 $txt['repair_attachments_cancel'] = 'Cancel';
 $txt['attach_repair_missing_thumbnail_parent'] = '%1$d thumbnails are missing a parent attachment';
@@ -627,7 +627,7 @@ $txt['phpinfo_defaultsettings'] = 'Default Settings';
 $txt['phpinfo_itemsettings'] = 'Settings';
 
 $txt['language_configuration'] = 'Languages';
-$txt['language_description'] = 'This section allows you to edit languages installed on your forum, download new ones from the Simple Machines website. You may also edit language-related settings here.';
+$txt['language_description'] = 'This section allows you to edit languages installed on your forum and download new ones from the Simple Machines website. You may also edit language-related settings here.';
 $txt['language_edit'] = 'Edit Languages';
 $txt['language_add'] = 'Add Language';
 $txt['language_settings'] = 'Settings';
@@ -745,12 +745,13 @@ $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
 
 $txt['likes_like'] = 'Membergroups allowed to like posts';
-$txt['likes_view'] = 'Membergroups allowed to view likes';
 
 $txt['mention'] = 'Membergroups allowed to mention users';
 
 $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
+
+$txt['sm_state_setting'] = 'Allow Stat Collection';
 
 ?>

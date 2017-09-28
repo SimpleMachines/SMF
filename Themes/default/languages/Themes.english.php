@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; Themes
+// Version: 2.1 Beta 4; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -42,7 +42,7 @@ $txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
 $txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
 $txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
 $txt['theme_install_already_dir'] = 'The name you specified is already been used by another theme, please try a different name.';
-$txt['theme_install_invalid_id'] = 'This is not a valid ID theme.';
+$txt['theme_install_invalid_id'] = 'This is not a valid theme ID.';
 
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
@@ -93,7 +93,7 @@ $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
-$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="http://custom.simplemachines.org/themes/" target="_blank">http://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';

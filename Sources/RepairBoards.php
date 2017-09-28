@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -1672,7 +1672,6 @@ function findForumErrors($do_fix = false)
 				array(
 				)
 			);
-			$needs_fix = false;
 
 			// Does it need a fix?
 			if (!empty($test['check_type']) && $test['check_type'] == 'count')

@@ -46,7 +46,7 @@ h1.forumtitle {
 	position: relative;
 	font-size: 1.2em;
 	height: 2.3em;
-	border: 1px solid black;
+	border: 1px solid #000;
 	border-radius: 2px;
 	background: #fff;
 	float: left;
@@ -64,7 +64,7 @@ h1.forumtitle {
 #overall_progress, #step_progress {
 	height: 2.3em;
 	z-index: 1;
-	background-color: #6BB247;
+	background-color: #6bb247;
 	margin: 0px 3px 0px 0px;
 }
 #overall_progress span, #step_progress span {
@@ -101,10 +101,10 @@ h1.forumtitle {
 .error_message {
 	padding: 0.5em 0;
 }
-.panel .button_submit, .panel .button_link {
+.panel .button {
 	font-weight: bold;
 }
-.panel .button_submit:hover, .panel .button_link:hover {
+.panel .button:hover {
 	color: #af6700;
 	text-decoration: none;
 }

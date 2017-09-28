@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -168,7 +168,7 @@ function get_all_themes($enable_only = false)
  */
 function get_theme_info($path)
 {
-	global $sourcedir, $forum_version, $txt, $scripturl, $context;
+	global $smcFunc, $sourcedir, $forum_version, $txt, $scripturl, $context;
 	global $explicit_images;
 
 	if (empty($path))
@@ -244,7 +244,7 @@ function get_theme_info($path)
 	}
 
 	if (!empty($theme_info_xml['extra']))
-		$xml_data += smf_json_decode($theme_info_xml['extra'], true);
+		$xml_data += $smcFunc['json_decode']($theme_info_xml['extra'], true);
 
 	return $xml_data;
 }
@@ -258,7 +258,7 @@ function get_theme_info($path)
  */
 function theme_install($to_install = array())
 {
-	global $smcFunc, $context, $themedir, $themeurl, $modSettings;
+	global $smcFunc, $context, $modSettings;
 	global $settings, $explicit_images;
 
 	// External use? no problem!

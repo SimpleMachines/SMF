@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -335,7 +335,7 @@ class Attachments
 			);
 
 			if (empty($attachment['errors']))
-			{	
+			{
 				if (createAttachment($attachmentOptions))
 				{
 					// Avoid JS getting confused.
@@ -422,7 +422,7 @@ class Attachments
 
 	protected function sendResponse()
 	{
-		global $modSettings, $context;
+		global $smcFunc, $modSettings, $context;
 
 		ob_end_clean();
 
@@ -435,7 +435,7 @@ class Attachments
 		// Set the header.
 		header('Content-Type: application/json; charset='. $context['character_set'] .'');
 
-		echo json_encode($this->_response ? $this->_response : array());
+		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
 
 		// Done.
 		obExit(false);

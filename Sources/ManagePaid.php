@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -380,11 +380,11 @@ function ViewSubscriptions()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_table_headers',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button">',
 			),
 		),
 	);
@@ -564,7 +564,7 @@ function ModifySubscription()
 			if (empty($_POST['cost_day']) && empty($_POST['cost_week']) && empty($_POST['cost_month']) && empty($_POST['cost_year']))
 				fatal_lang_error('paid_all_freq_blank');
 		}
-		$cost = json_encode($cost);
+		$cost = $smcFunc['json_encode']($cost);
 
 		// Having now validated everything that might throw an error, let's also now deal with the token.
 		validateToken('admin-pms');
@@ -699,7 +699,7 @@ function ModifySubscription()
 			$context['sub'] = array(
 				'name' => $row['name'],
 				'desc' => $row['description'],
-				'cost' => smf_json_decode($row['cost'], true),
+				'cost' => $smcFunc['json_decode']($row['cost'], true),
 				'span' => array(
 					'value' => $span_value,
 					'unit' => $span_unit,
@@ -909,7 +909,7 @@ function ViewSubscribedUsers()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="delsub[' . $rowData['id'] . ']" class="input_check">';
+						return '<input type="checkbox" name="delsub[' . $rowData['id'] . ']">';
 					},
 					'class' => 'centercol',
 				),
@@ -922,17 +922,17 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit">
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button_submit you_sure">
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button_submit you_sure">
+					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button">
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button you_sure">
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button you_sure">
 				',
 			),
 			array(
 				'position' => 'top_of_list',
 				'value' => '
 					<div class="flow_auto">
-						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" style="margin-top: 3px;">
-						<input type="text" name="sub_search" value="" class="input_text floatright">
+						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button" style="margin-top: 3px;">
+						<input type="text" name="sub_search" value="" class="floatright">
 					</div>
 				',
 			),
@@ -1275,14 +1275,14 @@ function ModifyUserSubscription()
 		$context['pending_payments'] = array();
 		if (!empty($row['pending_details']))
 		{
-			$pending_details = smf_json_decode($row['pending_details'], true);
+			$pending_details = $smcFunc['json_decode']($row['pending_details'], true);
 			foreach ($pending_details as $id => $pending)
 			{
 				// Only this type need be displayed.
 				if ($pending[3] == 'payback')
 				{
 					// Work out what the options were.
-					$costs = smf_json_decode($context['current_subscription']['real_cost'], true);
+					$costs = $smcFunc['json_decode']($context['current_subscription']['real_cost'], true);
 
 					if ($context['current_subscription']['real_length'] == 'F')
 					{
@@ -1316,7 +1316,7 @@ function ModifyUserSubscription()
 							addSubscription($context['current_subscription']['id'], $row['id_member'], $context['current_subscription']['real_length'] == 'F' ? strtoupper(substr($pending[2], 0, 1)) : 0);
 						unset($pending_details[$id]);
 
-						$new_details = json_encode($pending_details);
+						$new_details = $smcFunc['json_encode']($pending_details);
 
 						// Update the entry.
 						$smcFunc['db_query']('', '
@@ -1844,7 +1844,7 @@ function loadSubscriptions()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Pick a cost.
-		$costs = smf_json_decode($row['cost'], true);
+		$costs = $smcFunc['json_decode']($row['cost'], true);
 
 		if ($row['length'] != 'F' && !empty($modSettings['paid_currency_symbol']) && !empty($costs['fixed']))
 			$cost = sprintf($modSettings['paid_currency_symbol'], $costs['fixed']);

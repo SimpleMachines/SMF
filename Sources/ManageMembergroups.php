@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -175,11 +175,11 @@ function MembergroupIndex()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_table_headers',
-				'value' => '<a class="button_link" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<a class="button_link" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . $txt['membergroups_add_group'] . '</a>',
 			),
 		),
 	);
@@ -280,7 +280,7 @@ function MembergroupIndex()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<a class="button_link" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . $txt['membergroups_add_group'] . '</a>',
+				'value' => '<a class="button" href="' . $scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . $txt['membergroups_add_group'] . '</a>',
 			),
 		),
 	);

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -261,7 +261,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
+							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d">',
 						'params' => array(
 							'id' => false,
 						),
@@ -278,7 +278,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s class="input_check">',
+							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s>',
 						'params' => array(
 							'id' => false,
 							'checked_state' => false,
@@ -295,8 +295,8 @@ function ScheduledTasks()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="save" value="' . $txt['scheduled_tasks_save_changes'] . '" class="button_submit">
-					<input type="submit" name="run" value="' . $txt['scheduled_tasks_run_now'] . '" class="button_submit">',
+					<input type="submit" name="save" value="' . $txt['scheduled_tasks_save_changes'] . '" class="button">
+					<input type="submit" name="run" value="' . $txt['scheduled_tasks_run_now'] . '" class="button">',
 			),
 			array(
 				'position' => 'after_title',
@@ -551,7 +551,7 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" data-confirm="' . $txt['scheduled_log_empty_log_confirm'] . '" class="button_submit you_sure">',
+					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" data-confirm="' . $txt['scheduled_log_empty_log_confirm'] . '" class="button you_sure">',
 			),
 			array(
 				'position' => 'after_title',

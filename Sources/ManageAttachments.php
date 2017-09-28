@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -87,7 +87,7 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	global $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
+	global $smcFunc, $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
 
 	require_once($sourcedir . '/Subs-Attachments.php');
 
@@ -208,7 +208,7 @@ function ManageAttachmentSettings($return_config = false)
 			if (!empty($_POST['use_subdirectories_for_attachments']) && !empty($modSettings['attachment_basedirectories']))
 			{
 				if (!is_array($modSettings['attachment_basedirectories']))
-					$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+					$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 			}
 			else
 				$modSettings['attachment_basedirectories'] = array();
@@ -227,12 +227,12 @@ function ManageAttachmentSettings($return_config = false)
 				{
 					$modSettings['attachment_basedirectories'][$modSettings['currentAttachmentUploadDir']] = $_POST['basedirectory_for_attachments'];
 					updateSettings(array(
-						'attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories']),
+						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
 						'currentAttachmentUploadDir' => $currentAttachmentUploadDir,
 					));
 
 					$_POST['use_subdirectories_for_attachments'] = 1;
-					$_POST['attachmentUploadDir'] = json_encode($modSettings['attachmentUploadDir']);
+					$_POST['attachmentUploadDir'] = $smcFunc['json_encode']($modSettings['attachmentUploadDir']);
 
 				}
 			}
@@ -550,12 +550,12 @@ function BrowseFiles()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[%1$d]" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[%1$d]">',
 						'params' => array(
 							'id_attach' => false,
 						),
@@ -575,11 +575,11 @@ function BrowseFiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_table_headers',
-				'value' => '<input type="submit" name="remove_submit" class="button_submit you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
+				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="remove_submit" class="button_submit you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
+				'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
 			),
 		),
 	);
@@ -714,7 +714,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	$attach_dirs = smf_json_decode($modSettings['attachmentUploadDir'], true);
+	$attach_dirs = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
@@ -785,7 +785,7 @@ function MaintainFiles()
 
 	$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
 	$context['attach_dirs'] = $attach_dirs;
-	$context['base_dirs'] = !empty($modSettings['attachment_basedirectories']) ? smf_json_decode($modSettings['attachment_basedirectories'], true) : array();
+	$context['base_dirs'] = !empty($modSettings['attachment_basedirectories']) ? $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true) : array();
 	$context['checked'] = isset($_SESSION['checked']) ? $_SESSION['checked'] : true;
 	if (!empty($_SESSION['results']))
 	{
@@ -1524,7 +1524,7 @@ function RepairAttachments()
 		{
 			$to_remove = array();
 			$ignore_ids = array(0);
-			
+
 			// returns an array of ints of id_attach's that should not be deleted
 			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500));
 
@@ -1545,7 +1545,7 @@ function RepairAttachments()
 					'attach_thumb' => array(0,3),
 				)
 			);
-			
+
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$to_remove[] = $row['id_attach'];
@@ -1684,7 +1684,7 @@ function RepairAttachments()
  * If repairAttachments() has more steps added, this function needs updated!
  *
  * @param array $to_fix IDs of attachments to fix
- * @param int The maximum substep to reach before pausing
+ * @param int $max_substep The maximum substep to reach before pausing
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
@@ -1909,7 +1909,7 @@ function ManageAttachmentPaths()
 		$modSettings['attachment_basedirectories'] = array();
 
 	elseif (!is_array($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+		$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 
 	$errors = array();
 
@@ -1983,10 +1983,10 @@ function ManageAttachmentPaths()
 
 					$modSettings['attachment_basedirectories'][$id] = $path;
 					updateSettings(array(
-						'attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories']),
+						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
 						'basedirectory_for_attachments' => $base,
 					));
-					$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+					$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 				}
 			}
 
@@ -2047,8 +2047,8 @@ function ManageAttachmentPaths()
 						if (empty($error) && !empty($modSettings['attachment_basedirectories']))
 						{
 							unset($modSettings['attachment_basedirectories'][$id]);
-							updateSettings(array('attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories'])));
-							$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+							updateSettings(array('attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories'])));
+							$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 						}
 					}
 					else
@@ -2081,7 +2081,7 @@ function ManageAttachmentPaths()
 		if ($_POST['current_dir'] != $modSettings['currentAttachmentUploadDir'] && !empty($modSettings['last_attachments_directory']) && (isset($modSettings['last_attachments_directory'][$_POST['current_dir']]) || isset($modSettings['last_attachments_directory'][0])))
 		{
 			if (!is_array($modSettings['last_attachments_directory']))
-				$modSettings['last_attachments_directory'] = smf_json_decode($modSettings['last_attachments_directory'], true);
+				$modSettings['last_attachments_directory'] = $smcFunc['json_decode']($modSettings['last_attachments_directory'], true);
 			$num = substr(strrchr($modSettings['attachmentUploadDir'][$_POST['current_dir']], '_'), 1);
 
 			if (is_numeric($num))
@@ -2104,7 +2104,7 @@ function ManageAttachmentPaths()
 				$modSettings['basedirectory_for_attachments'] = !empty($modSettings['basedirectory_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : '';
 				$modSettings['use_subdirectories_for_attachments'] = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['use_subdirectories_for_attachments'] : 0;
 				updateSettings(array(
-					'last_attachments_directory' => json_encode($modSettings['last_attachments_directory']),
+					'last_attachments_directory' => $smcFunc['json_encode']($modSettings['last_attachments_directory']),
 					'basedirectory_for_attachments' => $bid == 0 ? $modSettings['basedirectory_for_attachments'] : $modSettings['attachment_basedirectories'][$bid],
 					'use_subdirectories_for_attachments' => $use_subdirectories_for_attachments,
 				));
@@ -2130,7 +2130,7 @@ function ManageAttachmentPaths()
 
 				$update = array(
 					'currentAttachmentUploadDir' => 1,
-					'attachmentUploadDir' => json_encode(array(1 => $dir)),
+					'attachmentUploadDir' => $smcFunc['json_encode'](array(1 => $dir)),
 				);
 			}
 		}
@@ -2139,7 +2139,7 @@ function ManageAttachmentPaths()
 			// Save it to the database.
 			$update = array(
 				'currentAttachmentUploadDir' => $_POST['current_dir'],
-				'attachmentUploadDir' => json_encode($new_dirs),
+				'attachmentUploadDir' => $smcFunc['json_encode']($new_dirs),
 			);
 		}
 
@@ -2178,8 +2178,8 @@ function ManageAttachmentPaths()
 						$modSettings['attachmentUploadDir'][$id] = $dir;
 						$modSettings['attachment_basedirectories'][$id] = $dir;
 						$update = (array(
-							'attachmentUploadDir' => json_encode($modSettings['attachmentUploadDir']),
-							'attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories']),
+							'attachmentUploadDir' => $smcFunc['json_encode']($modSettings['attachmentUploadDir']),
+							'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
 							'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 						));
 					}
@@ -2195,7 +2195,7 @@ function ManageAttachmentPaths()
 
 					unset($modSettings['attachment_basedirectories'][$id]);
 					$update = (array(
-						'attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories']),
+						'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
 						'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 					));
 				}
@@ -2222,7 +2222,7 @@ function ManageAttachmentPaths()
 			ksort($modSettings['attachment_basedirectories']);
 
 			$update = (array(
-				'attachment_basedirectories' => json_encode($modSettings['attachment_basedirectories']),
+				'attachment_basedirectories' => $smcFunc['json_encode']($modSettings['attachment_basedirectories']),
 				'basedirectory_for_attachments' => $_POST['new_base_dir'],
 				'currentAttachmentUploadDir' => $current_dir,
 			));
@@ -2269,7 +2269,7 @@ function ManageAttachmentPaths()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . ' class="input_radio">';
+						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . '>';
 					},
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
@@ -2282,7 +2282,7 @@ function ManageAttachmentPaths()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' class="input_text" style="width: 100%">';
+						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' style="width: 100%">';
 					},
 					'style' => 'width: 40%;',
 				),
@@ -2325,8 +2325,8 @@ function ManageAttachmentPaths()
 				'position' => 'below_table_data',
 				'value' => '
 				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-				<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit">
-				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button_submit">',
+				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
+				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button">',
 			),
 			empty($errors['dir']) ? array(
 				'position' => 'top_of_list',
@@ -2361,7 +2361,7 @@ function ManageAttachmentPaths()
 					'data' => array(
 						'function' => function($rowData)
 						{
-							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . ' class="input_radio">';
+							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . '>';
 						},
 						'style' => 'width: 10%;',
 						'class' => 'centercol',
@@ -2402,8 +2402,8 @@ function ManageAttachmentPaths()
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button_submit">
-					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button_submit">',
+					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button">
+					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button">',
 				),
 				empty($errors['base']) ? array(
 					'position' => 'top_of_list',
@@ -2603,9 +2603,9 @@ function TransferAttachments()
 
 	checkSession();
 
-	$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+	$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 	if (!empty($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = smf_json_decode($modSettings['attachment_basedirectories'], true);
+		$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 	else
 		$modSettings['basedirectory_for_attachments'] = array();
 

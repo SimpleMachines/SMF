@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -131,7 +131,7 @@ function template_main()
 			echo '
 							</ul>
 							<div class="submitbutton">
-								<input type="submit" value="', $txt['poll_vote'], '" class="button_submit">
+								<input type="submit" value="', $txt['poll_vote'], '" class="button">
 								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							</div>
 						</form>';
@@ -228,8 +228,9 @@ function template_main()
 	echo '
 			<div class="pagesection top">
 				', template_button_strip($context['normal_buttons'], 'right'), '
-				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
+				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
+					<a href="#bot" class="button">', $txt['go_down'], '</a>
 					', $context['page_index'], '
 				</div>
 			</div>';
@@ -270,8 +271,9 @@ function template_main()
 	echo '
 			<div class="pagesection">
 				', template_button_strip($context['normal_buttons'], 'right'), '
-				', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft" id="bot">', $txt['go_up'], '</a>
+				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
+					<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>
 			</div>';
@@ -389,14 +391,14 @@ function template_main()
 									<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 									<input type="hidden" name="msg" value="%msg_id%">
 									<div class="righttext quickModifyMargin">
-										<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button_submit">&nbsp;&nbsp;' . ($context['show_spellchecking'] ? '<input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button_submit">&nbsp;&nbsp;' : '') . '<input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button_submit">
+										<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button">&nbsp;&nbsp;' . ($context['show_spellchecking'] ? '<input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">&nbsp;&nbsp;' : '') . '<input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
 									</div>
 								</div>'), ',
-							sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text">'), ',
+							sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '">'), ',
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 							sTemplateTopSubject: ', JavaScriptEscape('%subject%'), ',
-							sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text quickModifyMargin">'), ',
+							sTemplateReasonEdit: ', JavaScriptEscape($txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="quickModifyMargin">'), ',
 							sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
 							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply']) ? ',
 							sFormRemoveAccessKeys: \'postmodify\'' : '', '
@@ -584,7 +586,7 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset($context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if ($context['can_send_pm'])
@@ -651,35 +653,33 @@ function template_single_post($message)
 	echo '
 						</div>
 						<div class="postarea">
-							<div class="keyinfo">
-								<div class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
-									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
-								</div>';
+							<div class="keyinfo">';
 
 	//Some people don't want subject ... The div is still required or quick edit breaks...
 	echo '
-								<div id="subject_', $message['id'], '" class="subject_title">', (empty($modSettings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
+								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '"><a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a></div>';
 
 	echo '
-								<div class="page_number floatright">
-									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
-								</div>
 								<h5>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
+									<span class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
+										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
+									</span>
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
 
+									<span class="page_number floatright">
+										', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
+									</span>';
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
-									<span class="smalltext modified" id="modified_', $message['id'], '">';
+									<span class="smalltext modified floatright', !empty($modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '','" id="modified_', $message['id'], '">';
 
 	if (!empty($modSettings['show_modify']) && !empty($message['modified']['name']))
 		echo
 										$message['modified']['last_edit_text'];
 
 	echo '
-									</span>';
-
-	echo '
+									</span>
 								</h5>
 								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
 							</div>';
@@ -744,7 +744,7 @@ function template_single_post($message)
 			}
 
 			echo '
-									<div class="floatleft attached">';
+									<div class="attached">';
 
 			if ($attachment['is_image'])
 			{
@@ -794,7 +794,7 @@ function template_single_post($message)
 	}
 
 	// And stuff below the attachments.
-	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
 							<div class="under_message">';
 
@@ -817,7 +817,7 @@ function template_single_post($message)
 									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="generic_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 		}
 
-		if (!empty($message['likes']['count']) && !empty($context['can_see_likes']))
+		if (!empty($message['likes']['count']))
 		{
 			$context['some_likes'] = true;
 			$count = $message['likes']['count'];
@@ -913,7 +913,7 @@ function template_single_post($message)
 								</ul>';
 	}
 
-	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
 							</div>';
 
@@ -1007,13 +1007,13 @@ function template_quickreply()
 								', $txt['name'], ':
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '">
 							</dd>
 							<dt>
 								', $txt['email'], ':
 							</dt>
 							<dd>
-								<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
+								<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" required>
 							</dd>
 						</dl>';
 
@@ -1052,7 +1052,7 @@ function template_quickreply()
 	// Finally, the submit buttons.
 	echo '
 				<br class="clear_right">
-				<span id="post_confirm_buttons">
+				<span id="post_confirm_buttons" class="floatright">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>';
 		echo '

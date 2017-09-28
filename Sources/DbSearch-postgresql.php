@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -29,6 +29,7 @@ function db_search_init()
 			'db_search_support' => 'smf_db_search_support',
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => false,
+			'db_search_language' => 'smf_db_search_language',
 		);
 
 	db_extend();
@@ -74,20 +75,10 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 
 	$replacements = array(
 		'create_tmp_log_search_topics' => array(
-			'~mediumint\(\d\)~i' => 'int',
-			'~unsigned~i' => '',
 			'~ENGINE=MEMORY~i' => '',
 		),
 		'create_tmp_log_search_messages' => array(
-			'~mediumint\(\d\)~i' => 'int',
-			'~unsigned~i' => '',
 			'~ENGINE=MEMORY~i' => '',
-		),
-		'drop_tmp_log_search_topics' => array(
-			'~IF\sEXISTS~i' => '',
-		),
-		'drop_tmp_log_search_messages' => array(
-			'~IF\sEXISTS~i' => '',
 		),
 		'insert_into_log_messages_fulltext' => array(
 			'~LIKE~i' => 'iLIKE',
@@ -119,6 +110,10 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 		}
 	}
 
+	//fix double quotes
+	if ($identifier == 'insert_into_log_messages_fulltext')
+		$db_values = str_replace('"', "'", $db_values);
+
 	$return = $smcFunc['db_query']('', $db_string,
 		$db_values, $connection
 	);
@@ -148,6 +143,43 @@ function smf_db_create_word_search($size)
 			'string_zero' => '0',
 		)
 	);
+}
+
+/**
+* Return the language for the textsearch index
+*/
+function smf_db_search_language()
+{
+	global $smcFunc, $modSettings;
+
+	$language_ftx = 'english';
+
+	if (!empty($modSettings['search_language']))
+		$language_ftx = $modSettings['search_language'];
+	else
+	{
+		$request = $smcFunc['db_query']('','
+			SELECT cfgname FROM pg_ts_config WHERE oid = current_setting({string:default_language})::regconfig',
+			array(
+			'default_language' => 'default_text_search_config'
+			)
+		);
+
+		if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
+		{
+			$row = $smcFunc['db_fetch_assoc']($request);
+			$language_ftx = $row['cfgname'];
+
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('search_language', $language_ftx),
+				array('variable')
+			);
+		}
+	}
+
+	return $language_ftx;
 }
 
 ?>

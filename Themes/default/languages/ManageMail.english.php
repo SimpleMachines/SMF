@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageMail
+// Version: 2.1 Beta 4; ManageMail
 
 $txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as viewing and administrating the current mail queue if it is enabled.';
 

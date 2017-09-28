@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -40,7 +40,7 @@ function template_main()
 					<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 				</dt>
 				<dd>
-					<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
+					<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">';
 
 	if (empty($modSettings['search_simple_fulltext']))
 		echo '
@@ -62,7 +62,7 @@ function template_main()
 					$txt['by_user'], ':</label>
 				</dt>
 				<dd>
-					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text">
+					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
 				</dd>
 				<dt class="righttext"><label for="sort">',
 					$txt['search_order'], ':</label>
@@ -82,11 +82,11 @@ function template_main()
 				<dd class="options">
 					<ul>
 						<li>
-							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', ' class="input_check">
+							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '>
 							<label for="show_complete">', $txt['search_show_complete_messages'], '</label>
 						</li>
 						<li>
-							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', ' class="input_check">
+							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '>
 							<label for="subject_only">', $txt['search_subject_only'], '</label>
 						</li>
 					</ul>
@@ -95,7 +95,7 @@ function template_main()
 					$txt['search_post_age'], ':
 				</dt>
 				<dd><label for="minage">',
-					$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
+					$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4"> ', $txt['days_word'], '
 				</dd>
 			</dl>
 			<script>
@@ -119,7 +119,7 @@ function template_main()
 		echo '
 				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
 				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
-				<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">';
+				<input type="submit" name="b_search" value="', $txt['search'], '" class="button">';
 
 	echo '
 			</div>
@@ -162,7 +162,7 @@ function template_main()
 				echo '
 								<li class="board">
 									<label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', ' class="input_check"> ', $board['name'], '
+										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '
 									</label>
 								</li>';
 
@@ -179,9 +179,9 @@ function template_main()
 				</div>
 				<br class="clear">
 				<div class="padding flow_auto">
-					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="input_check floatleft">
+					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="floatleft">
 					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
-					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">
+					<input type="submit" name="b_search" value="', $txt['search'], '" class="button">
 				</div>
 			</div>
 		</fieldset>';
@@ -231,7 +231,7 @@ function template_main()
  */
 function template_results()
 {
-	global $context, $settings, $options, $txt, $scripturl, $message;
+	global $context, $options, $txt, $scripturl, $message;
 
 	if (isset($context['did_you_mean']) || empty($context['topics']) || !empty($context['search_ignored']))
 	{
@@ -260,11 +260,11 @@ function template_results()
 						<strong>', $txt['search_for'], ':</strong>
 					</dt>
 					<dd>
-						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">
+						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
 					</dd>
 				</dl>
 				<div class="flow_auto" >
-					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button_submit">
+					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button">
 					<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
 					<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
 					<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '">
@@ -297,7 +297,7 @@ function template_results()
 				<span class="floatright">';
 					if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 					echo '
-							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">';
+							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 				echo '
 				</span>
 				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
@@ -339,7 +339,7 @@ function template_results()
 					if ($options['display_quick_mod'] == 1)
 					{
 						echo '
-						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">';
+						<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
 					}
 					else
 					{
@@ -407,7 +407,7 @@ function template_results()
 
 			echo '
 					<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit" style="float: none;font-size: .8em;"/>
+					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
 				</div>
 			</div>';
 		}

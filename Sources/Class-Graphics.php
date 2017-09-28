@@ -16,7 +16,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -447,7 +447,7 @@ class gif_image
 					$len = 0;
 					if (!($this->m_data = $this->m_lzw->decompress($data, $len)))
 						return false;
-					
+
 					$datLen += $len;
 
 					if ($this->m_gih->m_bInterlace)

@@ -12,7 +12,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -181,12 +181,12 @@ function BrowseMailQueue()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 				),
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '" class="input_check">';
+						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '">';
 					},
 					'class' => 'smalltext',
 				),
@@ -200,11 +200,11 @@ function BrowseMailQueue()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 		),
 	);

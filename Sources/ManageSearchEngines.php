@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -287,12 +287,12 @@ function ViewSpiders()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
 						'params' => array(
 							'id_spider' => false,
 						),
@@ -309,8 +309,8 @@ function ViewSpiders()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" data-confirm="' . $txt['spider_remove_selected_confirm'] . '" class="button_submit you_sure">
-					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit">
+					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" data-confirm="' . $txt['spider_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button">
 				',
 			),
 		),
@@ -589,7 +589,7 @@ function logSpider()
 		{
 			$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 			unset($url['sesc'], $url[$context['session_var']]);
-			$url = json_encode($url);
+			$url = $smcFunc['json_encode']($url);
 		}
 		else
 			$url = '';
@@ -772,7 +772,7 @@ function SpiderLogs()
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" data-confirm="' . $txt['spider_log_empty_log_confirm'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" data-confirm="' . $txt['spider_log_empty_log_confirm'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -944,7 +944,7 @@ function SpiderStats()
 	$date_select .= '
 		</select>
 		<noscript>
-			<input type="submit" name="go" value="' . $txt['go'] . '" class="button_submit">
+			<input type="submit" name="go" value="' . $txt['go'] . '" class="button">
 		</noscript>';
 
 	// If we manually jumped to a date work out the offset.
@@ -1109,7 +1109,7 @@ function recacheSpiderNames()
 		$spiders[$row['id_spider']] = $row['spider_name'];
 	$smcFunc['db_free_result']($request);
 
-	updateSettings(array('spider_name_cache' => json_encode($spiders)));
+	updateSettings(array('spider_name_cache' => $smcFunc['json_encode']($spiders)));
 }
 
 ?>

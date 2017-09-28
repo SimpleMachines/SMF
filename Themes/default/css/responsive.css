@@ -24,7 +24,7 @@
 		padding: 0;
 		margin: 0 auto;
 	}
-	.button_submit {
+	.button {
 		min-width: 15%;
 		margin: 0 0 0 2px;
 	}
@@ -121,7 +121,7 @@
 		display: none;
 	}
 	/* Register Page */
-	#registration .button_submit {
+	#registration .button {
 		font-size: 0.67em;
 	}
 	dl.register_form {
@@ -183,6 +183,11 @@
 	.move_topic {
 		width: 100%;
 	}
+	.bbc_float {
+		max-width: 100% !important;
+		margin-left: 0.5em !important;
+		margin-right: 0.5em !important;
+	}
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -212,7 +217,7 @@
 	#advanced_search dl#search_options {
 		width: 100%;
 	}
-	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+	input#searchfor, input#userspec {
 		width: 75%;
 	}
 	/* Memberlist */
@@ -232,7 +237,7 @@
 		padding: 0;
 		margin: 0;
 	}
-	#mlist_search .input_check{
+	#mlist_search input[type="checkbox"] {
 		margin: 0 13px 3px 3px;
 		vertical-align: middle;
 	}
@@ -263,11 +268,11 @@
 	.action_admin .navigate_section {
 		display: none;
 	}
-	#admincenter .input_text, #quick_search .input_text,
+	#admincenter input[type="text"], #quick_search input[type="search"],
 	#admincenter select, #quick_search select {
 		width: 90%;
 	}
-	
+
 	/* Calendar */
 	.event_options_left, .event_options_right {
 		width: 100%;
@@ -287,10 +292,19 @@
 		float: left;
 		margin: 0;
 	}
+	#header_news_lists_preview, tr[id^="list_news_lists_"] td:nth-child(even),
+	#header_smiley_set_list_default, #header_smiley_set_list_url, #header_smiley_set_list_check,
+	tr[id^="list_smiley_set_list_"] td:nth-child(odd),
+	#header_mail_queue_priority,
+	tr[id^="list_mail_queue_"] td:nth-child(odd),
 	#header_member_list_user_name, #header_member_list_ip,
 	#header_member_list_last_active, #header_member_list_posts,
 	.hidden {
 		display: none;
+	}
+	tr[id^="list_mail_queue_"] td:first-of-type,
+	tr[id^="list_mail_queue_"] td:last-of-type	{
+		display: table-cell;
 	}
 	.msearch_details {
 		width: 100% !important;
@@ -302,7 +316,7 @@
 	.msearch_details input {
 		width: 90%;
 	}
-	.msearch_details .input_check {
+	.msearch_details input[type="checkbox"] {
 		width: 5%;
 	}
 	/* 3rd level menu tests */
@@ -349,12 +363,12 @@
 		float: left;
 	}
 	#advanced_search dd {
-		width: 100%;
+		width: auto;
 	}
 	#advanced_search dl#search_options {
 		width: 100%;
 	}
-	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+	input#searchfor, input#userspec {
 		width: 75%;
 	}
 }
@@ -420,7 +434,7 @@
 	dl.register_form dt span {
 		display: inline;
 	}
-	.button_submit.qaction {
+	.button.qaction {
 		width: 10%;
 		margin: 0;
 	}
@@ -484,7 +498,7 @@
 		min-height: 2em !important;
 	}
 	.lpr_border {
-		border-top: 1px solid #DDD;
+		border-top: 1px solid #ddd;
 	}
 	div.lastpost p {
 		margin: 5px;
@@ -540,7 +554,6 @@
 	}
 	#basicinfo, #detailedinfo {
 		width: 100%;
-		box-sizing: border-box;
 	}
 	#basicinfo {
 		margin: 0 0 5px 0; /* For UX */
@@ -570,7 +583,7 @@
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, td.reg_group, td.reg_date,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
-	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time, .hidden,
+	#main_content_section .navigate_section, .pagesection.top, .time, .hidden,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
 		display: none !important;
@@ -584,15 +597,6 @@
 	}
 	#private, #enclose {
 		width: 95%;
-	}
-
-	/* Attachment uploading. */
-	#au-previews div.descbox div,
-	#au-previews div.errorbox div,
-	#au-previews div.infobox div{
-		display:block;
-		width:auto;
-		padding-bottom: 3px;
 	}
 }
 

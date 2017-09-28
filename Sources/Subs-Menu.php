@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $context, $settings, $txt, $scripturl, $user_info;
+	global $smcFunc, $context, $settings, $txt, $scripturl, $user_info;
 
 	/* Note menuData is array of form:
 
@@ -122,29 +122,50 @@ function createMenu($menuData, $menuOptions = array())
 
 						// Does this area have its own icon?
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
-							$menu_context['sections'][$section_id]['areas'][$area_id] = safe_unserialize(base64_decode('YTozOntzOjU6ImxhYmVsIjtzOjEyOiJPb21wYSBMb29tcGEiO3M6MzoidXJsIjtzOjQzOiJodHRwOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL09vbXBhX0xvb21wYXM/IjtzOjQ6Imljb24iO3M6ODY6IjxpbWcgc3JjPSJodHRwOi8vd3d3LnNpbXBsZW1hY2hpbmVzLm9yZy9pbWFnZXMvb29tcGEuZ2lmIiBhbHQ9IkknbSBhbiBPb21wYSBMb29tcGEiIC8+Ijt9'));
-						elseif (isset($area['icon']) && file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']))
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">';
-						elseif (isset($area['icon']) && file_exists($settings['default_theme_dir'] . '/images/admin/' . $area['icon']))
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+						{
+							$menu_context['sections'][$section_id]['areas'][$area_id] = $smcFunc['json_decode'](base64_decode('eyJsYWJlbCI6Ik9vbXBhIExvb21wYSIsInVybCI6Imh0dHBzOlwvXC9lbi53aWtpcGVkaWEub3JnXC93aWtpXC9Pb21wYV9Mb29tcGFzPyIsImljb24iOiI8aW1nIHNyYz1cImh0dHBzOlwvXC93d3cuc2ltcGxlbWFjaGluZXMub3JnXC9pbWFnZXNcL29vbXBhLmdpZlwiIGFsdD1cIkknbSBhbiBPb21wYSBMb29tcGFcIiBcLz4ifQ=='), true);
+						}
 						elseif (isset($area['icon']))
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] . '"></span>';
+						{
+							if (file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']))
+							{
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+							}
+							elseif (file_exists($settings['default_theme_dir'] . '/images/admin/' . $area['icon']))
+							{
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+							}
+							else
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] . '"></span>';
+						}
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area_id . '"></span>';
 
 						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
+						{
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . $area['icon_class'];
+						}
 						elseif (isset($area['icon']))
 						{
-							if ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['theme_url'] . '/images/admin/big/' . $area['icon'];
-							elseif ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
+							if (substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif')
+							{
+								if (file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
+								{
+									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['theme_url'] . '/images/admin/big/' . $area['icon'];
+								}
+								elseif (file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
+								{
+									$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
+								}
+							}
 
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area['icon']);
 						}
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area_id);
+
+						// This is a shortcut for Font-Icon users so they don't have to re-do whole CSS.
+						$menu_context['sections'][$section_id]['areas'][$area_id]['plain_class'] = !empty($area['icon']) ? $area['icon'] : '';
 
 						// Some areas may be listed but not active, which we show as greyed out.
 						$menu_context['sections'][$section_id]['areas'][$area_id]['inactive'] = !empty($area['inactive']);

@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -27,22 +27,22 @@ function template_ask()
 			<div class="windowbg">
 				<p class="split_topics">
 					<strong><label for="subname">', $txt['subject_new_topic'], '</label>:</strong>
-					<input type="text" name="subname" id="subname" value="', $context['message']['subject'], '" size="25" class="input_text">
+					<input type="text" name="subname" id="subname" value="', $context['message']['subject'], '" size="25">
 				</p>
 				<ul class="split_topics">
 					<li>
-						<input type="radio" id="onlythis" name="step2" value="onlythis" checked class="input_radio"> <label for="onlythis">', $txt['split_this_post'], '</label>
+						<input type="radio" id="onlythis" name="step2" value="onlythis" checked> <label for="onlythis">', $txt['split_this_post'], '</label>
 					</li>
 					<li>
-						<input type="radio" id="afterthis" name="step2" value="afterthis" class="input_radio"> <label for="afterthis">', $txt['split_after_and_this_post'], '</label>
+						<input type="radio" id="afterthis" name="step2" value="afterthis"> <label for="afterthis">', $txt['split_after_and_this_post'], '</label>
 					</li>
 					<li>
-						<input type="radio" id="selective" name="step2" value="selective" class="input_radio"> <label for="selective">', $txt['select_split_posts'], '</label>
+						<input type="radio" id="selective" name="step2" value="selective"> <label for="selective">', $txt['select_split_posts'], '</label>
 					</li>
 				</ul>
 				<hr>
 				<div class="auto_flow">
-					<input type="submit" value="', $txt['split'], '" class="button_submit">
+					<input type="submit" value="', $txt['split'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 			</div>
@@ -150,7 +150,7 @@ function template_select()
 			<div class="flow_auto">
 				<input type="hidden" name="topic" value="', $context['current_topic'], '">
 				<input type="hidden" name="subname" value="', $context['new_subject'], '">
-				<input type="submit" value="', $txt['split'], '" class="button_submit">
+				<input type="submit" value="', $txt['split'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>

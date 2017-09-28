@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -269,7 +269,7 @@ function ViewMemberlist()
 
 		$search_params = array();
 		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
-			$search_params = smf_json_decode(base64_decode($_REQUEST['params']), true);
+			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
 			$search_params['types'] = $_POST['types'];
@@ -278,7 +278,7 @@ function ViewMemberlist()
 					$search_params[$param_name] = $_POST[$param_name];
 		}
 
-		$search_url_params = isset($search_params) ? base64_encode(json_encode($search_params)) : null;
+		$search_url_params = isset($search_params) ? base64_encode($smcFunc['json_encode']($search_params)) : null;
 
 		// @todo Validate a little more.
 
@@ -568,13 +568,13 @@ function ViewMemberlist()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => function($rowData) use ($user_info)
 					{
-						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '" class="input_check"' . ($rowData['id_member'] == $user_info['id'] || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
+						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '"' . ($rowData['id_member'] == $user_info['id'] || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
 					},
 					'class' => 'centercol',
 				),
@@ -588,7 +588,7 @@ function ViewMemberlist()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button you_sure">',
 			),
 		),
 	);
@@ -923,12 +923,12 @@ function MembersAwaitingActivation()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="todoAction[]" value="%1$d" class="input_check">',
+						'format' => '<input type="checkbox" name="todoAction[]" value="%1$d">',
 						'params' => array(
 							'id_member' => false,
 						),
@@ -955,7 +955,7 @@ function MembersAwaitingActivation()
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
-					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit"><br class="clear_right"></noscript>
+					<noscript><input type="submit" value="' . $txt['go'] . '" class="button"><br class="clear_right"></noscript>
 				',
 				'class' => 'floatright',
 			),
@@ -983,7 +983,7 @@ function MembersAwaitingActivation()
 				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
 		$filterOptions .= '
 			</select>
-			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button_submit"></noscript>';
+			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button"></noscript>';
 		$listOptions['additional_rows'][] = array(
 			'position' => 'top_of_list',
 			'value' => $filterOptions,

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; index
+// Version: 2.1 Beta 4; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -8,8 +8,8 @@ $txt['native_name'] = 'English';
 
 // Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
 // For more information see:
-//   - http://www.php.net/function.pspell-new
-//   - http://www.php.net/function.setlocale
+//   - https://php.net/function.pspell-new
+//   - https://php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
@@ -209,7 +209,7 @@ $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
 $txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
-$txt['last_edit_reason'] = '<span class="lastedit">Reason</span>: %1$s';
+$txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
 $txt['recent_posts'] = 'Recent Posts';
@@ -397,10 +397,12 @@ $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';
 $txt['poll_total_voters'] = 'Total Members Voted';
-$txt['shortcuts'] = 'shortcuts: alt+s submit/post, alt+p preview';
-$txt['shortcuts_firefox'] = 'shortcuts: shift+alt+s submit/post, shift+alt+p preview';
+$txt['shortcuts'] = 'Shortcuts: alt+s save/post, alt+p preview';
+$txt['shortcuts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview';
+$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview';
 $txt['shortcuts_drafts'] = ', alt+d save draft';
 $txt['shortcuts_drafts_firefox'] = ', shift+alt+d save draft';
+$txt['shortcuts_drafts_mac'] = ', ⌃⌥D save draft';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
@@ -480,7 +482,7 @@ $txt['cache_writable'] = 'The cache directory is not writable - this will advers
 
 $txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
-$txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.';
+$txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or problematic message.';
 $txt['report_profile_func'] = 'Use this function to inform the administrators of abusive profile content, such as spam or inappropriate images.';
 
 $txt['online'] = 'Online';
@@ -494,7 +496,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="License" target="_blank" class="new_win">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
+$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="License" target="_blank">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -689,7 +691,7 @@ $txt['merge_custom_subject'] = 'Custom subject';
 $txt['merge_include_notifications'] = 'Include notifications?';
 $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
-$txt['merge_why'] = 'Please enter a brief description as to<br>why these topics are being merged.';
+$txt['merge_why'] = 'Please enter a brief description as to why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
 $txt['mergetopic_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
 
@@ -745,7 +747,7 @@ $txt['previous_next_forward'] = 'next topic';
 $txt['mark_unread'] = 'Mark unread';
 
 $txt['ssi_not_direct'] = 'Please don\'t access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
-$txt['ssi_session_broken'] = 'SSI.php was unable to load a session!  This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
+$txt['ssi_session_broken'] = 'SSI.php was unable to load a session! This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['preview_title'] = 'Preview post';

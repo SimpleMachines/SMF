@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -357,10 +357,10 @@ function template_notes()
 
 		echo '
 						<div class="floatleft post_note">
-						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;" class="input_text">
+						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
 						</div>
 						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
-						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit">
+						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
 					</div>
 				</div>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -421,7 +421,7 @@ function template_unapproved_posts()
 
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 			echo '
-				<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check"> ';
+				<input type="checkbox" name="item[]" value="', $item['id'], '" checked> ';
 
 		echo '
 			</span>
@@ -440,7 +440,7 @@ function template_unapproved_posts()
 					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 				</select>
-				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button_submit"></noscript>
+				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button"></noscript>
 			</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -480,7 +480,7 @@ function template_user_watch_post_callback($post)
 	if ($post['can_delete'])
 		$output_html .= '
 							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mc_watched_users_delete_post'] . '" class="you_sure">' . $delete_button . '</a>
-							<input type="checkbox" name="delete[]" value="' . $post['id'] . '" class="input_check">';
+							<input type="checkbox" name="delete[]" value="' . $post['id'] . '">';
 
 	$output_html .= '
 						</div>
@@ -514,12 +514,12 @@ function template_moderation_settings()
 						<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
 					</dt>
 					<dd>
-						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check">
+						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', '>
 					</dd>
 				</dl>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
-				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
+				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 			</div>
 		</form>';
 	}
@@ -612,7 +612,7 @@ function template_warn_template()
 						<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
 					</dt>
 					<dd>
-						<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30" class="input_text">
+						<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
 						<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br>
@@ -625,7 +625,7 @@ function template_warn_template()
 
 	if ($context['template_data']['can_edit_personal'])
 		echo '
-				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', ' class="input_check">
+				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
 						<strong>', $txt['mc_warning_template_personal'], '</strong>
 					</label>
@@ -635,8 +635,8 @@ function template_warn_template()
 
 	echo '
 				<hr>
-				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit">
-				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
+				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
+				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '">

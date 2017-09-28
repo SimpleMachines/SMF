@@ -99,7 +99,7 @@ QuickModifyTopic.prototype.set_hidden_topic_areas = function (set_style)
 QuickModifyTopic.prototype.modify_topic_show_edit = function (subject)
 {
 	// Just template the subject.
-	setInnerHTML(this.oCurSubjectDiv, '<input type="text" name="subject" value="' + subject + '" size="60" style="width: 95%;" maxlength="80" class="input_text"><input type="hidden" name="topic" value="' + this.iCurTopicId + '"><input type="hidden" name="msg" value="' + this.sCurMessageId.substr(4) + '">');
+	setInnerHTML(this.oCurSubjectDiv, '<input type="text" name="subject" value="' + subject + '" size="60" style="width: 95%;" maxlength="80"><input type="hidden" name="topic" value="' + this.iCurTopicId + '"><input type="hidden" name="msg" value="' + this.sCurMessageId.substr(4) + '">');
 
 	// attach mouse over and out events to this new div
 	this.oCurSubjectDiv.instanceRef = this;
@@ -323,9 +323,6 @@ QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 	// At least NOW we're in edit mode
 	this.bInEditMode = true;
 
-	// Keep track of whether we want to show the subject
-	this.opt.bShowSubject = blnShowSubject;
-
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
@@ -485,7 +482,7 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 
 		// Show new subject, but only if we want to...
 		var oSubject = message.getElementsByTagName('subject')[0];
-		var sSubjectText = this.opt.bshowSubject ? oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}') : '';
+		var sSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		var sTopSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		this.sSubjectBuffer = this.opt.sTemplateSubjectNormal.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurSubjectDiv, this.sSubjectBuffer);
@@ -533,7 +530,7 @@ InTopicModeration.prototype.init = function()
 		// Create the checkbox.
 		var oCheckbox = document.createElement('input');
 		oCheckbox.type = 'checkbox';
-		oCheckbox.className = this.opt.sButtonStrip + '_check input_check';
+		oCheckbox.className = this.opt.sButtonStrip + '_check';
 		oCheckbox.name = 'msgs[]';
 		oCheckbox.value = this.opt.aMessageIds[i];
 		oCheckbox.instanceRef = this;

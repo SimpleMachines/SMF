@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -601,7 +601,8 @@ function PackageDownload()
 	package_put_contents($packagesdir . '/' . $package_name, fetch_web_data($url . $_REQUEST['package']));
 
 	// Done!  Did we get this package automatically?
-	if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto']))
+	// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.
+	if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto']))
 		redirectexit('action=admin;area=packages;sa=install;package=' . $package_name);
 
 	// You just downloaded a mod from SERVER_NAME_GOES_HERE.
@@ -657,7 +658,7 @@ function PackageUpload()
 	{
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
 	}
-	
+
 	// We only need the filename...
 	$extension = ($extension == '.gz') ? '.tar.gz' : $extension ;
 	$packageName = time() . $extension;

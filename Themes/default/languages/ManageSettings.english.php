@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 3; ManageSettings
+// Version: 2.1 Beta 4; ManageSettings
 
 global $scripturl;
 
@@ -98,6 +98,7 @@ $txt['force_ssl'] = 'Forum SSL mode';
 $txt['force_ssl_off'] = 'Disable SSL';
 $txt['force_ssl_auth'] = 'Enable SSL for Authentication (Login and Register)';
 $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
+$txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.
 $txt['enable_likes'] = 'Enable likes';
@@ -188,7 +189,7 @@ $txt['setting_image_verification_sample'] = 'Sample';
 
 // reCAPTCHA
 $txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
-$txt['recaptcha_configure_desc'] = 'Configurre the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
 $txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
 $txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
 $txt['recaptcha_theme'] = 'reCAPTCHA Theme';
@@ -354,7 +355,7 @@ $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
-$txt['languages_for_pspell'] = 'This is for <a href="http://www.php.net/function.pspell-new" target="_blank" class="new_win">pSpell</a> - if installed';
+$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank">pSpell</a> - if installed';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 
 $txt['lang_file_desc_index'] = 'General Strings';

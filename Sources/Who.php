@@ -11,7 +11,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -155,7 +155,7 @@ function Who()
 	$url_data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$actions = smf_json_decode($row['url'], true);
+		$actions = $smcFunc['json_decode']($row['url'], true);
 		if ($actions === false)
 			continue;
 
@@ -195,7 +195,7 @@ function Who()
 	$spiderContext = array();
 	if (!empty($modSettings['show_spider_online']) && ($modSettings['show_spider_online'] == 2 || allowedTo('admin_forum')) && !empty($modSettings['spider_name_cache']))
 	{
-		foreach (smf_json_decode($modSettings['spider_name_cache'], true) as $id => $name)
+		foreach ($smcFunc['json_decode']($modSettings['spider_name_cache'], true) as $id => $name)
 			$spiderContext[$id] = array(
 				'id' => 0,
 				'name' => $name,
@@ -256,7 +256,7 @@ function Who()
  *    $allowedActions array, using ACTION as the key.
  *
  * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
- * @param string $preferred_prefix = false
+ * @param string|bool $preferred_prefix = false
  * @return array, an array of descriptions if you passed an array, otherwise the string describing their current location.
  */
 function determineActions($urls, $preferred_prefix = false)
@@ -306,7 +306,7 @@ function determineActions($urls, $preferred_prefix = false)
 	foreach ($url_list as $k => $url)
 	{
 		// Get the request parameters..
-		$actions = smf_json_decode($url[0], true);
+		$actions = $smcFunc['json_decode']($url[0], true);
 		if ($actions === false)
 			continue;
 
@@ -772,10 +772,10 @@ function Credits($in_admin = false)
 			'<a href="https://techbase.kde.org/Projects/Oxygen/Licensing#Use_on_Websites">Oxygen Icons</a> | These icons are licensed under <a href="http://www.gnu.org/copyleft/lesser.html">GNU LGPLv3</a>',
 		),
 		'software' => array(
-			'<a href="http://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
-			'<a href="http://cherne.net/brian/resources/jquery.hoverIntent.html">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="http://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
+			'<a href="https://briancherne.github.io/jquery-hoverIntent/">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="https://github.com/mzubala/jquery-custom-scrollbar">jQuery Custom Scrollbar</a> | &copy; Maciej Zubala | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://slippry.com/">jQuery Responsive Slider</a> | &copy; booncon ROCKETS | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="https://github.com/ichord/At.js">At.js</a> | &copy; chord.luo@gmail.com | Licensed under <a href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT">The MIT License (MIT)</a>',
@@ -785,9 +785,9 @@ function Credits($in_admin = false)
 			'<a href="https://github.com/matthiasmullie/minify">Minify</a> | &copy; Matthias Mullie | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
-			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 		),
 	);
 
@@ -811,7 +811,7 @@ function Credits($in_admin = false)
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$credit_info = smf_json_decode($row['credits'], true);
+			$credit_info = $smcFunc['json_decode']($row['credits'], true);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
 			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));

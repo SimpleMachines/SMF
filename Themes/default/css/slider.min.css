@@ -6,10 +6,10 @@
  * Authors: Lukas Jakob Hafner - @saftsaak
  *          Thomas Hurd - @SeenNotHurd
  *
- * Copyright 2015, booncon oy - http://booncon.com
+ * Copyright 2015, booncon oy - https://booncon.com
  *
  *
- * Released under the MIT license - http://opensource.org/licenses/MIT
+ * Released under the MIT license - https://opensource.org/licenses/MIT
  */
 /* kenBurns animations, very basic */
 @-webkit-keyframes left-right {
@@ -59,7 +59,6 @@
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(2n){-webkit-animation-name:right-left;-webkit-animation-fill-mode:forwards;-moz-animation-name:right-left;-moz-animation-fill-mode:forwards;-o-animation-name:right-left;-o-animation-fill-mode:forwards;animation-name:right-left;animation-fill-mode:forwards}
 .sy-slide.sy-active{position: relative;z-index:3}
 .sy-slide > img{margin:0;padding:0;display:block;max-width:100%;border:0}
-.sy-slide > a{margin:0;padding:0;display:block;width:100%}
 .sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-pager{overflow:hidden;*zoom:1;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
 .sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0 0.5em;-moz-border-radius:50%;-webkit-border-radius:50%;border-radius:50%}
@@ -70,5 +69,6 @@
 .sy-filler{width:100%;padding-top: 2px !important}
 .sy-filler.ready{-moz-transition:padding 600ms ease;-o-transition:padding 600ms ease;-webkit-transition:padding 600ms ease;transition:padding 600ms ease}
 /* SMF extra */
+#smf_slider {overflow: hidden;}
 .sy-box{margin:0 0 10px}
 .sy-slide > img.smiley {display: inline-block}

@@ -10,7 +10,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -24,7 +24,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
      */
 	public function execute()
  	{
-		global $txt, $smcFunc, $txtBirthdayEmails, $language, $modSettings, $sourcedir;
+		global $txt, $smcFunc, $txtBirthdayEmails, $modSettings, $sourcedir;
 
 		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
 
@@ -100,7 +100,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => json_encode(array('happy_birthday' => $alertdata['body'])),
+							'extra' => $smcFunc['json_encode'](array('happy_birthday' => $alertdata['body'])),
 						);
 						updateMemberData($member_id, array('alerts' => '+'));
 					}

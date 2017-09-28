@@ -7,7 +7,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 /**
@@ -76,7 +76,7 @@ function template_main()
 
 		if (!isset($context['disabled_fields']['website']))
 			echo '
-					<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+					<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 		// Group and date.
 		echo '
@@ -131,7 +131,7 @@ function template_main()
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
 		echo '
-			<a class="button_link" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
+			<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
 	echo '
 		</div>
 	</div>';
@@ -163,7 +163,7 @@ function template_search()
 						<label><strong>', $txt['search_for'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" name="search" value="', $context['old_search'], '" size="40" class="input_text">
+						<input type="text" name="search" value="', $context['old_search'], '" size="40">
 					</dd>
 					<dt>
 						<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
@@ -175,7 +175,7 @@ function template_search()
 	{
 		echo '
 							<li>
-								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check">
+								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', '>
 								<label for="fields-', $id, '">', $title, '</label>
 							</li>';
 	}
@@ -184,7 +184,7 @@ function template_search()
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit">
+				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button">
 			</div>
 		</div>
 	</form>';

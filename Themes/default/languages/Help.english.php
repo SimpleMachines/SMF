@@ -1,7 +1,7 @@
 <?php
-// Version: 2.1 Beta 3; Help
+// Version: 2.1 Beta 4; Help
 
-global $helptxt;
+global $helptxt, $scripturl;
 
 $txt['close_window'] = 'Close window';
 
@@ -97,7 +97,7 @@ $helptxt['modsettings'] = '<strong>Modification Settings</strong><br>
 
 $helptxt['time_format'] = '<strong>Time Format</strong><br>
 	You have the ability to adjust how the time and date look for yourself. There are a lot of little letters, but it\'s quite simple.
-	The conventions follow PHP\'s strftime function and are described as below (more details can be found at <a href="http://www.php.net/manual/function.strftime.php" target="_blank" class="new_win">php.net</a>).<br>
+	The conventions follow PHP\'s strftime function and are described as below (more details can be found at <a href="https://php.net/manual/function.strftime.php" target="_blank">php.net</a>).<br>
 	<br>
 	The following characters are recognized in the format string: <br>
 	<span class="smalltext">
@@ -123,7 +123,7 @@ $helptxt['time_format'] = '<strong>Time Format</strong><br>
 	<em>* Does not work on Windows-based servers.</em></span>';
 
 $helptxt['live_news'] = '<strong>Live announcements</strong><br>
-	This box shows recently updated announcements from <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>.
+	This box shows recently updated announcements from <a href="https://www.simplemachines.org/" target="_blank">www.simplemachines.org</a>.
 	You should check here every now and then for updates, new releases, and important information from Simple Machines.';
 
 $helptxt['registrations'] = '<strong>Registration Management</strong><br>
@@ -255,7 +255,7 @@ $helptxt['httponlyCookies'] = 'Cookies won\'t be accessible by scripting languag
 $helptxt['databaseSession_enable'] = 'This setting makes use of the database for session storage - it is best for load balanced servers, but helps with all timeout issues and can make the forum faster.';
 $helptxt['databaseSession_loose'] = 'Turning this on will decrease the bandwidth your forum uses, and make it so clicking back will not reload the page - the downside is that the (new) icons won\'t update, among other things. (unless you click to that page instead of going back to it).';
 $helptxt['databaseSession_lifetime'] = 'This is the number of seconds for sessions to last after they haven\'t been accessed. If a session is not accessed for too long, it is said to have &quot;timed out&quot;. Anything higher than 2400 is recommended.';
-$helptxt['tfa_mode'] = 'You can add a second level of security to your forum by enabling <a href="http://en.wikipedia.org/wiki/Two_factor_authentication">Two Factor Authentication</a>. 2FA forces your users to add a enter a machine-generated code after the regular login. You need to configure 2FA to yourself before you are able to force it to other users!';
+$helptxt['tfa_mode'] = 'You can add a second level of security to your forum by enabling <a href="https://en.wikipedia.org/wiki/Two_factor_authentication">Two Factor Authentication</a>. 2FA forces your users to add a enter a machine-generated code after the regular login. You need to configure 2FA to yourself before you are able to force it to other users!';
 $helptxt['cache_enable'] = 'SMF performs caching at a variety of levels. The higher the level of caching enabled the more CPU time will be spent retrieving cached information. If caching is available on your machine it is recommended that you try caching at level 1 first.';
 $helptxt['cache_memcached'] = 'If you are using memcached you need to provide the server details. This should be entered as a comma separated list as shown in the example below:<br><br>	&quot;server1,server2,server3:port,server4&quot;<br><br>Note that if no port is specified SMF will use port 11211 unless the host contains a slash, then it is assumed to be an alternative transport and the port will be set to 0. SMF will attempt to perform rough/random load balancing across the specified servers.';
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file-based cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
@@ -266,7 +266,7 @@ $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to 
 $helptxt['log_ban_hits'] = 'If enabled, every time a banned user tries to access the site, this will be logged in the error log. If you do not care whether, or how often, banned users attempt to access the site, you can turn this off for a performance boost.';
 $helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
-$helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><b>DO NOTE:</b> This option might cause a severe load at your server with many users online.';
+$helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
 $helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Auto</em> will use the CDN first and if not available fall back to the local source. <em>Local</em> will only use the local source. <em>CDN</em> will only load it from Google CDN network';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
@@ -334,16 +334,16 @@ $helptxt['localCookies'] = 'SMF uses cookies to store login information on the c
 	Global cookies are especially recommended when using SSI.php but work well for most sites on their own domain.';
 $helptxt['enableBBC'] = 'Selecting this setting will allow your members to use Bulletin Board Code (BBC) throughout the forum, allowing users to format their posts with images, type formatting, and more.';
 $helptxt['time_offset'] = 'Not all forum administrators want their forum to use the same time zone as the server upon which it is hosted. Use this setting to specify the time difference (in hours) between the server time and the time to be used for the forum. Negative and decimal values are permitted.';
-$helptxt['default_timezone'] = 'The server time zone tells PHP where your server is located. You should ensure that this is set correctly, preferably to the country/city in which the server is located. You can find out more information on the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">PHP Site</a>.';
+$helptxt['default_timezone'] = 'The server time zone tells PHP where your server is located. You should ensure that this is set correctly, preferably to the country/city in which the server is located. You can find out more information on the <a href="https://php.net/manual/en/timezones.php" target="_blank">PHP Site</a>.';
 $helptxt['timezone_priority_countries'] = 'This setting lets you push the time zones for a certain country or countries to the top of the list of selectabled time zones that is shown when users are configuring their profiles, creating calendar events, etc.<br><br>For example, if many of your forum\'s members live in New Zealand or Fiji, you may enter "NZ,FJ" to make it easier for them to find the most relevant time zones quickly.<br><br>You can find the complete list of ISO country codes by searching the Internet for "<a href="//www.google.com/search?q=iso+3166-1+alpha-2" target="_blank">ISO 3166-1 alpha-2</a>".';
 $helptxt['spamWaitTime'] = 'Here you can select the amount of time that must pass between postings. This can be used to stop people from "spamming" your forum by limiting how often they can post.';
 
 $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tags:
 	<ul class="normallist">
-		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;ins&gt;, &lt;del&gt;</li>
+		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;strong&gt;, &lt;ins&gt;, &lt;del&gt;</li>
 		<li>&lt;a href=&quot;&quot;&gt;</li>
 		<li>&lt;img src=&quot;&quot; alt=&quot;&quot; /&gt;</li>
-		<li>&lt;br /&gt;, &lt;hr /&gt;</li>
+		<li>&lt;br&gt;, &lt;hr&gt;</li>
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
@@ -353,7 +353,7 @@ $helptxt['theme_install'] = 'This allows you to install new themes. You can do t
 $helptxt['enableEmbeddedFlash'] = 'This setting will allow your users to use Flash directly inside their posts,
 	just like images. This could pose a security risk, although few have successfully exploited it.
 	USE AT YOUR OWN RISK!';
-$helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" class="new_win">Recent news</a>
+$helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
 $helptxt['xmlnews_attachments'] = 'Allows links to attachments to be enclosed within your XML/RSS feeds. Turn this on if you want to use your forum as a podcasting, broadcatching, or similar content distribution platform.
 	<br><br>
@@ -361,11 +361,11 @@ $helptxt['xmlnews_attachments'] = 'Allows links to attachments to be enclosed wi
 	<br><br>
 	Some feed formats only allow one enclosed attachment per post. If a post has multiple attachments, SMF will enclose the largest one in these feeds.';
 $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains. For example, if...<br>
-	your site is http://www.example.com/,<br>
-	and your forum is http://forum.example.com/,<br>
+	your site is https://www.example.com/,<br>
+	and your forum is https://forum.example.com/,<br>
 	using this setting will allow you to access the forum\'s cookie on your site. Do not enable this if there are other subdomains (like hacker.example.com) not controlled by you.<br><br>
 	This setting does not function when local cookies are enabled.';
-$helptxt['globalCookiesDomain'] = 'When using subdomain independent cookies (global cookies), you can specify which domain should be used for them. This should, of course, be set to your main domain - for example, if you are using <em>forum.example.com</em> and <em>www.example.com</em>, the domain is <em>example.com</em> in this case. You should not put the <em>http://</em> part in front of it.';
+$helptxt['globalCookiesDomain'] = 'When using subdomain independent cookies (global cookies), you can specify which domain should be used for them. This should, of course, be set to your main domain - for example, if you are using <em>forum.example.com</em> and <em>www.example.com</em>, the domain is <em>example.com</em> in this case. You should not put the <em>http://</em> or <em>https://</em> part in front of it.';
 $helptxt['secureCookies'] = 'Enabling this setting will force the cookies created for users on your forum to be marked as secure. Only enable this setting if you are using HTTPS throughout your site, otherwise it will mean no-one will be able to log in properly!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration page. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br><br>The requirement to enter this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
@@ -403,6 +403,10 @@ $helptxt['customoptions'] = 'This defines the options that a user may choose fro
 	</ul>';
 
 $helptxt['autoFixDatabase'] = 'This will automatically fix broken tables and resume as if nothing happened. This can be useful, because the only way to fix it is to REPAIR the table, and this way your forum won\'t be down until you notice. It does email you when this happens.';
+$helptxt['pgFulltextSearch'] = 'This setting defines the language to use for PostgreSQL\'s fulltext search. Choose the language that most closely matches the language your forum actually uses. If your forum\'s language is not listed, or if your forum is multi-lingual, choose the "simple" option. <br>
+This setting is independent of your main SMF language settings and not related to the installed language for SMF. <br>
+When you change this setting you need to [url=' . $scripturl . '?action=admin;area=managesearch;sa=method]rebuild the fulltext search index[/url].<br>
+If a language you need is not listed, ask your database admin to install PostgreSQL language support for that language.';
 
 $helptxt['enableParticipation'] = 'This shows a little icon on the topics the user has posted in.';
 
@@ -475,10 +479,10 @@ $helptxt['coppaPost'] = 'The contact boxes are required so that forms granting p
 $helptxt['allow_hideOnline'] = 'With this setting enabled all members will be able to hide their online status from other users (except administrators). If disabled, only users who can moderate the forum can hide their presence. Note that disabling this setting will not change any existing member\'s status - it just stops them from hiding themselves in the future.';
 $helptxt['meta_keywords'] = 'These keywords are sent in the output of every page to indicate to search engines (etc) the key content of your site. They should be a comma separated list of words, and should not use HTML.';
 
-$helptxt['latest_themes'] = 'This area shows a few of the latest and most popular themes from <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>. It may not show up properly if your computer can\'t find <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>, though.';
+$helptxt['latest_themes'] = 'This area shows a few of the latest and most popular themes from <a href="https://www.simplemachines.org/" target="_blank">www.simplemachines.org</a>. It may not show up properly if your computer can\'t find <a href="https://www.simplemachines.org/" target="_blank">www.simplemachines.org</a>, though.';
 
 $helptxt['secret_why_blank'] = 'For your security, your password and the answer to your secret question are encrypted so that the SMF software will never tell you, or anyone else, what they are.';
-$helptxt['moderator_why_missing'] = 'Since moderation is done on a board-by-board basis, you have to make members moderators from the <a href="%1$s?action=admin;area=manageboards" target="_blank" class="new_win">board management interface</a>.';
+$helptxt['moderator_why_missing'] = 'Since moderation is done on a board-by-board basis, you have to make members moderators from the <a href="%1$s?action=admin;area=manageboards" target="_blank">board management interface</a>.';
 
 $helptxt['permissions'] = 'Permissions are how you either allow groups to, or deny groups from, doing specific things.<br><br>You can modify multiple boards at once with the checkboxes, or look at the permissions for a specific group by clicking \'Modify.\'';
 $helptxt['permissions_board'] = 'If a board is set to \'Global,\' it means that the board will not have any special permissions. \'Local\' means it will have its own permissions - separate from the global ones. This allows you to have a board that has more or fewer permissions than another, without requiring you to set them for each and every board.';
@@ -565,7 +569,7 @@ $helptxt['show_spider_online'] = 'This setting allows you to select whether spid
 		</li>
 	</ul>';
 
-$helptxt['birthday_email'] = 'Choose the index of the birthday email message to use. A preview will be shown in the Email Subject and Email Body fields.<br><strong>Note:</strong> Selecting this setting does not automatically enable birthday emails. To enable birthday emails use the <a href="%1$s?action=admin;area=scheduledtasks;%3$s=%2$s" target="_blank" class="new_win">Scheduled Tasks</a> page and enable the birthday email task.';
+$helptxt['birthday_email'] = 'Choose the index of the birthday email message to use. A preview will be shown in the Email Subject and Email Body fields.<br><strong>Note:</strong> Selecting this setting does not automatically enable birthday emails. To enable birthday emails use the <a href="%1$s?action=admin;area=scheduledtasks;%3$s=%2$s" target="_blank">Scheduled Tasks</a> page and enable the birthday email task.';
 $helptxt['pm_bcc'] = 'When sending a personal message you can choose to add a recipient as BCC (Blind Carbon Copy). BCC recipients do not have their identities revealed to the other recipients of the message.';
 
 $helptxt['move_topics_maintenance'] = 'This will allow you to move all the posts from one board to another board.';
@@ -575,7 +579,7 @@ $helptxt['chmod_flags'] = 'You can manually set the permissions you wish to set 
 $helptxt['postmod'] = 'This page allows members of the moderation team (with sufficient permissions) to approve any posts and topics before they are shown.';
 
 $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or html. This will allow you to add more instant message providers, images or an embed etc. For example:<br><br>
-		&lt;a href="http://website.com/{INPUT}"&gt;&lt;img src="{DEFAULT_IMAGES_URL}/icon.png" alt="{INPUT}" /&gt;&lt;/a&gt;<br><br>
+		&lt;a href="https://example.com/{INPUT}"&gt;&lt;img src="{DEFAULT_IMAGES_URL}/icon.png" alt="{INPUT}" /&gt;&lt;/a&gt;<br><br>
 		Note that you can use the following variables:<br>
 		<ul class="normallist">
 			<li>{INPUT} - The input specified by the user.</li>
@@ -612,9 +616,11 @@ $helptxt['topic_move_any'] = 'If checked, users will be allowed to move topics t
 $helptxt['alert_pm_new'] = 'Notifications of new personal messages do not appear in the Alerts pane, but appear in the "My Messages" list instead.';
 $helptxt['alert_event_new'] = 'This will send out an alert or email as requested if there is a new calendar event added. However, if that event is posted and a topic is added, you will not get an alert for the event if you\'re already following that board - the alert from following the board would cover this.';
 
-$helptxt['force_ssl'] = '<b>Test SSL and HTTPS on your server properly before enabling this, it may cause your forum to become inaccessible.</b> Enable maintenance mode if you are unable to access the forum after enabling this';
+$helptxt['force_ssl'] = '<strong>Test SSL and HTTPS on your server properly before enabling this, it may cause your forum to become inaccessible.</strong> Enable maintenance mode if you are unable to access the forum after enabling this.<br><br><strong>Changing this setting will update your forum\'s primary URL, as well as the URLs for your theme files and images, smileys, and avatars, setting them to either http: or https: based on your selection. Customized URLs will not be affected.</strong>';
 $helptxt['image_proxy_enabled'] = 'Required for embedding external images when in full SSL';
 $helptxt['image_proxy_secret'] = 'Keep this a secret, protects your forum from hotlinking images. Change it in order to render current hotlinked images useless';
 $helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy will cache: bigger images will be not be cached. Cached images are stored in your SMF cache folder, so make sure you have enough free space.';
+
+$helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.';
 
 ?>

@@ -27,7 +27,7 @@
  * @copyright 2017 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 3
+ * @version 2.1 Beta 4
  */
 
 if (!defined('SMF'))
@@ -1464,7 +1464,7 @@ function InstallCopy()
 <!-- Author: your email address or contact information. The name attribute is optional. -->
 <author name="Simple Machines">info@simplemachines.org</author>
 <!-- Website... where to get updates and more information. -->
-<website>http://www.simplemachines.org/</website>
+<website>https://www.simplemachines.org/</website>
 <!-- Template layers to use, defaults to "html,body". -->
 <layers>' . $context['to_install']['theme_layers'] . '</layers>
 <!-- Templates to load on startup. Default is "index". -->
@@ -1627,13 +1627,13 @@ function SetJavaScript()
 	// If this is the admin preferences the passed value will just be an element of it.
 	if ($_GET['var'] == 'admin_preferences')
 	{
-		$options['admin_preferences'] = !empty($options['admin_preferences']) ? smf_json_decode($options['admin_preferences'], true) : array();
+		$options['admin_preferences'] = !empty($options['admin_preferences']) ? $smcFunc['json_decode']($options['admin_preferences'], true) : array();
 		// New thingy...
 		if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5)
 			$options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
 
 		// Change the value to be something nice,
-		$_GET['val'] = json_encode($options['admin_preferences']);
+		$_GET['val'] = $smcFunc['json_encode']($options['admin_preferences']);
 	}
 
 	// Update the option.
