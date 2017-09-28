@@ -118,7 +118,7 @@ QuickModifyTopic.prototype.modify_topic_save = function (cur_session_id, cur_ses
 		cur_session_var = 'sesc';
 
 	var i, x = new Array();
-	x[x.length] = 'subject=' + document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit().php_urlencode();
+	x[x.length] = 'subject=' + document.forms.quickModForm['subject'].value.php_to8bit().php_urlencode();
 	x[x.length] = 'topic=' + parseInt(document.forms.quickModForm.elements['topic'].value);
 	x[x.length] = 'msg=' + parseInt(document.forms.quickModForm.elements['msg'].value);
 
