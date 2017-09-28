@@ -325,7 +325,7 @@ function template_results()
 			foreach ($topic['matches'] as $message)
 			{
 				echo '
-					<div class="topic_details floatleft" style="width: 94%">
+					<div class="topic_details floatleft">
 						<div class="counter">', $message['counter'], '</div>
 						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
 						<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>

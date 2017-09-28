@@ -2140,6 +2140,9 @@ dl {
 #avatar_upload {
 	overflow: auto;
 }
+#smileypr {
+	margin-left: 10px;
+}
 
 /* Activity by time */
 #activitytime {
@@ -2202,6 +2205,7 @@ dl {
 	float: left;
 }
 .topic_details {
+	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -2744,6 +2748,12 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 #groups .padding {
 	margin: 0 0 25px 0;
+}
+.groupmembership textarea {
+	width: 100%;
+}
+.groupmembership .righttext {
+	margin-top: 1ex;
 }
 
 /* BoardIndex */
