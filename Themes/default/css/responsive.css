@@ -1,17 +1,9 @@
 /* iPhone Tests */
 @media (max-width: 320px) {
-	#pm_menu {
-		margin: 0 0 0 -60px;
-	}
-	#alerts_menu {
-		margin: 0 0 0 -150px;
-	}
-	#notify_dropdown {
-		margin: 5px 0 0 2px;
-	}
+
 }
 
-/* I have a Lumia with 480px screen... so ^^ */
+/* Entry level phones */
 @media (max-width: 480px) {
 	/* This is general */
 	.popup_window {
@@ -24,10 +16,6 @@
 		padding: 0;
 		margin: 0 auto;
 	}
-	.button {
-		min-width: 15%;
-		margin: 0 0 0 2px;
-	}
 	h1.forumtitle a, h1.forumtitle {
 		padding: 5px 0 0 4px !important;
 		max-width: 300px;
@@ -36,11 +24,21 @@
 	span.board_moderators {
 		display: none !important;
 	}
-	#alerts_menu {
-		margin: 0 0 0 -175px;
+	#top_info {
+		width: 100%;
 	}
-	#pm_menu {
-		margin: 0 0 0 -85px;
+	#pm_menu, #alerts_menu, #profile_menu {
+		left: 0;
+		right: 0;
+		border-radius: 0;
+		width: calc(100% - 17px);
+		max-width: 100%;
+	}
+	#profile_menu {
+		width: 100%;
+	}
+	#pm_menu, #alerts_menu {
+		padding-right: 9px;
 	}
 	#main_menu, .generic_menu {
 		display: none;
@@ -383,7 +381,6 @@
 	}
 	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
 		width: 100% !important;
-		padding: 5px 0;
 		margin: 0;
 		border-radius: 0;
 		border-left: 0;
@@ -474,9 +471,6 @@
 	}
 	.login {
 		width: 100%;
-	}
-	.top_menu {
-		width: 23em !important;
 	}
 	.unread_links {
 		width: 95%;
