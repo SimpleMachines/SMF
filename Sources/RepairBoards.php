@@ -354,7 +354,7 @@ function loadForumTests()
 				  LEFT JOIN {db_prefix}members AS m ON (m.id_member = t.id_member_started)
 				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				  AND p.id_poll IS NULL
-				GROUP BY o.id_poll
+				GROUP BY o.id_poll, t.id_topic
 				  ',
 			'fix_processing' => function ($row) use ($smcFunc, $txt)
 			{
