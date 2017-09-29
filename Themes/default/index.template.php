@@ -181,42 +181,43 @@ function template_body_above()
 
 	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
-	<div id="top_section">';
+	<div id="top_section">
+		<div class="inner_wrap">';
 
 	// If the user is logged in, display some things that might be useful.
 	if ($context['user']['is_logged'])
 	{
 		// Firstly, the user's menu
 		echo '
-		<ul class="floatleft" id="top_info">
-			<li>
-				<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
-					if (!empty($context['user']['avatar']))
-						echo $context['user']['avatar']['image'];
-					echo $context['user']['name'], '</a>
-				<div id="profile_menu" class="top_menu"></div>
-			</li>';
+			<ul class="floatleft" id="top_info">
+				<li>
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
+			if (!empty($context['user']['avatar']))
+				echo $context['user']['avatar']['image'];
+			echo $context['user']['name'], '</a>
+					<div id="profile_menu" class="top_menu"></div>
+				</li>';
 
 		// Secondly, PMs if we're doing them
 		if ($context['allow_pm'])
 		{
 			echo '
-			<li>
-				<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
-				<div id="pm_menu" class="top_menu scrollable"></div>
-			</li>';
+				<li>
+					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
+					<div id="pm_menu" class="top_menu scrollable"></div>
+				</li>';
 		}
 
 		// Thirdly, alerts
 		echo '
-			<li>
-				<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
-				<div id="alerts_menu" class="top_menu scrollable"></div>
-			</li>';
+				<li>
+					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<div id="alerts_menu" class="top_menu scrollable"></div>
+				</li>';
 
 		// And now we're done.
 		echo '
-		</ul>';
+			</ul>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	else
@@ -235,68 +236,69 @@ function template_body_above()
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
 	{
 		echo '
-		<form id="languages_form" method="get" class="floatright">
-			<select id="language_select" name="language" onchange="this.form.submit()">';
+			<form id="languages_form" method="get" class="floatright">
+				<select id="language_select" name="language" onchange="this.form.submit()">';
 
 		foreach ($context['languages'] as $language)
 			echo '
-				<option value="', $language['filename'], '"', isset($context['user']['language']) && $context['user']['language'] == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
+					<option value="', $language['filename'], '"', isset($context['user']['language']) && $context['user']['language'] == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
 
 		echo '
-			</select>
-			<noscript>
-				<input type="submit" value="', $txt['quick_mod_go'], '" />
-			</noscript>
-		</form>';
+				</select>
+				<noscript>
+					<input type="submit" value="', $txt['quick_mod_go'], '" />
+				</noscript>
+			</form>';
 	}
 
 	if ($context['allow_search'])
 	{
 		echo '
-		<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="search" name="search" value="">&nbsp;';
+			<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
 		$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
 
 		echo '
-			<select name="search_selection">
-				<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
+				<select name="search_selection">
+					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
 
 		// Can't limit it to a specific topic if we are not in one
 		if (!empty($context['current_topic']))
 			echo '
-				<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
+					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
 
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
 			echo '
-				<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
+					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
 
 		// Can't search for members if we can't see the memberlist
 		if (!empty($context['allow_memberlist']))
 			echo '
-				<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>';
+					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>';
 
 		echo '
-			</select>';
+				</select>';
 
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-			<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
+				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-			<input type="hidden" name="sd_brd" value="', $context['current_board'], '">';
+				<input type="hidden" name="sd_brd" value="', $context['current_board'], '">';
 
 		echo '
-			<input type="submit" name="search2" value="', $txt['search'], '" class="button">
-			<input type="hidden" name="advanced" value="0">
-		</form>';
+				<input type="submit" name="search2" value="', $txt['search'], '" class="button">
+				<input type="hidden" name="advanced" value="0">
+			</form>';
 	}
 
 	echo '
+		</div>
 	</div>';
 
 	echo '

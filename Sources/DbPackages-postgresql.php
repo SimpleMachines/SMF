@@ -83,6 +83,7 @@ function db_packages_init()
  *  	- 'ignore' will do nothing if the table exists. (And will return true)
  *  	- 'overwrite' will drop any existing table of the same name.
  *  	- 'error' will return false if the table already exists.
+ *  	- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
  *
  * @param string $table_name The name of the table to create
  * @param array $columns An array of column info in the specified format
@@ -94,6 +95,9 @@ function db_packages_init()
 function smf_db_create_table($table_name, $columns, $indexes = array(), $parameters = array(), $if_exists = 'ignore', $error = 'fatal')
 {
 	global $reservedTables, $smcFunc, $db_package_log, $db_prefix;
+
+	$db_trans = false;
+	$old_table_exists = false;
 
 	// Strip out the table name, we might not need it in some cases
 	$real_prefix = preg_match('~^("?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
@@ -116,31 +120,47 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		// This is a sad day... drop the table? If not, return false (error) by default.
 		if ($if_exists == 'overwrite')
 			$smcFunc['db_drop_table']($table_name);
+		else if ($if_exists == 'update')
+		{
+			$smcFunc['db_drop_table']($table_name.'_old');
+			$smcFunc['db_transaction']('begin');
+			$db_trans = true;
+			$smcFunc['db_query']('','
+				ALTER TABLE '. $table_name .' RENAME TO ' . $table_name . '_old',
+				array(
+					'security_override' => true,
+				)
+			);
+			$old_table_exists = true;
+		}
 		else
 			return $if_exists == 'ignore';
 	}
 
 	// If we've got this far - good news - no table exists. We can build our own!
-	$smcFunc['db_transaction']('begin');
+	if (!$db_trans)
+		$smcFunc['db_transaction']('begin');
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
 	foreach ($columns as $column)
 	{
 		// If we have an auto increment do it!
 		if (!empty($column['auto']))
 		{
-			$smcFunc['db_query']('', '
-				DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
-				array(
-					'security_override' => true,
-				)
-			);
-						
-			$smcFunc['db_query']('', '
-				CREATE SEQUENCE ' . $table_name . '_seq',
-				array(
-					'security_override' => true,
-				)
-			);
+			if (!$old_table_exists)
+				$smcFunc['db_query']('', '
+					DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
+					array(
+						'security_override' => true,
+					)
+				);
+				
+			if (!$old_table_exists)			
+				$smcFunc['db_query']('', '
+					CREATE SEQUENCE ' . $table_name . '_seq',
+					array(
+						'security_override' => true,
+					)
+				);
 			$default = 'default nextval(\'' . $table_name . '_seq\')';
 		}
 		elseif (isset($column['default']) && $column['default'] !== null)
@@ -187,6 +207,40 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			'security_override' => true,
 		)
 	);
+
+	// Fill the old data
+	if ($old_table_exists)
+	{
+		$same_col = array();
+
+		$request = $smcFunc['db_query']('','
+			SELECT count(*), column_name
+			FROM information_schema.columns
+			WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
+			GROUP BY column_name
+			HAVING count(*) > 1',
+			array (
+				'table1' => $table_name,
+				'table2' => $table_name.'_old',
+				'schema' => 'public',
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$same_col[] = $row['column_name'];
+		}
+
+		$smcFunc['db_query']('','
+			INSERT INTO ' . $table_name .'('
+			. implode($same_col, ',') .
+			')
+			SELECT '. implode($same_col, ',') . '
+			FROM ' . $table_name . '_old',
+			array()
+		);
+	}
+
 	// And the indexes...
 	foreach ($index_queries as $query)
 		$smcFunc['db_query']('', $query,
@@ -197,6 +251,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 	// Go, go power rangers!
 	$smcFunc['db_transaction']('commit');
+
+	if ($old_table_exists)
+		$smcFunc['db_drop_table']($table_name . '_old');
 
 	return true;
 }

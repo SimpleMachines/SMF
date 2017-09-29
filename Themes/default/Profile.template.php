@@ -307,17 +307,26 @@ function template_summary()
 	// Any custom fields for standard placement?
 	if (!empty($context['print_custom_fields']['standard']))
 	{
-		echo '
-				<dl class="settings">';
+		$fields = array();
 
 		foreach ($context['print_custom_fields']['standard'] as $field)
 			if (!empty($field['output_html']))
+				$fields[] = $field;
+
+		if (count($fields) > 0)
+		{
+			echo '
+				<dl class="settings">';
+
+			foreach ($fields as $field)
 				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
 
-		echo '
+			echo '
 				</dl>';
+		}
+		
 	}
 
 	echo '

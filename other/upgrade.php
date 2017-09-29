@@ -47,7 +47,7 @@ $databases = array(
  * The maximum time a single substep may take, in seconds.
  * @var int
  */
-$timeLimitThreshold = 30;
+$timeLimitThreshold = 3;
 
 /**
  * The current path to the upgrade.php file.
@@ -1045,6 +1045,11 @@ function UpgradeOptions()
 			array(
 				'karma_vars' => 'karma_edit',
 			)
+		);
+		// Cleaning up old log_karma table
+		$smcFunc['db_query']('', '
+			DROP TABLE IF EXISTS {db_prefix}log_karma',
+			array()
 		);
 	}
 
@@ -4040,7 +4045,7 @@ function template_database_changes()
 				// We want to track this...
 				if (timeOutID)
 					clearTimeout(timeOutID);
-				timeOutID = window.setTimeout("retTimeout()", ', $timeLimitThreshold, '000);
+				timeOutID = window.setTimeout("retTimeout()", ', (10 * $timeLimitThreshold), '000);
 
 				getXMLDocument(\'', $upcontext['form_url'], '&xml&filecount=', $upcontext['file_count'], '&substep=\' + lastItem + getData, onItemUpdate);
 			}
@@ -4277,7 +4282,7 @@ function template_database_changes()
 				if (!attemptAgain)
 				{
 					document.getElementById("error_block").style.display = "";
-					setInnerHTML(document.getElementById("error_message"), "Server has not responded for ', $timeLimitThreshold, ' seconds. It may be worth waiting a little longer or otherwise please click <a href=\"#\" onclick=\"retTimeout(true); return false;\">here<" + "/a> to try this step again");
+					setInnerHTML(document.getElementById("error_message"), "Server has not responded for ', ($timeLimitThreshold * 10), ' seconds. It may be worth waiting a little longer or otherwise please click <a href=\"#\" onclick=\"retTimeout(true); return false;\">here<" + "/a> to try this step again");
 				}
 				else
 				{

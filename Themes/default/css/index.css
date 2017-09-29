@@ -668,7 +668,6 @@ img.sort, .sort {
 .dropmenu li, #top_info > li {
 	display: inline-block;
 	margin: 0 2px 0 1px;
-	padding: 0 0 0.3em 0;
 	font-size: 0.9em;
 	line-height: 1.9em;
 }
@@ -728,6 +727,10 @@ img.sort, .sort {
 	color: #444;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
 	text-shadow: none;
+}
+
+#main_menu {
+	margin: 0 0 4px 0;
 }
 
 /* User information. */
@@ -979,13 +982,18 @@ img.sort, .sort {
 
 /* Box-shadow only on this one. */
 #wrapper {
-	margin: 0 auto;
 	width: 90%;
 	clear: both;
 	background: #fff;
 	border: 1px solid #b8b8b8;
 	border-radius: 8px;
 	box-shadow: 0 2px 3px rgba(0,0,0,0.14);
+}
+
+/* Set maximum width limit for content */
+#top_section .inner_wrap, #wrapper, #header, #footer ul {
+	max-width: 1200px;
+	margin: 0 auto;
 }
 
 /* The framing graphics */
@@ -1003,7 +1011,7 @@ img.sort, .sort {
 	clear: both;
 }
 #top_info {
-	padding: 5px 9px 4px 9px;
+	padding: 5px 0;
 	line-height: 1.3em;
 	width: auto;
 }
@@ -1027,9 +1035,9 @@ img.sort, .sort {
 	padding: 4px 0 0 0;
 }
 #search_form {
-	padding: 4px 0 0 0;
+	padding: 3px 0 3px 0;
 	text-align: right;
-	min-width: 30em;
+	min-width: 25em;
 }
 #search_form input[type="search"], #search_form select, #search_form .button {
 	padding: 2px;
@@ -1053,7 +1061,7 @@ img.sort, .sort {
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
-	margin: 0 5%;
+	width: 90%;
 }
 #header::after {
 	content:"";
@@ -3044,6 +3052,7 @@ div#pollmoderation {
 /* Linked events */
 .event_title {
 	font-size: larger;
+	vertical-align: middle;
 }
 .event_title + a {
 	margin-left: 1em;
@@ -3135,7 +3144,7 @@ div#pollmoderation {
 .messageicon {
 	display: inline-block;
 }
-.messageicon img {
+.messageicon img, #iconList img {
 	vertical-align: middle;
 }
 .keyinfo h5 {
@@ -3409,7 +3418,7 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .icon {
+h3.catbg .generic_icons, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }

@@ -411,12 +411,12 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			$_SESSION['debug_redirect'] = array();
 		}
 
-		$st = microtime();
+		$st = microtime(true);
 		// Don't overload it.
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = array_sum(explode(' ', $st)) - array_sum(explode(' ', $time_start));
+		$db_cache[$db_count]['s'] = $st - $time_start;
 	}
 
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -716,7 +716,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
-	if ($method == 'replace')
+	if ($method == 'replace' || $method == 'ignore')
 	{
 		$key_str = '';
 		$col_str = '';
@@ -753,16 +753,19 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					$key_str .= $columnName;
 					$count_pk++;
 				}
-				else //normal field
+				else if ($method == 'replace') //normal field
 				{
 					$col_str .= ($count > 0 ? ',' : '');
 					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
 					$count++;
 				}
 			}
-			$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+			if ($method == 'replace')
+				$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+			else
+				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
 		}
-		else
+		else if ($method == 'replace')
 		{
 			foreach ($columns as $columnName => $type)
 			{

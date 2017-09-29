@@ -201,9 +201,17 @@ abstract class cache_api implements cache_api_interface
 	{
 		global $boardurl, $cachedir;
 
+		// Find a valid good file to do mtime checks on.
+		if (file_exists($cachedir . '/' . 'index.php'))
+			$filemtime = $cachedir . '/' . 'index.php';
+		elseif (is_dir($cachedir . '/'))
+			$filemtime = $cachedir . '/';
+		else
+			$filemtime = $boardurl . '/index.php';
+
 		// Set the default if no prefix was specified.
 		if (empty($prefix))
-			$this->prefix = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-';
+			$this->prefix = md5($boardurl . filemtime($filemtime)) . '-SMF-';
 		else
 			$this->prefix = $prefix;
 

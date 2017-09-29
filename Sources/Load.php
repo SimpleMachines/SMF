@@ -745,22 +745,9 @@ function loadUserSettings()
 			$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
 	}
 
-	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($user_info['is_admin'])
-		$user_info['query_see_board'] = '1=1';
-	// Otherwise just the groups in $user_info['groups'].
-	else
-		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0)' . (!empty($modSettings['deny_boards_access']) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
-
-	// Build the list of boards they WANT to see.
-	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
-
-	// If they aren't ignoring any boards then they want to see all the boards they can see
-	if (empty($user_info['ignoreboards']))
-		$user_info['query_wanna_see_board'] = $user_info['query_see_board'];
-	// Ok I guess they don't want to see all the boards
-	else
-		$user_info['query_wanna_see_board'] = '(' . $user_info['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $user_info['ignoreboards']) . '))';
+	$temp = build_query_board($user_info['id']);
+	$user_info['query_see_board'] = $temp['query_see_board'];
+	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
 
 	call_integration_hook('integrate_user_info');
 }
@@ -1718,104 +1705,109 @@ function loadTheme($id_theme = 0, $initialize = true)
 	else
 		$id_theme = $modSettings['theme_guests'];
 
-	// Verify the id_theme... no foul play.
-	// Always allow the board specific theme, if they are overriding.
-	if (!empty($board_info['theme']) && $board_info['override_theme'])
-		$id_theme = $board_info['theme'];
-	// If they have specified a particular theme to use with SSI allow it to be used.
-	elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
-		$id_theme = (int) $id_theme;
-	elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
+	// We already load the basic stuff?
+	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
-		$themes = explode(',', $modSettings['enableThemes']);
-		if (!in_array($id_theme, $themes))
-			$id_theme = $modSettings['theme_guests'];
+		// Verify the id_theme... no foul play.
+		// Always allow the board specific theme, if they are overriding.
+		if (!empty($board_info['theme']) && $board_info['override_theme'])
+			$id_theme = $board_info['theme'];
+		// If they have specified a particular theme to use with SSI allow it to be used.
+		elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
+			$id_theme = (int) $id_theme;
+		elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
+		{
+			$themes = explode(',', $modSettings['enableThemes']);
+			if (!in_array($id_theme, $themes))
+				$id_theme = $modSettings['theme_guests'];
+			else
+				$id_theme = (int) $id_theme;
+		}
 		else
 			$id_theme = (int) $id_theme;
-	}
-	else
-		$id_theme = (int) $id_theme;
 
-	$member = empty($user_info['id']) ? -1 : $user_info['id'];
+		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
-	// Disable image proxy if we don't have SSL enabled
-	if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 2)
-		$image_proxy_enabled = false;
+		// Disable image proxy if we don't have SSL enabled
+		if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 2)
+			$image_proxy_enabled = false;
 
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
-	{
-		$themeData = $temp;
-		$flag = true;
-	}
-	elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
-		$themeData = $temp + array($member => array());
-	else
-		$themeData = array(-1 => array(), 0 => array(), $member => array());
-
-	if (empty($flag))
-	{
-		// Load variables from the current or default theme, global or this user's.
-		$result = $smcFunc['db_query']('', '
-			SELECT variable, value, id_member, id_theme
-			FROM {db_prefix}themes
-			WHERE id_member' . (empty($themeData[0]) ? ' IN (-1, 0, {int:id_member})' : ' = {int:id_member}') . '
-				AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)'),
-			array(
-				'id_theme' => $id_theme,
-				'id_member' => $member,
-			)
-		);
-		// Pick between $settings and $options depending on whose data it is.
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
-			// There are just things we shouldn't be able to change as members.
-			if ($row['id_member'] != 0 && in_array($row['variable'], array('actual_theme_url', 'actual_images_url', 'base_theme_dir', 'base_theme_url', 'default_images_url', 'default_theme_dir', 'default_theme_url', 'default_template', 'images_url', 'number_recent_posts', 'smiley_sets_default', 'theme_dir', 'theme_id', 'theme_layers', 'theme_templates', 'theme_url')))
-				continue;
-
-			// If this is the theme_dir of the default theme, store it.
-			if (in_array($row['variable'], array('theme_dir', 'theme_url', 'images_url')) && $row['id_theme'] == '1' && empty($row['id_member']))
-				$themeData[0]['default_' . $row['variable']] = $row['value'];
-
-			// If this isn't set yet, is a theme option, or is not the default theme..
-			if (!isset($themeData[$row['id_member']][$row['variable']]) || $row['id_theme'] != '1')
-				$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
+			$themeData = $temp;
+			$flag = true;
 		}
-		$smcFunc['db_free_result']($result);
+		elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
+			$themeData = $temp + array($member => array());
+		else
+			$themeData = array(-1 => array(), 0 => array(), $member => array());
 
-		if (!empty($themeData[-1]))
-			foreach ($themeData[-1] as $k => $v)
+		if (empty($flag))
+		{
+			// Load variables from the current or default theme, global or this user's.
+			$result = $smcFunc['db_query']('', '
+				SELECT variable, value, id_member, id_theme
+				FROM {db_prefix}themes
+				WHERE id_member' . (empty($themeData[0]) ? ' IN (-1, 0, {int:id_member})' : ' = {int:id_member}') . '
+					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)'),
+				array(
+					'id_theme' => $id_theme,
+					'id_member' => $member,
+				)
+			);
+			// Pick between $settings and $options depending on whose data it is.
+			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
-				if (!isset($themeData[$member][$k]))
-					$themeData[$member][$k] = $v;
+				// There are just things we shouldn't be able to change as members.
+				if ($row['id_member'] != 0 && in_array($row['variable'], array('actual_theme_url', 'actual_images_url', 'base_theme_dir', 'base_theme_url', 'default_images_url', 'default_theme_dir', 'default_theme_url', 'default_template', 'images_url', 'number_recent_posts', 'smiley_sets_default', 'theme_dir', 'theme_id', 'theme_layers', 'theme_templates', 'theme_url')))
+					continue;
+
+				// If this is the theme_dir of the default theme, store it.
+				if (in_array($row['variable'], array('theme_dir', 'theme_url', 'images_url')) && $row['id_theme'] == '1' && empty($row['id_member']))
+					$themeData[0]['default_' . $row['variable']] = $row['value'];
+
+				// If this isn't set yet, is a theme option, or is not the default theme..
+				if (!isset($themeData[$row['id_member']][$row['variable']]) || $row['id_theme'] != '1')
+					$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
 			}
+			$smcFunc['db_free_result']($result);
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
-			cache_put_data('theme_settings-' . $id_theme . ':' . $member, $themeData, 60);
-		// Only if we didn't already load that part of the cache...
-		elseif (!isset($temp))
-			cache_put_data('theme_settings-' . $id_theme, array(-1 => $themeData[-1], 0 => $themeData[0]), 90);
+			if (!empty($themeData[-1]))
+				foreach ($themeData[-1] as $k => $v)
+				{
+					if (!isset($themeData[$member][$k]))
+						$themeData[$member][$k] = $v;
+				}
+
+			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+				cache_put_data('theme_settings-' . $id_theme . ':' . $member, $themeData, 60);
+			// Only if we didn't already load that part of the cache...
+			elseif (!isset($temp))
+				cache_put_data('theme_settings-' . $id_theme, array(-1 => $themeData[-1], 0 => $themeData[0]), 90);
+		}
+
+		$settings = $themeData[0];
+		$options = $themeData[$member];
+
+		$settings['theme_id'] = $id_theme;
+
+		$settings['actual_theme_url'] = $settings['theme_url'];
+		$settings['actual_images_url'] = $settings['images_url'];
+		$settings['actual_theme_dir'] = $settings['theme_dir'];
+
+		$settings['template_dirs'] = array();
+		// This theme first.
+		$settings['template_dirs'][] = $settings['theme_dir'];
+
+		// Based on theme (if there is one).
+		if (!empty($settings['base_theme_dir']))
+			$settings['template_dirs'][] = $settings['base_theme_dir'];
+
+		// Lastly the default theme.
+		if ($settings['theme_dir'] != $settings['default_theme_dir'])
+			$settings['template_dirs'][] = $settings['default_theme_dir'];
 	}
-
-	$settings = $themeData[0];
-	$options = $themeData[$member];
-
-	$settings['theme_id'] = $id_theme;
-
-	$settings['actual_theme_url'] = $settings['theme_url'];
-	$settings['actual_images_url'] = $settings['images_url'];
-	$settings['actual_theme_dir'] = $settings['theme_dir'];
-
-	$settings['template_dirs'] = array();
-	// This theme first.
-	$settings['template_dirs'][] = $settings['theme_dir'];
-
-	// Based on theme (if there is one).
-	if (!empty($settings['base_theme_dir']))
-		$settings['template_dirs'][] = $settings['base_theme_dir'];
-
-	// Lastly the default theme.
-	if ($settings['theme_dir'] != $settings['default_theme_dir'])
-		$settings['template_dirs'][] = $settings['default_theme_dir'];
+	
 
 	if (!$initialize)
 		return;
@@ -1915,7 +1907,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'is_mod' => &$user_info['is_mod'],
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
 			'can_mod' => allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap'])))),
-			'username' => $user_info['username'],
+			'name' => $user_info['username'],
 			'language' => $user_info['language'],
 			'email' => $user_info['email'],
 			'ignoreusers' => $user_info['ignoreusers'],
@@ -1931,6 +1923,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	}
 	else
 	{
+		// What to do when there is no $user_info (e.g., an error very early in the login process)
 		$context['user'] = array(
 			'id' => -1,
 			'is_logged' => false,
@@ -1941,6 +1934,23 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'language' => $language,
 			'email' => '',
 			'ignoreusers' => array(),
+		);
+		// Note we should stuff $user_info with some guest values also...
+		$user_info = array(
+			'id' => 0,
+			'is_guest' => true,
+			'is_admin' => false,
+			'is_mod' => false,
+			'username' => $txt['guest_title'],
+			'language' => $language,
+			'email' => '',
+			'smiley_set' => '',
+			'permissions' => array(),
+			'groups' => array(),
+			'ignoreusers' => array(),
+			'possibly_robot' => true,
+			'time_offset' => 0,
+			'time_format' => $modSettings['time_format'],
 		);
 	}
 
@@ -1975,6 +1985,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 	detectBrowser();
 
 	// Set the top level linktree up.
+	// Note that if we're dealing with certain very early errors (e.g., login) the linktree might not be set yet...
+	if (empty($context['linktree']))
+		$context['linktree'] = array();
 	array_unshift($context['linktree'], array(
 		'url' => $scripturl,
 		'name' => $context['forum_name_html_safe']

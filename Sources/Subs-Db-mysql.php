@@ -445,11 +445,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		// Don't overload it.
-		$st = microtime();
+		$st = microtime(true);
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = array_sum(explode(' ', $st)) - array_sum(explode(' ', $time_start));
+		$db_cache[$db_count]['s'] = $st - $time_start;
 	}
 
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.

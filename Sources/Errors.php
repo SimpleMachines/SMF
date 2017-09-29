@@ -66,7 +66,8 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace($scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
 	// Don't log the session hash in the url twice, it's a waste.
-	$query_string = $smcFunc['htmlspecialchars']((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
+	if (!empty($smcFunc['htmlspecialchars']))
+		$query_string = $smcFunc['htmlspecialchars']((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
 
 	// Just so we know what board error messages are from.
 	if (isset($_POST['board']) && !isset($_GET['board']))
@@ -490,7 +491,7 @@ function log_error_online($error, $sprintf = array())
 	if (SMF == 'SSI' || SMF == 'BACKGROUND')
 		return;
 
-	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+	$session_id = !empty($user_info['is_guest']) ? 'ip' . $user_info['ip'] : session_id();
 
 	// First, we have to get the online log, because we need to break apart the serialized string.
 	$request = $smcFunc['db_query']('', '
