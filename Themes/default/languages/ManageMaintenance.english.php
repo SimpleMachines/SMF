@@ -9,6 +9,7 @@ $txt['repair_stats_topics_2'] = 'Topic #%1$d has the last message ID %2$d, which
 $txt['repair_stats_topics_3'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
 $txt['repair_stats_topics_4'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
 $txt['repair_stats_topics_5'] = 'Topic #%1$d has the wrong approval flag set.';
+$txt['repair_topic_times'] = 'Topic #%1$d has incorrect first and/or last message times.';
 $txt['repair_missing_boards'] = 'Topic #%1$d is in board #%2$d, which is missing.';
 $txt['repair_missing_categories'] = 'Board #%1$d is in category #%2$d, which is missing.';
 $txt['repair_missing_posters'] = 'Message #%1$d was posted by member #%2$d, who is now missing.';
