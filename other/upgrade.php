@@ -1046,6 +1046,11 @@ function UpgradeOptions()
 				'karma_vars' => 'karma_edit',
 			)
 		);
+		// Cleaning up old log_karma table
+		$smcFunc['db_query']('', '
+			DROP TABLE IF EXISTS {db_prefix}log_karma',
+			array()
+		);
 	}
 
 	// Emptying the error log?
