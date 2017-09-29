@@ -41,10 +41,10 @@ ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
-	id_member MEDIUMINT(8) NOT NULL,
-	time INT(10) NOT NULL,
-	ip VARBINARY(16) NOT NULL DEFAULT '',
-	ip2 VARBINARY(16) NOT NULL DEFAULT '',
+	id_member MEDIUMINT NOT NULL DEFAULT '0',
+	time INT(10) NOT NULL DEFAULT '0',
+	ip VARBINARY(16),
+	ip2 VARBINARY(16),
 	PRIMARY KEY id_login(id_login),
 	INDEX idx_id_member (id_member),
 	INDEX idx_time (time)
@@ -481,7 +481,7 @@ elseif (empty($modSettings['json_done']))
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN id_member_acted MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN id_member_acted MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN member_name_acted VARCHAR(255) NOT NULL DEFAULT '',
 ADD COLUMN time_acted INT(10) UNSIGNED NOT NULL DEFAULT '0',
 ADD COLUMN act_reason TEXT NOT NULL;
@@ -512,7 +512,7 @@ ALTER TABLE {$db_prefix}log_errors
 CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL;
+CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -521,7 +521,7 @@ CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL;
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
 ADD COLUMN redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN id_redirect_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
+ADD COLUMN id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -700,8 +700,8 @@ ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	id_alert INT(10) UNSIGNED AUTO_INCREMENT,
 	alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+	id_member_started MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	member_name VARCHAR(255) NOT NULL DEFAULT '',
 	content_type VARCHAR(255) NOT NULL DEFAULT '',
 	content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -716,7 +716,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 
 ---# Adding alert preferences.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	alert_pref VARCHAR(32) DEFAULT '',
 	alert_value TINYINT(3) NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, alert_pref)
@@ -1186,12 +1186,12 @@ ALTER TABLE `{$db_prefix}members`
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
-	id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
 	id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	type TINYINT(4) NOT NULL DEFAULT '0',
 	poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	subject VARCHAR(255) NOT NULL DEFAULT '',
 	smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
 	body mediumtext NOT NULL,
@@ -1200,7 +1200,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	is_sticky TINYINT(4) NOT NULL DEFAULT '0',
 	to_list VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY id_draft(id_draft),
-	INDEX idx_id_member (id_member, id_draft, type)
+	UNIQUE idx_id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM;
 ---#
 
@@ -1266,7 +1266,7 @@ VALUES
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED DEFAULT '0',
 	content_type CHAR(6) DEFAULT '',
 	content_id INT(10) UNSIGNED DEFAULT '0',
 	like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -1289,7 +1289,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
 	content_type VARCHAR(10) DEFAULT '',
 	id_mentioned INT DEFAULT 0,
-	id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	`time` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned),
 	INDEX idx_content (content_id, content_type),
@@ -1601,7 +1601,7 @@ $request = upgrade_query("
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 	id_label INT(10) UNSIGNED AUTO_INCREMENT,
-	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	name VARCHAR(30) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_label)
 ) ENGINE=MyISAM;
@@ -2310,7 +2310,7 @@ if ($doChange)
 ---#
 
 ---# Add the new floodcontrol ip column
-ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null;
+ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
 ---#
 
 ---# Create primary key for floodcontrol
@@ -2464,4 +2464,140 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 /******************************************************************************/
 ---# Add Index for messages likes 
 CREATE INDEX idx_likes ON {$db_prefix}messages (likes DESC);
+---#
+
+/******************************************************************************/
+--- Aligning legacy column data
+/******************************************************************************/
+---# Updating board_permissions
+ALTER TABLE {$db_prefix}board_permissions
+MODIFY COLUMN id_profile SMALLINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating log_digest id_topic
+ALTER TABLE {$db_prefix}log_digest
+MODIFY COLUMN id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating log_digest id_msg
+ALTER TABLE {$db_prefix}log_digest
+MODIFY COLUMN id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating log_reported
+ALTER TABLE {$db_prefix}log_reported
+MODIFY COLUMN body MEDIUMTEXT NOT NULL;
+---#
+
+---# Updating log_spider_hits
+ALTER TABLE {$db_prefix}log_spider_hits
+MODIFY COLUMN processed TINYINT NOT NULL DEFAULT '0';
+---#
+
+---# Updating members new_pm
+ALTER TABLE {$db_prefix}members
+MODIFY COLUMN new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating members pm_ignore_list
+ALTER TABLE {$db_prefix}members
+MODIFY COLUMN pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
+---# Updating member_logins id_member
+ALTER TABLE {$db_prefix}member_logins
+MODIFY COLUMN id_member MEDIUMINT NOT NULL DEFAULT '0';
+---#
+
+---# Updating member_logins time
+ALTER TABLE {$db_prefix}member_logins
+MODIFY COLUMN time INT(10) NOT NULL DEFAULT '0';
+---#
+
+---# Updating pm_recipients is_new
+ALTER TABLE {$db_prefix}pm_recipients
+MODIFY COLUMN is_new TINYINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating pm_rules id_member
+ALTER TABLE {$db_prefix}pm_rules
+MODIFY COLUMN id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating polls guest_vote
+ALTER TABLE {$db_prefix}polls
+MODIFY COLUMN guest_vote TINYINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating polls id_member
+ALTER TABLE {$db_prefix}polls
+MODIFY COLUMN id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Updating sessions last_update
+ALTER TABLE {$db_prefix}sessions
+MODIFY COLUMN last_update INT UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+/******************************************************************************/
+--- Clean up indexes
+/******************************************************************************/
+---# Updating log_actions
+ALTER TABLE {$db_prefix}log_actions
+ADD INDEX id_topic_id_log (id_topic, id_log);
+---#
+
+---# Updating log_activity mostOn
+ALTER TABLE {$db_prefix}log_activity
+DROP INDEX mostOn;
+---#
+
+---# Updating log_activity most_on
+ALTER TABLE {$db_prefix}log_activity
+DROP INDEX most_on;
+---#
+
+---# Updating log_subscribed
+ALTER TABLE {$db_prefix}log_subscribed
+ADD INDEX status (status);
+---#
+
+---# Updating members email_address
+ALTER TABLE {$db_prefix}members
+ADD INDEX email_address (email_address);
+---#
+
+---# Updating members drop memberName
+ALTER TABLE {$db_prefix}members
+DROP INDEX memberName;
+---#
+
+---# Updating messages drop old ipIndex
+ALTER TABLE {$db_prefix}messages
+DROP INDEX ipIndex;
+---#
+
+---# Updating messages drop old ip_index
+ALTER TABLE {$db_prefix}messages
+DROP INDEX ip_index;
+---#
+
+---# Updating messages drop old related_ip
+ALTER TABLE {$db_prefix}messages
+DROP INDEX related_ip;
+---#
+
+---# Updating messages drop old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX topic;
+---#
+
+---# Updating messages drop another old topic ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX id_topic;
+---#
+
+---# Updating topics drop old id_board ix
+ALTER TABLE {$db_prefix}topics
+DROP INDEX id_board;
 ---#

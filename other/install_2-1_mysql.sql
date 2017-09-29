@@ -204,11 +204,11 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type VARCHAR(8) NOT NULL DEFAULT 'text',
   field_length SMALLINT NOT NULL DEFAULT '255',
   field_options TEXT NOT NULL,
-  field_order TINYINT NOT NULL DEFAULT '0',
+  field_order SMALLINT NOT NULL DEFAULT '0',
   mask VARCHAR(255) NOT NULL DEFAULT '',
   show_reg TINYINT NOT NULL DEFAULT '0',
   show_display TINYINT NOT NULL DEFAULT '0',
-  show_mlist TINYINT NOT NULL DEFAULT '0',
+  show_mlist SMALLINT NOT NULL DEFAULT '0',
   show_profile VARCHAR(20) NOT NULL DEFAULT 'forumprofile',
   private TINYINT NOT NULL DEFAULT '0',
   active TINYINT NOT NULL DEFAULT '1',
@@ -320,8 +320,8 @@ CREATE TABLE {$db_prefix}log_comments (
 #
 
 CREATE TABLE {$db_prefix}log_digest (
-  id_topic MEDIUMINT UNSIGNED NOT NULL,
-  id_msg INT(10) UNSIGNED NOT NULL,
+  id_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
   note_type VARCHAR(10) NOT NULL DEFAULT 'post',
   daily TINYINT UNSIGNED NOT NULL DEFAULT '0',
   exclude MEDIUMINT UNSIGNED NOT NULL DEFAULT '0'
@@ -423,7 +423,7 @@ CREATE TABLE {$db_prefix}log_online (
   id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   id_spider SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   ip VARBINARY(16),
-  url VARCHAR(2048) NOT NULL,
+  url VARCHAR(2048) NOT NULL DEFAULT '',
   PRIMARY KEY (session),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member)
@@ -459,9 +459,9 @@ CREATE TABLE {$db_prefix}log_packages (
 #
 
 CREATE TABLE {$db_prefix}log_polls (
-  id_poll MEDIUMINT UNSIGNED DEFAULT '0',
-  id_member MEDIUMINT UNSIGNED DEFAULT '0',
-  id_choice TINYINT UNSIGNED DEFAULT '0',
+  id_poll MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  id_choice TINYINT UNSIGNED NOT NULL DEFAULT '0',
   INDEX idx_id_poll (id_poll, id_member, id_choice)
 ) ENGINE={$engine};
 
@@ -480,7 +480,7 @@ CREATE TABLE {$db_prefix}log_reported (
   body MEDIUMTEXT NOT NULL,
   time_started INT(10) NOT NULL DEFAULT '0',
   time_updated INT(10) NOT NULL DEFAULT '0',
-  num_reports MEDIUMINT(6) NOT NULL DEFAULT '0',
+  num_reports MEDIUMINT NOT NULL DEFAULT '0',
   closed TINYINT NOT NULL DEFAULT '0',
   ignore_all TINYINT NOT NULL DEFAULT '0',
   PRIMARY KEY (id_report),
@@ -659,7 +659,7 @@ CREATE TABLE {$db_prefix}membergroups (
   group_name VARCHAR(80) NOT NULL DEFAULT '',
   description TEXT NOT NULL,
   online_color VARCHAR(20) NOT NULL DEFAULT '',
-  min_posts MEDIUMINT(9) NOT NULL DEFAULT '-1',
+  min_posts MEDIUMINT NOT NULL DEFAULT '-1',
   max_messages SMALLINT UNSIGNED NOT NULL DEFAULT '0',
   icons VARCHAR(255) NOT NULL DEFAULT '',
   group_type TINYINT NOT NULL DEFAULT '0',
@@ -905,7 +905,7 @@ CREATE TABLE {$db_prefix}pm_recipients (
   is_read TINYINT UNSIGNED NOT NULL DEFAULT '0',
   is_new TINYINT UNSIGNED NOT NULL DEFAULT '0',
   deleted TINYINT UNSIGNED NOT NULL DEFAULT '0',
-  in_inbox TINYINT UNSIGNED NOT NULL DEFAULT '1',
+  in_inbox TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (id_pm, id_member),
   UNIQUE idx_id_member (id_member, deleted, id_pm)
 ) ENGINE={$engine};
@@ -942,7 +942,7 @@ CREATE TABLE {$db_prefix}polls (
   guest_vote TINYINT UNSIGNED NOT NULL DEFAULT '0',
   num_guest_voters INT(10) UNSIGNED NOT NULL DEFAULT '0',
   reset_poll INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_member MEDIUMINT NOT NULL DEFAULT '0',
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   poster_name VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_poll)
 ) ENGINE={$engine};
@@ -1006,8 +1006,8 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id VARCHAR(128),
-  last_update INT(10) UNSIGNED NOT NULL,
+  session_id VARCHAR(128) NOT NULL DEFAULT '',
+  last_update INT(10) UNSIGNED NOT NULL DEFAULT '0',
   data TEXT NOT NULL,
   PRIMARY KEY (session_id)
 ) ENGINE={$engine};
@@ -1181,7 +1181,7 @@ CREATE TABLE {$db_prefix}mentions (
   content_id INT DEFAULT '0',
   content_type VARCHAR(10) DEFAULT '',
   id_mentioned INT DEFAULT 0,
-  id_member INT(10) UNSIGNED NOT NULL DEFAULT 0,
+  id_member MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
   `time` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (content_id, content_type, id_mentioned),
   INDEX content (content_id, content_type),
