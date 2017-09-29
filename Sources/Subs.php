@@ -291,7 +291,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc;
+	global $modSettings, $user_info, $smcFunc, $sourcedir;
 
 	$parameters = array();
 	if (is_array($members))
@@ -379,7 +379,24 @@ function updateMemberData($members, $data)
 			$type = 'inet';
 
 		// Doing an increment?
-		if ($type == 'int' && ($val === '+' || $val === '-'))
+		if ($var == 'alerts' && ($val === '+' || $val === '-'))
+		{
+			include_once($sourcedir . '/Profile-View.php');
+			if (is_array($members))
+			{
+				$val = 'CASE ';
+				foreach ($members as $k => $v)
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. count(fetch_alerts($v, false, 0, array(), false)) . ' ';
+				$val = $val . ' END';
+				$type = 'raw';
+			}
+			else
+			{
+				$blub = fetch_alerts($members, false, 0, array(), false);
+				$val = count($blub);
+			}
+		}
+		else if ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
 			$type = 'raw';
@@ -6043,6 +6060,114 @@ function https_redirect_active($url) {
 		}
 	}
 	return $result;
+}
+
+/**
+ * Build query_wanna_see_board and query_see_board for a userid
+ * 
+ * Returns array with keys query_wanna_see_board and query_see_board
+ * @param int $userid of the user
+ */
+function build_query_board($userid)
+{
+	global $user_info, $modSettings, $smcFunc;
+
+	$query_part = array();
+	$groups = array();
+	$is_admin = false;
+	$deny_boards_access = !empty($modSettings['deny_boards_access']) ? $modSettings['deny_boards_access'] : null;
+	$mod_cache;
+	$ignoreboards;
+
+	if ($user_info['id'] == $userid)
+	{
+		$groups = $user_info['groups'];
+		$is_admin = $user_info['is_admin'];
+		$mod_cache = !empty($user_info['mod_cache']) ? $user_info['mod_cache'] : null;
+		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
+	}
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+				SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
+				FROM {db_prefix}members AS mem
+				WHERE mem.id_member = {int:id_member}
+				LIMIT 1',
+				array(
+					'id_member' => $userid,
+				)
+			);
+
+		$row = $smcFunc['db_fetch_assoc']($request);
+
+		if (empty($row['additional_groups']))
+			$groups = array($row['id_group'], $user_settings['id_post_group']);
+		else
+			$groups = array_merge(
+					array($row['id_group'], $user_settings['id_post_group']),
+					explode(',', $row['additional_groups'])
+			);
+
+		// Because history has proven that it is possible for groups to go bad - clean up in case.
+		foreach ($groups as $k => $v)
+			$groups[$k] = (int) $v;
+
+		$is_admin = in_array(1, $groups);
+
+		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
+
+		// What boards are they the moderator of?
+		$boards_mod = array();
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board
+			FROM {db_prefix}moderators
+			WHERE id_member = {int:current_member}',
+			array(
+				'current_member' => $userid,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$boards_mod[] = $row['id_board'];
+		$smcFunc['db_free_result']($request);
+
+		// Can any of the groups they're in moderate any of the boards?
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board
+			FROM {db_prefix}moderator_groups
+			WHERE id_group IN({array_int:groups})',
+			array(
+				'groups' => $groups,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$boards_mod[] = $row['id_board'];
+		$smcFunc['db_free_result']($request);
+
+		// Just in case we've got duplicates here...
+		$boards_mod = array_unique($boards_mod);
+
+		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
+	}
+	
+	// Just build this here, it makes it easier to change/use - administrators can see all boards.
+	if ($is_admin)
+		$query_part['query_see_board'] = '1=1';
+	// Otherwise just the groups in $user_info['groups'].
+	else
+		$query_part['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $groups) . ', b.member_groups) != 0)' . (!empty($deny_boards_access) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $groups) . ', b.deny_member_groups) = 0)' : '') . (isset($mod_cache) ? ' OR ' . $mod_cache['mq'] : '') . ')';
+
+	// Build the list of boards they WANT to see.
+	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
+
+	// If they aren't ignoring any boards then they want to see all the boards they can see
+	if (empty($ignoreboards))
+		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
+	// Ok I guess they don't want to see all the boards
+	else
+		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+
+	return $query_part;
 }
 
 ?>
