@@ -1230,25 +1230,41 @@ function DatabasePopulation()
 	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
 		$newSettings[] = array('global_character_set', 'UTF-8');
 
-	// Maybe we can auto-detect better cookie settings?
-	preg_match('~^http[s]?://([^\.]+?)([^/]*?)(/.*)?$~', $boardurl, $matches);
-	if (!empty($matches))
+	// Auto-detect local & global cookie settings
+	$url_parts = parse_url($boardurl);
+	if ($url_parts !== false)
 	{
-		// Default = both off.
-		$localCookies = false;
-		$globalCookies = false;
+		unset($globalCookies, $globalCookiesDomain, $localCookies);
 
-		// Okay... let's see.  Using a subdomain other than www.? (not a perfect check.)
-		if ($matches[2] != '' && (strpos(substr($matches[2], 1), '.') === false || in_array($matches[1], array('forum', 'board', 'community', 'forums', 'support', 'chat', 'help', 'talk', 'boards', 'www'))))
-			$globalCookies = true;
-		// If there's a / in the middle of the path, or it starts with ~... we want local.
-		if (isset($matches[3]) && strlen($matches[3]) > 3 && (substr($matches[3], 0, 2) == '/~' || strpos(substr($matches[3], 1), '/') !== false))
-			$localCookies = true;
+		// Look for subdomain, if found, set globalCookie settings
+		if (!empty($url_parts['host']))
+		{
+			// www isn't really a subdomain in this sense, so strip it out
+			$url_parts['host'] = strtr($url_parts['host'], array('www.' => ''));
+			$pos1 = strrpos($url_parts['host'], '.');
+			if ($pos1 !== false)
+			{
+				// 2nd period from the right indicates you have a subdomain
+				$pos2 = strrpos(substr($url_parts['host'], 0, $pos1 - 1), '.');
+				if ($pos2 !== false)
+				{
+					$globalCookies = '1';
+					$globalCookiesDomain = substr($url_parts['host'], $pos2 + 1);
+				}
+			}
+		}
 
-		if ($globalCookies)
-			$newSettings[] = array('globalCookies', '1');
-		if ($localCookies)
-			$newSettings[] = array('localCookies', '1');
+		// Look for subfolder, if found, set localCookie
+		// Checking for len > 1 ensures you don't have just a slash...
+		if (!empty($url_parts['path']) && strlen($url_parts['path']) > 1)
+			$localCookies = '1';
+
+		if (isset($globalCookies))
+			$newSettings[] = array('globalCookies', $globalCookies);
+		if (isset($globalCookiesDomain))
+			$newSettings[] = array('globalCookiesDomain', $globalCookiesDomain);
+		if (isset($localCookies))
+			$newSettings[] = array('localCookies', $localCookies);
 	}
 
 	// Are we allowing stat collection?
