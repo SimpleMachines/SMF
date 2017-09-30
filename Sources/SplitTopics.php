@@ -636,10 +636,13 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 				'unapproved_posts' => 'int',
 				'approved' => 'int',
 				'is_sticky' => 'int',
+				'first_msg_time' => 'int',
+				'last_msg_time' => 'int',
 			),
 			array(
 				(int) $id_board, $split2_firstMem, $split2_lastMem, 0,
 				0, $split2_replies, $split2_unapprovedposts, (int) $split2_approved, 0,
+				0, 0,
 			),
 			array('id_topic'),
 			1
@@ -686,16 +689,23 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Mess with the old topic's first, last, and number of messages.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			num_replies = {int:num_replies},
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			id_member_started = {int:id_member_started},
-			id_member_updated = {int:id_member_updated},
-			unapproved_posts = {int:unapproved_posts}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = '
+			t.num_replies = {int:num_replies},
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.id_member_started = {int:id_member_started},
+			t.id_member_updated = {int:id_member_updated},
+			t.unapproved_posts = {int:unapproved_posts},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 'id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'num_replies' => $split1_replies,
 			'id_first_msg' => $split1_first_msg,
@@ -708,12 +718,19 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Now, put the first/last message back to what they should be.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = '
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'id_first_msg' => $split2_first_msg,
 			'id_last_msg' => $split2_last_msg,
@@ -1637,23 +1654,29 @@ function MergeExecute($topics = array())
 	// Again, only do this if we're redirecting - otherwise delete
 	if (isset($_POST['postRedirect']))
 	{
-		// Having done all that, now make sure we fix the merge/redirect topics upp before we
+		// Having done all that, now make sure we fix the merge/redirect topics up before we
 		// leave here. Specifically: that there are no replies, no unapproved stuff, that the first
 		// and last posts are the same and so on and so forth.
 		foreach ($updated_topics as $old_topic => $id_msg)
 		{
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}topics
-				SET id_first_msg = id_last_msg,
-					id_member_started = {int:current_user},
-					id_member_updated = {int:current_user},
-					id_poll = 0,
-					approved = 1,
-					num_replies = 0,
-					unapproved_posts = 0,
-					id_redirect_topic = {int:redirect_topic},
-					redirect_expires = {int:redirect_expires}
-				WHERE id_topic = {int:old_topic}',
+			$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+			$joined = array(
+				array('name' => '{db_prefix}messages', 'alias' => 'm', 'condition' => 't.id_first_msg = m.id_msg'),
+			);
+			$set = 't.id_first_msg = t.id_last_msg,
+					t.id_member_started = {int:current_user},
+					t.id_member_updated = {int:current_user},
+					t.id_poll = 0,
+					t.approved = 1,
+					t.num_replies = 0,
+					t.unapproved_posts = 0,
+					t.id_redirect_topic = {int:redirect_topic},
+					t.redirect_expires = {int:redirect_expires},
+					t.first_msg_time = m.poster_time,
+					t.last_msg_time = m.poster_time';
+			$where = 't.id_topic = {int:old_topic}';
+			$smcFunc['db_update_from'](
+				$table, $joined, $set, $where,
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
@@ -1684,21 +1707,27 @@ function MergeExecute($topics = array())
 	}
 
 	// Asssign the properties of the newly merged topic.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_board = {int:id_board},
-			id_member_started = {int:id_member_started},
-			id_member_updated = {int:id_member_updated},
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			id_poll = {int:id_poll},
-			num_replies = {int:num_replies},
-			unapproved_posts = {int:unapproved_posts},
-			num_views = {int:num_views},
-			is_sticky = {int:is_sticky},
-			approved = {int:approved}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = 't.id_board = {int:id_board},
+			t.id_member_started = {int:id_member_started},
+			t.id_member_updated = {int:id_member_updated},
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.id_poll = {int:id_poll},
+			t.num_replies = {int:num_replies},
+			t.unapproved_posts = {int:unapproved_posts},
+			t.num_views = {int:num_views},
+			t.is_sticky = {int:is_sticky},
+			t.approved = {int:approved},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'id_board' => $target_board,
 			'is_sticky' => $is_sticky,

@@ -1749,6 +1749,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$new_topic = empty($topicOptions['id']);
 
+	$msgOptions['poster_time'] = isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : time();
+
 	$message_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (empty($modSettings['max_messageLength']) ? 'string' : 'string-65534')),
 		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'inet',
@@ -1757,7 +1759,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$message_parameters = array(
 		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-		$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
+		$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
 		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
 	);
 
@@ -1800,12 +1802,14 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
 			'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
 			'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
+			'first_msg_time' => 'int', 'last_msg_time' => 'int',
 		);
 		$topic_parameters = array(
 			$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
 			$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
 			$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
 			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
+			$msgOptions['poster_time'], $msgOptions['poster_time'],
 		);
 
 		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
@@ -1863,6 +1867,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			'is_sticky' => $topicOptions['sticky_mode'],
 			'id_topic' => $topicOptions['id'],
 			'counter_increment' => 1,
+			'last_msg_time' => $msgOptions['poster_time'],
 		);
 		if ($msgOptions['approved'])
 			$topics_columns = array(
@@ -1878,6 +1883,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$topics_columns[] = 'locked = {int:locked}';
 		if ($topicOptions['sticky_mode'] !== null)
 			$topics_columns[] = 'is_sticky = {int:is_sticky}';
+		$topics_columns[] = 'last_msg_time = {int:last_msg_time}';
 
 		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
@@ -2410,11 +2416,16 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 	// ... next the topics...
 	foreach ($topic_changes as $id => $changes)
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET approved = {int:approved}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
-				num_replies = num_replies + {int:num_replies}, id_last_msg = {int:id_last_msg}
-			WHERE id_topic = {int:id_topic}',
+	{
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+		);
+		$set = 't.approved = {int:approved}, t.unapproved_posts = unapproved_posts + {int:unapproved_posts}, t.num_replies = num_replies + {int:num_replies}, t.id_last_msg = {int:id_last_msg}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:id_topic}';
+		$smcFunc['db_update_from'](
+			$table, $joined, $set, $where,
 			array(
 				'approved' => $changes['approved'],
 				'unapproved_posts' => $changes['unapproved_posts'],
@@ -2423,6 +2434,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 				'id_topic' => $id,
 			)
 		);
+	}
 
 	// ... finally the boards...
 	foreach ($board_changes as $id => $changes)

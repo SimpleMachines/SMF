@@ -60,6 +60,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_mb4'                    => false,
 			'db_ping'                   => 'mysqli_ping',
 			'db_fetch_all'              => 'smf_db_fetch_all',
+			'db_update_from'			=> 'smf_db_update_from',
 		);
 
 	if (!empty($db_options['persist']))
@@ -773,7 +774,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
-	
+
 	$return_var = null;
 
 	// With nothing to insert, simply return.
@@ -782,9 +783,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-	
+
 	$with_returning = false;
-	
+
 	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		$with_returning = true;
@@ -841,7 +842,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		for($i = 0; $i < $count; $i++)
 		{
 			$old_id = $smcFunc['db_insert_id']();
-			
+
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
@@ -853,7 +854,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$connection
 			);
 			$new_id = $smcFunc['db_insert_id']();
-			
+
 			if ($last_id != $new_id) //the inserted value was new
 			{
 				$ai = $new_id;
@@ -874,21 +875,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					WHERE ' . $where_string . ' LIMIT 1',
 					array()
 				);
-				
+
 				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 				{
 					$row = $smcFunc['db_fetch_assoc']($request);
 					$ai = $row[$keys[0]];
 				}
 			}
-			
+
 			if ($returnmode == 1)
 				$return_var = $ai;
 			else if ($returnmode == 2)
 				$return_var[] = $ai;
 		}
 	}
-	
+
 
 	if ($with_returning)
 	{
@@ -997,7 +998,7 @@ function smf_is_resource($result)
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A MySQL result resource
  * @return array An array that contains all rows (records) in the result resource
@@ -1006,6 +1007,49 @@ function smf_db_fetch_all($request)
 {
 	// Return the right row.
 	return mysqli_fetch_all($request);
+}
+
+/**
+ * Updates data in a table, using data from other tables
+ *
+ * @param array $table Associative array with info about the table to be updated ('name' => '{db_prefix}foo', 'alias' => 'f')
+ * @param array $joined Array of associative arrays with info about the other tables to get data from ('name' => '{db_prefix}bar', 'alias' => 'b', 'condition' => 'f.baz = b.qux')
+ * @param string $set A string containing the SET instructions for the update query
+ * @param string $where A string containing any WHERE conditions for the update query
+ * @param array $db_values The values to be inserted into the compiled query string
+ * @param object $connection The connection to use (if null, $db_connection will be used)
+ * @return bool True if the update was successful, otherwise false
+ */
+function smf_db_update_from($table, $joined, $set, $where, $db_values, $connection = null)
+{
+	global $smcFunc, $db_prefix;
+
+	if (empty($table['name']) || empty($table['alias']) || empty($set))
+		return;
+
+	$joins = array();
+	foreach ($joined as $join)
+	{
+		if (empty($join['name']) || empty($join['alias']) || empty($join['condition']))
+			continue;
+
+		$joins[] = 'JOIN ' . $join['name'] . ' AS ' . $join['alias'] . ' ON (' . $join['condition'] . ')';
+	}
+
+	if (empty($joins))
+		return;
+
+	$ret = $smcFunc['db_query']('', '
+		UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+			' . implode('
+			', $joins) . '
+		SET ' . $set . (!empty($where) ? '
+		WHERE ' . $where : ''),
+		$db_values,
+		$connection
+	);
+
+	return $ret;
 }
 
 ?>

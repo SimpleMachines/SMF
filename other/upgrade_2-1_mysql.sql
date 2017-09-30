@@ -525,6 +525,20 @@ ADD COLUMN id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
+--- Adding support for tracking first/last message times in topics table
+/******************************************************************************/
+---# Adding new columns to topics ..
+ALTER TABLE {$db_prefix}topics
+ADD COLUMN first_msg_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN last_msg_time INT(10) UNSIGNED NOT NULL DEFAULT '0';
+---#
+
+---# Creating indices for first_msg_time and last_msg_time
+CREATE INDEX {$db_prefix}topics_first_msg_time ON {$db_prefix}topics (first_msg_time);
+CREATE INDEX {$db_prefix}topics_last_msg_time ON {$db_prefix}topics (last_msg_time);
+---#
+
+/******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
 ---# Adding a new column "callable" to scheduled_tasks table

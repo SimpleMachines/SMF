@@ -737,14 +737,20 @@ function removeMessage($message, $decreasePostCount = true)
 		$row2 = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET
-				id_last_msg = {int:id_last_msg},
-				id_member_updated = {int:id_member_updated}' . (!$modSettings['postmod_active'] || $row['approved'] ? ',
-				num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : ',
-				unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
-			WHERE id_topic = {int:id_topic}',
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = t.id_first_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+		);
+		$set = '
+				t.id_last_msg = {int:id_last_msg},
+				t.id_member_updated = {int:id_member_updated}' . (!$modSettings['postmod_active'] || $row['approved'] ? ',
+				t.num_replies = CASE WHEN t.num_replies = {int:no_replies} THEN 0 ELSE t.num_replies - 1 END' : ',
+				t.unapproved_posts = CASE WHEN t.unapproved_posts = {int:no_unapproved} THEN 0 ELSE t.unapproved_posts - 1 END') . '
+				t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:id_topic}';
+		$smcFunc['db_update_from'](
+			$table, $joined, $set, $where,
 			array(
 				'id_last_msg' => $row2['id_msg'],
 				'id_member_updated' => $row2['id_member'],
@@ -756,18 +762,26 @@ function removeMessage($message, $decreasePostCount = true)
 	}
 	// Only decrease post counts.
 	else
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET ' . ($row['approved'] ? '
-				num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : '
-				unapproved_posts = CASE WHEN unapproved_posts = {int:no_unapproved} THEN 0 ELSE unapproved_posts - 1 END') . '
-			WHERE id_topic = {int:id_topic}',
+	{
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+		);
+		$set =  ($row['approved'] ? '
+				t.num_replies = CASE WHEN t.num_replies = {int:no_replies} THEN 0 ELSE t.num_replies - 1 END' : '
+				t.unapproved_posts = CASE WHEN t.unapproved_posts = {int:no_unapproved} THEN 0 ELSE t.unapproved_posts - 1 END') . '
+				t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:id_topic}';
+		$smcFunc['db_update_from'](
+			$table, $joined, $set, $where,
 			array(
 				'no_replies' => 0,
 				'no_unapproved' => 0,
 				'id_topic' => $row['id_topic'],
 			)
 		);
+	}
 
 	// Default recycle to false.
 	$recycle = false;
@@ -903,6 +917,21 @@ function removeMessage($message, $decreasePostCount = true)
 						'id_merged_msg' => $message,
 					)
 				);
+
+			// Ensure the recycle topic has the correct first/last message times
+			$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+			$joined = array(
+				array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+				array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+			);
+			$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+			$where = 't.id_topic = {int:id_topic}';
+			$smcFunc['db_update_from'](
+				$table, $joined, $set, $where,
+				array(
+					'id_topic' => $topicID,
+				)
+			);
 
 			// Make sure this message isn't getting deleted later on.
 			$recycle = true;
@@ -1408,14 +1437,15 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		$smcFunc['db_free_result']($request);
 
 		// Update the topic details for the source topic.
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET
-				id_first_msg = {int:id_first_msg},
-				id_last_msg = {int:id_last_msg},
-				num_replies = {int:num_replies},
-				unapproved_posts = {int:unapproved_posts}
-			WHERE id_topic = {int:from_topic}',
+		$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+		$joined = array(
+			array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+			array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+		);
+		$set = 't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+		$where = 't.id_topic = {int:from_topic}';
+		$smcFunc['db_update_from'](
+			$table, $joined, $set, $where,
 			array(
 				'id_first_msg' => $source_topic_data['id_first_msg'],
 				'id_last_msg' => $source_topic_data['id_last_msg'],
@@ -1441,14 +1471,15 @@ function mergePosts($msgs, $from_topic, $target_topic)
 	}
 
 	// Finally get around to updating the destination topic, now all indexes etc on the source are fixed.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			num_replies = {int:num_replies},
-			unapproved_posts = {int:unapproved_posts}
-		WHERE id_topic = {int:target_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+	);
+	$set = 't.id_first_msg = {int:id_first_msg}, t.id_last_msg = {int:id_last_msg}, t.num_replies = {int:num_replies}, t.unapproved_posts = {int:unapproved_posts}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:target_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'id_first_msg' => $target_topic_data['id_first_msg'],
 			'id_last_msg' => $target_topic_data['id_last_msg'],

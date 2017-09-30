@@ -156,7 +156,7 @@ function Display()
 		SELECT
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
-			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
+			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, t.first_msg_time, t.last_msg_time,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
@@ -202,8 +202,8 @@ function Display()
 	$approve_posts = (allowedTo('approve_posts') || $context['topicinfo']['id_member_started'] == $user_info['id']);
 
 	$context['real_num_replies'] = $context['num_replies'] = $context['topicinfo']['num_replies'];
-	$context['topic_started_time'] = timeformat($context['topicinfo']['topic_started_time']);
-	$context['topic_started_timestamp'] = $context['topicinfo']['topic_started_time'];
+	$context['topic_started_time'] = timeformat($context['topicinfo']['first_msg_time']);
+	$context['topic_started_timestamp'] = $context['topicinfo']['first_msg_time'];
 	$context['topic_poster_name'] = $context['topicinfo']['topic_started_name'];
 	$context['topic_first_message'] = $context['topicinfo']['id_first_msg'];
 	$context['topic_last_message'] = $context['topicinfo']['id_last_msg'];
@@ -677,7 +677,7 @@ function Display()
 			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
 		}
 		$smcFunc['db_free_result']($request);
-		
+
 		// Got we multi choice?
 		if ($pollinfo['max_votes'] > 1)
 			$realtotal = $pollinfo['total'];
@@ -849,13 +849,13 @@ function Display()
 	{
 		// User moved to the next page
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
-		{	
-			$start_char = 'M'; 
+		{
+			$start_char = 'M';
 			$page_id = $_SESSION['page_last_id'];
 		}
 		// User moved to the previous page
 		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
-		{	
+		{
 			$start_char = 'L';
 			$page_id = $_SESSION['page_first_id'];
 		}
@@ -903,7 +903,7 @@ function Display()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic} 
+			WHERE id_topic = {int:current_topic}
 			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
@@ -1319,22 +1319,7 @@ function Display()
 
 	// When was the last time this topic was replied to?  Should we warn them about it?
 	if (!empty($modSettings['oldTopicDays']) && ($context['can_reply'] || $context['can_reply_unapproved']) && empty($context['topicinfo']['is_sticky']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT poster_time
-			FROM {db_prefix}messages
-			WHERE id_msg = {int:id_last_msg}
-			LIMIT 1',
-			array(
-				'id_last_msg' => $context['topicinfo']['id_last_msg'],
-			)
-		);
-
-		list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-
-		$context['oldTopicError'] = $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time();
-	}
+		$context['oldTopicError'] = $context['topicinfo']['last_msg_time'] + $modSettings['oldTopicDays'] * 86400 < time();
 
 	// You can't link an existing topic to the calendar unless you can modify the first post...
 	$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && $context['user']['started']);

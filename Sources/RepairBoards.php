@@ -354,7 +354,7 @@ function loadForumTests()
 				  LEFT JOIN {db_prefix}members AS m ON (m.id_member = t.id_member_started)
 				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				  AND p.id_poll IS NULL
-				GROUP BY o.id_poll
+				GROUP BY o.id_poll, t.id_topic
 				  ',
 			'fix_processing' => function ($row) use ($smcFunc, $txt)
 			{
@@ -575,8 +575,6 @@ function loadForumTests()
 				);
 
 				updateStats('subject', $newTopicID, $txt['salvaged_poll_topic_name']);
-
-
 		},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
@@ -597,11 +595,13 @@ function loadForumTests()
 						MIN(ma.id_msg) END ELSE
 					MIN(mu.id_msg) END AS myid_first_msg,
 					CASE WHEN MAX(ma.id_msg) > 0 THEN MAX(ma.id_msg) ELSE MIN(mu.id_msg) END AS myid_last_msg,
+					t.first_msg_time, t.last_msg_time, mf.poster_time AS first_poster_time, ml.poster_time AS last_poster_time,
 					t.approved, mf.approved, mf.approved AS firstmsg_approved
 				FROM {db_prefix}topics AS t
 					LEFT JOIN {db_prefix}messages AS ma ON (ma.id_topic = t.id_topic AND ma.approved = 1)
 					LEFT JOIN {db_prefix}messages AS mu ON (mu.id_topic = t.id_topic AND mu.approved = 0)
 					LEFT JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
+					LEFT JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				WHERE t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_topic, t.id_first_msg, t.id_last_msg, t.approved, mf.approved
 				ORDER BY t.id_topic',
@@ -612,18 +612,21 @@ function loadForumTests()
 				$row['myid_last_msg'] = (int) $row['myid_last_msg'];
 
 				// Not really a problem?
-				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
+				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'] && $row['first_msg_time'] == $row['first_poster_time'] && $row['last_msg_time'] == $row['last_poster_time'])
 					return false;
 
 				$memberStartedID = (int) getMsgMemberID($row['myid_first_msg']);
 				$memberUpdatedID = (int) getMsgMemberID($row['myid_last_msg']);
 
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}topics
-					SET id_first_msg = {int:myid_first_msg},
-						id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
-						id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
-					WHERE id_topic = {int:topic_id}',
+				$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+				$joined = array(
+					array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
+					array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
+				);
+				$set = 't.id_first_msg = {int:myid_first_msg}, t.id_member_started = {int:memberStartedID}, t.id_last_msg = {int:myid_last_msg}, t.id_member_updated = {int:memberUpdatedID}, t.approved = {int:firstmsg_approved}, t.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
+				$where = 't.id_topic = {int:topic_id}';
+				$smcFunc['db_update_from'](
+					$table, $joined, $set, $where,
 					array(
 						'myid_first_msg' => $row['myid_first_msg'],
 						'memberStartedID' => $memberStartedID,
@@ -637,7 +640,7 @@ function loadForumTests()
 			'message_function' => function ($row) use ($txt, &$context)
 			{
 				// A pretend error?
-				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'])
+				if ($row['id_first_msg'] == $row['myid_first_msg'] && $row['id_last_msg'] == $row['myid_last_msg'] && $row['approved'] == $row['firstmsg_approved'] && $row['first_msg_time'] == $row['first_poster_time'] && $row['last_msg_time'] == $row['last_poster_time'])
 					return false;
 
 				if ($row['id_first_msg'] != $row['myid_first_msg'])
@@ -646,6 +649,8 @@ function loadForumTests()
 					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_2'], $row['id_topic'], $row['id_last_msg']);
 				if ($row['approved'] != $row['firstmsg_approved'])
 					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_5'], $row['id_topic']);
+				if ($row['first_msg_time'] != $row['first_poster_time'] || $row['last_msg_time'] != $row['last_poster_time'])
+					$context['repair_errors'][] = sprintf($txt['repair_topic_times'], $row['id_topic']);
 
 				return true;
 			},

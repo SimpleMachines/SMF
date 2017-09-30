@@ -235,15 +235,15 @@ function MessageIndex()
 		'last_poster' => 'COALESCE(meml.real_name, ml.poster_name)',
 		'replies' => 't.num_replies',
 		'views' => 't.num_views',
-		'first_post' => 't.id_topic',
-		'last_post' => 't.id_last_msg'
+		'first_post' => 't.first_msg_time',
+		'last_post' => 't.last_msg_time'
 	);
 
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
 		$context['sort_by'] = 'last_post';
-		$_REQUEST['sort'] = 'id_last_msg';
+		$_REQUEST['sort'] = 't.last_msg_time';
 		$ascending = isset($_REQUEST['asc']);
 	}
 	// Otherwise default to ascending.

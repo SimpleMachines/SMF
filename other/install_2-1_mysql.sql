@@ -1095,6 +1095,8 @@ CREATE TABLE {$db_prefix}topics (
   id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
   unapproved_posts SMALLINT NOT NULL DEFAULT '0',
   approved TINYINT NOT NULL DEFAULT '1',
+  first_msg_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  last_msg_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_topic),
   UNIQUE idx_last_message (id_last_msg, id_board),
   UNIQUE idx_first_message (id_first_msg, id_board),
@@ -1103,7 +1105,9 @@ CREATE TABLE {$db_prefix}topics (
   INDEX idx_approved (approved),
   INDEX idx_member_started (id_member_started, id_board),
   INDEX idx_last_message_sticky (id_board, is_sticky, id_last_msg),
-  INDEX idx_board_news (id_board, id_first_msg)
+  INDEX idx_board_news (id_board, id_first_msg),
+  INDEX {$db_prefix}topics_first_msg_time (first_msg_time),
+  INDEX {$db_prefix}topics_first_msg_time (last_msg_time)
 ) ENGINE={$engine};
 
 #
