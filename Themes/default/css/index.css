@@ -991,7 +991,7 @@ img.sort, .sort {
 }
 
 /* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header, #footer ul {
+#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 	max-width: 1200px;
 	margin: 0 auto;
 }
@@ -1225,9 +1225,6 @@ ul li.greeting {
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
 	color: #fff;
-}
-#footer ul {
-	padding: 0 5px;
 }
 #footer li.copyright {
 	display: block;
