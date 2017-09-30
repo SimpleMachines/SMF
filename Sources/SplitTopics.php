@@ -689,16 +689,23 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Mess with the old topic's first, last, and number of messages.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			num_replies = {int:num_replies},
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			id_member_started = {int:id_member_started},
-			id_member_updated = {int:id_member_updated},
-			unapproved_posts = {int:unapproved_posts}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = '
+			t.num_replies = {int:num_replies},
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.id_member_started = {int:id_member_started},
+			t.id_member_updated = {int:id_member_updated},
+			t.unapproved_posts = {int:unapproved_posts},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 'id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'num_replies' => $split1_replies,
 			'id_first_msg' => $split1_first_msg,
@@ -711,32 +718,23 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Now, put the first/last message back to what they should be.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = '
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'id_first_msg' => $split2_first_msg,
 			'id_last_msg' => $split2_last_msg,
 			'id_topic' => $split2_ID_TOPIC,
-		)
-	);
-
-	// Ensure both topics have the correct first/last message times
-	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
-	$joined = array(
-		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
-		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
-	);
-	$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
-	$where = 't.id_topic = {int:id_topic1} OR t.id_topic = {int:id_topic2}';
-	$smcFunc['db_update_from'](
-		$table, $joined, $set, $where,
-		array(
-			'id_topic1' => $split1_ID_TOPIC,
-			'id_topic2' => $split2_ID_TOPIC,
 		)
 	);
 
@@ -1709,21 +1707,27 @@ function MergeExecute($topics = array())
 	}
 
 	// Asssign the properties of the newly merged topic.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_board = {int:id_board},
-			id_member_started = {int:id_member_started},
-			id_member_updated = {int:id_member_updated},
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			id_poll = {int:id_poll},
-			num_replies = {int:num_replies},
-			unapproved_posts = {int:unapproved_posts},
-			num_views = {int:num_views},
-			is_sticky = {int:is_sticky},
-			approved = {int:approved}
-		WHERE id_topic = {int:id_topic}',
+	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
+	$joined = array(
+		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 'mf.id_msg = {int:id_first_msg}'),
+		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 'ml.id_msg = {int:id_last_msg}'),
+	);
+	$set = 't.id_board = {int:id_board},
+			t.id_member_started = {int:id_member_started},
+			t.id_member_updated = {int:id_member_updated},
+			t.id_first_msg = {int:id_first_msg},
+			t.id_last_msg = {int:id_last_msg},
+			t.id_poll = {int:id_poll},
+			t.num_replies = {int:num_replies},
+			t.unapproved_posts = {int:unapproved_posts},
+			t.num_views = {int:num_views},
+			t.is_sticky = {int:is_sticky},
+			t.approved = {int:approved},
+			t.first_msg_time = mf.poster_time,
+			t.last_msg_time = ml.poster_time';
+	$where = 't.id_topic = {int:id_topic}';
+	$smcFunc['db_update_from'](
+		$table, $joined, $set, $where,
 		array(
 			'id_board' => $target_board,
 			'is_sticky' => $is_sticky,
@@ -1737,21 +1741,6 @@ function MergeExecute($topics = array())
 			'num_replies' => $num_replies,
 			'unapproved_posts' => $num_unapproved,
 			'num_views' => $num_views,
-		)
-	);
-
-	// Ensure the merged topic has the correct first/last message times
-	$table = array('name' => '{db_prefix}topics', 'alias' => 't');
-	$joined = array(
-		array('name' => '{db_prefix}messages', 'alias' => 'mf', 'condition' => 't.id_first_msg = mf.id_msg'),
-		array('name' => '{db_prefix}messages', 'alias' => 'ml', 'condition' => 't.id_last_msg = ml.id_msg'),
-	);
-	$set = 't.first_msg_time = mf.poster_time, t.last_msg_time = ml.poster_time';
-	$where = 't.id_topic = {int:id_topic}';
-	$smcFunc['db_update_from'](
-		$table, $joined, $set, $where,
-		array(
-			'id_topic' => $id_topic,
 		)
 	);
 
