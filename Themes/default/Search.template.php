@@ -122,8 +122,7 @@ function template_main()
 				<input type="submit" name="b_search" value="', $txt['search'], '" class="button">';
 
 	echo '
-			</div>
-		</fieldset>';
+		</div>';
 
 	if (empty($context['search_params']['topic']))
 	{

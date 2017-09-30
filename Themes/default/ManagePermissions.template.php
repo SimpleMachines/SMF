@@ -254,9 +254,6 @@ function template_permission_index()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mpq_token_var'], '" value="', $context['admin-mpq_token'], '">';
 	}
-	else
-		echo '
-			</table>';
 
 	echo '
 		</form>
