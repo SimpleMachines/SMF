@@ -1854,13 +1854,6 @@ function createSalvageArea()
 
 	}
 
-	$smcFunc['db_query']('alter_table_boards', '
-		ALTER TABLE {db_prefix}boards
-		ORDER BY board_order',
-		array(
-		)
-	);
-
 	// Restore the user's language.
 	loadLanguage('Admin');
 }
