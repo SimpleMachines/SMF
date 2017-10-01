@@ -233,8 +233,8 @@ function showAttachment()
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
 	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0)
-		$smcFunc['db_query']('attach_download_increase', '
-			UPDATE LOW_PRIORITY {db_prefix}attachments
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1
 			WHERE id_attach = {int:id_attach}',
 			array(
