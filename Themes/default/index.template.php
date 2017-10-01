@@ -375,8 +375,7 @@ function template_body_below()
 	</div>
 </div>';
 
-	// Show the XHTML, RSS and WAP2 links, as well as the copyright.
-	// Footer is now full-width by default.
+	// Show the footer with copyright, terms and help links.
 	echo '
 	<div id="footer">
 		<div class="inner_wrap">';
