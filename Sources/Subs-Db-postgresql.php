@@ -318,9 +318,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
-		'attach_download_increase' => array(
-			'~LOW_PRIORITY~' => '',
-		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
 		),
