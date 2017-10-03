@@ -1687,11 +1687,8 @@ function template_profile_theme_settings()
 			continue;
 
 		// Some of these may not be set...  Set to defaults here
-		if ($setting['id'] == 'topics_per_page' && !isset($context['member']['options'][$setting['id']]))
-			$context['member']['options'][$setting['id']] = 0;
-		if ($setting['id'] == 'messages_per_page' && !isset($context['member']['options'][$setting['id']]))
-			$context['member']['options'][$setting['id']] = 0;
-		if ($setting['id'] == 'display_quick_mod' && !isset($context['member']['options'][$setting['id']]))
+		$opts = array('topics_per_page', 'messages_per_page', 'display_quick_mod');
+		if (in_array($setting['id'], $opts) && !isset($context['member']['options'][$setting['id']]))
 			$context['member']['options'][$setting['id']] = 0;
 
 		if (!isset($setting['type']) || $setting['type'] == 'bool')
