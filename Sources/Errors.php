@@ -41,10 +41,10 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	// are we in a loop?
 	if($error_call > 2)
 	{
-		$backtrace = debug_backtrace();
 		if (!isset($db_show_debug) || $db_show_debug === false)
-			for ($i = 0; $i < count($backtrace); $i++)
-				unset($backtrace[$i]['args']);
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		else
+			$backtrace = debug_backtrace();
 		var_dump($backtrace);
 		die('Error loop.');
 	}
