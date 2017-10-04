@@ -1241,7 +1241,7 @@ function DatabasePopulation()
 		if (!empty($url_parts['host']) && (filter_var($url_parts['host'], FILTER_VALIDATE_IP) === false))
 		{
 			// www isn't really a subdomain in this sense, so strip it out
-			$url_parts['host'] = strtr($url_parts['host'], array('www.' => ''));
+			$url_parts['host'] = str_ireplace('www.', '', $url_parts['host']);
 			$pos1 = strrpos($url_parts['host'], '.');
 			if ($pos1 !== false)
 			{
