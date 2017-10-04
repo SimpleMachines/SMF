@@ -32,8 +32,22 @@ if (!defined('SMF'))
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error, $context;
+	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error, $context, $db_show_debug;
 	static $tried_hook = false;
+	static $error_call = 0;
+
+	$error_call++;
+
+	// are we in a loop?
+	if($error_call > 2)
+	{
+		$backtrace = debug_backtrace();
+		if (!isset($db_show_debug) || $db_show_debug === false)
+			for ($i = 0; $i < count($backtrace); $i++)
+				unset($backtrace[$i]['args']);
+		var_dump($backtrace);
+		die('Error loop.');
+	}
 
 	// Check if error logging is actually on.
 	if (empty($modSettings['enableErrorLogging']))
@@ -117,6 +131,9 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		// Increment our error count for the menu
 		$context['num_errors']++;
 	}
+
+	// reset error call
+	$error_call = 0;
 
 	// Return the message to make things simpler.
 	return $error_message;
