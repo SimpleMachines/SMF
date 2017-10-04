@@ -1026,7 +1026,10 @@ function smf_db_error_insert($error_array)
 													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?)'
 			);
 
-	$error_array[2] = bin2hex(inet_pton($error_array[2]));
+	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)
+		$error_array[2] = bin2hex(inet_pton($error_array[2]));
+	else
+		$error_array[2] = null;
 	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi', 
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
 		$error_array[7], $error_array[8]);
