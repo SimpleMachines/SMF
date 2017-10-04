@@ -61,6 +61,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_mb4' => true,
 			'db_ping' => 'pg_ping',
 			'db_fetch_all' => 'smf_db_fetch_all',
+			'db_error_insert' => 'smf_db_error_insert',
 		);
 
 	if (!empty($db_options['persist']))
@@ -972,6 +973,26 @@ function smf_db_fetch_all($request)
 {
 	// Return the right row.
 	return @pg_fetch_all($request);
+}
+
+/**
+ * Function to safe errors in database in a safe way
+ *
+ * @param array with keys in this order id_member, log_time, ip, url, message, session, error_type, file, line
+ * @return void
+ */
+function smf_db_error_insert($error_array)
+{
+	global  $db_prefix, $db_connection;
+	static $pg_error_data_prep;
+
+	if (empty($pg_error_data_prep))
+			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
+													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9)'
+			);
+
+	pg_execute($db_connection, 'smf_log_errors', $error_array);
 }
 
 ?>
