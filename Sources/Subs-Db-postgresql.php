@@ -976,7 +976,7 @@ function smf_db_fetch_all($request)
 }
 
 /**
- * Function to safe errors in database in a safe way
+ * Function to save errors in database in a safe way
  *
  * @param array with keys in this order id_member, log_time, ip, url, message, session, error_type, file, line
  * @return void
