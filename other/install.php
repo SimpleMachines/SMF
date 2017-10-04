@@ -1237,7 +1237,8 @@ function DatabasePopulation()
 		unset($globalCookies, $globalCookiesDomain, $localCookies);
 
 		// Look for subdomain, if found, set globalCookie settings
-		if (!empty($url_parts['host']))
+		// Don't bother looking if you have an ip address for host
+		if (!empty($url_parts['host']) && (filter_var($url_parts['host'], FILTER_VALIDATE_IP) === false))
 		{
 			// www isn't really a subdomain in this sense, so strip it out
 			$url_parts['host'] = strtr($url_parts['host'], array('www.' => ''));
