@@ -469,12 +469,17 @@ function loadUserSettings()
 
 			// Wrong password or not activated - either way, you're going nowhere.
 			$id_member = $check && ($user_settings['is_activated'] == 1 || $user_settings['is_activated'] == 11) ? (int) $user_settings['id_member'] : 0;
+			if ($id_member === 0 && isset($_COOKIE[$cookiename]))
+			{
+				setLoginCookie(-3600, 0);
+				$user_settings = array();
+			}
 		}
 		else
 			$id_member = 0;
 
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
-		if (!$id_member)
+		if (!empty($id_member))
 		{
 			require_once($sourcedir . '/LogInOut.php');
 			validatePasswordFlood(
@@ -553,6 +558,10 @@ function loadUserSettings()
 
 			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
 				redirectexit('action=profile;area=tfasetup;forced');
+		}
+		else if (!empty($user_settings) && empty($id_member))
+		{
+			$user_settings = array();
 		}
 	}
 
