@@ -60,7 +60,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_mb4'                    => false,
 			'db_ping'                   => 'mysqli_ping',
 			'db_fetch_all'              => 'smf_db_fetch_all',
-			'db_error_insert' => 'smf_db_error_insert',
+			'db_error_insert'			=> 'smf_db_error_insert',
 		);
 
 	if (!empty($db_options['persist']))
