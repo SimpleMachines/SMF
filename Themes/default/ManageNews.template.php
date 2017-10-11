@@ -283,9 +283,9 @@ function template_email_members_compose()
 						{
 							// Handle the WYSIWYG editor.
 							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
-								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).php_to8bit().php_urlencode();
 							else
-								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.php_to8bit().php_urlencode();
 						}
 					for (var i = 0, n = checkboxFields.length; i < n; i++)
 						if (checkboxFields[i] in document.forms.newsmodify && document.forms.newsmodify.elements[checkboxFields[i]].checked)
