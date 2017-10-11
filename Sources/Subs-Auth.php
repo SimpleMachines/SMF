@@ -52,7 +52,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 			if (isset($_COOKIE[$cookiename]['path']))
 				$cookie_url[1] = $_COOKIE[$cookiename]['path'];
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, 'path' => $cookie_url[1])), time() - 3600, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, 'path' => $cookie_url[1])), 1, $cookie_url[1], $cookie_url[0]);
 		}
 	}
 
