@@ -1443,7 +1443,7 @@ function smc_saveEntities(sFormName, aElementNames, sMask)
 	for (var i = 0, n = aElementNames.length; i < n; i++)
 	{
 		if (aElementNames[i] in document.forms[sFormName])
-			document.forms[sFormName][aElementNames[i]].value = document.forms[sFormName][aElementNames[i]].value.replace(/&#/g, '&#38;#');
+			document.forms[sFormName][aElementNames[i]].value = document.forms[sFormName][aElementNames[i]].value;
 	}
 }
 
