@@ -1430,23 +1430,6 @@ function smfSelectText(oCurElement, bActOnElement)
 	return false;
 }
 
-// A function needed to discern HTML entities from non-western characters.
-function smc_saveEntities(sFormName, aElementNames, sMask)
-{
-	if (typeof(sMask) == 'string')
-	{
-		for (var i = 0, n = document.forms[sFormName].elements.length; i < n; i++)
-			if (document.forms[sFormName].elements[i].id.substr(0, sMask.length) == sMask)
-				aElementNames[aElementNames.length] = document.forms[sFormName].elements[i].name;
-	}
-
-	for (var i = 0, n = aElementNames.length; i < n; i++)
-	{
-		if (aElementNames[i] in document.forms[sFormName])
-			document.forms[sFormName][aElementNames[i]].value = document.forms[sFormName][aElementNames[i]].value;
-	}
-}
-
 // A function used to clean the attachments on post page
 function cleanFileInput(idElement)
 {
