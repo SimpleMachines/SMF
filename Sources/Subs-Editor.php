@@ -2136,7 +2136,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		if ($thisVerification['can_recaptcha'])
 		{
-			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key']);
+			$reCaptcha = new \ReCaptcha\ReCaptcha($modSettings['recaptcha_secret_key'], new \ReCaptcha\RequestMethod\SocketPost());
 
 			// Was there a reCAPTCHA response?
 			if (isset($_POST['g-recaptcha-response']))
