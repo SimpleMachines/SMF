@@ -120,6 +120,14 @@ class xcache_cache extends cache_api
 				$("#xcache_adminpass").prop("disabled", cache_type != "xcache");
 			});';
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		return XCACHE_VERSION;
+	}
 }
 
 ?>

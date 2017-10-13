@@ -203,6 +203,16 @@ class smf_cache extends cache_api
 	{
 		return $this->cachedir;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		global $forum_version;
+
+		return isset($forum_version) ? $forum_version : '2.1';
+	}
 }
 
 ?>

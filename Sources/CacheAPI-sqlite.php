@@ -37,12 +37,10 @@ class sqlite_cache extends cache_api
 
 	public function __construct()
 	{
-
 		parent::__construct();
 
 		// Set our default cachedir.
 		$this->setCachedir();
-
 	}
 
 	/**
@@ -71,9 +69,7 @@ class sqlite_cache extends cache_api
 		$supported = class_exists("SQLite3") && is_writable($this->cachedir);
 
 		if ($test)
-		{
 			return $supported;
-		}
 
 		return parent::isSupported() && $supported;
 	}
@@ -89,9 +85,7 @@ class sqlite_cache extends cache_api
 
 		$value = null;
 		while ($res = $result->fetchArray(SQLITE3_ASSOC))
-		{
 			$value = $res['value'];
-		}
 
 		return !empty($value) ? $value : null;
 	}
@@ -119,7 +113,6 @@ class sqlite_cache extends cache_api
 		$result = $this->cacheDB->exec($query);
 
 		return $result;
-
 	}
 
 	/**
@@ -133,9 +126,7 @@ class sqlite_cache extends cache_api
 		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
-		{
 			$context['settings_post_javascript'] = '';
-		}
 
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
@@ -159,15 +150,19 @@ class sqlite_cache extends cache_api
 
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
-		{
 			$this->cachedir = $cachedir_sqlite;
-		}
 		else
-		{
 			$this->cachedir = $dir;
-		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getVersion()
+	{
+		$temp = $this->cacheDB->version();
+		return $temp['versionString'];
+	}
 }
 
 ?>
