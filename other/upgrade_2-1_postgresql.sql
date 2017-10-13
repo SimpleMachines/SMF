@@ -43,11 +43,11 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 
 ---# Creating login history table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
-	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
-	id_member int NOT NULL,
-	time int NOT NULL,
-	ip varchar(255) NOT NULL default '',
-	ip2 varchar(255) NOT NULL default '',
+	id_login int DEFAULT nextval('{$db_prefix}member_logins_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	time int NOT NULL DEFAULT '0',
+	ip inet,
+	ip2 inet,
 	PRIMARY KEY (id_login)
 );
 ---#
@@ -613,11 +613,11 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 
 ---# Adding the table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-	id_task int default nextval('{$db_prefix}background_tasks_seq'),
-	task_file varchar(255) NOT NULL default '',
-	task_class varchar(255) NOT NULL default '',
+	id_task bigint DEFAULT nextval('{$db_prefix}background_tasks_seq'),
+	task_file varchar(255) NOT NULL DEFAULT '',
+	task_class varchar(255) NOT NULL DEFAULT '',
 	task_data text NOT NULL,
-	claimed_time int NOT NULL default '0',
+	claimed_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_task)
 );
 ---#
@@ -725,15 +725,15 @@ ADD COLUMN alerts int NOT NULL default '0';
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
-	id_alert int default nextval('{$db_prefix}user_alerts_seq'),
-	alert_time int NOT NULL default '0',
-	id_member int NOT NULL default '0',
-	id_member_started int NOT NULL default '0',
-	member_name varchar(255) NOT NULL default '',
-	content_type varchar(255) NOT NULL default '',
-	content_id int NOT NULL default '0',
-	content_action varchar(255) NOT NULL default '',
-	is_read int NOT NULL default '0',
+	id_alert bigint DEFAULT nextval('{$db_prefix}user_alerts_seq'),
+	alert_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_member_started bigint NOT NULL DEFAULT '0',
+	member_name varchar(255) NOT NULL DEFAULT '',
+	content_type varchar(255) NOT NULL DEFAULT '',
+	content_id bigint NOT NULL DEFAULT '0',
+	content_action varchar(255) NOT NULL DEFAULT '',
+	is_read bigint NOT NULL DEFAULT '0',
 	extra text NOT NULL,
 	PRIMARY KEY (id_alert)
 );
@@ -744,9 +744,9 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 
 ---# Adding alert preferences.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-	id_member int NOT NULL default '0',
-	alert_pref varchar(32) NOT NULL default '',
-	alert_value smallint NOT NULL default '0',
+	id_member int NOT NULL DEFAULT '0',
+	alert_pref varchar(32) NOT NULL DEFAULT '',
+	alert_value smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, alert_pref)
 );
 
@@ -1190,20 +1190,20 @@ ALTER TABLE {$db_prefix}members
 CREATE SEQUENCE {$db_prefix}user_drafts_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-	id_draft int NOT NULL default nextval('{$db_prefix}user_drafts_seq'),
-	id_topic int NOT NULL default '0',
-	id_board smallint NOT NULL default '0',
-	id_reply int NOT NULL default '0',
-	type smallint NOT NULL default '0',
-	poster_time int NOT NULL default '0',
-	id_member int NOT NULL default '0',
-	subject varchar(255) NOT NULL default '',
-	smileys_enabled smallint NOT NULL default '1',
+	id_draft bigint DEFAULT nextval('{$db_prefix}user_drafts_seq'),
+	id_topic int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_reply bigint NOT NULL DEFAULT '0',
+	type smallint NOT NULL DEFAULT '0',
+	poster_time int NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	subject varchar(255) NOT NULL DEFAULT '',
+	smileys_enabled smallint NOT NULL DEFAULT '1',
 	body text NOT NULL,
-	icon varchar(16) NOT NULL default 'xx',
-	locked smallint NOT NULL default '0',
-	is_sticky smallint NOT NULL default '0',
-	to_list varchar(255) NOT NULL default '',
+	icon varchar(16) NOT NULL DEFAULT 'xx',
+	locked smallint NOT NULL DEFAULT '0',
+	is_sticky smallint NOT NULL DEFAULT '0',
+	to_list varchar(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_draft)
 );
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
@@ -1274,10 +1274,10 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-	id_member int NOT NULL default '0',
-	content_type char(6) default '',
-	content_id int NOT NULL default '0',
-	like_time int NOT NULL default '0',
+	id_member int NOT NULL DEFAULT '0',
+	content_type char(6) DEFAULT '',
+	content_id int NOT NULL DEFAULT '0',
+	like_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
 
@@ -1295,11 +1295,11 @@ ADD COLUMN likes smallint NOT NULL default '0';
 /******************************************************************************/
 ---# Creating mentions table
 CREATE TABLE  {$db_prefix}mentions (
-	content_id int NOT NULL default '0',
-	content_type varchar(10) default '',
-	id_mentioned int NOT NULL default 0,
-	id_member int NOT NULL default 0,
-	time int NOT NULL default 0,
+	content_id int DEFAULT '0',
+	content_type varchar(10) DEFAULT '',
+	id_mentioned int DEFAULT 0,
+	id_member int NOT NULL DEFAULT 0,
+	time int NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
@@ -1312,8 +1312,8 @@ CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
 /******************************************************************************/
 ---# Creating moderator_groups table
 CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
-	id_board smallint NOT NULL default '0',
-	id_group smallint NOT NULL default '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_group smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_board, id_group)
 );
 ---#
@@ -1490,9 +1490,9 @@ $smcFunc['db_free_result']($file_check);
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-	id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
-	lngfile varchar(255) NOT NULL default '',
-	question varchar(255) NOT NULL default '',
+	id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
+	lngfile varchar(255) NOT NULL DEFAULT '',
+	question varchar(255) NOT NULL DEFAULT '',
 	answers text NOT NULL,
 	PRIMARY KEY (id_question)
 );
@@ -1655,17 +1655,17 @@ CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
-	id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
-	id_member int NOT NULL default '0',
-	name varchar(30) NOT NULL default '',
+	id_label bigint NOT NULL DEFAULT nextval('{$db_prefix}pm_labels_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	name varchar(30) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_label)
 );
 ---#
 
 ---# Adding pm_labeled_messages table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
-	id_label int NOT NULL default '0',
-	id_pm int NOT NULL default '0',
+	id_label bigint NOT NULL DEFAULT '0',
+	id_pm bigint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_label, id_pm)
 );
 ---#
