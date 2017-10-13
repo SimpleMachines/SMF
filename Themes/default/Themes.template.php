@@ -377,7 +377,7 @@ function template_set_options()
 		}
 
 		echo '
-					<dt ', $context['theme_options_reset'] ? 'style="width:50%"' : '', '>';
+					<dt>';
 
 		// Show the change option box ?
 		if ($context['theme_options_reset'])
@@ -400,7 +400,7 @@ function template_set_options()
 		if ($setting['type'] == 'checkbox')
 		{
 			echo '
-					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
+					<dd>
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="floatleft">';
 		}
@@ -408,8 +408,8 @@ function template_set_options()
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
-					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
-						&nbsp;<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled' : '', '>';
+					<dd>
+						<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled' : '', '>';
 
 			foreach ($setting['options'] as $value => $label)
 			{
@@ -424,7 +424,7 @@ function template_set_options()
 		else
 		{
 			echo '
-					<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>';
+					<dd>';
 
 			if (isset($setting['type']) && $setting['type'] == 'number')
 			{
@@ -520,19 +520,19 @@ function template_set_settings()
 						<label for="theme_url">', $txt['actual_theme_url'], '</label>
 					</dt>
 					<dd>
-						<input type="text" id="theme_url" name="options[theme_url]" value="', $context['theme_settings']['actual_theme_url'], '" size="50" style="max-width: 100%; width: 50ex;">
+						<input type="text" id="theme_url" name="options[theme_url]" value="', $context['theme_settings']['actual_theme_url'], '" size="50">
 					</dd>
 					<dt>
 						<label for="images_url">', $txt['actual_images_url'], '</label>
 					</dt>
 					<dd>
-						<input type="text" id="images_url" name="options[images_url]" value="', $context['theme_settings']['actual_images_url'], '" size="50" style="max-width: 100%; width: 50ex;">
+						<input type="text" id="images_url" name="options[images_url]" value="', $context['theme_settings']['actual_images_url'], '" size="50">
 					</dd>
 					<dt>
 						<label for="theme_dir">', $txt['actual_theme_dir'], '</label>
 					</dt>
 					<dd>
-						<input type="text" id="theme_dir" name="options[theme_dir]" value="', $context['theme_settings']['actual_theme_dir'], '" size="50" style="max-width: 100%; width: 50ex;">
+						<input type="text" id="theme_dir" name="options[theme_dir]" value="', $context['theme_settings']['actual_theme_dir'], '" size="50">
 					</dd>
 				</dl>
 			</div>';
@@ -1107,7 +1107,7 @@ function template_edit_style()
 				}
 			}
 		</script>
-		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" width="99%" height="300" frameborder="0" style="display: none; margin-bottom: 2ex; border: 1px solid black;"></iframe>';
+		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" frameborder="0" style="display: none;"></iframe>';
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
@@ -1122,9 +1122,10 @@ function template_edit_style()
 				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br>';
 
 	echo '
-				<textarea name="entire_file" cols="80" rows="20" style="width: 96%; font-family: monospace; margin-top: 1ex; white-space: pre;" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea><br>
+				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea>
+				<br>
 				<div class="padding righttext">
-					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' style="margin-top: 1ex;" class="button">
+					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 					<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button">
 				</div>
 			</div>

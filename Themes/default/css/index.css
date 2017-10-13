@@ -991,7 +991,7 @@ img.sort, .sort {
 }
 
 /* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header, #footer ul {
+#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 	max-width: 1200px;
 	margin: 0 auto;
 }
@@ -1225,9 +1225,6 @@ ul li.greeting {
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
 	color: #fff;
-}
-#footer ul {
-	padding: 0 5px;
 }
 #footer li.copyright {
 	display: block;
@@ -2140,6 +2137,9 @@ dl {
 #avatar_upload {
 	overflow: auto;
 }
+#smileypr {
+	margin-left: 10px;
+}
 
 /* Activity by time */
 #activitytime {
@@ -2202,6 +2202,7 @@ dl {
 	float: left;
 }
 .topic_details {
+	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -2744,6 +2745,12 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 #groups .padding {
 	margin: 0 0 25px 0;
+}
+.groupmembership textarea {
+	width: 100%;
+}
+.groupmembership .righttext {
+	margin-top: 1ex;
 }
 
 /* BoardIndex */
@@ -3813,7 +3820,16 @@ input[name="attachBBC"] {
 .tfacode {
 	background: #d0e7f8;
 	padding: 5px;
-	width: 20%;
+	display: inline-block;
+}
+
+/* TFA QR block */
+.tfa_qrcode {
+	padding: 6% 8%;
+}
+
+.tfa_qrcode img {
+	width: 140px;
 }
 
 /* This was named as "winfo" before, but its better named noup */

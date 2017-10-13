@@ -584,7 +584,7 @@ function template_convert_msgbody()
 	if (!empty($context['exceeding_messages']))
 	{
 		echo '
-			<p class="noticebox">', $txt['exceeding_messages'], '
+			<p class="noticebox">', $txt['exceeding_messages'], '</p>
 			<ul>
 				<li>
 				', implode('</li><li>', $context['exceeding_messages']), '

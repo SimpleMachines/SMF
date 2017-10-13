@@ -1541,7 +1541,7 @@ function template_edit_options()
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
 					</dt>
 					<dd>
-						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;">
+						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20">
 					</dd>
 				</dl>';
 
@@ -1995,8 +1995,8 @@ function template_groupMembership()
 				</div>
 				<div class="roundframe">
 					', $txt['request_group_membership_desc'], ':
-					<textarea name="reason" rows="4" style="width: 99%;"></textarea>
-					<div class="righttext" style="margin: 0.5em 0.5% 0 0.5%;">
+					<textarea name="reason" rows="4"></textarea>
+					<div class="righttext">
 						<input type="hidden" name="gid" value="', $context['group_request']['id'], '">
 						<input type="submit" name="req" value="', $txt['submit_request'], '" class="button">
 					</div>
@@ -2395,8 +2395,9 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank">', $txt['profile_warning_new_template'], '</a>]</span><br>
-					<textarea name="warn_body" id="warn_body" cols="40" rows="8" style="min-width: 50%; max-width: 99%;">', $context['warning_data']['notify_body'], '</textarea>
+					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank">', $txt['profile_warning_new_template'], '</a>]</span>
+					<br>
+					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', $context['warning_data']['notify_body'], '</textarea>
 				</dd>';
 	}
 	echo '
@@ -2583,7 +2584,7 @@ function template_profile_save()
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="oldpasswrd" size="20" style="margin-right: 4ex;">
+							<input type="password" name="oldpasswrd" size="20">
 						</dd>
 					</dl>';
 
@@ -2734,7 +2735,7 @@ function template_profile_signature_modify()
 		echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50" style="min-width: 50%; max-width: 99%;">', $context['member']['signature'], '</textarea><br>';
+								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br>';
 
 	// If there is a limit at all!
 	if (!empty($context['signature_limits']['max_length']))
@@ -2950,7 +2951,7 @@ function template_profile_timeformat_modify()
 								<span class="smalltext">&nbsp;<label for="time_format">', $txt['date_format'], '</label></span>
 							</dt>
 							<dd>
-								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;" style="margin-bottom: 4px;">';
+								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;">';
 	// Help the user by showing a list of common time formats.
 	foreach ($context['easy_timeformats'] as $time_format)
 		echo '
@@ -2994,7 +2995,8 @@ function template_profile_smiley_pick()
 		echo '
 									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
 	echo '
-								</select> <img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.gif' : $settings['images_url'] . '/blank.png', '" alt=":)"  style="padding-left: 20px;">
+								</select>
+								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.gif' : $settings['images_url'] . '/blank.png', '" alt=":)">
 							</dd>';
 }
 
@@ -3016,12 +3018,12 @@ function template_tfasetup()
 			($modSettings['tfa_mode'] == 2 ? '
 									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
-									<div id="basicinfo" style="width: 60%">
+									<div class="floatleft">
 										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
 											<div class="title_top">
 												<strong>', $txt['tfa_step1'], '</strong><br>
 												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
-												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
+												<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
 											</div>
 											<div class="title_top">
 												<strong>', $txt['tfa_step2'], '</strong>
@@ -3031,17 +3033,16 @@ function template_tfasetup()
 											<div class="title_top">
 												<strong>', $txt['tfa_step3'], '</strong><br>
 												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
-												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
-												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button" style="float: none;" />
+												<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
+												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
 											</div>
 											<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
 											<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 										</form>
 									</div>
-									<div id="detailedinfo" style="width: 30%;">
-										<img src="', $context['tfa_qr_url'], '" alt="" style="max-width: 120px;" />
-									</div>
-									<div class="clear"></div>';
+									<div class="floatright tfa_qrcode">
+										<img src="', $context['tfa_qr_url'], '" alt="">
+									</div>';
 
 	if (!empty($context['from_ajax']))
 		echo '

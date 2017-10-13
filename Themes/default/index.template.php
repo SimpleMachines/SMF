@@ -375,10 +375,10 @@ function template_body_below()
 	</div>
 </div>';
 
-	// Show the XHTML, RSS and WAP2 links, as well as the copyright.
-	// Footer is now full-width by default.
+	// Show the footer with copyright, terms and help links.
 	echo '
-	<div id="footer">';
+	<div id="footer">
+		<div class="inner_wrap">';
 
 	// There is now a global "Go to top" link at the right.
 		echo '
@@ -393,6 +393,7 @@ function template_body_below()
 		<p>', sprintf($txt['page_created_full'], $context['load_time'], $context['load_queries']), '</p>';
 
 	echo '
+		</div>
 	</div>';
 
 }
