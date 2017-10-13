@@ -36,31 +36,32 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
 		$smcFunc += array(
-			'db_query' => 'smf_db_query',
-			'db_quote' => 'smf_db_quote',
-			'db_insert' => 'smf_db_insert',
-			'db_insert_id' => 'smf_db_insert_id',
-			'db_fetch_assoc' => 'smf_db_fetch_assoc',
-			'db_fetch_row' => 'smf_db_fetch_row',
-			'db_free_result' => 'pg_free_result',
-			'db_num_rows' => 'pg_num_rows',
-			'db_data_seek' => 'smf_db_data_seek',
-			'db_num_fields' => 'pg_num_fields',
-			'db_escape_string' => 'pg_escape_string',
-			'db_unescape_string' => 'smf_db_unescape_string',
-			'db_server_info' => 'smf_db_version',
-			'db_affected_rows' => 'smf_db_affected_rows',
-			'db_transaction' => 'smf_db_transaction',
-			'db_error' => 'pg_last_error',
-			'db_select_db' => 'smf_db_select_db',
-			'db_title' => 'PostgreSQL',
-			'db_sybase' => true,
-			'db_case_sensitive' => true,
+			'db_query'					=> 'smf_db_query',
+			'db_quote'					=> 'smf_db_quote',
+			'db_insert'					=> 'smf_db_insert',
+			'db_insert_id'				=> 'smf_db_insert_id',
+			'db_fetch_assoc'			=> 'smf_db_fetch_assoc',
+			'db_fetch_row'				=> 'smf_db_fetch_row',
+			'db_free_result'			=> 'pg_free_result',
+			'db_num_rows'				=> 'pg_num_rows',
+			'db_data_seek'				=> 'smf_db_data_seek',
+			'db_num_fields'				=> 'pg_num_fields',
+			'db_escape_string'			=> 'pg_escape_string',
+			'db_unescape_string'		=> 'smf_db_unescape_string',
+			'db_server_info'			=> 'smf_db_version',
+			'db_affected_rows'			=> 'smf_db_affected_rows',
+			'db_transaction'			=> 'smf_db_transaction',
+			'db_error'					=> 'pg_last_error',
+			'db_select_db'				=> 'smf_db_select_db',
+			'db_title'					=> 'PostgreSQL',
+			'db_sybase'					=> true,
+			'db_case_sensitive'			=> true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
-			'db_is_resource' => 'is_resource',
-			'db_mb4' => true,
-			'db_ping' => 'pg_ping',
-			'db_fetch_all' => 'smf_db_fetch_all',
+			'db_is_resource'			=> 'is_resource',
+			'db_mb4'					=> true,
+			'db_ping'					=> 'pg_ping',
+			'db_fetch_all'				=> 'smf_db_fetch_all',
+			'db_error_insert'			=> 'smf_db_error_insert',
 		);
 
 	if (!empty($db_options['persist']))
@@ -972,6 +973,26 @@ function smf_db_fetch_all($request)
 {
 	// Return the right row.
 	return @pg_fetch_all($request);
+}
+
+/**
+ * Function to save errors in database in a safe way
+ *
+ * @param array with keys in this order id_member, log_time, ip, url, message, session, error_type, file, line
+ * @return void
+ */
+function smf_db_error_insert($error_array)
+{
+	global  $db_prefix, $db_connection;
+	static $pg_error_data_prep;
+
+	if (empty($pg_error_data_prep))
+			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
+													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9)'
+			);
+
+	pg_execute($db_connection, 'smf_log_errors', $error_array);
 }
 
 ?>
