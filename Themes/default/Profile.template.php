@@ -1681,12 +1681,15 @@ function template_profile_theme_settings()
 			continue;
 		elseif ($setting['id'] == 'wysiwyg_default' && !empty($modSettings['disable_wysiwyg']))
 			continue;
-		elseif ($setting['id'] == 'topics_per_page' && !empty($modSettings['disableCustomPerPage']))
-			continue;
 		elseif ($setting['id'] == 'drafts_autosave_enabled' && (empty($modSettings['drafts_autosave_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
 			continue;
 		elseif ($setting['id'] == 'drafts_show_saved_enabled' && (empty($modSettings['drafts_show_saved_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
 			continue;
+
+		// Some of these may not be set...  Set to defaults here
+		$opts = array('topics_per_page', 'messages_per_page', 'display_quick_mod');
+		if (in_array($setting['id'], $opts) && !isset($context['member']['options'][$setting['id']]))
+			$context['member']['options'][$setting['id']] = 0;
 
 		if (!isset($setting['type']) || $setting['type'] == 'bool')
 			$setting['type'] = 'checkbox';
