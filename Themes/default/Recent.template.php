@@ -29,51 +29,51 @@ function template_recent()
 	if (empty($context['posts']))
 	{
 		echo '
-			<div class="windowbg">', $txt['no_messages'], '</div>';
+		<div class="windowbg">', $txt['no_messages'], '</div>';
 	}
 
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['css_class'], '">
-					<div class="counter">', $post['counter'], '</div>
-					<div class="topic_details">
-						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-						<span class="smalltext">', $txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
-					</div>
-					<div class="list_posts">', $post['message'], '</div>';
+		<div class="', $post['css_class'], '">
+			<div class="counter">', $post['counter'], '</div>
+			<div class="topic_details">
+				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
+				<span class="smalltext">', $txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
+			</div>
+			<div class="list_posts">', $post['message'], '</div>';
 
 		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 			echo '
-					<ul class="quickbuttons">';
+			<ul class="quickbuttons">';
 
 		// If they *can* reply?
 		if ($post['can_reply'])
 			echo '
-						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 		// If they *can* quote?
 		if ($post['can_quote'])
 			echo '
-						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 		// How about... even... remove it entirely?!
 		if ($post['can_delete'])
 			echo '
-						<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
+				<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
 
 		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 			echo '
-					</ul>';
+			</ul>';
 
 		echo '
-			</div>';
+		</div><!-- $post[css_class] -->';
 
 	}
 
 	echo '
 		<div class="pagesection">', $context['page_index'], '</div>
-	</div>';
+	</div><!-- #recent -->';
 }
 
 /**
@@ -127,7 +127,7 @@ function template_unread()
 					</div>';
 
 		echo '
-				</div>
+				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
 		foreach ($context['topics'] as $topic)
@@ -164,7 +164,7 @@ function template_unread()
 								', $topic['first_post']['started_by'], '
 							</p>
 							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
-						</div>
+						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
 								', $topic['replies'], ' ', $txt['replies'], '
@@ -183,16 +183,16 @@ function template_unread()
 						</div>';
 
 				echo '
-					</div>';
+					</div><!-- $topic[css_class] -->';
 		}
 
 		if (empty($context['topics']))
 			echo '
-						<div style="display: none;"></div>';
+					<div style="display: none;"></div>';
 
 		echo '
-				</div>
-			</div>';
+				</div><!-- #topic_container -->
+			</div><!-- #unread -->';
 
 		echo '
 			<div class="pagesection">
@@ -217,7 +217,7 @@ function template_unread()
 		</form>';
 
 	echo '
-	</div>';
+	</div><!-- #recent -->';
 
 	if (empty($context['no_topic_listing']))
 		template_topic_legend();
@@ -274,67 +274,67 @@ function template_replies()
 					</div>';
 
 		echo '
-				</div>
+				</div><!-- #topic_header -->
 				<div id="topic_container">';
 
 		foreach ($context['topics'] as $topic)
 		{
 			echo '
-						<div class="', $topic['css_class'], '">
-							<div class="board_icon">
-								<img src="', $topic['first_post']['icon_url'], '" alt="">
-								', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
-							</div>
-							<div class="info">';
+					<div class="', $topic['css_class'], '">
+						<div class="board_icon">
+							<img src="', $topic['first_post']['icon_url'], '" alt="">
+							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+						</div>
+						<div class="info">';
 
 			// Now we handle the icons
 			echo '
-								<div class="icons floatright">';
+							<div class="icons floatright">';
 			if ($topic['is_locked'])
 				echo '
-									<span class="generic_icons lock"></span>';
+								<span class="generic_icons lock"></span>';
 			if ($topic['is_sticky'])
 				echo '
-									<span class="generic_icons sticky"></span>';
+								<span class="generic_icons sticky"></span>';
 			if ($topic['is_poll'])
 				echo '
-									<span class="generic_icons poll"></span>';
+								<span class="generic_icons poll"></span>';
 			echo '
-								</div>';
+							</div>';
 
 			echo '
-								<div class="recent_title">
-									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
-									', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
-								</div>
-								<p class="floatleft">
-									', $topic['first_post']['started_by'], '
-								</p>
-								<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+							<div class="recent_title">
+								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
+								', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
-							<div class="board_stats centertext">
-								<p>
-									', $topic['replies'], ' ', $txt['replies'], '
-									<br>
-									', $topic['views'], ' ', $txt['views'], '
-								</p>
-							</div>
-							<div class="lastpost">
-								', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
-							</div>';
+							<p class="floatleft">
+								', $topic['first_post']['started_by'], '
+							</p>
+							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+						</div><!-- .info -->
+						<div class="board_stats centertext">
+							<p>
+								', $topic['replies'], ' ', $txt['replies'], '
+								<br>
+								', $topic['views'], ' ', $txt['views'], '
+							</p>
+						</div>
+						<div class="lastpost">
+							', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
+						</div>';
 
 			if ($context['showCheckboxes'])
 				echo '
-							<div class="moderation">
-								<input type="checkbox" name="topics[]" value="', $topic['id'], '">
-							</div>';
-			echo '
+						<div class="moderation">
+							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
+			echo '
+					</div><!-- $topic[css_class] -->';
 		}
 
 		echo '
-					</div>
-			</div>
+				</div><!-- #topic_container -->
+			</div><!-- #unreadreplies -->
 			<div class="pagesection">
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 				', $context['menu_separator'], '
@@ -357,7 +357,7 @@ function template_replies()
 		</form>';
 
 	echo '
-	</div>';
+	</div><!-- #recent -->';
 
 	if (empty($context['no_topic_listing']))
 		template_topic_legend();

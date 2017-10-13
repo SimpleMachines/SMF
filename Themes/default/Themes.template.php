@@ -102,7 +102,7 @@ function template_main()
 				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>';
 
 	// Link to simplemachines.org for latest themes and info!
@@ -166,11 +166,11 @@ function template_main()
 				</fieldset>';
 
 	echo '
-			</div>
-		</div>';
+			</div><!-- .windowbg2 -->
+		</div><!-- #admin_form_wrapper -->';
 
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 
 	echo '
 	<script>
@@ -241,7 +241,7 @@ function template_list_themes()
 
 			echo '
 				</h3>
-			</div>
+			</div><!-- .cat_bar -->
 			<div class="windowbg2 noup">
 				<dl class="settings themes_list">
 					<dt>', $txt['themeadmin_list_theme_dir'], ':</dt>
@@ -279,7 +279,7 @@ function template_list_themes()
 			</div>
 
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -322,8 +322,8 @@ function template_reset_list()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- #admin_form_wrapper -->
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -463,7 +463,7 @@ function template_set_options()
 				<input type="hidden" name="', $context['admin-sto_token_var'], '" value="', $context['admin-sto_token'], '">
 			</div>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -691,9 +691,9 @@ function template_set_settings()
 				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admin_form_wrapper -->';
 
 	if (!empty($context['theme_variants']))
 	{
@@ -809,7 +809,7 @@ function template_pick()
 
 	echo '
 		</form>
-	</div>';
+	</div><!-- #pick_theme -->';
 }
 
 /**
@@ -845,8 +845,8 @@ function template_installed()
 			</p>';
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -880,8 +880,8 @@ function template_edit_list()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -921,8 +921,8 @@ function template_copy_template()
 
 	echo '
 			</ul>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -978,7 +978,7 @@ function template_edit_browse()
 	echo '
 		</tbody>
 		</table>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -1139,7 +1139,7 @@ function template_edit_style()
 
 	echo '
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -1194,10 +1194,10 @@ function template_edit_template()
 					<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '">';
 
 	echo '
-				</div>
-			</div>
+				</div><!-- .righttext -->
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -1239,10 +1239,9 @@ function template_edit_file()
 				<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '">';
 
 	echo '
-			</div>
-
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

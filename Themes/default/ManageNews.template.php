@@ -109,13 +109,13 @@ function template_email_members()
 							<input type="checkbox" name="email_force" id="email_force" value="1">
 						</dd>
 					</dl>
-				</div>
+				</div><!-- #advanced_panel_div -->
 				<br>
 				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
@@ -246,7 +246,7 @@ function template_email_members_compose()
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="email_force" value="', $context['email_force'], '">
 			<input type="hidden" name="total_emails" value="', $context['total_emails'], '">';
@@ -372,7 +372,7 @@ function template_email_members_compose()
 			}
 		</script>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -413,9 +413,9 @@ function template_email_members_send()
 				<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>
+	</div><!-- #admincenter -->
 
 	<script>
 		var countdown = 2;

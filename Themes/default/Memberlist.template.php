@@ -121,7 +121,7 @@ function template_main()
 				echo '
 			</tbody>
 			</table>
-		</div>';
+		</div><!-- #mlist -->';
 
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
@@ -134,7 +134,7 @@ function template_main()
 			<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
 	echo '
 		</div>
-	</div>';
+	</div><!-- #memberlist -->';
 
 }
 
@@ -185,8 +185,8 @@ function template_search()
 					</dd>
 				</dl>
 				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button">
-			</div>
-		</div>
+			</div><!-- #advanced_search -->
+		</div><!-- #memberlist -->
 	</form>';
 }
 

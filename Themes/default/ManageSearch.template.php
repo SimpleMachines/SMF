@@ -84,9 +84,9 @@ function template_modify_weights()
 				<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -213,9 +213,9 @@ function template_select_search_method()
 				<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -249,7 +249,7 @@ function template_create_index()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 	</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -280,7 +280,7 @@ function template_create_index_progress()
 			<input type="hidden" name="bytes_per_word" value="', $context['index_settings']['bytes_per_word'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>
+	</div><!-- #admincenter -->
 	<script>
 		var countdown = 10;
 		doAutoSubmit();
@@ -364,9 +364,9 @@ function template_spider_edit()
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -398,7 +398,7 @@ function template_show_spider_logs()
 				<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '">
 			</div>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -429,7 +429,7 @@ function template_show_spider_stats()
 				<br>
 			</div>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

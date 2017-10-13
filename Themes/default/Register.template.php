@@ -39,7 +39,7 @@ function template_registration_agreement()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
-			</div>
+			</div><!-- .confirm_buttons -->
 			<input type="hidden" name="step" value="1">
 		</form>';
 
@@ -158,7 +158,7 @@ function template_registration_form()
 
 	echo '
 				</fieldset>
-			</div>';
+			</div><!-- .roundframe -->';
 
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
@@ -274,7 +274,7 @@ function template_registration_form()
 		echo '
 					</dl>
 				</fieldset>
-			</div>';
+			</div><!-- .roundframe -->';
 	}
 
 	if ($context['visual_verification'])
@@ -387,7 +387,7 @@ function template_coppa()
 				<p>', $context['coppa']['phone'], '</p>';
 	}
 	echo '
-			</div>';
+			</div><!-- #coppa -->';
 }
 
 /**
@@ -463,7 +463,7 @@ function template_verification_sound()
 		<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
 		<a href="', $context['verification_sound_href'], '" rel="nofollow">', $txt['visual_verification_sound_direct'], '</a><br><br>
 		<a href="javascript:self.close();">', $txt['visual_verification_sound_close'], '</a><br>
-		</div>
+		</div><!-- .description -->
 	</body>
 </html>';
 }
@@ -565,10 +565,10 @@ function template_admin_register()
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '">
 					</div>
-				</div>
+				</div><!-- #register_screen -->
 			</form>
-		</div>
-	</div>
+		</div><!-- #admin_form_wrapper -->
+	</div><!-- #admincenter -->
 	<br class="clear">';
 }
 
@@ -626,7 +626,7 @@ function template_edit_agreement()
 							<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button">
 						</div>
 					</form>
-				</div>';
+				</div><!-- .information -->';
 	}
 
 
@@ -644,8 +644,8 @@ function template_edit_agreement()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
 				</form>
-			</div>
-		</div>';
+			</div><!-- #registration_agreement -->
+		</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -691,16 +691,16 @@ function template_edit_reserved_words()
 					</dt>
 					<dd>
 						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_name'] ? ' checked' : '', '>
-					</dd>
-				</dl>
-				<div class="flow_auto">
+				</dd>
+			</dl>
+			<div class="flow_auto">
 					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button">
-					<input type="hidden" name="sa" value="reservednames">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">
+				<input type="hidden" name="sa" value="reservednames">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">
 				</div>
-			</div>
-		</form>';
+		</div><!-- .windowbg2 -->
+	</form>';
 }
 
 ?>

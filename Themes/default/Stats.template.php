@@ -95,36 +95,36 @@ function template_main()
 						<span class="generic_icons ', $name, '"></span> ', $txt['top_' . $name], '
 					</h4>
 				</div>
-					<dl class="stats">';
+				<dl class="stats">';
 
 		foreach ($block as $item)
 		{
 			echo '
-						<dt>
-							', $item['link'], '
-						</dt>
-						<dd class="statsbar">';
+					<dt>
+						', $item['link'], '
+					</dt>
+					<dd class="statsbar">';
 
 			if (!empty($item['percent']))
 				echo '
-							<div class="bar" style="width: ', $item['percent'], '%;">
-								<span class="righttext">', $item['num'], '</span>
-							</div>';
+						<div class="bar" style="width: ', $item['percent'], '%;">
+							<span class="righttext">', $item['num'], '</span>
+						</div>';
 			else
 				echo '
-							<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
+						<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
 
 			echo '
-						</dd>';
+					</dd>';
 		}
 
 		echo '
-					</dl>
-			</div>';
+				</dl>
+			</div><!-- .half_content -->';
 	}
 
 	echo '
-		</div>
+		</div><!-- .roundframe -->
 		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -217,7 +217,7 @@ function template_main()
 		echo '
 			</tbody>
 		</table>
-	</div>
+	</div><!-- #statistics -->
 	<script>
 		var oStatsCenter = new smf_StatsCenter({
 			sTableId: \'stats\',

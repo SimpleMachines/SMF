@@ -108,8 +108,8 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #manage_attachments -->';
 
 	echo '
 			<div id="transfer" class="cat_bar">
@@ -186,7 +186,7 @@ function template_maintenance()
 					}
 
 				</script>
-			</div>';
+	</div><!-- .windowbg2 -->';
 }
 
 /**
@@ -249,7 +249,7 @@ function template_attachment_repair()
 				<input type="submit" name="cancel" value="', $txt['repair_attachments_cancel'], '" class="button">
 			</div>
 		</form>
-	</div>';
+	</div><!-- #manage_attachments -->';
 	}
 }
 

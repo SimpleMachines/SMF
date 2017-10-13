@@ -190,7 +190,7 @@ function template_permission_index()
 					</dl>
 				</fieldset>
 				<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button">
-			</div>';
+			</div><!-- #permissions_panel_advanced -->';
 
 		// Javascript for the advanced stuff.
 		echo '
@@ -257,7 +257,7 @@ function template_permission_index()
 
 	echo '
 		</form>
-	</div>';
+	</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -343,9 +343,9 @@ function template_by_board()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -441,9 +441,9 @@ function template_edit_profiles()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '">
 				<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -532,7 +532,7 @@ function template_modify_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -800,7 +800,7 @@ function template_postmod_permissions()
 									</select>
 									<input type="submit" value="', $txt['go'], '" class="button">
 								</span>
-							</div>
+							</div><!-- .padding -->
 							<table class="table_grid" id="postmod">
 								<thead>
 									<tr class="title_bar">
@@ -908,7 +908,7 @@ function template_postmod_permissions()
 						</form>';
 
 	echo '
-					</div>';
+					</div><!-- #admin_form_wrapper -->';
 }
 
 ?>

@@ -42,9 +42,9 @@ function template_report_type()
 				</dl>
 				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -133,7 +133,7 @@ function template_main()
 		</table>';
 	}
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**

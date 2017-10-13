@@ -90,7 +90,7 @@ function template_pm_popup()
 	}
 
 	echo '
-		</div>';
+		</div><!-- #pm_unread -->';
 }
 
 /**
@@ -385,7 +385,7 @@ function template_folder()
 			// Done with the information about the poster... on to the post itself.
 			echo '
 			</ul>
-		</div>
+				</div><!-- .poster -->
 		<div class="postarea">
 			<div class="flow_hidden">
 				<div class="keyinfo">
@@ -418,10 +418,10 @@ function template_folder()
 					<br><span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 			echo '
-				</div>
-			</div>
+						</div><!-- .keyinfo -->
+					</div><!-- .flow_hidden -->
 			<div class="post">
-				<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
+						<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
 
 			if ($message['can_report'] || $context['can_send_pm'])
 			echo '
@@ -466,7 +466,7 @@ function template_folder()
 
 			if ($message['can_report'] || $context['can_send_pm'])
 			echo '
-				</div>';
+						</div><!-- .under_message -->';
 
 			// Are there any custom profile fields for above the signature?
 			if (!empty($message['custom_fields']['above_signature']))
@@ -544,15 +544,14 @@ function template_folder()
 					</noscript>';
 				}
 				echo '
-				</div>';
+						</div><!-- .labels -->';
 			}
 
 			echo '
-			</div>
-		</div>
-		<div class="moderatorbar">
-		</div>
-	</div>';
+					</div><!-- .post -->
+				</div><!-- .postarea -->
+				<div class="moderatorbar"></div>
+			</div><!-- .windowbg -->';
 		}
 
 		if (empty($context['display_mode']))
@@ -704,8 +703,8 @@ function template_subject_list()
 	}
 
 	echo '
-				</div>
-	</div>';
+		</div><!-- .floatright -->
+	</div><!-- .pagesection -->';
 }
 
 /**
@@ -768,9 +767,9 @@ function template_search()
 	if (!$context['currently_using_labels'])
 		echo '
 				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button">';
-		echo '
+	echo '
 				<br class="clear_right">
-			</div>
+			</div><!-- .roundframe -->
 		</fieldset>';
 
 	// Do we have some labels setup? If so offer to search by them!
@@ -802,7 +801,7 @@ function template_search()
 					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button">
 				</p>
 				<br class="clear_right">
-			</div>
+			</div><!-- .roundframe -->
 		</fieldset>';
 
 		// Some javascript for the advanced toggling
@@ -912,7 +911,7 @@ function template_search_results()
 
 				echo '
 				</p>
-			</div>';
+			</div><!-- .windowbg -->';
 		}
 		// Otherwise just a simple list!
 		else
@@ -1106,7 +1105,7 @@ function template_send()
 			<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '">
 			<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '">
 			<br class="clear_right">
-		</div>
+			</div><!-- .roundframe -->
 	</form>';
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
@@ -1501,7 +1500,7 @@ function template_report_message()
 			<div class="righttext">
 				<input type="submit" name="report" value="', $txt['pm_report_message'], '" class="button">
 			</div>
-		</div>
+		</div><!-- .windowbg -->
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
 }
@@ -1801,7 +1800,7 @@ function template_add_rule()
 		if ($isFirst)
 			$isFirst = false;
 		elseif ($criteria['t'] == '')
-			echo '</div>';
+			echo '</div><!-- .removeonjs1 -->';
 	}
 
 	echo '
@@ -1850,8 +1849,7 @@ function template_add_rule()
 		if ($isFirst)
 			$isFirst = false;
 		elseif ($action['t'] == '')
-			echo '
-			</div>';
+			echo '</div><!-- .removeonjs2 -->';
 	}
 
 	echo '
@@ -1868,7 +1866,7 @@ function template_add_rule()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="submit" name="save" value="', $txt['pm_rule_save'], '" class="button">
 			</div>
-		</div>
+		</div><!-- .windowbg -->
 	</form>';
 
 	// Now setup all the bits!
@@ -1947,7 +1945,7 @@ function template_showPMDrafts()
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons modifybutton"></span>', $txt['draft_edit'], '</a></li>
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'] ,'?" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
 					</ul>
-				</div>';
+		</div><!-- .windowbg -->';
 		}
 	}
 

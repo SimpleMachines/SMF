@@ -110,9 +110,9 @@ function template_edit_scheduled_tasks()
 					<input type="hidden" name="', $context['admin-st_token_var'], '" value="', $context['admin-st_token'], '">
 					<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

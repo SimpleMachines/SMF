@@ -95,7 +95,7 @@ function template_main()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 		</form>
-	</div>';
+	</div><!-- #report_form -->';
 }
 
 ?>

@@ -111,7 +111,7 @@ function template_download_language()
 						<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '" style="width: 99%;">
 					</dd>
 				</dl>
-			</div>';
+			</div><!-- .windowbg -->';
 	}
 
 	// Install?
@@ -122,7 +122,7 @@ function template_download_language()
 				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button">
 			</div>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -205,7 +205,7 @@ function template_modify_language_entries()
 	}
 
 	echo '
-			</div>
+			</div><!-- .windowbg -->
 		</form>
 
 		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], ';entries" id="entry_form" method="post" accept-charset="', $context['character_set'], '">
@@ -238,7 +238,7 @@ function template_modify_language_entries()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
 					<input type="submit" value="', $txt['go'], '" class="button" style="float: none"/>
-			</div>
+			</div><!-- #taskpad -->
 			<br class="clear">';
 
 	// Is it not writable?
@@ -308,11 +308,11 @@ function template_modify_language_entries()
 				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">';
 
 		echo '
-			</div>';
+			</div><!-- .windowbg2 -->';
 	}
 	echo '
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -349,7 +349,7 @@ function template_add_language()
 				</fieldset>', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
 				<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button">
 				<br>
-			</div>';
+			</div><!-- .windowbg2 -->';
 
 	// Had some results?
 	if (!empty($context['smf_languages']['rows']))
@@ -362,7 +362,7 @@ function template_add_language()
 
 	echo '
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

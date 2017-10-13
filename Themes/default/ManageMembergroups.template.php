@@ -129,7 +129,7 @@ function template_new_group()
 					</dd>
 				</dl>
 				<input type="submit" value="', $txt['membergroups_add_group'], '" class="button">
-			</div>';
+			</div><!-- .windowbg2 -->';
 	if ($context['undefined_group'])
 	{
 		echo '
@@ -147,7 +147,7 @@ function template_new_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -345,11 +345,11 @@ function template_edit_group()
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
 				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
-	</div>
+	</div><!-- #admincenter -->
 		<script>
 			var oModeratorSuggest = new smc_AutoSuggest({
 				sSelf: \'oModeratorSuggest\',
@@ -578,8 +578,8 @@ function template_group_members()
 
 	echo '
 				</dl>
-			</div>
 
+			</div><!-- .windowbg2 -->
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
@@ -677,7 +677,7 @@ function template_group_members()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-mgm_token_var'], '" value="', $context['mod-mgm_token'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 	if (!empty($context['group']['assignable']))
 		echo '
@@ -732,9 +732,9 @@ function template_group_request_reason()
 				<input type="hidden" name="req_action" value="got_reason">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['mod-gr_token_var'], '" value="', $context['mod-gr_token'], '">
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #moderationcenter -->';
 }
 
 ?>

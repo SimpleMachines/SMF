@@ -76,7 +76,7 @@ function template_profile_popup()
 
 	echo '
 			</ol>
-		</div>';
+		</div><!-- .profile_user_links -->';
 }
 
 /**
@@ -118,7 +118,7 @@ function template_alerts_popup()
 	}
 
 	echo '
-		</div>
+		</div><!-- .alerts_unread -->
 		<script>
 		function markAlertsRead(obj) {
 			ajax_indicator(true);
@@ -264,9 +264,8 @@ function template_summary()
 	}
 
 	echo '
-		</div>';
+		</div><!-- #basicinfo -->
 
-	echo '
 		<div id="detailedinfo">
 			<dl class="settings">';
 
@@ -453,9 +452,8 @@ function template_summary()
 	}
 
 	echo '
-		</div>
-	</div>
-<div class="clear"></div>';
+		</div><!-- #detailedinfo -->
+	</div><!-- #profileview -->';
 }
 
 /**
@@ -523,10 +521,10 @@ function template_showPosts()
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
 					</ul>
-				</div>';
+			</div><!-- .floatright -->';
 
 			echo '
-			</div>';
+		</div><!-- $post[css_class] -->';
 		}
 	}
 	else
@@ -647,9 +645,9 @@ function template_showDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-				<div class="windowbg">
-					<div class="counter">', $draft['counter'], '</div>
-					<div class="topic_details">
+		<div class="windowbg">
+			<div class="counter">', $draft['counter'], '</div>
+			<div class="topic_details">
 						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
 			if (!empty($draft['sticky']))
@@ -659,19 +657,19 @@ function template_showDrafts()
 				echo '<span class="generic_icons lock" title="', $txt['locked_topic'], '"></span>';
 
 			echo '
-						</h5>
+				</h5>
 						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
-					</div>
-					<div class="list_posts">
-						', $draft['body'], '
-					</div>
-				<div class="floatright">
-					<ul class="quickbuttons">
+			</div><!-- .topic_details -->
+			<div class="list_posts">
+				', $draft['body'], '
+			</div>
+			<div class="floatright">
+				<ul class="quickbuttons">
 						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '"><span class="generic_icons reply_button"></span>', $txt['draft_edit'], '</a></li>
 						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
-					</ul>
-				</div>
-			</div>';
+				</ul>
+			</div><!-- .floatright -->
+		</div><!-- .windowbg -->';
 		}
 	}
 
@@ -745,7 +743,7 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-						<td class="lefttext">', $buddy['options'][$key], '</td>';
+					<td class="lefttext">', $buddy['options'][$key], '</td>';
 
 			echo '
 					<td><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
@@ -755,7 +753,7 @@ function template_editBuddies()
 
 	echo '
 		</table>
-	</div>';
+	</div><!-- #edit_buddies -->';
 
 	// Add a new buddy?
 	echo '
@@ -841,8 +839,8 @@ function template_editIgnoreList()
 	foreach ($context['ignore_list'] as $member)
 	{
 		echo '
-			<tr class="windowbg">
-				<td>', $member['link'], '</td>
+				<tr class="windowbg">
+					<td>', $member['link'], '</td>
 				<td><a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a></td>';
 
 		if ($member['show_email'])
@@ -850,12 +848,12 @@ function template_editIgnoreList()
 				<td><a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a></td>';
 		echo '
 				<td><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
-			</tr>';
+				</tr>';
 	}
 
 	echo '
 		</table>
-	</div>';
+	</div><!-- #edit_buddies -->';
 
 	// Add to the ignore list?
 	echo '
@@ -946,7 +944,7 @@ function template_trackActivity()
 					', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
 				</dd>
 			</dl>
-		</div>';
+		</div><!-- #tracking -->';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -1131,7 +1129,8 @@ function template_showPermissions()
 			echo '
 						</tbody>
 					</table>
-				</div><br>';
+			</div><!-- .tborder -->
+			<br>';
 		}
 		else
 			echo '
@@ -1157,7 +1156,7 @@ function template_showPermissions()
 				echo '
 						</select>
 					</h3>
-				</div>
+				</div><!-- .cat_bar -->
 			</form>';
 		if (!empty($context['member']['permissions']['board']))
 		{
@@ -1202,7 +1201,7 @@ function template_showPermissions()
 			<p class="windowbg2">', $txt['showPermissions_none_board'], '</p>';
 	echo '
 			</div>
-		</div>';
+		</div><!-- #permissions -->';
 	}
 }
 
@@ -1270,7 +1269,7 @@ function template_statPanel()
 	}
 
 	echo '
-		</div>';
+		</div><!-- #activitytime -->';
 
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
 	echo '
@@ -1308,8 +1307,7 @@ function template_statPanel()
 				</dl>';
 	}
 	echo '
-			</div>';
-	echo '
+			</div><!-- .half_content -->
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
@@ -1342,11 +1340,11 @@ function template_statPanel()
 				</dl>';
 	}
 	echo '
-			</div>
-		</div>';
+			</div><!-- .half_content -->
+		</div><!-- .flow_hidden -->';
 
 	echo '
-	</div>';
+	</div><!-- #profileview -->';
 }
 
 /**
@@ -1561,7 +1559,7 @@ function template_edit_options()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="u" value="', $context['id_member'], '">
 				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
-			</div>
+			</div><!-- .roundframe -->
 		</form>';
 
 	// Any final spellchecking stuff?
@@ -1812,7 +1810,7 @@ function template_alert_configuration()
 
 	echo '
 				</dl>
-			</div>
+			</div><!-- .windowbg2 -->
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notify_what_how'], '
@@ -2000,8 +1998,8 @@ function template_groupMembership()
 						<input type="hidden" name="gid" value="', $context['group_request']['id'], '">
 						<input type="submit" name="req" value="', $txt['submit_request'], '" class="button">
 					</div>
-				</div>
-			</div>';
+						</div>
+				</div><!-- .groupmembership -->';
 	}
 	else
 	{
@@ -2028,7 +2026,7 @@ function template_groupMembership()
 						<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
 
 				echo '
-					</div>';
+				</div><!-- .windowbg -->';
 		}
 
 		if ($context['can_edit_primary'])
@@ -2062,7 +2060,7 @@ function template_groupMembership()
 						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=groupmembership;request=', $group['id'], '" class="button floatright">', $txt['request_group'], '</a>';
 
 				echo '
-					</div>';
+				</div><!-- .windowbg -->';
 			}
 		}
 
@@ -2090,7 +2088,7 @@ function template_groupMembership()
 	}
 
 	echo '
-		</div>';
+			</div><!-- #groups -->';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -2170,8 +2168,8 @@ function template_ignoreboards()
 	template_profile_save();
 
 	echo '
-			</div>
-		</div>
+			</div><!-- .flow_hidden -->
+		</div><!-- .windowbg2 -->
 	</form>
 	<br>';
 }
@@ -2247,7 +2245,7 @@ function template_viewWarning()
 
 		echo '
 			</dl>
-		</div>';
+		</div><!-- .windowbg -->';
 
 	template_show_list('view_warnings');
 }
@@ -2412,8 +2410,8 @@ function template_issueWarning()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="button" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
 				<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button">
-			</div>
-		</div>
+			</div><!-- .righttext -->
+		</div><!-- .windowbg -->
 	</form>';
 
 	// Previous warnings?
@@ -2559,7 +2557,7 @@ function template_deleteAccount()
 				</div>';
 	}
 	echo '
-			</div>
+			</div><!-- .windowbg2 -->
 			<br>
 		</form>';
 }
@@ -2629,7 +2627,7 @@ function template_error_message()
 	}
 
 	echo '
-		</div>';
+		</div><!-- #profile_error -->';
 }
 
 /**
@@ -2819,7 +2817,7 @@ function template_profile_avatar_select()
 											previewExternalAvatar(avatar.src)
 
 									</script>
-								</div>';
+								</div><!-- #avatar_server_stored -->';
 	}
 
 	// If the user can link to an off server avatar, show them a box to input the address.
@@ -2865,7 +2863,7 @@ function template_profile_avatar_select()
 									<input type="text" name="gravatarEmail" id="gravatarEmail" size="45" value="', $textbox_value, '" />';
 		}
 		echo '
-								</div>';
+								</div><!-- #avatar_gravatar -->';
 	}
 
 	echo '
@@ -3051,7 +3049,7 @@ function template_tfasetup()
 
 	echo '
 								</div>
-							</div>';
+			</div><!-- .roundframe -->';
 }
 
 /**

@@ -101,12 +101,12 @@ function template_modifyset()
 		echo '
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mss_token_var'], '" value="', $context['admin-mss_token'], '">
 			<input type="hidden" name="set" value="', $context['current_set']['id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -187,11 +187,11 @@ function template_modifysmiley()
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" data-confirm="', $txt['smileys_delete_confirm'], '" class="button you_sure">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -283,7 +283,7 @@ function template_addsmiley()
 					</dd>';
 	echo '
 				</dl>
-			</div>
+			</div><!-- .windowbg2 -->
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
@@ -319,10 +319,10 @@ function template_addsmiley()
 					</dd>
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -368,13 +368,13 @@ function template_setorder()
 			echo '
 				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $location['last_row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 		echo '
-			</div>
+			</div><!-- .windowbg2 -->
 		<input type="hidden" name="reorder" value="1">
 	</form>';
 	}
 
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -468,9 +468,9 @@ function template_editicon()
 	echo '
 				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

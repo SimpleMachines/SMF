@@ -65,8 +65,8 @@ function template_move()
 
     echo '
 					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
-				</div>
-			</div>';
+				</div><!-- .move_topic -->
+			</div><!-- .windowbg -->';
 
 	if ($context['back_to_topic'])
 		echo '
@@ -76,7 +76,7 @@ function template_move()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
 		</form>
-	</div>';
+	</div><!-- #move_topic -->';
 }
 
 /**
@@ -222,7 +222,7 @@ function template_merge()
 		echo $txt['target_below'];
 
 	echo '				</h4>
-			</div>';
+			</div><!-- .title_bar -->';
 
 	// Don't show this if there aren't any topics...
 	if (!empty($context['topics']))
@@ -279,7 +279,7 @@ function template_merge()
 					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 			</form>
-		</div>';
+		</div><!-- #merge_topics -->';
 }
 
 /**
@@ -391,9 +391,9 @@ function template_merge_extra_options()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="execute">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #merge_topics -->';
 }
 
 ?>

@@ -34,7 +34,7 @@ function template_moderation_center()
 	}
 
 	echo '
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 /**
@@ -70,8 +70,8 @@ function template_group_requests_block()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #group_requests_panel -->
 
 	<script>
 		var oGroupRequestsPanelToggle = new smc_Toggle({
@@ -139,8 +139,8 @@ function template_watched_users()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #watched_users_panel -->
 
 	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
@@ -208,8 +208,8 @@ function template_reported_posts_block()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #reported_posts_panel -->
 
 	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
@@ -277,8 +277,8 @@ function template_reported_users_block()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #reported_users_panel -->
 
 	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
@@ -361,11 +361,11 @@ function template_notes()
 						</div>
 						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
 						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
-					</div>
-				</div>
+					</div><!-- .modbox -->
+				</div><!-- .windowbg2 -->
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
-		</div>';
+		</div><!-- .modnotes -->';
 }
 
 /**
@@ -425,7 +425,7 @@ function template_unapproved_posts()
 
 		echo '
 			</span>
-		</div>';
+			</div><!-- .windowbg -->';
 	}
 
 	echo '
@@ -450,10 +450,10 @@ function template_unapproved_posts()
 			</div>';
 
 	echo '
-		</div>
+			</div><!-- .pagesection -->
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 /**
@@ -530,7 +530,7 @@ function template_moderation_settings()
 		</div>';
 
 	echo '
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 /**
@@ -637,11 +637,11 @@ function template_warn_template()
 				<hr>
 				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '">
 		</form>
-	</div>
+	</div><!-- #modcenter -->
 
 	<script>
 		$(document).ready(function() {

@@ -129,12 +129,13 @@ function template_view_package()
 				<div class="errorbox">
 					', $txt['corrupt_compatible'], '
 				</div>
-			</div>';
+			</div><!-- .information -->';
 	else
 	{
 		echo '
 					', $txt['perform_actions'], '
-			</div><br>
+			</div><!-- .information -->
+			<br>
 			<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
@@ -293,7 +294,7 @@ function template_view_package()
 
 			echo '
 				</table>
-			</div>';
+			</div><!-- #custom_changes -->';
 		}
 	}
 
@@ -316,12 +317,12 @@ function template_view_package()
 				', template_control_chmod(), '
 			</div>';
 	}
-		echo '
+	echo '
 
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">', (isset($context['form_sequence_number']) && !$context['ftp_needed']) ? '
 			<input type="hidden" name="seqnum" value="' . $context['form_sequence_number'] . '">' : '', '
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 	// Toggle options.
 	echo '
@@ -449,7 +450,7 @@ function template_extract_package()
 			', $txt['corrupt_compatible'];
 
 	echo '
-		</div>';
+		</div><!-- .windowbg -->';
 
 	// Show the "restore permissions" screen?
 	if (function_exists('template_show_list') && !empty($context['restore_file_permissions']['rows']))
@@ -459,7 +460,7 @@ function template_extract_package()
 	}
 
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -489,7 +490,7 @@ function template_list()
 			<br>
 			<a href="', $scripturl, '?action=admin;area=packages">[ ', $txt['back'], ' ]</a>
 		</div>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -511,7 +512,7 @@ function template_examine()
 			<pre class="file_content">', $context['filedata'], '</pre>
 			<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $context['package'], '">[ ', $txt['list_files'], ' ]</a>
 		</div>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -575,7 +576,7 @@ function template_browse()
 			</script>';
 
 	echo '
-		</div>';
+		</div><!-- #admin_form_wrapper -->';
 
 	$mods_available = false;
 	foreach ($context['modification_types'] as $type)
@@ -632,15 +633,15 @@ function template_browse()
 					<div class="righttext padding">
 						<input type="submit" value="', $txt['package_apply'], '" class="button">
 					</div>
-				</div>
-			</div>
+				</div><!-- #advanced_panel_div -->
+			</div><!-- #advanced_box -->
 			<input type="hidden" name="action" value="admin">
 			<input type="hidden" name="area" value="packages">
 			<input type="hidden" name="sa" value="browse">
 		</form>';
 
 	echo '
-	</div>
+	</div><!-- #admincenter -->
 	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -758,7 +759,7 @@ function template_servers()
 						<input type="submit" value="', $txt['package_proceed'], '" class="button">
 					</div>
 				</form>
-			</div>';
+			</div><!-- .windowbg -->';
 	}
 
 	echo '
@@ -820,9 +821,9 @@ function template_servers()
 						<input type="submit" value="', $txt['download'], '" class="button">
 					</form>
 				</fieldset>
-			</div>
-		</div>
-	</div>';
+			</div><!-- .windowbg2 -->
+		</div><!-- .new_package_content -->
+	</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -954,19 +955,18 @@ function template_package_list()
 	}
 
 	echo '
-		</div>
-	</div>
+		</div><!-- .windowbg2 -->
+	</div><!-- #admincenter -->';
 
-		';
-		// Now go through and turn off all the sections.
-		if (!empty($context['package_list']))
+	// Now go through and turn off all the sections.
+	if (!empty($context['package_list']))
+	{
+		$section_count = count($context['package_list']);
+		echo '
+	<script>';
+		foreach ($context['package_list'] as $section => $ps)
 		{
-			$section_count = count($context['package_list']);
 			echo '
-			<script>';
-			foreach ($context['package_list'] as $section => $ps)
-			{
-				echo '
 				var oPackageServerToggle_', $section, ' = new smc_Toggle({
 					bToggleEnabled: true,
 					bCurrentlyCollapsed: ', count($ps['items']) == 1 || $section_count == 1 ? 'false' : 'true', ',
@@ -1030,7 +1030,7 @@ function template_downloaded()
 			<br><br>
 			<p><a href="', $scripturl, '?action=admin;area=packages;get', (isset($context['package_server']) ? ';sa=browse;server=' . $context['package_server'] : ''), '">[ ', $txt['back'], ' ]</a></p>
 		</div>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -1090,8 +1090,8 @@ function template_install_options()
 				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -1126,15 +1126,15 @@ function template_control_chmod()
 			echo '
 				<hr>
 				', $txt['package_chmod_linux'], '<br>
-				<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
+					<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
 
 		echo '
-				</div>';
+				</div><!-- #need_writable_list -->';
 	}
 
 	echo '
 				<div class="bordercolor" id="ftp_error_div" style="', (!empty($context['package_ftp']['error']) ? '' : 'display:none;'), 'padding: 1px; margin: 1ex;"><div class="windowbg2" id="ftp_error_innerdiv" style="padding: 1ex;">
-					<tt id="ftp_error_message">', !empty($context['package_ftp']['error']) ? $context['package_ftp']['error'] : '', '</tt>
+						<tt id="ftp_error_message">', !empty($context['package_ftp']['error']) ? $context['package_ftp']['error'] : '', '</tt>
 				</div></div>';
 
 	if (!empty($context['package_ftp']['destination']))
@@ -1614,7 +1614,7 @@ function template_file_permissions()
 			<span id="test_ftp_placeholder_full"></span>
 			<input type="hidden" name="action_changes" value="1">
 			<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button">
-		</div>';
+		</div><!-- .windowbg2 -->';
 
 	// Any looks fors we've already done?
 	foreach ($context['look_for'] as $path)
@@ -1800,9 +1800,9 @@ function template_action_permissions()
 				<div class="righttext padding">
 					<input type="submit" name="go" id="cont" value="', $txt['not_done_continue'], '" class="button">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 	// Just the countdown stuff
 	echo '

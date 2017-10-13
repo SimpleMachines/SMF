@@ -60,7 +60,7 @@ function template_main()
 
 	// Close our wrapper.
 	echo '
-	</div>';
+		</div><!-- #calendar -->';
 }
 
 
@@ -199,7 +199,7 @@ function template_show_upcoming_list($grid_name)
 		}
 
 		echo '
-				</div>
+				</div><!-- .windowbg -->
 			</div>';
 	}
 
@@ -227,8 +227,9 @@ function template_show_upcoming_list($grid_name)
 
 		echo implode(', ', $holidays);
 
-		echo '</p>
-				</div>
+		echo '
+					</p>
+				</div><!-- .windowbg -->
 			</div>';
 	}
 }
@@ -277,20 +278,19 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// Next Link: if we're showing prev / next and it's not a mini-calendar.
 				if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
 				{
-					echo '
-						<span class="floatright">
-							<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
+			echo '
+					<span class="floatright">
+						<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
 						</span>
 					';
-				}
+		}
 
-				// Arguably the most exciting part, the title!
+		// Arguably the most exciting part, the title!
 				echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>';
 
-				echo '
+		echo '
 				</h3>
-			</div>
-		';
+			</div><!-- .cat_bar -->';
 	}
 
 	// Show the controls on main grids
@@ -431,7 +431,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 						if ($use_js_hide)
 							echo '</span>';
 
-						echo '</div>';
+						echo '
+						</div><!-- .smalltext -->';
 					}
 
 					// Any special posted events?
@@ -486,16 +487,18 @@ function template_show_month_grid($grid_name, $is_mini = false)
 									echo '
 										<a class="modify_event" href="', $event['export_href'], '">
 											<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
-										</a>';
+									</a>';
 								}
 
 								echo '</span><br class="clear">';
 							}
 
-							echo '</div>';
+							echo '
+							</div><!-- .event_wrapper -->';
 						}
 
-						echo '</div>';
+						echo '
+						</div><!-- .smalltext -->';
 					}
 				}
 				$current_month_started = $count;
@@ -573,7 +576,7 @@ function template_show_week_grid($grid_name)
 
 					echo '
 					</h3>
-				</div>';
+				</div><!-- .cat_bar -->';
 
 			// Show the controls
 			template_calendar_top($calendar_data);
@@ -661,18 +664,18 @@ function template_show_week_grid($grid_name)
 											echo '
 												<a class="modify_event" href="', $event['export_href'], '">
 													<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
-												</a>';
-										}
+									</a>';
+						}
 
 										echo '</span><br class="clear">';
-									}
+					}
 
-									echo '
-									</div>';
-								}
-								if (!empty($context['can_post']))
-								{
-									echo '
+					echo '
+							</div><!-- .event_wrapper -->';
+				}
+				if (!empty($context['can_post']))
+				{
+					echo '
 									<div class="week_add_event">
 										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
 									</div>
@@ -769,11 +772,11 @@ function template_calendar_top($calendar_data)
 				</select>
 				<select name="year">';
 
-				// Show a link for every year.....
-				for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
-				{
+		// Show a link for every year.....
+		for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
+		{
 					echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
-				}
+		}
 
 				echo '</select>
 				<input type="submit" class="button" id="view_button" value="', $txt['view'], '">
@@ -781,7 +784,7 @@ function template_calendar_top($calendar_data)
 	}
 
 	echo'
-		</div>';
+		</div><!-- .calendar_top -->';
 }
 
 /**
@@ -854,7 +857,7 @@ function template_event_post()
 		echo '
 							</select>
 						</div>
-					</div>';
+						</div><!-- #event_board -->';
 	}
 
 	// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
@@ -873,7 +876,7 @@ function template_event_post()
 							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
 							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 						</div>
-					</div>
+						</div><!-- #event_time_input -->
 					<div class="event_options_right" id="event_time_options">
 						<div id="event_allday">
 							<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
@@ -890,7 +893,7 @@ function template_event_post()
 	echo '
 							</select>
 						</div>
-					</div>
+						</div><!-- #event_time_options -->
 					<div>
 						<span class="label">', $txt['location'], '</span>
 						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '">
@@ -908,8 +911,8 @@ function template_event_post()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="eventid" value="', $context['event']['eventid'], '">
 
-			</div>
-		</div>
+				</div><!-- .roundframe -->
+			</div><!-- #post_event -->
 		</form>';
 }
 

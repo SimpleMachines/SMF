@@ -84,7 +84,7 @@ function template_reported_posts()
 
 			echo '
 				</ul>
-			</div>';
+		</div><!-- .windowbg -->';
 	}
 
 	// Were none found?
@@ -140,8 +140,8 @@ function template_reported_posts_block()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #reported_posts_panel -->
 
 	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
@@ -217,7 +217,7 @@ function template_viewmodreport()
 						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '"  class="button">', $close_button, '</a>
 					</span>
 				</h3>
-			</div>
+			</div><!-- .title_bar -->
 			<div class="windowbg2">
 				', $context['report']['body'], '
 			</div>
@@ -280,7 +280,7 @@ function template_viewmodreport()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 /**
@@ -313,7 +313,7 @@ function template_edit_comment()
 			<input type="hidden" name="', $context['mod-reportC-edit_token_var'], '" value="', $context['mod-reportC-edit_token'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 /**
@@ -349,8 +349,8 @@ function template_reported_members_block()
 
 		echo '
 				</ul>
-			</div>
-		</div>
+			</div><!-- .modbox -->
+		</div><!-- #reported_users_panel -->
 
 	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
@@ -454,7 +454,7 @@ function template_reported_members()
 
 			echo '
 				</ul>
-			</div>';
+		</div><!-- .generic_list_wrapper -->';
 	}
 
 	// Were none found?
@@ -576,7 +576,7 @@ function template_viewmemberreport()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>';
+	</div><!-- #modcenter -->';
 }
 
 ?>

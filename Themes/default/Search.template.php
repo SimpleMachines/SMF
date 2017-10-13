@@ -175,14 +175,14 @@ function template_main()
 
 		echo '
 					</ul>
-				</div>
+				</div><!-- #advanced_panel_div -->
 				<br class="clear">
 				<div class="padding flow_auto">
 					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="floatleft">
 					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
 					<input type="submit" name="b_search" value="', $txt['search'], '" class="button">
 				</div>
-			</div>
+			</div><!-- .roundframe -->
 		</fieldset>';
 
 		echo '
@@ -279,8 +279,9 @@ function template_results()
 
 		echo '
 			</form>
-		</div>
-	</div><br>';
+		</div><!-- .roundframe -->
+	</div><!-- #search_results -->
+	<br>';
 	}
 
 	if ($context['compact'])
@@ -364,7 +365,7 @@ function template_results()
 					}
 
 					echo '
-					</div>';
+				</div><!-- .floatright -->';
 				}
 
 				if ($message['body_highlighted'] != '')
@@ -374,8 +375,8 @@ function template_results()
 			}
 
 			echo '
-				</div>
-			</div>';
+			</div><!-- .flow_auto -->
+		</div><!-- $topic[css_class] -->';
 
 		}
 		if (!empty($context['topics']))
@@ -405,10 +406,10 @@ function template_results()
 				<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
-					<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
+			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
 					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
 				</div>
-			</div>';
+		</div><!-- .quick_actions -->';
 		}
 
 
@@ -451,22 +452,22 @@ function template_results()
 				echo '
 						<ul class="quickbuttons">';
 
-				// If they *can* reply?
+			// If they *can* reply?
 			if ($topic['can_reply'])
 				echo '
 							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
-				// If they *can* quote?
+			// If they *can* quote?
 			if ($topic['can_quote'])
 				echo '
 							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			if ($topic['can_reply'])
 				echo '
-						</ul>';
+		</ul>';
 			echo '
 					<br class="clear">
-				</div>';
+	</div><!-- $topic[css_class] -->';
 			}
 		}
 

@@ -78,9 +78,9 @@ function template_edit_holiday()
 				<input type="hidden" name="holiday" value="', $context['holiday']['id'], '">';
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

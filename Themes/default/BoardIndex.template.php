@@ -114,16 +114,16 @@ function template_main()
 					template_bi_board_children($board);
 
 				echo '
-					</div>';
+				</div><!-- #board_[id] -->';
 			}
 
 		echo '
-			</div>
-		</div>';
+			</div><!-- #category_[id]_boards -->
+		</div><!-- .main_container -->';
 	}
 
 	echo '
-	</div>';
+	</div><!-- #boardindex_table -->';
 
 	// Show the mark all as read button?
 	if ($context['user']['is_logged'] && !empty($context['categories']))
@@ -301,8 +301,8 @@ function template_info_center()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- #upshrinkHeaderIC -->
+	</div><!-- #info_center -->';
 
 	// Info center collapse object.
 	echo '
@@ -393,7 +393,7 @@ function template_ic_block_recent()
 				</table>';
 	}
 	echo '
-			</div>';
+			</div><!-- #recent_posts_content -->';
 }
 
 /**

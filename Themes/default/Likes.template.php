@@ -48,7 +48,7 @@ function template_popup()
 			</ul>
 			<br class="clear">
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
-		</div>
+		</div><!-- .windowbg -->
 	</body>
 </html>';
 }

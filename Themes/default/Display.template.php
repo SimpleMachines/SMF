@@ -64,7 +64,7 @@ function template_main()
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
-		</div>
+		</div><!-- #display_head -->
 			<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
@@ -143,9 +143,9 @@ function template_main()
 						<p><strong>', ($context['poll']['is_expired'] ? $txt['poll_expired_on'] : $txt['poll_expires_on']), ':</strong> ', $context['poll']['expire_time'], '</p>';
 
 		echo '
-					</div>
-				</div>
-			</div>
+				</div><!-- #poll_options -->
+			</div><!-- .windowbg -->
+		</div><!-- #poll -->
 			<div id="pollmoderation">';
 
 		template_button_strip($context['poll_buttons']);
@@ -217,11 +217,11 @@ function template_main()
 				echo '<br>', $event['location'];
 
 			echo '
-					</li>';
+				</li>';
 		}
 		echo '
-				</ul>
-			</div>';
+			</ul>
+		</div><!-- .information -->';
 	}
 
 	// Show the page index... "Pages: [1]".
@@ -258,7 +258,7 @@ function template_main()
 
 	echo '
 				</form>
-			</div>';
+		</div><!-- #forumposts -->';
 
 	// Mobile action - moderation buttons (bottom)
 	echo '
@@ -651,7 +651,7 @@ function template_single_post($message)
 	echo '
 							</ul>';
 	echo '
-						</div>
+						</div><!-- .poster -->
 						<div class="postarea">
 							<div class="keyinfo">';
 
@@ -682,7 +682,7 @@ function template_single_post($message)
 									</span>
 								</h5>
 								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
-							</div>';
+							</div><!-- .keyinfo -->';
 
 	// Ignoring this user? Hide the post.
 	if ($ignoring)
@@ -703,7 +703,7 @@ function template_single_post($message)
 								</div>';
 	echo '
 								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
-							</div>';
+							</div><!-- .post -->';
 
 	// Assuming there are attachments...
 	if (!empty($message['attachment']))
@@ -759,7 +759,7 @@ function template_single_post($message)
 											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '" class="atc_img">';
 
 				echo '
-										</div>';
+										</div><!-- .attachments_top -->';
 			}
 
 			echo '
@@ -771,10 +771,10 @@ function template_single_post($message)
 											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>]&nbsp;|&nbsp;[<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
 			echo '
 											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
-										</div>';
+										</div><!-- .attachments_bot -->';
 
 			echo '
-									</div>';
+									</div><!-- .attached -->';
 
 			// Next attachment line ?
 			if (++$i % $attachments_per_line === 0)
@@ -790,7 +790,7 @@ function template_single_post($message)
 		// Only do this if we output a div above - otherwise it'll break things
 		if ($div_output)
 			echo '
-							</div>';
+							</div><!-- #msg_[id]_footer -->';
 	}
 
 	// And stuff below the attachments.
@@ -910,15 +910,15 @@ function template_single_post($message)
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
-								</ul>';
+								</ul><!-- .quickbuttons -->';
 	}
 
 	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
-							</div>';
+							</div><!-- .under_message -->';
 
 	echo '
-						</div>
+						</div><!-- .postarea -->
 						<div class="moderatorbar">';
 
 	// Are there any custom profile fields for above the signature?
@@ -960,9 +960,9 @@ function template_single_post($message)
 	}
 
 	echo '
-						</div>
-					</div>
-				</div>
+						</div><!-- .moderatorbar -->
+					</div><!-- .post_wrapper -->
+				</div><!-- $message[css_class] -->
 				<hr class="post_separator">';
 }
 
@@ -1057,9 +1057,9 @@ function template_quickreply()
 				</span>';
 		echo '
 					</form>
-				</div>
-			</div>
-		</div>
+				</div><!-- .roundframe -->
+			</div><!-- #quickReplyOptions -->
+		</div><!-- #quickreplybox -->
 		<br class="clear">';
 
 	// draft autosave available and the user has it enabled?

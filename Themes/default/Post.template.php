@@ -189,7 +189,7 @@ function template_main()
 				echo '
 									</select>
 								</div>
-							</div>';
+							</div><!-- #event_board -->';
 			}
 
 			// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
@@ -225,13 +225,13 @@ function template_main()
 			echo '
 									</select>
 								</div>
-							</div>
+							</div><!-- #event_time_options -->
 							<div>
 								<span class="label">', $txt['location'], '</span>
 								<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '">
 							</div>
 						</fieldset>
-					</div>';
+					</div><!-- #post_event -->';
 	}
 
 	// If this is a poll then display all the poll options!
@@ -306,7 +306,7 @@ function template_main()
 								</dd>
 							</dl>
 						</fieldset>
-					</div>';
+					</div><!-- #edit_poll -->';
 	}
 
 	// Show the actual posting area...
@@ -355,7 +355,7 @@ function template_main()
 								', $context['can_announce'] && $context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty($context['announce']) ? ' checked' : '') . '> ' . $txt['announce_topic'] . '</label></li>' : '', '
 								', $context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . ($context['show_approval'] === 2 ? ' checked' : '') . '> ' . $txt['approve_this_post'] . '</label></li>' : '', '
 							</ul>
-						</div>';
+						</div><!-- #postMoreOptions -->';
 
 	// If this post already has attachments on it - give information about them.
 	if (!empty($context['current_attachments']))
@@ -413,15 +413,15 @@ function template_main()
 												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
 											</div>
 										</div>
-									</div>
+									</div><!-- .attached_BBC -->
 									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="attach-ui">
 										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
 										<a class="button upload">', $txt['upload'] ,'</a>
 									</div>
-								</div>
-							</div>
-						</div>
+								</div><!-- .attach-info -->
+							</div><!-- #au-template -->
+						</div><!-- #au-previews -->
 						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
 						<div id ="maxFiles_progress_text"></div>';
 
@@ -464,8 +464,8 @@ function template_main()
 											}
 										</script>
 										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
-									</div>
-								</div>
+									</div><!-- .fallback -->
+								</div><!-- #attachUpload -->
 							</dd>';
 		else
 			echo '
@@ -500,7 +500,7 @@ function template_main()
 	}
 
 		echo '
-					</div>';
+					</div><!-- #postAdditionalOptions -->';
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
@@ -549,8 +549,8 @@ function template_main()
 
 	echo '
 					</span>
-				</div>
-			</div>
+				</div><!-- .roundframe -->
+			</div><!-- #post_area -->
 			<br class="clear">';
 
 	// Assuming this isn't a new topic pass across the last message id.
@@ -850,12 +850,12 @@ function template_main()
 
 			echo '
 					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>
-				</div>
-			</div>';
+				</div><!-- #msg[id] -->
+			</div><!-- .windowbg -->';
 		}
 
 		echo '
-		</div>
+		</div><!-- #recent -->
 		<script>
 			var aIgnoreToggles = new Array();';
 
@@ -1078,9 +1078,9 @@ function template_announce()
 					<input type="hidden" name="goback" value="', $context['go_back'], '">
 				</div>
 				<br class="clear_right">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>
+	</div><!-- #announcement -->
 	<br>';
 }
 
@@ -1111,9 +1111,9 @@ function template_announcement_send()
 					<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
 				</div>
 				<br class="clear_right">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>
+	</div><!-- #announcement -->
 	<br>
 		<script>
 			var countdown = 2;

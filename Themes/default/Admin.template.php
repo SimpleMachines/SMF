@@ -69,10 +69,10 @@ function template_admin()
 							(', $context['more_admins_link'], ')';
 
 	echo '
-									</div>
-								</div>
-							</div>
-						</div>';
+									</div><!-- #version_details -->
+								</div><!-- .windowbg -->
+							</div><!-- #supportVersionsTable -->
+						</div><!-- #admin_main_section -->';
 
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
@@ -100,7 +100,7 @@ function template_admin()
 	}
 
 	echo '
-					</div>';
+					</div><!-- #admincenter -->';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty($modSettings['disable_smf_js']))
@@ -193,7 +193,7 @@ function template_credits()
 	}
 
 	echo '
-							</div>';
+							</div><!-- .padding -->';
 
 	// Point the admin to common support resources.
 	echo '
@@ -247,9 +247,9 @@ function template_credits()
 	}
 
 	echo '
-							</div>
-						</div>
-					</div>';
+							</div><!-- .padding -->
+						</div><!-- #support_credits -->
+					</div><!-- #admincenter -->';
 
 	// This makes all the support information available to the support script...
 	echo '
@@ -540,8 +540,8 @@ function template_view_versions()
 	}
 
 	echo '
-						</div>
-						</div>';
+						</div><!-- #versions -->
+					</div><!-- #admincenter -->';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
 	   held at simplemachines.org and works out if they are up to date.  If they aren't it colors that files number
@@ -630,7 +630,7 @@ function template_edit_censored()
 									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button">
-							</div>';
+							</div><!-- .windowbg2 -->';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
 	echo '
@@ -649,7 +649,7 @@ function template_edit_censored()
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '">
 						</form>
-					</div>';
+					</div><!-- #admincenter -->';
 }
 
 /**
@@ -688,8 +688,8 @@ function template_not_done()
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
 								', $context['continue_post_data'], '
 							</form>
-						</div>
-					</div>
+						</div><!-- .windowbg2 -->
+					</div><!-- #admincenter -->
 					<script>
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
@@ -968,7 +968,7 @@ function template_show_settings()
 
 	if ($is_open)
 		echo '
-							</div>';
+							</div><!-- .windowbg2 -->';
 
 
 	// At least one token has to be used!
@@ -987,7 +987,7 @@ function template_show_settings()
 	echo '
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						</form>
-					</div>';
+					</div><!-- #admincenter -->';
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
@@ -1257,11 +1257,11 @@ function template_edit_profile_field()
 									<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button you_sure">';
 
 	echo '
-							</div>
+							</div><!-- .windowbg2 -->
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
 						</form>
-					</div>';
+					</div><!-- #admincenter -->';
 
 	// Get the javascript bits right!
 	echo '
@@ -1290,7 +1290,7 @@ function template_admin_search_results()
 									<span id="quick_search_results">&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '</span>
 								</h3>
 							</form>
-						</div>
+						</div><!-- #section_header -->
 					<div class="windowbg2 generic_list_wrapper">';
 
 	if (empty($context['search_results']))
@@ -1337,7 +1337,7 @@ function template_admin_search_results()
 	}
 
 	echo '
-					</div>';
+						</div><!-- .generic_list_wrapper -->';
 }
 
 /**
@@ -1463,8 +1463,8 @@ function template_repair_boards()
 	}
 
 	echo '
-						</div>
-					</div>';
+						</div><!-- .windowbg -->
+					</div><!-- #admincenter -->';
 
 	if (!empty($context['redirect_to_recount']))
 	{
@@ -1567,7 +1567,7 @@ function template_php_info()
 	}
 
 	echo '
-					</div>';
+					</div><!-- #admin_form_wrapper -->';
 }
 
 /**

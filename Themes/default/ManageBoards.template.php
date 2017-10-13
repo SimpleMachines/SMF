@@ -99,8 +99,8 @@ function template_main()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #manage_boards -->';
 }
 
 /**
@@ -201,9 +201,9 @@ function template_modify_category()
 					<input type="hidden" name="empty" value="1">';
 
 	echo '
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #manage_boards -->';
 }
 
 /**
@@ -254,9 +254,9 @@ function template_confirm_category_delete()
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #manage_boards -->';
 }
 
 /**
@@ -539,7 +539,7 @@ function template_modify_board()
 							</select>
 						</dd>
 					</dl>
-				</div>
+				</div><!-- #board_theme_div -->
 				<div id="override_theme_div">
 					<dl class="settings">
 						<dt>
@@ -603,9 +603,9 @@ function template_modify_board()
 		echo '
 				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['boardConfirm'], '" class="button you_sure">';
 	echo '
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>
+	</div><!-- #manage_boards -->
 
 <script>
 	var oModeratorSuggest = new smc_AutoSuggest({
@@ -746,9 +746,9 @@ function template_confirm_board_delete()
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '"
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #manage_boards -->';
 }
 
 ?>

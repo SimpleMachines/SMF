@@ -69,8 +69,8 @@ function template_reminder_pick()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '">
 				</div>
-			</div>
-		</div>
+			</div><!-- .roundframe -->
+		</div><!-- .login -->
 	</form>';
 }
 
@@ -123,8 +123,8 @@ function template_set_password()
 					</dd>
 				</dl>
 				<p class="align_center"><input type="submit" value="', $txt['save'], '" class="button"></p>
-			</div>
-		</div>
+			</div><!-- .roundframe -->
+		</div><!-- .login -->
 		<input type="hidden" name="code" value="', $context['code'], '">
 		<input type="hidden" name="u" value="', $context['memID'], '">
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -184,8 +184,8 @@ function template_ask()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '">
 				</div>
-			</div>
-		</div>
+			</div><!-- .roundframe -->
+		</div><!-- .login -->
 	</form>
 <script>
 	var regTextStrings = {

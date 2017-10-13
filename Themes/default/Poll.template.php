@@ -148,12 +148,12 @@ function template_main()
 					</fieldset>';
 	echo '
 					<input type="submit" name="post" value="', $txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
-				</div>
+				</div><!-- .roundframe -->
 			</div>
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 		</form>
-	</div>';
+	</div><!-- #edit_poll -->';
 }
 
 ?>

@@ -127,7 +127,7 @@ function template_modify_subscription()
 							</dd>
 						</dl>
 					</fieldset>
-				</div>
+				</div><!-- #fixed_area -->
 				<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? ' checked' : '', ' onclick="toggleDuration(\'flexible\');">
 				<strong><label for="duration_type_flexible">', $txt['paid_mod_flexible_price'], '</label></strong>
 				<br>
@@ -184,13 +184,13 @@ function template_modify_subscription()
 							</dd>
 						</dl>
 					</fieldset>
-				</div>
+				</div><!-- #flexible_area -->
 				<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 }
 
@@ -215,7 +215,7 @@ function template_delete_subscription()
 				<input type="hidden" name="', $context['admin-pmsd_token_var'], '" value="', $context['admin-pmsd_token'], '">
 			</div>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 }
 
@@ -336,7 +336,7 @@ function template_modify_user_subscription()
 					', $txt['minute'], ': <input type="number" name="minuteend" value="', $context['sub']['end']['min'], '" size="2">
 				</fieldset>
 				<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button">
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 		<script>
@@ -383,11 +383,11 @@ function template_modify_user_subscription()
 
 		echo '
 				</ul>
-		</div>';
+		</div><!-- .windowbg -->';
 	}
 
 	echo '
-		</div>';
+	</div><!--#admincenter  -->';
 }
 
 /**
@@ -469,7 +469,7 @@ function template_user_subscription()
 					<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', $subscription['id'], ';uid=', $context['member']['id'], (empty($context['current'][$subscription['id']]) ? '' : ';lid=' . $context['current'][$subscription['id']]['id']), '">', empty($context['current'][$subscription['id']]) ? $txt['paid_admin_add'] : $txt['paid_edit_subscription'], '</a>';
 
 			echo '
-			</div>';
+			</div><!-- .windowbg -->';
 		}
 	}
 
@@ -521,7 +521,7 @@ function template_user_subscription()
 	echo '
 			</tbody>
 		</table>
-	</div>';
+	</div><!-- #paid_subscription -->';
 }
 
 /**
@@ -575,16 +575,16 @@ function template_choose_payment()
 
 		foreach ($gateway['hidden'] as $name => $value)
 			echo '
-					<input type="hidden" id="', $gateway['id'], '_', $name, '" name="', $name, '" value="', $value, '">';
+				<input type="hidden" id="', $gateway['id'], '_', $name, '" name="', $name, '" value="', $value, '">';
 
 		echo '
 					<br><input type="submit" value="', $gateway['submit'], '" class="button">
-				</form>
+			</form>
 		</div>';
 	}
 
 	echo '
-	</div>
+	</div><!-- #paid_subscription -->
 	<br class="clear">';
 }
 

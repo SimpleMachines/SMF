@@ -177,7 +177,7 @@ function template_main()
 		}
 
 		echo '
-			</div>';
+			</div><!-- .postbody -->';
 	}
 }
 
@@ -187,7 +187,7 @@ function template_main()
 function template_print_below()
 {
 	echo '</div>
-		</div>';
+		</div><!-- #posts -->';
 
 	template_print_options();
 

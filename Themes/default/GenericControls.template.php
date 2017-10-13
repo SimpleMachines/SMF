@@ -312,7 +312,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 
 		if ($display_type != 'single')
 			echo '
-			</div>';
+			</div><!-- #verification_control_[i] -->';
 
 		// If we were displaying just one and we did it, break.
 		if ($display_type == 'single' && $verify_context['tracking'] == $i)

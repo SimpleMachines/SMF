@@ -179,7 +179,7 @@ function template_ban_edit()
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))
@@ -190,7 +190,7 @@ function template_ban_edit()
 	}
 
 	echo '
-	</div>
+	</div><!-- #manage_bans -->
 	<script>
 		var fUpdateStatus = function ()
 		{
@@ -296,13 +296,13 @@ function template_ban_edit_trigger()
 					</dl>
 				</fieldset>
 				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button">
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '">
 			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '">
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
 		</form>
-	</div>
+	</div><!-- #manage_bans -->
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',

@@ -298,8 +298,8 @@ function template_body_above()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- .inner_wrap -->
+	</div><!-- #top_section -->';
 
 	echo '
 	<div id="header">
@@ -348,13 +348,13 @@ function template_body_above()
 		template_menu();
 
 	echo '
-	</div>';
+				</div>';
 
 	theme_linktree();
 
 	echo '
-			</div>
-		</div>';
+			</div><!-- #inner_section -->
+		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '
@@ -370,10 +370,10 @@ function template_body_below()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-			</div>
-		</div>
-	</div>
-</div>';
+			</div><!-- #main_content_section -->
+		</div><!-- #content_section -->
+	</div><!-- #wrapper -->
+</div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
@@ -394,7 +394,7 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div>';
+	</div><!-- #footer -->';
 
 }
 
@@ -470,7 +470,7 @@ function theme_linktree($force_show = false)
 
 	echo '
 					</ul>
-				</div>';
+				</div><!-- .navigate_section -->';
 
 	$shown_linktree = true;
 }
@@ -535,7 +535,7 @@ function template_menu()
 	}
 
 	echo '
-					</ul>';
+					</ul><!-- .menu_nav -->';
 }
 
 /**
@@ -583,9 +583,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 					$button .= '</a>';
 				}
 				$button .= '
-							</div>
-						</div>
-					</div>';
+							</div><!-- .overview -->
+						</div><!-- .viewport -->
+					</div><!-- .top_menu -->';
 			}
 
 			$buttons[] = $button;

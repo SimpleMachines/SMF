@@ -62,7 +62,7 @@ function template_main()
 
 			// Show some basic information about the number of posts, etc.
 			echo '
-					</div>
+			</div><!-- .info -->
 					<div class="board_stats centertext">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
@@ -104,10 +104,10 @@ function template_main()
 			}
 
 			echo '
-				</div>';
+		</div><!-- #board_[id] -->';
 		}
 		echo '
-	</div>';
+	</div><!-- #board_[current_board]_childboards -->';
 	}
 
 	// They can only mark read if they are logged in and it's enabled!
@@ -191,15 +191,15 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<div class="moderation">&nbsp;</div>';
+				<div class="moderation">&nbsp;</div>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
 			echo '
-					<h3 class="titlebg">', $txt['topic_alert_none'], '</h3>';
+				<h3 class="titlebg">', $txt['topic_alert_none'], '</h3>';
 
 		echo '
-		</div>';
+			</div><!-- #topic_header -->';
 
 		// If this person can approve items and we have some awaiting approval tell them.
 		if (!empty($context['unapproved_posts_message']))
@@ -256,7 +256,7 @@ function template_main()
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
 							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">&nbsp;' . $topic['pages'] . '</span>' : '', '
 							<br class="clear">
-						</div>
+					</div><!-- .info -->
 					</div>
 					<div class="board_stats centertext"><p>', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</p></div>
 					<div class="lastpost">
@@ -290,13 +290,13 @@ function template_main()
 						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
 				}
 				echo '
-					</div>';
+					</div><!-- .moderation -->';
 			}
 			echo '
-				</div>';
+				</div><!-- $topic[css_class] -->';
 		}
 		echo '
-			</div>';
+			</div><!-- #topic_container -->';
 
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
@@ -320,11 +320,11 @@ function template_main()
 
 			echo '
 					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button qaction">
-				</div>';
+			</div><!-- #quick_actions -->';
 		}
 
 		echo '
-	</div>';
+		</div><!-- #messageindex -->';
 
 		// Finish off the form - again.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))
@@ -439,8 +439,8 @@ function template_topic_legend()
 
 	echo '
 			<br class="clear">
-		</div>
-	</div>';
+		</div><!-- .information -->
+	</div><!-- #topic_icons -->';
 }
 
 ?>

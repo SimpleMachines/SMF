@@ -111,8 +111,8 @@ function template_login()
 					<br>
 					<a href="javascript:self.close();"></a>';
 	echo '
-			</div>
-		</div>';
+			</div><!-- .roundframe -->
+		</div><!-- .login -->';
 }
 
 /**
@@ -181,8 +181,8 @@ function template_login_tfa()
 							$("#tfaCode").hide();
 						});
 				</script>
-			</div>
-		</div>';
+			</div><!-- .roundframe -->
+		</div><!-- .login -->';
 }
 
 /**
@@ -235,7 +235,7 @@ function template_kick_guest()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 			<input type="hidden" name="hash_passwrd" value="">
-		</div>
+		</div><!-- .login -->
 	</form>';
 
 	// Do the focus thing...
@@ -283,7 +283,7 @@ function template_maintenance()
 		<input type="hidden" name="hash_passwrd" value="">
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-	</div>
+		</div><!-- #maintenance_mode -->
 </form>';
 }
 
@@ -319,8 +319,8 @@ function template_admin_login()
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
-		</div>
-	</div>
+			</div><!-- .roundframe -->
+		</div><!-- #admin_login -->
 	<input type="hidden" name="', $context['sessionCheckType'], '_hash_pass" value="">
 </form>';
 
@@ -398,7 +398,7 @@ function template_resend()
 
 	echo '
 				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button"></p>
-			</div>
+			</div><!-- .roundframe -->
 		</form>';
 }
 

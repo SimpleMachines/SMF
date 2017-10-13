@@ -40,7 +40,7 @@ function template_generic_menu_dropdown_above()
 function template_generic_menu_dropdown_below()
 {
 	echo '
-				</div>';
+				</div><!-- #admin_content -->';
 }
 
 function template_generic_menu_mobile(&$menu_context)
@@ -134,8 +134,8 @@ function template_generic_menu(&$menu_context)
 	}
 
 	echo '
-					</ul>
-				</div>';
+					</ul><!-- .dropmenu -->
+				</div><!-- .generic_menu -->';
 }
 
 /**
@@ -233,7 +233,7 @@ function template_generic_menu_tabs(&$menu_context)
 		echo '
 							</h3>', (function_exists('template_admin_quick_search') ? '
 						</form>' : ''), '
-					</div>';
+					</div><!-- .cat_bar -->';
 	}
 
 	// Shall we use the tabs? Yes, it's the only known way!
@@ -273,7 +273,7 @@ function template_generic_menu_tabs(&$menu_context)
 		// the end of tabs
 		echo '
 						</ul>
-					</div>';
+					</div><!-- #adm_submenus -->';
 
 	}
 }

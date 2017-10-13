@@ -92,7 +92,7 @@ function template_maintain_database()
 	}
 
 	echo '
-	</div>';
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -173,7 +173,7 @@ function template_maintain_routine()
 				</p>
 			</form>
 		</div>
-	</div>';
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -282,7 +282,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
+		</div><!-- .windowbg2 -->
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['maintain_members'], '
@@ -310,7 +310,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
+		</div><!-- .windowbg2 -->
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_recountposts'], '</h3>
 		</div>
@@ -322,7 +322,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>
-	</div>
+	</div><!-- #manage_maintenance -->
 
 	<script>
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
@@ -429,19 +429,19 @@ function template_maintain_topics()
 		// Increase $i, and check if we're at the middle yet.
 		if (++$i == $middle)
 			echo '
-						</div>
+						</div><!-- .floatleft -->
 						<div class="floatright" style="width: 49%;">';
 	}
 
 	echo '
 						</div>
-					</div>
+					</div><!-- #rotPanel -->
 					<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_confirm'], '" class="button you_sure">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 				</form>
-			</div>
-		</div>
+			</div><!-- .flow_auto -->
+		</div><!-- .windowbg2 -->
 
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_old_drafts'], '</h3>
@@ -509,8 +509,8 @@ function template_maintain_topics()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -542,8 +542,8 @@ function template_optimize()
 	echo '
 			</p>
 			<p><a href="', $scripturl, '?action=admin;area=maintain">', $txt['maintain_return'], '</a></p>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -605,8 +605,8 @@ function template_convert_msgbody()
 			<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			<input type="submit" name="do_conversion" value="', $txt['entity_convert_proceed'], '" class="button">
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #manage_maintenance -->';
 }
 
 ?>
