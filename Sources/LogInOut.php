@@ -169,7 +169,7 @@ function Login2()
 		redirectexit();
 
 	// Are you guessing with a script?
-	checkSession();
+	checkSession('login');
 	validateToken('login');
 	spamProtection('login');
 
