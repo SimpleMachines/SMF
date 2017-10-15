@@ -99,7 +99,7 @@ function Login2()
 	{
 		if (isset($_COOKIE[$cookiename]) && (
 					preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1 || // Serial
-					preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1}(,"path"."\\\\/.*")?)?}$~' , $_COOKIE[$cookiename]) === 1 // JSON
+					preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1}(,"path":"\\\\/.*")?)?}$~' , $_COOKIE[$cookiename]) === 1 // JSON
 				)
 			)
 		{
