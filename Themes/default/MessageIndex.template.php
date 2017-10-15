@@ -72,9 +72,10 @@ function template_main()
 
 			if (!empty($board['last_post']['id']))
 				echo '
-						<p>', $board['last_post']['last_post_message'], '</p>';
+				<p>', $board['last_post']['last_post_message'], '</p>';
+
 			echo '
-					</div>';
+			</div>';
 
 			// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 			if (!empty($board['children']))
@@ -83,6 +84,7 @@ function template_main()
 				$children = array();
 				/* Each child in each board's children has:
 						id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
+
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
@@ -106,6 +108,7 @@ function template_main()
 			echo '
 		</div><!-- #board_[id] -->';
 		}
+
 		echo '
 	</div><!-- #board_[current_board]_childboards -->';
 	}
@@ -138,9 +141,10 @@ function template_main()
 	<div id="description_board" class="generic_list_wrapper">
 		<h3>', $context['name'], '</h3>
 		<p>';
-	if ($context['description'] != '')
-	echo '
-		', $context['description'], '&nbsp;';
+
+			if ($context['description'] != '')
+				echo '
+			', $context['description'], '&nbsp;';
 
 	if (!empty($context['moderators']))
 	echo '
@@ -158,21 +162,25 @@ function template_main()
 
 		echo '
 		<div id="messageindex">';
+
 		if (!empty($settings['display_who_viewing']))
 		{
-		echo '
+			echo '
 			<div class="information">';
+
 			if ($settings['display_who_viewing'] == 1)
 				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
-		else
+
+			else
 				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
 			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
 
 		echo '
 			</div>';
 		}
-	echo '
-		<div class="title_bar" id="topic_header">';
+
+		echo '
+			<div class="title_bar" id="topic_header">';
 
 		// Are there actually any topics to show?
 		if (!empty($context['topics']))
@@ -186,13 +194,16 @@ function template_main()
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<div class="moderation"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');"></div>';
+				<div class="moderation">
+					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
+				</div>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
 				<div class="moderation">&nbsp;</div>';
 		}
+
 		// No topics.... just say, "sorry bub".
 		else
 			echo '
@@ -228,6 +239,7 @@ function template_main()
 			// Now we handle the icons
 			echo '
 							<div class="icons floatright">';
+
 			if ($topic['is_watched'])
 				echo '
 								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
@@ -243,6 +255,7 @@ function template_main()
 			if ($topic['is_poll'])
 				echo '
 								<span class="generic_icons poll"></span>';
+
 			echo '
 							</div>';
 
@@ -268,6 +281,7 @@ function template_main()
 			{
 				echo '
 					<div class="moderation">';
+
 				if ($options['display_quick_mod'] == 1)
 					echo '
 						<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
@@ -389,7 +403,8 @@ function template_main()
 			<div id="mobile_action" class="popup_container">
 				<div class="popup_window description">
 					<div class="popup_heading">', $txt['mobile_action'], '
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+				<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+			</div>
 					', template_button_strip($context['normal_buttons']), '
 				</div>
 			</div>';

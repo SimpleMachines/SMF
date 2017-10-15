@@ -38,6 +38,7 @@ function template_edit_holiday()
 					<dd>
 						<select name="year" id="year" onchange="generateDays();">
 							<option value="0000"', $context['holiday']['year'] == '0000' ? ' selected' : '', '>', $txt['every_year'], '</option>';
+
 	// Show a list of all the years we allow...
 	for ($year = $modSettings['cal_minyear']; $year <= $modSettings['cal_maxyear']; $year++)
 		echo '

@@ -57,53 +57,53 @@ function template_group_requests_block()
 
 		foreach ($context['group_requests'] as $request)
 			echo '
-				<li class="smalltext">
-					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
-				</li>';
+					<li class="smalltext">
+						<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
+					</li>';
 
 		// Don't have any watched users right now?
 		if (empty($context['group_requests']))
 			echo '
-				<li>
-					<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
-				</li>';
+					<li>
+						<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
+					</li>';
 
 		echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #group_requests_panel -->
 
-	<script>
-		var oGroupRequestsPanelToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'group_requests_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'group_requests_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oGroupRequestsPanelToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'group_requests_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'group_requests_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'group_requests_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_group_requests']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_group_requests']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcgr\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'group_requests_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_group_requests']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_group_requests']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcgr\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -142,37 +142,37 @@ function template_watched_users()
 			</div><!-- .modbox -->
 		</div><!-- #watched_users_panel -->
 
-	<script>
-		var oWatchedUsersToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'watched_users_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'watched_users_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oWatchedUsersToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'watched_users_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'watched_users_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'watched_users_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_watched_users']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_watched_users']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcwu\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'watched_users_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_watched_users']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_watched_users']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcwu\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -211,37 +211,37 @@ function template_reported_posts_block()
 			</div><!-- .modbox -->
 		</div><!-- #reported_posts_panel -->
 
-	<script>
-		var oWatchedUsersToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'reported_posts_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'reported_posts_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oWatchedUsersToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'reported_posts_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'reported_posts_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'reported_posts_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcrp\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'reported_posts_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcrp\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -280,37 +280,37 @@ function template_reported_users_block()
 			</div><!-- .modbox -->
 		</div><!-- #reported_users_panel -->
 
-	<script>
-		var oWatchedUsersToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'reported_users_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'reported_users_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oWatchedUsersToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'reported_users_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'reported_users_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'reported_users_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_recent_user_reports']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_user_reports']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcur\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'reported_users_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_recent_user_reports']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_user_reports']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcur\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -324,9 +324,9 @@ function template_notes()
 	if (!empty($context['report_post_action']))
 	{
 		echo '
-			<div class="infobox">
-				', $txt['report_action_' . $context['report_post_action']], '
-			</div>';
+		<div class="infobox">
+			', $txt['report_action_' . $context['report_post_action']], '
+		</div>';
 	}
 
 	echo '
@@ -338,26 +338,28 @@ function template_notes()
 				<div class="windowbg2">
 					<div class="modbox">';
 
-		if (!empty($context['notes']))
-		{
-			echo '
+	if (!empty($context['notes']))
+	{
+		echo '
 						<ul class="moderation_notes">';
 
-			// Cycle through the notes.
-			foreach ($context['notes'] as $note)
-				echo '
-							<li class="smalltext">', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
-
+		// Cycle through the notes.
+		foreach ($context['notes'] as $note)
 			echo '
+							<li class="smalltext">
+								', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+							</li>';
+
+		echo '
 						</ul>
 						<div class="pagesection notes">
 							<span class="smalltext">', $context['page_index'], '</span>
 						</div>';
-		}
+	}
 
-		echo '
+	echo '
 						<div class="floatleft post_note">
-						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
+							<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
 						</div>
 						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
 						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
@@ -378,10 +380,10 @@ function template_unapproved_posts()
 	// Just a big table of it all really...
 	echo '
 	<div id="modcenter">
-	<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
-		</div>';
+		<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
+			</div>';
 
 	// Make up some buttons
 	$approve_button = create_button('approve', 'approve', 'approve');
@@ -390,9 +392,11 @@ function template_unapproved_posts()
 	// No posts?
 	if (empty($context['unapproved_items']))
 		echo '
-		<div class="windowbg2">
-			<p class="centertext">', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '</p>
-		</div>';
+			<div class="windowbg2">
+				<p class="centertext">
+					', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '
+				</p>
+			</div>';
 	else
 		echo '
 			<div class="pagesection floatleft">
@@ -402,57 +406,61 @@ function template_unapproved_posts()
 	foreach ($context['unapproved_items'] as $item)
 	{
 		echo '
-		<div class="windowbg clear">
-			<div class="counter">', $item['counter'], '</div>
-			<div class="topic_details">
-				<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
-				<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
-			</div>
-			<div class="list_posts">
-				<div class="post">', $item['body'], '</div>
-			</div>
-			<span class="floatright">
-				<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
+			<div class="windowbg clear">
+				<div class="counter">', $item['counter'], '</div>
+				<div class="topic_details">
+					<h5>
+						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
+					</h5>
+					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+				</div>
+				<div class="list_posts">
+					<div class="post">', $item['body'], '</div>
+				</div>
+				<span class="floatright">
+					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
 
 		if ($item['can_delete'])
 			echo '
-			', $context['menu_separator'], '
-				<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
+					', $context['menu_separator'], '
+					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
 
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 			echo '
-				<input type="checkbox" name="item[]" value="', $item['id'], '" checked> ';
+					<input type="checkbox" name="item[]" value="', $item['id'], '" checked> ';
 
 		echo '
-			</span>
+				</span>
 			</div><!-- .windowbg -->';
 	}
 
 	echo '
-		<div class="pagesection">';
+			<div class="pagesection">';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 		echo '
-			<div class="floatright">
-				<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', $txt['mc_unapproved_sure'], '\')) submit();">
-					<option value="0">', $txt['with_selected'], ':</option>
-					<option value="0" disabled>-------------------</option>
-					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
-					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
-				</select>
-				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button"></noscript>
-			</div>';
+				<div class="floatright">
+					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', $txt['mc_unapproved_sure'], '\')) submit();">
+						<option value="0">', $txt['with_selected'], ':</option>
+						<option value="0" disabled>-------------------</option>
+						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
+						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
+					</select>
+					<noscript>
+						<input type="submit" name="mc_go" value="', $txt['go'], '" class="button">
+					</noscript>
+				</div>';
 
 	if (!empty($context['unapproved_items']))
 		echo '
-			<div class="floatleft">
-				<div class="pagelinks">', $context['page_index'], '</div>
-			</div>';
+				<div class="floatleft">
+					<div class="pagelinks">', $context['page_index'], '</div>
+				</div>';
 
 	echo '
 			</div><!-- .pagesection -->
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-	</form>
+		</form>
 	</div><!-- #modcenter -->';
 }
 
@@ -484,7 +492,8 @@ function template_user_watch_post_callback($post)
 
 	$output_html .= '
 						</div>
-					</div><br>
+					</div>
+					<br>
 					<div class="smalltext">
 						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
@@ -628,10 +637,8 @@ function template_warn_template()
 				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
 						<strong>', $txt['mc_warning_template_personal'], '</strong>
-					</label>
-					<br>
-					<span class="smalltext">', $txt['mc_warning_template_personal_desc'], '</span>
-					<br>';
+					</label><br>
+					<span class="smalltext">', $txt['mc_warning_template_personal_desc'], '</span><br>';
 
 	echo '
 				<hr>

@@ -145,15 +145,18 @@ function template_permission_index()
 							<select name="add_remove">
 								<option value="add">', $txt['permissions_add'], '...</option>
 								<option value="clear">', $txt['permissions_remove'], '...</option>';
+
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
 								<option value="deny">', $txt['permissions_deny'], '...</option>';
+
 		echo '
 							</select>
 						</dt>
 						<dd style="overflow:auto;">
 							<select name="permissions">
 								<option value="">(', $txt['permissions_select_permission'], ')</option>';
+
 		foreach ($context['permissions'] as $permissionType)
 		{
 			if ($permissionType['id'] == 'membergroup' && !empty($context['profile']))
@@ -168,6 +171,7 @@ function template_permission_index()
 
 					echo '
 								<option value="" disabled>[', $permissionGroup['name'], ']</option>';
+
 					foreach ($permissionGroup['permissions'] as $perm)
 					{
 						if ($perm['hidden'])
@@ -299,7 +303,6 @@ function template_by_board()
 
 		foreach ($category['boards'] as $board)
 		{
-
 			echo '
 					<li class="flow_hidden">
 						<span class="perm_board floatleft">
@@ -490,6 +493,7 @@ function template_modify_group()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">';
+
 	if ($context['permission_type'] == 'board')
 		echo '
 				', $txt['permissions_local_for'], ' &quot;', $context['group']['name'], '&quot; ', $txt['permissions_on'], ' &quot;', $context['profile']['name'], '&quot;';
@@ -681,6 +685,7 @@ function template_inline_permissions()
 	echo '
 											<fieldset id="', $context['current_permission'], '">
 												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', $txt['avatar_select_permission'], '</a></legend>';
+
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
 												<ul>';
@@ -695,6 +700,7 @@ function template_inline_permissions()
 													</dt>
 													<dd>
 													</dd>';
+
 	foreach ($context['member_groups'] as $group)
 	{
 		if (!empty($modSettings['permission_enable_deny']))
@@ -854,6 +860,7 @@ function template_postmod_permissions()
 									<tr class="windowbg">
 										<td class="half_table">
 											<span ', ($group['color'] ? 'style="color: ' . $group['color'] . '"' : ''), '>', $group['name'], '</span>';
+
 				if (!empty($group['children']))
 					echo '
 											<br><span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';

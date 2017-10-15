@@ -48,34 +48,34 @@ function template_ban_edit()
 	}
 
 	echo '
-		<div class="windowbg2 noup">
-			<dl class="settings">
-				<dt id="ban_name_label">
-					<strong>', $txt['ban_name'], ':</strong>
-				</dt>
-				<dd>
-					<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60">
-				</dd>';
+			<div class="windowbg2 noup">
+				<dl class="settings">
+					<dt id="ban_name_label">
+						<strong>', $txt['ban_name'], ':</strong>
+					</dt>
+					<dd>
+						<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60">
+					</dd>';
 
 	if (isset($context['ban']['reason']))
 		echo '
-				<dt>
-					<strong><label for="reason">', $txt['ban_reason'], ':</label></strong><br>
-					<span class="smalltext">', $txt['ban_reason_desc'], '</span>
-				</dt>
-				<dd>
-					<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
-				</dd>';
+					<dt>
+						<strong><label for="reason">', $txt['ban_reason'], ':</label></strong><br>
+						<span class="smalltext">', $txt['ban_reason_desc'], '</span>
+					</dt>
+					<dd>
+						<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
+					</dd>';
 
 	if (isset($context['ban']['notes']))
 		echo '
-				<dt>
-					<strong><label for="ban_notes">', $txt['ban_notes'], ':</label></strong><br>
-					<span class="smalltext">', $txt['ban_notes_desc'], '</span>
-				</dt>
-				<dd>
-					<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
-				</dd>';
+					<dt>
+						<strong><label for="ban_notes">', $txt['ban_notes'], ':</label></strong><br>
+						<span class="smalltext">', $txt['ban_notes_desc'], '</span>
+					</dt>
+					<dd>
+						<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
+					</dd>';
 
 	echo '
 				</dl>
@@ -204,7 +204,7 @@ function template_ban_edit()
 	// Auto suggest only needed for adding new bans, not editing
 	if ($context['ban']['is_new'] && empty($_REQUEST['u']))
 		echo '
-			var oAddMemberSuggest = new smc_AutoSuggest({
+		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
@@ -236,7 +236,8 @@ function template_ban_edit()
 				alert(\'', $txt['ban_restriction_empty'], '\');
 				return false;
 			}
-		}</script>';
+		}
+	</script>';
 }
 
 /**
@@ -268,17 +269,17 @@ function template_ban_edit_trigger()
 							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
 						</dd>';
 
-				if (empty($modSettings['disableHostnameLookup']))
-					echo '
-							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
-								<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
-							</dt>
-							<dd>
-								<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
-							</dd>';
+	if (empty($modSettings['disableHostnameLookup']))
+		echo '
+						<dt>
+							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
+							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
+						</dt>
+						<dd>
+							<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
+						</dd>';
 
-				echo '
+	echo '
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
 							<label for="email_check">', $txt['ban_on_email'], '</label>

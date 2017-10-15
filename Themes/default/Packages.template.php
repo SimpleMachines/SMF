@@ -39,7 +39,8 @@ function template_view_package()
 			<br>';
 
 	echo $txt['package_installed_warning3'], '
-		</div><br>';
+		</div>
+		<br>';
 
 	// Do errors exist in the install? If so light them up like a christmas tree.
 	if ($context['has_failure'])
@@ -60,14 +61,15 @@ function template_view_package()
 				<h3 class="catbg">', $txt['package_' . ($context['uninstalling'] ? 'un' : '') . 'install_readme'], '</h3>
 			</div>
 			<div class="windowbg2">
-				', $context['package_readme'], '
-				<span class="floatright">', $txt['package_available_readme_language'], '
-					<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
-						foreach ($context['readmes'] as $a => $b)
+			', $context['package_readme'], '
+			<span class="floatright">', $txt['package_available_readme_language'], '
+				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
+
+		foreach ($context['readmes'] as $a => $b)
 							echo '<option value="', $b, '"', $a === 'selected' ? ' selected' : '', '>', $b == 'default' ? $txt['package_readme_default'] : ucfirst($b), '</option>';
-			echo '
-					</select>
-				</span>
+		echo '
+				</select>
+			</span>
 			</div>
 			<br>';
 	}
@@ -80,14 +82,15 @@ function template_view_package()
 				<h3 class="catbg">', $txt['package_install_license'], '</h3>
 			</div>
 			<div class="windowbg2">
-				', $context['package_license'], '
-				<span class="floatright">', $txt['package_available_license_language'], '
-					<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
-						foreach ($context['licenses'] as $a => $b)
+			', $context['package_license'], '
+			<span class="floatright">', $txt['package_available_license_language'], '
+				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
+
+		foreach ($context['licenses'] as $a => $b)
 							echo '<option value="', $b, '"', $a === 'selected' ? ' selected' : '', '>', $b == 'default' ? $txt['package_license_default'] : ucfirst($b), '</option>';
-			echo '
-					</select>
-				</span>
+		echo '
+				</select>
+			</span>
 			</div>
 			<br>';
 	}
@@ -103,7 +106,7 @@ function template_view_package()
 	// Are there data changes to be removed?
 	if ($context['uninstalling'] && !empty($context['database_changes']))
 	{
-		/* This is really a special case so we're adding style inline */
+		// This is really a special case so we're adding style inline
 		echo '
 			<div class="windowbg2" style="margin: 0; border-radius: 0;">
 				<label for="do_db_changes"><input type="checkbox" name="do_db_changes" id="do_db_changes">', $txt['package_db_uninstall'], '</label> [<a href="#" onclick="return swap_database_changes();">', $txt['package_db_uninstall_details'], '</a>]
@@ -231,6 +234,7 @@ function template_view_package()
 					<tr class="title_bar">
 						<td></td>
 						<td>';
+
 				if (!empty($context['themes_locked']))
 					echo '
 							<input type="hidden" name="custom_theme[]" value="', $id, '">';
@@ -317,6 +321,7 @@ function template_view_package()
 				', template_control_chmod(), '
 			</div>';
 	}
+
 	echo '
 
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">', (isset($context['form_sequence_number']) && !$context['ftp_needed']) ? '
@@ -433,14 +438,17 @@ function template_extract_package()
 	elseif ($context['uninstalling'])
 		echo '
 			', $txt['package_uninstall_done'];
+
 	elseif ($context['install_finished'])
 	{
 		if ($context['extract_type'] == 'avatar')
 			echo '
 				', $txt['avatars_extracted'];
+
 		elseif ($context['extract_type'] == 'language')
 			echo '
 				', $txt['language_extracted'];
+
 		else
 			echo '
 				', $txt['package_installed_done'];
@@ -767,6 +775,7 @@ function template_servers()
 				<fieldset>
 					<legend>' . $txt['package_servers'] . '</legend>
 					<ul class="package_servers">';
+
 	foreach ($context['servers'] as $server)
 		echo '
 						<li class="flow_auto">
@@ -865,6 +874,7 @@ function template_package_list()
 			<ul>
 				<li>', $txt['no_packages'], '</li>
 			</ul>';
+
 	// List out the packages...
 	else
 	{
@@ -921,20 +931,23 @@ function template_package_list()
 					if ($package['type'] != '')
 						echo '
 							<li class="package_section">', $txt['package_type'], ':&nbsp; ', $smcFunc['ucwords']($smcFunc['strtolower']($package['type'])), '</li>';
+
 					// Show the version number?
 					if ($package['version'] != '')
 						echo '
 							<li class="package_section">', $txt['mod_version'], ':&nbsp; ', $package['version'], '</li>';
+
 					// How 'bout the author?
 					if (!empty($package['author']) && $package['author']['name'] != '' && isset($package['author']['link']))
 						echo '
 							<li class="package_section">', $txt['mod_author'], ':&nbsp; ', $package['author']['link'], '</li>';
+
 					// The homepage....
 					if ($package['author']['website']['link'] != '')
 						echo '
 							<li class="package_section">', $txt['author_website'], ':&nbsp; ', $package['author']['website']['link'], '</li>';
 
-					// Desciption: bleh bleh!
+					// Description: bleh bleh!
 					// Location of file: http://someplace/.
 					echo '
 							<li class="package_section">', $txt['file_location'], ':&nbsp; <a href="', $package['href'], '">', $package['href'], '</a></li>
@@ -962,8 +975,10 @@ function template_package_list()
 	if (!empty($context['package_list']))
 	{
 		$section_count = count($context['package_list']);
+
 		echo '
 	<script>';
+
 		foreach ($context['package_list'] as $section => $ps)
 		{
 			echo '
@@ -999,12 +1014,13 @@ function template_package_list()
 							altCollapsed: \'*\'
 						}
 					]
-				});';
-				}
+		});';
 			}
-			echo '
-			</script>';
 		}
+
+		echo '
+	</script>';
+	}
 }
 
 /**
@@ -1114,6 +1130,7 @@ function template_control_chmod()
 				<div id="need_writable_list" class="smalltext">
 					', $txt['package_ftp_why_file_list'], '
 					<ul style="display: inline;">';
+
 		if (!empty($context['notwritable_files']))
 			foreach ($context['notwritable_files'] as $file)
 				echo '
@@ -1174,7 +1191,6 @@ function template_control_chmod()
 
 	if (empty($context['package_ftp']['form_elements_only']))
 		echo '
-
 					<div class="righttext" style="margin: 1ex;">
 						<span id="test_ftp_placeholder_full"></span>
 						<input type="submit" value="', $txt['package_proceed'], '" class="button">
@@ -1562,8 +1578,7 @@ function template_file_permissions()
 					<td class="centertext perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext"></td>
 					<td class="centertext perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext"></td>
 					<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext"></td>
-				</tr>
-			';
+				</tr>';
 
 		if (!empty($dir['contents']))
 			template_permission_show_contents($name, $dir['contents'], 1);
@@ -1620,8 +1635,10 @@ function template_file_permissions()
 	foreach ($context['look_for'] as $path)
 		echo '
 			<input type="hidden" name="back_look[]" value="', $path, '">';
+
 	echo '
-	</form><br>';
+	</form>
+	<br>';
 }
 
 /**
@@ -1653,9 +1670,10 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 			}
 
 			$cur_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident . '/' . $name);
+
 			echo '
-			<tr class="windowbg" id="content_', $cur_ident, '">
-				<td class="smalltext" width="30%">' . str_repeat('&nbsp;', $level * 5), '
+				<tr class="windowbg" id="content_', $cur_ident, '">
+					<td class="smalltext" width="30%">' . str_repeat('&nbsp;', $level * 5), '
 					', (!empty($dir['type']) && $dir['type'] == 'dir_recursive') || !empty($dir['list_contents']) ? '<a id="link_' . $cur_ident . '" href="' . $scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident . '/' . $name) . ';back_look=' . $context['back_look_data'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '#fol_' . $cur_ident . '" onclick="return expandFolder(\'' . $cur_ident . '\', \'' . addcslashes($ident . '/' . $name, "'\\") . '\');">' : '';
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
@@ -1743,7 +1761,8 @@ function template_action_permissions()
 	echo '
 			<div class="windowbg">
 				<div>
-					<strong>', $progress_message, '</strong><br><br>
+					<strong>', $progress_message, '</strong><br>
+					<br>
 					<div class="progress_bar">
 						<div class="full_bar">', $progress_percent, '%</div>
 						<div class="blue_percent" style="width: ', $progress_percent, '%;">&nbsp;</div>

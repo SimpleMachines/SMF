@@ -64,7 +64,9 @@ function template_reported_posts()
 			', $report['body'], '
 			<br>
 			<ul class="quickbuttons">
-				<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
+				<li>
+					<a href="', $report['report_href'], '">', $details_button, '</a>
+				</li>
 				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" ', (!$report['ignore'] ? ' class="you_sure" data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
 				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
 
@@ -229,7 +231,9 @@ function template_viewmodreport()
 	foreach ($context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
+				<p class="smalltext">
+					', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+				</p>
 				<p>', $comment['message'], '</p>
 			</div>';
 
@@ -250,7 +254,9 @@ function template_viewmodreport()
 	{
 		echo '
 					<div class="title_bar">
-						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
+					<h3 class="titlebg">
+						', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '
+					</h3>
 					</div>';
 
 		echo '
@@ -525,7 +531,9 @@ function template_viewmemberreport()
 	foreach ($context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
+				<p class="smalltext">
+					', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
+				</p>
 				<p>', $comment['message'], '</p>
 			</div>';
 

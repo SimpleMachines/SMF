@@ -21,8 +21,10 @@ function template_show_list($list_id = null)
 
 	// Get a shortcut to the current list.
 	$list_id = $list_id === null ? (!empty($context['default_list']) ? $context['default_list'] : '') : $list_id;
+
 	if (empty($list_id) || empty($context[$list_id]))
 		return;
+
 	$cur_list = &$context[$list_id];
 
 	// These are the main tabs that is used all around the template.
@@ -36,19 +38,21 @@ function template_show_list($list_id = null)
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $cur_list['title'], '
-				</h3>
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $cur_list['title'], '
+			</h3>
+		</div>';
 
 	if (isset($cur_list['additional_rows']['after_title']))
 	{
 		echo '
-			<div class="information flow_hidden">';
+		<div class="information flow_hidden">';
+
 		template_additional_rows('after_title', $cur_list);
+
 		echo '
-			</div>';
+		</div>';
 	}
 
 	if (isset($cur_list['additional_rows']['top_of_list']))
@@ -59,16 +63,16 @@ function template_show_list($list_id = null)
 		// Show the page index (if this list doesn't intend to show all items).
 		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
-				<div class="floatleft">
-					<div class="pagesection">', $cur_list['page_index'], '</div>
-				</div>';
+		<div class="floatleft">
+			<div class="pagesection">', $cur_list['page_index'], '</div>
+		</div>';
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
 			template_additional_rows('above_column_headers', $cur_list);
 	}
 
 	echo '
-			<table class="table_grid" ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+		<table class="table_grid" ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
@@ -82,7 +86,9 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['headers'] as $col_header)
 		{
 			echo '
-					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '</th>';
+					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>
+						', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '
+					</th>';
 		}
 
 		echo '
@@ -90,14 +96,16 @@ function template_show_list($list_id = null)
 			</thead>';
 	}
 
-		echo '
+	echo '
 			<tbody>';
 
 	// Show a nice message informing there are no items in this list.
 	if (empty($cur_list['rows']) && !empty($cur_list['no_items_label']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', $cur_list['num_columns'], '" class="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'centertext', '">', $cur_list['no_items_label'], '</td>
+					<td colspan="', $cur_list['num_columns'], '" class="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'centertext', '">
+						', $cur_list['no_items_label'], '
+					</td>
 				</tr>';
 
 	// Show the list rows.
@@ -111,7 +119,9 @@ function template_show_list($list_id = null)
 			if (!empty($row['data']))
 				foreach ($row['data'] as $row_data)
 					echo '
-					<td', empty($row_data['class']) ? '' : ' class="' . $row_data['class'] . '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>', $row_data['value'], '</td>';
+					<td', empty($row_data['class']) ? '' : ' class="' . $row_data['class'] . '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>
+						', $row_data['value'], '
+					</td>';
 
 			echo '
 				</tr>';
@@ -120,25 +130,25 @@ function template_show_list($list_id = null)
 
 	echo '
 			</tbody>
-			</table>';
+		</table>';
 
 	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['below_table_data']))
 	{
 		echo '
-			<div class="flow_auto">';
+		<div class="flow_auto">';
 
 		// Show the page index (if this list doesn't intend to show all items).
 		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
-				<div class="floatleft">
-					<div class="pagesection">', $cur_list['page_index'], '</div>
-				</div>';
+			<div class="floatleft">
+				<div class="pagesection">', $cur_list['page_index'], '</div>
+			</div>';
 
 		if (isset($cur_list['additional_rows']['below_table_data']))
 			template_additional_rows('below_table_data', $cur_list);
 
 		echo '
-			</div>';
+		</div>';
 	}
 
 	if (isset($cur_list['additional_rows']['bottom_of_list']))
@@ -148,11 +158,11 @@ function template_show_list($list_id = null)
 	{
 		foreach ($cur_list['form']['hidden_fields'] as $name => $value)
 			echo '
-			<input type="hidden" name="', $name, '" value="', $value, '">';
+		<input type="hidden" name="', $name, '" value="', $value, '">';
 
 		if (isset($cur_list['form']['token']))
 			echo '
-			<input type="hidden" name="', $context[$cur_list['form']['token'] . '_token_var'], '" value="', $context[$cur_list['form']['token'] . '_token'], '">';
+		<input type="hidden" name="', $context[$cur_list['form']['token'] . '_token_var'], '" value="', $context[$cur_list['form']['token'] . '_token'], '">';
 
 		echo '
 	</form>';
@@ -179,7 +189,9 @@ function template_additional_rows($row_position, $cur_list)
 {
 	foreach ($cur_list['additional_rows'][$row_position] as $row)
 		echo '
-			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>', $row['value'], '</div>';
+			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>
+				', $row['value'], '
+			</div>';
 }
 
 /**

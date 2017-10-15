@@ -29,6 +29,7 @@ function template_main()
 	// Start with message icons - and any missing from this theme.
 	echo '
 			var icon_urls = {';
+
 	foreach ($context['icons'] as $icon)
 		echo '
 				\'', $icon['value'], '\': \'', $icon['url'], '\'', $icon['is_last'] ? '' : ',';
@@ -78,7 +79,8 @@ function template_main()
 				<div id="preview_body" class="windowbg noup">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
-			</div><br>';
+			</div>
+			<br>';
 
 	if ($context['make_event'] && (!$context['event']['new'] || !empty($context['current_board'])))
 		echo '
@@ -168,32 +170,33 @@ function template_main()
 								</div>
 							</div>';
 
-			// If this is a new event let the user specify which board they want the linked post to be put into.
-			if ($context['event']['new'] && $context['is_new_post'])
-			{
-				echo '
+		// If this is a new event let the user specify which board they want the linked post to be put into.
+		if ($context['event']['new'] && $context['is_new_post'])
+		{
+			echo '
 							<div class="event_options_right" id="event_board">
 								<div>
 									<span class="label">', $txt['calendar_post_in'], '</span>
-									<select name="board">';
-				foreach ($context['event']['categories'] as $category)
-				{
-					echo '
-										<optgroup label="', $category['name'], '">';
-					foreach ($category['boards'] as $board)
-						echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
-					echo '
-										</optgroup>';
-				}
+								<select name="board">';
+			foreach ($context['event']['categories'] as $category)
+			{
 				echo '
+										<optgroup label="', $category['name'], '">';
+
+				foreach ($category['boards'] as $board)
+					echo '
+											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+				echo '
+										</optgroup>';
+			}
+			echo '
 									</select>
 								</div>
 							</div><!-- #event_board -->';
-			}
+		}
 
-			// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
-			echo '
+		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
+		echo '
 						</fieldset>
 						<fieldset id="event_options">
 							<legend>', $txt['calendar_event_options'], '</legend>
@@ -218,11 +221,11 @@ function template_main()
 									<span class="label">', $txt['calendar_timezone'], '</span>
 									<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
 
-			foreach ($context['all_timezones'] as $tz => $tzname)
-				echo '
+		foreach ($context['all_timezones'] as $tz => $tzname)
+			echo '
 										<option value="', $tz, '"', $tz == $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
 
-			echo '
+		echo '
 									</select>
 								</div>
 							</div><!-- #event_time_options -->
@@ -244,7 +247,9 @@ function template_main()
 							<legend><span ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['poll_question'], '</span></legend>
 							<dl class="settings poll_options">
 								<dt>', $txt['poll_question'], '</dt>
-								<dd><input type="text" name="question" value="', isset($context['question']) ? $context['question'] : '', '" tabindex="', $context['tabindex']++, '" size="80"></dd>';
+								<dd>
+									<input type="text" name="question" value="', isset($context['question']) ? $context['question'] : '', '" tabindex="', $context['tabindex']++, '" size="80">
+								</dd>';
 
 		// Loop through all the choices and print them out.
 		foreach ($context['choices'] as $choice)
@@ -342,7 +347,7 @@ function template_main()
 	echo '
 					<div id="postAdditionalOptions">';
 
-	// Display the check boxes for all the standard options - if they are available to the user!
+	// Display the checkboxes for all the standard options - if they are available to the user!
 	echo '
 						<div id="postMoreOptions" class="smalltext">
 							<ul class="post_options">
@@ -369,6 +374,7 @@ function template_main()
 								<input type="hidden" name="attach_del[]" value="0">
 								', $txt['uncheck_unwatchd_attach'], ':
 							</dd>';
+
 		foreach ($context['current_attachments'] as $attachment)
 			echo '
 							<dd class="smalltext">
@@ -387,8 +393,8 @@ function template_main()
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
-			// Print dropzone UI.
-			echo '
+		// Print dropzone UI.
+		echo '
 						<div class="files" id="au-previews">
 							<div id="au-template">
 								<div class="attach-preview">
@@ -499,8 +505,9 @@ function template_main()
 						</dl>';
 	}
 
-		echo '
+	echo '
 					</div><!-- #postAdditionalOptions -->';
+
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
@@ -920,21 +927,18 @@ function template_spellcheck()
 		<title>', $txt['spell_check'], '</title>
 		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style>
-			body, td
-			{
+			body, td {
 				font-size: small;
 				margin: 0;
 				background: #f0f0f0;
 				color: #000;
 				padding: 10px;
 			}
-			.highlight
-			{
+			.highlight {
 				color: red;
 				font-weight: bold;
 			}
-			#spellview
-			{
+			#spellview {
 				border-style: outset;
 				border: 1px solid black;
 				padding: 5px;
@@ -960,17 +964,19 @@ function template_spellcheck()
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
 			<div id="spellview">&nbsp;</div>
-			<table width="100%"><tr class="windowbg">
-				<td style="width: 50%; vertical-align: top">
-					', $txt['spellcheck_change_to'], '<br>
-					<input type="text" name="changeto" style="width: 98%;">
-				</td>
-				<td style="width: 50%">
-					', $txt['spellcheck_suggest'], '<br>
-					<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
-					</select>
-				</td>
-			</tr></table>
+			<table width="100%">
+				<tr class="windowbg">
+					<td style="width: 50%; vertical-align: top">
+						', $txt['spellcheck_change_to'], '<br>
+						<input type="text" name="changeto" style="width: 98%;">
+					</td>
+					<td style="width: 50%">
+						', $txt['spellcheck_suggest'], '<br>
+						<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
+						</select>
+					</td>
+				</tr>
+			</table>
 			<div class="righttext" style="padding: 4px;">
 				<input type="button" name="change" value="', $txt['spellcheck_change'], '" onclick="replaceWord();" class="button">
 				<input type="button" name="changeall" value="', $txt['spellcheck_change_all'], '" onclick="replaceAll();" class="button">
@@ -1006,7 +1012,7 @@ function template_quotefast()
 			window.close();';
 	else
 	{
-		// Lucky for us, Internet Explorer has an "innerText" feature which basically converts entities <--> text. Use it if possible ;).
+		// Lucky for us, Internet Explorer has an "innerText" feature which basically converts entities <--> text. Use it if possible ;)
 		echo '
 			var quote = \'', $context['quote']['text'], '\';
 			var stage = \'createElement\' in document ? document.createElement("DIV") : document.getElementById("temporary_posting_area");
@@ -1095,7 +1101,9 @@ function template_announcement_send()
 	<div id="announcement">
 		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
-				<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank">', $context['topic_subject'], '</a></p>
+				<p>
+					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank">', $context['topic_subject'], '</a>
+				</p>
 				<div class="progress_bar">
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
@@ -1115,23 +1123,23 @@ function template_announcement_send()
 		</form>
 	</div><!-- #announcement -->
 	<br>
-		<script>
-			var countdown = 2;
-			doAutoSubmit();
+	<script>
+		var countdown = 2;
+		doAutoSubmit();
 
-			function doAutoSubmit()
-			{
-				if (countdown == 0)
-					document.forms.autoSubmit.submit();
-				else if (countdown == -1)
-					return;
+		function doAutoSubmit()
+		{
+			if (countdown == 0)
+				document.forms.autoSubmit.submit();
+			else if (countdown == -1)
+				return;
 
-				document.forms.autoSubmit.b.value = "', $txt['announce_continue'], ' (" + countdown + ")";
-				countdown--;
+			document.forms.autoSubmit.b.value = "', $txt['announce_continue'], ' (" + countdown + ")";
+			countdown--;
 
-				setTimeout("doAutoSubmit();", 1000);
-			}
-		</script>';
+			setTimeout("doAutoSubmit();", 1000);
+		}
+	</script>';
 }
 
 ?>

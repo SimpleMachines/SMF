@@ -122,7 +122,9 @@ function template_set_password()
 						</span>
 					</dd>
 				</dl>
-				<p class="align_center"><input type="submit" value="', $txt['save'], '" class="button"></p>
+				<p class="align_center">
+					<input type="submit" value="', $txt['save'], '" class="button">
+				</p>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
 		<input type="hidden" name="code" value="', $context['code'], '">
@@ -131,15 +133,15 @@ function template_set_password()
 		<input type="hidden" name="', $context['remind-sp_token_var'], '" value="', $context['remind-sp_token'], '">
 	</form>
 	<script>
-	var regTextStrings = {
-		"password_short": "', $txt['registration_password_short'], '",
-		"password_reserved": "', $txt['registration_password_reserved'], '",
-		"password_numbercase": "', $txt['registration_password_numbercase'], '",
-		"password_no_match": "', $txt['registration_password_no_match'], '",
-		"password_valid": "', $txt['registration_password_valid'], '"
-	};
-	var verificationHandle = new smfRegister("reminder_form", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-</script>';
+		var regTextStrings = {
+			"password_short": "', $txt['registration_password_short'], '",
+			"password_reserved": "', $txt['registration_password_reserved'], '",
+			"password_numbercase": "', $txt['registration_password_numbercase'], '",
+			"password_no_match": "', $txt['registration_password_no_match'], '",
+			"password_valid": "', $txt['registration_password_valid'], '"
+		};
+		var verificationHandle = new smfRegister("reminder_form", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
+	</script>';
 }
 
 /**
@@ -187,16 +189,16 @@ function template_ask()
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
 	</form>
-<script>
-	var regTextStrings = {
-		"password_short": "', $txt['registration_password_short'], '",
-		"password_reserved": "', $txt['registration_password_reserved'], '",
-		"password_numbercase": "', $txt['registration_password_numbercase'], '",
-		"password_no_match": "', $txt['registration_password_no_match'], '",
-		"password_valid": "', $txt['registration_password_valid'], '"
-	};
-	var verificationHandle = new smfRegister("creator", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-</script>';
+	<script>
+		var regTextStrings = {
+			"password_short": "', $txt['registration_password_short'], '",
+			"password_reserved": "', $txt['registration_password_reserved'], '",
+			"password_numbercase": "', $txt['registration_password_numbercase'], '",
+			"password_no_match": "', $txt['registration_password_no_match'], '",
+			"password_valid": "', $txt['registration_password_valid'], '"
+		};
+		var verificationHandle = new smfRegister("creator", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
+	</script>';
 
 }
 

@@ -20,7 +20,8 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons mail icon"></span>', $txt['notify'], '
+				<span class="generic_icons mail icon"></span>
+				', $txt['notify'], '
 			</h3>
 		</div>
 		<div class="roundframe centertext">
@@ -41,7 +42,8 @@ function template_notify_board()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons mail icon"></span>', $txt['notify'], '
+				<span class="generic_icons mail icon"></span>
+				', $txt['notify'], '
 			</h3>
 		</div>
 		<div class="roundframe centertext">

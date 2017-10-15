@@ -49,8 +49,8 @@ function template_main()
 	echo '
 				</dd>
 
-				<dt class="righttext"><label for="searchtype">',
-					$txt['search_match'], ':</label>
+				<dt class="righttext">
+					<label for="searchtype">', $txt['search_match'], ':</label>
 				</dt>
 				<dd>
 					<select name="searchtype" id="searchtype">
@@ -58,14 +58,14 @@ function template_main()
 						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
 					</select>
 				</dd>
-				<dt class="righttext"><label for="userspec">',
-					$txt['by_user'], ':</label>
+				<dt class="righttext">
+					<label for="userspec">', $txt['by_user'], ':</label>
 				</dt>
 				<dd>
 					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
 				</dd>
-				<dt class="righttext"><label for="sort">',
-					$txt['search_order'], ':</label>
+				<dt class="righttext">
+					<label for="sort">', $txt['search_order'], ':</label>
 				</dt>
 				<dd>
 					<select id="sort" name="sort">
@@ -117,7 +117,9 @@ function template_main()
 	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
 	if (!empty($context['search_params']['topic']))
 		echo '
-				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
+			<p>
+				', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.
+			</p>
 				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
 				<input type="submit" name="b_search" value="', $txt['search'], '" class="button">';
 
@@ -272,6 +274,7 @@ function template_results()
 					<input type="hidden" name="maxage" value="', !empty($context['search_params']['maxage']) ? $context['search_params']['maxage'] : '9999', '">
 					<input type="hidden" name="sort" value="', !empty($context['search_params']['sort']) ? $context['search_params']['sort'] : 'relevance', '">
 				</div>';
+
 		if (!empty($context['search_params']['brd']))
 			foreach ($context['search_params']['brd'] as $board_id)
 				echo '
@@ -286,7 +289,7 @@ function template_results()
 
 	if ($context['compact'])
 	{
-		// Quick moderation set to checkboxes? Oh, how fun :/.
+		// Quick moderation set to checkboxes? Oh, how fun :/
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 			echo '
 	<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="topicForm">';
@@ -295,6 +298,7 @@ function template_results()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="floatright">';
+
 					if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 					echo '
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
@@ -304,17 +308,18 @@ function template_results()
 			</h3>
 		</div>';
 
-		// was anything even found?
+		// Was anything even found?
 		if (!empty($context['topics']))
 		echo'
 		<div class="pagesection">
 			<span>', $context['page_index'], '</span>
 		</div>';
+
 		else
 			echo '
 			<div class="roundframe">', $txt['find_no_results'], '</div>';
 
-		// while we have results to show ...
+		// While we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
 
@@ -370,8 +375,8 @@ function template_results()
 
 				if ($message['body_highlighted'] != '')
 					echo '
-					<br class="clear">
-					<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
+				<br class="clear">
+				<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
@@ -380,7 +385,7 @@ function template_results()
 
 		}
 		if (!empty($context['topics']))
-		echo '
+			echo '
 		<div class="pagesection">
 			<span>', $context['page_index'], '</span>
 		</div>';

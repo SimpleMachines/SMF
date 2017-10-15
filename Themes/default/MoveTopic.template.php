@@ -104,6 +104,7 @@ function template_redirect_options($type)
 							<dd>
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
 							</dd>';
+
 	if (!empty($modSettings['allow_expire_redirect']))
 	{
 		echo '
@@ -184,7 +185,8 @@ function template_merge()
 						', $context['origin_subject'], '
 					</dd>
 				</dl>
-			</div><br>
+			</div>
+			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
@@ -306,8 +308,9 @@ function template_merge_extra_options()
 					</tr>
 				</thead>
 				<tbody>';
-		foreach ($context['topics'] as $topic)
-			echo '
+
+	foreach ($context['topics'] as $topic)
+		echo '
 					<tr class="windowbg">
 						<td>
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
@@ -337,6 +340,7 @@ function template_merge_extra_options()
 				<fieldset id="merge_subject" class="merge_options">
 					<legend>', $txt['merge_select_subject'], '</legend>
 					<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
+
 	foreach ($context['topics'] as $topic)
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
@@ -357,6 +361,7 @@ function template_merge_extra_options()
 				<fieldset id="merge_board" class="merge_options">
 					<legend>', $txt['merge_select_target_board'], '</legend>
 					<ul>';
+
 		foreach ($context['boards'] as $board)
 			echo '
 						<li>
@@ -372,6 +377,7 @@ function template_merge_extra_options()
 				<fieldset id="merge_poll" class="merge_options">
 					<legend>' . $txt['merge_select_poll'] . '</legend>
 					<ul>';
+
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>

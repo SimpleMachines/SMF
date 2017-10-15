@@ -97,7 +97,9 @@ function template_registration_form()
 			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form">
-						<dt><strong><label for="smf_autov_username">', $txt['username'], ':</label></strong></dt>
+						<dt>
+							<strong><label for="smf_autov_username">', $txt['username'], ':</label></strong>
+						</dt>
 						<dd>
 							<input type="text" name="user" id="smf_autov_username" size="30" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
 							<span id="smf_autov_username_div" style="display: none;">
@@ -121,7 +123,9 @@ function template_registration_form()
 						</dd>
 					</dl>
 					<dl class="register_form" id="password2_group">
-						<dt><strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong></dt>
+						<dt>
+							<strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong>
+						</dt>
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwverify_div" style="display: none;">
@@ -130,7 +134,9 @@ function template_registration_form()
 						</dd>
 					</dl>
 					<dl class="register_form" id="notify_announcements">
-						<dt><strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong></dt>
+						<dt>
+							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>
+						</dt>
 						<dd>
 							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' />
 						</dd>
@@ -231,6 +237,7 @@ function template_registration_form()
 						// Is this some code to generate the options?
 						if (!is_array($field['options']))
 							$field['options'] = eval($field['options']);
+
 						// Assuming we now have some!
 						if (is_array($field['options']))
 							foreach ($field['options'] as $value => $name)
@@ -402,19 +409,22 @@ function template_coppa_form()
 		<table style="width: 100%; padding: 3px; border: 0" class="tborder">
 			<tr>
 				<td>', $context['forum_contacts'], '</td>
-			</tr><tr>
+			</tr>
+			<tr>
 				<td class="righttext">
 					<em>', $txt['coppa_form_address'], '</em>: ', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '
 				</td>
-			</tr><tr>
+			</tr>
+			<tr>
 				<td class="righttext">
 					<em>', $txt['coppa_form_date'], '</em>: ', $context['ul'], '
 					<br><br>
 				</td>
-			</tr><tr>
+			</tr>
+			<tr>
 				<td>
 					', $context['coppa_body'], '
 				</td>
@@ -586,7 +596,7 @@ function template_edit_agreement()
 		echo '
 					<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';
 
-	// Just a big box to edit the text file ;).
+	// Just a big box to edit the text file ;)
 	echo '
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">

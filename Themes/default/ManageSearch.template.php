@@ -144,11 +144,12 @@ function template_select_search_method()
 							', $txt['search_method_fulltext_index'], '
 						</dt>
 						<dd>
-
 							<span class="smalltext">';
+
 	if (empty($context['fulltext_index']) && empty($context['cannot_create_fulltext']))
 		echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_no_index_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createfulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_create'], '</a>]';
+
 	elseif (empty($context['fulltext_index']) && !empty($context['cannot_create_fulltext']))
 		echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_fulltext_cannot_create'];
@@ -168,10 +169,12 @@ function template_select_search_method()
 						</dt>
 						<dd>
 							<span class="smalltext">';
+
 	if ($context['custom_index'])
 		echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>]<br>
 								<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['custom_index_length'];
+
 	elseif ($context['partial_custom_index'])
 		echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_partial'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>] [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_resume'], '</a>]<br>
@@ -258,6 +261,7 @@ function template_create_index()
 function template_create_index_progress()
 {
 	global $context, $scripturl, $txt;
+
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" name="autoSubmit" method="post" accept-charset="', $context['character_set'], '">
@@ -265,8 +269,8 @@ function template_create_index_progress()
 				<h3 class="catbg">', $txt['search_create_index'], '</h3>
 			</div>
 			<div class="windowbg">
-				<div><p>',
-					$txt['search_create_index_not_ready'], '</p>
+				<div>
+					<p>', $txt['search_create_index_not_ready'], '</p>
 					<div class="progress_bar">
 						<div class="full_bar">', $context['percentage'], '%</div>
 						<div class="green_percent" style="width: ', $context['percentage'], '%;">&nbsp;</div>

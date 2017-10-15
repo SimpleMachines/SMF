@@ -26,18 +26,19 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="floatleft">', $txt['members_list'], '</span>';
-		if (!isset($context['old_search']))
-				echo '
+
+	if (!isset($context['old_search']))
+			echo '
 				<span class="floatright">', $context['letter_links'], '</span>';
-		echo '
+	echo '
 			</h3>
 		</div>';
 
 	echo '
 		<div id="mlist">
 			<table class="table_grid">
-			<thead>
-				<tr class="title_bar">';
+				<thead>
+					<tr class="title_bar">';
 
 	// Display each of the column headers of the table.
 	foreach ($context['columns'] as $key => $column)
@@ -49,18 +50,18 @@ function template_main()
 		// This is a selected column, so underline it or some such.
 		if ($column['selected'])
 			echo '
-					<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
-						<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></th>';
+						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
+							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></th>';
 		// This is just some column... show the link and be done with it.
 		else
 			echo '
-					<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' style="width: ' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
+						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' style="width: ' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
 						', $column['link'], '</th>';
 	}
 	echo '
-				</tr>
-			</thead>
-			<tbody>';
+					</tr>
+				</thead>
+				<tbody>';
 
 	// Assuming there are members loop through each one displaying their data.
 	if (!empty($context['members']))
@@ -68,58 +69,58 @@ function template_main()
 		foreach ($context['members'] as $member)
 		{
 			echo '
-				<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
-					<td class="centertext">
-						', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
-					</td>
-					<td class="lefttext">', $member['link'], '</td>';
+					<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
+						<td class="centertext">
+							', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
+						</td>
+						<td class="lefttext">', $member['link'], '</td>';
 
-		if (!isset($context['disabled_fields']['website']))
-			echo '
-					<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
-
-		// Group and date.
-		echo '
-					<td class="centertext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
-					<td class="centertext reg_date">', $member['registered_date'], '</td>';
-
-		if (!isset($context['disabled_fields']['posts']))
-		{
-			echo '
-					<td class="centertext" style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
-					<td class="centertext statsbar" style="width: 120px">';
-
-			if (!empty($member['post_percent']))
+			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">
-							<div style="width: ', $member['post_percent'], 'px;"></div>
-						</div>';
+						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+
+			// Group and date.
+			echo '
+						<td class="centertext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
+						<td class="centertext reg_date">', $member['registered_date'], '</td>';
+
+			if (!isset($context['disabled_fields']['posts']))
+			{
+				echo '
+						<td class="centertext" style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
+						<td class="centertext statsbar" style="width: 120px">';
+
+				if (!empty($member['post_percent']))
+					echo '
+							<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">
+								<div style="width: ', $member['post_percent'], 'px;"></div>
+							</div>';
+
+				echo '
+						</td>';
+			}
+
+			// Show custom fields marked to be shown here
+			if (!empty($context['custom_profile_fields']['columns']))
+			{
+				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
+					echo '
+						<td class="righttext">', $member['options'][$key], '</td>';
+			}
 
 			echo '
-					</td>';
-		}
-
-		// Show custom fields marked to be shown here
-		if (!empty($context['custom_profile_fields']['columns']))
-		{
-			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
-				echo '
-					<td class="righttext">', $member['options'][$key], '</td>';
-		}
-
-		echo '
-				</tr>';
+					</tr>';
 		}
 	}
 	// No members?
 	else
 		echo '
-				<tr>
-					<td colspan="', $context['colspan'], '" class="windowbg">', $txt['search_no_results'], '</td>
-				</tr>';
+					<tr>
+						<td colspan="', $context['colspan'], '" class="windowbg">', $txt['search_no_results'], '</td>
+					</tr>';
 
-				echo '
-			</tbody>
+	echo '
+				</tbody>
 			</table>
 		</div><!-- #mlist -->';
 

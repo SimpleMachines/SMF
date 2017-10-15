@@ -201,6 +201,7 @@ function template_summary()
 
 		echo '
 			<ul class="clear">';
+
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -362,15 +363,16 @@ function template_summary()
 		{
 			echo '
 					<dt class="clear"><span class="alert">', $txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').style.display = document.getElementById(\'ban_info\').style.display == \'none\' ? \'\' : \'none\';return false;">' . $txt['view_ban'] . '</a>]</dt>
-					<dt class="clear" id="ban_info" style="display: none;">
-						<strong>', $txt['user_banned_by_following'], ':</strong>';
+				<dt class="clear" id="ban_info" style="display: none;">
+					<strong>', $txt['user_banned_by_following'], ':</strong>';
 
 			foreach ($context['member']['bans'] as $ban)
 				echo '
-						<br><span class="smalltext">', $ban['explanation'], '</span>';
+					<br>
+					<span class="smalltext">', $ban['explanation'], '</span>';
 
 			echo '
-					</dt>';
+				</dt>';
 		}
 	}
 
@@ -483,7 +485,9 @@ function template_showPosts()
 			<div class="', $post['css_class'], '">
 				<div class="counter">', $post['counter'], '</div>
 				<div class="topic_details">
-					<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
+				<h5>
+					<strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
+				</h5>
 					<span class="smalltext">', $post['time'], '</span>
 				</div>
 				<div class="list_posts">';
@@ -712,18 +716,19 @@ function template_editBuddies()
 
 	if (!empty($context['custom_pf']))
 		foreach ($context['custom_pf'] as $column)
-				echo '<th scope="col">', $column['label'], '</th>';
+				echo '
+					<th scope="col">', $column['label'], '</th>';
 
 	echo '
-				<th scope="col">', $txt['remove'], '</th>
+					<th scope="col">', $txt['remove'], '</th>
 			</tr>';
 
 	// If they don't have any buddies don't list them!
 	if (empty($context['buddies']))
 		echo '
-			<tr class="windowbg">
+				<tr class="windowbg">
 				<td colspan="', allowedTo('moderate_forum') ? '10' : '9', '"><strong>', $txt['no_buddies'], '</strong></td>
-			</tr>';
+				</tr>';
 
 		// Now loop through each buddy showing info on each.
 	else
@@ -825,15 +830,17 @@ function template_editIgnoreList()
 				<th scope="col">', $txt['email'], '</th>';
 
 	echo '
-				<th scope="col">', $txt['ignore_remove'], '</th>
+					<th scope="col">', $txt['ignore_remove'], '</th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
 	if (empty($context['ignore_list']))
 		echo '
-			<tr class="windowbg">
-				<td colspan="', allowedTo('moderate_forum') ? '4' : '3', '"><strong>', $txt['no_ignore'], '</strong></td>
-			</tr>';
+				<tr class="windowbg">
+					<td colspan="', allowedTo('moderate_forum') ? '4' : '3', '">
+						<strong>', $txt['no_ignore'], '</strong>
+					</td>
+				</tr>';
 
 	// Now loop through each buddy showing info on each.
 	foreach ($context['ignore_list'] as $member)
@@ -911,7 +918,8 @@ function template_trackActivity()
 	echo '
 		<div id="tracking" class="windowbg2 noup">
 			<dl class="settings noborder">
-				<dt>', $txt['most_recent_ip'], ':
+				<dt>
+					', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
 					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
 				</dt>
@@ -983,12 +991,13 @@ function template_trackIP()
 	{
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
-			</div>
-			<div class="windowbg2 noup">';
-			foreach ($context['whois_servers'] as $server)
-			echo '
-				<a href="', $server['url'], '" target="_blank"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
+			<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
+		</div>
+		<div class="windowbg2 noup">';
+
+		foreach ($context['whois_servers'] as $server)
+		echo '
+			<a href="', $server['url'], '" target="_blank"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
 			echo '
 			</div>
 			<br>';
@@ -1078,12 +1087,13 @@ function template_showPermissions()
 			echo '
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['showPermissions_restricted_boards'], '</h3>
-				</div>
-				<div class="windowbg smalltext">
-					', $txt['showPermissions_restricted_boards_desc'], ':<br>';
-				foreach ($context['no_access_boards'] as $no_access_board)
-					echo '
-						<a href="', $scripturl, '?board=', $no_access_board['id'], '.0">', $no_access_board['name'], '</a>', $no_access_board['is_last'] ? '' : ', ';
+			</div>
+			<div class="windowbg smalltext">
+				', $txt['showPermissions_restricted_boards_desc'], ':<br>';
+			
+			foreach ($context['no_access_boards'] as $no_access_board)
+				echo '
+				<a href="', $scripturl, '?board=', $no_access_board['id'], '.0">', $no_access_board['name'], '</a>', $no_access_board['is_last'] ? '' : ', ';
 				echo '
 				</div>';
 		}
@@ -1264,7 +1274,6 @@ function template_statPanel()
 		}
 
 		echo '
-
 			</ul>';
 	}
 
@@ -1473,6 +1482,7 @@ function template_edit_options()
 					// Is this some code to generate the options?
 					if (!is_array($field['options']))
 						$field['options'] = $field['options']();
+
 					// Assuming we now have some!
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
@@ -1660,7 +1670,8 @@ function template_profile_theme_settings()
 			{
 				$titled_section = true;
 				echo '
-					<dt><strong>' . $setting . '</strong></dt><dd></dd>';
+					<dt><strong>' . $setting . '</strong></dt>
+					<dd></dd>';
 			}
 			else
 				$titled_section = false;
@@ -1710,14 +1721,14 @@ function template_profile_theme_settings()
 					</dt>
 					<dd>';
 
-		// display checkbox options
+		// Display checkbox options
 		if ($setting['type'] == 'checkbox')
 		{
 			echo '
 						<input type="hidden" name="default_options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($context['member']['options'][$setting['id']]) ? ' checked' : '', ' value="1">';
 		}
-		// how about selection lists, we all love them
+		// How about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
@@ -1732,7 +1743,7 @@ function template_profile_theme_settings()
 			echo '
 						</select>';
 		}
-		// a textbox it is then
+		// A textbox it is then
 		else
 		{
 			if (isset($setting['type']) && $setting['type'] == 'number')
@@ -1805,8 +1816,7 @@ function template_alert_configuration()
 					</dt>
 					<dd>
 						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" value="', $context['member']['alert_timeout'], '">
-					</dd>
-		';
+					</dd>';
 
 	echo '
 				</dl>
@@ -2106,6 +2116,7 @@ function template_groupMembership()
 function template_ignoreboards()
 {
 	global $context, $txt, $scripturl;
+
 	// The main containing header.
 	echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
@@ -2789,6 +2800,7 @@ function template_profile_avatar_select()
 								<div id="avatar_server_stored">
 									<div>
 										<select name="cat" id="cat" size="10" onchange="changeSel(\'\');" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');">';
+
 		// This lists all the file categories.
 		foreach ($context['avatars'] as $avatar)
 			echo '
@@ -2950,6 +2962,7 @@ function template_profile_timeformat_modify()
 							</dt>
 							<dd>
 								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;">';
+
 	// Help the user by showing a list of common time formats.
 	foreach ($context['easy_timeformats'] as $time_format)
 		echo '
@@ -2989,6 +3002,7 @@ function template_profile_smiley_pick()
 							</dt>
 							<dd>
 								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.gif\';">';
+	
 	foreach ($context['smiley_sets'] as $set)
 		echo '
 									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
@@ -3080,8 +3094,8 @@ function template_profile_tfa()
 
 	echo '
 							<dt>
-								<strong>', $txt['tfa_profile_label'], ':</strong>
-								<br><div class="smalltext">', $txt['tfa_profile_desc'], '</div>
+								<strong>', $txt['tfa_profile_label'], ':</strong><br>
+								<div class="smalltext">', $txt['tfa_profile_desc'], '</div>
 							</dt>
 							<dd>';
 	if (!$context['tfa_enabled'] && $context['user']['is_owner'])

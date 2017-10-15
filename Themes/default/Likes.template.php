@@ -74,11 +74,13 @@ function template_like()
 		$context['some_likes'] = true;
 		$count = $context['data']['count'];
 		$base = 'likes_';
+
 		if ($context['data']['already_liked'])
 		{
 			$base = 'you_' . $base;
 			$count--;
 		}
+
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '

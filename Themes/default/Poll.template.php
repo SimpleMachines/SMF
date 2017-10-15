@@ -19,24 +19,24 @@ function template_main()
 
 	// Some javascript for adding more options.
 	echo '
-		<script>
-			var pollOptionNum = 0;
-			var pollOptionId = ', $context['last_choice_id'], ';
+	<script>
+		var pollOptionNum = 0;
+		var pollOptionId = ', $context['last_choice_id'], ';
 
-			function addPollOption()
+		function addPollOption()
+		{
+			if (pollOptionNum == 0)
 			{
-				if (pollOptionNum == 0)
-				{
-					for (var i = 0; i < document.forms.postmodify.elements.length; i++)
-						if (document.forms.postmodify.elements[i].id.substr(0, 8) == "options-")
-							pollOptionNum++;
-				}
-				pollOptionNum++
-				pollOptionId++
-
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>:</dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p\');
+				for (var i = 0; i < document.forms.postmodify.elements.length; i++)
+					if (document.forms.postmodify.elements[i].id.substr(0, 8) == "options-")
+						pollOptionNum++;
 			}
-		</script>';
+			pollOptionNum++
+			pollOptionId++
+
+			setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>:</dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p\');
+		}
+	</script>';
 
 	// Start the main poll form.
 	echo '
@@ -139,6 +139,7 @@ function template_main()
 							</dd>
 						</dl>
 					</fieldset>';
+
 	// If this is an edit, we can allow them to reset the vote counts.
 	if ($context['is_edit'])
 		echo '
