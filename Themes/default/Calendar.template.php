@@ -1086,7 +1086,7 @@ function template_hms()
 
 		$alt = !$alt;
 	}
-			echo '</tr>
+	echo '
 			<tr class="', $alt ? 'windowbg2' : 'windowbg', '" style="border-top: 1px solid #ccc; text-align: center;">
 				<td>
 					<a href="', $scripturl, '?action=clock">Too tough for you?</a>
@@ -1180,10 +1180,9 @@ function template_omfg()
 
 		$alt = !$alt;
 	}
-		echo '</tr>
-		</table>';
 
 	echo '
+		</table>
 		<script>
 			var icons = new Object();';
 

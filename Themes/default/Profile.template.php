@@ -1242,7 +1242,6 @@ function template_showPermissions()
 			echo '
 			<p class="windowbg2">', $txt['showPermissions_none_board'], '</p>';
 	echo '
-			</div>
 		</div><!-- #permissions -->';
 	}
 }

@@ -185,7 +185,7 @@ function template_main()
  */
 function template_print_below()
 {
-	echo '</div>
+	echo '
 		</div><!-- #posts -->';
 
 	template_print_options();
