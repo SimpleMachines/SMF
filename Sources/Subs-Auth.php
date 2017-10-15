@@ -36,14 +36,14 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
 
-	// Get the path and check it
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-	$pathWrong = empty($_COOKIE[$cookiename]['path']) || ($_COOKIE[$cookiename]['path'] != $cookie_url[1]);
-
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
 	if (isset($_COOKIE[$cookiename]))
 	{
+		// Get the path and check it
+		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+		$pathWrong = empty($_COOKIE[$cookiename]['path']) || ($_COOKIE[$cookiename]['path'] != $cookie_url[1]);
+
 		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format
