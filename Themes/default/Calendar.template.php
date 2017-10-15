@@ -262,18 +262,18 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			<div class="cat_bar">
 				<h3 class="catbg centertext largetext">';
 
-				// Previous Link: If we're showing prev / next and it's not a mini-calendar.
-				if (empty($calendar_data['previous_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
-				{
-					echo '
-						<span class="floatleft">
-							<a href="', $calendar_data['previous_calendar']['href'], '">&#171;</a>
+		// Previous Link: If we're showing prev / next and it's not a mini-calendar.
+		if (empty($calendar_data['previous_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
+		{
+			echo '
+					<span class="floatleft">
+						<a href="', $calendar_data['previous_calendar']['href'], '">&#171;</a>
 					</span>';
-				}
+		}
 
-				// Next Link: if we're showing prev / next and it's not a mini-calendar.
-				if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
-				{
+		// Next Link: if we're showing prev / next and it's not a mini-calendar.
+		if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
+		{
 			echo '
 					<span class="floatright">
 						<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
@@ -334,7 +334,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 		{
 			echo '
 					<td class="windowbg2 weeks">
-					<a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $week['days'][0]['day'], '" title="', $txt['calendar_view_week'], '">&#187;</a>
+						<a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $week['days'][0]['day'], '" title="', $txt['calendar_view_week'], '">&#187;</a>
 					</td>';
 		}
 
@@ -393,11 +393,14 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 				// The actual day number - be it a link, or just plain old text!
 				if (!empty($modSettings['cal_daysaslink']) && $context['can_post'])
-					echo '<a href="', $scripturl, '?action=calendar;sa=post;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
+					echo '
+						<a href="', $scripturl, '?action=calendar;sa=post;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
 				elseif ($is_mini)
-					echo '<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
+					echo '
+						<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '"><span class="day_text">', $title_prefix, $day['day'], '</span></a>';
 				else
-					echo '<span class="day_text">', $title_prefix, $day['day'], '</span>';
+					echo '
+						<span class="day_text">', $title_prefix, $day['day'], '</span>';
 
 				// A lot of stuff, we're not showing on mini-calendars to conserve space.
 				if ($is_mini === false)
@@ -413,8 +416,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['birthdays']))
 					{
 						echo '
-							<div class="smalltext">
-								<span class="birthday">', $txt['birthdays'], '</span> ';
+						<div class="smalltext">
+							<span class="birthday">', $txt['birthdays'], '</span> ';
 
 						/* Each of the birthdays has:
 							id, name (person), age (if they have one set?), and is_last. (last in list?) */
@@ -444,15 +447,15 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					{
 						// Sort events by start time (all day events will be listed first)
 						uasort($day['events'], function($a, $b) {
-						    if ($a['start_timestamp'] == $b['start_timestamp'])
-						        return 0;
+							if ($a['start_timestamp'] == $b['start_timestamp'])
+								return 0;
 
-						    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+							return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
 						});
 
 						echo '
-							<div class="smalltext lefttext">
-								<span class="event">', $txt['events'], '</span><br>';
+						<div class="smalltext lefttext">
+							<span class="event">', $txt['events'], '</span><br>';
 
 						/* The events are made up of:
 							title, href, is_last, can_edit (are they allowed to?), and modify_href. */
@@ -476,7 +479,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								</span>';
 
 							if (!empty($event['location']))
-								echo '<br><span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
+								echo '
+								<br>
+								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
 							if ($event['can_edit'] || $event['can_export'])
 							{
@@ -487,16 +492,16 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								if ($event['can_edit'])
 								{
 									echo '
-										<a class="modify_event" href="', $event['modify_href'], '">
-											<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
-										</a>';
+									<a class="modify_event" href="', $event['modify_href'], '">
+										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+									</a>';
 								}
 								// Exporting!
 								if ($event['can_export'])
 								{
 									echo '
-										<a class="modify_event" href="', $event['export_href'], '">
-											<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+									<a class="modify_event" href="', $event['export_href'], '">
+										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 								}
 
@@ -567,29 +572,29 @@ function template_show_week_grid($grid_name)
 				<div class="cat_bar">
 					<h3 class="catbg centertext largetext">';
 
-					// Previous Week Link...
-					if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
-					{
-						echo '
-							<span class="floatleft">
-								<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
+			// Previous Week Link...
+			if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
+			{
+				echo '
+						<span class="floatleft">
+							<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
 						</span>';
-					}
+			}
 
-					// Next Week Link...
-					if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
-					{
-						echo '
-							<span class="floatright">
-								<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
-							</span>';
-					}
+			// Next Week Link...
+			if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
+			{
+				echo '
+						<span class="floatright">
+							<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
+						</span>';
+			}
 
-					// The Month Title + Week Number...
-					if (!empty($calendar_data['week_title']))
-							echo $calendar_data['week_title'];
+			// The Month Title + Week Number...
+			if (!empty($calendar_data['week_title']))
+				echo $calendar_data['week_title'];
 
-					echo '
+			echo '
 					</h3>
 				</div><!-- .cat_bar -->';
 
@@ -599,29 +604,29 @@ function template_show_week_grid($grid_name)
 
 		// Our actual month...
 		echo '
-			<div class="week_month_title">
-				<a href="', $scripturl, '?action=calendar;month=', $month_data['current_month'], '">
-					', $txt['months_titles'][$month_data['current_month']], '
-				</a>
-			</div>';
+				<div class="week_month_title">
+					<a href="', $scripturl, '?action=calendar;month=', $month_data['current_month'], '">
+						', $txt['months_titles'][$month_data['current_month']], '
+					</a>
+				</div>';
 
 		// The main table grid for $this week.
 		echo '
-			<table class="table_grid calendar_week">
-				<tr>
-					<th class="days" scope="col">', $txt['calendar_day'], '</th>
-					<th class="days" scope="col">', $txt['events'], '</th>
-					<th class="days" scope="col">', $txt['calendar_prompt'], '</th>
-					<th class="days" scope="col">', $txt['birthdays'], '</th>
-				</tr>';
+				<table class="table_grid calendar_week">
+					<tr>
+						<th class="days" scope="col">', $txt['calendar_day'], '</th>
+						<th class="days" scope="col">', $txt['events'], '</th>
+						<th class="days" scope="col">', $txt['calendar_prompt'], '</th>
+						<th class="days" scope="col">', $txt['birthdays'], '</th>
+					</tr>';
 
-				// Each day of the week.
-				foreach ($month_data['days'] as $day)
-				{
-					// How should we be highlighted or otherwise not...?
-					$classes = array('days');
-					$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
-					$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
+		// Each day of the week.
+		foreach ($month_data['days'] as $day)
+		{
+			// How should we be highlighted or otherwise not...?
+			$classes = array('days');
+			$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
+			$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
 
 			echo '
 					<tr class="days_wrapper">
@@ -641,53 +646,53 @@ function template_show_week_grid($grid_name)
 			// Show any events...
 			if (!empty($day['events']))
 			{
-								// Sort events by start time (all day events will be listed first)
-								uasort($day['events'], function($a, $b) {
-								    if ($a['start_timestamp'] == $b['start_timestamp'])
-								        return 0;
-								    return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
-								});
+				// Sort events by start time (all day events will be listed first)
+				uasort($day['events'], function($a, $b) {
+					if ($a['start_timestamp'] == $b['start_timestamp'])
+						return 0;
+					return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+				});
 
-								foreach ($day['events'] as $event)
-								{
+				foreach ($day['events'] as $event)
+				{
 					echo '
 							<div class="event_wrapper">';
 
-									$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
+					$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
 					echo $event['link'], '<br>
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-									if (!empty($event['start_time_local']))
-										echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
-									else
-										echo $txt['calendar_allday'];
+					if (!empty($event['start_time_local']))
+						echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
+					else
+						echo $txt['calendar_allday'];
 
 					echo '
 								</span>';
 
-									if (!empty($event['location']))
+					if (!empty($event['location']))
 						echo '<br>
 								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
-									if (!empty($event_icons_needed))
-									{
-										echo ' <span class="modify_event_links">';
+					if (!empty($event_icons_needed))
+					{
+						echo ' <span class="modify_event_links">';
 
-										// If they can edit the event, show a star they can click on....
-										if (!empty($event['can_edit']))
-										{
-											echo '
-												<a class="modify_event" href="', $event['modify_href'], '">
-													<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
-												</a>';
-										}
-										// Can we export? Sweet.
-										if (!empty($event['can_export']))
-										{
-											echo '
-												<a class="modify_event" href="', $event['export_href'], '">
-													<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+						// If they can edit the event, show a star they can click on....
+						if (!empty($event['can_edit']))
+						{
+							echo '
+									<a class="modify_event" href="', $event['modify_href'], '">
+										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+									</a>';
+						}
+						// Can we export? Sweet.
+						if (!empty($event['can_export']))
+						{
+							echo '
+									<a class="modify_event" href="', $event['export_href'], '">
+										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 						}
 
@@ -702,55 +707,55 @@ function template_show_week_grid($grid_name)
 				if (!empty($context['can_post']))
 				{
 					echo '
-									<div class="week_add_event">
-										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
-									</div>
-									<br class="clear">';
-								}
-							}
-							else
-							{
-								if (!empty($context['can_post']))
-								{
-									echo '
-										<div class="week_add_event">
-											<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
-										</div>';
-								}
-							}
-			echo '
-						</td>
-							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col" data-css-prefix="' . $txt['calendar_prompt'] . ' ">';
-
-							// Show any holidays!
-							if (!empty($day['holidays']))
-								echo implode('<br>', $day['holidays']);
-
-			echo '
-						</td>
-							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col" data-css-prefix="' . $txt['birthdays'] . ' ">';
-
-							// Show any birthdays...
-							if (!empty($day['birthdays']))
-							{
-								foreach ($day['birthdays'] as $member)
-								{
-									echo '
-										<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
-										', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
-									', $member['is_last'] ? '' : '<br>';
-								}
-							}
-			echo '
-						</td>
-						</tr>';
+							<div class="week_add_event">
+								<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
+							</div>
+							<br class="clear">';
 				}
+			}
+			else
+			{
+				if (!empty($context['can_post']))
+				{
+					echo '
+							<div class="week_add_event">
+								<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
+							</div>';
+				}
+			}
+			echo '
+						</td>
+						<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', ' holiday_col" data-css-prefix="' . $txt['calendar_prompt'] . ' ">';
 
-				// Increase iteration for loop counting.
-				++$iteration;
+			// Show any holidays!
+			if (!empty($day['holidays']))
+				echo implode('<br>', $day['holidays']);
 
-				echo '
-			</table>';
+			echo '
+						</td>
+						<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', ' birthday_col" data-css-prefix="' . $txt['birthdays'] . ' ">';
+
+			// Show any birthdays...
+			if (!empty($day['birthdays']))
+			{
+				foreach ($day['birthdays'] as $member)
+				{
+					echo '
+							<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
+							', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
+							', $member['is_last'] ? '' : '<br>';
+				}
+			}
+			echo '
+						</td>
+					</tr>';
+		}
+
+		// Increase iteration for loop counting.
+		++$iteration;
+
+		echo '
+				</table>';
 	}
 }
 
@@ -792,14 +797,14 @@ function template_calendar_top($calendar_data)
 			<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
 				<select name="month" id="input_month">';
 
-				// Show a select box with all the months.
-				foreach ($txt['months_short'] as $number => $month)
-				{
-					echo '
+		// Show a select box with all the months.
+		foreach ($txt['months_short'] as $number => $month)
+		{
+			echo '
 					<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
-				}
+		}
 
-				echo '
+		echo '
 				</select>
 				<select name="year">';
 
@@ -836,45 +841,45 @@ function template_event_post()
 
 	// Start the main table.
 	echo '
-		<div id="post_event">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $context['page_title'], '
-				</h3>
-			</div>';
+			<div id="post_event">
+				<div class="cat_bar">
+					<h3 class="catbg">
+						', $context['page_title'], '
+					</h3>
+				</div>';
 
 	if (!empty($context['post_error']['messages']))
 	{
 		echo '
-			<div class="errorbox">
-				<dl class="event_error">
-					<dt>
-						', $context['error_type'] == 'serious' ? '<strong>' . $txt['error_while_submitting'] . '</strong>' : '', '
-					</dt>
-					<dt class="error">
-						', implode('<br>', $context['post_error']['messages']), '
-					</dt>
-				</dl>
-			</div>';
+				<div class="errorbox">
+					<dl class="event_error">
+						<dt>
+							', $context['error_type'] == 'serious' ? '<strong>' . $txt['error_while_submitting'] . '</strong>' : '', '
+						</dt>
+						<dt class="error">
+							', implode('<br>', $context['post_error']['messages']), '
+						</dt>
+					</dl>
+				</div>';
 	}
 
 	echo '
-			<div class="roundframe noup">
-				<fieldset id="event_main">
-					<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
-					<input type="hidden" name="calendar" value="1">
-					<div class="event_options_left" id="event_title">
-						<div>
-							<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
-						</div>
-					</div>';
+				<div class="roundframe noup">
+					<fieldset id="event_main">
+						<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
+						<input type="hidden" name="calendar" value="1">
+						<div class="event_options_left" id="event_title">
+							<div>
+								<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
+							</div>
+						</div>';
 
 	// If this is a new event let the user specify which board they want the linked post to be put into.
 	if ($context['event']['new'] && !empty($context['event']['categories']))
 	{
 		echo '
-					<div class="event_options_right" id="event_board">
-						<div>
+						<div class="event_options_right" id="event_board">
+							<div>
 								<span class="label">', $txt['calendar_post_in'], '</span>
 								<input type="checkbox" style="vertical-align: middle;" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 								<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
@@ -888,53 +893,53 @@ function template_event_post()
 				echo '
 										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 			echo '
-								</optgroup>';
+									</optgroup>';
 		}
 		echo '
-							</select>
-						</div>
+								</select>
+							</div>
 						</div><!-- #event_board -->';
 	}
 
 	// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 	echo '
-				</fieldset>
-				<fieldset id="event_options">
-					<legend>', $txt['calendar_event_options'], '</legend>
-					<div class="event_options_left" id="event_time_input">
-						<div>
-							<span class="label">', $txt['start'], '</span>
-							<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-							<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
-						</div>
-						<div>
-							<span class="label">', $txt['end'], '</span>
-							<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-							<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
-						</div>
+					</fieldset>
+					<fieldset id="event_options">
+						<legend>', $txt['calendar_event_options'], '</legend>
+						<div class="event_options_left" id="event_time_input">
+							<div>
+								<span class="label">', $txt['start'], '</span>
+								<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							</div>
+							<div>
+								<span class="label">', $txt['end'], '</span>
+								<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+							</div>
 						</div><!-- #event_time_input -->
-					<div class="event_options_right" id="event_time_options">
-						<div id="event_allday">
-							<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
-							<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
-						</div>
-						<div id="event_timezone">
-							<span class="label">', $txt['calendar_timezone'], '</span>
-							<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
+						<div class="event_options_right" id="event_time_options">
+							<div id="event_allday">
+								<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
+								<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+							</div>
+							<div id="event_timezone">
+								<span class="label">', $txt['calendar_timezone'], '</span>
+								<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
 
 	foreach ($context['all_timezones'] as $tz => $tzname)
 		echo '
-								<option value="', $tz, '"', $tz == $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+									<option value="', $tz, '"', $tz == $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
 
 	echo '
-							</select>
-						</div>
+								</select>
+							</div>
 						</div><!-- #event_time_options -->
-					<div>
-						<span class="label">', $txt['location'], '</span>
-						<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '">
-					</div>
-				</fieldset>';
+						<div>
+							<span class="label">', $txt['location'], '</span>
+							<input type="text" name="event_location" id="event_location" maxlength="255" value="', !empty($context['event']['location']) ? $context['event']['location'] : '', '" tabindex="', $context['tabindex']++, '">
+						</div>
+					</fieldset>';
 
 	echo '
 					<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button">';
@@ -942,11 +947,11 @@ function template_event_post()
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button you_sure">';
+					<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button you_sure">';
 
 	echo '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="eventid" value="', $context['event']['eventid'], '">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="eventid" value="', $context['event']['eventid'], '">
 
 				</div><!-- .roundframe -->
 			</div><!-- #post_event -->
@@ -990,67 +995,67 @@ function template_bcd()
 		</table>
 
 		<script>
-		var icons = new Object();';
+			var icons = new Object();';
 
-		foreach ($context['clockicons'] as $t => $v)
-		{
-			foreach ($v as $i)
-				echo '
+	foreach ($context['clockicons'] as $t => $v)
+	{
+		foreach ($v as $i)
+			echo '
 			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
-		}
+	}
 
-		echo '
-		function update()
-		{
-			// Get the current time
-			var time = new Date();
-			var hour = time.getHours();
-			var min = time.getMinutes();
-			var sec = time.getSeconds();
-
-			// Break it up into individual digits
-			var h1 = parseInt(hour / 10);
-			var h2 = hour % 10;
-			var m1 = parseInt(min / 10);
-			var m2 = min % 10;
-			var s1 = parseInt(sec / 10);
-			var s2 = sec % 10;
-
-			// For each digit figure out which ones to turn off and which ones to turn on
-			var turnon = new Array();';
-
-		foreach ($context['clockicons'] as $t => $v)
-		{
-			foreach ($v as $i)
-				echo '
-			if (', $t, ' >= ', $i, ')
+	echo '
+			function update()
 			{
-				turnon.push("', $t, '_', $i, '");
-				', $t, ' -= ', $i, ';
-			}';
-		}
+				// Get the current time
+				var time = new Date();
+				var hour = time.getHours();
+				var min = time.getMinutes();
+				var sec = time.getSeconds();
 
-		echo '
-			for (var i in icons)
-				if (!in_array(i, turnon))
-					icons[i].src = "', $context['offimg'], '";
-				else
-					icons[i].src = "', $context['onimg'], '";
+				// Break it up into individual digits
+				var h1 = parseInt(hour / 10);
+				var h2 = hour % 10;
+				var m1 = parseInt(min / 10);
+				var m2 = min % 10;
+				var s1 = parseInt(sec / 10);
+				var s2 = sec % 10;
 
-			window.setTimeout("update();", 500);
-		}
-		// Checks for variable in theArray.
-		function in_array(variable, theArray)
-		{
-			for (var i = 0; i < theArray.length; i++)
-			{
-				if (theArray[i] == variable)
-					return true;
+				// For each digit figure out which ones to turn off and which ones to turn on
+				var turnon = new Array();';
+
+	foreach ($context['clockicons'] as $t => $v)
+	{
+		foreach ($v as $i)
+			echo '
+				if (', $t, ' >= ', $i, ')
+				{
+					turnon.push("', $t, '_', $i, '");
+					', $t, ' -= ', $i, ';
+				}';
+	}
+
+	echo '
+				for (var i in icons)
+					if (!in_array(i, turnon))
+						icons[i].src = "', $context['offimg'], '";
+					else
+						icons[i].src = "', $context['onimg'], '";
+
+				window.setTimeout("update();", 500);
 			}
-			return false;
-		}
+			// Checks for variable in theArray.
+			function in_array(variable, theArray)
+			{
+				for (var i = 0; i < theArray.length; i++)
+				{
+					if (theArray[i] == variable)
+						return true;
+				}
+				return false;
+			}
 
-		update();
+			update();
 		</script>';
 }
 
@@ -1068,7 +1073,7 @@ function template_hms()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		echo '
-					<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
+			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
 				<td>';
 		foreach ($v as $i)
 		{
@@ -1090,61 +1095,61 @@ function template_hms()
 		</table>';
 
 	echo '
-	<script>
-	var icons = new Object();';
+		<script>
+			var icons = new Object();';
 
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
 			echo '
-		icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
+			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
 	}
 
 	echo '
-	function update()
-	{
-		// Get the current time
-		var time = new Date();
-		var h = time.getHours();
-		var m = time.getMinutes();
-		var s = time.getSeconds();
+			function update()
+			{
+				// Get the current time
+				var time = new Date();
+				var h = time.getHours();
+				var m = time.getMinutes();
+				var s = time.getSeconds();
 
-		// For each digit figure out which ones to turn off and which ones to turn on
-		var turnon = new Array();';
+				// For each digit figure out which ones to turn off and which ones to turn on
+				var turnon = new Array();';
 
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
 			echo '
-		if (', $t, ' >= ', $i, ')
-		{
-			turnon.push("', $t, '_', $i, '");
-			', $t, ' -= ', $i, ';
-		}';
+				if (', $t, ' >= ', $i, ')
+				{
+					turnon.push("', $t, '_', $i, '");
+					', $t, ' -= ', $i, ';
+				}';
 	}
 
 	echo '
-		for (var i in icons)
-			if (!in_array(i, turnon))
-				icons[i].src = "', $context['offimg'], '";
-			else
-				icons[i].src = "', $context['onimg'], '";
+				for (var i in icons)
+					if (!in_array(i, turnon))
+						icons[i].src = "', $context['offimg'], '";
+					else
+						icons[i].src = "', $context['onimg'], '";
 
-		window.setTimeout("update();", 500);
-	}
-	// Checks for variable in theArray.
-	function in_array(variable, theArray)
-	{
-		for (var i = 0; i < theArray.length; i++)
-		{
-			if (theArray[i] == variable)
-				return true;
-		}
-		return false;
-	}
+				window.setTimeout("update();", 500);
+			}
+			// Checks for variable in theArray.
+			function in_array(variable, theArray)
+			{
+				for (var i = 0; i < theArray.length; i++)
+				{
+					if (theArray[i] == variable)
+						return true;
+				}
+				return false;
+			}
 
-	update();
-	</script>';
+			update();
+		</script>';
 }
 
 function template_omfg()
@@ -1186,58 +1191,58 @@ function template_omfg()
 	{
 		foreach ($v as $i)
 			echo '
-		icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
+			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
 	}
 
 	echo '
-	function update()
-	{
-		// Get the current time
-		var time = new Date();
-		var month = time.getMonth() + 1;
-		var day = time.getDate();
-		var year = time.getFullYear();
-		year = year % 100;
-		var hour = time.getHours();
-		var min = time.getMinutes();
-		var sec = time.getSeconds();
+			function update()
+			{
+				// Get the current time
+				var time = new Date();
+				var month = time.getMonth() + 1;
+				var day = time.getDate();
+				var year = time.getFullYear();
+				year = year % 100;
+				var hour = time.getHours();
+				var min = time.getMinutes();
+				var sec = time.getSeconds();
 
-		// For each digit figure out which ones to turn off and which ones to turn on
-		var turnon = new Array();';
+				// For each digit figure out which ones to turn off and which ones to turn on
+				var turnon = new Array();';
 
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
 		echo '
-		if (', $t, ' >= ', $i, ')
-		{
-			turnon.push("', $t, '_', $i, '");
-			', $t, ' -= ', $i, ';
-		}';
+				if (', $t, ' >= ', $i, ')
+				{
+					turnon.push("', $t, '_', $i, '");
+					', $t, ' -= ', $i, ';
+				}';
 	}
 
 	echo '
-		for (var i in icons)
-			if (!in_array(i, turnon))
-				icons[i].src = "', $context['offimg'], '";
-			else
-				icons[i].src = "', $context['onimg'], '";
+				for (var i in icons)
+					if (!in_array(i, turnon))
+						icons[i].src = "', $context['offimg'], '";
+					else
+						icons[i].src = "', $context['onimg'], '";
 
-		window.setTimeout("update();", 500);
-	}
-	// Checks for variable in theArray.
-	function in_array(variable, theArray)
-	{
-		for (var i = 0; i < theArray.length; i++)
-		{
-			if (theArray[i] == variable)
-				return true;
-		}
-		return false;
-	}
+				window.setTimeout("update();", 500);
+			}
+			// Checks for variable in theArray.
+			function in_array(variable, theArray)
+			{
+				for (var i = 0; i < theArray.length; i++)
+				{
+					if (theArray[i] == variable)
+						return true;
+				}
+				return false;
+			}
 
-	update();
-	</script>';
+			update();
+		</script>';
 }
 
 function template_thetime()

@@ -30,54 +30,68 @@ function template_modify_weights()
 						', $txt['search_weight_frequency'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight2_val">
-						', $txt['search_weight_age'], ':</label>
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<label for="weight2_val">', $txt['search_weight_age'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight3_val">
-						', $txt['search_weight_length'], ':</label>
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<label for="weight3_val">', $txt['search_weight_length'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight4_val">
-						', $txt['search_weight_subject'], ':</label>
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<label for="weight4_val">', $txt['search_weight_subject'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight5_val">
-						', $txt['search_weight_first_message'], ':</label>
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<label for="weight5_val">', $txt['search_weight_first_message'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 					</dd>
 					<dt>
-						<a href="', $scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight6_val">
-						', $txt['search_weight_sticky'], ':</label>
+						<a href="', $scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<label for="weight6_val">', $txt['search_weight_sticky'], ':</label>
 					</dt>
 					<dd>
-						<span class="search_weight"><input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3"></span>
+						<span class="search_weight">
+							<input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3">
+						</span>
 						<span id="weight6" class="search_weight">', $context['relative_weights']['search_weight_sticky'], '%</span>
 					</dd>
 					<dt>
 						<strong>', $txt['search_weights_total'], '</strong>
 					</dt>
 					<dd>
-						<span id="weighttotal" class="search_weight"><strong>', $context['relative_weights']['total'], '</strong></span>
+						<span id="weighttotal" class="search_weight">
+							<strong>', $context['relative_weights']['total'], '</strong>
+						</span>
 						<span class="search_weight"><strong>100%</strong></span>
 					</dd>
 				</dl>
@@ -102,7 +116,9 @@ function template_select_search_method()
 			<h3 class="catbg">', $txt['search_method'], '</h3>
 		</div>
 		<div class="information">
-			<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
+			<div class="smalltext" style="font-weight: normal;">
+				<a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a>
+			</div>
 		</div>
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -132,8 +148,9 @@ function template_select_search_method()
 				<fieldset class="search_settings floatleft">
 					<legend>', $txt['search_index'], '</legend>
 					<dl>
-						<dt><input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked' : '', '>
-						', $txt['search_index_none'], '
+						<dt>
+							<input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked' : '', '>
+							', $txt['search_index_none'], '
 						</dt>';
 
 	if ($context['supports_fulltext'])
@@ -158,7 +175,7 @@ function template_select_search_method()
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br>
 								<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['fulltext_length'];
 	echo '
-								</span>
+							</span>
 						</dd>';
 	}
 
@@ -251,7 +268,7 @@ function template_create_index()
 				<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
-	</form>
+		</form>
 	</div><!-- #admincenter -->';
 }
 

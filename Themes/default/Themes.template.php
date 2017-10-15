@@ -221,25 +221,25 @@ function template_list_themes()
 						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=list">' . $theme['name'] . '</a>' : $theme['name']), '', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
 					</span>';
 
-			// You *cannot* disable/enable/delete the default theme. It's important!
-			if ($theme['id'] != 1)
-			{
-				echo '
+		// You *cannot* disable/enable/delete the default theme. It's important!
+		if ($theme['id'] != 1)
+		{
+			echo '
 					<span class="floatright">';
 
-				// Enable/Disable.
-				echo '
-					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="generic_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
+			// Enable/Disable.
+			echo '
+						<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="generic_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
 
-				// Deleting.
-				echo '
+			// Deleting.
+			echo '
 						<a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" data-confirm="', $txt['theme_remove_confirm'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['theme_remove'], '"></span></a>';
 
-				echo '
-					</span>';
-			}
-
 			echo '
+					</span>';
+		}
+
+		echo '
 				</h3>
 			</div><!-- .cat_bar -->
 			<div class="windowbg2 noup">
@@ -384,17 +384,21 @@ function template_set_options()
 		// Show the change option box?
 		if ($context['theme_options_reset'])
 			echo '
-						<span class="floatleft"><select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
+						<span class="floatleft">
+							<select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
 								<option value="0" selected>', $txt['themeadmin_reset_options_none'], '</option>
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
 								<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
-						</select>&nbsp;</span>';
+							</select>
+						</span>';
 
 		echo '
 						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>';
+
 		if (isset($setting['description']))
 			echo '
-						<br><span class="smalltext">', $setting['description'], '</span>';
+						<br>
+						<span class="smalltext">', $setting['description'], '</span>';
 		echo '
 					</dt>';
 
@@ -655,8 +659,8 @@ function template_set_settings()
 			echo '
 					<dd>
 						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
-                echo '
-                			</dd>';
+			echo '
+					</dd>';
 		}
 		// A regular input box, then?
 		else
@@ -741,7 +745,11 @@ function template_pick()
 			</div>
 			<div class="', $theme['selected'] ? 'windowbg' : 'windowbg2', ' noup">
 				<div class="flow_hidden">
-					<div class="floatright"><a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', $txt['theme_preview'], '"><img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding"></a></div>
+					<div class="floatright">
+						<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', $txt['theme_preview'], '">
+							<img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding">
+						</a>
+					</div>
 					<p>', $theme['description'], '</p>';
 
 		if (!empty($theme['variants']))
@@ -913,7 +921,8 @@ function template_copy_template()
 					<span class="floatright">';
 
 		if ($template['can_copy'])
-			echo '<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=copy;template=', $template['value'], '" data-confirm="', $template['already_exists'] ? $txt['themeadmin_edit_overwrite_confirm'] : $txt['themeadmin_edit_copy_confirm'], '" class="you_sure">', $txt['themeadmin_edit_do_copy'], '</a>';
+			echo '
+						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=copy;template=', $template['value'], '" data-confirm="', $template['already_exists'] ? $txt['themeadmin_edit_overwrite_confirm'] : $txt['themeadmin_edit_copy_confirm'], '" class="you_sure">', $txt['themeadmin_edit_do_copy'], '</a>';
 		else
 			echo $txt['themeadmin_edit_no_copy'];
 
@@ -946,40 +955,42 @@ function template_edit_browse()
 
 	echo '
 		<table class="table_grid tborder">
-		<thead>
-			<tr class="title_bar">
-				<th class="lefttext half_table" scope="col">', $txt['themeadmin_edit_filename'], '</th>
-				<th class="quarter_table" scope="col">', $txt['themeadmin_edit_modified'], '</th>
-				<th class="quarter_table" scope="col">', $txt['themeadmin_edit_size'], '</th>
-			</tr>
-		</thead>
-		<tbody>';
+			<thead>
+				<tr class="title_bar">
+					<th class="lefttext half_table" scope="col">', $txt['themeadmin_edit_filename'], '</th>
+					<th class="quarter_table" scope="col">', $txt['themeadmin_edit_modified'], '</th>
+					<th class="quarter_table" scope="col">', $txt['themeadmin_edit_size'], '</th>
+				</tr>
+			</thead>
+			<tbody>';
 
 	foreach ($context['theme_files'] as $file)
 	{
 
 		echo '
-			<tr class="windowbg">
-				<td>';
+				<tr class="windowbg">
+					<td>';
 
 		if ($file['is_editable'])
-			echo '<a href="', $file['href'], '"', $file['is_template'] ? ' style="font-weight: bold;"' : '', '>', $file['filename'], '</a>';
+			echo '
+						<a href="', $file['href'], '"', $file['is_template'] ? ' style="font-weight: bold;"' : '', '>', $file['filename'], '</a>';
 
 		elseif ($file['is_directory'])
-			echo '<a href="', $file['href'], '" class="is_directory"><span class="generic_icons folder"></span>', $file['filename'], '</a>';
+			echo '
+						<a href="', $file['href'], '" class="is_directory"><span class="generic_icons folder"></span>', $file['filename'], '</a>';
 
 		else
 			echo $file['filename'];
 
 		echo '
-				</td>
-				<td class="righttext">', !empty($file['last_modified']) ? $file['last_modified'] : '', '</td>
-				<td class="righttext">', $file['size'], '</td>
-			</tr>';
+					</td>
+					<td class="righttext">', !empty($file['last_modified']) ? $file['last_modified'] : '', '</td>
+					<td class="righttext">', $file['size'], '</td>
+				</tr>';
 	}
 
 	echo '
-		</tbody>
+			</tbody>
 		</table>
 	</div><!-- #admincenter -->';
 }

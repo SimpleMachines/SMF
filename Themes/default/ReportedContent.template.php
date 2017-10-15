@@ -21,9 +21,9 @@ function template_reported_posts()
 	if (!empty($context['report_post_action']))
 	{
 		echo '
-			<div class="infobox">
-				', $txt['report_action_' . $context['report_post_action']], '
-			</div>';
+	<div class="infobox">
+		', $txt['report_action_' . $context['report_post_action']], '
+	</div>';
 	}
 
 	echo '
@@ -85,7 +85,7 @@ function template_reported_posts()
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
 			echo '
-				</ul>
+			</ul>
 		</div><!-- .windowbg -->';
 	}
 
@@ -97,8 +97,13 @@ function template_reported_posts()
 		</div>';
 
 	echo '
-		<div class="pagesection">
-			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">' . $context['page_index'] . '</div>' : '', '
+		<div class="pagesection">';
+	
+	if (!empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'])
+		echo '
+			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>';
+
+	echo '
 			<div class="floatright">', !$context['view_closed'] ? '
 				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
 				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
@@ -127,55 +132,55 @@ function template_reported_posts_block()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['reported_posts'] as $report)
-			echo '
+	foreach ($context['reported_posts'] as $report)
+		echo '
 					<li class="smalltext">
 						<a href="', $report['report_href'], '">', $report['subject'], '</a> ', $txt['mc_reportedp_by'], ' ', $report['author']['link'], '
 					</li>';
 
-		// Don't have any watched users right now?
-		if (empty($context['reported_posts']))
-			echo '
+	// Don't have any watched users right now?
+	if (empty($context['reported_posts']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #reported_posts_panel -->
 
-	<script>
-		var oReportedPostsPanelToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'reported_posts_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'reported_posts_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oReportedPostsPanelToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'reported_posts_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'reported_posts_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'reported_posts_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcrp\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'reported_posts_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcrp\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -189,9 +194,9 @@ function template_viewmodreport()
 	if (!empty($context['report_post_action']))
 	{
 		echo '
-			<div class="infobox">
-				', $txt['report_action_' . $context['report_post_action']], '
-			</div>';
+	<div class="infobox">
+		', $txt['report_action_' . $context['report_post_action']], '
+	</div>';
 	}
 
 	echo '
@@ -209,12 +214,12 @@ function template_viewmodreport()
 					</span>
 					<span class="floatright">';
 
-		// Make the buttons.
-		$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
-		$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
-		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
+	// Make the buttons.
+	$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+	$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+	$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
-		echo '
+	echo '
 						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : ''), '"', (!$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
 						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '"  class="button">', $close_button, '</a>
 					</span>
@@ -242,7 +247,7 @@ function template_viewmodreport()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
 			</div>
-				<div>';
+			<div>';
 
 	if (empty($context['report']['mod_comments']))
 		echo '
@@ -253,32 +258,32 @@ function template_viewmodreport()
 	foreach ($context['report']['mod_comments'] as $comment)
 	{
 		echo '
-					<div class="title_bar">
+				<div class="title_bar">
 					<h3 class="titlebg">
 						', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '
 					</h3>
-					</div>';
+				</div>';
 
 		echo '
-						<div class="windowbg2">
-							<p>', $comment['message'], '</p>
-						</div>';
+				<div class="windowbg2">
+					<p>', $comment['message'], '</p>
+				</div>';
 	}
 
 	echo '
-					<div class="cat_bar">
-						<h3 class="catbg">
-							<span class="floatleft">
-								', $txt['mc_reportedp_new_comment'], '
-							</span>
-						</h3>
-					</div>
-					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
-					<div class="padding">
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
-						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
-					</div>
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<span class="floatleft">
+							', $txt['mc_reportedp_new_comment'], '
+						</span>
+					</h3>
 				</div>
+				<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
+				<div class="padding">
+					<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
+					<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
+				</div>
+			</div>
 			<br>';
 
 	template_show_list('moderation_actions_list');
@@ -340,55 +345,55 @@ function template_reported_members_block()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['reported_members'] as $report)
-			echo '
+	foreach ($context['reported_members'] as $report)
+		echo '
 					<li class="smalltext">
 						<a href="', $report['report_href'], '">', $report['user_name'], '</a>
 					</li>';
 
-		// Don't have any reported members right now?
-		if (empty($context['reported_members']))
-			echo '
+	// Don't have any reported members right now?
+	if (empty($context['reported_members']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #reported_users_panel -->
 
-	<script>
-		var oReportedPostsPanelToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrm']) ? 'true' : 'false', ',
-			aSwappableContainers: [
-				\'reported_members_panel\'
-			],
-			aSwapImages: [
-				{
-					sId: \'reported_members_toggle\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+		<script>
+			var oReportedPostsPanelToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrm']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'reported_members_panel\'
+				],
+				aSwapImages: [
+					{
+						sId: \'reported_members_toggle\',
+						altExpanded: ', JavaScriptEscape($txt['hide']), ',
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'reported_members_link\',
+						msgExpanded: ', JavaScriptEscape($txt['mc_recent_member_reports']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['mc_recent_member_reports']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\',
+					sAdditionalVars: \';admin_key=mcrm\'
 				}
-			],
-			aSwapLinks: [
-				{
-					sId: \'reported_members_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_recent_member_reports']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_member_reports']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\',
-				sAdditionalVars: \';admin_key=mcrm\'
-			}
-		});
-	</script>';
+			});
+		</script>';
 }
 
 /**
@@ -402,9 +407,9 @@ function template_reported_members()
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_' . $context['report_post_action']]))
 	{
 		echo '
-			<div class="infobox">
-				', $txt['report_action_' . $context['report_post_action']], '
-			</div>';
+	<div class="infobox">
+		', $txt['report_action_' . $context['report_post_action']], '
+	</div>';
 	}
 
 	echo '
@@ -459,7 +464,7 @@ function template_reported_members()
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
 			echo '
-				</ul>
+			</ul>
 		</div><!-- .generic_list_wrapper -->';
 	}
 
@@ -492,9 +497,9 @@ function template_viewmemberreport()
 	if (!empty($context['report_post_action']))
 	{
 		echo '
-			<div class="infobox">
-				', $txt['report_action_' . $context['report_post_action']], '
-			</div>';
+	<div class="infobox">
+		', $txt['report_action_' . $context['report_post_action']], '
+	</div>';
 	}
 
 	echo '
@@ -512,12 +517,12 @@ function template_viewmemberreport()
 					</span>
 					<span class="floatright">';
 
-		// Make the buttons.
-		$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
-		$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
-		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
+	// Make the buttons.
+	$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+	$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+	$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
-		echo '
+	echo '
 						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="button', (!$context['report']['ignore'] ? ' you_sure' : ''), '"', (!$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : ''), '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
 						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '"  class="button">', $close_button, '</a>
 					</span>
@@ -542,7 +547,7 @@ function template_viewmemberreport()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
 			</div>
-				<div>';
+			<div>';
 
 	if (empty($context['report']['mod_comments']))
 		echo '
@@ -553,30 +558,30 @@ function template_viewmemberreport()
 	foreach ($context['report']['mod_comments'] as $comment)
 	{
 		echo '
-					<div class="title_bar">
-						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a> <a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button you_sure" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
-					</div>';
+				<div class="title_bar">
+					<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"  class="button">' . $txt['mc_reportedp_comment_edit'] . '</a> <a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid=' . $context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-reportC-delete_token_var'] . '=' . $context['mod-reportC-delete_token'] . '"  class="button you_sure" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '">' . $txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
+				</div>';
 
 		echo '
-						<div class="windowbg2">
-							<p>', $comment['message'], '</p>
-						</div>';
+				<div class="windowbg2">
+					<p>', $comment['message'], '</p>
+				</div>';
 	}
 
 	echo '
-					<div class="cat_bar">
-						<h3 class="catbg">
-							<span class="floatleft">
-								', $txt['mc_reportedp_new_comment'], '
-							</span>
-						</h3>
-					</div>
-					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
-					<div class="padding">
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
-						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
-					</div>
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<span class="floatleft">
+							', $txt['mc_reportedp_new_comment'], '
+						</span>
+					</h3>
 				</div>
+				<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
+				<div class="padding">
+					<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button">
+					<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
+				</div>
+			</div>
 			<br>';
 
 	template_show_list('moderation_actions_list');
