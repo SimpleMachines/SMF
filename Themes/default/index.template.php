@@ -248,7 +248,7 @@ function template_body_above()
 		echo '
 				</select>
 				<noscript>
-					<input type="submit" value="', $txt['quick_mod_go'], '" />
+					<input type="submit" value="', $txt['quick_mod_go'], '">
 				</noscript>
 			</form>';
 	}

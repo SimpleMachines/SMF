@@ -240,7 +240,7 @@ function template_modify_language_entries()
 				</select>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" value="', $txt['go'], '" class="button" style="float: none"/>
+				<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
 			</div><!-- #taskpad -->
 			<br class="clear">';
 

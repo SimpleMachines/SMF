@@ -139,7 +139,7 @@ function template_registration_form()
 							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' />
+							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', '>
 						</dd>
 					</dl>';
 

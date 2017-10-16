@@ -164,7 +164,7 @@ function template_login_tfa()
 						</div>
 						<br>
 						<div>
-							<input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/>
+							<input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve">
 							<label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label>
 						</div>
 						<hr>

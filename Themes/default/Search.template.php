@@ -421,7 +421,7 @@ function template_results()
 
 			echo '
 			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
+			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;">
 				</div>
 		</div><!-- .quick_actions -->';
 		}
