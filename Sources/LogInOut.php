@@ -97,17 +97,25 @@ function Login2()
 
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
+		// First check for 2.1 json-format cookie in $_COOKIE
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^\[\d{1,7},"([a-fA-F0-9]{128})?",\d{1,14}(,[0-3])?\]$~', $_COOKIE[$cookiename]) === 1)
 		{
 			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 		}
-		elseif (isset($_SESSION['login_' . $cookiename]))
+		// Try checking for 2.1 json-format cookie in $_SESSION
+		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^\[\d{1,7},"([a-fA-F0-9]{128})?",\d{1,14}(,[0-3])?\]$~', $_SESSION['login_' . $cookiename]) === 1)
 		{
-			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
-
-			// Try for old format
-			if (is_null($timeout))
-				list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename], true);
+		}
+		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
+		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
+		{
+			list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);				
+		}
+		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
+		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_SESSION['login_' . $cookiename]) === 1)
+		{
+			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);				
 		}
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
