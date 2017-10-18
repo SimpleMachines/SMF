@@ -118,7 +118,7 @@ QuickModifyTopic.prototype.modify_topic_save = function (cur_session_id, cur_ses
 		cur_session_var = 'sesc';
 
 	var i, x = new Array();
-	x[x.length] = 'subject=' + document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit().php_urlencode();
+	x[x.length] = 'subject=' + document.forms.quickModForm['subject'].value.php_to8bit().php_urlencode();
 	x[x.length] = 'topic=' + parseInt(document.forms.quickModForm.elements['topic'].value);
 	x[x.length] = 'msg=' + parseInt(document.forms.quickModForm.elements['msg'].value);
 
@@ -433,11 +433,11 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	var i, x = new Array(),
 		oCaller = this,
 		formData = {
-			subject : document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#"),
-			message : document.forms.quickModForm['message'].value.replace(/&#/g, "&#38;#"),
+			subject : document.forms.quickModForm['subject'].value,
+			message : document.forms.quickModForm['message'].value,
 			topic : parseInt(document.forms.quickModForm.elements['topic'].value),
 			msg : parseInt(document.forms.quickModForm.elements['msg'].value),
-			modify_reason : document.forms.quickModForm.elements['modify_reason'].value.replace(/&#/g, "&#38;#")
+			modify_reason : document.forms.quickModForm.elements['modify_reason'].value
 		};
 
 	// Send in the XMLhttp request and let's hope for the best.
