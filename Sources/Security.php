@@ -289,7 +289,7 @@ function is_not_banned($forceCheck = false)
 		{
 			require_once($sourcedir . '/Subs-Auth.php');
 			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-			smf_setcookie($cookiename . '_', '', 1, $cookie_url[1], $cookie_url[0], false, false);
+			smf_setcookie($cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
 		}
 	}
 

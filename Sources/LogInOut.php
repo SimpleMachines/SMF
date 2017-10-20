@@ -809,6 +809,9 @@ function validatePasswordFlood($id_member, $member_name, $password_flood_value =
 	// Only if they're not validating for 2FA
 	if (!$tfa)
 	{
+		require_once($sourcedir . '/Subs-Auth.php');
+		setLoginCookie(-3600, 0);
+
 		if (isset($_SESSION['login_' . $cookiename]))
 			unset($_SESSION['login_' . $cookiename]);
 	}
