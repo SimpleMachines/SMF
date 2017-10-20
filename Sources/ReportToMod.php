@@ -51,8 +51,6 @@ function ReportToModerator()
 
 		// We censor for your protection...
 		censorText($context['preview_message']);
-
-		$context['comment_body'] = !empty($_POST['comment']) ? trim($_POST['comment']) : '';
 	}
 
 	// If they're posting, it should be processed by ReportToModerator2.
@@ -122,7 +120,7 @@ function ReportToModerator()
 		$context['submit_url'] = $scripturl . '?action=reporttm;u=' . $_REQUEST['u'];
 	}
 
-	$context['comment_body'] = !isset($_POST['comment']) ? '' : trim($_POST['comment']);
+	$context['comment_body'] = $smcFunc['htmlspecialchars']((!isset($_POST['comment']) ? '' : trim($_POST['comment'])), ENT_QUOTES);
 
 	$context['page_title'] = $context['report_type'] == 'msg' ? $txt['report_to_mod'] : sprintf($txt['report_profile'], $display_name);
 	$context['notice'] = $context['report_type'] == 'msg' ? $txt['report_to_mod_func'] : $txt['report_profile_func'];

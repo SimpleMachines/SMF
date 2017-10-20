@@ -272,9 +272,11 @@ function template_email_members_compose()
 						// @todo Remove support for old browsers
 						if (\'opera\' in window)
 						{
-							var test = new XMLHttpRequest();
-							if (!(\'setRequestHeader\' in test))
-								return submitThisOnce(document.forms.newsmodify);
+							// Handle the WYSIWYG editor.
+							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
+								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).php_to8bit().php_urlencode();
+							else
+								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.php_to8bit().php_urlencode();
 						}
 						// @todo Currently not sending poll options and option checkboxes.
 						var x = new Array();

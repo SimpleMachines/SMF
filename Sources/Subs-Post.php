@@ -31,7 +31,8 @@ function preparsecode(&$message, $previewing = false)
 	global $user_info, $modSettings, $context, $sourcedir;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
-	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
+	if (empty($context['utf8']))
+		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
 	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function($a)

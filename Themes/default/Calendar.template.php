@@ -833,7 +833,7 @@ function template_event_post()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);smc_saveEntities(\'postevent\', [\'evtitle\']);" style="margin: 0;">';
+		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" style="margin: 0;">';
 
 	if (!empty($context['event']['new']))
 		echo '
