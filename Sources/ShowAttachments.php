@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file handles avatar and attachment preview requests. The whole point of this file is to reduce the loaded stuff to show an image.
+ * This file handles avatar and attachment requests. The whole point of this file is to reduce the loaded stuff to show an image.
  *
  * Simple Machines Forum (SMF)
  *
@@ -17,7 +17,12 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Shows an avatar based on $_GET['attach']
+ * Downloads an avatar or attachment based on $_GET['attach'], and increments the download count.
+ * It requires the view_attachments permission.
+ * It disables the session parser, and clears any previous output.
+ * It depends on the attachmentUploadDir setting being correct.
+ * It is accessed via the query string ?action=dlattach.
+ * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
  */
 function showAttachment()
 {
