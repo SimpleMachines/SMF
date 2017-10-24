@@ -677,7 +677,7 @@ function Display()
 			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
 		}
 		$smcFunc['db_free_result']($request);
-		
+
 		// Got we multi choice?
 		if ($pollinfo['max_votes'] > 1)
 			$realtotal = $pollinfo['total'];
@@ -849,13 +849,13 @@ function Display()
 	{
 		// User moved to the next page
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
-		{	
-			$start_char = 'M'; 
+		{
+			$start_char = 'M';
 			$page_id = $_SESSION['page_last_id'];
 		}
 		// User moved to the previous page
 		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
-		{	
+		{
 			$start_char = 'L';
 			$page_id = $_SESSION['page_first_id'];
 		}
@@ -903,7 +903,7 @@ function Display()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic} 
+			WHERE id_topic = {int:current_topic}
 			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
@@ -1658,225 +1658,14 @@ function prepareDisplayContext($reset = false)
 }
 
 /**
- * Downloads an attachment, and increments the download count.
- * It requires the view_attachments permission.
- * It disables the session parser, and clears any previous output.
- * It depends on the attachmentUploadDir setting being correct.
- * It is accessed via the query string ?action=dlattach.
- * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
- * Legacy code, all attachments are now handled by ShowAttachments.php
+ * Once upon a time, this function handled downloading attachments.
+ * Now it's just an alias retained for the sake of backwards compatibility.
  */
 function Download()
 {
-	global $txt, $modSettings, $user_info, $context, $topic, $smcFunc;
-
-	// Some defaults that we need.
-	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8';
-	$context['no_last_modified'] = true;
-
-	// Prevent a preview image from being displayed twice.
-	if (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
-		return;
-
-	// Make sure some attachment was requested!
-	if (!isset($_REQUEST['attach']) && !isset($_REQUEST['id']))
-		fatal_lang_error('no_access', false);
-
-	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
-
-	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
-	$attachRequest = null;
-	call_integration_hook('integrate_download_request', array(&$attachRequest));
-	if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
-		$request = $attachRequest;
-	else
-	{
-		// This checks only the current board for $board/$topic's permissions.
-		isAllowedTo('view_attachments');
-
-		// Make sure this attachment is on this board.
-		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-		$request = $smcFunc['db_query']('', '
-			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-			FROM {db_prefix}attachments AS a
-				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-			WHERE a.id_attach = {int:attach}
-			LIMIT 1',
-			array(
-				'attach' => $_REQUEST['attach'],
-				'current_topic' => $topic,
-			)
-		);
-	}
-
-	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('no_access', false);
-
-	list ($id_folder, $real_filename, $file_hash, $file_ext, $id_attach, $attachment_type, $mime_type, $is_approved, $id_member) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	// If it isn't yet approved, do they have permission to view it?
-	if (!$is_approved && ($id_member == 0 || $user_info['id'] != $id_member) && ($attachment_type == 0 || $attachment_type == 3))
-		isAllowedTo('approve_posts');
-
-	// Update the download counter (unless it's a thumbnail).
-	if ($attachment_type != 3)
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}attachments
-			SET downloads = downloads + 1
-			WHERE id_attach = {int:id_attach}',
-			array(
-				'id_attach' => $id_attach,
-			)
-		);
-
-	$filename = getAttachmentFilename($real_filename, $_REQUEST['attach'], $id_folder, false, $file_hash);
-
-	// This is done to clear any output that was made before now.
-	ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
-		@ob_start('ob_gzhandler');
-
-	else
-	{
-		ob_start();
-		header('Content-Encoding: none');
-	}
-
-	// No point in a nicer message, because this is supposed to be an attachment anyway...
-	if (!file_exists($filename))
-	{
-		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
-		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
-
-		// We need to die like this *before* we send any anti-caching headers as below.
-		die('File not found.');
-	}
-
-	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
-	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
-	{
-		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (strtotime($modified_since) >= filemtime($filename))
-		{
-			ob_end_clean();
-
-			// Answer the question - no, it hasn't been modified ;).
-			header('HTTP/1.1 304 Not Modified');
-			exit;
-		}
-	}
-
-	// Check whether the ETag was sent back, and cache based on that...
-	$eTag = '"' . substr($_REQUEST['attach'] . $real_filename . filemtime($filename), 0, 64) . '"';
-	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
-	{
-		ob_end_clean();
-
-		header('HTTP/1.1 304 Not Modified');
-		exit;
-	}
-
-	// Send the attachment headers.
-	header('Pragma: ');
-
-	if (!isBrowser('gecko'))
-		header('Content-Transfer-Encoding: binary');
-
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT');
-	header('Accept-Ranges: bytes');
-	header('Connection: close');
-	header('ETag: ' . $eTag);
-
-	// Make sure the mime type warrants an inline display.
-	if (isset($_REQUEST['image']) && !empty($mime_type) && strpos($mime_type, 'image/') !== 0)
-		unset($_REQUEST['image']);
-
-	// Does this have a mime type?
-	elseif (!empty($mime_type) && (isset($_REQUEST['image']) || !in_array($file_ext, array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff'))))
-		header('Content-Type: ' . strtr($mime_type, array('image/bmp' => 'image/x-ms-bmp')));
-
-	else
-	{
-		header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
-		if (isset($_REQUEST['image']))
-			unset($_REQUEST['image']);
-	}
-
-	// Convert the file to UTF-8, cuz most browsers dig that.
-	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $real_filename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($real_filename, 'UTF-8', $context['character_set']) : $real_filename);
-	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
-
-	// Different browsers like different standards...
-	if (isBrowser('firefox'))
-		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
-
-	elseif (isBrowser('opera'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
-
-	elseif (isBrowser('ie'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
-
-	else
-		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
-
-	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-	if (!isset($_REQUEST['image']) && in_array($file_ext, array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
-		header('Cache-Control: no-cache');
-	else
-		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
-
-	header('Content-Length: ' . filesize($filename));
-
-	// Try to buy some time...
-	@set_time_limit(600);
-
-	// Recode line endings for text files, if enabled.
-	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
-	{
-		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = function($buffer)
-			{
-				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
-			};
-		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = function($buffer)
-			{
-				return preg_replace('~[\r]?\n~', "\r", $buffer);
-			};
-		else
-			$callback = function($buffer)
-			{
-				return preg_replace('~[\r]?\n~', "\n", $buffer);
-			};
-	}
-
-	// Since we don't do output compression for files this large...
-	if (filesize($filename) > 4194304)
-	{
-		// Forcibly end any output buffering going on.
-		while (@ob_get_level() > 0)
-			@ob_end_clean();
-
-		$fp = fopen($filename, 'rb');
-		while (!feof($fp))
-		{
-			if (isset($callback))
-				echo $callback(fread($fp, 8192));
-			else
-				echo fread($fp, 8192);
-			flush();
-		}
-		fclose($fp);
-	}
-	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
-	elseif (isset($callback) || @readfile($filename) === null)
-		echo isset($callback) ? $callback(file_get_contents($filename)) : file_get_contents($filename);
-
-	obExit(false);
+	global $sourcedir;
+	require_once($sourcedir . '/ShowAttachments.php');
+	showAttachment();
 }
 
 /**
