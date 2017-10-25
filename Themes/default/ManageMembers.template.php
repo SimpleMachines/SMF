@@ -97,7 +97,7 @@ function template_search_members()
 								<input type="date" name="last_online" id="last_online" value="" size="10"><span class="smalltext">', $txt['date_format'], '</span>
 							</dd>
 						</dl>
-					</div>
+					</div><!-- .msearch_details -->
 					<div class="msearch_details floatright">
 						<dl class="settings right">
 							<dt class="righttext">
@@ -125,7 +125,7 @@ function template_search_members()
 								<input type="text" name="ip" id="ip" value="">
 							</dd>
 						</dl>
-					</div>
+					</div><!-- .msearch_details -->
 					<div class="msearch_details floatright">
 						<fieldset>
 							<legend>', $txt['activation_status'], '</legend>
@@ -133,8 +133,8 @@ function template_search_members()
 							<label for="activated-1"><input type="checkbox" name="activated[]" value="0" id="activated-1" checked> ', $txt['not_activated'], '</label>
 						</fieldset>
 					</div>
-				</div>
-			</div>
+				</div><!-- .flow_hidden -->
+			</div><!-- ..windowbg2 -->
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>
@@ -148,8 +148,8 @@ function template_search_members()
 				</thead>
 				<tbody>';
 
-			foreach ($context['membergroups'] as $membergroup)
-				echo '
+	foreach ($context['membergroups'] as $membergroup)
+		echo '
 					<tr class="windowbg">
 						<td>', $membergroup['name'], '</td>
 						<td class="centercol">
@@ -160,7 +160,7 @@ function template_search_members()
 						</td>
 					</tr>';
 
-			echo '
+	echo '
 					<tr class="windowbg">
 						<td>
 							<em>', $txt['check_all'], '</em>
@@ -185,8 +185,8 @@ function template_search_members()
 				</thead>
 				<tbody>';
 
-			foreach ($context['postgroups'] as $postgroup)
-				echo '
+	foreach ($context['postgroups'] as $postgroup)
+		echo '
 					<tr class="windowbg">
 						<td>
 							', $postgroup['name'], '
@@ -196,7 +196,7 @@ function template_search_members()
 						</td>
 					</tr>';
 
-			echo '
+	echo '
 					<tr class="windowbg">
 						<td>
 							<em>', $txt['check_all'], '</em>
@@ -210,7 +210,7 @@ function template_search_members()
 			<br>
 			<input type="submit" value="', $txt['search'], '" class="button">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -289,13 +289,13 @@ function template_admin_browse()
 				<input type="hidden" name="orig_filter" value="', $context['current_filter'], '">
 				<input type="hidden" name="sa" value="approve">', !empty($context['approve_list']['sort']['desc']) ? '
 				<input type="hidden" name="desc" value="1">' : '', '
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>';
 	}
 
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

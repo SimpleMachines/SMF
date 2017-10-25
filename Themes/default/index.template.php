@@ -70,7 +70,7 @@ function template_init()
 		'extra_after' => '',
 	);
 
-	// Allow css/js files to be disable for this specific theme.
+	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
 	if (!isset($settings['disable_files']))
 		$settings['disable_files'] = array();
@@ -85,15 +85,16 @@ function template_html_above()
 
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '', '>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '', '>
 <head>
 	<meta charset="', $context['character_set'], '">';
 
-	// You don't need to manually load index.css, this will be set up for you. You can, of course, add
-	// any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
+	/*	You don't need to manually load index.css, this will be set up for you. You can, of course, add
+		any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
 
-	// The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
-	// If you've set them up properly (through $settings['theme_variants'], loadCSSFile will load the variant files for you.
+		The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
+		If you've set them up properly (through $settings['theme_variants'], loadCSSFile will load the variant files for you.
+	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
@@ -117,8 +118,8 @@ function template_html_above()
 		echo '>';
 	}
 
-	/* What is your Lollipop's color?
-	Theme Authors you can change here to make sure your theme's main color got visible on tab */
+	/*	What is your Lollipop's color?
+		Theme Authors, you can change the color here to make sure your theme's main color gets visible on tab */
 	echo '
 	<meta name="theme-color" content="#557EA0">';
 
@@ -194,6 +195,7 @@ function template_body_above()
 					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
 			if (!empty($context['user']['avatar']))
 				echo $context['user']['avatar']['image'];
+
 			echo $context['user']['name'], '</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
@@ -227,7 +229,7 @@ function template_body_above()
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
 		else
-			//In maintenance mode, only login is allowed and don't show OverlayDiv
+			// In maintenance mode, only login is allowed and don't show OverlayDiv
 			echo '
 			<ul class="floatleft welcome">
 				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl. '?action=login', 'return true;'), '</li>
@@ -298,8 +300,8 @@ function template_body_above()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- .inner_wrap -->
+	</div><!-- #top_section -->';
 
 	echo '
 	<div id="header">
@@ -319,6 +321,7 @@ function template_body_above()
 					<div class="user">
 						', $context['current_time'], '
 					</div>';
+
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty($settings['enable_news']) && !empty($context['random_news_line']))
 		echo '
@@ -344,17 +347,15 @@ function template_body_above()
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	echo '
-	<div id="main_menu">';
-		template_menu();
-
-	echo '
-	</div>';
+				<div id="main_menu">
+					', template_menu(), '
+				</div>';
 
 	theme_linktree();
 
 	echo '
-			</div>
-		</div>';
+			</div><!-- #inner_section -->
+		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '
@@ -370,10 +371,10 @@ function template_body_below()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-			</div>
-		</div>
-	</div>
-</div>';
+			</div><!-- #main_content_section -->
+		</div><!-- #content_section -->
+	</div><!-- #wrapper -->
+</div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
@@ -381,7 +382,7 @@ function template_body_below()
 		<div class="inner_wrap">';
 
 	// There is now a global "Go to top" link at the right.
-		echo '
+	echo '
 		<ul>
 			<li class="floatright"><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="' . $scripturl . '?action=help;sa=rules">' . $txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
 			<li class="copyright">', theme_copyright(), '</li>
@@ -394,7 +395,7 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div>';
+	</div><!-- #footer -->';
 
 }
 
@@ -403,7 +404,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// load in any javascipt that could be deferred to the end of the page
+	// Load in any javascipt that could be deferred to the end of the page
 	template_javascript(true);
 
 	echo '
@@ -423,13 +424,12 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
-
-	echo '
+		echo '
 				<div class="navigate_section">
 					<ul>';
 
 	if ($context['user']['is_logged'])
-	echo '
+		echo '
 						<li class="unread_links">
 							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
 							<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
@@ -455,10 +455,10 @@ function theme_linktree($force_show = false)
 		// Show the link, including a URL if it should have one.
 		if (isset($tree['url']))
 			echo '
-					<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
+							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
 		else
 			echo '
-					<span>' . $tree['name'] . '</span>';
+							<span>' . $tree['name'] . '</span>';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after']))
@@ -470,7 +470,7 @@ function theme_linktree($force_show = false)
 
 	echo '
 					</ul>
-				</div>';
+				</div><!-- .navigate_section -->';
 
 	$shown_linktree = true;
 }
@@ -494,6 +494,7 @@ function template_menu()
 								', $button['icon'], '<span class="textmenu">', $button['title'], '</span>
 							</a>';
 
+		// 2nd level menus
 		if (!empty($button['sub_buttons']))
 		{
 			echo '
@@ -527,7 +528,7 @@ function template_menu()
 				echo '
 								</li>';
 			}
-				echo '
+			echo '
 							</ul>';
 		}
 		echo '
@@ -535,7 +536,7 @@ function template_menu()
 	}
 
 	echo '
-					</ul>';
+					</ul><!-- .menu_nav -->';
 }
 
 /**
@@ -583,9 +584,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 					$button .= '</a>';
 				}
 				$button .= '
-							</div>
-						</div>
-					</div>';
+							</div><!-- .overview -->
+						</div><!-- .viewport -->
+					</div><!-- .top_menu -->';
 			}
 
 			$buttons[] = $button;

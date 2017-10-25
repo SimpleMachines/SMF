@@ -51,27 +51,27 @@ function template_main()
 	<div id="report_form">
 		<form action="', $context['submit_url'], '" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="', $context['report_type'], '" value="', $context['reported_item'], '">
-				<div class="cat_bar">
-					<h3 class="catbg">', $context['page_title'], '</h3>
-				</div>
-				<div class="windowbg noup">';
+			<div class="cat_bar">
+				<h3 class="catbg">', $context['page_title'], '</h3>
+			</div>
+			<div class="windowbg noup">';
 
 	if (!empty($context['post_errors']))
 	{
 		echo '
-					<div id="error_box" class="errorbox">
-						<ul id="error_list">';
+				<div id="error_box" class="errorbox">
+					<ul id="error_list">';
 
 		foreach ($context['post_errors'] as $key => $error)
 			echo '
-							<li id="error_', $key, '" class="error">', $error, '</li>';
+						<li id="error_', $key, '" class="error">', $error, '</li>';
 
 		echo '
-						</ul>';
+					</ul>';
 	}
 	else
 		echo '
-						<div style="display:none" id="error_box" class="errorbox">';
+					<div style="display:none" id="error_box" class="errorbox">';
 
 	echo '
 					</div>';
@@ -95,7 +95,7 @@ function template_main()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 		</form>
-	</div>';
+	</div><!-- #report_form -->';
 }
 
 ?>

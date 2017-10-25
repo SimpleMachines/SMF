@@ -95,8 +95,8 @@ function template_find_members()
 						<input type="submit" value="', $txt['search'], '" class="button">
 						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button">
 					</div>
-				</div>
-			</div>
+				</div><!-- .padding -->
+			</div><!-- .roundframe -->
 			<br>
 			<div class="roundframe">
 				<div class="cat_bar">
@@ -129,7 +129,7 @@ function template_find_members()
 
 	echo '
 
-			</div>
+			</div><!-- .roundframe -->
 			<input type="hidden" name="input" value="', $context['input_box_name'], '">
 			<input type="hidden" name="delim" value="', $context['delimiter'], '">
 			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '">
@@ -172,8 +172,8 @@ function template_manual()
 	echo '
 					</ul>
 					<p>', sprintf($txt['manual_docs_and_credits'], $context['wiki_url'], $scripturl . '?action=credits'), '</p>
-				</div>
-			</div>';
+				</div><!-- #helpmain -->
+			</div><!-- #help_container -->';
 }
 
 /**

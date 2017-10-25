@@ -40,7 +40,7 @@ function template_email_members()
 					<dd>';
 
 	foreach ($context['groups'] as $group)
-				echo '
+		echo '
 						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
 
 	echo '
@@ -83,7 +83,7 @@ function template_email_members()
 						<dd>';
 
 	foreach ($context['groups'] as $group)
-				echo '
+		echo '
 							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
 
 	echo '
@@ -109,13 +109,13 @@ function template_email_members()
 							<input type="checkbox" name="email_force" id="email_force" value="1">
 						</dd>
 					</dl>
-				</div>
+				</div><!-- #advanced_panel_div -->
 				<br>
 				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
@@ -182,18 +182,19 @@ function template_email_members_compose()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
-				</h3>
+	<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
+			</h3>
+		</div>
+		<div class="windowbg noup">
+			<div class="post" id="preview_body">
+				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 			</div>
-			<div class="windowbg noup">
-				<div class="post" id="preview_body">
-					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
-				</div>
-			</div>
-		</div><br>';
+		</div>
+	</div>
+	<br>';
 
 	echo '
 	<div id="admincenter">
@@ -224,7 +225,8 @@ function template_email_members_compose()
 					<dd id="pm_subject">
 						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '/>
 					</dd>
-				</dl><hr class="clear">
+				</dl>
+				<hr class="clear">
 				<div id="bbcBox_message"></div>';
 
 	// What about smileys?
@@ -236,7 +238,7 @@ function template_email_members_compose()
 	echo '
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
-					echo '
+	echo '
 				<ul>
 					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty($context['send_pm']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', $txt['email_as_pms'], '</label></li>
 					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
@@ -246,7 +248,7 @@ function template_email_members_compose()
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>
-			</div>
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="email_force" value="', $context['email_force'], '">
 			<input type="hidden" name="total_emails" value="', $context['total_emails'], '">';
@@ -256,30 +258,19 @@ function template_email_members_compose()
 			<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-		<script>';
+			<script>';
+
 	// The functions used to preview a posts without loading a new page.
 	echo '
-			var txt_preview_title = "', $txt['preview_title'], '";
-			var txt_preview_fetch = "', $txt['preview_fetch'], '";
-			function previewPost()
-			{
-				if (window.XMLHttpRequest)
+				var txt_preview_title = "', $txt['preview_title'], '";
+				var txt_preview_fetch = "', $txt['preview_fetch'], '";
+				function previewPost()
 				{
-					// Opera didn\'t support setRequestHeader() before 8.01.
-					// @todo Remove support for old browsers
-					if (\'opera\' in window)
+					if (window.XMLHttpRequest)
 					{
-						var test = new XMLHttpRequest();
-						if (!(\'setRequestHeader\' in test))
-							return submitThisOnce(document.forms.newsmodify);
-					}
-					// @todo Currently not sending poll options and option checkboxes.
-					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), '];
-					var checkboxFields = [\'send_html\', \'send_pm\'];
-
-					for (var i = 0, n = textFields.length; i < n; i++)
-						if (textFields[i] in document.forms.newsmodify)
+						// Opera didn\'t support setRequestHeader() before 8.01.
+						// @todo Remove support for old browsers
+						if (\'opera\' in window)
 						{
 							// Handle the WYSIWYG editor.
 							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
@@ -287,92 +278,106 @@ function template_email_members_compose()
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.php_to8bit().php_urlencode();
 						}
-					for (var i = 0, n = checkboxFields.length; i < n; i++)
-						if (checkboxFields[i] in document.forms.newsmodify && document.forms.newsmodify.elements[checkboxFields[i]].checked)
-							x[x.length] = checkboxFields[i] + \'=\' + document.forms.newsmodify.elements[checkboxFields[i]].value;
+						// @todo Currently not sending poll options and option checkboxes.
+						var x = new Array();
+						var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), '];
+						var checkboxFields = [\'send_html\', \'send_pm\'];
 
-					x[x.length] = \'item=newsletterpreview\';
+						for (var i = 0, n = textFields.length; i < n; i++)
+							if (textFields[i] in document.forms.newsmodify)
+							{
+								// Handle the WYSIWYG editor.
+								if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
+									x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+								else
+									x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+							}
+						for (var i = 0, n = checkboxFields.length; i < n; i++)
+							if (checkboxFields[i] in document.forms.newsmodify && document.forms.newsmodify.elements[checkboxFields[i]].checked)
+								x[x.length] = checkboxFields[i] + \'=\' + document.forms.newsmodify.elements[checkboxFields[i]].value;
 
-					sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=xmlhttp;sa=previews;xml\', x.join(\'&\'), onDocSent);
+						x[x.length] = \'item=newsletterpreview\';
 
-					document.getElementById(\'preview_section\').style.display = \'\';
-					setInnerHTML(document.getElementById(\'preview_subject\'), txt_preview_title);
-					setInnerHTML(document.getElementById(\'preview_body\'), txt_preview_fetch);
+						sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=xmlhttp;sa=previews;xml\', x.join(\'&\'), onDocSent);
 
-					return false;
-				}
-				else
-					return submitThisOnce(document.forms.newsmodify);
-			}
-			function onDocSent(XMLDoc)
-			{
-				if (!XMLDoc)
-				{
-					document.forms.newsmodify.preview.onclick = new function ()
-					{
-						return true;
+						document.getElementById(\'preview_section\').style.display = \'\';
+						setInnerHTML(document.getElementById(\'preview_subject\'), txt_preview_title);
+						setInnerHTML(document.getElementById(\'preview_body\'), txt_preview_fetch);
+
+						return false;
 					}
-					document.forms.newsmodify.preview.click();
-				}
-
-				// Show the preview section.
-				var preview = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'preview\')[0];
-				setInnerHTML(document.getElementById(\'preview_subject\'), preview.getElementsByTagName(\'subject\')[0].firstChild.nodeValue);
-
-				var bodyText = \'\';
-				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
-					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
-
-				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
-				document.getElementById(\'preview_body\').className = \'post\';
-
-				// Show a list of errors (if any).
-				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
-				var errorList = new Array();
-				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
-					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
-				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
-
-				// Adjust the color of captions if the given data is erroneous.
-				var captions = errors.getElementsByTagName(\'caption\');
-				for (var i = 0, numCaptions = errors.getElementsByTagName(\'caption\').length; i < numCaptions; i++)
-					if (document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')))
-						document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')).className = captions[i].getAttribute(\'class\');
-
-				if (errors.getElementsByTagName(\'post_error\').length == 1)
-					document.forms.newsmodify.', $context['post_box_name'], '.style.border = \'1px solid red\';
-				else if (document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor == \'red\' || document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor == \'red red red red\')
-				{
-					if (\'runtimeStyle\' in document.forms.newsmodify.', $context['post_box_name'], ')
-						document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor = \'\';
 					else
-						document.forms.newsmodify.', $context['post_box_name'], '.style.border = null;
+						return submitThisOnce(document.forms.newsmodify);
 				}
-				location.hash = \'#\' + \'preview_section\';
-			}';
+				function onDocSent(XMLDoc)
+				{
+					if (!XMLDoc)
+					{
+						document.forms.newsmodify.preview.onclick = new function ()
+						{
+							return true;
+						}
+						document.forms.newsmodify.preview.click();
+					}
+
+					// Show the preview section.
+					var preview = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'preview\')[0];
+					setInnerHTML(document.getElementById(\'preview_subject\'), preview.getElementsByTagName(\'subject\')[0].firstChild.nodeValue);
+
+					var bodyText = \'\';
+					for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
+						bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
+
+					setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
+					document.getElementById(\'preview_body\').className = \'post\';
+
+					// Show a list of errors (if any).
+					var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
+					var errorList = new Array();
+					for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
+						errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
+					document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
+					setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
+
+					// Adjust the color of captions if the given data is erroneous.
+					var captions = errors.getElementsByTagName(\'caption\');
+					for (var i = 0, numCaptions = errors.getElementsByTagName(\'caption\').length; i < numCaptions; i++)
+						if (document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')))
+							document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')).className = captions[i].getAttribute(\'class\');
+
+					if (errors.getElementsByTagName(\'post_error\').length == 1)
+						document.forms.newsmodify.', $context['post_box_name'], '.style.border = \'1px solid red\';
+					else if (document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor == \'red\' || document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor == \'red red red red\')
+					{
+						if (\'runtimeStyle\' in document.forms.newsmodify.', $context['post_box_name'], ')
+							document.forms.newsmodify.', $context['post_box_name'], '.style.borderColor = \'\';
+						else
+							document.forms.newsmodify.', $context['post_box_name'], '.style.border = null;
+					}
+					location.hash = \'#\' + \'preview_section\';
+				}';
 
 	echo '
-		</script>';
+			</script>';
 
 	echo '
-		<script>
-			function checkboxes_status (item)
-			{
-				if (item.id == \'send_html\')
-					document.getElementById(\'parse_html\').disabled = !document.getElementById(\'parse_html\').disabled;
-				if (item.id == \'send_pm\')
+			<script>
+				function checkboxes_status (item)
 				{
-					if (!document.getElementById(\'send_html\').checked)
-						document.getElementById(\'parse_html\').disabled = true;
-					else
-						document.getElementById(\'parse_html\').disabled = false;
-					document.getElementById(\'send_html\').disabled = !document.getElementById(\'send_html\').disabled;
+					if (item.id == \'send_html\')
+						document.getElementById(\'parse_html\').disabled = !document.getElementById(\'parse_html\').disabled;
+					if (item.id == \'send_pm\')
+					{
+						if (!document.getElementById(\'send_html\').checked)
+							document.getElementById(\'parse_html\').disabled = true;
+						else
+							document.getElementById(\'parse_html\').disabled = false;
+						document.getElementById(\'send_html\').disabled = !document.getElementById(\'send_html\').disabled;
+					}
 				}
-			}
-		</script>
+			</script>
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -413,9 +418,9 @@ function template_email_members_send()
 				<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>
+	</div><!-- #admincenter -->
 
 	<script>
 		var countdown = 2;
@@ -445,7 +450,7 @@ function template_news_lists()
 
 	if (!empty($context['saved_successful']))
 		echo '
-					<div class="infobox">', $txt['settings_saved'], '</div>';
+			<div class="infobox">', $txt['settings_saved'], '</div>';
 
 	template_show_list('news_lists');
 }

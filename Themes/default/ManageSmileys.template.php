@@ -40,16 +40,16 @@ function template_modifyset()
 				</h3>
 			</div>';
 
-		// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
-		if (!empty($context['current_set']['can_import']))
-		{
-			echo '
+	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
+	if (!empty($context['current_set']['can_import']))
+	{
+		echo '
 			<div class="information">
 				', $context['current_set']['can_import'] == 1 ? sprintf($txt['smiley_set_import_single'], $context['current_set']['import_url']) : sprintf($txt['smiley_set_import_multiple'], $context['current_set']['can_import'], $context['current_set']['import_url']), '
 			</div>';
-		}
+	}
 
-		echo '
+	echo '
 			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
@@ -63,22 +63,25 @@ function template_modifyset()
 					</dt>
 					<dd>
 						', $modSettings['smileys_url'], '/';
-		if ($context['current_set']['id'] == 'default')
-			echo '<strong>default</strong><input type="hidden" name="smiley_sets_path" id="smiley_sets_path" value="default">';
-		elseif (empty($context['smiley_set_dirs']))
-			echo '
-						<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', $context['current_set']['path'], '"> ';
-		else
-		{
-			echo '
-						<select name="smiley_sets_path" id="smiley_sets_path">';
-			foreach ($context['smiley_set_dirs'] as $smiley_set_dir)
-				echo '
-							<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected' : '', $smiley_set_dir['selectable'] ? '' : ' disabled', '>', $smiley_set_dir['id'], '</option>';
-			echo '
-						</select> ';
-		}
+
+	if ($context['current_set']['id'] == 'default')
+		echo '<strong>default</strong><input type="hidden" name="smiley_sets_path" id="smiley_sets_path" value="default">';
+
+	elseif (empty($context['smiley_set_dirs']))
 		echo '
+						<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', $context['current_set']['path'], '"> ';
+	else
+	{
+		echo '
+						<select name="smiley_sets_path" id="smiley_sets_path">';
+
+		foreach ($context['smiley_set_dirs'] as $smiley_set_dir)
+			echo '
+							<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected' : '', $smiley_set_dir['selectable'] ? '' : ' disabled', '>', $smiley_set_dir['id'], '</option>';
+		echo '
+						</select> ';
+	}
+	echo '
 						/..
 					</dd>
 					<dt>
@@ -88,9 +91,9 @@ function template_modifyset()
 						<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked' : '', '>
 					</dd>';
 
-		// If this is a new smiley set they have the option to import smileys already in the directory.
-		if ($context['current_set']['is_new'] && !empty($modSettings['smiley_enable']))
-			echo '
+	// If this is a new smiley set they have the option to import smileys already in the directory.
+	if ($context['current_set']['is_new'] && !empty($modSettings['smiley_enable']))
+		echo '
 					<dt>
 						<strong><label for="smiley_sets_import">', $txt['smiley_set_import_directory'], '</label>: </strong>
 					</dt>
@@ -98,15 +101,15 @@ function template_modifyset()
 						<input type="checkbox" name="smiley_sets_import" id="smiley_sets_import" value="1">
 					</dd>';
 
-		echo '
+	echo '
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mss_token_var'], '" value="', $context['admin-mss_token'], '">
 			<input type="hidden" name="set" value="', $context['current_set']['id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -130,11 +133,11 @@ function template_modifysmiley()
 					<dd>
 						<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'], '" id="preview" alt=""> (', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();">';
 
-		foreach ($context['smiley_sets'] as $smiley_set)
-			echo '
+	foreach ($context['smiley_sets'] as $smiley_set)
+		echo '
 						<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
 
-		echo '
+	echo '
 						</select>)
 					</dd>
 					<dt>
@@ -147,20 +150,22 @@ function template_modifysmiley()
 						<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
 					</dt>
 					<dd>';
-			if (empty($context['filenames']))
-				echo '
+
+	if (empty($context['filenames']))
+		echo '
 						<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '">';
-			else
-			{
-				echo '
+	else
+	{
+		echo '
 						<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();">';
-				foreach ($context['filenames'] as $filename)
-					echo '
-							<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
-				echo '
-						</select>';
-			}
+
+		foreach ($context['filenames'] as $filename)
 			echo '
+							<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
+		echo '
+						</select>';
+	}
+	echo '
 					</dd>
 					<dt>
 						<strong><label for="smiley_description">', $txt['smileys_description'], '</label>: </strong>
@@ -187,11 +192,11 @@ function template_modifysmiley()
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" data-confirm="', $txt['smileys_delete_confirm'], '" class="button you_sure">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -225,24 +230,26 @@ function template_addsmiley()
 						<dd>
 							', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();selectMethod(\'existing\');">';
 
-		foreach ($context['smiley_sets'] as $smiley_set)
-			echo '
-							<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
-
+	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
+								<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
+
+	echo '
 							</select>
 						</dd>
 						<dt>
 							<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
 						</dt>
 						<dd>';
+
 	if (empty($context['filenames']))
 		echo '
 							<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '" onchange="selectMethod(\'existing\');">';
 	else
 	{
 		echo '
-								<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();selectMethod(\'existing\');">';
+							<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();selectMethod(\'existing\');">';
+
 		foreach ($context['filenames'] as $filename)
 			echo '
 								<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
@@ -273,6 +280,7 @@ function template_addsmiley()
 				</fieldset>
 
 				<dl id="uploadMore" style="display: none;" class="settings">';
+
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
 					<dt>
@@ -283,7 +291,7 @@ function template_addsmiley()
 					</dd>';
 	echo '
 				</dl>
-			</div>
+			</div><!-- .windowbg2 -->
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
@@ -319,10 +327,10 @@ function template_addsmiley()
 					</dd>
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
-			</div>
+			</div><!-- .windowbg2 -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -347,18 +355,22 @@ function template_setorder()
 			</div>
 			<div class="windowbg2">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
+
 		foreach ($location['rows'] as $row)
 		{
 			if (!empty($context['move_smiley']))
 				echo '
-					<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $row[0]['row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
+				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $row[0]['row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 
 			foreach ($row as $smiley)
 			{
 				if (empty($context['move_smiley']))
-					echo '<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px; border: 0px solid black;" alt="', $smiley['description'], '"></a>';
+					echo '
+				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px; border: 0px solid black;" alt="', $smiley['description'], '"></a>';
 				else
-					echo '<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px;', $smiley['selected'] ? ' border: 2px solid red' : '', ';" alt="', $smiley['description'], '"><a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
+					echo '
+				<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px;', $smiley['selected'] ? ' border: 2px solid red' : '', ';" alt="', $smiley['description'], '">
+				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 			}
 
 			echo '
@@ -368,13 +380,13 @@ function template_setorder()
 			echo '
 				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $location['last_row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 		echo '
-			</div>
-		<input type="hidden" name="reorder" value="1">
-	</form>';
+			</div><!-- .windowbg2 -->
+			<input type="hidden" name="reorder" value="1">
+		</form>';
 	}
 
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -402,6 +414,7 @@ function template_editicon()
 			</div>
 			<div class="windowbg2">
 				<dl class="settings">';
+
 	if (!$context['new_icon'])
 		echo '
 					<dt>
@@ -410,6 +423,7 @@ function template_editicon()
 					<dd>
 						<img src="', $context['icon']['image_url'], '" alt="', $context['icon']['title'], '">
 					</dd>';
+
 	echo '
 					<dt>
 						<strong><label for="icon_filename">', $txt['smileys_filename'], '</label>: </strong><br><span class="smalltext">', $txt['icons_filename_all_png'], '</span>
@@ -434,6 +448,7 @@ function template_editicon()
 	{
 		echo '
 							<optgroup label="', $category['name'], '">';
+
 		foreach ($category['boards'] as $board)
 			echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
@@ -468,9 +483,9 @@ function template_editicon()
 	echo '
 				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

@@ -38,13 +38,13 @@ function template_report_type()
 						<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
 					</dd>';
 	}
-		echo '
+	echo '
 				</dl>
 				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			</div><!-- .windowbg2 -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -133,7 +133,7 @@ function template_main()
 		</table>';
 	}
 	echo '
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 /**
@@ -222,7 +222,8 @@ function template_print()
 		}
 		echo '
 			</table>
-		</div><br>';
+		</div>
+		<br>';
 	}
 }
 

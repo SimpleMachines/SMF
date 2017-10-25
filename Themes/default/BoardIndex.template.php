@@ -100,7 +100,7 @@ function template_main()
 					<div class="info">', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board);
 
 				// Show some basic information about the number of posts, etc.
-					echo '
+				echo '
 					</div>
 					<div class="board_stats">', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
 					</div>
@@ -114,21 +114,23 @@ function template_main()
 					template_bi_board_children($board);
 
 				echo '
-					</div>';
+				</div><!-- #board_[id] -->';
 			}
 
 		echo '
-			</div>
-		</div>';
+			</div><!-- #category_[id]_boards -->
+		</div><!-- .main_container -->';
 	}
 
 	echo '
-	</div>';
+	</div><!-- #boardindex_table -->';
 
 	// Show the mark all as read button?
 	if ($context['user']['is_logged'] && !empty($context['categories']))
 		echo '
-		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
+	<div class="mark_read">
+		', template_button_strip($context['mark_read_button'], 'right'), '
+	</div>';
 }
 
 /**
@@ -196,8 +198,9 @@ function template_bi_board_stats($board)
 	global $txt;
 
 	echo '
-						<p>', comma_format($board['posts']), ' ', $txt['posts'], '
-						', '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+						<p>
+							', comma_format($board['posts']), ' ', $txt['posts'], '
+							', '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>';
 }
 
@@ -211,7 +214,8 @@ function template_bi_redirect_stats($board)
 	global $txt;
 
 	echo '
-						<p>', comma_format($board['posts']), ' ', $txt['redirects'], '
+						<p>
+							', comma_format($board['posts']), ' ', $txt['redirects'], '
 						</p>';
 }
 
@@ -258,7 +262,7 @@ function template_bi_board_children($board)
 			$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
 		}
 
-	echo '
+		echo '
 					<div id="board_', $board['id'], '_children" class="children">
 						<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
 					</div>';
@@ -301,8 +305,8 @@ function template_info_center()
 	}
 
 	echo '
-		</div>
-	</div>';
+		</div><!-- #upshrinkHeaderIC -->
+	</div><!-- #info_center -->';
 
 	// Info center collapse object.
 	echo '
@@ -379,8 +383,8 @@ function template_ic_block_recent()
 					</tr>';
 
 		/* Each post in latest_posts has:
-				board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
-				subject, short_subject (shortened with...), time, link, and href. */
+			board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
+			subject, short_subject (shortened with...), time, link, and href. */
 		foreach ($context['latest_posts'] as $post)
 			echo '
 					<tr class="windowbg">
@@ -393,7 +397,7 @@ function template_ic_block_recent()
 				</table>';
 	}
 	echo '
-			</div>';
+			</div><!-- #recent_posts_content -->';
 }
 
 /**
@@ -411,39 +415,43 @@ function template_ic_block_calendar()
 				</h4>
 			</div>';
 
-	// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P.
+	// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P
 	if (!empty($context['calendar_holidays']))
 		echo '
-				<p class="inline holiday"><span>', $txt['calendar_prompt'], '</span> ', implode(', ', $context['calendar_holidays']), '</p>';
+			<p class="inline holiday">
+				<span>', $txt['calendar_prompt'], '</span> ', implode(', ', $context['calendar_holidays']), '
+			</p>';
 
 	// People's birthdays. Like mine. And yours, I guess. Kidding.
 	if (!empty($context['calendar_birthdays']))
 	{
 		echo '
-				<p class="inline">
-					<span class="birthday">', $context['calendar_only_today'] ? $txt['birthdays'] : $txt['birthdays_upcoming'], '</span>';
+			<p class="inline">
+				<span class="birthday">', $context['calendar_only_today'] ? $txt['birthdays'] : $txt['birthdays_upcoming'], '</span>';
+
 		// Each member in calendar_birthdays has: id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?)
 		foreach ($context['calendar_birthdays'] as $member)
 			echo '
-					<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong class="fix_rtl_names">' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
+				<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong class="fix_rtl_names">' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
+
 		echo '
-				</p>';
+			</p>';
 	}
 
 	// Events like community get-togethers.
 	if (!empty($context['calendar_events']))
 	{
 		echo '
-				<p class="inline">
-					<span class="event">', $context['calendar_only_today'] ? $txt['events'] : $txt['events_upcoming'], '</span> ';
+			<p class="inline">
+				<span class="event">', $context['calendar_only_today'] ? $txt['events'] : $txt['events_upcoming'], '</span> ';
 
 		// Each event in calendar_events should have:
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 		foreach ($context['calendar_events'] as $event)
 			echo '
-					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><span class="generic_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
+				', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><span class="generic_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
 		echo '
-				</p>';
+			</p>';
 	}
 }
 
@@ -486,6 +494,7 @@ function template_ic_block_online()
 
 	// Handle hidden users and buddies.
 	$bracketList = array();
+
 	if ($context['show_buddies'])
 		$bracketList[] = comma_format($context['num_buddies']) . ' ' . ($context['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
 	if (!empty($context['num_spiders']))

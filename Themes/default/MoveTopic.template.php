@@ -65,8 +65,8 @@ function template_move()
 
     echo '
 					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
-				</div>
-			</div>';
+				</div><!-- .move_topic -->
+			</div><!-- .windowbg -->';
 
 	if ($context['back_to_topic'])
 		echo '
@@ -76,7 +76,7 @@ function template_move()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
 		</form>
-	</div>';
+	</div><!-- #move_topic -->';
 }
 
 /**
@@ -89,7 +89,9 @@ function template_redirect_options($type)
     global $txt, $context, $modSettings;
 
     echo '
-					<label for="postRedirect"><input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.</label>
+					<label for="postRedirect">
+						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.
+					</label>
 					<fieldset id="reasonArea" style="margin-top: 1ex;', $context['is_approved'] ? '' : 'display: none;', '">
 						<dl class="settings">
 							<dt>
@@ -104,6 +106,7 @@ function template_redirect_options($type)
 							<dd>
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
 							</dd>';
+
 	if (!empty($modSettings['allow_expire_redirect']))
 	{
 		echo '
@@ -157,7 +160,7 @@ function template_merge_done()
 				</ul>
 			</div>
 		</div>
-	<br class="clear">';
+		<br class="clear">';
 }
 
 /**
@@ -184,7 +187,8 @@ function template_merge()
 						', $context['origin_subject'], '
 					</dd>
 				</dl>
-			</div><br>
+			</div>
+			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
@@ -221,8 +225,8 @@ function template_merge()
 	else
 		echo $txt['target_below'];
 
-	echo '				</h4>
-			</div>';
+	echo '		</h4>
+			</div><!-- .title_bar -->';
 
 	// Don't show this if there aren't any topics...
 	if (!empty($context['topics']))
@@ -270,16 +274,16 @@ function template_merge()
 							<strong>', $txt['merge_to_topic_id'], ': </strong>
 						</dt>
 						<dd>
-								<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
-								<input type="text" name="topics[]">
-								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
+							<input type="text" name="topics[]">
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 
 						</dd>
 					</dl>
 					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 			</form>
-		</div>';
+		</div><!-- #merge_topics -->';
 }
 
 /**
@@ -306,8 +310,9 @@ function template_merge_extra_options()
 					</tr>
 				</thead>
 				<tbody>';
-		foreach ($context['topics'] as $topic)
-			echo '
+
+	foreach ($context['topics'] as $topic)
+		echo '
 					<tr class="windowbg">
 						<td>
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
@@ -327,24 +332,23 @@ function template_merge_extra_options()
 							<input type="checkbox" name="notifications[]" value="' . $topic['id'] . '" checked>
 						</td>
 					</tr>';
-		echo '
+	echo '
 				</tbody>
 			</table>
 			<br>
-			<div class="windowbg">';
-
-	echo '
+			<div class="windowbg">
 				<fieldset id="merge_subject" class="merge_options">
 					<legend>', $txt['merge_select_subject'], '</legend>
 					<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
+
 	foreach ($context['topics'] as $topic)
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
 	echo '
 						<option value="0">', $txt['merge_custom_subject'], ':</option>
 					</select>
-					<br><input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;">
 					<br>
+					<input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;"><br>
 					<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" value="1"> ', $txt['movetopic_change_all_subjects'], '</label>
 				</fieldset>';
 
@@ -357,6 +361,7 @@ function template_merge_extra_options()
 				<fieldset id="merge_board" class="merge_options">
 					<legend>', $txt['merge_select_target_board'], '</legend>
 					<ul>';
+
 		foreach ($context['boards'] as $board)
 			echo '
 						<li>
@@ -372,6 +377,7 @@ function template_merge_extra_options()
 				<fieldset id="merge_poll" class="merge_options">
 					<legend>' . $txt['merge_select_poll'] . '</legend>
 					<ul>';
+
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>
@@ -391,9 +397,9 @@ function template_merge_extra_options()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="sa" value="execute">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #merge_topics -->';
 }
 
 ?>

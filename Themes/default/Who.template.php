@@ -112,10 +112,10 @@ function template_main()
 							<input type="submit" value="', $txt['go'], '" class="button">
 						</noscript>
 					</div>
-				</div>
-			</div>
+				</div><!-- #lower_pagesection -->
+			</div><!-- #mlist -->
 		</form>
-	</div>';
+	</div><!-- #whos_online -->';
 }
 
 /**
@@ -135,13 +135,13 @@ function template_credits()
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
-		echo '
+			echo '
 		<div class="windowbg noup">
 			<p>', $section['pretext'], '</p>
 		</div>';
 
 		if (isset($section['title']))
-		echo '
+			echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $section['title'], '</h3>
 		</div>';
@@ -249,7 +249,7 @@ function template_credits()
 		<div class="windowbg noup">
 			', $context['copyrights']['smf'], '
 		</div>
-	</div>';
+	</div><!-- #credits -->';
 }
 
 ?>

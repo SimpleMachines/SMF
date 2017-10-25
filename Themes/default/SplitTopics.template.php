@@ -45,9 +45,9 @@ function template_ask()
 					<input type="submit" value="', $txt['split'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #split_topics -->';
 }
 
 /**
@@ -75,8 +75,8 @@ function template_main()
 					<a href="', $scripturl, '?topic=', $context['new_topic'], '.0">', $txt['new_topic'], '</a>
 				</li>
 			</ul>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #split_topics -->';
 }
 
 /**
@@ -115,7 +115,7 @@ function template_select()
 	echo '
 					<li class="dummy">
 				</ul>
-			</div>
+			</div><!-- #not_selected -->
 			<div id="selected" class="floatright">
 				<div class="cat_bar">
 					<h3 class="catbg">
@@ -145,7 +145,7 @@ function template_select()
 	echo '
 					<li class="dummy">
 				</ul>
-			</div>
+			</div><!-- #selected -->
 			<br class="clear">
 			<div class="flow_auto">
 				<input type="hidden" name="topic" value="', $context['current_topic'], '">
@@ -154,7 +154,7 @@ function template_select()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>
-	</div>
+	</div><!-- #split_topics -->
 	<script>
 		var start = new Array();
 		start[0] = ', $context['not_selected']['start'], ';

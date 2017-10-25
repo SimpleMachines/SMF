@@ -13,6 +13,7 @@
 /**
  * Template for browsing the mail queue.
  */
+
 function template_browse()
 {
 	global $context, $txt;

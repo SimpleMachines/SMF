@@ -25,10 +25,12 @@ function template_fatal_error()
 
 	if (!empty($context['simple_action']))
 		echo '
-		<strong>
-			', $context['error_title'], '
-		</strong><br>
-		<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>';
+	<strong>
+		', $context['error_title'], '
+	</strong><br>
+	<div ', $context['error_code'], 'class="padding">
+		', $context['error_message'], '
+	</div>';
 	else
 	{
 		echo '
@@ -39,7 +41,9 @@ function template_fatal_error()
 			</h3>
 		</div>
 		<div class="windowbg noup">
-			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
+			<div ', $context['error_code'], 'class="padding">
+				', $context['error_message'], '
+			</div>
 		</div>
 	</div>';
 
@@ -82,6 +86,7 @@ function template_error_log()
 						&nbsp;&nbsp;', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();
+
 	foreach ($context['error_types'] as $type => $details)
 		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt=""> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . $details['label'] . '</a>';
 
@@ -217,6 +222,7 @@ function template_show_file()
 	{
 		$line_num = $index + $context['file_data']['min'];
 		$is_target = $line_num == $context['file_data']['target'];
+
 		echo '
 			<tr>
 				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>

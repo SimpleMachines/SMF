@@ -25,27 +25,30 @@ function template_view_scheduled_tasks()
 	<div class="infobox">
 		', $txt['scheduled_tasks_were_run'], '
 	</div>';
+
 		else
 		{
 			echo '
 	<div class="errorbox" id="errors">
-			<dl>
-				<dt>
-					<strong id="error_serious">', $txt['scheduled_tasks_were_run_errors'], '</strong>
-				</dt>';
+		<dl>
+			<dt>
+				<strong id="error_serious">', $txt['scheduled_tasks_were_run_errors'], '</strong>
+			</dt>';
 
 			foreach ($context['scheduled_errors'] as $task => $errors)
 			{
 				echo '
-				<dd class="error">
-					<strong>', isset($txt['scheduled_task_' . $task]) ? $txt['scheduled_task_' . $task] : $task, '</strong>
-					<ul><li>', implode('</li><li>', $errors), '</li></ul>
-				</dd>';
+			<dd class="error">
+				<strong>', isset($txt['scheduled_task_' . $task]) ? $txt['scheduled_task_' . $task] : $task, '</strong>
+				<ul>
+					<li>', implode('</li><li>', $errors), '</li>
+				</ul>
+			</dd>';
 			}
 
 			echo '
-			</dl>
-		</div>';
+		</dl>
+	</div>';
 		}
 	}
 
@@ -110,9 +113,9 @@ function template_edit_scheduled_tasks()
 					<input type="hidden" name="', $context['admin-st_token_var'], '" value="', $context['admin-st_token'], '">
 					<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button">
 				</div>
-			</div>
+			</div><!-- .windowbg -->
 		</form>
-	</div>';
+	</div><!-- #admincenter -->';
 }
 
 ?>

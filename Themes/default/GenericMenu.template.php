@@ -40,7 +40,7 @@ function template_generic_menu_dropdown_above()
 function template_generic_menu_dropdown_below()
 {
 	echo '
-				</div>';
+				</div><!-- #admin_content -->';
 }
 
 function template_generic_menu_mobile(&$menu_context)
@@ -52,8 +52,10 @@ function template_generic_menu_mobile(&$menu_context)
 		<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
 		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
-				<div class="popup_heading">', $txt['mobile_user_menu'], '
-				<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+				<div class="popup_heading">
+					', $txt['mobile_user_menu'], '
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+				</div>
 				', template_generic_menu($menu_context), '
 			</div>
 		</div>
@@ -134,8 +136,8 @@ function template_generic_menu(&$menu_context)
 	}
 
 	echo '
-					</ul>
-				</div>';
+					</ul><!-- .dropmenu -->
+				</div><!-- .generic_menu -->';
 }
 
 /**
@@ -215,25 +217,28 @@ function template_generic_menu_tabs(&$menu_context)
 		if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']) || !empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
 		{
 			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']))
-				echo '<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
+				echo '
+								<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
 			elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
-				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
+				echo '
+								<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
-				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
+				echo '
+								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}
 		else
 		{
 			echo '
-							', $tab_context['title'];
+								', $tab_context['title'];
 		}
 
 		echo '
 							</h3>', (function_exists('template_admin_quick_search') ? '
 						</form>' : ''), '
-					</div>';
+					</div><!-- .cat_bar -->';
 	}
 
 	// Shall we use the tabs? Yes, it's the only known way!
@@ -270,10 +275,10 @@ function template_generic_menu_tabs(&$menu_context)
 							</li>';
 		}
 
-		// the end of tabs
+		// The end of tabs
 		echo '
 						</ul>
-					</div>';
+					</div><!-- #adm_submenus -->';
 
 	}
 }

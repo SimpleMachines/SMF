@@ -63,6 +63,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 
 				$numRows = count($smileyRows);
+
 				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
 				$emptyPlaceholder = 0;
 				foreach ($smileyRows as $smileyRow)
@@ -70,7 +71,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					foreach ($smileyRow['smileys'] as $smiley)
 					{
 						echo '
-								', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
+							', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
 					}
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
@@ -96,7 +97,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
 				echo implode('|', $buttonRow);
+
 				$count_tags--;
+
 				if (!empty($count_tags))
 					echo '||';
 			}
@@ -146,6 +149,7 @@ function template_control_richedit_buttons($editor_id)
 		</span>';
 
 	$tempTab = $context['tabindex'];
+
 	if (!empty($context['drafts_pm_save']))
 		$tempTab++;
 	elseif (!empty($context['drafts_save']))
@@ -294,7 +298,8 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			if ($verify_context['can_recaptcha'])
 			{
 				echo '
-				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div><br>
+				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
+				<br>
 				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
 			}
 		}
@@ -312,7 +317,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 
 		if ($display_type != 'single')
 			echo '
-			</div>';
+			</div><!-- #verification_control_[i] -->';
 
 		// If we were displaying just one and we did it, break.
 		if ($display_type == 'single' && $verify_context['tracking'] == $i)

@@ -20,9 +20,9 @@ function template_maintain_database()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="infobox">
-				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-			</div>';
+	<div class="infobox">
+		', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+	</div>';
 
 	echo '
 	<div id="manage_maintenance">
@@ -92,7 +92,7 @@ function template_maintain_database()
 	}
 
 	echo '
-	</div>';
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -109,9 +109,9 @@ function template_maintain_routine()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="infobox">
-				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-			</div>';
+		<div class="infobox">
+			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+		</div>';
 
 	echo '
 		<div class="cat_bar">
@@ -119,7 +119,8 @@ function template_maintain_routine()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_version_info'], '
+				<p>
+					', $txt['maintain_version_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</p>
@@ -130,7 +131,8 @@ function template_maintain_routine()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=repairboards" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_errors_info'], '
+				<p>
+					', $txt['maintain_errors_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
@@ -142,7 +144,8 @@ function template_maintain_routine()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_recount_info'], '
+				<p>
+					', $txt['maintain_recount_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
@@ -154,7 +157,8 @@ function template_maintain_routine()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_logs_info'], '
+				<p>
+					', $txt['maintain_logs_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
@@ -166,14 +170,15 @@ function template_maintain_routine()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_cache_info'], '
+				<p>
+					', $txt['maintain_cache_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 				</p>
 			</form>
 		</div>
-	</div>';
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -282,7 +287,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
+		</div><!-- .windowbg2 -->
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['maintain_members'], '
@@ -290,14 +295,20 @@ function template_maintain_members()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', $context['character_set'], '" id="membersForm">
-				<p><a id="membersLink"></a>', $txt['maintain_members_since1'], '
-				<select name="del_type">
-					<option value="activated" selected>', $txt['maintain_members_activated'], '</option>
-					<option value="logged">', $txt['maintain_members_logged_in'], '</option>
-				</select> ', $txt['maintain_members_since2'], ' <input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '</p>';
+				<p>
+					<a id="membersLink"></a>', $txt['maintain_members_since1'], '
+					<select name="del_type">
+						<option value="activated" selected>', $txt['maintain_members_activated'], '</option>
+						<option value="logged">', $txt['maintain_members_logged_in'], '</option>
+					</select> 
+					', $txt['maintain_members_since2'], ' 
+					<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '
+				</p>';
 
 	echo '
-				<p><a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a></p>
+				<p>
+					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a>
+				</p>
 				<div style="display: none; padding: 3px" id="membersPanel">';
 
 	foreach ($context['membergroups'] as $group)
@@ -310,7 +321,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
+		</div><!-- .windowbg2 -->
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_recountposts'], '</h3>
 		</div>
@@ -322,7 +333,7 @@ function template_maintain_members()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>
-	</div>
+	</div><!-- #manage_maintenance -->
 
 	<script>
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
@@ -348,35 +359,35 @@ function template_maintain_topics()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="infobox">
-				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-			</div>';
+	<div class="infobox">
+		', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+	</div>';
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
 	echo '
-		<script>
-			var rotSwap = false;
-			function swapRot()
+	<script>
+		var rotSwap = false;
+		function swapRot()
+		{
+			rotSwap = !rotSwap;
+
+			// Toggle icon
+			document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png");
+			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
+
+			// Toggle panel
+			$("#rotPanel").slideToggle(300);
+
+			// Toggle checkboxes
+			var rotPanel = document.getElementById(\'rotPanel\');
+			var oBoardCheckBoxes = rotPanel.getElementsByTagName(\'input\');
+			for (var i = 0; i < oBoardCheckBoxes.length; i++)
 			{
-				rotSwap = !rotSwap;
-
-				// Toggle icon
-				document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png");
-				setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
-
-				// Toggle panel
-				$("#rotPanel").slideToggle(300);
-
-				// Toggle checkboxes
-				var rotPanel = document.getElementById(\'rotPanel\');
-				var oBoardCheckBoxes = rotPanel.getElementsByTagName(\'input\');
-				for (var i = 0; i < oBoardCheckBoxes.length; i++)
-				{
-					if (oBoardCheckBoxes[i].type.toLowerCase() == "checkbox")
-						oBoardCheckBoxes[i].checked = !rotSwap;
-				}
+				if (oBoardCheckBoxes[i].type.toLowerCase() == "checkbox")
+					oBoardCheckBoxes[i].checked = !rotSwap;
 			}
-		</script>';
+		}
+	</script>';
 
 	echo '
 	<div id="manage_maintenance">
@@ -420,7 +431,9 @@ function template_maintain_topics()
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board)
 			echo '
-									<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;"><label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked>', $board['name'], '</label></li>';
+									<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;">
+										<label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked>', $board['name'], '</label>
+									</li>';
 
 		echo '
 								</ul>
@@ -429,26 +442,28 @@ function template_maintain_topics()
 		// Increase $i, and check if we're at the middle yet.
 		if (++$i == $middle)
 			echo '
-						</div>
+						</div><!-- .floatleft -->
 						<div class="floatright" style="width: 49%;">';
 	}
 
 	echo '
 						</div>
-					</div>
+					</div><!-- #rotPanel -->
 					<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_confirm'], '" class="button you_sure">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 				</form>
-			</div>
-		</div>
+			</div><!-- .flow_auto -->
+		</div><!-- .windowbg2 -->
 
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_old_drafts'], '</h3>
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['maintain_old_drafts_days'], '&nbsp;<input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3">&nbsp;', $txt['days_word'], '</p>
+				<p>
+					', $txt['maintain_old_drafts_days'], '&nbsp;<input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3">&nbsp;', $txt['days_word'], '
+				</p>
 				<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
@@ -459,45 +474,47 @@ function template_maintain_topics()
 		</div>
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="', $context['character_set'], '">
-				<p><label for="id_board_from">', $txt['move_topics_from'], ' </label>
-				<select name="id_board_from" id="id_board_from">
-					<option disabled>(', $txt['move_topics_select_board'], ')</option>';
+				<p>
+					<label for="id_board_from">', $txt['move_topics_from'], ' </label>
+					<select name="id_board_from" id="id_board_from">
+						<option disabled>(', $txt['move_topics_select_board'], ')</option>';
 
 	// From board
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-					<optgroup label="', $category['name'], '">';
+						<optgroup label="', $category['name'], '">';
 
 		foreach ($category['boards'] as $board)
 			echo '
-						<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
 
 		echo '
-					</optgroup>';
+						</optgroup>';
 	}
 
 	echo '
-				</select>
-				<label for="id_board_to">', $txt['move_topics_to'], '</label>
-				<select name="id_board_to" id="id_board_to">
-					<option disabled>(', $txt['move_topics_select_board'], ')</option>';
+					</select>
+					<label for="id_board_to">', $txt['move_topics_to'], '</label>
+					<select name="id_board_to" id="id_board_to">
+						<option disabled>(', $txt['move_topics_select_board'], ')</option>';
 
 	// To board
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-					<optgroup label="', $category['name'], '">';
+						<optgroup label="', $category['name'], '">';
 
 		foreach ($category['boards'] as $board)
 			echo '
-						<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
 
 		echo '
-					</optgroup>';
+						</optgroup>';
 	}
 	echo '
-				</select></p>
+					</select>
+				</p>
 				<p>
 					', $txt['move_topics_older_than'], '<input type="number" name="maxdays" value="30" size="3">', $txt['manageposts_days'], '&nbsp;(', $txt['move_zero_all'], ')
 				</p>
@@ -509,8 +526,8 @@ function template_maintain_topics()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg2 -->
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -537,13 +554,14 @@ function template_optimize()
 
 	// How did we go?
 	echo '
-				<br>', $context['num_tables_optimized'] == 0 ? $txt['database_already_optimized'] : $context['num_tables_optimized'] . ' ' . $txt['database_optimized'];
+				<br>
+				', $context['num_tables_optimized'] == 0 ? $txt['database_already_optimized'] : $context['num_tables_optimized'] . ' ' . $txt['database_optimized'];
 
 	echo '
 			</p>
 			<p><a href="', $scripturl, '?action=admin;area=maintain">', $txt['maintain_return'], '</a></p>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #manage_maintenance -->';
 }
 
 /**
@@ -581,6 +599,7 @@ function template_convert_msgbody()
 		</div>
 		<div class="windowbg">
 			<p>', $txt['body_checking_introduction'], '</p>';
+
 	if (!empty($context['exceeding_messages']))
 	{
 		echo '
@@ -590,6 +609,7 @@ function template_convert_msgbody()
 				', implode('</li><li>', $context['exceeding_messages']), '
 				</li>
 			</ul>';
+
 		if (!empty($context['exceeding_messages_morethan']))
 			echo '
 			<p>', $context['exceeding_messages_morethan'], '</p>';
@@ -605,8 +625,8 @@ function template_convert_msgbody()
 			<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			<input type="submit" name="do_conversion" value="', $txt['entity_convert_proceed'], '" class="button">
 			</form>
-		</div>
-	</div>';
+		</div><!-- .windowbg -->
+	</div><!-- #manage_maintenance -->';
 }
 
 ?>

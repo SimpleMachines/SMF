@@ -125,7 +125,6 @@ function template_print_above()
 	template_print_options();
 
 	echo '
-		</div>
 		<h1 id="title">', $context['forum_name_html_safe'], '</h1>
 		<h2 id="linktree">', $context['category_name'], ' => ', (!empty($context['parent_boards']) ? implode(' => ', $context['parent_boards']) . ' => ' : ''), $context['board_name'], ' => ', $txt['topic_started'], ': ', $context['poster_name'], ' ', $txt['search_on'], ' ', $context['post_time'], '</h2>
 		<div id="posts">';
@@ -177,7 +176,7 @@ function template_main()
 		}
 
 		echo '
-			</div>';
+			</div><!-- .postbody -->';
 	}
 }
 
@@ -186,8 +185,8 @@ function template_main()
  */
 function template_print_below()
 {
-	echo '</div>
-		</div>';
+	echo '
+		</div><!-- #posts -->';
 
 	template_print_options();
 
@@ -207,13 +206,16 @@ function template_print_options()
 	echo '
 		<div class="print_options">';
 
-	// which option is set, text or text&images
+	// Which option is set, text or text&images
 	if (isset($_REQUEST['images']))
 		echo '
 			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
 	else
 		echo '
 			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+
+	echo '
+		</div><!-- .print_options -->';
 }
 
 ?>

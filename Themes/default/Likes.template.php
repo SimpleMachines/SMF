@@ -48,7 +48,7 @@ function template_popup()
 			</ul>
 			<br class="clear">
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
-		</div>
+		</div><!-- .windowbg -->
 	</body>
 </html>';
 }
@@ -74,11 +74,13 @@ function template_like()
 		$context['some_likes'] = true;
 		$count = $context['data']['count'];
 		$base = 'likes_';
+
 		if ($context['data']['already_liked'])
 		{
 			$base = 'you_' . $base;
 			$count--;
 		}
+
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
