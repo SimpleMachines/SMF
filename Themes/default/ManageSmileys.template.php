@@ -353,7 +353,7 @@ function template_setorder()
 			<div class="information noup">
 				', $location['description'], '
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 move_smileys">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 
 		foreach ($location['rows'] as $row)
@@ -366,10 +366,10 @@ function template_setorder()
 			{
 				if (empty($context['move_smiley']))
 					echo '
-				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px; border: 0px solid black;" alt="', $smiley['description'], '"></a>';
+				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" alt="', $smiley['description'], '"></a>';
 				else
 					echo '
-				<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px;', $smiley['selected'] ? ' border: 2px solid red' : '', ';" alt="', $smiley['description'], '">
+				<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" alt="', $smiley['description'], '" ', $smiley['selected'] ? 'class="selected_item"' : '', '>
 				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 			}
 
