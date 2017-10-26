@@ -479,7 +479,7 @@ function loadUserSettings()
 			$id_member = 0;
 
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
-		if (!empty($id_member))
+		if (!$id_member)
 		{
 			require_once($sourcedir . '/LogInOut.php');
 			validatePasswordFlood(
