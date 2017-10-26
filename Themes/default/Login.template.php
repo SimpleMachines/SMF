@@ -345,7 +345,7 @@ function template_admin_login()
 				<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
-				<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button">';
+				<input type="submit" value="', $txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '

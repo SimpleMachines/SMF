@@ -91,7 +91,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
+			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_size'], '</dt>
 					<dd><input type="number" name="size" id="size" value="100" size="4"> ', $txt['kilobyte'], '</dd>
@@ -103,7 +103,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="bySize">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
+			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_manager_avatars_older'], '</dt>
 					<dd><input type="number" name="age" value="45" size="4"> ', $txt['days_word'], '</dd>

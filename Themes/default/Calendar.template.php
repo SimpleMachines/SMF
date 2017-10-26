@@ -833,7 +833,7 @@ function template_event_post()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" style="margin: 0;">';
+		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);">';
 
 	if (!empty($context['event']['new']))
 		echo '
@@ -881,7 +881,7 @@ function template_event_post()
 						<div class="event_options_right" id="event_board">
 							<div>
 								<span class="label">', $txt['calendar_post_in'], '</span>
-								<input type="checkbox" style="vertical-align: middle;" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
+								<input type="checkbox" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 								<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
 
 		foreach ($context['event']['categories'] as $category)

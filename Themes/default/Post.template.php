@@ -962,7 +962,7 @@ function template_spellcheck()
 		</script>
 	</head>
 	<body onload="nextWord(false);">
-		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
+		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;">
 			<div id="spellview">&nbsp;</div>
 			<table width="100%">
 				<tr class="windowbg">

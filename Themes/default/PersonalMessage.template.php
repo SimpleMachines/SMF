@@ -546,7 +546,7 @@ function template_folder()
 					echo '
 							</select>
 							<noscript>
-								<input type="submit" value="', $txt['pm_apply'], '" class="button" style="float: none">
+								<input type="submit" value="', $txt['pm_apply'], '" class="button">
 							</noscript>';
 				}
 				echo '
@@ -566,7 +566,7 @@ function template_folder()
 			<div class="pagesection">
 				<div class="floatleft">', $context['page_index'], '</div>
 				<div class="floatright">
-					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" style="font-weight: normal;" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
+					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
 				</div>
 			</div>';
 
@@ -710,12 +710,12 @@ function template_subject_list()
 			echo '
 			</select>
 			<noscript>
-				<input type="submit" value="', $txt['pm_apply'], '" class="button" style="float: none">
+				<input type="submit" value="', $txt['pm_apply'], '" class="button">
 			</noscript>';
 		}
 
 		echo '
-			<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button" style="float: none">';
+			<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">';
 	}
 
 	echo '
@@ -1061,7 +1061,7 @@ function template_send()
 	// Autosuggest will be added by the JavaScript later on.
 	echo '
 					<dd id="pm_to" class="clear_right">
-						<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;">';
+						<input type="text" name="to" id="to_control" value="', $context['to_value'], '" tabindex="', $context['tabindex']++, '" size="20">';
 
 	// A link to add BCC, only visible with JavaScript enabled.
 	echo '
@@ -1080,7 +1080,7 @@ function template_send()
 						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
 					</dt>
 					<dd id="bcc_div2">
-						<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;">
+						<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="20">
 						<div id="bcc_item_list_container"></div>
 					</dd>';
 
@@ -1466,7 +1466,7 @@ function template_labels()
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
 	<br class="clear">
-	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '" style="margin-top: 1ex;">
+	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
 		</div>

@@ -1394,7 +1394,7 @@ ul li.greeting {
 }
 
 .quickModifyMargin {
-	margin-bottom: 5px;
+	margin: 10px 0 5px 0;
 	padding-bottom: 5px;
 }
 
@@ -1448,7 +1448,6 @@ div.event_options {
 }
 #post_event input[type="checkbox"] {
     height: auto;
-    vertical-align: baseline;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
@@ -1484,6 +1483,7 @@ div.event_options {
 	text-align: left;
 }
 div.move_topic fieldset {
+	margin-top: 1ex;
 	padding: 6px;
 }
 /* Styles for the report topic/user section. */
@@ -1555,6 +1555,10 @@ fieldset.merge_options {
 }
 .login p {
 	text-align: center;
+}
+
+.login input[type="submit"] {
+	margin: 1em 0 0 1em;
 }
 
 /* Additional register fields */
@@ -2299,10 +2303,13 @@ dl {
 	width: 100%;
 	float: left;
 }
-/*Issue a warning*/
+/* Issue a warning */
 #warn_body {
-	width: 80%;
+	width: 100%;
 	font-size: 0.9em;
+}
+#warn_temp {
+	font-size: smaller;	
 }
 
 /* Styles for the statistics center.

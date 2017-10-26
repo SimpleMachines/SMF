@@ -154,7 +154,7 @@ function template_modify_category()
 						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_cat_description_desc']), '</span>
 					</dt>
 					<dd>
-						<textarea name="cat_desc" rows="3" cols="35" style="width: 99%;">', $context['category']['description'], '</textarea>
+						<textarea name="cat_desc" rows="3" cols="35">', $context['category']['description'], '</textarea>
 					</dd>
 					<dt>
 						<strong>', $txt['collapse_enable'], '</strong><br>
@@ -339,7 +339,7 @@ function template_modify_board()
 						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_description_desc']), '</span>
 					</dt>
 					<dd>
-						<textarea name="desc" rows="3" cols="35" style="width:99%;">', $context['board']['description'], '</textarea>
+						<textarea name="desc" rows="3" cols="35">', $context['board']['description'], '</textarea>
 					</dd>
 					<dt>
 						<strong>', $txt['permission_profile'], ':</strong><br>

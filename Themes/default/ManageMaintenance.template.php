@@ -309,7 +309,7 @@ function template_maintain_members()
 				<p>
 					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a>
 				</p>
-				<div style="display: none; padding: 3px" id="membersPanel">';
+				<div style="display: none;" id="membersPanel">';
 
 	foreach ($context['membergroups'] as $group)
 		echo '

@@ -127,7 +127,7 @@ function template_new_group()
 	echo '
 					<dt>
 						<strong>', $txt['membergroups_new_board'], ':</strong>', $context['post_group'] ? '<br>
-						<span class="smalltext" style="font-weight: normal">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
+						<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
 
@@ -462,7 +462,7 @@ function template_add_edit_group_boards_list($collapse = true)
 			echo '
 									<li class="category">
 										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;"><strong>', $category['name'], '</strong></a>
-										<ul style="width:100%">';
+										<ul>';
 		else
 			echo '
 									<li class="category">
@@ -476,7 +476,7 @@ function template_add_edit_group_boards_list($collapse = true)
 												<option value="deny">', $txt['board_perms_deny'], '</option>
 											</select>
 										</span>
-										<ul style="width:100%" id="boards_list_', $category['id'], '">';
+										<ul id="boards_list_', $category['id'], '">';
 
 		foreach ($category['boards'] as $board)
 		{
@@ -745,7 +745,7 @@ function template_group_request_reason()
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
-						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="min-width: 80%; max-width: 99%;"></textarea>
+						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40"></textarea>
 					</dd>';
 
 	echo '

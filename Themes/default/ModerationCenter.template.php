@@ -359,7 +359,7 @@ function template_notes()
 
 	echo '
 						<div class="floatleft post_note">
-							<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
+							<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '">
 						</div>
 						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
 						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">

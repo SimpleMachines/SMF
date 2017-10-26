@@ -160,7 +160,7 @@ function template_main()
 					<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=dir" method="post" accept-charset="', $context['character_set'], '" class="padding">
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-t-dir_token_var'], '" value="', $context['admin-t-dir_token'], '">
-						<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;">
+						<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40">
 						<input type="submit" name="save_dir" value="' . $txt['save'] . '" class="button">
 					</form>
 				</fieldset>';
@@ -264,13 +264,13 @@ function template_list_themes()
 						<label for="reset_dir">', $txt['themeadmin_list_reset_dir'], '</label>:
 					</dt>
 					<dd>
-						<input type="text" name="reset_dir" id="reset_dir" value="', $context['reset_dir'], '" size="40" style="width: 80%;">
+						<input type="text" name="reset_dir" id="reset_dir" value="', $context['reset_dir'], '" size="40">
 					</dd>
 					<dt>
 						<label for="reset_url">', $txt['themeadmin_list_reset_url'], '</label>:
 					</dt>
 					<dd>
-						<input type="text" name="reset_url" id="reset_url" value="', $context['reset_url'], '" size="40" style="width: 80%;">
+						<input type="text" name="reset_url" id="reset_url" value="', $context['reset_url'], '" size="40">
 					</dd>
 				</dl>
 				<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button">

@@ -2405,7 +2405,7 @@ function template_issueWarning()
 					<span class="smalltext">', $txt['profile_warning_reason_desc'], '</span>
 				</dt>
 				<dd>
-					<input type="text" name="warn_reason" id="warn_reason" value="', $context['warning_data']['reason'], '" size="50" style="width: 80%;">
+					<input type="text" name="warn_reason" id="warn_reason" value="', $context['warning_data']['reason'], '" size="50">
 				</dd>
 			</dl>
 			<hr>
@@ -2431,13 +2431,13 @@ function template_issueWarning()
 					<strong><label for="warn_sub">', $txt['profile_warning_notify_subject'], ':</label></strong>
 				</dt>
 				<dd>
-					<input type="text" name="warn_sub" id="warn_sub" value="', empty($context['warning_data']['notify_subject']) ? $txt['profile_warning_notify_template_subject'] : $context['warning_data']['notify_subject'], '" size="50" style="width: 80%;">
+					<input type="text" name="warn_sub" id="warn_sub" value="', empty($context['warning_data']['notify_subject']) ? $txt['profile_warning_notify_template_subject'] : $context['warning_data']['notify_subject'], '" size="50">
 				</dd>
 				<dt>
 					<strong><label for="warn_temp">', $txt['profile_warning_notify_body'], ':</label></strong>
 				</dt>
 				<dd>
-					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();" style="font-size: x-small;">
+					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();">
 						<option value="-1">', $txt['profile_warning_notify_template'], '</option>
 						<option value="-1" disabled>------------------------------</option>';
 

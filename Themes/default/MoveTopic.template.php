@@ -92,7 +92,7 @@ function template_redirect_options($type)
 					<label for="postRedirect">
 						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.
 					</label>
-					<fieldset id="reasonArea" style="margin-top: 1ex;', $context['is_approved'] ? '' : 'display: none;', '">
+					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'style="display: none;"', '>
 						<dl class="settings">
 							<dt>
 								', $txt[$type . '_why'], '
