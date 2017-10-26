@@ -93,7 +93,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
-			
+
 			$dataAr['path'] = $cookie_url[1];
 			$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
 
