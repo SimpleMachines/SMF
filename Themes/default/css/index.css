@@ -1637,13 +1637,18 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 
 .errorfile_table {
 	background: #f0f4f7;
-	border-spacing: 3px;
 	border-collapse: collapse;
+}
+.errorfile_table .file_line {
+	text-align: right;
+	padding-right: 6px;
 }
 .errorfile_table td.current {
 	font-weight: bold;
-	border: 1px solid #000;
+	border-top: 1px solid rgba(0,0,0,0.2);
+	border-bottom: 1px solid rgba(0,0,0,0.2);
 	border-width: 1px 0 1px 1px;
+	background: rgba(245,141,15,0.2);
 }
 
 .generic_menu {

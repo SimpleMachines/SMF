@@ -225,8 +225,8 @@ function template_show_file()
 
 		echo '
 			<tr>
-				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
-				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;' : '', '">', $line, '</td>
+				<td class="file_line', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
+				<td ', $is_target ? 'class="current"' : '', '>', $line, '</td>
 			</tr>';
 	}
 	echo '
