@@ -38,8 +38,15 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
+	if (isset($_COOKIE[$cookiename]))
 	{
+		// Valid Format
+		$validFormat = preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1}(,"path":"\\\\/.*")?)?}$~' , $_COOKIE[$cookiename]) === 1;
+
+		// Get the path and check it
+		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+		$pathWrong = empty($_COOKIE[$cookiename]['path']) || ($_COOKIE[$cookiename]['path'] != $cookie_url[1]);
+
 		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format
@@ -47,7 +54,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			$array = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
-		if (isset($array[3]) && $array[3] != $cookie_state)
+		if ((isset($array[3]) && $array[3] != $cookie_state) || $pathWrong || !$validFormat)
 		{
 			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 			if (isset($_COOKIE[$cookiename]['path']))
