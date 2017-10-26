@@ -33,7 +33,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	$id = (int) $id;
 
-	$time = ($cookie_length > 0 ? time() + $cookie_length : 1);
+	$time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
 
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
