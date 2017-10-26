@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * - sets the cookie and session to last the number of seconds specified by cookie_length.
  * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
  *
- * @param int $cookie_length How long the cookie should last (in minutes)
+ * @param int $cookie_length How long the cookie should last (in minutes), when below 0 it's delete the cookie
  * @param int $id The ID of the member to set the cookie for
  * @param string $password The hashed password
  */
@@ -32,6 +32,8 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	global $smcFunc, $cookiename, $boardurl, $modSettings, $sourcedir;
 
 	$id = (int) $id;
+
+	$time = ($cookie_length < 0 ? time() + $cookie_length : 1);
 
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
@@ -65,15 +67,15 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// Get the data and path to set it on.
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-	$dataAr = empty($id) ? array(0, '', 0, 'path' => $cookie_url[1]) : array($id, $password, time() + $cookie_length, $cookie_state,'path' => $cookie_url[1]);
+	$dataAr = empty($id) ? array(0, '', 0, 'path' => $cookie_url[1]) : array($id, $password, $time, $cookie_state,'path' => $cookie_url[1]);
 	$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
 	
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($cookiename, $data, $time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($cookiename, $data, $time, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
 	if (!empty($modSettings['forum_alias_urls']))
@@ -95,7 +97,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			$dataAr['path'] = $cookie_url[1];
 			$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
 
-			smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $data, $time, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
