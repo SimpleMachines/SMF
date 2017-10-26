@@ -33,7 +33,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	$id = (int) $id;
 
-	$time = ($cookie_length < 0 ? time() + $cookie_length : 1);
+	$time = ($cookie_length > 0 ? time() + $cookie_length : 1);
 
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
@@ -69,7 +69,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 	$dataAr = empty($id) ? array(0, '', 0, 'path' => $cookie_url[1]) : array($id, $password, $time, $cookie_state,'path' => $cookie_url[1]);
 	$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
-	
+
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($cookiename, $data, $time, $cookie_url[1], $cookie_url[0]);
 
