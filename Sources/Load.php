@@ -420,7 +420,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename], true, false);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
@@ -479,7 +479,7 @@ function loadUserSettings()
 			$id_member = 0;
 
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
-		if (!empty($id_member))
+		if (!$id_member)
 		{
 			require_once($sourcedir . '/LogInOut.php');
 			validatePasswordFlood(
