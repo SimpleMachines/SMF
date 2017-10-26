@@ -59,14 +59,14 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 			if (isset($_COOKIE[$cookiename]['path']))
 				$cookie_url[1] = $_COOKIE[$cookiename]['path'];
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, 'path' => $cookie_url[1])), 1, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, 'path' => $cookie_url[1]), JSON_FORCE_OBJECT), 1, $cookie_url[1], $cookie_url[0]);
 		}
 	}
 
 	// Get the data and path to set it on.
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 	$dataAr = empty($id) ? array(0, '', 0, 'path' => $cookie_url[1]) : array($id, $password, time() + $cookie_length, $cookie_state,'path' => $cookie_url[1]);
-	$data = $smcFunc['json_encode']($dataAr);
+	$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
 	
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
@@ -93,7 +93,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 				$cookie_url[0] = strtok($alias, '/');
 			
 			$dataAr['path'] = $cookie_url[1];
-			$data = $smcFunc['json_encode']($dataAr);
+			$data = $smcFunc['json_encode']($dataAr, JSON_FORCE_OBJECT);
 
 			smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 		}
@@ -144,7 +144,7 @@ function setTFACookie($cookie_length, $id, $secret, $preserve = false)
 
 	// Get the data and path to set it on.
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false, 'path' => $cookie_url[1]) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve, 'path' => $cookie_url[1]));
+	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false, 'path' => $cookie_url[1]) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve, 'path' => $cookie_url[1]), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
