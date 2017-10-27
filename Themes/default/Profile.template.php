@@ -100,14 +100,11 @@ function template_alerts_popup()
 		<div class="alerts_unread">';
 
 	if (empty($context['unread_alerts']))
-	{
 		template_alerts_all_read();
-	}
 
 	else
 	{
 		foreach ($context['unread_alerts'] as $id_alert => $details)
-		{
 			echo '
 			<div class="unread">
 				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
@@ -115,7 +112,6 @@ function template_alerts_popup()
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
 			</div>';
-		}
 	}
 
 	echo '
@@ -286,11 +282,9 @@ function template_summary()
 				<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
 
 	if ($context['member']['show_email'])
-	{
 		echo '
 				<dt>', $txt['email'], ': </dt>
 				<dd><a href="mailto:', $context['member']['email'], '">', $context['member']['email'], '</a></dd>';
-	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))
 		echo '
@@ -1110,10 +1104,8 @@ function template_showPermissions()
 		</div>';
 
 	if ($context['member']['has_all_permissions'])
-	{
 		echo '
 		<div class="information">', $txt['showPermissions_all'], '</div>';
-	}
 
 	else
 	{
@@ -1231,16 +1223,12 @@ function template_showPermissions()
 						<td class="smalltext">';
 
 				if ($permission['is_denied'])
-				{
 					echo '
 							<span class="alert">', $txt['showPermissions_denied'], ':&nbsp;', implode(', ', $permission['groups']['denied']), '</span>';
-				}
 
 				else
-				{
 					echo '
 							', $txt['showPermissions_given'], ': &nbsp;', implode(', ', $permission['groups']['allowed']);
-				}
 
 				echo '
 						</td>
@@ -1305,7 +1293,6 @@ function template_statPanel()
 
 		// The labels.
 		foreach ($context['posts_by_time'] as $time_of_day)
-		{
 			echo '
 				<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
 					<div class="bar" style="padding-top: ', ((int) (100 - $time_of_day['relative_percent'])), 'px;" title="', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '">
@@ -1315,7 +1302,6 @@ function template_statPanel()
 					</div>
 					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
 				</li>';
-		}
 
 		echo '
 			</ul>';
@@ -1460,12 +1446,10 @@ function template_edit_options()
 
 		$lastItem = $field['type'];
 		if ($field['type'] == 'hr')
-		{
 			echo '
 				</dl>
 				<hr>
 				<dl class="settings">';
-		}
 
 		elseif ($field['type'] == 'callback')
 		{
@@ -1568,7 +1552,6 @@ function template_edit_options()
 				<dl class="settings">';
 
 		foreach ($context['custom_fields'] as $field)
-		{
 			echo '
 					<dt>
 						<strong>', $field['name'], ': </strong><br>
@@ -1577,7 +1560,6 @@ function template_edit_options()
 					<dd>
 						', $field['input_html'], '
 					</dd>';
-		}
 
 		echo '
 				</dl>';
@@ -1781,11 +1763,9 @@ function template_profile_theme_settings()
 
 		// Display checkbox options
 		if ($setting['type'] == 'checkbox')
-		{
 			echo '
 						<input type="hidden" name="default_options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($context['member']['options'][$setting['id']]) ? ' checked' : '', ' value="1">';
-		}
 
 		// How about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
@@ -1794,10 +1774,8 @@ function template_profile_theme_settings()
 						&nbsp;<select class="floatleft" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', '>';
 
 			foreach ($setting['options'] as $value => $label)
-			{
 				echo '
 							<option value="', $value, '"', $value == $context['member']['options'][$setting['id']] ? ' selected' : '', '>', $label, '</option>';
-			}
 
 			echo '
 						</select>';
@@ -1814,17 +1792,13 @@ function template_profile_theme_settings()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
-			else if (isset($setting['type']) && $setting['type'] == 'url')
-			{
+			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo'
 						<input type="url"';
-			}
 
 			else
-			{
 				echo '
 						<input type="text"';
-			}
 
 			echo ' name="default_options[', $setting['id'], ']" id="', $setting['id'], '" value="', isset($context['member']['options'][$setting['id']]) ? $context['member']['options'][$setting['id']] : $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', '>';
 		}
@@ -2919,23 +2893,19 @@ function template_profile_avatar_select()
 
 	// If the user can link to an off server avatar, show them a box to input the address.
 	if (!empty($context['member']['avatar']['allow_external']))
-	{
 		echo '
 								<div id="avatar_external">
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);">
 								</div>';
-	}
 
 	// If the user is able to upload avatars to the server show them an upload box.
 	if (!empty($context['member']['avatar']['allow_upload']))
-	{
 		echo '
 								<div id="avatar_upload">
 									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
 									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
-	}
 
 	// if the user is able to use Gravatar avatars show then the image preview
 	if (!empty($context['member']['avatar']['allow_gravatar']))

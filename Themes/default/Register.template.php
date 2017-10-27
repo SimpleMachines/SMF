@@ -168,7 +168,6 @@ function template_registration_form()
 
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['additional_information'], '</h3>
@@ -176,7 +175,6 @@ function template_registration_form()
 			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form" id="custom_group">';
-	}
 
 	if (!empty($context['profile_fields']))
 	{
@@ -264,7 +262,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields']))
 	{
 		foreach ($context['custom_fields'] as $field)
-		{
 			if ($field['show_reg'] < 2)
 				echo '
 						<dt>
@@ -272,20 +269,16 @@ function template_registration_form()
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', $field['input_html'], '</dd>';
-		}
 	}
 
 	// If we have either of these, close the list like a proper gent.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 					</dl>
 				</fieldset>
 			</div><!-- .roundframe -->';
-	}
 
 	if ($context['visual_verification'])
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['verification'], '</h3>
@@ -295,7 +288,6 @@ function template_registration_form()
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
 			</div>';
-	}
 
 	echo '
 			<div id="confirm_buttons" class="flow_auto">';
@@ -371,30 +363,24 @@ function template_coppa()
 
 	// Can they send by post?
 	if (!empty($context['coppa']['post']))
-	{
 		echo '
 				<h4>1) ', $txt['coppa_send_by_post'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['post'], '
 				</div>';
-	}
 
 	// Can they send by fax??
 	if (!empty($context['coppa']['fax']))
-	{
 		echo '
 				<h4>', !empty($context['coppa']['post']) ? '2' : '1', ') ', $txt['coppa_send_by_fax'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['fax'], '
 				</div>';
-	}
 
 	// Offer an alternative Phone Number?
 	if ($context['coppa']['phone'])
-	{
 		echo '
 				<p>', $context['coppa']['phone'], '</p>';
-	}
 
 	echo '
 			</div><!-- #coppa -->';

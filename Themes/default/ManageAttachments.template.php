@@ -212,7 +212,6 @@ function template_attachment_repair()
 
 	// If we've completed just let them know!
 	if ($context['completed'])
-	{
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -222,11 +221,9 @@ function template_attachment_repair()
 			', $txt['repair_attachments_complete_desc'], '
 		</div>
 	</div>';
-	}
 
 	// What about if no errors were even found?
 	elseif (!$context['errors_found'])
-	{
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -236,7 +233,6 @@ function template_attachment_repair()
 			', $txt['repair_attachments_no_errors'], '
 		</div>
 	</div>';
-	}
 
 	// Otherwise, I'm sad to say, we have a problem!
 	else
@@ -252,12 +248,10 @@ function template_attachment_repair()
 
 		// Loop through each error reporting the status
 		foreach ($context['repair_errors'] as $error => $number)
-		{
 			if (!empty($number))
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
 				<label for="', $error, '">', sprintf($txt['attach_repair_' . $error], $number), '</label><br>';
-		}
 
 		echo '
 				<br>
@@ -277,9 +271,7 @@ function template_attachment_paths()
 	global $modSettings;
 
 	if (!empty($modSettings['attachment_basedirectories']))
-	{
 		template_show_list('base_paths');
-	}
 
 	template_show_list('attach_paths');
 }

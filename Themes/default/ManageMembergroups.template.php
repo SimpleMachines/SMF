@@ -140,7 +140,6 @@ function template_new_group()
 			</div><!-- .windowbg2 -->';
 
 	if ($context['undefined_group'])
-	{
 		echo '
 			<script>
 				function swapPostGroup(isChecked)
@@ -151,7 +150,6 @@ function template_new_group()
 				}
 				swapPostGroup(', $context['post_group'] ? 'true' : 'false', ');
 			</script>';
-	}
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -300,10 +298,8 @@ function template_edit_group()
 
 		// For every possible icon, create an option.
 		foreach ($context['possible_icons'] as $icon)
-		{
 			echo '
 							<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected' : '', '>', $icon, '</option>';
-		}
 
 		echo '
 						</select>
@@ -641,12 +637,10 @@ function template_group_members()
 						<td>', $member['name'], '</td>';
 
 		if ($context['can_send_email'])
-		{
 			echo '
 						<td>
 								<a href="mailto:', $member['email'], '">', $member['email'], '</a>
 						</td>';
-		}
 
 		echo '
 						<td>', $member['last_online'], '</td>
@@ -678,7 +672,6 @@ function template_group_members()
 			<br>';
 
 	if (!empty($context['group']['assignable']))
-	{
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
@@ -695,7 +688,6 @@ function template_group_members()
 				</dl>
 				<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button">
 			</div>';
-	}
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

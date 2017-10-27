@@ -19,21 +19,17 @@ function template_main()
 
 	// Let them know, if their report was a success!
 	if ($context['report_sent'])
-	{
 		echo '
 		<div class="infobox">
 			', $txt['report_sent'], '
 		</div>';
-	}
 
 	// Let them know why their message became unapproved.
 	if ($context['becomesUnapproved'])
-	{
 		echo '
 		<div class="noticebox">
 			', $txt['post_becomesUnapproved'], '
 		</div>';
-	}
 
 	// Show new topic info here?
 	echo '
@@ -1078,13 +1074,11 @@ function template_quickreply()
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
-	{
 		echo '
 						<div class="post_verification">
 							<strong>', $txt['verification'], ':</strong>
 							', template_control_verification($context['visual_verification_id'], 'all'), '
 						</div>';
-	}
 
 	// Finally, the submit buttons.
 	echo '

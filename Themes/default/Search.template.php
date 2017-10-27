@@ -111,13 +111,11 @@ function template_main()
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
-	{
 		echo '
 			<p>
 				<strong>', $txt['verification'], ':</strong>
 				', template_control_verification($context['visual_verification_id'], 'all'), '
 			</p>';
-	}
 
 	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
 	if (!empty($context['search_params']['topic']))
@@ -350,10 +348,8 @@ function template_results()
 				<div class="floatright">';
 
 					if ($options['display_quick_mod'] == 1)
-					{
 						echo '
 					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-					}
 
 					else
 					{

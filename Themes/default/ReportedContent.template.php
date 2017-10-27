@@ -19,12 +19,10 @@ function template_reported_posts()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=reportedposts;sa=show', $context['view_closed'] ? ';closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -192,12 +190,10 @@ function template_viewmodreport()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<div id="modcenter">
@@ -399,12 +395,10 @@ function template_reported_members()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_' . $context['report_post_action']]))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<form id="reported_members" action="', $scripturl, '?action=moderate;area=reportedmembers;sa=show', $context['view_closed'] ? ';closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -489,12 +483,10 @@ function template_viewmemberreport()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<div id="modcenter">

@@ -32,10 +32,8 @@ function template_newsfader()
 		<ul id="smf_slider" class="roundframe">';
 
 		foreach ($context['news_lines'] as $news)
-		{
 			echo '
 			<li>', $news, '</li>';
-		}
 
 		echo '
 		</ul>

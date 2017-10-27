@@ -141,11 +141,9 @@ function template_permission_index()
 								<option value="empty">(', $txt['permissions_select_membergroup'], ')</option>';
 
 		foreach ($context['groups'] as $group)
-		{
 			if ($group['id'] != 1)
 				echo '
 								<option value="', $group['id'], '">', $group['name'], '</option>';
-		}
 
 		echo '
 							</select>
@@ -465,14 +463,11 @@ function template_modify_group()
 
 	// Cannot be edited?
 	if (!$context['profile']['can_modify'])
-	{
 		echo '
 	<div class="errorbox">
 		', sprintf($txt['permission_cannot_edit'], $scripturl . '?action=admin;area=permissions;sa=profiles'), '
 	</div>';
-	}
 	else
-	{
 		echo '
 	<script>
 		window.smf_usedDeny = false;
@@ -485,7 +480,6 @@ function template_modify_group()
 				return true;
 		}
 	</script>';
-	}
 
 	echo '
 	<div id="admincenter">
@@ -888,12 +882,9 @@ function template_postmod_permissions()
 
 				// Guests can't have "own" permissions
 				if ($group['id'] == '-1')
-				{
 					echo '
 										<td colspan="3"></td>';
-				}
 				else
-				{
 					echo '
 										<td class="centercol">
 											<input type="radio" name="replies_own[', $group['id'], ']" value="allow"', $group['replies_own'] == 'allow' ? ' checked' : '', '>
@@ -904,7 +895,6 @@ function template_postmod_permissions()
 										<td class="centercol">
 											<input type="radio" name="replies_own[', $group['id'], ']" value="disallow"', $group['replies_own'] == 'disallow' ? ' checked' : '', '>
 										</td>';
-				}
 
 				echo '
 										<td class="centercol">
@@ -918,7 +908,6 @@ function template_postmod_permissions()
 										</td>';
 
 				if ($modSettings['attachmentEnable'] == 1)
-				{
 					echo '
 										<td class="centercol">
 											<input type="radio" name="attachment[', $group['id'], ']" value="allow"', $group['attachment'] == 'allow' ? ' checked' : '', '>
@@ -929,7 +918,6 @@ function template_postmod_permissions()
 										<td class="centercol">
 											<input type="radio" name="attachment[', $group['id'], ']" value="disallow"', $group['attachment'] == 'disallow' ? ' checked' : '', '>
 										</td>';
-				}
 
 				echo '
 									</tr>';

@@ -69,10 +69,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				foreach ($smileyRows as $smileyRow)
 				{
 					foreach ($smileyRow['smileys'] as $smiley)
-					{
 						echo '
 							', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
-					}
 
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
@@ -297,12 +295,10 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			}
 
 			if ($verify_context['can_recaptcha'])
-			{
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
 				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
-			}
 		}
 		else
 		{

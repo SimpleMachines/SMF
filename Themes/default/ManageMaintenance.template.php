@@ -40,7 +40,6 @@ function template_maintain_database()
 
 	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
 	if (isset($context['convert_to']))
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
@@ -54,11 +53,9 @@ function template_maintain_database()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
 	if ($context['convert_utf8'])
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['utf8_title'], '</h3>
@@ -72,11 +69,9 @@ function template_maintain_database()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	// We might want to convert entities if we're on UTF-8.
 	if ($context['convert_entities'])
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['entity_convert_title'], '</h3>
@@ -89,7 +84,6 @@ function template_maintain_database()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	echo '
 	</div><!-- #manage_maintenance -->';

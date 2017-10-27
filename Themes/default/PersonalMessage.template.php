@@ -69,14 +69,11 @@ function template_pm_popup()
 		<div class="pm_unread">';
 
 	if (empty($context['unread_pms']))
-	{
 		echo '
 			<div class="no_unread">', $txt['pm_no_unread'], '</div>';
-	}
 	else
 	{
 		foreach ($context['unread_pms'] as $id_pm => $pm_details)
-		{
 			echo '
 			<div class="unread">
 				', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
@@ -88,7 +85,6 @@ function template_pm_popup()
 					</div>
 				</div>
 			</div>';
-		}
 	}
 
 	echo '
@@ -709,10 +705,8 @@ function template_subject_list()
 				<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
 
 			foreach ($context['labels'] as $label)
-			{
 				echo '
 				<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
-			}
 
 			echo '
 			</select>
@@ -744,12 +738,10 @@ function template_search()
 		</div>';
 
 	if (!empty($context['search_errors']))
-	{
 		echo '
 		<div class="errorbox">
 			', implode('<br>', $context['search_errors']['messages']), '
 		</div>';
-	}
 
 
 	echo '
@@ -946,14 +938,12 @@ function template_search_results()
 		// Otherwise just a simple list!
 		// @todo No context at all of the search?
 		else
-		{
 			echo '
-			<tr class="windowbg">
-				<td>', $message['time'], '</td>
-				<td>', $message['link'], '</td>
-				<td>', $message['member']['link'], '</td>
-			</tr>';
-		}
+				<tr class="windowbg">
+					<td>', $message['time'], '</td>
+					<td>', $message['link'], '</td>
+					<td>', $message['member']['link'], '</td>
+				</tr>';
 	}
 
 	// Finish off the page...
@@ -1104,10 +1094,8 @@ function template_send()
 
 	// Showing BBC?
 	if ($context['show_bbc'])
-	{
 		echo '
 				<div id="bbcBox_message"></div>';
-	}
 
 	// What about smileys?
 	if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
@@ -1120,13 +1108,11 @@ function template_send()
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
-	{
 		echo '
 				<div class="post_verification">
 					<strong>', $txt['pm_visual_verification_label'], ':</strong>
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</div>';
-	}
 
 	// Send, Preview, spellcheck buttons.
 	echo '
@@ -1608,7 +1594,6 @@ function template_rules()
 				</tr>';
 
 	foreach ($context['rules'] as $rule)
-	{
 		echo '
 				<tr class="windowbg">
 					<td>
@@ -1618,7 +1603,6 @@ function template_rules()
 						<input type="checkbox" name="delrule[', $rule['id'], ']">
 					</td>
 				</tr>';
-	}
 
 	echo '
 			</tbody>

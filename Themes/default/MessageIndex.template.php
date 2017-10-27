@@ -19,12 +19,10 @@ function template_main()
 
 	// Let them know why their message became unapproved.
 	if ($context['becomesUnapproved'])
-	{
 		echo '
 	<div class="noticebox">
 		', $txt['post_becomesUnapproved'], '
 	</div>';
-	}
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
@@ -213,12 +211,10 @@ function template_main()
 
 		// If this person can approve items and we have some awaiting approval tell them.
 		if (!empty($context['unapproved_posts_message']))
-		{
 			echo '
 			<div class="information">
 				<span class="alert">!</span> ', $context['unapproved_posts_message'], '
 			</div>';
-		}
 
 		// Contain the topic list
 		echo '

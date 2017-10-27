@@ -151,12 +151,10 @@ function template_modify_language_entries()
 
 	// Not writable? Oops, show an error for ya.
 	if (!empty($context['lang_file_not_writable_message']))
-	{
 		echo '
 			<div class="errorbox">
 				', $context['lang_file_not_writable_message'], '
 			</div>';
-	}
 
 	// Show the language entries
 	echo '
@@ -202,10 +200,8 @@ function template_modify_language_entries()
 
 	// Allow deleting entries. English can't be deleted though.
 	if ($context['lang_id'] != 'english')
-	{
 		echo '
 				<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
-	}
 
 	echo '
 			</div><!-- .windowbg -->
@@ -228,10 +224,8 @@ function template_modify_language_entries()
 					<optgroup label="', $theme['name'], '">';
 
 		foreach ($theme['files'] as $file)
-		{
 			echo '
 						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '> =&gt; ', $file['name'], '</option>';
-		}
 
 		echo '
 					</optgroup>';
@@ -290,7 +284,6 @@ function template_modify_language_entries()
 
 		// Odd number?
 		if (!empty($cached))
-		{
 			echo '
 
 					<dt>
@@ -304,7 +297,6 @@ function template_modify_language_entries()
 					</dt>
 					<dd>
 					</dd>';
-		}
 
 		echo '
 				</dl>
@@ -340,13 +332,11 @@ function template_add_language()
 
 	// Do we have some errors? Too bad. Display a little error box.
 	if (!empty($context['smf_error']))
-	{
 		echo '
 					<div>
 						<br>
 						<p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p>
 					</div>';
-	}
 
 	echo '
 				</fieldset>

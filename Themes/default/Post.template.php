@@ -111,13 +111,11 @@ function template_main()
 
 	// If this won't be approved let them know!
 	if (!$context['becomes_approved'])
-	{
 		echo '
 					<div class="noticebox">
 						<em>', $txt['wait_for_approval'], '</em>
 						<input type="hidden" name="not_approved" value="1">
 					</div>';
-	}
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
@@ -142,7 +140,6 @@ function template_main()
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
 	{
 		foreach ($context['posting_fields'] as $pfid => $pf)
-		{
 			echo '
 						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
 							', $pf['dt'], '
@@ -150,7 +147,6 @@ function template_main()
 						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
 							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
-		}
 	}
 
 	echo '
@@ -254,7 +250,6 @@ function template_main()
 
 		// Loop through all the choices and print them out.
 		foreach ($context['choices'] as $choice)
-		{
 			echo '
 								<dt>
 									<label for="options-', $choice['id'], '">', $txt['option'], ' ', $choice['number'], '</label>:
@@ -262,7 +257,6 @@ function template_main()
 								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="255">
 								</dd>';
-		}
 
 		echo '
 								<p id="pollMoreOptions"></p>
@@ -530,7 +524,6 @@ function template_main()
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
-	{
 		echo '
 					<div class="post_verification">
 						<span', !empty($context['post_error']['need_qr_verification']) ? ' class="error"' : '', '>
@@ -538,7 +531,6 @@ function template_main()
 						</span>
 						', template_control_verification($context['visual_verification_id'], 'all'), '
 					</div>';
-	}
 
 	// Finally, the submit buttons.
 	echo '
@@ -833,25 +825,21 @@ function template_main()
 					&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
-			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
 						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
 						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
-			}
 
 			echo '
 					<br class="clear">';
 
 			if ($ignoring)
-			{
 				echo '
 					<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
 						', $txt['ignoring_user'], '
 						<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a>
 					</div>';
-			}
 
 			echo '
 					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>

@@ -27,10 +27,8 @@ function template_recent()
 		<div class="pagesection">', $context['page_index'], '</div>';
 
 	if (empty($context['posts']))
-	{
 		echo '
 		<div class="windowbg">', $txt['no_messages'], '</div>';
-	}
 
 	foreach ($context['posts'] as $post)
 	{

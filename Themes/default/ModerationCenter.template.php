@@ -322,12 +322,10 @@ function template_notes()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 		<div class="infobox">
 			', $txt['report_action_' . $context['report_post_action']], '
 		</div>';
-	}
 
 	echo '
 		<div class="modnotes">

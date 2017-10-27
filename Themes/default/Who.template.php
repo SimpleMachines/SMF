@@ -59,12 +59,10 @@ function template_main()
 
 		// Guests can't be messaged.
 		if (!$member['is_guest'])
-		{
 			echo '
 								<span class="contact_info floatright">
 									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 								</span>';
-		}
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
@@ -84,14 +82,12 @@ function template_main()
 
 	// No members?
 	if (empty($context['members']))
-	{
 		echo '
 						<tr class="windowbg">
 							<td colspan="3">
 							', $txt['who_no_online_' . ($context['show_by'] == 'guests' || $context['show_by'] == 'spiders' ? $context['show_by'] : 'members')], '
 							</td>
 						</tr>';
-	}
 
 	echo '
 					</tbody>

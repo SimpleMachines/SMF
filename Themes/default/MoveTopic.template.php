@@ -127,10 +127,8 @@ function template_redirect_options($type)
 							</dd>';
 	}
 	else
-	{
 		echo '
 							<input type="hidden" name="redirect_expires" value="0">';
-	}
 
 	echo '
 						</dl>
@@ -209,10 +207,8 @@ function template_merge()
 							<optgroup label="', $cat['name'], '">';
 
 			foreach ($cat['boards'] as $board)
-			{
 				echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
-			}
 
 			echo '
 							</optgroup>';
@@ -260,10 +256,8 @@ function template_merge()
 	}
 	// Just a nice "There aren't any topics" message
 	else
-	{
 		echo '
 				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
-	}
 
 	echo '
 				<br>

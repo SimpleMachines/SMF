@@ -44,14 +44,12 @@ function template_view_package()
 
 	// Do errors exist in the install? If so light them up like a christmas tree.
 	if ($context['has_failure'])
-	{
 		echo '
 		<div class="errorbox">
 			', sprintf($txt['package_will_fail_title'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]), '<br>
 			', sprintf($txt['package_will_fail_warning'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]),
 			!empty($context['failure_details']) ? '<br><br><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
-	}
 
 	// Display the package readme if one exists
 	if (isset($context['package_readme']))
@@ -310,16 +308,13 @@ function template_view_package()
 
 	// Are we effectively ready to install?
 	if (!$context['ftp_needed'] && (!empty($context['actions']) || !empty($context['database_changes'])))
-	{
 		echo '
 			<div class="righttext padding">
 				<input type="submit" value="', $context['uninstalling'] ? $txt['package_uninstall_now'] : $txt['package_install_now'], '" onclick="return ', !empty($context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . ($context['uninstalling'] ? $txt['package_will_fail_popup_uninstall'] : $txt['package_will_fail_popup']) . '\'))' : 'submitThisOnce(this)', ';" class="button">
 			</div>';
-	}
 
 	// If we need ftp information then demand it!
 	elseif ($context['ftp_needed'])
-	{
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['package_ftp_necessary'], '</h3>
@@ -327,7 +322,6 @@ function template_view_package()
 			<div>
 				', template_control_chmod(), '
 			</div>';
-	}
 
 	echo '
 
@@ -345,7 +339,6 @@ function template_view_package()
 	if (!empty($js_operations))
 	{
 		foreach ($js_operations as $key => $operation)
-		{
 			echo '
 		aOperationElements[', $key, '] = new smc_Toggle({
 			bToggleEnabled: true,
@@ -364,7 +357,6 @@ function template_view_package()
 				}
 			]
 		});';
-		}
 	}
 
 	echo '
@@ -403,7 +395,6 @@ function template_extract_package()
 	global $context, $txt, $scripturl;
 
 	if (!empty($context['redirect_url']))
-	{
 		echo '
 	<script>
 		setTimeout("doRedirect();", ', empty($context['redirect_timeout']) ? '5000' : $context['redirect_timeout'], ');
@@ -413,19 +404,16 @@ function template_extract_package()
 			window.location = "', $context['redirect_url'], '";
 		}
 	</script>';
-	}
 
 	echo '
 	<div id="admincenter">';
 
 	if (empty($context['redirect_url']))
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['uninstalling'] ? $txt['uninstall'] : $txt['extracting'], '</h3>
 		</div>
 		<div class="information">', $txt['package_installed_extract'], '</div>';
-	}
 	else
 		echo '
 		<div class="cat_bar">
@@ -437,11 +425,9 @@ function template_extract_package()
 
 	// If we are going to redirect we have a slightly different agenda.
 	if (!empty($context['redirect_url']))
-	{
 		echo '
 			', $context['redirect_text'], '<br><br>
 			<a href="', $context['redirect_url'], '">', $txt['package_installed_redirect_go_now'], '</a> | <a href="', $scripturl, '?action=admin;area=packages;sa=browse">', $txt['package_installed_redirect_cancel'], '</a>';
-	}
 
 	elseif ($context['uninstalling'])
 		echo '
@@ -637,10 +623,8 @@ function template_browse()
 							<select name="version_emulate" id="ve">';
 
 	foreach ($context['emulation_versions'] as $version)
-	{
 		echo '
 								<option value="', $version, '"', ($version == $context['selected_version'] ? ' selected="selected"' : ''), '>', $version, '</option>';
-	}
 
 	echo '
 							</select>
@@ -919,17 +903,13 @@ function template_package_list()
 
 				// A remote link.
 				elseif ($package['is_remote'])
-				{
 					echo '
-						<strong>', $package['link'], '</strong>';
-				}
+							<strong>', $package['link'], '</strong>';
 
 				// A title?
 				elseif ($package['is_heading'] || $package['is_title'])
-				{
 					echo '
-						<strong>', $package['name'], '</strong>';
-				}
+							<strong>', $package['name'], '</strong>';
 
 				// Otherwise, it's a package.
 				else
@@ -1739,9 +1719,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 				<tr id="insert_div_loc_' . $cur_ident . '" style="display: none;"><td></td></tr>';
 
 			if (!empty($dir['contents']))
-			{
 				template_permission_show_contents($ident . '/' . $name, $dir['contents'], $level + 1, !empty($dir['more_files']));
-			}
 		}
 	}
 
@@ -1760,10 +1738,8 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		// Hide anything too far down the tree.
 		$isFound = false;
 		foreach ($context['look_for'] as $tree)
-		{
 			if (substr($tree, 0, strlen($ident)) == $ident)
 				$isFound = true;
-		}
 
 		if ($level > 1 && !$isFound)
 			echo '

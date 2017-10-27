@@ -371,7 +371,6 @@ function template_modify_user_subscription()
 			<ul>';
 
 		foreach ($context['pending_payments'] as $id => $payment)
-		{
 			echo '
 				<li>
 					', $payment['desc'], '
@@ -382,7 +381,6 @@ function template_modify_user_subscription()
 						<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';remove">', $txt['pending_payments_remove'], '</a>
 					</span>
 				</li>';
-		}
 
 		echo '
 			</ul>
@@ -408,12 +406,10 @@ function template_user_subscription()
 			</div>';
 
 	if (empty($context['subscriptions']))
-	{
 		echo '
 			<div class="information">
 				', $txt['paid_subs_none'], '
 			</div>';
-	}
 	else
 	{
 		echo '

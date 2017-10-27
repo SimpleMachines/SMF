@@ -400,12 +400,10 @@ function template_set_options()
 
 		// Display checkbox options
 		if ($setting['type'] == 'checkbox')
-		{
 			echo '
 					<dd>
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="floatleft">';
-		}
 
 		// How about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
@@ -415,10 +413,8 @@ function template_set_options()
 						<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled' : '', '>';
 
 			foreach ($setting['options'] as $value => $label)
-			{
 				echo '
 							<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
-			}
 
 			echo '
 						</select>';
@@ -438,17 +434,13 @@ function template_set_options()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
-			else if (isset($setting['type']) && $setting['type'] == 'url')
-			{
+			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo'
 						<input type="url"';
-			}
 
 			else
-			{
 				echo '
 						<input type="text"';
-			}
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', '>';
 		}
@@ -628,13 +620,11 @@ function template_set_settings()
 
 		// A checkbox?
 		if ($setting['type'] == 'checkbox')
-		{
 			echo '
 					<dd>
 						<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
 					</dd>';
-		}
 
 		// A list with options?
 		elseif ($setting['type'] == 'list')
@@ -674,17 +664,13 @@ function template_set_settings()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
-			else if (isset($setting['type']) && $setting['type'] == 'url')
-			{
+			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo'
 						<input type="url"';
-			}
 
 			else
-			{
 				echo '
 						<input type="text"';
-			}
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($settings['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
@@ -757,10 +743,8 @@ function template_pick()
 					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant', $theme['id'], '(this.value);">';
 
 			foreach ($theme['variants'] as $key => $variant)
-			{
 				echo '
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
-			}
 
 			echo '
 					</select>

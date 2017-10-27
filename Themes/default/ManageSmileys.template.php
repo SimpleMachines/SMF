@@ -42,12 +42,10 @@ function template_modifyset()
 
 	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
 	if (!empty($context['current_set']['can_import']))
-	{
 		echo '
 			<div class="information">
 				', $context['current_set']['can_import'] == 1 ? sprintf($txt['smiley_set_import_single'], $context['current_set']['import_url']) : sprintf($txt['smiley_set_import_multiple'], $context['current_set']['can_import'], $context['current_set']['import_url']), '
 			</div>';
-	}
 
 	echo '
 			<div class="windowbg2 noup">

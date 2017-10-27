@@ -104,11 +104,9 @@ function template_main()
 
 			// Show custom fields marked to be shown here
 			if (!empty($context['custom_profile_fields']['columns']))
-			{
 				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
 						<td class="righttext">', $member['options'][$key], '</td>';
-			}
 
 			echo '
 					</tr>';
@@ -175,13 +173,11 @@ function template_search()
 						<ul>';
 
 	foreach ($context['search_fields'] as $id => $title)
-	{
 		echo '
 							<li>
 								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', '>
 								<label for="fields-', $id, '">', $title, '</label>
 							</li>';
-	}
 
 	echo '
 						</ul>
