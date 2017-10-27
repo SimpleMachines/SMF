@@ -1195,8 +1195,7 @@ function template_edit_profile_field()
 											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 										</dt>
-										<dd id="options_dd">
-											<div>';
+										<dd id="options_dd">';
 
 	foreach ($context['field']['options'] as $k => $option)
 		echo '
@@ -1205,7 +1204,6 @@ function template_edit_profile_field()
 	echo '
 											<span id="addopt"></span>
 											[<a href="" onclick="addOption(); return false;">', $txt['custom_edit_options_more'], '</a>]
-											</div>
 										</dd>
 										<dt id="default_dt">
 											<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>

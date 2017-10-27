@@ -398,8 +398,7 @@ function template_results()
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-			<div style="padding: 4px;">
-				<div class="floatright flow_auto">
+		<div class="quick_actions righttext">
 			<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 				<option value="">--------</option>';
 
@@ -417,8 +416,7 @@ function template_results()
 
 			echo '
 			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;">
-				</div>
+			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button">
 		</div><!-- .quick_actions -->';
 		}
 
