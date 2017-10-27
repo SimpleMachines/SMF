@@ -469,9 +469,8 @@ function template_main()
 										</script>
 										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
 									</div><!-- .fallback -->
-								</div><!-- #attachUpload -->
-							</dd>';
-		else
+								</div><!-- #attachUpload -->';
+
 		echo '
 							</dd>';
 

@@ -374,12 +374,12 @@ function template_retry_activate()
 			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe">
+				<dl>';
 
 	// You didn't even have an ID?
 	if (empty($context['member_id']))
 		echo '
-				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 
