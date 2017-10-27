@@ -88,7 +88,9 @@ function template_find_members()
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-					<span class="smalltext"><label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
+					<span class="smalltext">
+						<label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label>
+					</span><br>';
 
 	echo '
 					<div class="padding righttext">
@@ -128,7 +130,6 @@ function template_find_members()
 	}
 
 	echo '
-
 			</div><!-- .roundframe -->
 			<input type="hidden" name="input" value="', $context['input_box_name'], '">
 			<input type="hidden" name="delim" value="', $context['delimiter'], '">

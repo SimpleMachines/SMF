@@ -83,8 +83,7 @@ function template_main()
 				// Sort the links into an array with new boards bold so it can be imploded.
 				$children = array();
 				/* Each child in each board's children has:
-						id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
-
+					id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
@@ -204,7 +203,7 @@ function template_main()
 				<div class="moderation">&nbsp;</div>';
 		}
 
-		// No topics.... just say, "sorry bub".
+		// No topics... just say, "sorry bub".
 		else
 			echo '
 				<h3 class="titlebg">', $txt['topic_alert_none'], '</h3>';
@@ -243,15 +242,19 @@ function template_main()
 			if ($topic['is_watched'])
 				echo '
 								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
+
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock"></span>';
+
 			if ($topic['is_sticky'])
 				echo '
 								<span class="generic_icons sticky"></span>';
+
 			if ($topic['is_redirect'])
 				echo '
 								<span class="generic_icons move"></span>';
+
 			if ($topic['is_poll'])
 				echo '
 								<span class="generic_icons poll"></span>';
@@ -266,7 +269,9 @@ function template_main()
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
-							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
+							<p class="floatleft">
+								', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
+							</p>
 							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">&nbsp;' . $topic['pages'] . '</span>' : '', '
 							<br class="clear">
 						</div><!-- #topic_[first_post][id] -->

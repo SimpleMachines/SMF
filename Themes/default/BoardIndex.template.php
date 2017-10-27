@@ -247,7 +247,7 @@ function template_bi_board_children($board)
 		// Sort the links into an array with new boards bold so it can be imploded.
 		$children = array();
 		/* Each child in each board's children has:
-				id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
+			id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
@@ -497,8 +497,10 @@ function template_ic_block_online()
 
 	if ($context['show_buddies'])
 		$bracketList[] = comma_format($context['num_buddies']) . ' ' . ($context['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
+
 	if (!empty($context['num_spiders']))
 		$bracketList[] = comma_format($context['num_spiders']) . ' ' . ($context['num_spiders'] == 1 ? $txt['spider'] : $txt['spiders']);
+
 	if (!empty($context['num_users_hidden']))
 		$bracketList[] = comma_format($context['num_users_hidden']) . ' ' . ($context['num_spiders'] == 1 ? $txt['hidden'] : $txt['hidden_s']);
 

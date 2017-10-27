@@ -236,9 +236,8 @@ function template_permission_index()
 						sThemeId: \'1\',
 						sAdditionalVars: \';admin_key=app\'
 					}
-				});';
+				});
 
-		echo '
 				function checkSubmit()
 				{
 					if ((document.forms.permissionForm.predefined.value != "" && (document.forms.permissionForm.copy_from.value != "empty" || document.forms.permissionForm.permissions.value != "")) || (document.forms.permissionForm.copy_from.value != "empty" && document.forms.permissionForm.permissions.value != ""))
@@ -674,6 +673,7 @@ function template_modify_group_display($type)
 				}
 			}
 		}
+
 		echo '
 					</table>';
 	}

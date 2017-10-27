@@ -126,6 +126,7 @@ function template_login()
 		echo '
 				<br>
 				<a href="javascript:self.close();"></a>';
+
 	echo '
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -178,34 +179,34 @@ function template_login_tfa()
 					</div>
 				</form>
 				<script>
-						form = $("#frmTfa");';
+					form = $("#frmTfa");';
 
 	if (!empty($context['from_ajax']))
 		echo '
-						form.submit(function(e) {
-							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
-							if (form.find("input[name=tfa_backup]:first").val().length > 0)
-								return true;
+					form.submit(function(e) {
+						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+						if (form.find("input[name=tfa_backup]:first").val().length > 0)
+							return true;
 
-							e.preventDefault();
-							e.stopPropagation();
+						e.preventDefault();
+						e.stopPropagation();
 
-							$.post(form.prop("action"), form.serialize(), function(data) {
-								if (data.indexOf("<bo" + "dy") > -1)
-									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
-								else {
-									form.parent().html($(data).find(".roundframe").html());
-								}
-							});
+						$.post(form.prop("action"), form.serialize(), function(data) {
+							if (data.indexOf("<bo" + "dy") > -1)
+								document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+							else {
+								form.parent().html($(data).find(".roundframe").html());
+							}
+						});
 
-							return false;
-						});';
+						return false;
+					});';
 
 	echo '
-						form.find("input[name=backup]").click(function(e) {
-							$("#tfaBackup").show();
-							$("#tfaCode").hide();
-						});
+					form.find("input[name=backup]").click(function(e) {
+						$("#tfaBackup").show();
+						$("#tfaCode").hide();
+					});
 				</script>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -230,7 +231,6 @@ function template_kick_guest()
 	echo '
 			<p class="information centertext">
 				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br>';
-
 
 	if ($context['can_register'])
 		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);

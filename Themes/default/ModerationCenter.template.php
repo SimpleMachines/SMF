@@ -55,20 +55,20 @@ function template_group_requests_block()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['group_requests'] as $request)
-			echo '
+	foreach ($context['group_requests'] as $request)
+		echo '
 					<li class="smalltext">
 						<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
 					</li>';
 
-		// Don't have any watched users right now?
-		if (empty($context['group_requests']))
-			echo '
+	// Don't have any watched users right now?
+	if (empty($context['group_requests']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #group_requests_panel -->
@@ -124,20 +124,20 @@ function template_watched_users()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['watched_users'] as $user)
-			echo '
+	foreach ($context['watched_users'] as $user)
+		echo '
 					<li>
 						<span class="smalltext">', sprintf(!empty($user['last_login']) ? $txt['mc_seen'] : $txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
 					</li>';
 
-		// Don't have any watched users right now?
-		if (empty($context['watched_users']))
-			echo '
+	// Don't have any watched users right now?
+	if (empty($context['watched_users']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_watched_users_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #watched_users_panel -->
@@ -193,20 +193,20 @@ function template_reported_posts_block()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['reported_posts'] as $post)
-			echo '
+	foreach ($context['reported_posts'] as $post)
+		echo '
 					<li>
 						<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
 					</li>';
 
-		// Don't have any watched users right now?
-		if (empty($context['reported_posts']))
-			echo '
+	// Don't have any watched users right now?
+	if (empty($context['reported_posts']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #reported_posts_panel -->
@@ -262,20 +262,20 @@ function template_reported_users_block()
 			<div class="modbox">
 				<ul>';
 
-		foreach ($context['reported_users'] as $user)
-			echo '
+	foreach ($context['reported_users'] as $user)
+		echo '
 					<li>
 						<span class="smalltext">', $user['user']['link'], '</span>
 					</li>';
 
-		// Don't have any watched users right now?
-		if (empty($context['reported_users']))
-			echo '
+	// Don't have any watched users right now?
+	if (empty($context['reported_users']))
+		echo '
 					<li>
 						<strong class="smalltext">', $txt['mc_reported_users_none'], '</strong>
 					</li>';
 
-		echo '
+	echo '
 				</ul>
 			</div><!-- .modbox -->
 		</div><!-- #reported_users_panel -->

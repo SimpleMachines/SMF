@@ -167,9 +167,7 @@ function template_main()
 
 	echo '
 			</div><!-- .windowbg2 -->
-		</div><!-- #admin_form_wrapper -->';
-
-	echo '
+		</div><!-- #admin_form_wrapper -->
 	</div><!-- #admincenter -->';
 
 	echo '
@@ -196,9 +194,7 @@ function template_list_themes()
 	</div>';
 
 	echo '
-	<div id="admincenter">';
-
-	echo '
+	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_list_heading'], '</h3>
 		</div>
@@ -410,6 +406,7 @@ function template_set_options()
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="floatleft">';
 		}
+
 		// How about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
 		{
@@ -446,12 +443,12 @@ function template_set_options()
 				echo'
 						<input type="url"';
 			}
+
 			else
 			{
 				echo '
 						<input type="text"';
 			}
-
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', '>';
 		}
@@ -638,6 +635,7 @@ function template_set_settings()
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
 					</dd>';
 		}
+
 		// A list with options?
 		elseif ($setting['type'] == 'list')
 		{
@@ -658,8 +656,7 @@ function template_set_settings()
 		{
 			echo '
 					<dd>
-						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
-			echo '
+						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>
 					</dd>';
 		}
 		// A regular input box, then?
@@ -682,6 +679,7 @@ function template_set_settings()
 				echo'
 						<input type="url"';
 			}
+
 			else
 			{
 				echo '
@@ -763,6 +761,7 @@ function template_pick()
 				echo '
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
 			}
+
 			echo '
 					</select>
 					<noscript>
@@ -1069,6 +1068,7 @@ function template_edit_style()
 					try
 					{
 					';
+
 	if (isBrowser('is_ie'))
 		echo '
 						var sheets = frames["css_preview_box"].document.styleSheets;

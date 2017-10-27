@@ -496,6 +496,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 								}
+
 								// Exporting!
 								if ($event['can_export'])
 								{
@@ -687,6 +688,7 @@ function template_show_week_grid($grid_name)
 										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 						}
+
 						// Can we export? Sweet.
 						if (!empty($event['can_export']))
 						{
@@ -808,7 +810,7 @@ function template_calendar_top($calendar_data)
 				</select>
 				<select name="year">';
 
-		// Show a link for every year.....
+		// Show a link for every year...
 		for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
 		{
 			echo '
@@ -901,7 +903,7 @@ function template_event_post()
 						</div><!-- #event_board -->';
 	}
 
-	// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
+	// Note to theme writers: The JavaScript expects the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 	echo '
 					</fieldset>
 					<fieldset id="event_options">
@@ -980,6 +982,7 @@ function template_bcd()
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '"><br>';
 		}
+
 		echo '
 				</td>';
 
@@ -1075,11 +1078,13 @@ function template_hms()
 		echo '
 			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
 				<td>';
+
 		foreach ($v as $i)
 		{
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
 		}
+
 		echo '
 				</td>
 			</tr>';
@@ -1174,6 +1179,7 @@ function template_omfg()
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
 		}
+
 		echo '
 				</td>
 			</tr>';
@@ -1266,6 +1272,7 @@ function template_thetime()
 			echo '
 					<img src="', $i ? $context['onimg'] : $context['offimg'], '" alt="" style="padding: 2px;">';
 		}
+
 		echo '
 				</td>
 			</tr>';

@@ -45,9 +45,7 @@ function template_email_members()
 
 	echo '
 						<br>
-						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>';
-
-	echo '
+						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>
 					</dd>
 				</dl>
 				<div id="advanced_panel_header" class="title_bar">
@@ -355,9 +353,7 @@ function template_email_members_compose()
 							document.forms.newsmodify.', $context['post_box_name'], '.style.border = null;
 					}
 					location.hash = \'#\' + \'preview_section\';
-				}';
-
-	echo '
+				}
 			</script>';
 
 	echo '

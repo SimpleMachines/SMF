@@ -237,6 +237,7 @@ function template_attachment_repair()
 		</div>
 	</div>';
 	}
+
 	// Otherwise, I'm sad to say, we have a problem!
 	else
 	{

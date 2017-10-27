@@ -185,7 +185,6 @@ function template_edit_group()
 
 	if ($context['group']['id'] != 3 && $context['group']['id'] != 4)
 		echo '
-
 					<dt id="group_desc_text">
 						<label for="group_desc_input"><strong>', $txt['membergroups_edit_desc'], ':</strong></label>
 					</dt>
@@ -355,6 +354,7 @@ function template_edit_group()
 		echo '
 					</dd>';
 	}
+
 	echo '
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
@@ -622,6 +622,7 @@ function template_group_members()
 	if (!empty($context['group']['assignable']))
 		echo '
 						<th style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
+
 	echo '
 					</tr>
 				</thead>
@@ -655,6 +656,7 @@ function template_group_members()
 		if (!empty($context['group']['assignable']))
 			echo '
 						<td style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+
 		echo '
 					</tr>';
 	}

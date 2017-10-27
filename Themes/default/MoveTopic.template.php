@@ -51,7 +51,9 @@ function template_move()
 	// Disable the reason textarea when the postRedirect checkbox is unchecked...
 	echo '
 					</dl>
-					<label for="reset_subject"><input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.</label><br>
+					<label for="reset_subject">
+						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.
+					</label><br>
    					<fieldset id="subjectArea" style="display: none;">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
@@ -256,9 +258,9 @@ function template_merge()
 					', $context['page_index'], '
 				</div>';
 	}
+	// Just a nice "There aren't any topics" message
 	else
 	{
-		// Just a nice "There aren't any topics" message
 		echo '
 				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
 	}

@@ -289,6 +289,7 @@ function template_addsmiley()
 					<dd>
 						<input type="file" name="individual_', $smiley_set['name'], '" onchange="selectMethod(\'upload\');">
 					</dd>';
+
 	echo '
 				</dl>
 			</div><!-- .windowbg2 -->
@@ -452,9 +453,11 @@ function template_editicon()
 		foreach ($category['boards'] as $board)
 			echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
+
 		echo '
 							</optgroup>';
 	}
+
 	echo '
 						</select>
 					</dd>

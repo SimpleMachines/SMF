@@ -28,7 +28,7 @@ function template_main()
 				<span class="floatleft">', $txt['members_list'], '</span>';
 
 	if (!isset($context['old_search']))
-			echo '
+		echo '
 				<span class="floatright">', $context['letter_links'], '</span>';
 	echo '
 			</h3>
@@ -52,12 +52,14 @@ function template_main()
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
 							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></th>';
+
 		// This is just some column... show the link and be done with it.
 		else
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' style="width: ' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
 						', $column['link'], '</th>';
 	}
+
 	echo '
 					</tr>
 				</thead>

@@ -205,7 +205,7 @@ function template_create_list_menu($list_menu, $direction = 'top')
 	global $context;
 
 	/**
-		// This is use if you want your generic lists to have tabs.
+		// This is used if you want your generic lists to have tabs.
 		$cur_list['list_menu'] = array(
 			// This is the style to use.  Tabs or Buttons (Text 1 | Text 2).
 			// By default tabs are selected if not set.

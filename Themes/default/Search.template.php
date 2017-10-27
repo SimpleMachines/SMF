@@ -331,7 +331,6 @@ function template_results()
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
-
 			echo '
 		<div class="', $topic['css_class'], '">
 			<div class="flow_auto">';
@@ -355,6 +354,7 @@ function template_results()
 						echo '
 					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
 					}
+
 					else
 					{
 						if ($topic['quick_mod']['remove'])
@@ -471,12 +471,12 @@ function template_results()
 			// If they *can* reply?
 			if ($topic['can_reply'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 			// If they *can* quote?
 			if ($topic['can_quote'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			if ($topic['can_reply'])
 				echo '
@@ -531,7 +531,6 @@ function template_results()
 				sGoButtonLabel: "', $txt['quick_mod_go'], '"
 			});
 		</script>';
-
 }
 
 ?>

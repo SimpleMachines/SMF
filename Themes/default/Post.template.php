@@ -33,6 +33,7 @@ function template_main()
 	foreach ($context['icons'] as $icon)
 		echo '
 				\'', $icon['value'], '\': \'', $icon['url'], '\'', $icon['is_last'] ? '' : ',';
+
 	echo '
 			};';
 
@@ -432,10 +433,7 @@ function template_main()
 						<div id ="maxFiles_progress_text"></div>';
 
 		echo '
-						<dl id="postAttachment2">';
-
-
-		echo '
+						<dl id="postAttachment2">
 							<dt>
 								', $txt['attach'], ':
 							</dt>
@@ -474,7 +472,7 @@ function template_main()
 								</div><!-- #attachUpload -->
 							</dd>';
 		else
-			echo '
+		echo '
 							</dd>';
 
 		// Add any template changes for an alternative upload system here.
@@ -832,7 +830,8 @@ function template_main()
 				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
-					</h5>&nbsp;-&nbsp;', $post['time'];
+					</h5>
+					&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
 			{
@@ -948,7 +947,7 @@ function template_spellcheck()
 				background: #ffffff;
 			}';
 
-	// As you may expect - we need a lot of javascript for this... load it form the separate files.
+	// As you may expect - we need a lot of javascript for this... load it from the separate files.
 	echo '
 		</style>
 		<script>
@@ -1099,7 +1098,7 @@ function template_announcement_send()
 
 	echo '
 	<div id="announcement">
-		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
+		<form action="', $scripturl, '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
 				<p>
 					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank">', $context['topic_subject'], '</a>

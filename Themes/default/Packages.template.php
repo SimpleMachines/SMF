@@ -120,6 +120,7 @@ function template_view_package()
 		foreach ($context['database_changes'] as $change)
 			echo '
 						<li>', $change, '</li>';
+
 		echo '
 					</ul>
 				</div>
@@ -315,6 +316,7 @@ function template_view_package()
 				<input type="submit" value="', $context['uninstalling'] ? $txt['package_uninstall_now'] : $txt['package_install_now'], '" onclick="return ', !empty($context['has_failure']) ? '(submitThisOnce(this) &amp;&amp; confirm(\'' . ($context['uninstalling'] ? $txt['package_will_fail_popup_uninstall'] : $txt['package_will_fail_popup']) . '\'))' : 'submitThisOnce(this)', ';" class="button">
 			</div>';
 	}
+
 	// If we need ftp information then demand it!
 	elseif ($context['ftp_needed'])
 	{
@@ -440,6 +442,7 @@ function template_extract_package()
 			', $context['redirect_text'], '<br><br>
 			<a href="', $context['redirect_url'], '">', $txt['package_installed_redirect_go_now'], '</a> | <a href="', $scripturl, '?action=admin;area=packages;sa=browse">', $txt['package_installed_redirect_cancel'], '</a>';
 	}
+
 	elseif ($context['uninstalling'])
 		echo '
 			', $txt['package_uninstall_done'];
@@ -608,7 +611,7 @@ function template_browse()
 		echo '
 		<br>';
 
-	// the advanced (emulation) box, collapsed by default
+	// The advanced (emulation) box, collapsed by default
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
 			<div id="advanced_box">
@@ -702,20 +705,20 @@ function template_servers()
 	echo '
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
-			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
+			<h3 class="catbg">', $txt['package_upload_title'], '</h3>
 		</div>
 		<div class="windowbg2 noup">
-			<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
+			<form action="', $scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
-						<strong>' . $txt['package_upload_select'] . ':</strong>
+						<strong>', $txt['package_upload_select'], ':</strong>
 					</dt>
 					<dd>
 						<input type="file" name="package" size="38">
 					</dd>
 				</dl>
-				<input type="submit" value="' . $txt['upload'] . '" class="button">
-				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+				<input type="submit" value="', $txt['upload'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
 		</div>
 		<div class="cat_bar">
@@ -867,7 +870,7 @@ function template_package_list()
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">
-			<h3 class="catbg">' . $context['page_title'] . '</h3>
+			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
 		<div class="windowbg2">';
 
@@ -883,6 +886,7 @@ function template_package_list()
 	{
 		echo '
 			<ul id="package_list">';
+
 		foreach ($context['package_list'] as $i => $packageSection)
 		{
 			echo '
@@ -902,26 +906,31 @@ function template_package_list()
 			{
 				echo '
 						<li>';
+
 				// Textual message. Could be empty just for a blank line...
 				if ($package['is_text'])
 					echo '
 							', empty($package['name']) ? '&nbsp;' : $package['name'];
+
 				// This is supposed to be a rule..
 				elseif ($package['is_line'])
 					echo '
-						<hr>';
+							<hr>';
+
 				// A remote link.
 				elseif ($package['is_remote'])
 				{
 					echo '
 						<strong>', $package['link'], '</strong>';
 				}
+
 				// A title?
 				elseif ($package['is_heading'] || $package['is_title'])
 				{
 					echo '
 						<strong>', $package['name'], '</strong>';
 				}
+
 				// Otherwise, it's a package.
 				else
 				{
@@ -933,28 +942,42 @@ function template_package_list()
 					// Show the mod type?
 					if ($package['type'] != '')
 						echo '
-							<li class="package_section">', $txt['package_type'], ':&nbsp; ', $smcFunc['ucwords']($smcFunc['strtolower']($package['type'])), '</li>';
+							<li class="package_section">
+								', $txt['package_type'], ':&nbsp; ', $smcFunc['ucwords']($smcFunc['strtolower']($package['type'])), '
+							</li>';
 
 					// Show the version number?
 					if ($package['version'] != '')
 						echo '
-							<li class="package_section">', $txt['mod_version'], ':&nbsp; ', $package['version'], '</li>';
+							<li class="package_section">
+								', $txt['mod_version'], ':&nbsp; ', $package['version'], '
+							</li>';
 
 					// How 'bout the author?
 					if (!empty($package['author']) && $package['author']['name'] != '' && isset($package['author']['link']))
 						echo '
-							<li class="package_section">', $txt['mod_author'], ':&nbsp; ', $package['author']['link'], '</li>';
+							<li class="package_section">
+								', $txt['mod_author'], ':&nbsp; ', $package['author']['link'], '
+							</li>';
 
-					// The homepage....
+					// The homepage...
 					if ($package['author']['website']['link'] != '')
 						echo '
-							<li class="package_section">', $txt['author_website'], ':&nbsp; ', $package['author']['website']['link'], '</li>';
+							<li class="package_section">
+								', $txt['author_website'], ':&nbsp; ', $package['author']['website']['link'], '
+							</li>';
 
 					// Description: bleh bleh!
 					// Location of file: http://someplace/.
 					echo '
-							<li class="package_section">', $txt['file_location'], ':&nbsp; <a href="', $package['href'], '">', $package['href'], '</a></li>
-							<li class="package_section"><div class="information">', $txt['package_description'], ':&nbsp; ', $package['description'], '</div></li>
+							<li class="package_section">
+								', $txt['file_location'], ':&nbsp; <a href="', $package['href'], '">', $package['href'], '</a>
+							</li>
+							<li class="package_section">
+								<div class="information">
+									', $txt['package_description'], ':&nbsp; ', $package['description'], '
+								</div>
+							</li>
 						</ul>';
 				}
 
@@ -967,7 +990,6 @@ function template_package_list()
 		}
 		echo '
 			</ul>';
-
 	}
 
 	echo '
@@ -1568,24 +1590,36 @@ function template_file_permissions()
 	{
 		echo '
 				<tr class="windowbg">
-					<td width="30%"><strong>';
+					<td width="30%">
+						<strong>';
 
-				if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
-					echo '
-						<span class="generic_icons folder"></span>';
+		if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
+			echo '
+							<span class="generic_icons folder"></span>';
 
-				echo '
-						', $name, '
-					</strong></td>
+		echo '
+							', $name, '
+						</strong>
+					</td>
 					<td width="30%">
 						<span style="color: ', ($dir['perms']['chmod'] ? 'green' : 'red'), '">', ($dir['perms']['chmod'] ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']), '</span>
 						', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 					</td>
-					<td class="centertext perm_read"><input type="radio" name="permStatus[', $name, ']" value="read" class="centertext"></td>
-					<td class="centertext perm_writable"><input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext"></td>
-					<td class="centertext perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext"></td>
-					<td class="centertext perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext"></td>
-					<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext"></td>
+					<td class="centertext perm_read">
+						<input type="radio" name="permStatus[', $name, ']" value="read" class="centertext">
+					</td>
+					<td class="centertext perm_writable">
+						<input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext">
+					</td>
+					<td class="centertext perm_execute">
+						<input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext">
+					</td>
+					<td class="centertext perm_custom">
+						<input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext">
+					</td>
+					<td class="centertext perm_no_change">
+						<input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext">
+					</td>
 				</tr>';
 
 		if (!empty($dir['contents']))
@@ -1642,7 +1676,7 @@ function template_file_permissions()
 	// Any looks fors we've already done?
 	foreach ($context['look_for'] as $path)
 		echo '
-			<input type="hidden" name="back_look[]" value="', $path, '">';
+		<input type="hidden" name="back_look[]" value="', $path, '">';
 
 	echo '
 	</form>
@@ -1850,7 +1884,6 @@ function template_action_permissions()
 			setTimeout("doAutoSubmit();", 1000);
 		}
 	</script>';
-
 }
 
 ?>

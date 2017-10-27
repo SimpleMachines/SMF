@@ -147,7 +147,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
 	{
 		echo '
-
 					<dl class="register_form">';
 
 		foreach ($context['custom_fields'] as $field)
@@ -310,6 +309,7 @@ function template_registration_form()
 	else
 		echo '
 				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+
 	echo '
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -395,6 +395,7 @@ function template_coppa()
 		echo '
 				<p>', $context['coppa']['phone'], '</p>';
 	}
+
 	echo '
 			</div><!-- #coppa -->';
 }
@@ -457,6 +458,7 @@ function template_verification_sound()
 	</head>
 	<body style="margin: 1ex;">
 		<div class="windowbg description" style="text-align: center;">';
+
 	if (isBrowser('is_ie') || isBrowser('is_ie11'))
 		echo '
 			<object classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95" type="audio/x-wav">
@@ -470,6 +472,7 @@ function template_verification_sound()
 					<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
 				</object>
 			</audio>';
+
 	echo '
 			<br>
 			<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
@@ -596,6 +599,7 @@ function template_edit_agreement()
 	if (!empty($context['saved_successful']))
 		echo '
 		<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	elseif (!empty($context['could_not_save']))
 		echo '
 		<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';

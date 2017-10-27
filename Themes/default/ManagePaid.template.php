@@ -197,7 +197,6 @@ function template_modify_subscription()
 			</div><!-- .windowbg2 -->
 		</form>
 	</div><!-- #admincenter -->';
-
 }
 
 /**
@@ -222,7 +221,6 @@ function template_delete_subscription()
 			</div>
 		</form>
 	</div><!-- #admincenter -->';
-
 }
 
 /**
@@ -364,7 +362,7 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments'], '</h3>
 		</div>
 		<div class="information">
-		', $txt['pending_payments_desc'], '
+			', $txt['pending_payments_desc'], '
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
@@ -480,7 +478,7 @@ function template_user_subscription()
 
 	echo '
 		</form>
-		<br class="clear"/>
+		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_current'], '</h3>
 		</div>
@@ -522,6 +520,7 @@ function template_user_subscription()
 					<td>', $sub['end'], '</td>
 				</tr>';
 	}
+
 	echo '
 			</tbody>
 		</table>

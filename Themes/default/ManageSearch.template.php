@@ -163,18 +163,18 @@ function template_select_search_method()
 						<dd>
 							<span class="smalltext">';
 
-	if (empty($context['fulltext_index']) && empty($context['cannot_create_fulltext']))
-		echo '
+		if (empty($context['fulltext_index']) && empty($context['cannot_create_fulltext']))
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_no_index_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createfulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_create'], '</a>]';
 
-	elseif (empty($context['fulltext_index']) && !empty($context['cannot_create_fulltext']))
-		echo '
+		elseif (empty($context['fulltext_index']) && !empty($context['cannot_create_fulltext']))
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_fulltext_cannot_create'];
-	else
-		echo '
+		else
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br>
 								<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['fulltext_length'];
-	echo '
+		echo '
 							</span>
 						</dd>';
 	}
@@ -214,8 +214,8 @@ function template_select_search_method()
 							', $api['label'], '
 						</dt>';
 
-	if ($api['desc'])
-		echo '
+		if ($api['desc'])
+			echo '
 						<dd>
 							<span class="smalltext">', $api['desc'], '</span>
 						</dd>';
@@ -328,6 +328,7 @@ function template_create_index_progress()
 function template_create_index_done()
 {
 	global $scripturl, $txt;
+
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">
@@ -348,6 +349,7 @@ function template_create_index_done()
 function template_spider_edit()
 {
 	global $context, $scripturl, $txt;
+
 	echo '
 	<div id="admincenter">
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">

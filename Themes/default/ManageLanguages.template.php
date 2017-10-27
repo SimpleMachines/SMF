@@ -149,10 +149,9 @@ function template_modify_language_entries()
 				', $txt['edit_language_entries_primary'], '
 			</div>';
 
-	// Not writable?
+	// Not writable? Oops, show an error for ya.
 	if (!empty($context['lang_file_not_writable_message']))
 	{
-		// Oops, show an error for ya.
 		echo '
 			<div class="errorbox">
 				', $context['lang_file_not_writable_message'], '
@@ -201,10 +200,9 @@ function template_modify_language_entries()
 				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
 				<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' class="button">';
 
-	// Allow deleting entries.
+	// Allow deleting entries. English can't be deleted though.
 	if ($context['lang_id'] != 'english')
 	{
-		// English can't be deleted though.
 		echo '
 				<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
 	}
@@ -247,8 +245,7 @@ function template_modify_language_entries()
 			</div><!-- #taskpad -->
 			<br class="clear">';
 
-	// Is it not writable?
-	// Show an error.
+	// Is it not writable? Show an error.
 	if (!empty($context['entries_not_writable_message']))
 		echo '
 			<div class="errorbox">
@@ -294,7 +291,6 @@ function template_modify_language_entries()
 		// Odd number?
 		if (!empty($cached))
 		{
-			// Alternative time
 			echo '
 
 					<dt>
@@ -312,9 +308,7 @@ function template_modify_language_entries()
 
 		echo '
 				</dl>
-				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">';
-
-		echo '
+				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
 			</div><!-- .windowbg2 -->';
 	}
 	echo '
@@ -344,10 +338,9 @@ function template_add_language()
 					<label class="smalltext">', $txt['add_language_smf_browse'], '</label>
 					<input type="text" name="smf_add" size="40" value="', !empty($context['smf_search_term']) ? $context['smf_search_term'] : '', '">';
 
-	// Do we have some errors? Too bad.
+	// Do we have some errors? Too bad. Display a little error box.
 	if (!empty($context['smf_error']))
 	{
-		// Display a little error box.
 		echo '
 					<div>
 						<br>

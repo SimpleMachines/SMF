@@ -242,9 +242,9 @@ function template_maintain_members()
 	</script>
 	<div id="manage_maintenance">';
 
-	// If maintenance has finished tell the user.
+	// If maintenance has finished, tell the user.
 	if (!empty($context['maintenance_finished']))
-	echo '
+		echo '
 		<div class="infobox">
 			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 		</div>';
@@ -303,9 +303,7 @@ function template_maintain_members()
 					</select> 
 					', $txt['maintain_members_since2'], ' 
 					<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '
-				</p>';
-
-	echo '
+				</p>
 				<p>
 					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a>
 				</p>

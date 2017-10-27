@@ -287,10 +287,10 @@ function template_modify_board()
 					<dd>
 						<select name="new_cat" onchange="if (this.form.order) {this.form.order.disabled = this.options[this.selectedIndex].value != 0; this.form.board_order.disabled = this.options[this.selectedIndex].value != 0 || this.form.order.options[this.form.order.selectedIndex].value == \'\';}">';
 
-		foreach ($context['categories'] as $category)
-			echo '
-							<option', $category['selected'] ? ' selected' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
+	foreach ($context['categories'] as $category)
 		echo '
+							<option', $category['selected'] ? ' selected' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
+	echo '
 						</select>
 					</dd>';
 
@@ -624,14 +624,14 @@ function template_modify_board()
 
 	foreach ($context['board']['moderators'] as $id_member => $member_name)
 		echo '
-					{
-						sItemId: ', JavaScriptEscape($id_member), ',
-						sItemName: ', JavaScriptEscape($member_name), '
-					}', $id_member == $context['board']['last_moderator_id'] ? '' : ',';
+				{
+					sItemId: ', JavaScriptEscape($id_member), ',
+					sItemName: ', JavaScriptEscape($member_name), '
+				}', $id_member == $context['board']['last_moderator_id'] ? '' : ',';
 
 	echo '
-				]
-			});
+			]
+		});
 
 		var oModeratorGroupSuggest = new smc_AutoSuggest({
 			sSelf: \'oModeratorGroupSuggest\',
@@ -649,14 +649,14 @@ function template_modify_board()
 
 	foreach ($context['board']['moderator_groups'] as $id_group => $group_name)
 		echo '
-					{
-						sItemId: ', JavaScriptEscape($id_group), ',
-						sItemName: ', JavaScriptEscape($group_name), '
-					}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
+				{
+					sItemId: ', JavaScriptEscape($id_group), ',
+					sItemName: ', JavaScriptEscape($group_name), '
+				}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
 
 		echo '
-				]
-			});
+			]
+		});
 	</script>';
 
 	// Javascript for deciding what to show.

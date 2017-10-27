@@ -84,7 +84,7 @@ function template_reported_posts()
 			echo '
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
-			echo '
+		echo '
 			</ul>
 		</div><!-- .windowbg -->';
 	}
@@ -303,24 +303,18 @@ function template_edit_comment()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">';
-
-	echo '
+		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'], '</h3>
 			</div>
-			<div class="windowbg2">';
-
-	echo '
+			<div class="windowbg2">
 				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'], '</textarea>
 				<div>
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button">
 				</div>
 			</div>
-			<br>';
-
-	echo '
+			<br>
 			<input type="hidden" name="', $context['mod-reportC-edit_token_var'], '" value="', $context['mod-reportC-edit_token'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>

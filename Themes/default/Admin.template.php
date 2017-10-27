@@ -63,6 +63,7 @@ function template_admin()
 										<br>
 										<strong>', $txt['administrators'], ':</strong>
 										', implode(', ', $context['administrators']);
+
 	// If we have lots of admins... don't show them all.
 	if (!empty($context['more_admins_link']))
 		echo '
@@ -546,8 +547,8 @@ function template_view_versions()
 					</div><!-- #admincenter -->';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
-	   held at simplemachines.org and works out if they are up to date.  If they aren't it colors that files number
-	   red.  It also contains the function, swapOption, that toggles showing the detailed information for each of the
+	   held at simplemachines.org and works out if they are up to date. If they aren't it colors that files number
+	   red. It also contains the function, swapOption, that toggles showing the detailed information for each of the
 	   file categories. (sources, languages, and templates.) */
 	echo '
 					<script src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
@@ -855,6 +856,7 @@ function template_show_settings()
 				{
 					echo '
 										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), (!empty($config_var['multiple']) && !empty($config_var['size']) ? ' size="' . $config_var['size'] . '"' : ''), '>';
+
 					foreach ($config_var['data'] as $option)
 						echo '
 											<option value="', $option[0], '"', (!empty($config_var['value']) && ($option[0] == $config_var['value'] || (!empty($config_var['multiple']) && in_array($option[0], $config_var['value']))) ? ' selected' : ''), '>', $option[1], '</option>';
@@ -918,12 +920,14 @@ function template_show_settings()
 					}
 					echo '					</ul>
 											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
-											</fieldset>';
+										</fieldset>';
 				}
 				// A simple message?
 				elseif ($config_var['type'] == 'var_message')
 					echo '
-											<div', !empty($config_var['name']) ? ' id="' . $config_var['name'] . '"' : '', '>', $config_var['var_message'], '</div>';
+										<div', !empty($config_var['name']) ? ' id="' . $config_var['name'] . '"' : '', '>
+											', $config_var['var_message'], '
+										</div>';
 				// Assume it must be a text box
 				else
 				{
@@ -941,7 +945,7 @@ function template_show_settings()
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
-											<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, '>';
+										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, '>';
 				}
 
 				echo isset($config_var['postinput']) ? '
@@ -949,7 +953,6 @@ function template_show_settings()
 									</dd>';
 			}
 		}
-
 		else
 		{
 			// Just show a separator.
@@ -1062,6 +1065,7 @@ function template_edit_profile_field()
 	if (isset($_GET['msg']))
 	{
 		loadLanguage('Errors');
+
 		if (isset($txt['custom_option_' . $_GET['msg']]))
 			echo '
 					<div class="errorbox">',
@@ -1197,11 +1201,12 @@ function template_edit_profile_field()
 	foreach ($context['field']['options'] as $k => $option)
 	{
 		echo '
-												', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
+											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
 	}
+
 	echo '
-												<span id="addopt"></span>
-												[<a href="" onclick="addOption(); return false;">', $txt['custom_edit_options_more'], '</a>]
+											<span id="addopt"></span>
+											[<a href="" onclick="addOption(); return false;">', $txt['custom_edit_options_more'], '</a>]
 											</div>
 										</dd>
 										<dt id="default_dt">
@@ -1306,7 +1311,9 @@ function template_admin_search_results()
 	if (empty($context['search_results']))
 	{
 		echo '
-							<p class="centertext"><strong>', $txt['admin_search_results_none'], '</strong></p>';
+							<p class="centertext">
+								<strong>', $txt['admin_search_results_none'], '</strong>
+							</p>';
 	}
 	else
 	{
@@ -1512,8 +1519,8 @@ function template_php_info()
 	echo '
 					<div id="admin_form_wrapper">
 						<div id="section_header" class="cat_bar">
-							<h3 class="catbg">',
-								$txt['phpinfo_settings'], '
+							<h3 class="catbg">
+								', $txt['phpinfo_settings'], '
 							</h3>
 						</div>';
 
@@ -1561,6 +1568,7 @@ function template_php_info()
 					echo '
 									<td class="equal_table">', $value, '</td>';
 				}
+
 				echo '
 								</tr>';
 			}

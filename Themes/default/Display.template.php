@@ -247,9 +247,7 @@ function template_main()
 
 	// Show the topic information - icon, subject, etc.
 	echo '
-		<div id="forumposts">';
-
-	echo '
+		<div id="forumposts">
 			<form action="', $scripturl, '?action=quickmod2;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\') : false">';
 
 	$context['ignoredMsgs'] = array();
@@ -296,7 +294,7 @@ function template_main()
 
 	// Show quickreply
 	if ($context['can_reply'])
-	template_quickreply();
+		template_quickreply();
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	echo '
@@ -325,7 +323,7 @@ function template_main()
 			</div>
 		</div>';
 
-		echo '
+	echo '
 		<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
@@ -517,6 +515,7 @@ function template_single_post($message)
 								', $message['member']['link'], '
 							</h4>';
 
+	// Begin display of user info
 	echo '
 							<ul class="user_info">';
 
@@ -606,9 +605,9 @@ function template_single_post($message)
 				echo '
 										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
-				echo '
+			echo '
 									</ol>
-								</li>';
+								</li><!-- .profile -->';
 		}
 
 		// Any custom fields for standard placement?
@@ -621,22 +620,30 @@ function template_single_post($message)
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
-								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+								<li class="email">
+									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a>
+								</li>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+								</li>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
+								</li>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!$context['user']['is_guest'])
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+								</li>';
 
 	// Otherwise, you see NOTHING!
 	else
@@ -647,7 +654,9 @@ function template_single_post($message)
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
-								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
+								<li class="warning">
+									', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span>
+								</li>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
 	if (!empty($message['custom_fields']['bottom_poster']))
@@ -662,9 +671,11 @@ function template_single_post($message)
 						<div class="postarea">
 							<div class="keyinfo">';
 
-	// Some people don't want subject... The div is still required or quick edit breaks...
+	// Some people don't want subject... The div is still required or quick edit breaks.
 	echo '
-								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '"><a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a></div>';
+								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '">
+									<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
+								</div>';
 
 	echo '
 								<h5>
@@ -672,7 +683,6 @@ function template_single_post($message)
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
-
 									<span class="page_number floatright">
 										', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 									</span>';
@@ -865,12 +875,16 @@ function template_single_post($message)
 		if ($context['can_quote'])
 			echo '
 									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
-									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>';
+									<li style="display:none;" id="quoteSelected_', $message['id'], '">
+										<a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a>
+									</li>';
 
 		// Can the user modify the contents of this post? Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="quick_edit"><a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons quick_edit_button"></span>', $txt['quick_edit'], '</a></li>';
+									<li class="quick_edit">
+										<a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons quick_edit_button"></span>', $txt['quick_edit'], '</a>
+									</li>';
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
@@ -888,6 +902,7 @@ function template_single_post($message)
 		if ($context['can_delete'] && ($context['topic_first_message'] == $message['id']))
 			echo '
 											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['are_sure_remove_topic'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove_topic'], '</a></li>';
+
 		elseif ($message['can_remove'] && ($context['topic_first_message'] != $message['id']))
 			echo '
 											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message_question'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
@@ -1084,7 +1099,7 @@ function template_quickreply()
 		</div><!-- #quickreplybox -->
 		<br class="clear">';
 
-	// draft autosave available and the user has it enabled?
+	// Draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']))
 		echo '
 		<script>

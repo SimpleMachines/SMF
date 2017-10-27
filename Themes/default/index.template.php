@@ -193,10 +193,11 @@ function template_body_above()
 			<ul class="floatleft" id="top_info">
 				<li>
 					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
-			if (!empty($context['user']['avatar']))
-				echo $context['user']['avatar']['image'];
 
-			echo $context['user']['name'], '</a>
+		if (!empty($context['user']['avatar']))
+			echo $context['user']['avatar']['image'];
+
+		echo $context['user']['name'], '</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -288,6 +289,7 @@ function template_body_above()
 		if (!empty($context['current_topic']))
 			echo '
 				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
+
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
