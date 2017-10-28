@@ -187,7 +187,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
@@ -208,7 +208,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>

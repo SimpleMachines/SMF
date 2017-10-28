@@ -311,7 +311,7 @@ function template_results()
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 		echo '
 				</span>
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+				<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -412,7 +412,7 @@ function template_results()
 
 			if ($context['can_move'])
 				echo '
-			<span id="quick_mod_jump_to">&nbsp;</span>';
+			<span id="quick_mod_jump_to"></span>';
 
 			echo '
 			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
@@ -432,7 +432,7 @@ function template_results()
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+			<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 		</h3>
 	</div>
 	<div class="pagesection">
@@ -490,7 +490,7 @@ function template_results()
 	// Show a jump to box for easy navigation.
 	echo '
 	<br class="clear">
-	<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
+	<div class="smalltext righttext" id="search_jump_to"></div>
 	<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])

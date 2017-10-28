@@ -290,7 +290,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 		// If we're showing week links, there's an extra column ahead of the week links, so let's think ahead and be prepared!
 		if ($show_week_links === true)
 			echo '
-					<th>&nbsp;</th>';
+					<th></th>';
 
 		// Now, loop through each actual day of the week.
 		foreach ($calendar_data['week_days'] as $day)
@@ -853,7 +853,7 @@ function template_event_post()
 
 			foreach ($category['boards'] as $board)
 				echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 			echo '
 									</optgroup>';
 		}

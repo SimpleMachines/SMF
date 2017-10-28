@@ -462,6 +462,9 @@ a img {
 strong[id^='child_list_']::after {
 	content: ": ";
 }
+small .pages {
+	margin-left: 7px;
+}
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }

@@ -182,7 +182,7 @@ function template_main()
 
 				foreach ($category['boards'] as $board)
 					echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 				echo '
 										</optgroup>';
 			}
@@ -820,7 +820,7 @@ function template_main()
 			<div class="windowbg">
 				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
-						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
+						<span>', $txt['posted_by'], '</span> ', $post['poster'], '
 					</h5>
 					&nbsp;-&nbsp;', $post['time'];
 
@@ -1092,7 +1092,7 @@ function template_announcement_send()
 				</p>
 				<div class="progress_bar">
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<div id="confirm_buttons">

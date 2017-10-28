@@ -86,7 +86,8 @@ function template_modify_subscription()
 	foreach ($context['groups'] as $id => $name)
 		echo '
 						<label for="addgroup_', $id, '">
-							<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>&nbsp;<span class="smalltext">', $name, '</span>
+							<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>
+							<span class="smalltext">', $name, '</span>
 						</label><br>';
 
 	echo '

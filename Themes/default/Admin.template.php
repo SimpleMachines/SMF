@@ -677,14 +677,14 @@ function template_not_done()
 		echo '
 							<div class="progress_bar">
 								<div class="full_bar">', $context['continue_percent'], '%</div>
-								<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
+								<div class="green_percent" style="width: ', $context['continue_percent'], '%;"></div>
 							</div>';
 
 	if (!empty($context['substep_enabled']))
 		echo '
 							<div class="progress_bar">
 								<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
-								<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
+								<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;"></div>
 							</div>';
 
 	echo '
@@ -1298,7 +1298,9 @@ function template_admin_search_results()
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button">
 									</span>
 									<span class="generic_icons filter"></span>
-									<span id="quick_search_results">&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '</span>
+									<span id="quick_search_results">
+										', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
+									</span>
 								</h3>
 							</form>
 						</div><!-- #section_header -->

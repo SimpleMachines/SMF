@@ -355,7 +355,9 @@ function template_summary()
 		// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
 		if (!empty($context['activate_message']))
 			echo '
-				<dt class="clear"><span class="alert">', $context['activate_message'], '</span>&nbsp;(<a href="', $context['activate_link'], '"', ($context['activate_type'] == 4 ? ' class="you_sure" data-confirm="' . $txt['profileConfirm'] . '"' : ''), '>', $context['activate_link_text'], '</a>)</dt>';
+				<dt class="clear">
+					<span class="alert">', $context['activate_message'], '</span> (<a href="', $context['activate_link'], '"', ($context['activate_type'] == 4 ? ' class="you_sure" data-confirm="' . $txt['profileConfirm'] . '"' : ''), '>', $context['activate_link_text'], '</a>)
+				</dt>';
 
 		// If the current member is banned, show a message and possibly a link to the ban.
 		if (!empty($context['member']['bans']))
@@ -1158,10 +1160,10 @@ function template_showPermissions()
 
 				if ($permission['is_denied'])
 					echo '
-								<span class="alert">', $txt['showPermissions_denied'], ':&nbsp;', implode(', ', $permission['groups']['denied']), '</span>';
+								<span class="alert">', $txt['showPermissions_denied'], ': ', implode(', ', $permission['groups']['denied']), '</span>';
 				else
 					echo '
-								', $txt['showPermissions_given'], ':&nbsp;', implode(', ', $permission['groups']['allowed']);
+								', $txt['showPermissions_given'], ': ', implode(', ', $permission['groups']['allowed']);
 
 				echo '
 							</td>
@@ -1184,7 +1186,7 @@ function template_showPermissions()
 					<h3 class="catbg">
 						<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
 						<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
-							<option value="0"', $context['board'] == 0 ? ' selected' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
+							<option value="0"', $context['board'] == 0 ? ' selected' : '', '>', $txt['showPermissions_global'], '</option>';
 
 		if (!empty($context['boards']))
 			echo '
@@ -1224,11 +1226,11 @@ function template_showPermissions()
 
 				if ($permission['is_denied'])
 					echo '
-							<span class="alert">', $txt['showPermissions_denied'], ':&nbsp;', implode(', ', $permission['groups']['denied']), '</span>';
+							<span class="alert">', $txt['showPermissions_denied'], ': ', implode(', ', $permission['groups']['denied']), '</span>';
 
 				else
 					echo '
-							', $txt['showPermissions_given'], ': &nbsp;', implode(', ', $permission['groups']['allowed']);
+							', $txt['showPermissions_given'], ': ', implode(', ', $permission['groups']['allowed']);
 
 				echo '
 						</td>
@@ -1771,7 +1773,7 @@ function template_profile_theme_settings()
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
-						&nbsp;<select class="floatleft" name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', '>';
+						<select name="default_options[', $setting['id'], ']" id="', $setting['id'], '"', '>';
 
 			foreach ($setting['options'] as $value => $label)
 				echo '
@@ -2561,7 +2563,7 @@ function template_deleteAccount()
 				<div class="alert">', $txt['own_profile_confirm'], '</div>
 				<div>
 					<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong>
-					<input type="password" name="oldpasswrd" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+					<input type="password" name="oldpasswrd" size="20">
 					<input type="submit" value="', $txt['yes'], '" class="button">';
 
 		if (!empty($context['token_check']))

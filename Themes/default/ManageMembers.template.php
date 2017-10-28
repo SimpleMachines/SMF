@@ -180,7 +180,7 @@ function template_search_members()
 						<th scope="col">
 							', $txt['membergroups_postgroups'], '
 						</th>
-						<th class="quarter_table">&nbsp;</th>
+						<th class="quarter_table"></th>
 					</tr>
 				</thead>
 				<tbody>';

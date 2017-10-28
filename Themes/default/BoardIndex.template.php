@@ -365,7 +365,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br>
+					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a> ', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'] . '&quot;'), ' (', $context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
@@ -519,7 +519,7 @@ function template_ic_block_online()
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
 			echo '
-				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']) . '</span>';
+				<span class="membergroups">' . implode(', ', $context['membergroups']) . '</span>';
 	}
 
 	echo '

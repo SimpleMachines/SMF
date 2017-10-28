@@ -732,7 +732,8 @@ function template_servers()
 						</dt>
 						<dd>
 							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $context['package_ftp']['server'], '">
-							<label for="ftp_port">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '">
+							<label for="ftp_port">', $txt['package_ftp_port'], ':</label>
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '">
 						</dd>
 						<dt>
 							<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
@@ -1176,7 +1177,8 @@ function template_control_chmod()
 						</dt>
 						<dd>
 							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $context['package_ftp']['server'], '">
-							<label for="ftp_port">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '">
+							<label for="ftp_port">', $txt['package_ftp_port'], ':</label>
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '">
 						</dd>
 						<dt>
 							<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
@@ -1555,7 +1557,7 @@ function template_file_permissions()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext" width="30%">&nbsp;', $txt['package_file_perms_name'], '&nbsp;</th>
+					<th class="lefttext" width="30%">', $txt['package_file_perms_name'], '</th>
 					<th width="30%" class="lefttext">', $txt['package_file_perms_status'], '</th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_read'], '</span></th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_write'], '</span></th>
@@ -1583,7 +1585,7 @@ function template_file_permissions()
 					</td>
 					<td width="30%">
 						<span style="color: ', ($dir['perms']['chmod'] ? 'green' : 'red'), '">', ($dir['perms']['chmod'] ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']), '</span>
-						', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
+						', ($dir['perms']['perms'] ? ' (' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 					</td>
 					<td class="centertext perm_read">
 						<input type="radio" name="permStatus[', $name, ']" value="read" class="centertext">
@@ -1621,7 +1623,7 @@ function template_file_permissions()
 						<label for="method_individual"><strong>', $txt['package_file_perms_apply'], '</strong></label>
 					</dt>
 					<dd>
-						<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
+						<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5"> <a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
 					</dd>
 					<dt>
 						<input type="radio" name="method" value="predefined" id="method_predefined">
@@ -1708,7 +1710,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 					</td>
 					<td class="smalltext">
 						<span class="', ($dir['perms']['chmod'] ? 'success' : 'error'), '">', ($dir['perms']['chmod'] ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']), '</span>
-						', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
+						', ($dir['perms']['perms'] ? ' (' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 					</td>
 					<td class="centertext perm_read"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="read"></td>
 					<td class="centertext perm_writable"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable"></td>
@@ -1783,7 +1785,7 @@ function template_action_permissions()
 					<br>
 					<div class="progress_bar">
 						<div class="full_bar">', $progress_percent, '%</div>
-						<div class="blue_percent" style="width: ', $progress_percent, '%;">&nbsp;</div>
+						<div class="blue_percent" style="width: ', $progress_percent, '%;"></div>
 					</div>
 				</div>';
 
@@ -1799,7 +1801,7 @@ function template_action_permissions()
 					<strong>', $file_progress_message, '</strong><br><br>
 					<div class="progress_bar">
 						<div class="full_bar">', $file_progress_percent, '%</div>
-						<div class="green_percent" style="width: ', $file_progress_percent, '%;">&nbsp;</div>
+						<div class="green_percent" style="width: ', $file_progress_percent, '%;"></div>
 					</div>
 				</div>';
 	}

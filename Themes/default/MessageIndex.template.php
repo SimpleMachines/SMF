@@ -141,7 +141,7 @@ function template_main()
 
 			if ($context['description'] != '')
 				echo '
-			', $context['description'], '&nbsp;';
+			', $context['description'];
 
 			if (!empty($context['moderators']))
 				echo '
@@ -183,7 +183,7 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-				<div class="board_icon">&nbsp;</div>
+				<div class="board_icon"></div>
 				<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
 				<div class="board_stats centertext">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
 				<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
@@ -198,7 +198,7 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-				<div class="moderation">&nbsp;</div>';
+				<div class="moderation"></div>';
 		}
 
 		// No topics... just say, "sorry bub".
@@ -268,7 +268,7 @@ function template_main()
 							<p class="floatleft">
 								', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 							</p>
-							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">&nbsp;' . $topic['pages'] . '</span>' : '', '
+							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
 							<br class="clear">
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
@@ -333,7 +333,7 @@ function template_main()
 			// Show a list of boards they can move the topic to.
 			if ($context['can_move'])
 				echo '
-				<span id="quick_mod_jump_to">&nbsp;</span>';
+				<span id="quick_mod_jump_to"></span>';
 
 			echo '
 				<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button qaction">
@@ -423,7 +423,7 @@ function template_topic_legend()
 	echo '
 	<div class="tborder" id="topic_icons">
 		<div class="information">
-			<p class="floatright" id="message_index_jump_to">&nbsp;</p>';
+			<p class="floatright" id="message_index_jump_to"></p>';
 
 	if (empty($context['no_topic_listing']))
 		echo '

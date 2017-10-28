@@ -81,7 +81,7 @@ function template_error_log()
 			<table class="table_grid" id="error_log">
 				<tr class="title_bar">
 					<td colspan="3">
-						&nbsp;&nbsp;', $txt['apply_filter_of_type'], ':';
+						', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();
 
@@ -89,7 +89,7 @@ function template_error_log()
 		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt=""> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . $details['label'] . '</a>';
 
 	echo '
-						', implode('&nbsp;|&nbsp;', $error_types), '
+						', implode(' | ', $error_types), '
 					</td>
 				</tr>';
 
@@ -97,14 +97,14 @@ function template_error_log()
 		echo '
 				<tr>
 					<td colspan="3" class="windowbg">
-						<strong>&nbsp;&nbsp;', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], '&nbsp;&nbsp;[<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
+						<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
 					</td>
 				</tr>';
 
 	echo '
 				<tr>
 					<td colspan="3" class="righttext">
-						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>
 						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;">
 					</td>
 				</tr>';
@@ -131,7 +131,7 @@ function template_error_log()
 		if (!empty($error['member']['ip']))
 			echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><span class="generic_icons filter centericon"></span></a>
-							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>&nbsp;&nbsp;<br>';
+							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
 
 		echo '
 						</div>
@@ -175,7 +175,7 @@ function template_error_log()
 	echo '
 				<tr>
 					<td colspan="3" class="righttext">
-						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>
 						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;">
 					</td>
 				</tr>

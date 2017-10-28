@@ -286,7 +286,7 @@ function template_main()
 
 	// Show the jumpto box, or actually...let Javascript do it.
 	echo '
-		<div id="display_jump_to">&nbsp;</div>';
+		<div id="display_jump_to"></div>';
 
 	// Show quickreply
 	if ($context['can_reply'])
@@ -392,7 +392,7 @@ function template_main()
 							<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 							<input type="hidden" name="msg" value="%msg_id%">
 							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button">&nbsp;&nbsp;' . ($context['show_spellchecking'] ? '<input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">&nbsp;&nbsp;' : '') . '<input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
+								<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button">' . ($context['show_spellchecking'] ? ' <input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
 							</div>
 						</div>'), ',
 					sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '">'), ',
@@ -749,7 +749,8 @@ function template_single_post($message)
 				$last_approved_state = 0;
 				echo '
 								<fieldset>
-									<legend>', $txt['attach_awaiting_approve'];
+									<legend>
+										', $txt['attach_awaiting_approve'];
 
 				if ($context['can_approve'])
 					echo '
@@ -784,7 +785,7 @@ function template_single_post($message)
 
 			if (!$attachment['is_approved'] && $context['can_approve'])
 				echo '
-											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>]&nbsp;|&nbsp;[<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
+											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>] [<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
 			echo '
 											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
 										</div><!-- .attachments_bot -->';

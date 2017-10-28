@@ -454,7 +454,7 @@ function template_maintain_topics()
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
 				<p>
-					', $txt['maintain_old_drafts_days'], '&nbsp;<input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3">&nbsp;', $txt['days_word'], '
+					', $txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3"> ', $txt['days_word'], '
 				</p>
 				<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -508,7 +508,9 @@ function template_maintain_topics()
 					</select>
 				</p>
 				<p>
-					', $txt['move_topics_older_than'], '<input type="number" name="maxdays" value="30" size="3">', $txt['manageposts_days'], '&nbsp;(', $txt['move_zero_all'], ')
+					', $txt['move_topics_older_than'], '
+					<input type="number" name="maxdays" value="30" size="3">
+					', $txt['manageposts_days'], ' (', $txt['move_zero_all'], ')
 				</p>
 				<p>
 					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', $txt['move_type_locked'], '</label><br>

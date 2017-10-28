@@ -537,7 +537,7 @@ function template_folder()
 						foreach ($context['labels'] as $label)
 							if (!isset($message['labels'][$label['id']]))
 								echo '
-								<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+								<option value="', $label['id'], '">', $label['name'], '</option>';
 					}
 
 					// ... and are there any that can be removed?
@@ -773,11 +773,21 @@ function template_search()
 					</dd>
 					<dt class="options">', $txt['pm_search_options'], ':</dt>
 					<dd class="options">
-						<label for="show_complete"><input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '</label><br>
-						<label for="subject_only"><input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '</label>
+						<label for="show_complete">
+							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '
+						</label><br>
+						<label for="subject_only">
+							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '
+						</label>
 					</dd>
 					<dt class="between">', $txt['pm_search_post_age'], ':</dt>
-					<dd>', $txt['pm_search_between'], ' <input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">&nbsp;', $txt['pm_search_between_and'], '&nbsp;<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999"> ', $txt['pm_search_between_days'], '</dd>
+					<dd>
+						', $txt['pm_search_between'], '
+						<input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">
+						', $txt['pm_search_between_and'], '
+						<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999">
+						', $txt['pm_search_between_days'], '
+					</dd>
 				</dl>';
 
 	if (!$context['currently_using_labels'])
@@ -1963,7 +1973,7 @@ function template_showPMDrafts()
 			<div class="counter">', $draft['counter'], '</div>
 			<div class="topic_details">
 				<h5>
-					<strong>', $draft['subject'], '</strong>&nbsp;
+					<strong>', $draft['subject'], '</strong>
 				</h5>
 				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
 				<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br>

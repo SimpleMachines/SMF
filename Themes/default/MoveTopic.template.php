@@ -199,8 +199,9 @@ function template_merge()
 	{
 		echo '
 					<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '" id="mergeSelectBoard">
-						', $txt['target_below'], ' (', $txt['board'], ':&nbsp;
+						', $txt['target_below'], ' (', $txt['board'], ':
 						<select name="targetboard" onchange="this.form.submit();">';
+
 		foreach ($context['merge_categories'] as $cat)
 		{
 			echo '
@@ -208,7 +209,7 @@ function template_merge()
 
 			foreach ($cat['boards'] as $board)
 				echo '
-								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 
 			echo '
 							</optgroup>';
@@ -242,7 +243,7 @@ function template_merge()
 		foreach ($context['topics'] as $topic)
 			echo '
 						<li>
-							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>&nbsp;
+							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>
 							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 

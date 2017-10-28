@@ -86,7 +86,7 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['headers'] as $col_header)
 			echo '
 					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>
-						', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '
+						', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '
 					</th>';
 
 		echo '
@@ -241,21 +241,21 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		echo '
 		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
-				<td>&nbsp;</td>' : '', '
+				<td></td>' : '', '
 				<td class="', $list_menu['position'], 'text">
 					<table>
 						<tr>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>';
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '"></td>';
 
 		foreach ($list_menu['links'] as $link)
 		{
 			if ($link['is_selected'])
 				echo '
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $first, '">&nbsp;</td>
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $first, '"></td>
 							<td class="', $direction == 'top' ? 'mirrortab' : 'maintab', '_active_back">
 								<a href="', $link['href'], '">', $link['label'], '</a>
 							</td>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $last, '">&nbsp;</td>';
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $last, '"></td>';
 			else
 				echo '
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">
@@ -264,11 +264,11 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		}
 
 		echo '
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '">&nbsp;</td>
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '"></td>
 						</tr>
 					</table>
 				</td>', $list_menu['position'] == 'left' ? '
-				<td>&nbsp;</td>' : '', '
+				<td></td>' : '', '
 			</tr>
 		</table>';
 	}
@@ -281,17 +281,17 @@ function template_create_list_menu($list_menu, $direction = 'top')
 		echo '
 		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
-				<td>&nbsp;</td>' : '', '
+				<td></td>' : '', '
 				<td class="', $list_menu['position'], 'text">
 					<table>
 						<tr>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '"></td>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">', implode(' &nbsp;|&nbsp; ', $links), '</td>
-							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '">&nbsp;</td>
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $last, '"></td>
 						</tr>
 					</table>
 				</td>', $list_menu['position'] == 'left' ? '
-				<td>&nbsp;</td>' : '', '
+				<td></td>' : '', '
 			</tr>
 		</table>';
 	}

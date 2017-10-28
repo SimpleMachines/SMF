@@ -614,7 +614,7 @@ function template_edit_agreement()
 				</div>
 				<div class="information">
 					<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
-						<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
+						<strong>', $txt['admin_agreement_select_language'], ':</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['editable_agreements'] as $file => $name)
