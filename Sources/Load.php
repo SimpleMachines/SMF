@@ -329,6 +329,8 @@ function reloadSettings()
 		'below_avatar',
 		'above_member',
 		'bottom_poster',
+		'before_member',
+		'after_member',
 	);
 
 	// Define an array for content-related <meta> elements (e.g. description, keywords, Open Graph) for the HTML head.
@@ -1807,7 +1809,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		if ($settings['theme_dir'] != $settings['default_theme_dir'])
 			$settings['template_dirs'][] = $settings['default_theme_dir'];
 	}
-	
+
 
 	if (!$initialize)
 		return;
