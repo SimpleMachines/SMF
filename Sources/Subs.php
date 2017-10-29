@@ -6016,15 +6016,24 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
  function ssl_cert_found($url) {
 
+	global $db_show_debug;
+ 
 	// Ask for the headers for the passed url, but via https...
 	$url = str_ireplace('http://', 'https://', $url) . '/';
 
 	$result = false;
-	$stream = stream_context_create (array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
-	$read = @fopen($url, "rb", false, $stream);
+	$params = array('ssl' => array('capture_peer_cert' => true));
+
+	// Allow support for self-signed certs, but only if $db_show_debug is true
+	if (!empty($db_show_debug))
+		$params['ssl'] += array('verify_peer' => true, 'allow_self_signed' => true);
+
+	$stream = stream_context_create ($params);
+
+	$read = @fopen($url, 'rb', false, $stream);
 	if ($read !== false) {
 		$cont = stream_context_get_params($read);
-		$result = isset($cont["options"]["ssl"]["peer_certificate"]) ? true : false;
+		$result = isset($cont['options']['ssl']['peer_certificate']) ? true : false;
 	}
     return $result;
 }
