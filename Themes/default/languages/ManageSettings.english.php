@@ -321,6 +321,8 @@ $txt['custom_profile_placement_below_signature'] = 'Below Signature';
 $txt['custom_profile_placement_below_avatar'] = 'Below Avatar';
 $txt['custom_profile_placement_above_member'] = 'Above Username';
 $txt['custom_profile_placement_bottom_poster'] = 'Bottom poster info';
+$txt['custom_profile_placement_before_member'] = 'Before Username';
+$txt['custom_profile_placement_after_member'] = 'After Username';
 
 // Use numeric entities in the string below!
 $txt['custom_edit_delete_sure'] = 'Are you sure you wish to delete this field - all related user data will be lost!';
