@@ -248,9 +248,21 @@ function template_folder()
 				echo '
 						<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>';
 
-			// Show a link to the member's profile (but only if the sender isn't a guest).
+			// Custom fields BEFORE the username?
+			if (!empty($message['custom_fields']['before_member']))
+				foreach ($message['custom_fields']['before_member'] as $custom)
+					echo '
+						<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+
+			// Show a link to the member's profile.
 			echo '
-					', $message['member']['link'], '';
+						', $message['member']['link'];
+
+				// Custom fields AFTER the username?
+				if (!empty($message['custom_fields']['after_member']))
+					foreach ($message['custom_fields']['after_member'] as $custom)
+						echo '
+						<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
 
 			echo '
 					</h4>';
@@ -784,7 +796,7 @@ function template_search()
 	if (!$context['currently_using_labels'])
 		echo '
 				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button">';
-	
+
 	echo '
 				<br class="clear_right">
 			</div><!-- .roundframe -->
@@ -994,7 +1006,7 @@ function template_send()
 			foreach ($context['send_log']['failed'] as $log_entry)
 				echo '
 			<span class="error">', $log_entry, '</span><br>';
-		
+
 		echo '
 		</div>
 		<br>';
