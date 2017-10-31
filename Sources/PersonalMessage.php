@@ -1081,8 +1081,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	$counter++;
 
 	// Any custom profile fields?
-	if (!empty($memberContext[$message['id_member']]['custom_fields']))
-		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
+	if (!empty($memberContext[$message['id_member_from']]['custom_fields']))
+		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));

@@ -179,7 +179,8 @@ function template_summary()
 			<div class="username clear">
 				<h4>';
 
-	foreach ($context['print_custom_fields']['before_member'] as $field)
+	if (!empty($context['print_custom_fields']['before_member']))
+		foreach ($context['print_custom_fields']['before_member'] as $field)
 			if (!empty($field['output_html']))
 				echo '
 					<span>', $field['output_html'], '</span>';
@@ -187,9 +188,10 @@ function template_summary()
 	echo '
 					', $context['member']['name'];
 
-	foreach ($context['print_custom_fields']['after_member'] as $field)
-		if (!empty($field['output_html']))
-			echo '
+	if (!empty($context['print_custom_fields']['after_member']))
+		foreach ($context['print_custom_fields']['after_member'] as $field)
+			if (!empty($field['output_html']))
+				echo '
 					<span>', $field['output_html'], '</span>';
 
 
