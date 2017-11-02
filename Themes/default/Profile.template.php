@@ -177,8 +177,26 @@ function template_summary()
 
 	echo '
 			<div class="username clear">
-				<h4>
-					', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span>
+				<h4>';
+
+	if (!empty($context['print_custom_fields']['before_member']))
+		foreach ($context['print_custom_fields']['before_member'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+					<span>', $field['output_html'], '</span>';
+
+	echo '
+					', $context['member']['name'];
+
+	if (!empty($context['print_custom_fields']['after_member']))
+		foreach ($context['print_custom_fields']['after_member'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+					<span>', $field['output_html'], '</span>';
+
+
+	echo '
+					<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span>
 				</h4>
 			</div>
 			', $context['member']['avatar']['image'];
@@ -330,7 +348,7 @@ function template_summary()
 			echo '
 			</dl>';
 		}
-		
+
 	}
 
 	echo '
@@ -1122,7 +1140,7 @@ function template_showPermissions()
 			</div>
 			<div class="windowbg smalltext">
 				', $txt['showPermissions_restricted_boards_desc'], ':<br>';
-			
+
 			foreach ($context['no_access_boards'] as $no_access_board)
 				echo '
 				<a href="', $scripturl, '?board=', $no_access_board['id'], '.0">', $no_access_board['name'], '</a>', $no_access_board['is_last'] ? '' : ', ';
@@ -3054,7 +3072,7 @@ function template_profile_smiley_pick()
 							</dt>
 							<dd>
 								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.gif\';">';
-	
+
 	foreach ($context['smiley_sets'] as $set)
 		echo '
 									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';

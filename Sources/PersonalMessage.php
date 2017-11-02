@@ -1083,29 +1083,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	// Any custom profile fields?
 	if (!empty($memberContext[$message['id_member_from']]['custom_fields']))
 		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
-			switch ($custom['placement'])
-			{
-				case 1:
-					$output['custom_fields']['icons'][] = $custom;
-					break;
-				case 2:
-					$output['custom_fields']['above_signature'][] = $custom;
-					break;
-				case 3:
-					$output['custom_fields']['below_signature'][] = $custom;
-					break;
-				case 4:
-					$output['custom_fields']['below_avatar'][] = $custom;
-					break;
-				case 5:
-					$output['custom_fields']['above_member'][] = $custom;
-					break;
-				case 6:
-					$output['custom_fields']['bottom_poster'][] = $custom;
-					break;
-				default:
-					$output['custom_fields']['standard'][] = $custom;
-			}
+			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
