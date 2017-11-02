@@ -1882,6 +1882,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			// And just a few mod settings :).
 			$modSettings['smileys_url'] = strtr($modSettings['smileys_url'], array($oldurl => $boardurl));
 			$modSettings['avatar_url'] = strtr($modSettings['avatar_url'], array($oldurl => $boardurl));
+			$modSettings['custom_avatar_url'] = strtr($modSettings['custom_avatar_url'], array($oldurl => $boardurl));
 
 			// Clean up after loadBoard().
 			if (isset($board_info['moderators']))
