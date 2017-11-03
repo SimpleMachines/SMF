@@ -1199,7 +1199,15 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				if($row['mask'] == 'nohtml' && ($value != strip_tags($value) || (!filter_var($value, FILTER_SANITIZE_STRING))))
+				{
+					if ($returnErrors)
+						$errors[] = 'custom_field_nohtml_fail';
+
+					else
+						$value = '';
+				}
+				elseif ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_mail_fail';
