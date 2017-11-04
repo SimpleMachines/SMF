@@ -1150,8 +1150,8 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 
 	$errors = array();
 
-	if ($sanitize && isset($_POST['customfield']))
-		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
+	// if ($sanitize && isset($_POST['customfield']))
+	// 	$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
 
 	$where = $area == 'register' ? 'show_reg != 0' : 'show_profile = {string:area}';
 
@@ -1193,13 +1193,21 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		else
 		{
 			$value = isset($_POST['customfield'][$row['col_name']]) ? $_POST['customfield'][$row['col_name']] : '';
+
 			if ($row['field_length'])
 				$value = $smcFunc['substr']($value, 0, $row['field_length']);
 
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				if($row['mask'] == 'nohtml' && ($value != strip_tags($value) || (!filter_var($value, FILTER_SANITIZE_STRING))))
+				// $value = $smcFunc['htmltrim']($value);
+
+
+				// Try and avoid some checks. '0' could be a valid non-empty value.
+				if (empty($value) && !is_numeric($value))
+					$value = '';
+
+				if ($row['mask'] == 'nohtml' && ($value != strip_tags(un_htmlspecialchars($value)) || $value != filter_var(un_htmlspecialchars($value), FILTER_SANITIZE_STRING) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', un_htmlspecialchars($value))))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_nohtml_fail';
