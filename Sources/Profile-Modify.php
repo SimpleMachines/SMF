@@ -1150,8 +1150,8 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 
 	$errors = array();
 
-	// if ($sanitize && isset($_POST['customfield']))
-	// 	$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
+	if ($sanitize && isset($_POST['customfield']))
+		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
 
 	$where = $area == 'register' ? 'show_reg != 0' : 'show_profile = {string:area}';
 
@@ -1200,8 +1200,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				// $value = $smcFunc['htmltrim']($value);
-
+				$value = $smcFunc['htmltrim']($value);
 
 				// Try and avoid some checks. '0' could be a valid non-empty value.
 				if (empty($value) && !is_numeric($value))
