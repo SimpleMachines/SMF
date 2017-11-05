@@ -1688,7 +1688,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_2 {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1701,7 +1701,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Male {
+.generic_icons.gender_1 {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
@@ -3682,7 +3682,7 @@ h3.profile_hd {
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
 /* Messages that somehow need to attract the attention. */
-.red, .meaction, 
+.red, .meaction,
 .error, .alert, .warn_mute {
 	color: red;
 }

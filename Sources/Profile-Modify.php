@@ -1434,7 +1434,7 @@ function editBuddies($memID)
 			);
 
 	// Gotta disable the gender option.
-	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'Disabled')
+	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'None')
 		unset($context['custom_pf']['cust_gender']);
 
 	$smcFunc['db_free_result']($request);

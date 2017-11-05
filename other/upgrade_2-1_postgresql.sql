@@ -999,7 +999,7 @@ $request = $smcFunc['db_query']('', '
 		'theme_dir' => 'theme_dir',
 	)
 );
-// Check which themes exist in the filesystem & save off their IDs 
+// Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = $GLOBALS['boarddir'] . '/Themes/core';
@@ -1055,7 +1055,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -2423,7 +2423,7 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 /******************************************************************************/
 --- Create index for messages likes
 /******************************************************************************/
----# Add Index for messages likes 
+---# Add Index for messages likes
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 ---#

@@ -2008,7 +2008,7 @@ function EditCustomProfiles()
 		checkSession();
 
 		$request = $smcFunc['db_query']('', '
-			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
 			FROM {db_prefix}custom_fields
 			WHERE show_display = {int:is_displayed}
 				AND active = {int:active}
@@ -2035,6 +2035,7 @@ function EditCustomProfiles()
 				'placement' => !empty($row['placement']) ? $row['placement'] : '0',
 				'enclose' => !empty($row['enclose']) ? $row['enclose'] : '',
 				'mlist' => $row['show_mlist'],
+				'options' => (!empty($row['field_options']) ? explode(',', $row['field_options']) : array()),
 			);
 		}
 		$smcFunc['db_free_result']($request);
