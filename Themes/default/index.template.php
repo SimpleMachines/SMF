@@ -53,10 +53,10 @@ function template_init()
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
-	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
+	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	$settings['avatars_on_indexes'] = false;
 
-	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index.
+	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
 	$settings['avatars_on_boardIndex'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
