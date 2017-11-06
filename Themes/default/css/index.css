@@ -785,8 +785,18 @@ img.sort, .sort {
 .top_menu.scrollable .avatar {
 	width: 40px;
 	height: 40px;
+	object-fit: scale-down;
 	margin: 4px;
 	display: inline-block;
+	color: transparent; /* For broken images */
+}
+/* This will only show when the image does not load */
+.top_menu.scrollable .avatar:before {
+	content: "";
+	display: block;
+	background: url(../images/broken-image.png) no-repeat center / 100%;
+	opacity: 0.5;
+	height: 40px;
 }
 .top_menu.scrollable .details {
 	max-width: 80%;
