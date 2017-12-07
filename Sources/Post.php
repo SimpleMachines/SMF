@@ -1465,18 +1465,6 @@ function Post2()
 		// Did this topic suddenly move? Just checking...
 		if ($topic_info['id_board'] != $board)
 			fatal_lang_error('not_a_topic');
-	}
-
-	// Replying to a topic?
-	if (!empty($topic) && !isset($_REQUEST['msg']))
-	{
-		// Don't allow a post if it's locked.
-		if ($topic_info['locked'] != 0 && !allowedTo('moderate_board'))
-			fatal_lang_error('topic_locked', false);
-
-		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
-		if (isset($_REQUEST['poll']) && $topic_info['id_poll'] > 0)
-			unset($_REQUEST['poll']);
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
@@ -1493,6 +1481,18 @@ function Post2()
 			// Set a nice session var...
 			$_SESSION['becomesUnapproved'] = true;
 		}
+	}
+
+	// Replying to a topic?
+	if (!empty($topic) && !isset($_REQUEST['msg']))
+	{
+		// Don't allow a post if it's locked.
+		if ($topic_info['locked'] != 0 && !allowedTo('moderate_board'))
+			fatal_lang_error('topic_locked', false);
+
+		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
+		if (isset($_REQUEST['poll']) && $topic_info['id_poll'] > 0)
+			unset($_REQUEST['poll']);
 
 		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
@@ -1703,7 +1703,8 @@ function Post2()
 
 		// Can they approve it?
 		$can_approve = allowedTo('approve_posts');
-		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? (!empty($_REQUEST['approve']) ? 1 : 0) : $row['approved']) : 1;
+		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
+		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
 
 		if (!allowedTo('moderate_forum') || !$posterIsGuest)
@@ -1713,10 +1714,10 @@ function Post2()
 		}
 	}
 
-	// In case we want to override but still respect the unapproved topic rule.
-	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
+	// In case we have approval permissions and want to override.
+	if (allowedTo('approve_posts'))
 	{
-		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
+		$becomesApproved = !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
 
