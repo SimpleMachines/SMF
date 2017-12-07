@@ -246,11 +246,10 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		// This may not always be defined...
 		$return = array();
 
-		// Note that hosted unix platforms sometimes need an extension; win usually has .tmp & thats ok
-		if (stristr($file, '.zip') === false && stristr($file, '.tmp') === false) {
-			@rename($file, $file . '.zip');
-			$file = $file . '.zip';
-		}
+		// Some hosted unix platforms require an extension; win may have .tmp & that works ok
+		if (strtolower(substr($file, -4)) != '.zip' && strtolower(substr($file, -4)) != '.tmp')
+			if (@rename($file, $file . '.zip'))
+				$file = $file . '.zip';
 
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
 		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
