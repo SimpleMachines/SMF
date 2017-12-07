@@ -78,9 +78,9 @@ function Post($post_errors = array())
 			array(
 				'msg' => (int) $_REQUEST['msg'],
 		));
-		if ($smcFunc['db_num_rows']($request) != 1) {
+		if ($smcFunc['db_num_rows']($request) != 1)
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
-		}
+		
 		else
 			list ($topic) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
