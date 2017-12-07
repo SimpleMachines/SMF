@@ -78,8 +78,9 @@ function Post($post_errors = array())
 			array(
 				'msg' => (int) $_REQUEST['msg'],
 		));
-		if ($smcFunc['db_num_rows']($request) != 1)
+		if ($smcFunc['db_num_rows']($request) != 1) {
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
+		}
 		else
 			list ($topic) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
@@ -90,7 +91,7 @@ function Post($post_errors = array())
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				t.locked, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
+				t.locked, t.approved, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
 				t.id_first_msg, mf.subject, ml.modified_reason,
 				CASE WHEN ml.poster_time > ml.modified_time THEN ml.poster_time ELSE ml.modified_time END AS last_post_time
 			FROM {db_prefix}topics AS t
@@ -104,7 +105,7 @@ function Post($post_errors = array())
 				'current_topic' => $topic,
 			)
 		);
-		list ($locked, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
+		list ($locked, $topic_approved, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If this topic already has a poll, they sure can't add another.
@@ -182,7 +183,7 @@ function Post($post_errors = array())
 	$context['can_quote'] = empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC']));
 
 	// Generally don't show the approval box... (Assume we want things approved)
-	$context['show_approval'] = allowedTo('approve_posts') && $context['becomes_approved'] ? 2 : (allowedTo('approve_posts') ? 1 : 0);
+	$context['show_approval'] = allowedTo('approve_posts') && $context['becomes_approved'] && (empty($topic) || !empty($topic_approved)) ? 2 : (allowedTo('approve_posts') ? 1 : 0);
 
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
