@@ -30,7 +30,7 @@ function db_extra_init()
 			'db_table_sql' => 'smf_db_table_sql',
 			'db_list_tables' => 'smf_db_list_tables',
 			'db_get_version' => 'smf_db_get_version',
-			'db_get_engine' => 'smf_db_get_engine',
+			'db_get_vendor' => 'smf_db_get_vendor',
 		);
 }
 
@@ -303,7 +303,7 @@ function smf_db_get_version()
  *
  * @return string The database engine we are using
 */
-function smf_db_get_engine()
+function smf_db_get_vendor()
 {
 	return 'PostgreSQL';
 }
