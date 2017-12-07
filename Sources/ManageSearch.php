@@ -850,7 +850,7 @@ function detectFulltextIndex()
 		if ($request !== false)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'], '5.6.4', '>=')))
+			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'](), '5.6.4', '>=')))
 				$context['cannot_create_fulltext'] = true;
 			$smcFunc['db_free_result']($request);
 		}
