@@ -1651,9 +1651,17 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -5px -5px;
+	background: url(../images/generic_icons.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
+/* Load better icons for higher resolution screens */
+@media screen and (min-resolution: 160dpi) {
+
+	.generic_icons {
+		background-image: url(../images/generic_icons_hd.png);
+	}
+}
+
 /* Small fix for topics */
 .quickbuttons span.generic_icons {
 	margin: -3px 3px 0 1px;
