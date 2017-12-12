@@ -69,10 +69,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				foreach ($smileyRows as $smileyRow)
 				{
 					foreach ($smileyRow['smileys'] as $smiley)
-					{
 						echo '
 							', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
-					}
+
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
 						\'-', $emptyPlaceholder++, '\': \'\',';
@@ -93,6 +92,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		{
 			echo ',
 					toolbar: "';
+
 			$count_tags = count($context['bbc_tags']);
 			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
@@ -120,16 +120,16 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 		// Now for backward compatibility let's collect few infos in the good ol' style
 		echo '
-				var oEditorHandle_', $editor_id, ' = new smc_Editor({
-					sUniqueId: ', JavaScriptEscape($editor_id), ',
-					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
-					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
-					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
-					oSmileyBox: null,
-					oBBCBox: null
-				});
-				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
-			</script>';
+			var oEditorHandle_', $editor_id, ' = new smc_Editor({
+				sUniqueId: ', JavaScriptEscape($editor_id), ',
+				sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
+				sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
+				bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
+				oSmileyBox: null,
+				oBBCBox: null
+			});
+			smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
+		</script>';
 }
 
 /**
@@ -180,7 +180,6 @@ function template_control_richedit_buttons($editor_id)
 		echo '
 		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? 'return event.ctrlKey || previewPost();' : 'return submitThisOnce(this);', '" accesskey="p" class="button">';
 
-
 	echo '
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';
 
@@ -188,7 +187,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
@@ -209,7 +208,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
@@ -296,12 +295,10 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			}
 
 			if ($verify_context['can_recaptcha'])
-			{
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
 				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
-			}
 		}
 		else
 		{
@@ -324,7 +321,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			break;
 	}
 
-	// Assume we found something, always,
+	// Assume we found something, always.
 	$verify_context['tracking']++;
 
 	// Tell something displaying piecemeal to keep going.

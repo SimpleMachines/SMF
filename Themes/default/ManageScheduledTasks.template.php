@@ -36,7 +36,6 @@ function template_view_scheduled_tasks()
 			</dt>';
 
 			foreach ($context['scheduled_errors'] as $task => $errors)
-			{
 				echo '
 			<dd class="error">
 				<strong>', isset($txt['scheduled_task_' . $task]) ? $txt['scheduled_task_' . $task] : $task, '</strong>
@@ -44,7 +43,6 @@ function template_view_scheduled_tasks()
 					<li>', implode('</li><li>', $errors), '</li>
 				</ul>
 			</dd>';
-			}
 
 			echo '
 		</dl>

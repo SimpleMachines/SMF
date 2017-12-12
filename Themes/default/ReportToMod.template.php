@@ -71,29 +71,25 @@ function template_main()
 	}
 	else
 		echo '
-					<div style="display:none" id="error_box" class="errorbox">';
+				<div style="display:none" id="error_box" class="errorbox">';
 
 	echo '
-					</div>';
+				</div>';
 
 	echo '
-					<p class="noticebox">', $context['notice'], '</p>
-					<dl class="settings" id="report_post">';
-
-	echo '
-						<dt>
-							<label for="report_comment">', $txt['enter_comment'], '</label>:
-						</dt>
-						<dd>
-							<textarea type="text" id="report_comment" name="comment" rows="5">', $context['comment_body'], '</textarea>
-						</dd>';
-
-	echo '
-					</dl>
-					<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
-					<input type="submit" name="save" value="', $txt['rtm10'], '" class="button">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				</div>
+				<p class="noticebox">', $context['notice'], '</p>
+				<dl class="settings" id="report_post">
+					<dt>
+						<label for="report_comment">', $txt['enter_comment'], '</label>:
+					</dt>
+					<dd>
+						<textarea type="text" id="report_comment" name="comment" rows="5">', $context['comment_body'], '</textarea>
+					</dd>
+				</dl>
+				<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
+				<input type="submit" name="save" value="', $txt['rtm10'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #report_form -->';
 }

@@ -33,6 +33,7 @@ function template_main()
 	foreach ($context['icons'] as $icon)
 		echo '
 				\'', $icon['value'], '\': \'', $icon['url'], '\'', $icon['is_last'] ? '' : ',';
+
 	echo '
 			};';
 
@@ -110,13 +111,11 @@ function template_main()
 
 	// If this won't be approved let them know!
 	if (!$context['becomes_approved'])
-	{
 		echo '
 					<div class="noticebox">
 						<em>', $txt['wait_for_approval'], '</em>
 						<input type="hidden" name="not_approved" value="1">
 					</div>';
-	}
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
@@ -141,7 +140,6 @@ function template_main()
 	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
 	{
 		foreach ($context['posting_fields'] as $pfid => $pf)
-		{
 			echo '
 						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
 							', $pf['dt'], '
@@ -149,7 +147,6 @@ function template_main()
 						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
 							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
 						</dd>';
-		}
 	}
 
 	echo '
@@ -185,7 +182,7 @@ function template_main()
 
 				foreach ($category['boards'] as $board)
 					echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 				echo '
 										</optgroup>';
 			}
@@ -253,7 +250,6 @@ function template_main()
 
 		// Loop through all the choices and print them out.
 		foreach ($context['choices'] as $choice)
-		{
 			echo '
 								<dt>
 									<label for="options-', $choice['id'], '">', $txt['option'], ' ', $choice['number'], '</label>:
@@ -261,7 +257,6 @@ function template_main()
 								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="255">
 								</dd>';
-		}
 
 		echo '
 								<p id="pollMoreOptions"></p>
@@ -432,10 +427,7 @@ function template_main()
 						<div id ="maxFiles_progress_text"></div>';
 
 		echo '
-						<dl id="postAttachment2">';
-
-
-		echo '
+						<dl id="postAttachment2">
 							<dt>
 								', $txt['attach'], ':
 							</dt>
@@ -471,10 +463,9 @@ function template_main()
 										</script>
 										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
 									</div><!-- .fallback -->
-								</div><!-- #attachUpload -->
-							</dd>';
-		else
-			echo '
+								</div><!-- #attachUpload -->';
+
+		echo '
 							</dd>';
 
 		// Add any template changes for an alternative upload system here.
@@ -533,7 +524,6 @@ function template_main()
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
-	{
 		echo '
 					<div class="post_verification">
 						<span', !empty($context['post_error']['need_qr_verification']) ? ' class="error"' : '', '>
@@ -541,7 +531,6 @@ function template_main()
 						</span>
 						', template_control_verification($context['visual_verification_id'], 'all'), '
 					</div>';
-	}
 
 	// Finally, the submit buttons.
 	echo '
@@ -831,29 +820,26 @@ function template_main()
 			<div class="windowbg">
 				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
-						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
-					</h5>&nbsp;-&nbsp;', $post['time'];
+						<span>', $txt['posted_by'], '</span> ', $post['poster'], '
+					</h5>
+					&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
-			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
 						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
 						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
-			}
 
 			echo '
 					<br class="clear">';
 
 			if ($ignoring)
-			{
 				echo '
 					<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
 						', $txt['ignoring_user'], '
 						<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a>
 					</div>';
-			}
 
 			echo '
 					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>
@@ -948,7 +934,7 @@ function template_spellcheck()
 				background: #ffffff;
 			}';
 
-	// As you may expect - we need a lot of javascript for this... load it form the separate files.
+	// As you may expect - we need a lot of javascript for this... load it from the separate files.
 	echo '
 		</style>
 		<script>
@@ -962,7 +948,7 @@ function template_spellcheck()
 		</script>
 	</head>
 	<body onload="nextWord(false);">
-		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
+		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;">
 			<div id="spellview">&nbsp;</div>
 			<table width="100%">
 				<tr class="windowbg">
@@ -1099,14 +1085,14 @@ function template_announcement_send()
 
 	echo '
 	<div id="announcement">
-		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
+		<form action="', $scripturl, '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
 				<p>
 					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank">', $context['topic_subject'], '</a>
 				</p>
 				<div class="progress_bar">
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<div id="confirm_buttons">

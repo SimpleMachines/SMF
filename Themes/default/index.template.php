@@ -147,16 +147,12 @@ function template_html_above()
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty($context['links']['next']))
-	{
 		echo '
 	<link rel="next" href="', $context['links']['next'], '">';
-	}
 
 	if (!empty($context['links']['prev']))
-	{
 		echo '
 	<link rel="prev" href="', $context['links']['prev'], '">';
-	}
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
@@ -193,22 +189,21 @@ function template_body_above()
 			<ul class="floatleft" id="top_info">
 				<li>
 					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
-			if (!empty($context['user']['avatar']))
-				echo $context['user']['avatar']['image'];
 
-			echo $context['user']['name'], '</a>
+		if (!empty($context['user']['avatar']))
+			echo $context['user']['avatar']['image'];
+
+		echo $context['user']['name'], '</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
 		// Secondly, PMs if we're doing them
 		if ($context['allow_pm'])
-		{
 			echo '
 				<li>
 					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
-		}
 
 		// Thirdly, alerts
 		echo '
@@ -248,7 +243,7 @@ function template_body_above()
 		echo '
 				</select>
 				<noscript>
-					<input type="submit" value="', $txt['quick_mod_go'], '" />
+					<input type="submit" value="', $txt['quick_mod_go'], '">
 				</noscript>
 			</form>';
 	}
@@ -288,6 +283,7 @@ function template_body_above()
 		if (!empty($context['current_topic']))
 			echo '
 				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
+
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '

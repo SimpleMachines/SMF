@@ -127,7 +127,7 @@ function template_new_group()
 	echo '
 					<dt>
 						<strong>', $txt['membergroups_new_board'], ':</strong>', $context['post_group'] ? '<br>
-						<span class="smalltext" style="font-weight: normal">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
+						<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
 
@@ -140,7 +140,6 @@ function template_new_group()
 			</div><!-- .windowbg2 -->';
 
 	if ($context['undefined_group'])
-	{
 		echo '
 			<script>
 				function swapPostGroup(isChecked)
@@ -151,7 +150,6 @@ function template_new_group()
 				}
 				swapPostGroup(', $context['post_group'] ? 'true' : 'false', ');
 			</script>';
-	}
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -185,7 +183,6 @@ function template_edit_group()
 
 	if ($context['group']['id'] != 3 && $context['group']['id'] != 4)
 		echo '
-
 					<dt id="group_desc_text">
 						<label for="group_desc_input"><strong>', $txt['membergroups_edit_desc'], ':</strong></label>
 					</dt>
@@ -301,10 +298,8 @@ function template_edit_group()
 
 		// For every possible icon, create an option.
 		foreach ($context['possible_icons'] as $icon)
-		{
 			echo '
 							<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected' : '', '>', $icon, '</option>';
-		}
 
 		echo '
 						</select>
@@ -355,6 +350,7 @@ function template_edit_group()
 		echo '
 					</dd>';
 	}
+
 	echo '
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
@@ -462,7 +458,7 @@ function template_add_edit_group_boards_list($collapse = true)
 			echo '
 									<li class="category">
 										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;"><strong>', $category['name'], '</strong></a>
-										<ul style="width:100%">';
+										<ul>';
 		else
 			echo '
 									<li class="category">
@@ -476,7 +472,7 @@ function template_add_edit_group_boards_list($collapse = true)
 												<option value="deny">', $txt['board_perms_deny'], '</option>
 											</select>
 										</span>
-										<ul style="width:100%" id="boards_list_', $category['id'], '">';
+										<ul id="boards_list_', $category['id'], '">';
 
 		foreach ($category['boards'] as $board)
 		{
@@ -622,6 +618,7 @@ function template_group_members()
 	if (!empty($context['group']['assignable']))
 		echo '
 						<th style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
+
 	echo '
 					</tr>
 				</thead>
@@ -640,12 +637,10 @@ function template_group_members()
 						<td>', $member['name'], '</td>';
 
 		if ($context['can_send_email'])
-		{
 			echo '
 						<td>
 								<a href="mailto:', $member['email'], '">', $member['email'], '</a>
 						</td>';
-		}
 
 		echo '
 						<td>', $member['last_online'], '</td>
@@ -655,6 +650,7 @@ function template_group_members()
 		if (!empty($context['group']['assignable']))
 			echo '
 						<td style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+
 		echo '
 					</tr>';
 	}
@@ -676,7 +672,6 @@ function template_group_members()
 			<br>';
 
 	if (!empty($context['group']['assignable']))
-	{
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
@@ -693,7 +688,6 @@ function template_group_members()
 				</dl>
 				<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button">
 			</div>';
-	}
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -745,7 +739,7 @@ function template_group_request_reason()
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
-						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="min-width: 80%; max-width: 99%;"></textarea>
+						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40"></textarea>
 					</dd>';
 
 	echo '

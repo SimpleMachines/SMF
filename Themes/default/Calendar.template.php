@@ -23,37 +23,29 @@ function template_main()
 
 	// Show the mini-blocks if they're enabled.
 	if (empty($context['blocks_disabled']))
-	{
 		echo '
 			<div id="month_grid">
 				', template_show_month_grid('prev', true), '
 				', template_show_month_grid('current', true), '
 				', template_show_month_grid('next', true), '
 			</div>';
-	}
 
 	// What view are we showing?
 	if ($context['calendar_view'] == 'viewlist')
-	{
 		echo '
 			<div id="main_grid">
 				', template_show_upcoming_list('main'), '
 			</div>';
-	}
 	elseif ($context['calendar_view'] == 'viewweek')
-	{
 		echo '
 			<div id="main_grid">
 				', template_show_week_grid('main'), '
 			</div>';
-	}
 	else
-	{
 		echo '
 			<div id="main_grid">
 				', template_show_month_grid('main'), '
 			</div>';
-	}
 
 	// Close our wrapper.
 	echo '
@@ -80,14 +72,12 @@ function template_show_upcoming_list($grid_name)
 
 	// Do we want a title?
 	if (empty($calendar_data['disable_title']))
-	{
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext largetext">
 					<a href="', $scripturl, '?action=calendar;viewlist;year=', $calendar_data['start_year'], ';month=', $calendar_data['start_month'], ';day=', $calendar_data['start_day'], '">', $txt['calendar_upcoming'], '</a>
 				</h3>
 			</div>';
-	}
 
 	// Give the user some controls to work with
 	template_calendar_top($calendar_data);
@@ -264,21 +254,17 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 		// Previous Link: If we're showing prev / next and it's not a mini-calendar.
 		if (empty($calendar_data['previous_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
-		{
 			echo '
 					<span class="floatleft">
 						<a href="', $calendar_data['previous_calendar']['href'], '">&#171;</a>
 					</span>';
-		}
 
 		// Next Link: if we're showing prev / next and it's not a mini-calendar.
 		if (empty($calendar_data['next_calendar']['disabled']) && $calendar_data['show_next_prev'] && $is_mini === false)
-		{
 			echo '
 					<span class="floatright">
 						<a href="', $calendar_data['next_calendar']['href'], '">&#187;</a>
 					</span>';
-		}
 
 		// Arguably the most exciting part, the title!
 		echo '
@@ -304,14 +290,12 @@ function template_show_month_grid($grid_name, $is_mini = false)
 		// If we're showing week links, there's an extra column ahead of the week links, so let's think ahead and be prepared!
 		if ($show_week_links === true)
 			echo '
-					<th>&nbsp;</th>';
+					<th></th>';
 
 		// Now, loop through each actual day of the week.
 		foreach ($calendar_data['week_days'] as $day)
-		{
 			echo '
 					<th class="days" scope="col">', !empty($calendar_data['short_day_titles']) || $is_mini === true ? $txt['days_short'][$day] : $txt['days'][$day], '</th>';
-		}
 
 		echo '
 				</tr>';
@@ -331,12 +315,10 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 		// This is where we add the actual week link, if enabled on this location.
 		if ($show_week_links === true)
-		{
 			echo '
 					<td class="windowbg2 weeks">
 						<a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $week['days'][0]['day'], '" title="', $txt['calendar_view_week'], '">&#187;</a>
 					</td>';
-		}
 
 		// Now loop through each day in the week we're on.
 		foreach ($week['days'] as $day)
@@ -490,20 +472,17 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 								// If they can edit the event, show an icon they can click on....
 								if ($event['can_edit'])
-								{
 									echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
 										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
-								}
+
 								// Exporting!
 								if ($event['can_export'])
-								{
 									echo '
 									<a class="modify_event" href="', $event['export_href'], '">
 										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
-								}
 
 								echo '
 								</span><br class="clear">';
@@ -574,21 +553,17 @@ function template_show_week_grid($grid_name)
 
 			// Previous Week Link...
 			if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
-			{
 				echo '
 						<span class="floatleft">
 							<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
 						</span>';
-			}
 
 			// Next Week Link...
 			if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
-			{
 				echo '
 						<span class="floatright">
 							<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
 						</span>';
-			}
 
 			// The Month Title + Week Number...
 			if (!empty($calendar_data['week_title']))
@@ -681,20 +656,17 @@ function template_show_week_grid($grid_name)
 
 						// If they can edit the event, show a star they can click on....
 						if (!empty($event['can_edit']))
-						{
 							echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
 										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
-						}
+
 						// Can we export? Sweet.
 						if (!empty($event['can_export']))
-						{
 							echo '
 									<a class="modify_event" href="', $event['export_href'], '">
 										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
-						}
 
 						echo '
 								</span><br class="clear">';
@@ -716,12 +688,10 @@ function template_show_week_grid($grid_name)
 			else
 			{
 				if (!empty($context['can_post']))
-				{
 					echo '
 							<div class="week_add_event">
 								<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
 							</div>';
-				}
 			}
 			echo '
 						</td>
@@ -739,12 +709,10 @@ function template_show_week_grid($grid_name)
 			if (!empty($day['birthdays']))
 			{
 				foreach ($day['birthdays'] as $member)
-				{
 					echo '
 							<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
 							', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
 							', $member['is_last'] ? '' : '<br>';
-				}
 			}
 			echo '
 						</td>
@@ -799,21 +767,17 @@ function template_calendar_top($calendar_data)
 
 		// Show a select box with all the months.
 		foreach ($txt['months_short'] as $number => $month)
-		{
 			echo '
 					<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
-		}
 
 		echo '
 				</select>
 				<select name="year">';
 
-		// Show a link for every year.....
+		// Show a link for every year...
 		for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
-		{
 			echo '
 					<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
-		}
 
 		echo '
 				</select>
@@ -833,7 +797,7 @@ function template_event_post()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" style="margin: 0;">';
+		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);">';
 
 	if (!empty($context['event']['new']))
 		echo '
@@ -849,7 +813,6 @@ function template_event_post()
 				</div>';
 
 	if (!empty($context['post_error']['messages']))
-	{
 		echo '
 				<div class="errorbox">
 					<dl class="event_error">
@@ -861,7 +824,6 @@ function template_event_post()
 						</dt>
 					</dl>
 				</div>';
-	}
 
 	echo '
 				<div class="roundframe noup">
@@ -881,7 +843,7 @@ function template_event_post()
 						<div class="event_options_right" id="event_board">
 							<div>
 								<span class="label">', $txt['calendar_post_in'], '</span>
-								<input type="checkbox" style="vertical-align: middle;" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
+								<input type="checkbox" name="link_to_board"', (!empty($context['event']['board']) ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 								<select name="board"', empty($context['event']['board']) ? ' disabled' : '', '>';
 
 		foreach ($context['event']['categories'] as $category)
@@ -891,7 +853,7 @@ function template_event_post()
 
 			foreach ($category['boards'] as $board)
 				echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 			echo '
 									</optgroup>';
 		}
@@ -901,7 +863,7 @@ function template_event_post()
 						</div><!-- #event_board -->';
 	}
 
-	// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
+	// Note to theme writers: The JavaScript expects the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 	echo '
 					</fieldset>
 					<fieldset id="event_options">
@@ -976,10 +938,9 @@ function template_bcd()
 				<td style="padding-', $alt ? 'right' : 'left', ': 1.5em;">';
 
 		foreach ($v as $i)
-		{
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '"><br>';
-		}
+
 		echo '
 				</td>';
 
@@ -1075,11 +1036,11 @@ function template_hms()
 		echo '
 			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
 				<td>';
+
 		foreach ($v as $i)
-		{
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
-		}
+
 		echo '
 				</td>
 			</tr>';
@@ -1170,10 +1131,9 @@ function template_omfg()
 				<td>';
 
 		foreach ($v as $i)
-		{
 			echo '
 					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
-		}
+
 		echo '
 				</td>
 			</tr>';
@@ -1262,10 +1222,9 @@ function template_thetime()
 				<td>';
 
 		foreach ($v as $i)
-		{
 			echo '
 					<img src="', $i ? $context['onimg'] : $context['offimg'], '" alt="" style="padding: 2px;">';
-		}
+
 		echo '
 				</td>
 			</tr>';

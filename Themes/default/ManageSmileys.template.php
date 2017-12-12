@@ -42,12 +42,10 @@ function template_modifyset()
 
 	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
 	if (!empty($context['current_set']['can_import']))
-	{
 		echo '
 			<div class="information">
 				', $context['current_set']['can_import'] == 1 ? sprintf($txt['smiley_set_import_single'], $context['current_set']['import_url']) : sprintf($txt['smiley_set_import_multiple'], $context['current_set']['can_import'], $context['current_set']['import_url']), '
 			</div>';
-	}
 
 	echo '
 			<div class="windowbg2 noup">
@@ -289,6 +287,7 @@ function template_addsmiley()
 					<dd>
 						<input type="file" name="individual_', $smiley_set['name'], '" onchange="selectMethod(\'upload\');">
 					</dd>';
+
 	echo '
 				</dl>
 			</div><!-- .windowbg2 -->
@@ -353,7 +352,7 @@ function template_setorder()
 			<div class="information noup">
 				', $location['description'], '
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 move_smileys">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 
 		foreach ($location['rows'] as $row)
@@ -366,10 +365,10 @@ function template_setorder()
 			{
 				if (empty($context['move_smiley']))
 					echo '
-				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px; border: 0px solid black;" alt="', $smiley['description'], '"></a>';
+				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;move=', $smiley['id'], '"><img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" alt="', $smiley['description'], '"></a>';
 				else
 					echo '
-				<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" style="padding: 2px;', $smiley['selected'] ? ' border: 2px solid red' : '', ';" alt="', $smiley['description'], '">
+				<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" alt="', $smiley['description'], '" ', $smiley['selected'] ? 'class="selected_item"' : '', '>
 				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 			}
 
@@ -452,9 +451,11 @@ function template_editicon()
 		foreach ($category['boards'] as $board)
 			echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
+
 		echo '
 							</optgroup>';
 	}
+
 	echo '
 						</select>
 					</dd>

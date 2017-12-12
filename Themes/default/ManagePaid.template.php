@@ -86,7 +86,8 @@ function template_modify_subscription()
 	foreach ($context['groups'] as $id => $name)
 		echo '
 						<label for="addgroup_', $id, '">
-							<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>&nbsp;<span class="smalltext">', $name, '</span>
+							<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>
+							<span class="smalltext">', $name, '</span>
 						</label><br>';
 
 	echo '
@@ -197,7 +198,6 @@ function template_modify_subscription()
 			</div><!-- .windowbg2 -->
 		</form>
 	</div><!-- #admincenter -->';
-
 }
 
 /**
@@ -222,7 +222,6 @@ function template_delete_subscription()
 			</div>
 		</form>
 	</div><!-- #admincenter -->';
-
 }
 
 /**
@@ -364,7 +363,7 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments'], '</h3>
 		</div>
 		<div class="information">
-		', $txt['pending_payments_desc'], '
+			', $txt['pending_payments_desc'], '
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
@@ -373,7 +372,6 @@ function template_modify_user_subscription()
 			<ul>';
 
 		foreach ($context['pending_payments'] as $id => $payment)
-		{
 			echo '
 				<li>
 					', $payment['desc'], '
@@ -384,7 +382,6 @@ function template_modify_user_subscription()
 						<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';remove">', $txt['pending_payments_remove'], '</a>
 					</span>
 				</li>';
-		}
 
 		echo '
 			</ul>
@@ -410,12 +407,10 @@ function template_user_subscription()
 			</div>';
 
 	if (empty($context['subscriptions']))
-	{
 		echo '
 			<div class="information">
 				', $txt['paid_subs_none'], '
 			</div>';
-	}
 	else
 	{
 		echo '
@@ -480,7 +475,7 @@ function template_user_subscription()
 
 	echo '
 		</form>
-		<br class="clear"/>
+		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_current'], '</h3>
 		</div>
@@ -522,6 +517,7 @@ function template_user_subscription()
 					<td>', $sub['end'], '</td>
 				</tr>';
 	}
+
 	echo '
 			</tbody>
 		</table>

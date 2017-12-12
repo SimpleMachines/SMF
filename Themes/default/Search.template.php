@@ -111,13 +111,11 @@ function template_main()
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
-	{
 		echo '
 			<p>
 				<strong>', $txt['verification'], ':</strong>
 				', template_control_verification($context['visual_verification_id'], 'all'), '
 			</p>';
-	}
 
 	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
 	if (!empty($context['search_params']['topic']))
@@ -313,7 +311,7 @@ function template_results()
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 		echo '
 				</span>
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+				<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -331,7 +329,6 @@ function template_results()
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
-
 			echo '
 		<div class="', $topic['css_class'], '">
 			<div class="flow_auto">';
@@ -351,10 +348,9 @@ function template_results()
 				<div class="floatright">';
 
 					if ($options['display_quick_mod'] == 1)
-					{
 						echo '
 					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-					}
+
 					else
 					{
 						if ($topic['quick_mod']['remove'])
@@ -402,8 +398,7 @@ function template_results()
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-			<div style="padding: 4px;">
-				<div class="floatright flow_auto">
+		<div class="quick_actions righttext">
 			<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 				<option value="">--------</option>';
 
@@ -417,12 +412,11 @@ function template_results()
 
 			if ($context['can_move'])
 				echo '
-			<span id="quick_mod_jump_to">&nbsp;</span>';
+			<span id="quick_mod_jump_to"></span>';
 
 			echo '
 			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
-				</div>
+			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button">
 		</div><!-- .quick_actions -->';
 		}
 
@@ -438,7 +432,7 @@ function template_results()
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+			<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 		</h3>
 	</div>
 	<div class="pagesection">
@@ -471,12 +465,12 @@ function template_results()
 			// If they *can* reply?
 			if ($topic['can_reply'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 			// If they *can* quote?
 			if ($topic['can_quote'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			if ($topic['can_reply'])
 				echo '
@@ -496,7 +490,7 @@ function template_results()
 	// Show a jump to box for easy navigation.
 	echo '
 	<br class="clear">
-	<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
+	<div class="smalltext righttext" id="search_jump_to"></div>
 	<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
@@ -531,7 +525,6 @@ function template_results()
 				sGoButtonLabel: "', $txt['quick_mod_go'], '"
 			});
 		</script>';
-
 }
 
 ?>

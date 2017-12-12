@@ -32,10 +32,8 @@ function template_newsfader()
 		<ul id="smf_slider" class="roundframe">';
 
 		foreach ($context['news_lines'] as $news)
-		{
 			echo '
 			<li>', $news, '</li>';
-		}
 
 		echo '
 		</ul>
@@ -247,7 +245,7 @@ function template_bi_board_children($board)
 		// Sort the links into an array with new boards bold so it can be imploded.
 		$children = array();
 		/* Each child in each board's children has:
-				id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
+			id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
@@ -367,7 +365,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br>
+					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a> ', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'] . '&quot;'), ' (', $context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
@@ -497,8 +495,10 @@ function template_ic_block_online()
 
 	if ($context['show_buddies'])
 		$bracketList[] = comma_format($context['num_buddies']) . ' ' . ($context['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
+
 	if (!empty($context['num_spiders']))
 		$bracketList[] = comma_format($context['num_spiders']) . ' ' . ($context['num_spiders'] == 1 ? $txt['spider'] : $txt['spiders']);
+
 	if (!empty($context['num_users_hidden']))
 		$bracketList[] = comma_format($context['num_users_hidden']) . ' ' . ($context['num_spiders'] == 1 ? $txt['hidden'] : $txt['hidden_s']);
 
@@ -519,7 +519,7 @@ function template_ic_block_online()
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
 			echo '
-				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']) . '</span>';
+				<span class="membergroups">' . implode(', ', $context['membergroups']) . '</span>';
 	}
 
 	echo '

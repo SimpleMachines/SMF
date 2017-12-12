@@ -139,7 +139,7 @@ function template_registration_form()
 							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' />
+							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', '>
 						</dd>
 					</dl>';
 
@@ -147,7 +147,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
 	{
 		echo '
-
 					<dl class="register_form">';
 
 		foreach ($context['custom_fields'] as $field)
@@ -169,7 +168,6 @@ function template_registration_form()
 
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['additional_information'], '</h3>
@@ -177,7 +175,6 @@ function template_registration_form()
 			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form" id="custom_group">';
-	}
 
 	if (!empty($context['profile_fields']))
 	{
@@ -265,7 +262,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields']))
 	{
 		foreach ($context['custom_fields'] as $field)
-		{
 			if ($field['show_reg'] < 2)
 				echo '
 						<dt>
@@ -273,20 +269,16 @@ function template_registration_form()
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', $field['input_html'], '</dd>';
-		}
 	}
 
 	// If we have either of these, close the list like a proper gent.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 					</dl>
 				</fieldset>
 			</div><!-- .roundframe -->';
-	}
 
 	if ($context['visual_verification'])
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['verification'], '</h3>
@@ -296,7 +288,6 @@ function template_registration_form()
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
 			</div>';
-	}
 
 	echo '
 			<div id="confirm_buttons" class="flow_auto">';
@@ -310,6 +301,7 @@ function template_registration_form()
 	else
 		echo '
 				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+
 	echo '
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -371,30 +363,25 @@ function template_coppa()
 
 	// Can they send by post?
 	if (!empty($context['coppa']['post']))
-	{
 		echo '
 				<h4>1) ', $txt['coppa_send_by_post'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['post'], '
 				</div>';
-	}
 
 	// Can they send by fax??
 	if (!empty($context['coppa']['fax']))
-	{
 		echo '
 				<h4>', !empty($context['coppa']['post']) ? '2' : '1', ') ', $txt['coppa_send_by_fax'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['fax'], '
 				</div>';
-	}
 
 	// Offer an alternative Phone Number?
 	if ($context['coppa']['phone'])
-	{
 		echo '
 				<p>', $context['coppa']['phone'], '</p>';
-	}
+
 	echo '
 			</div><!-- #coppa -->';
 }
@@ -457,6 +444,7 @@ function template_verification_sound()
 	</head>
 	<body style="margin: 1ex;">
 		<div class="windowbg description" style="text-align: center;">';
+
 	if (isBrowser('is_ie') || isBrowser('is_ie11'))
 		echo '
 			<object classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95" type="audio/x-wav">
@@ -470,6 +458,7 @@ function template_verification_sound()
 					<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
 				</object>
 			</audio>';
+
 	echo '
 			<br>
 			<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
@@ -596,6 +585,7 @@ function template_edit_agreement()
 	if (!empty($context['saved_successful']))
 		echo '
 		<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	elseif (!empty($context['could_not_save']))
 		echo '
 		<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';
@@ -624,7 +614,7 @@ function template_edit_agreement()
 				</div>
 				<div class="information">
 					<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
-						<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
+						<strong>', $txt['admin_agreement_select_language'], ':</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['editable_agreements'] as $file => $name)
@@ -708,7 +698,7 @@ function template_edit_reserved_words()
 				</dd>
 			</dl>
 			<div class="flow_auto">
-					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button">
+				<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" class="button">
 				<input type="hidden" name="sa" value="reservednames">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">

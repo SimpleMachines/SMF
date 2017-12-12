@@ -45,9 +45,7 @@ function template_email_members()
 
 	echo '
 						<br>
-						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>';
-
-	echo '
+						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>
 					</dd>
 				</dl>
 				<div id="advanced_panel_header" class="title_bar">
@@ -223,7 +221,7 @@ function template_email_members_compose()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '/>
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>
 				<hr class="clear">
@@ -355,9 +353,7 @@ function template_email_members_compose()
 							document.forms.newsmodify.', $context['post_box_name'], '.style.border = null;
 					}
 					location.hash = \'#\' + \'preview_section\';
-				}';
-
-	echo '
+				}
 			</script>';
 
 	echo '
@@ -398,7 +394,7 @@ function template_email_members_send()
 			<div class="windowbg">
 				<div class="progress_bar">
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
-					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button">

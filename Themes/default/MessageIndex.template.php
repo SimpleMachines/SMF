@@ -19,12 +19,10 @@ function template_main()
 
 	// Let them know why their message became unapproved.
 	if ($context['becomesUnapproved'])
-	{
 		echo '
 	<div class="noticebox">
 		', $txt['post_becomesUnapproved'], '
 	</div>';
-	}
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
@@ -83,8 +81,7 @@ function template_main()
 				// Sort the links into an array with new boards bold so it can be imploded.
 				$children = array();
 				/* Each child in each board's children has:
-						id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
-
+					id, name, description, new (is it new?), topics (#), posts (#), href, link, and last_post. */
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
@@ -144,7 +141,7 @@ function template_main()
 
 			if ($context['description'] != '')
 				echo '
-			', $context['description'], '&nbsp;';
+			', $context['description'];
 
 			if (!empty($context['moderators']))
 				echo '
@@ -186,7 +183,7 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-				<div class="board_icon">&nbsp;</div>
+				<div class="board_icon"></div>
 				<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
 				<div class="board_stats centertext">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
 				<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
@@ -201,10 +198,10 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-				<div class="moderation">&nbsp;</div>';
+				<div class="moderation"></div>';
 		}
 
-		// No topics.... just say, "sorry bub".
+		// No topics... just say, "sorry bub".
 		else
 			echo '
 				<h3 class="titlebg">', $txt['topic_alert_none'], '</h3>';
@@ -214,12 +211,10 @@ function template_main()
 
 		// If this person can approve items and we have some awaiting approval tell them.
 		if (!empty($context['unapproved_posts_message']))
-		{
 			echo '
 			<div class="information">
 				<span class="alert">!</span> ', $context['unapproved_posts_message'], '
 			</div>';
-		}
 
 		// Contain the topic list
 		echo '
@@ -243,15 +238,19 @@ function template_main()
 			if ($topic['is_watched'])
 				echo '
 								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
+
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock"></span>';
+
 			if ($topic['is_sticky'])
 				echo '
 								<span class="generic_icons sticky"></span>';
+
 			if ($topic['is_redirect'])
 				echo '
 								<span class="generic_icons move"></span>';
+
 			if ($topic['is_poll'])
 				echo '
 								<span class="generic_icons poll"></span>';
@@ -266,8 +265,10 @@ function template_main()
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
-							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
-							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">&nbsp;' . $topic['pages'] . '</span>' : '', '
+							<p class="floatleft">
+								', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
+							</p>
+							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
 							<br class="clear">
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
@@ -332,7 +333,7 @@ function template_main()
 			// Show a list of boards they can move the topic to.
 			if ($context['can_move'])
 				echo '
-				<span id="quick_mod_jump_to">&nbsp;</span>';
+				<span id="quick_mod_jump_to"></span>';
 
 			echo '
 				<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button qaction">
@@ -422,7 +423,7 @@ function template_topic_legend()
 	echo '
 	<div class="tborder" id="topic_icons">
 		<div class="information">
-			<p class="floatright" id="message_index_jump_to">&nbsp;</p>';
+			<p class="floatright" id="message_index_jump_to"></p>';
 
 	if (empty($context['no_topic_listing']))
 		echo '

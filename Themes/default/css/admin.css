@@ -503,6 +503,10 @@ span.search_weight {
 #manage_bans fieldset dl.settings {
 	margin-bottom: 0;
 }
+#manage_bans textarea {
+	min-height: 4em;
+	height: 5em;
+}
 
 /* Styles for the manage subscriptions section. */
 #fixed_area {
@@ -591,7 +595,10 @@ ul.moderation_notes li {
 	margin-top: 0.4em;
 }
 .post_note {
-	width: 85%;
+	width: calc(100% - 17ex);
+}
+.post_note input {
+	width: 100%;
 }
 
 /* Styles for the error log. */
@@ -600,6 +607,7 @@ h3.grid_header {
 }
 #error_log {
 	width: 100%;
+	margin: 4px 0;
 }
 #error_log tr.windowbg td, #error_log tr.windowbg2 td {
 	padding: 8px;
@@ -614,14 +622,28 @@ h3.grid_header {
 	vertical-align: middle;
 	margin: 0 8px 0 0;
 }
-
-/* More error log stuff. Could still be cleaned up a bit. */
-#error_log {
-	margin: 4px 0;
+#error_log .generic_icons {
+	margin: 0 5px 0 0;
 }
-#error_log tr:first-child td {
-	background: #fff;
-	padding: 8px;
+#error_log .error_info {
+	float: left;
+	width: 50%;
+	line-height: 1.8em;
+	padding: 0 4px 4px 4px;
+}
+#error_log .error_location {
+	padding: 4px;
+	clear: both;
+	border-top: 1px solid #e3e3e3;
+	display: flex;
+}
+#error_log a.error_message {
+	float: left;
+	margin-right: 5px; 
+}
+#error_log span.error_message {
+	overflow: hidden; /* This changes how the text wraps around the float */
+	display: block;
 }
 
 /* Styles for the Report generation */
@@ -666,4 +688,20 @@ h3.config_hd {
 	border: 1px solid #777;
 	width: 100%;
 	height: 400px;
+}
+
+/* Smileys and Message icons section */
+.move_smileys img {
+	padding: 2px;
+	border: 2px solid transparent;
+	border-radius: 2px;
+	vertical-align: middle;
+}
+
+.move_smileys a:hover img {
+	border-color: #71a0c8;
+}
+
+.move_smileys .selected_item {
+	border-color: #FFB42D;
 }

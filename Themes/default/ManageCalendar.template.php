@@ -45,8 +45,8 @@ function template_edit_holiday()
 							<option value="', $year, '"', $year == $context['holiday']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
-						</select>&nbsp;
-						', $txt['calendar_month'], '&nbsp;
+						</select>
+						<label for="month">', $txt['calendar_month'], '</label>
 						<select name="month" id="month" onchange="generateDays();">';
 
 	// There are 12 months per year - ensure that they all get listed.
@@ -55,8 +55,8 @@ function template_edit_holiday()
 							<option value="', $month, '"', $month == $context['holiday']['month'] ? ' selected' : '', '>', $txt['months'][$month], '</option>';
 
 	echo '
-						</select>&nbsp;
-						', $txt['calendar_day'], '&nbsp;
+						</select>
+						<label for="day">', $txt['calendar_day'], '</label>
 						<select name="day" id="day" onchange="generateDays();">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.

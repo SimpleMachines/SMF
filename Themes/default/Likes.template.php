@@ -32,7 +32,6 @@ function template_popup()
 			<ul id="likes">';
 
 	foreach ($context['likers'] as $liker => $like_details)
-	{
 		echo '
 				<li>
 					', $like_details['profile']['avatar']['image'], '
@@ -42,7 +41,6 @@ function template_popup()
 					</span>
 					<span class="floatright">', $like_details['time'], '</span>
 				</li>';
-	}
 
 	echo '
 			</ul>
@@ -64,10 +62,10 @@ function template_like()
 	<ul class="floatleft">';
 
 	if (!empty($context['data']['can_like']))
-	{
 		echo '
-		<li class="like_button" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="generic_icons ', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
-	}
+		<li class="like_button" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '>
+			<a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="generic_icons ', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a>
+		</li>';
 
 	if (!empty($context['data']['count']))
 	{
