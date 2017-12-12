@@ -30,7 +30,7 @@ function db_extra_init()
 			'db_table_sql' => 'smf_db_table_sql',
 			'db_list_tables' => 'smf_db_list_tables',
 			'db_get_version' => 'smf_db_get_version',
-			'db_get_engine' => 'smf_db_get_engine',
+			'db_get_vendor' => 'smf_db_get_vendor',
 		);
 }
 
@@ -386,7 +386,7 @@ function smf_db_get_version()
  *
  * @return string The database engine we are using
 */
-function smf_db_get_engine()
+function smf_db_get_vendor()
 {
 	global $smcFunc;
 	static $db_type;
@@ -394,7 +394,14 @@ function smf_db_get_engine()
 	if (!empty($db_type))
 		return $db_type;
 
-	$request = $smcFunc['db_query']('', 'SELECT @@version_comment');
+	$request = $smcFunc['db_query']('', 
+				'SELECT VARIABLE_VALUE
+				 FROM INFORMATION_SCHEMA.GLOBAL_VARIABLES
+				 WHERE variable_name = {string:var_name}',
+				array(
+					'var_name' => 'VERSION_COMMENT',
+				)
+			);
 	list ($comment) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 

@@ -245,8 +245,8 @@ function smf_error_handler_cron($error_level, $error_string, $file, $line)
 {
 	global $modSettings;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
+	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	if (error_reporting() == 0)
 		return;
 
 	$error_type = 'cron';

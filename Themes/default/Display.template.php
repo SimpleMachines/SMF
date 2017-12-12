@@ -505,16 +505,26 @@ function template_single_post($message)
 		echo '
 								', $context['can_send_pm'] ? '<a href="' . $message['member']['online']['href'] . '" title="' . $message['member']['online']['label'] . '">' : '', '<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>', $context['can_send_pm'] ? '</a>' : '';
 
+	// Custom fields BEFORE the username?
+	if (!empty($message['custom_fields']['before_member']))
+		foreach ($message['custom_fields']['before_member'] as $custom)
+			echo '
+								<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
 
 	// Show a link to the member's profile.
 	echo '
-								', $message['member']['link'], '
-							</h4>';
+								', $message['member']['link'];
+
+	// Custom fields AFTER the username?
+	if (!empty($message['custom_fields']['after_member']))
+		foreach ($message['custom_fields']['after_member'] as $custom)
+			echo '
+								<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
 
 	// Begin display of user info
 	echo '
+							</h4>
 							<ul class="user_info">';
-
 
 	// Show the user's avatar.
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))

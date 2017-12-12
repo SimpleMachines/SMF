@@ -1193,13 +1193,29 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		else
 		{
 			$value = isset($_POST['customfield'][$row['col_name']]) ? $_POST['customfield'][$row['col_name']] : '';
+
 			if ($row['field_length'])
 				$value = $smcFunc['substr']($value, 0, $row['field_length']);
 
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				$value = $smcFunc['htmltrim']($value);
+				$valueReference = un_htmlspecialchars($value);
+
+				// Try and avoid some checks. '0' could be a valid non-empty value.
+				if (empty($value) && !is_numeric($value))
+					$value = '';
+
+				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != filter_var($value, FILTER_SANITIZE_STRING) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
+				{
+					if ($returnErrors)
+						$errors[] = 'custom_field_nohtml_fail';
+
+					else
+						$value = '';
+				}
+				elseif ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_mail_fail';
@@ -1219,6 +1235,8 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 					else
 						$value = '';
 				}
+
+				unset($valueReference);
 			}
 		}
 
