@@ -373,6 +373,10 @@ class Attachments
 					unlink($attachment['tmp_name']);
 			}
 
+			// You don't need to know.
+			unset($attachmentOptions['tmp_name']);
+			unset($attachmentOptions['destination']);
+
 			// Regardless of errors, pass the results.
 			$this->_attachResults[] = $attachmentOptions;
 		}
