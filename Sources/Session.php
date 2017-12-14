@@ -190,9 +190,6 @@ function sessionDestroy($session_id)
 {
 	global $smcFunc;
 
-	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return false;
-
 	// Just delete the row...
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
