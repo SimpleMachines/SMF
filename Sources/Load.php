@@ -1817,7 +1817,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
 		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
-		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')));
+	{
+		if (isset($_GET['sslRedirect']))
+		{
+			loadLanguage('Errors');
+			fatal_lang_error($txt['login_ssl_required']);
+		}
+
+		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
+	}
 
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
