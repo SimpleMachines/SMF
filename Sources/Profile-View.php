@@ -699,7 +699,7 @@ function showPosts($memID)
 		}
 
 		// Make sure we quit this loop.
-		if ($smcFunc['db_num_rows']($request) === $maxIndex || $looped)
+		if ($smcFunc['db_num_rows']($request) === $maxIndex || $looped || $range_limit == '')
 			break;
 		$looped = true;
 		$range_limit = '';
