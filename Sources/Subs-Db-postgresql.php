@@ -419,10 +419,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
-		$db_string_1 = str_replace('\'\'', '\\\'', $db_string);
 		$clean = '';
 		$old_pos = 0;
 		$pos = -1;
+		// Remove the string escape for better runtime
+		$db_string_1 = str_replace('\'\'','',$db_string);
 		while (true)
 		{
 			$pos = strpos($db_string_1, '\'', $pos + 1);
@@ -462,7 +463,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 		if (!empty($fail) && function_exists('log_error'))
 			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
-		unset($db_string_1);
 	}
 
 	// Set optimize stuff
