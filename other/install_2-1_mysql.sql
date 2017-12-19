@@ -449,7 +449,7 @@ CREATE TABLE {$db_prefix}log_packages (
   failed_steps TEXT NOT NULL,
   themes_installed VARCHAR(255) NOT NULL DEFAULT '',
   db_changes TEXT NOT NULL,
-  credits VARCHAR(255) NOT NULL DEFAULT '',
+  credits TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (id_install),
   INDEX idx_filename (filename(15))
 ) ENGINE={$engine};
