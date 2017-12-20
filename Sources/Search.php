@@ -1761,21 +1761,6 @@ function PlushSearch2()
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
 
-		// PG optimization to evade FIND_IN_SET
-		if ($smcFunc['db_title'] == 'PostgreSQL')
-		{
-			$orderJoin = '';
-			$msg_list_size = count($msg_list);
-			for ($i = 0; $i < $msg_list_size; $i++)
-			{
-				if ($i > 0)
-					$orderJoin .= ',';
-				$orderJoin .= '(' . $i . ',' . $msg_list[$i] . ')';
-			}
-
-			$orderJoin = 'JOIN ( VALUES ' . $orderJoin . ') as sort(ordering, id) on m.id_msg = sort.id';
-		}
-
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT
@@ -1795,15 +1780,13 @@ function PlushSearch2()
 				INNER JOIN {db_prefix}messages AS last_m ON (last_m.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}members AS first_mem ON (first_mem.id_member = first_m.id_member)
 				LEFT JOIN {db_prefix}members AS last_mem ON (last_mem.id_member = first_m.id_member)
-				' . (isset($orderJoin) ? $orderJoin : '') . '
 			WHERE m.id_msg IN ({array_int:message_list})' . ($modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '') . '
-			ORDER BY ' . (isset($orderJoin) ? ' sort.ordering' : ' FIND_IN_SET(m.id_msg, {string:message_list_in_set})') . '
+			ORDER BY ' . $smcFunc['db_custom_order']('m.id_msg', $msg_list) . '
 			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,
 				'is_approved' => 1,
-				'message_list_in_set' => implode(',', $msg_list),
 				'limit' => count($context['topics']),
 			)
 		);

@@ -1001,7 +1001,7 @@ function smf_db_error_insert($error_array)
  * it's better as find_in_set()
  *
  * @param string $field name
- * @param array $array_values with values order
+ * @param array $array_values with values order needs to int
  * @param boolean $desc default false
  * @return string case field when ... then ... end
  */
@@ -1012,7 +1012,7 @@ function smf_db_custom_order($field, $array_values, $desc = false)
 	$then = ($desc ? ' THEN -' : ' THEN ');
 
 	for($i = 0; $i < $count; $i++ )
-		$return .= 'WHEN ' . $array_values[$i] . $then . $i . ' ';
+		$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
 
 	$return .= 'END';
 	return $return;

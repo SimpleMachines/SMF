@@ -61,6 +61,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_ping'                   => 'mysqli_ping',
 			'db_fetch_all'              => 'smf_db_fetch_all',
 			'db_error_insert'			=> 'smf_db_error_insert',
+			'db_custom_order'			=> 'smf_db_custom_order',
 		);
 
 	if (!empty($db_options['persist']))
@@ -1034,6 +1035,28 @@ function smf_db_error_insert($error_array)
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
 		$error_array[7], $error_array[8]);
 	mysqli_stmt_execute ($mysql_error_data_prep);
+}
+
+/**
+ * Function create a optimize custom order string
+ * it's better as find_in_set()
+ *
+ * @param string $field name
+ * @param array $array_values with values order needs to int
+ * @param boolean $desc default false
+ * @return string case field when ... then ... end
+ */
+function smf_db_custom_order($field, $array_values, $desc = false)
+{
+	$return = 'CASE '. $field . ' ';
+	$count = count($array_values);
+	$then = ($desc ? ' THEN -' : ' THEN ');
+
+	for($i = 0; $i < $count; $i++ )
+		$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
+
+	$return .= 'END';
+	return $return;
 }
 
 ?>
