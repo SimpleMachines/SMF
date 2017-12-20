@@ -990,7 +990,7 @@ function template_trackActivity()
 				</dd>
 				<dt>', $txt['ips_in_errors'], ':</dt>
 				<dd>
-					', (count($context['ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
+					', (count($context['error_ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
 				</dd>';
 
 	// List any members that have used the same IP addresses as the current member.
