@@ -1655,8 +1655,9 @@ function trackActivity($memID)
 	$context['error_ips'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$row['ip'] = inet_dtop($row['ip']);
 		$context['error_ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['ip'] . ';u=' . $memID . '">' . $row['ip'] . '</a>';
-		$ips[] = inet_dtop($row['ip']);
+		$ips[] = $row['ip'];
 	}
 	$smcFunc['db_free_result']($request);
 
