@@ -3875,3 +3875,10 @@ input[name="attachBBC"] {
 .collapsed:hover {
 	opacity: 1;
 }
+
+/* Lets not allow our textarea in news section overflow too much to left */
+tr[id^='list_news_lists_'] textarea {
+	width: 100%;
+	resize: vertical;
+	min-height: 100px;
+}
