@@ -62,7 +62,7 @@ h1.forumtitle {
 	left: -3.3em;
 }
 #overall_progress, #step_progress {
-	height: 2.3em;
+	height: 100%;
 	z-index: 1;
 	background-color: #6bb247;
 	margin: 0px 3px 0px 0px;
