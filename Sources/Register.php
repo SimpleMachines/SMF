@@ -888,4 +888,5 @@ function SendActivation()
 	obExit();
 }
 
+
 ?>
