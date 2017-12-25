@@ -215,7 +215,7 @@ function template_registration_form()
 							', $field['value'];
 
 				// Maybe it's a text box - very likely!
-				elseif (in_array($field['type'], array('int', 'float', 'text', 'password')))
+				elseif (in_array($field['type'], array('int', 'float', 'text', 'password', 'url')))
 					echo '
 							<input type="', $field['type'] == 'password' ? 'password' : 'text', '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" tabindex="', $context['tabindex']++, '" ', $field['input_attr'], '>';
 
