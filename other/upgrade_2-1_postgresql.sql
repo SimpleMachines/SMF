@@ -477,7 +477,7 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits text NOT NULL DEFAULT '';
+ADD COLUMN credits text NOT NULL;
 ---#
 
 /******************************************************************************/
