@@ -6020,11 +6020,13 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	$url = str_ireplace('http://', 'https://', $url) . '/';
 
 	$result = false;
-	$stream = stream_context_create (array("ssl" => array("capture_peer_cert" => true)));
-	$read = @fopen($url, "rb", false, $stream);
+	$params = array('ssl' => array('capture_peer_cert' => true, 'verify_peer' => true, 'allow_self_signed' => true));
+	$stream = stream_context_create ($params);
+
+	$read = @fopen($url, 'rb', false, $stream);
 	if ($read !== false) {
 		$cont = stream_context_get_params($read);
-		$result = isset($cont["options"]["ssl"]["peer_certificate"]) ? true : false;
+		$result = isset($cont['options']['ssl']['peer_certificate']) ? true : false;
 	}
     return $result;
 }

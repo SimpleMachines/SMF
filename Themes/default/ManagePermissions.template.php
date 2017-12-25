@@ -69,7 +69,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '&nbsp;<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a> ' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
@@ -122,7 +122,8 @@ function template_permission_index()
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
 						<dt>
-							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>', $txt['permissions_apply_pre_defined'], ':
+							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+							', $txt['permissions_apply_pre_defined'], ':
 						</dt>
 						<dd>
 							<select name="predefined">
@@ -141,11 +142,9 @@ function template_permission_index()
 								<option value="empty">(', $txt['permissions_select_membergroup'], ')</option>';
 
 		foreach ($context['groups'] as $group)
-		{
 			if ($group['id'] != 1)
 				echo '
 								<option value="', $group['id'], '">', $group['name'], '</option>';
-		}
 
 		echo '
 							</select>
@@ -236,9 +235,8 @@ function template_permission_index()
 						sThemeId: \'1\',
 						sAdditionalVars: \';admin_key=app\'
 					}
-				});';
+				});
 
-		echo '
 				function checkSubmit()
 				{
 					if ((document.forms.permissionForm.predefined.value != "" && (document.forms.permissionForm.copy_from.value != "empty" || document.forms.permissionForm.permissions.value != "")) || (document.forms.permissionForm.copy_from.value != "empty" && document.forms.permissionForm.permissions.value != ""))
@@ -419,7 +417,7 @@ function template_edit_profiles()
 				<input type="submit" name="rename" value="', empty($context['show_rename_boxes']) ? $txt['permissions_profile_rename'] : $txt['permissions_commit'], '" class="button">';
 
 	echo '
-				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button" ', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '/>
+				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button" ', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 			</div>
 		</form>
 		<br>
@@ -466,14 +464,11 @@ function template_modify_group()
 
 	// Cannot be edited?
 	if (!$context['profile']['can_modify'])
-	{
 		echo '
 	<div class="errorbox">
 		', sprintf($txt['permission_cannot_edit'], $scripturl . '?action=admin;area=permissions;sa=profiles'), '
 	</div>';
-	}
 	else
-	{
 		echo '
 	<script>
 		window.smf_usedDeny = false;
@@ -486,7 +481,6 @@ function template_modify_group()
 				return true;
 		}
 	</script>';
-	}
 
 	echo '
 	<div id="admincenter">
@@ -613,7 +607,7 @@ function template_modify_group_display($type)
 						{
 							if (empty($modSettings['permission_enable_deny']))
 								echo '
-								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" id="', $permission['own']['id'], '_on" ', $disable_field, '/>';
+								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" id="', $permission['own']['id'], '_on" ', $disable_field, '>';
 							else
 							{
 								echo '
@@ -633,7 +627,7 @@ function template_modify_group_display($type)
 
 						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
 							echo '
-								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" ', $disable_field, '/>';
+								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" ', $disable_field, '>';
 						else
 						{
 							echo '
@@ -655,7 +649,7 @@ function template_modify_group_display($type)
 
 						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
 							echo '
-								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'on' ? ' checked="checked"' : '', ' value="on" ', $disable_field, '/>';
+								<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'on' ? ' checked="checked"' : '', ' value="on" ', $disable_field, '>';
 						else
 						{
 							echo '
@@ -674,6 +668,7 @@ function template_modify_group_display($type)
 				}
 			}
 		}
+
 		echo '
 					</table>';
 	}
@@ -888,12 +883,9 @@ function template_postmod_permissions()
 
 				// Guests can't have "own" permissions
 				if ($group['id'] == '-1')
-				{
 					echo '
 										<td colspan="3"></td>';
-				}
 				else
-				{
 					echo '
 										<td class="centercol">
 											<input type="radio" name="replies_own[', $group['id'], ']" value="allow"', $group['replies_own'] == 'allow' ? ' checked' : '', '>
@@ -904,7 +896,6 @@ function template_postmod_permissions()
 										<td class="centercol">
 											<input type="radio" name="replies_own[', $group['id'], ']" value="disallow"', $group['replies_own'] == 'disallow' ? ' checked' : '', '>
 										</td>';
-				}
 
 				echo '
 										<td class="centercol">
@@ -918,7 +909,6 @@ function template_postmod_permissions()
 										</td>';
 
 				if ($modSettings['attachmentEnable'] == 1)
-				{
 					echo '
 										<td class="centercol">
 											<input type="radio" name="attachment[', $group['id'], ']" value="allow"', $group['attachment'] == 'allow' ? ' checked' : '', '>
@@ -929,7 +919,6 @@ function template_postmod_permissions()
 										<td class="centercol">
 											<input type="radio" name="attachment[', $group['id'], ']" value="disallow"', $group['attachment'] == 'disallow' ? ' checked' : '', '>
 										</td>';
-				}
 
 				echo '
 									</tr>';

@@ -32,6 +32,7 @@ function template_report_type()
 		if (isset($type['description']))
 			echo '
 					<dt>', $type['description'], '</dt>';
+
 		echo '
 					<dd>
 						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', '>

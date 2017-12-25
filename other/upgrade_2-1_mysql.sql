@@ -498,7 +498,7 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits VARCHAR(255) NOT NULL DEFAULT '';
+ADD COLUMN credits TEXT NOT NULL;
 ---#
 
 /******************************************************************************/

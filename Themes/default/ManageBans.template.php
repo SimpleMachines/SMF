@@ -64,7 +64,7 @@ function template_ban_edit()
 						<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
+						<textarea name="reason" id="reason" cols="40" rows="3">', $context['ban']['reason'], '</textarea>
 					</dd>';
 
 	if (isset($context['ban']['notes']))
@@ -74,7 +74,7 @@ function template_ban_edit()
 						<span class="smalltext">', $txt['ban_notes_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
+						<textarea name="notes" id="ban_notes" cols="40" rows="3">', $context['ban']['notes'], '</textarea>
 					</dd>';
 
 	echo '

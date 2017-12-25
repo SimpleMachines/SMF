@@ -150,35 +150,38 @@ function EditNews()
 			'news' => array(
 				'header' => array(
 					'value' => $txt['admin_edit_news'],
+					'class' => 'half_table',
 				),
 				'data' => array(
 					'function' => function($news)
 					{
 						if (is_numeric($news['id']))
-							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
-							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
+							return '
+								<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
+								<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
 							return $news['unparsed'];
 					},
-					'style' => 'width: 50%;',
+					'class' => 'half_table',
 				),
 			),
 			'preview' => array(
 				'header' => array(
 					'value' => $txt['preview'],
+					'class' => 'half_table',
 				),
 				'data' => array(
 					'function' => function($news)
 					{
 						return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
 					},
-					'style' => 'width: 45%;',
+					'class' => 'half_table',
 				),
 			),
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
-					'class' => 'centercol',
+					'class' => 'centercol icon',
 				),
 				'data' => array(
 					'function' => function($news)
@@ -188,7 +191,7 @@ function EditNews()
 						else
 							return '';
 					},
-					'class' => 'centercol',
+					'class' => 'centercol icon',
 				),
 			),
 		),

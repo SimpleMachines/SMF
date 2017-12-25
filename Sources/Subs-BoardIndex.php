@@ -273,7 +273,7 @@ function getBoardIndex($boardIndexOptions)
 			$this_last_post['member']['avatar'] = set_avatar_data(array(
 				'avatar' => $row_board['avatar'],
 				'email' => $row_board['email_address'],
-				'filename' => !empty($row['member_filename']) ? $row_board['member_filename'] : '',
+				'filename' => !empty($row_board['member_filename']) ? $row_board['member_filename'] : '',
 			));
 
 		// Provide the href and link.

@@ -126,6 +126,7 @@ function template_login()
 		echo '
 				<br>
 				<a href="javascript:self.close();"></a>';
+
 	echo '
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -164,8 +165,8 @@ function template_login_tfa()
 						</div>
 						<br>
 						<div>
-							<input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/>
-							<label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label>
+							<input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve">
+							<label for="tfa_preserve">', $txt['tfa_preserve'], '</label>
 						</div>
 						<hr>
 						<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
@@ -178,34 +179,34 @@ function template_login_tfa()
 					</div>
 				</form>
 				<script>
-						form = $("#frmTfa");';
+					form = $("#frmTfa");';
 
 	if (!empty($context['from_ajax']))
 		echo '
-						form.submit(function(e) {
-							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
-							if (form.find("input[name=tfa_backup]:first").val().length > 0)
-								return true;
+					form.submit(function(e) {
+						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+						if (form.find("input[name=tfa_backup]:first").val().length > 0)
+							return true;
 
-							e.preventDefault();
-							e.stopPropagation();
+						e.preventDefault();
+						e.stopPropagation();
 
-							$.post(form.prop("action"), form.serialize(), function(data) {
-								if (data.indexOf("<bo" + "dy") > -1)
-									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
-								else {
-									form.parent().html($(data).find(".roundframe").html());
-								}
-							});
+						$.post(form.prop("action"), form.serialize(), function(data) {
+							if (data.indexOf("<bo" + "dy") > -1)
+								document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+							else {
+								form.parent().html($(data).find(".roundframe").html());
+							}
+						});
 
-							return false;
-						});';
+						return false;
+					});';
 
 	echo '
-						form.find("input[name=backup]").click(function(e) {
-							$("#tfaBackup").show();
-							$("#tfaCode").hide();
-						});
+					form.find("input[name=backup]").click(function(e) {
+						$("#tfaBackup").show();
+						$("#tfaCode").hide();
+					});
 				</script>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -230,7 +231,6 @@ function template_kick_guest()
 	echo '
 			<p class="information centertext">
 				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br>';
-
 
 	if ($context['can_register'])
 		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
@@ -345,7 +345,7 @@ function template_admin_login()
 				<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
-				<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button">';
+				<input type="submit" value="', $txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
@@ -374,12 +374,12 @@ function template_retry_activate()
 			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe">
+				<dl>';
 
 	// You didn't even have an ID?
 	if (empty($context['member_id']))
 		echo '
-				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 

@@ -27,10 +27,8 @@ function template_recent()
 		<div class="pagesection">', $context['page_index'], '</div>';
 
 	if (empty($context['posts']))
-	{
 		echo '
 		<div class="windowbg">', $txt['no_messages'], '</div>';
-	}
 
 	foreach ($context['posts'] as $post)
 	{
@@ -143,15 +141,19 @@ function template_unread()
 			// Now we handle the icons
 			echo '
 							<div class="icons floatright">';
+
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock"></span>';
+
 			if ($topic['is_sticky'])
 				echo '
 								<span class="generic_icons sticky"></span>';
+
 			if ($topic['is_poll'])
 				echo '
 								<span class="generic_icons poll"></span>';
+
 			echo '
 							</div>';
 
@@ -163,7 +165,7 @@ function template_unread()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -182,7 +184,7 @@ function template_unread()
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
 
-				echo '
+			echo '
 					</div><!-- $topic[css_class] -->';
 		}
 
@@ -268,7 +270,7 @@ function template_replies()
 
 		// Show a "select all" box for quick moderation?
 		if ($context['showCheckboxes'])
-				echo '
+			echo '
 					<div class="moderation">
 						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
 					</div>';
@@ -290,15 +292,19 @@ function template_replies()
 			// Now we handle the icons
 			echo '
 							<div class="icons floatright">';
+
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock"></span>';
+
 			if ($topic['is_sticky'])
 				echo '
 								<span class="generic_icons sticky"></span>';
+
 			if ($topic['is_poll'])
 				echo '
 								<span class="generic_icons poll"></span>';
+
 			echo '
 							</div>';
 
@@ -310,7 +316,7 @@ function template_replies()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -328,6 +334,7 @@ function template_replies()
 						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '">
 						</div>';
+
 			echo '
 					</div><!-- $topic[css_class] -->';
 		}

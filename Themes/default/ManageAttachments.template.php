@@ -91,7 +91,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
+			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_size'], '</dt>
 					<dd><input type="number" name="size" id="size" value="100" size="4"> ', $txt['kilobyte'], '</dd>
@@ -103,7 +103,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="bySize">
 				</dl>
 			</form>
-			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
+			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_manager_avatars_older'], '</dt>
 					<dd><input type="number" name="age" value="45" size="4"> ', $txt['days_word'], '</dd>
@@ -190,7 +190,7 @@ function template_maintenance()
 			}
 
 			function show_msg() {
-				$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', $txt['ajax_in_progress'], '" width="35" height="35">&nbsp; ', $txt['attachment_transfer_progress'], '<\/div>\');
+				$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', $txt['ajax_in_progress'], '" width="35" height="35"> ', $txt['attachment_transfer_progress'], '<\/div>\');
 				show_progress();
 			}
 
@@ -212,7 +212,6 @@ function template_attachment_repair()
 
 	// If we've completed just let them know!
 	if ($context['completed'])
-	{
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -222,11 +221,9 @@ function template_attachment_repair()
 			', $txt['repair_attachments_complete_desc'], '
 		</div>
 	</div>';
-	}
 
 	// What about if no errors were even found?
 	elseif (!$context['errors_found'])
-	{
 		echo '
 	<div id="manage_attachments">
 		<div class="cat_bar">
@@ -236,7 +233,7 @@ function template_attachment_repair()
 			', $txt['repair_attachments_no_errors'], '
 		</div>
 	</div>';
-	}
+
 	// Otherwise, I'm sad to say, we have a problem!
 	else
 	{
@@ -251,12 +248,10 @@ function template_attachment_repair()
 
 		// Loop through each error reporting the status
 		foreach ($context['repair_errors'] as $error => $number)
-		{
 			if (!empty($number))
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
 				<label for="', $error, '">', sprintf($txt['attach_repair_' . $error], $number), '</label><br>';
-		}
 
 		echo '
 				<br>
@@ -276,9 +271,7 @@ function template_attachment_paths()
 	global $modSettings;
 
 	if (!empty($modSettings['attachment_basedirectories']))
-	{
 		template_show_list('base_paths');
-	}
 
 	template_show_list('attach_paths');
 }

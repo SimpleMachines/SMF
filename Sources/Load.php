@@ -1838,7 +1838,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
 		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
-		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')));
+	{
+		if (isset($_GET['sslRedirect']))
+		{
+			loadLanguage('Errors');
+			fatal_lang_error($txt['login_ssl_required']);
+		}
+
+		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
+	}
 
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
@@ -1872,7 +1880,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 				redirectexit('wwwRedirect');
 			else
 			{
-				list ($k, $v) = each($_GET);
+				$k = key($_GET);
+				$v = current($_GET);
 
 				if ($k != 'wwwRedirect')
 					redirectexit('wwwRedirect;' . $k . '=' . $v);
@@ -2196,17 +2205,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavaScriptFile('jquery-3.1.1.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('jquery-3.2.1.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
