@@ -234,7 +234,9 @@ function smf_fileUpload(oOptions) {
 
 		// Show the upload and cancel all buttons only if there is something to cancel/upload.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1) {
-			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn();
+			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn('slow', function() {
+					$(this).css('display', 'inline-block');
+			});
 		}
 	});
 
