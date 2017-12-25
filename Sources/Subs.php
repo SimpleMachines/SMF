@@ -6022,7 +6022,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	
 	// Next, check the ssl stream context for certificate info 
 	$result = false;
-	$context = stream_context_create (array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
 	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 	if ($stream !== false)
 	{
