@@ -1666,6 +1666,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.gender_None {
 	background: none;
 }
+
+.generic_icons.gender_0 {
+	display: none;
+}
+
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;

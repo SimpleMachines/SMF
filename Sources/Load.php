@@ -1539,10 +1539,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			$value = $profile['options'][$custom['col_name']];
 
-			// Don't show the "disabled" option for the "gender" field.
-			if ($custom['col_name'] == 'cust_gender' && $value == 'None')
-				continue;
-
 			$fieldOptions = array();
 			$currentKey = 0;
 
