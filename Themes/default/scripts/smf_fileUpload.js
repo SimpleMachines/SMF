@@ -33,8 +33,8 @@ function smf_fileUpload(oOptions) {
 			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
 
 			var bbcOptionalParams = {
-				width: mime_type.indexOf('image') == 0 && +w > 0 ? (' width=' + w) : '',
-				height: mime_type.indexOf('image') == 0 && +h > 0 ? (' height=' + h) : '',
+				width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
+				height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
 				name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
 				type: ' type=' + mime_type,
 			};
@@ -120,7 +120,6 @@ function smf_fileUpload(oOptions) {
 
 	$.extend(true, dOptions, oOptions);
 
-
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
 
 	myDropzone.on('addedfile', function (file) {
@@ -162,7 +161,7 @@ function smf_fileUpload(oOptions) {
 				.appendTo(_innerElement.find('.attach-ui'));
 		};
 
-		// Replace the filled with a message when the attachment is deleted.
+		// Replace the file with a message when the attachment has been deleted.
 		file.deleteAttachment = function (_innerElement, attachmentId, file) {
 
 			deleteButton = $('<a />')
@@ -245,7 +244,6 @@ function smf_fileUpload(oOptions) {
 
 		// Do stuff only if the file was actually accepted and it doesn't have an error status.
 		if (file.accepted && file.status != Dropzone.ERROR) {
-
 			// Need to remove the file size to make sure theres plenty of room for another one.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
@@ -259,6 +257,29 @@ function smf_fileUpload(oOptions) {
 		}
 	});
 
+    // Event for when a file has been canceled
+    myDropzone.on("canceled", function(file) {
+        // Need to remove the file size to make sure theres plenty of room for another one.
+        myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
+
+        // Re-count!
+        myDropzone.options.createMaxSizeBar();
+
+        this.removeFile(file);
+    });
+
+	// Event for when the total amount of files exceeds the maxFiles option
+    myDropzone.on("maxfilesexceeded", function(file) {
+
+        // Need to remove the file size to make sure there is plenty of room for another one.
+        myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
+
+        // Re-count!
+        myDropzone.options.createMaxSizeBar();
+
+    	this.removeFile(file);
+    });
+
 	// Update the total progress bar.
 	myDropzone.on('totaluploadprogress', function (progress) {
 		$('#total-progress span').width(progress + '%');
@@ -271,7 +292,7 @@ function smf_fileUpload(oOptions) {
 		// Remove the 'upload' button.
 		_thisElement.find('.upload').fadeOutAndRemove('slow');
 
-		// Set a nice css class to make it more obvious theres an error.
+		// Set a nice css class to make it more obvious there is an error.
 		_thisElement.addClass('errorbox').removeClass('descbox');
 	});
 
@@ -440,7 +461,7 @@ function smf_fileUpload(oOptions) {
 		}
 	});
 
-	// Hide the default way to show already atached files.
+	// Hide the default way to show already attached files.
 	$('#postAttachment').fadeOutAndRemove('slow');
 
 	// Show any attachments already uploaded.
@@ -450,7 +471,7 @@ function smf_fileUpload(oOptions) {
 			// Tell the world this is a mock file!
 			mock.isMock = true;
 
-			// Tell eveyone this file was accepted.
+			// Tell everyone this file was accepted.
 			mock.status = Dropzone.ADDED;
 			mock.accepted = true;
 
