@@ -18,22 +18,26 @@ function template_main()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
+	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">';
+
+	if (!empty($context['search_errors']))
+		echo '
+		<div class="errorbox">
+			', implode('<br>', $context['search_errors']['messages']), '
+		</div>';
+
+	if (!empty($context['search_ignored']))
+		echo '
+		<div class="noticebox">
+			', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
+		</div>';
+
+	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
 		</div>';
-
-	if (!empty($context['search_errors']))
-		echo '
-		<div class="errorbox">', implode('<br>', $context['search_errors']['messages']), '</div>';
-
-	if (!empty($context['search_ignored']))
-		echo '
-		<p class="noticebox">
-			', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
-		</p>';
 
 	echo '
 		<div id="advanced_search" class="roundframe">
@@ -182,10 +186,10 @@ function template_main()
 					</ul>
 				</div><!-- #advanced_panel_div -->
 				<br class="clear">
-				<div class="padding flow_auto">
-					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="floatleft">
-					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
-					<input type="submit" name="b_search" value="', $txt['search'], '" class="button">
+				<div class="padding">
+					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
+					<label for="check_all"><em>', $txt['check_all'], '</em></label>
+					<input type="submit" name="b_search" value="', $txt['search'], '" class="button floatright">
 				</div>
 			</div><!-- .roundframe -->
 		</fieldset>';
@@ -246,7 +250,7 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<div class="roundframe">';
+		<div class="roundframe noup">';
 
 		// Did they make any typos or mistakes, perhaps?
 		if (isset($context['did_you_mean']))
@@ -271,7 +275,7 @@ function template_results()
 						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
 					</dd>
 				</dl>
-				<div class="flow_auto" >
+				<div class="floatright">
 					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button">
 					<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
 					<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
@@ -290,8 +294,7 @@ function template_results()
 		echo '
 			</form>
 		</div><!-- .roundframe -->
-	</div><!-- #search_results -->
-	<br>';
+	</div><!-- #search_results -->';
 	}
 
 	if ($context['compact'])
@@ -324,28 +327,28 @@ function template_results()
 
 		else
 			echo '
-		<div class="roundframe">', $txt['find_no_results'], '</div>';
+		<div class="roundframe noup">', $txt['find_no_results'], '</div>';
 
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
 			echo '
-		<div class="', $topic['css_class'], '">
-			<div class="flow_auto">';
+		<div class="', $topic['css_class'], '">';
 
-			foreach ($topic['matches'] as $message)
-			{
-				echo '
-					<div class="topic_details floatleft">
-						<div class="counter">', $message['counter'], '</div>
-						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-						<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
-					</div>';
+		foreach ($topic['matches'] as $message)
+		{
+			echo '
+			<div class="block">
+				<span class="floatleft half_content">
+					<div class="counter">', $message['counter'], '</div>
+					<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+					<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+				</span>';
 
 				if (!empty($options['display_quick_mod']))
 				{
 					echo '
-				<div class="floatright">';
+				<span class="floatright">';
 
 					if ($options['display_quick_mod'] == 1)
 						echo '
@@ -375,17 +378,18 @@ function template_results()
 					}
 
 					echo '
-				</div><!-- .floatright -->';
+				</span><!-- .floatright -->';
 				}
+
+			echo '
+			</div><!-- .block -->';
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<br class="clear">
 				<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
-			</div><!-- .flow_auto -->
 		</div><!-- $topic[css_class] -->';
 
 		}

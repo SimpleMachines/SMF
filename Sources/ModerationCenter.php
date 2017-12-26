@@ -1026,7 +1026,6 @@ function ViewWatchedUsers()
 	$listOptions = array(
 		'id' => 'watch_user_list',
 		'title' => $txt['mc_watched_users_title'] . ' - ' . ($context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
-		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'no_items_label' => $context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
 		'base_href' => $scripturl . '?action=moderate;area=userwatch;sa=' . ($context['view_posts'] ? 'post' : 'member'),
