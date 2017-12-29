@@ -1060,7 +1060,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('aim', 'icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
@@ -1094,9 +1094,6 @@ if (!empty($select_columns))
 		$genderTypes = array(1 => 'Male', 2 => 'Female');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (!empty($row['aim']))
-				$inserts[] = array($row['id_member'], 1, 'cust_aolins', $row['aim']);
-
 			if (!empty($row['icq']))
 				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
