@@ -50,7 +50,7 @@ class postgres_cache extends cache_api
 		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
 		if (pg_affected_rows($result) === 0)
-			pg_query($db_connection, 'CREATE UNLOGGED TABLE {db_prefix}cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
+			pg_query($db_connection, 'CREATE UNLOGGED TABLE ' . $db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
 	}
 
 	/**
@@ -143,6 +143,53 @@ class postgres_cache extends cache_api
 		global $smcFunc;
 
 		return $smcFunc['db_server_info']();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function housekeeping()
+	{
+		$this->createTempTable();
+		$this->cleanCache();
+		$this->retrieveData();
+		$this->deleteTempTable();
+	}
+	
+	/**
+	 * Create the temp table of valid data.
+	 * 
+	 * @return void
+	 */
+	private function createTempTable()
+	{
+		global $db_connection, $db_prefix;
+		
+		pg_query($db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $db_prefix . 'cache_tmp AS SELECT * FROM ' . $db_prefix . 'cache WHERE ttl >= ' . time() );
+	}
+	
+	/**
+	 * Delete the temp table.
+	 * 
+	 * @return void
+	 */
+	private function deleteTempTable()
+	{
+		global $db_connection, $db_prefix;
+		
+		pg_query($db_connection, 'DROP TABLE IF EXISTS ' . $db_prefix . 'cache_tmp');
+	}
+	
+	/**
+	 * Retrieve the valid data from temp table.
+	 * 
+	 * @return void
+	 */
+	private function retrieveData()
+	{
+		global $db_connection, $db_prefix;
+		
+		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM '. $db_prefix . 'cache_tmp');
 	}
 }
 
