@@ -745,7 +745,7 @@ function template_confirm_board_delete()
 				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '"
+				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '">
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #manage_boards -->';
