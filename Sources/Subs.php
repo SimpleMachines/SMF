@@ -6103,10 +6103,10 @@ function build_query_board($userid)
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		if (empty($row['additional_groups']))
-			$groups = array($row['id_group'], $user_settings['id_post_group']);
+			$groups = array($row['id_group'], $row['id_post_group']);
 		else
 			$groups = array_merge(
-					array($row['id_group'], $user_settings['id_post_group']),
+					array($row['id_group'], $row['id_post_group']),
 					explode(',', $row['additional_groups'])
 			);
 
