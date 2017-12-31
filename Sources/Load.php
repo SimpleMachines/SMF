@@ -1550,7 +1550,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 					if (empty($currentKey))
 						$currentKey = $v == $value ? $k : 0;
 				}
-			
+
 			// BBC?
 			if ($custom['bbc'])
 				$value = parse_bbc($value);
@@ -1622,14 +1622,13 @@ function loadMemberCustomFields($users, $params)
 		$currentKey = 0;
 
 		// Create a key => value array for multiple options fields
-		if (!empty($row['field_options'])) {
+		if (!empty($row['field_options']))
 			foreach (explode(',', $row['field_options']) as $k => $v)
 			{
 				$fieldOptions[] = $v;
 				if (empty($currentKey))
 					$currentKey = $v == $row['value'] ? $k : 0;
 			}
-		}
 
 		// BBC?
 		if (!empty($row['bbc']))
