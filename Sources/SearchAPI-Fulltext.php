@@ -213,7 +213,7 @@ class fulltext_search extends search_api
 			{
 				$language_ftx = $smcFunc['db_search_language']();
 
-				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:body_match})';
+				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ plainto_tsquery({string:language_ftx},{string:body_match})';
 				$query_params['language_ftx'] = $language_ftx;
 			}
 			else
@@ -247,7 +247,7 @@ class fulltext_search extends search_api
 				{
 					$language_ftx = $smcFunc['db_search_language']();
 
-					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:boolean_match})';
+					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ plainto_tsquery({string:language_ftx},{string:boolean_match})';
 					$query_params['language_ftx'] = $language_ftx;
 				}
 				else
