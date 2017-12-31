@@ -586,6 +586,7 @@ $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or 
 			<li>{SCRIPTURL} - Web address of forum.</li>
 			<li>{IMAGES_URL} - Url to images directory in the users current theme.</li>
 			<li>{DEFAULT_IMAGES_URL} - Url to the images directory in the default theme.</li>
+			<li>{KEY} - Used when a field has multiple options, is the unique numeric ID used to identify it.</li>
 		</ul>';
 
 $helptxt['custom_mask'] = 'The input mask is important for your forum\'s security. Validating the input from a user can help ensure that data is not used in a way you do not expect. We have provided some simple regular expressions as hints.<br><br>

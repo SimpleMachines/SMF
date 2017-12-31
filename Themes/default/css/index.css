@@ -1678,6 +1678,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.gender_None {
 	background: none;
 }
+
+.generic_icons.gender_0 {
+	display: none;
+}
+
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
@@ -1700,7 +1705,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_2 {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1713,7 +1718,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Male {
+.generic_icons.gender_1 {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
@@ -2317,7 +2322,7 @@ dl {
 	font-size: 0.9em;
 }
 #warn_temp {
-	font-size: smaller;	
+	font-size: smaller;
 }
 
 /* Styles for the statistics center.
@@ -3697,7 +3702,7 @@ h3.profile_hd {
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
 /* Messages that somehow need to attract the attention. */
-.red, .meaction, 
+.red, .meaction,
 .error, .alert, .warn_mute {
 	color: red;
 }

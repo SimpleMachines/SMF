@@ -974,7 +974,7 @@ $request = $smcFunc['db_query']('', '
 		'theme_dir' => 'theme_dir',
 	)
 );
-// Check which themes exist in the filesystem & save off their IDs 
+// Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = $GLOBALS['boarddir'] . '/Themes/core';
@@ -1024,7 +1024,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -2458,7 +2458,7 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 /******************************************************************************/
 --- Create index for messages likes
 /******************************************************************************/
----# Add Index for messages likes 
+---# Add Index for messages likes
 CREATE INDEX idx_likes ON {$db_prefix}messages (likes DESC);
 ---#
 
