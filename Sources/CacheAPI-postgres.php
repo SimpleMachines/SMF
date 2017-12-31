@@ -189,7 +189,7 @@ class postgres_cache extends cache_api
 	{
 		global $db_connection, $db_prefix;
 		
-		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM '. $db_prefix . 'cache_tmp');
+		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM '. $db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}
 }
 
