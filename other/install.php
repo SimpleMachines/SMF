@@ -259,7 +259,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext;
+	global $txt, $incontext, $user_info;
 
 	$incontext['detected_languages'] = array();
 
