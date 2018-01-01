@@ -324,6 +324,10 @@ function load_lang_file()
 
 	// And now include the actual language file itself.
 	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+	
+	// Which language we load? And also assume that he like his language.
+	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+	$user_info['language'] = $matches[1];
 }
 
 // This handy function loads some settings and the like.
