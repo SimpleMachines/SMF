@@ -1978,7 +1978,7 @@ function template_install_below()
 		</div></div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2017, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>

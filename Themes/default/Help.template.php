@@ -116,7 +116,7 @@ function template_find_members()
 		foreach ($context['results'] as $result)
 			echo '
 					<li class="windowbg">
-						<a href="', $result['href'], '" target="_blank"> <span class="generic_icons profile_sm"></span>
+						<a href="', $result['href'], '" target="_blank" rel="noopener"> <span class="generic_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
 
@@ -164,7 +164,7 @@ function template_manual()
 
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
 		echo '
-						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 
 	echo '
 					</ul>

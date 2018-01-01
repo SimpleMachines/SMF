@@ -3492,7 +3492,7 @@ function template_upgrade_below()
 		</div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2017, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>
@@ -3813,7 +3813,7 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="stat">
 								Allow Simple Machines to Collect Basic Stats Monthly.<br>
-								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.</span>
+								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.</span>
 							</label>
 						</td>
 					</tr>

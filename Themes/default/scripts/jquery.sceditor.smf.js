@@ -511,7 +511,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
-			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
+			return '<a target="_blank" rel="noopener" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 		}
 	}
 );

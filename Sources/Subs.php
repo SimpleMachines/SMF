@@ -1354,7 +1354,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
-				'disabled_content' => '<a href="$1" target="_blank">$1</a>',
+				'disabled_content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 			),
 			array(
 				'tag' => 'float',
@@ -1714,7 +1714,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_link" target="_blank">$1</a>',
+				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
@@ -1727,7 +1727,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
 				'quoted' => 'optional',
-				'before' => '<a href="$1" class="bbc_link" target="_blank">',
+				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
