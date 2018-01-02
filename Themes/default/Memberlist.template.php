@@ -79,7 +79,7 @@ function template_main()
 
 			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 			// Group and date.
 			echo '

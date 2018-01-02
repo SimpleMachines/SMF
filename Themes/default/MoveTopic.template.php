@@ -244,7 +244,7 @@ function template_merge()
 			echo '
 						<li>
 							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>
-							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
+							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 
 		echo '
@@ -315,7 +315,7 @@ function template_merge_extra_options()
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
-							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank">' . $topic['subject'] . '</a>
+							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
 						</td>
 						<td>
 							', $topic['started']['link'], '<br>
@@ -378,7 +378,7 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>

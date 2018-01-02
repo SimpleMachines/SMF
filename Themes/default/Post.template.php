@@ -1088,7 +1088,7 @@ function template_announcement_send()
 		<form action="', $scripturl, '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
 				<p>
-					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank">', $context['topic_subject'], '</a>
+					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" rel="noopener">', $context['topic_subject'], '</a>
 				</p>
 				<div class="progress_bar">
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
