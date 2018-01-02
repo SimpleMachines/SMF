@@ -102,7 +102,7 @@ function template_registration_form()
 							<strong><label for="smf_autov_username">', $txt['username'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="user" id="smf_autov_username" size="30" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
+							<input type="text" name="user" id="smf_autov_username" size="50" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
 							<span id="smf_autov_username_div" style="display: none;">
 								<a id="smf_autov_username_link" href="#">
 									<span id="smf_autov_username_img" class="generic_icons check"></span>
@@ -111,13 +111,13 @@ function template_registration_form()
 						</dd>
 						<dt><strong><label for="smf_autov_reserve1">', $txt['user_email_address'], ':</label></strong></dt>
 						<dd>
-							<input type="text" name="email" id="smf_autov_reserve1" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '">
+							<input type="text" name="email" id="smf_autov_reserve1" size="50" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '">
 						</dd>
 					</dl>
 					<dl class="register_form" id="password1_group">
 						<dt><strong><label for="smf_autov_pwmain">', ucwords($txt['choose_pass']), ':</label></strong></dt>
 						<dd>
-							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '">
+							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwmain_div" style="display: none;">
 								<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
 							</span>
@@ -128,7 +128,7 @@ function template_registration_form()
 							<strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '">
+							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwverify_div" style="display: none;">
 								<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 							</span>
@@ -498,21 +498,21 @@ function template_admin_register()
 							<span class="smalltext">', $txt['admin_register_username_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="30" maxlength="25">
+							<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="50" maxlength="25">
 						</dd>
 						<dt>
 							<strong><label for="email_input">', $txt['admin_register_email'], ':</label></strong>
 							<span class="smalltext">', $txt['admin_register_email_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="30">
+							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="50">
 						</dd>
 						<dt>
 							<strong><label for="password_input">', $txt['admin_register_password'], ':</label></strong>
 							<span class="smalltext">', $txt['admin_register_password_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="30" onchange="onCheckChange();">
+							<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="50" onchange="onCheckChange();">
 						</dd>';
 
 	if (!empty($context['member_groups']))
