@@ -41,8 +41,8 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
-/* Prevent input overflow at smaller screens */
-input[type="text"] {
+/* Prevent inputs overflowing */
+input, select {
 	max-width: 100%;
 }
 /* Remove default mozilla dotted borders */
