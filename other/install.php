@@ -259,7 +259,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext;
+	global $txt, $incontext, $user_info;
 
 	$incontext['detected_languages'] = array();
 
@@ -324,6 +324,10 @@ function load_lang_file()
 
 	// And now include the actual language file itself.
 	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+	
+	// Which language did we load? Assume that he likes his language.
+	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+	$user_info['language'] = $matches[1];
 }
 
 // This handy function loads some settings and the like.
@@ -1978,7 +1982,7 @@ function template_install_below()
 		</div></div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2017, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>

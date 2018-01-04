@@ -1539,13 +1539,21 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			$value = $profile['options'][$custom['col_name']];
 
-			// Don't show the "disabled" option for the "gender" field.
-			if ($custom['col_name'] == 'cust_gender' && $value == 'Disabled')
-				continue;
+			$fieldOptions = array();
+			$currentKey = 0;
+
+			// Create a key => value array for multiple options fields
+			if (!empty($custom['options']))
+				foreach ($custom['options'] as $k => $v)
+				{
+					$fieldOptions[] = $v;
+					$currentKey = $v == $value ? $k : 0;
+				}
 
 			// BBC?
 			if ($custom['bbc'])
 				$value = parse_bbc($value);
+
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
 				$value = $value ? $txt['yes'] : $txt['no'];
@@ -1557,6 +1565,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 					'{INPUT}' => $value,
+					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
@@ -1608,6 +1617,17 @@ function loadMemberCustomFields($users, $params)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$fieldOptions = array();
+		$currentKey = 0;
+
+		// Create a key => value array for multiple options fields
+		if (!empty($row['field_options']))
+			foreach (explode(',', $row['field_options']) as $k => $v)
+			{
+				$fieldOptions[] = $v;
+				$currentKey = $v == $row['value'] ? $k : 0;
+			}
+
 		// BBC?
 		if (!empty($row['bbc']))
 			$row['value'] = parse_bbc($row['value']);
@@ -1623,6 +1643,7 @@ function loadMemberCustomFields($users, $params)
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($row['value']),
+				'{KEY}' => $currentKey,
 			));
 
 		// Send a simple array if there is just 1 param
@@ -1817,7 +1838,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
 		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
-		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')));
+	{
+		if (isset($_GET['sslRedirect']))
+		{
+			loadLanguage('Errors');
+			fatal_lang_error($txt['login_ssl_required']);
+		}
+
+		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
+	}
 
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))

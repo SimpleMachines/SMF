@@ -62,7 +62,9 @@ function loadSession()
 		// Use database sessions? (they don't work in 4.1.x!)
 		if (!empty($modSettings['databaseSession_enable']))
 		{
-			@ini_set('session.serialize_handler', 'php');
+			@ini_set('session.serialize_handler', 'php_serialize');
+			if (ini_get('session.serialize_handler') != 'php_serialize')
+				@ini_set('session.serialize_handler', 'php');
 			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
 			@ini_set('session.gc_probability', '1');
 		}

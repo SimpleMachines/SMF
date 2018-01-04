@@ -9,7 +9,7 @@ $txt['manual_smf_user_help'] = 'SMF User Help';
 
 $txt['manual_welcome'] = 'Welcome to %s, powered by Simple Machines&reg; Forum (SMF) software!';
 $txt['manual_introduction'] = 'SMF&reg; is the elegant, effective, powerful and free forum software solution that this site is running. It allows users to communicate in discussion topics on a given subject in a clever and organized manner. Furthermore, it has a number of powerful features which end users can take advantage of. Help for many of SMF\'s features can be found by either clicking the question mark icon next to the relevant section or by selecting one of the links on this page. These links will take you to SMF\'s centrally-located documentation on the Simple Machines official site.';
-$txt['manual_docs_and_credits'] = 'For more information about how to use SMF, please see the <a href="%1$s" target="_blank">Simple Machines Documentation Wiki</a> and check out the <a href="%2$s">credits</a> to find out who has made SMF what it is today.';
+$txt['manual_docs_and_credits'] = 'For more information about how to use SMF, please see the <a href="%1$s" target="_blank" rel="noopener">Simple Machines Documentation Wiki</a> and check out the <a href="%2$s">credits</a> to find out who has made SMF what it is today.';
 
 $txt['manual_section_registering_title'] = 'Registering';
 $txt['manual_section_logging_in_title'] = 'Logging In';

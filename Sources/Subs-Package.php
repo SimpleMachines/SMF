@@ -1664,7 +1664,7 @@ function compareVersions($version1, $version2)
 			'minor' => !empty($parts[2]) ? (int) $parts[2] : 0,
 			'patch' => !empty($parts[3]) ? (int) $parts[3] : 0,
 			'type' => empty($parts[4]) ? 'stable' : $parts[4],
-			'type_major' => !empty($parts[6]) ? (int) $parts[5] : 0,
+			'type_major' => !empty($parts[5]) ? (int) $parts[5] : 0,
 			'type_minor' => !empty($parts[6]) ? (int) $parts[6] : 0,
 			'dev' => !empty($parts[7]),
 		);

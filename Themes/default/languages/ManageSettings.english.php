@@ -359,7 +359,7 @@ $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
-$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank">pSpell</a> - if installed';
+$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> - if installed';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 
 $txt['lang_file_desc_index'] = 'General Strings';
