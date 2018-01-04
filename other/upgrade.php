@@ -4568,7 +4568,7 @@ function template_upgrade_complete()
 			', $txt['upgrade_problems'], '<br>
 			<br>
 			', $txt['upgrade_luck'], '<br>
-			', $txt['upgrade_sm'], '';
+			Simple Machines';
 }
 
 /**
