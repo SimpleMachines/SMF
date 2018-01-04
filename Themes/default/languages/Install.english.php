@@ -217,7 +217,6 @@ $txt['error_db_filename_exists'] = 'The database that you are trying to create e
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
 $txt['error_utf8_support'] = 'The database you are trying to use is not using UTF8 charset';
 
-$txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
 $txt['ftp_login'] = 'Your FTP connection information';
 $txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you. Please note that none of this information is saved in your installation, it is just used to setup SMF.';
 $txt['ftp_server'] = 'Server';
