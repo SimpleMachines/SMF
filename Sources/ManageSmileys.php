@@ -1008,8 +1008,8 @@ function EditSmileys()
 						},
 					),
 					'sort' => array(
-						'default' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\')',
-						'reverse' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\') DESC',
+						'default' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations)) ,
+						'reverse' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations), true),
 					),
 				),
 				'tooltip' => array(
