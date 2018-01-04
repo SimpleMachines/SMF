@@ -999,7 +999,7 @@ function smf_db_error_insert($error_array)
 }
 
 /**
- * Function which constructions an optimize custom order string
+ * Function which constructs an optimize custom order string
  * as an improved alternative to find_in_set()
  *
  * @param string $field name
@@ -1013,7 +1013,7 @@ function smf_db_custom_order($field, $array_values, $desc = false)
 	$count = count($array_values);
 	$then = ($desc ? ' THEN -' : ' THEN ');
 
-	for ($i = 0; $i < $count; $i++ )
+	for ($i = 0; $i < $count; $i++)
 		$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
 
 	$return .= 'END';
