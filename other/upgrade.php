@@ -3638,14 +3638,14 @@ function template_welcome_message()
 
 		if ($active < 600)
 			echo '
-				We recommend that you do not run this script unless you are sure that ', $upcontext['user']['name'], ' has completed their upgrade.';
+				', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '';
 
 		if ($active > $upcontext['inactive_timeout'])
 			echo '
-				<br><br>You can choose to either run the upgrade again from the beginning - or alternatively continue from the last step reached during the last upgrade.';
+				<br><br>',$txt['upgrade_run'], '';
 		else
 			echo '
-				<br><br>This upgrade script cannot be run until ', $upcontext['user']['name'], ' has been inactive for at least ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!');
+				<br><br>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!');
 
 		echo '
 			</div>
@@ -3653,7 +3653,7 @@ function template_welcome_message()
 	}
 
 	echo '
-			<strong>Admin Login: ', $disable_security ? '(DISABLED)' : '', '</strong>
+			<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
 			<h3>', $txt['upgrade_sec_login'], '</h3>
 			<table>
 				<tr valign="top">

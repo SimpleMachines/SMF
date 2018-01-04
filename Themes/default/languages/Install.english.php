@@ -311,7 +311,7 @@ $txt['upgrade_of'] = 'of';
 /* Same sentence, 3 different strings */
 $txt['upgrade_done'] = 'That wasn\'t so hard, was it?  Now you are ready to use';
 $txt['upgrade_done2'] = 'your installation of SMF';
-$txt['upgrade_done3'] = 'Hope you like it!'
+$txt['upgrade_done3'] = 'Hope you like it!';
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '<em>(doesn\'t work on all servers).</em>';
