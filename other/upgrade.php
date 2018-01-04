@@ -3669,7 +3669,7 @@ function template_welcome_message()
 					</td>
 				</tr>
 				<tr valign="top">
-					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_password']'</strong></td>
+					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_password'], '</strong></td>
 					<td>
 						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
 						<input type="hidden" name="hash_passwrd" value="">';
