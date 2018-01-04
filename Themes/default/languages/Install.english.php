@@ -286,7 +286,7 @@ $txt['upgrade_customize'] = 'Customize';
 $txt['upgrade_debug_info'] = 'Output extra debugging information';
 $txt['upgrade_empty_errlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
-$txt['upgrade_stats_collection'] = 'Allow Simple Machines to Collect Basic Stats Monthly.'
+$txt['upgrade_stats_collection'] = 'Allow Simple Machines to Collect Basic Stats Monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
