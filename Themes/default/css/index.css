@@ -1314,9 +1314,6 @@ ul li.greeting {
 .quickbuttons li a img {
 	padding-bottom: 2px;
 }
-.quickbuttons li input {
-	margin-top: 4px;
-}
 
 /* Drop part of QuickButtons */
 .quickbuttons li ul {
