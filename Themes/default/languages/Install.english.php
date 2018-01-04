@@ -307,6 +307,7 @@ $txt['upgrade_convert_datajson'] = 'Converting data from serialize to JSON...';
 $txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Proceed.';
 $txt['upgrade_executing'] = 'Executing:';
 $txt['upgrade_of'] = 'of';
+$txt['upgrade_admin_login'] = 'Admin Login:'
 /* Same sentence, 3 different strings */
 $txt['upgrade_done'] = 'That wasn\'t so hard, was it?  Now you are ready to use';
 $txt['upgrade_done2'] = 'your installation of SMF';
