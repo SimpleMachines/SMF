@@ -80,20 +80,16 @@ if (!file_exists($upgrade_path . '/upgrade-helper.php'))
 
 require_once($upgrade_path . '/upgrade-helper.php');
 
-global $txt;
-// Initialize our beloved language files
-load_lang_file();
-
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = array(
-	0 => array(1, $txt['upgrade_step_login'], 'WelcomeLogin', 2),
-	1 => array(2, $txt['upgrade_step_options'], 'UpgradeOptions', 2),
-	2 => array(3, $txt['upgrade_step_backup'], 'BackupDatabase', 10),
-	3 => array(4, $txt['upgrade_step_database'], 'DatabaseChanges', 50),
-	4 => array(5, $txt['upgrade_step_convertutf'], 'ConvertUtf8', 20),
-	5 => array(6, $txt['upgrade_step_convertjson'], 'serialize_to_json', 10),
-	6 => array(7, $txt['upgrade_step_delete'], 'DeleteUpgrade', 1),
+	0 => array(1, 'Login', 'WelcomeLogin', 2),
+	1 => array(2, 'Upgrade Options', 'UpgradeOptions', 2),
+	2 => array(3, 'Backup', 'BackupDatabase', 10),
+	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
+	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
+	5 => array(6, 'Convert serialized strings to JSON', 'serialize_to_json', 10),
+	6 => array(7, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -3271,8 +3267,8 @@ function template_chmod()
 
 	echo '
 		<div class="panel">
-			<h2>', $txt['upgrade_ftp_login'], '</h2>
-			<h3>', $txt['upgrade_ftp_perms'], '</h3>
+			<h2>Your FTP connection information</h2>
+			<h3>The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.</h3>
 			<script>
 				function warning_popup()
 				{
@@ -3280,14 +3276,14 @@ function template_chmod()
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
 					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
-					content.write(\'<title>', $txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
-					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', $txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
+					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
+					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
 
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
 					content.write(\'<hr>\n\t\t\t\');
-					content.write(\'<p>', $txt['upgrade_ftp_shell'], '</p>\n\t\t\t\');
+					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
 					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
 
 	echo '
@@ -3299,7 +3295,7 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
 			<div class="error_message red">
-				', $txt['upgrade_ftp_error'], '<br><br>
+				The following error was encountered when trying to connect:<br><br>
 				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>
 			<br>';
@@ -3654,29 +3650,29 @@ function template_welcome_message()
 
 	echo '
 			<strong>Admin Login: ', $disable_security ? '(DISABLED)' : '', '</strong>
-			<h3>', $txt['upgrade_sec_login'], '</h3>
+			<h3>For security purposes please login with your admin account to proceed with the upgrade.</h3>
 			<table>
 				<tr valign="top">
-					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_username'], '</strong></td>
+					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>Username:</strong></td>
 					<td>
 						<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '"', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['username_incorrect']))
 		echo '
-						<div class="smalltext" style="color: red;">', $txt['upgrade_wrong_username'], '</div>';
+						<div class="smalltext" style="color: red;">Username Incorrect</div>';
 
 	echo '
 					</td>
 				</tr>
 				<tr valign="top">
-					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_password']'</strong></td>
+					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>Password:</strong></td>
 					<td>
 						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
 						<input type="hidden" name="hash_passwrd" value="">';
 
 	if (!empty($upcontext['password_failed']))
 		echo '
-						<div class="smalltext" style="color: red;">', $txt['upgrade_wrong_password'], '</div>';
+						<div class="smalltext" style="color: red;">Password Incorrect</div>';
 
 	echo '
 					</td>
@@ -3688,7 +3684,7 @@ function template_welcome_message()
 		echo '
 				<tr>
 					<td colspan="2">
-						<label for="cont"><input type="checkbox" id="cont" name="cont" checked>', $txt['upgrade_continue_step'], '</label>
+						<label for="cont"><input type="checkbox" id="cont" name="cont" checked>Continue from step reached during last execution of upgrade script.</label>
 					</td>
 				</tr>';
 	}
@@ -3696,7 +3692,7 @@ function template_welcome_message()
 	echo '
 			</table><br>
 			<span class="smalltext">
-				', $txt['upgrade_bypass'], '
+				<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.
 			</span>
 			<input type="hidden" name="login_attempt" id="login_attempt" value="1">
 			<input type="hidden" name="js_works" id="js_works" value="0">';
@@ -3740,10 +3736,10 @@ function template_welcome_message()
 
 function template_upgrade_options()
 {
-	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle, $txt;
+	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle;
 
 	echo '
-			<h3>', $txt['upgrade_areyouready'], '</h3>
+			<h3>Before the upgrade gets underway please review the options below - and hit continue when you\'re ready to begin.</h3>
 			<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">';
 
 	// Warning message?
@@ -3764,7 +3760,7 @@ function template_upgrade_options()
 							<input type="checkbox" name="backup" id="backup" value="1">
 						</td>
 						<td width="100%">
-							<label for="backup">', $txt['upgrade_backup_table'], ' &quot;backup_' . $db_prefix . '&quot;.</label> (', $txt['upgrade_recommended'], ')
+							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label> (recommended!)
 						</td>
 					</tr>
 					<tr valign="top">
@@ -3772,11 +3768,11 @@ function template_upgrade_options()
 							<input type="checkbox" name="maint" id="maint" value="1" checked>
 						</td>
 						<td width="100%">
-							<label for="maint">', $txt['upgrade_maintenace'], '</label> <span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">', $txt['upgrade_customize'], '</a>)</span>
+							<label for="maint">Put the forum into maintenance mode during upgrade.</label> <span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">Customize</a>)</span>
 							<div id="mainmess" style="display: none;">
-								<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
+								<strong class="smalltext">Maintenance Title: </strong><br>
 								<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
-								<strong class="smalltext">', $txt['upgrade_maintenace_message'], ' </strong><br>
+								<strong class="smalltext">Maintenance Message: </strong><br>
 								<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 							</div>
 						</td>
@@ -3786,7 +3782,7 @@ function template_upgrade_options()
 							<input type="checkbox" name="debug" id="debug" value="1">
 						</td>
 						<td width="100%">
-							<label for="debug">'.$txt['upgrade_debug_info'], '</label>
+							<label for="debug">Output extra debugging information</label>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -3794,7 +3790,7 @@ function template_upgrade_options()
 							<input type="checkbox" name="empty_error" id="empty_error" value="1">
 						</td>
 						<td width="100%">
-							<label for="empty_error">', $txt['upgrade_empty_errlog'], '</label>
+							<label for="empty_error">Empty error log before upgrading</label>
 						</td>
 					</tr>';
 
@@ -3805,7 +3801,7 @@ function template_upgrade_options()
 							<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
 						</td>
 						<td width="100%">
-							<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
+							<label for="delete_karma">Delete all karma settings and info from the DB</label>
 						</td>
 					</tr>';
 
@@ -3816,8 +3812,8 @@ function template_upgrade_options()
 						</td>
 						<td width="100%">
 							<label for="stat">
-								', $txt['upgrade_stats_collection'], '<br>
-								<span class="smalltext">', $txt['upgrade_stats_info'], '</a></span>
+								Allow Simple Machines to Collect Basic Stats Monthly.<br>
+								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.</span>
 							</label>
 						</td>
 					</tr>
@@ -3834,7 +3830,7 @@ function template_backup_database()
 	global $upcontext, $support_js, $is_debug;
 
 	echo '
-			<h3>', $txt['upgrade_wait'], '</h3>';
+			<h3>Please wait while a backup is created. For large forums this may take some time!</h3>';
 
 	echo '
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
@@ -3848,10 +3844,10 @@ function template_backup_database()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-			<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+			<br>Completed Table: &quot;', $table, '&quot;.';
 
 	echo '
-			<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
 			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
 
 	// Continue please!
@@ -3927,8 +3923,8 @@ function template_database_changes()
 		$is_debug = true;
 
 	echo '
-		<h3>', $txt['upgrade_db_changes'], '</h3>
-		<h4 style="font-style: italic;">', $txt['upgrade_db_patient'], '</h4>';
+		<h3>Executing database changes</h3>
+		<h4 style="font-style: italic;">Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!</h4>';
 
 	echo '
 		<form action="', $upcontext['form_url'], '&amp;filecount=', $upcontext['file_count'], '" name="upform" id="upform" method="post">
@@ -3966,7 +3962,7 @@ function template_database_changes()
 			else
 				echo ' Successful!<br><br>';
 
-			echo '<span id="commess" style="font-weight: bold;">', $txt['upgrade_db_complete'], '</span><br>';
+			echo '<span id="commess" style="font-weight: bold;">1 Database Updates Complete! Click Continue to Proceed.</span><br>';
 		}
 	}
 	else
@@ -3974,11 +3970,11 @@ function template_database_changes()
 		// Tell them how many files we have in total.
 		if ($upcontext['file_count'] > 1)
 			echo '
-		<strong id="info1">', $txt['upgrade_script'], ' <span id="file_done">', $upcontext['cur_file_num'], '</span> of ', $upcontext['file_count'], '.</strong>';
+		<strong id="info1">Executing upgrade script <span id="file_done">', $upcontext['cur_file_num'], '</span> of ', $upcontext['file_count'], '.</strong>';
 
 		echo '
-		<h3 id="info2"><strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span></h3>
-		<br><span id="commess" style="font-weight: bold; display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</span>';
+		<h3 id="info2"><strong>Executing:</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> of <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span></h3>
+		<br><span id="commess" style="font-weight: bold; display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">Database Updates Complete! Click Continue to Proceed.</span>';
 
 		if ($is_debug)
 		{
@@ -4015,8 +4011,8 @@ function template_database_changes()
 	echo '
 		<div id="error_block" style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9; display: ', empty($upcontext['error_message']) ? 'none' : '', ';">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['upgrade_error'], '</strong><br>
-			<div style="padding-left: 6ex;" id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : $txt['upgrade_unknown_error'], '</div>
+			<strong style="text-decoration: underline;">Error!</strong><br>
+			<div style="padding-left: 6ex;" id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : 'Unknown Error!', '</div>
 		</div>';
 
 	// We want to continue at some point!
@@ -4335,12 +4331,12 @@ function template_convert_utf8()
 	global $upcontext, $support_js, $is_debug;
 
 	echo '
-			<h3>', $txt['upgrade_wait2'], '</h3>';
+			<h3>Please wait while your database is converted to UTF-8. For large forums this may take some time!</h3>';
 
 	echo '
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
-			<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
 			<div id="debug_section" style="height: ', ($is_debug ? '97' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
@@ -4349,19 +4345,19 @@ function template_convert_utf8()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-			<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+			<br>Completed Table: &quot;', $table, '&quot;.';
 
 	echo '
-			<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
 
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-				<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_fulltext'], '</span>';
+				<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.</span>';
 
 	// Completion notification
 	echo '
-			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</span>';
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Conversion Complete! Click Continue to Proceed.</span>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4436,12 +4432,12 @@ function template_serialize_json()
 	global $upcontext, $support_js, $is_debug;
 
 	echo '
-			<h3>', $txt['upgrade_convert_datajson'], '</h3>';
+			<h3>Converting data from serialize to JSON...</h3>';
 
 	echo '
 			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 			<input type="hidden" name="json_done" id="json_done" value="0">
-			<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
 			<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
 			<span id="debuginfo"></span>
 			</div>';
@@ -4450,11 +4446,11 @@ function template_serialize_json()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-			<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+			<br>Completed Table: &quot;', $table, '&quot;.';
 
 	echo '
-			<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</span>';
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
@@ -4530,12 +4526,12 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug;
 
 	echo '
-	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done2'], '</h3>
+	<h3>That wasn\'t so hard, was it?  Now you are ready to use <a href="', $boardurl, '/index.php">your installation of SMF</a>.  Hope you like it!</h3>
 	<form action="', $boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '</label> ', $txt['upgrade_delete_server'], '
+			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> Delete upgrade.php and its data files now</label> <em>(doesn\'t work on all servers).</em>
 			<script>
 				function doTheDelete(theCheck)
 				{
@@ -4564,13 +4560,13 @@ function template_upgrade_complete()
 	}
 
 	if ($is_debug && !empty($totalTime))
-		echo '<br> ', $txt['upgrade_completed_time'], ' ', $totalTime, '<br><br>';
+		echo '<br> Upgrade completed in ', $totalTime, '<br><br>';
 
 	echo '<br>
-			', $txt['upgrade_problems'], '<br>
+			If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="https://www.simplemachines.org/community/index.php">look to us for assistance</a>.<br>
 			<br>
-			', $txt['upgrade_luck'], '<br>
-			', $txt['upgrade_sm'], '';
+			Best of luck,<br>
+			Simple Machines';
 }
 
 /**
