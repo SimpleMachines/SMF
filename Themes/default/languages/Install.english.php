@@ -317,7 +317,6 @@ $txt['upgrade_delete_server'] = '<em>(doesn\'t work on all servers).</em>';
 $txt['upgrade_completed_time'] = 'Upgrade completed in';
 $txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="https://www.simplemachines.org/community/index.php">look to us for assistance</a>.';
 $txt['upgrade_luck'] = 'Best of luck,';
-$txt['upgrade_sm'] = 'Simple Machines';
 
 $txt['upgrade_ftp_login'] = 'Your FTP connection information';
 $txt['upgrade_ftp_perms'] = 'The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.';
