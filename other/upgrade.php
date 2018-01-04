@@ -81,8 +81,6 @@ if (!file_exists($upgrade_path . '/upgrade-helper.php'))
 require_once($upgrade_path . '/upgrade-helper.php');
 
 global $txt;
-// Initialize our beloved language files
-load_lang_file();
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
@@ -305,7 +303,7 @@ upgradeExit();
 // Exit the upgrade script.
 function upgradeExit($fallThrough = false)
 {
-	global $upcontext, $upgradeurl, $sourcedir, $command_line, $is_debug;
+	global $upcontext, $upgradeurl, $sourcedir, $command_line, $is_debug, $txt;
 
 	// Save where we are...
 	if (!empty($upcontext['current_step']) && !empty($upcontext['user']['id']))
@@ -404,7 +402,7 @@ function upgradeExit($fallThrough = false)
 			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
 
 		if (!empty($totalTime))
-			echo "\n" . 'Upgrade completed in ' . $totalTime . "\n";
+			echo "\n" . '', $txt['upgrade_completed_time'], ' ' . $totalTime . "\n";
 	}
 
 	// Bang - gone!
@@ -3831,7 +3829,7 @@ function template_upgrade_options()
 // Template for the database backup tool/
 function template_backup_database()
 {
-	global $upcontext, $support_js, $is_debug;
+	global $upcontext, $support_js, $is_debug, $txt;
 
 	echo '
 			<h3>', $txt['upgrade_wait'], '</h3>';
@@ -3921,7 +3919,7 @@ function template_backup_xml()
 // Here is the actual "make the changes" template!
 function template_database_changes()
 {
-	global $upcontext, $support_js, $is_debug, $timeLimitThreshold;
+	global $upcontext, $support_js, $is_debug, $timeLimitThreshold, $txt;
 
 	if (empty($is_debug) && !empty($upcontext['upgrade_status']['debug']))
 		$is_debug = true;
@@ -4332,7 +4330,7 @@ function template_database_xml()
 // Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
 function template_convert_utf8()
 {
-	global $upcontext, $support_js, $is_debug;
+	global $upcontext, $support_js, $is_debug, $txt;
 
 	echo '
 			<h3>', $txt['upgrade_wait2'], '</h3>';
@@ -4433,7 +4431,7 @@ function template_convert_xml()
 // Template for the database backup tool/
 function template_serialize_json()
 {
-	global $upcontext, $support_js, $is_debug;
+	global $upcontext, $support_js, $is_debug, $txt;
 
 	echo '
 			<h3>', $txt['upgrade_convert_datajson'], '</h3>';
@@ -4527,7 +4525,7 @@ function template_serialize_json_xml()
 
 function template_upgrade_complete()
 {
-	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug;
+	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug, $txt;
 
 	echo '
 	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done2'], '</h3>
