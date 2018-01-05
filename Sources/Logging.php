@@ -335,7 +335,7 @@ function displayDebug()
 				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
 
 			if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
-				echo sprintf($txt['debug_query_which_took_at'], round($qq['t'], 8), round($qq['s'], 8)) . '<br>';
+				echo sprintf($txt['debug_query_which_took_at'], round($qq['a'], 8), round($qq['t'], 8), round($qq['s'], 8)) . '<br>';
 			elseif (isset($qq['t']))
 				echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8)) . '<br>';
 			echo '
