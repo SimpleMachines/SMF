@@ -1465,6 +1465,28 @@ function reActivate()
 	document.forms.postmodify.message.readOnly = false;
 }
 
+function putOnSocks()
+{
+	var clicks = 0;
+	var firstClick = 0;
+	var lastClick = 0;
+	$('body').click(function() {
+		if (!firstClick) {
+			firstClick = Date.now();
+			setTimeout(function() {
+				firstClick = 0;
+				lastClick = 0;
+			}, 1500)
+		}
+		lastClick = Date.now();
+
+		clicks++;
+		if (clicks >= 25 && lastClick - firstClick <= 15000) {
+			$('body, a').css({'cursor': 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAvCAYAAAClgknJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAnjSURBVGje3VoLVJRlGn7+f/65AgOOAYJoKBgKhB0FCa+16aq5XtLaWnNXEc1sV3QLsYDBynO29mLtyUQzlSxTy+ua2q67Wu6u2qncdEuxRUUuM8NtgAFFudm+3zff4HRS+E2m1Z1zHv65fPC/z/e+3/NeGOD/9fHNN98oBLmtrc2frj0IwQQTu94uBDQEqbW1VbptveDnFwvEBmoQZwE0METHSPJtY7ypl0GCLEfT07OEEkIZ4T+QkAOtFI5Hp93iDCQspp92wj8IFQSHIHJW4CUYNJpb03YDetKlmFBFqBa7z4wvFbCL6+fQy+ZbkcMrYtedYuft4nU5f63oSjH/qU34Wdpm3P/zDVJGuv8PICpGVQsLqgvYZZ/Y+Uqx+w5hfIXwigO/WrgZVus6WHNX0XWZJj5O9jEBJuGdK6LL5dLTZZfYfWa0TZCwCbjDJ+6ez8jwfCKwkvAGjOZchIb6Oi9pO13Y2NioMRqNB8VOl3sbn2SBM8aMkgAJZRpFV0QE1hCIwPN50OmLoNdE+JCARNB3urC5uRkmk2krDx8/y9cifHgInZiB2rZcNLRl4+K5uWhAWPgJTJqyAxlL1slmy1e05guuX74joHS68MqVKwgICFgBk/95ZGXvxIBBnzAFsigobctAHSeQiwr7In5G3KqkKGVnZ8K+aAgc4VrM9aEXLGoWIToqaikiep2g8NhOWI+0JzZNS/I/15COqlYrKohAVcZwfqBZeJX1McFG7znb6LMWK87umge9jwjEqFq4bOGCUZiSuhG5uYzAW8jOXg+D6UyQFrYRoaj810NwBujdxjMP9NaSdxiBXJQTHAuSpGU+IqBOJZqbm8IplE/j4cf2cw9kZeVDo5S0J7RAivcc62pMfmgrevc7PDpKe552v4qFFvOQ4g6tbj4g0E0lgeYAuszmKjRi/IeYPutdYXwxJ9D3ro+J2AZYX3iNrn+U+vb95ywLqlqyeXg5FbdqrfQBgTvULuxlNEksjk8yw7+cBef7U1EeFShIjPnJNjJ8Bcnnq5xEYOBpFkoGIjy9n6EAfQbuhSQxslFdTECrdmGQeDqO4t5O4dFIO3uxlRTo5GyU68eO3wrrUsoBL78C67I/QKM57znQ6BV9hJPLeC4Pg0esQPwDcheTMKhdKE+byAN5D9N9InCB4CIydTpeDyln0D/+gDE19bUQBUVCUsuQMnQfEVjLs3R2Th5GP3JnVzdaas+Bjl13Py7FNj2Heg+Bpiw4JXdlyjHTwpWndstwVAYbSVrHTtpNxr9NeAeZmauh1X4CjaTryppI1UJqJflNt48aiP7d8Zul98JZ+zQlsLm8RrIJAvb0JJLPbFwmz1xqouuE/j1OceOZFzJIft2108tdSKC3qoWUkcM9z8dAYeXBcRYmI8ck7qVC7iNIMguZSmsCKskDTYTLbTlovtvCM3QFkkYckVJnvysqWHY+Bs94aWRXEAhTu/BbCkLdcBzf9aRhfxchshVPPLXxl4lKcWsOP+QsxC4NMaBWGF2Z2APOr9LgSglHDfPalEHGcV1AIEjVwra2tu/UHRJrM+OGf0rGbxJYC3PQ6RgTKnZMhKslB65BIdx4FjaO+b35+Whk4dWwGM4QmR/0dLARwfcnYFa70JKfn/+t92SNn4x771vOs7Nbad5AbOznnmqVRNpmGD3mA5JVlgPKUnry8KoXZUZxmImfm3OEPUShuzEiXvoeBEJvylWaJ+ebEZ9ygOqjPCKwnErXgvZWk0lpFhHLyXkHA1P2J4YoRWR4NYHVSrYxke0NEUOxoig76ToAljtuhICf2kPsT7jmDlEoTWQGSwMT/9o/SFMiebo1SVMimpx1zDvSjMffGhUKe2YcbLn9UT9tWsynGDfhAEaN/hvmPPkxIqL/LRTtGGEoQTczXlVfoK6FIwLXjNWgIN60fEGCXErFm+v0PLgGmLgXSsnwN2F9kcLr+VVIe2aNkFsb99Ldw47yw++WWUZ0FSSlWHivjG527vVR+K2fCcEdJVhVyUz0oB11QCPjg6nMyOVZ+hId4MsrkyUHUtOoyKNK1bo0D6kZq0W4VPIW1S+gkLIzGwLkceNzclZH/yjlwM6JqC2chwu0GZeas3ApPoj/znuEhOvYpldDQO6IQEICpFdH4DwznvSf5YCmzCGo5xJqDinAr7NXYUH6WmY8uasqSOZwTJiQfBDmHlR6yIxUOX3mIBlu4H9HZPuaxWgwuknb+YSkmxyMcMhQNJ4kG6X2wFzXlSPvkVGyBGu5TLI2k4yI8ONZutIzkvEfOODw1/Nha8qAi3aX7XCDYwHq9BIPN8+syZbgj5pmNwmGelp3MX80XOJztm4F4QiBedSPQjtGLYHIjj4n9yRk9kFlYwbqy+ahXie1z5IcnhFMcghJaSZ5SBjHCG9JcRvuNTBw/G6YUnpoOlxTu8PlL/GJSI0gwCYkfyIUibVRN1KRdva/AObTkmA9qob68x2rba9Kr8qlc/kQ1LHdFwRqKbHVTI6WCjF02A7MSttIRd96LFlCSUdjE0ZXtMsysFEIAXtv+Q03NiqW/V7MkJxeM6Ryr7lqjZHi/+hsTdWa+1A1NxrV4Vr6zGw+w/OFW3LX8eQ4d/5mkmK7F4FDhL3idaHe5J7DNjU1BXVJCIlHmAib88J4j+FOyHIVht9/CE8/s4t2eYvwSHn7mLJnnxNu2WVZPXcl9dlrEXnXca+B2pdi9xmZN/1EednS0iJRqaNKSjtv4RTIfEp91XinCCUnFi06jNzcv5CB73E8OHm/IOshYZce+PFeLMp+G2Pn/Bn9Bn0Gk7nY6/Oidm8YpB5edRpLZjq1XuhwGqY38GS9UNyoWhy+Ov48MeU4Gb6PSOwUJDZg+MiD4XRmHusF5wdTUV33LGroT1R6DY49CrXDi8g573s6HA7mBVktgc5dNY//ZHPRzeKGNYLMSTz408N8QJadswWTH90vRUYWnvyFu/QWylRnT0e9SWpXL4ZCQh7hqHg9x/t2ZDyzK6Br62+vopXVNNBDSpwkQ5uUbELyxPH03jY2vWc7He6HqovPEgmrW1bbstD0YQon7RnjHxPa7xYFHfyv0TGGdaUSdfzIWQe4XgC07Yc+b3AQyrm0UoK7kIGGo4/AFapvl97dhI/E8wIk9fvO+FP1v3tpYYgvxoSx5KNjszAj2YBt8tUkZReqs90rl+zpo8Rcy65AtQQC4KNH+oFuCOytg6LAoNXylvV1YfgZLwIP32xv7Lt/u1xH2AgTCO/zPCDDcLMEwn4oy5m6eJoWJpOnik7pWE9Cr7sT4lkJwUJafO1B8z8LIZYgGxoajI2NjUbxPYw72X3Y9zLIYIt4zgzH9brCLh+oCmVg0LGGQ8BMhkTSNUJ894K9NqtqCVU+/gvJgjVBM9h5bwAAAABJRU5ErkJggg=="), auto'})
+		}
+	});
+}
+
 // The actual message icon selector.
 function showimage()
 {
@@ -1645,6 +1667,8 @@ $(function()
 			$(item).css('display', 'none');
 		});
 	});
+
+	putOnSocks();
 
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function()
