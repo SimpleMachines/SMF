@@ -1472,7 +1472,11 @@ function putOnSocks()
 	var lastClick = 0;
 	$('body').click(function() {
 		if (!firstClick) {
-			firstClick = Date.now()
+			firstClick = Date.now();
+			setTimeout(function() {
+				firstClick = 0;
+				lastClick = 0;
+			}, 1500)
 		}
 		lastClick = Date.now();
 
