@@ -6181,12 +6181,12 @@ function build_query_board($userid)
 function httpsOn()
 {
 	$secure = false;
-	
+
 	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') 
 		$secure = true;
 	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') 
 		$secure = true;
-	
+
 	return $secure;
 }
 
