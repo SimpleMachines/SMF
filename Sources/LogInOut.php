@@ -83,7 +83,7 @@ function Login2()
 	global $cookiename, $modSettings, $context, $sourcedir, $maintenance;
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 		fatal_lang_error('login_ssl_required');
 
 	// Load cookie authentication stuff.
@@ -443,7 +443,7 @@ function LoginTFA()
 	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		$code = $_POST['tfa_code'];
@@ -466,7 +466,7 @@ function LoginTFA()
 	elseif (!empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		$backup = $_POST['tfa_backup'];

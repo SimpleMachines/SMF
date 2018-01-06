@@ -4038,7 +4038,7 @@ function tfasetup($memID)
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
