@@ -1547,7 +1547,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 				foreach ($custom['options'] as $k => $v)
 				{
 					$fieldOptions[] = $v;
-					$currentKey = $v == $value ? $k : 0;
+					if (empty($currentKey))
+						$currentKey = $v == $value ? $k : 0;
 				}
 
 			// BBC?
@@ -1625,7 +1626,8 @@ function loadMemberCustomFields($users, $params)
 			foreach (explode(',', $row['field_options']) as $k => $v)
 			{
 				$fieldOptions[] = $v;
-				$currentKey = $v == $row['value'] ? $k : 0;
+				if (empty($currentKey))
+					$currentKey = $v == $row['value'] ? $k : 0;
 			}
 
 		// BBC?
