@@ -4340,10 +4340,26 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
+	if (allowedTo('admin_forum'))
 	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
-		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		// Get an error count, if necessary
+		if (!isset($context['num_errors']))
+		{
+			$query = $smcFunc['db_query']('', '
+				SELECT COUNT(id_error)
+				FROM {db_prefix}log_errors',
+				array()
+			);
+
+			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+			$smcFunc['db_free_result']($query);
+		}
+
+		if (!empty($context['num_errors']))
+		{
+			$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		}
 	}
 
 	// Show number of reported members
