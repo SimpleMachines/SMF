@@ -593,11 +593,7 @@ function isBannedEmail($email, $restriction, $error)
  * Will check GET, POST, or REQUEST depending on the passed type.
  * Also optionally checks the referring action if passed. (note that the referring action must be by GET.)
  *
- * @param string $type The type of check (post, get, request, or login), where
- *      post - checks for a session timeout
- *      get - performs a strict session check
- *      request - performs a strict session check
- *      login - does none of the above, as they are not appropriate for logging in
+ * @param string $type The type of check (post, get, request)
  * @param string $from_action The action this is coming from
  * @param bool $is_fatal Whether to die with a fatal error if the check fails
  * @return string The error message if is_fatal is false.
