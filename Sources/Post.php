@@ -1715,7 +1715,7 @@ function Post2()
 	}
 
 	// In case we have approval permissions and want to override.
-	if (allowedTo('approve_posts'))
+	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
 	{
 		$becomesApproved = !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
