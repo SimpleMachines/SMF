@@ -1839,7 +1839,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
-		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
+		!httpsOn() && SMF != 'SSI')
 	{
 		if (isset($_GET['sslRedirect']))
 		{
@@ -1853,7 +1853,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 	{
-		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https://' : 'http://';
+		$detected_url = httpsOn() ? 'https://' : 'http://';
 		$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 		$temp = preg_replace('~/' . basename($scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
 		if ($temp != '/')

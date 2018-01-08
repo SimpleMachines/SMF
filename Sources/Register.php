@@ -216,7 +216,7 @@ function Register2()
 	validateToken('register');
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 		fatal_lang_error('register_ssl_required');
 
 	// Start collecting together any errors.
