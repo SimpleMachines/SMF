@@ -182,3 +182,4 @@ class sqlite_cache extends cache_api
 	}
 }
 
+?>
