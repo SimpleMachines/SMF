@@ -415,3 +415,4 @@ $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
 
+?>
