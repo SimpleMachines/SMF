@@ -38,7 +38,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^\[\d{1,7},"([a-fA-F0-9]{128})?",\d{1,14}(,[0-3])?(,\d{1,14})?~', $_COOKIE[$cookiename]) === 1)
+	if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1})?~', $_COOKIE[$cookiename]) === 1)
 	{
 		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
@@ -55,7 +55,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			else
 				$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state)), 1, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state), JSON_FORCE_OBJECT), 1, $cookie_url[1], $cookie_url[0]);
 		}
 	}
 
@@ -67,7 +67,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$custom_data = array();
 	call_integration_hook('integrate_cookie_data', array($data, &$custom_data));
 
-	$data = $smcFunc['json_encode'](array_merge($data, $custom_data));
+	$data = $smcFunc['json_encode'](array_merge($data, $custom_data), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
@@ -141,7 +141,7 @@ function setTFACookie($cookie_length, $id, $secret, $preserve = false)
 		$cookie_length = 81600 * 30;
 
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve));
+	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve), JSON_FORCE_OBJECT);
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	// Set the cookie, $_COOKIE, and session variable.
