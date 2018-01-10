@@ -38,7 +38,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1})?~', $_COOKIE[$cookiename]) === 1)
+	if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+(,"3":\d\b)?~', $_COOKIE[$cookiename]) === 1)
 	{
 		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
