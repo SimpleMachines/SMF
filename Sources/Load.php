@@ -416,8 +416,12 @@ function loadUserSettings()
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
-		list ($id_member, $password) = $cookie_data;
+		list ($id_member, $password, $timeout, $cookie_state) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
+
+		// Make sure the cookie is set to the correct domain and path
+		if ($cookie_state !== (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2))
+			setLoginCookie($timeout - time(), $id_member);
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
