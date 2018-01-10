@@ -60,8 +60,14 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	}
 
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state) : array($id, $password, time() + $cookie_length, $cookie_state));
+	$data = empty($id) ? array(0, '', 0, $cookie_state) : array($id, $password, time() + $cookie_length, $cookie_state);
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+
+	// Allow mods to add custom info to the cookie
+	$custom_data = array();
+	call_integration_hook('integrate_cookie_data', array($data, &$custom_data));
+
+	$data = $smcFunc['json_encode'](array_merge($data, $custom_data));
 
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
