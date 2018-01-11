@@ -135,7 +135,7 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
-	margin: 0 5px 0 0;
+	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
@@ -577,7 +577,8 @@ dl.settings dt.windowbg {
 dl.settings dd {
 	width: 42%;
 	float: right;
-	overflow: auto;
+/* Disabled this for testing can be reverted at later stages of RC.
+	overflow: auto;*/
 	margin: 0 0 3px 0;
 }
 dl.settings img {
