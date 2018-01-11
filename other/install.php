@@ -29,7 +29,7 @@ require_once('Sources/Class-Package.php');
 $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
-		'version' => '5.0.3',
+		'version' => '5.0.22',
 		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
@@ -39,7 +39,7 @@ $databases = array(
 		'utf8_support' => function() {
 			return true;
 		},
-		'utf8_version' => '5.0.3',
+		'utf8_version' => '5.0.22',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
 		'utf8_required' => true,

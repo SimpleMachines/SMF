@@ -394,14 +394,7 @@ function smf_db_get_vendor()
 	if (!empty($db_type))
 		return $db_type;
 
-	$request = $smcFunc['db_query']('', 
-				'SELECT VARIABLE_VALUE
-				 FROM INFORMATION_SCHEMA.GLOBAL_VARIABLES
-				 WHERE variable_name = {string:var_name}',
-				array(
-					'var_name' => 'VERSION_COMMENT',
-				)
-			);
+	$request = $smcFunc['db_query']('', 'SELECT @@version_comment');
 	list ($comment) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
