@@ -44,12 +44,12 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	if (isset($_COOKIE[$cookiename]))
 	{
 		// First check for 2.1 json-format cookie
-		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":\d\b,"4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
-			$array = @$smcFunc['json_decode']($_COOKIE[$cookiename], true);
+		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":\d,"4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
+			$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
-			$array = @safe_unserialize($_COOKIE[$cookiename]);
+			$array = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
 		if (isset($array[3]) && $array[3] != $cookie_state || isset($array[4]) && $array[4] != $cookie_url[1])
@@ -61,11 +61,11 @@ function setLoginCookie($cookie_length, $id, $password = '')
 				$old_cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 
 			// If the paths don't match, feed ALL the cookies to the Cookie Monster!
-			$paths = rsort(array_unique(array($cookie_url[1], $old_cookie_url[1]), $array[4]));
+			$paths = rsort(array_unique(array($cookie_url[1], $old_cookie_url[1], $array[4])));
 
 			// OM NOM NOM
 			foreach ($paths as $path)
-				smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state, $path), JSON_FORCE_OBJECT), 1, $path, $cookie_url[0]);
+				smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state, $path), JSON_FORCE_OBJECT), 1, $path, $old_cookie_url[0]);
 		}
 	}
 
