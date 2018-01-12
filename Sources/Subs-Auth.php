@@ -38,12 +38,14 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+(,"3":\d\b)?~', $_COOKIE[$cookiename]) === 1)
+	if (isset($_COOKIE[$cookiename]))
 	{
-		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+		// First check for 2.1 json-format cookie
+		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+(,"3":\d\b)?~', $_COOKIE[$cookiename]) === 1)
+			$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
-		// Legacy format
-		if (is_null($array))
+		// Legacy format (for recent 2.0 --> 2.1 upgrades)
+		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
 			$array = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
