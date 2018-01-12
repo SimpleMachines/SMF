@@ -36,34 +36,41 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
 
+	// Extract our cookie domain and path from $boardurl
+	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
 	if (isset($_COOKIE[$cookiename]))
 	{
 		// First check for 2.1 json-format cookie
-		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+(,"3":\d\b)?~', $_COOKIE[$cookiename]) === 1)
-			$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":\d\b,"4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
+			$array = @$smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
-			$array = safe_unserialize($_COOKIE[$cookiename]);
+			$array = @safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
-		if (isset($array[3]) && $array[3] != $cookie_state)
+		if (isset($array[3]) && $array[3] != $cookie_state || isset($array[4]) && $array[4] != $cookie_url[1])
 		{
 			// Maybe we need to temporarily pretend to be using local cookies
 			if ($cookie_state == 0 && $array[3] == 1)
-				$cookie_url = url_parts(true, false);
+				$old_cookie_url = url_parts(true, false);
 			else
-				$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
+				$old_cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
 
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state), JSON_FORCE_OBJECT), 1, $cookie_url[1], $cookie_url[0]);
+			// If the paths don't match, feed ALL the cookies to the Cookie Monster!
+			$paths = rsort(array_unique(array($cookie_url[1], $old_cookie_url[1]), $array[4]));
+
+			// OM NOM NOM
+			foreach ($paths as $path)
+				smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $cookie_state, $path), JSON_FORCE_OBJECT), 1, $path, $cookie_url[0]);
 		}
 	}
 
 	// Get the data and path to set it on.
-	$data = empty($id) ? array(0, '', 0, $cookie_state) : array($id, $password, time() + $cookie_length, $cookie_state);
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	$data = empty($id) ? array(0, '', 0, $cookie_state, $cookie_url[1]) : array($id, $password, time() + $cookie_length, $cookie_state, $cookie_url[1]);
 
 	// Allow mods to add custom info to the cookie
 	$custom_data = array();
