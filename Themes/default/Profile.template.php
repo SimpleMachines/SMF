@@ -1607,10 +1607,10 @@ function template_edit_options()
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
-				<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button">';
+				<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button floatright">';
 	else
 		echo '
-				<input type="submit" name="save" value="', $txt['change_profile'], '" class="button">';
+				<input type="submit" name="save" value="', $txt['change_profile'], '" class="button floatright">';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -2829,7 +2829,7 @@ function template_profile_signature_modify()
 
 	if (!empty($context['show_preview_button']))
 		echo '
-								<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button">';
+								<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button floatright">';
 
 	if ($context['signature_warning'])
 		echo '
@@ -3046,7 +3046,7 @@ function template_profile_timeformat_modify()
 									<option value="', $time_format['format'], '"', $time_format['format'] == $context['member']['time_format'] ? ' selected' : '', '>', $time_format['title'], '</option>';
 
 	echo '
-								</select><br>
+								</select>
 								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30">
 							</dd>';
 }

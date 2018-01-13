@@ -132,7 +132,9 @@ function template_main()
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
 		echo '
-			<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
+			<div class="buttonlist floatright">
+				<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
+			</div>';
 	echo '
 		</div>
 	</div><!-- #memberlist -->';
@@ -183,7 +185,7 @@ function template_search()
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button">
+				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button floatright">
 			</div><!-- #advanced_search -->
 		</div><!-- #memberlist -->
 	</form>';
