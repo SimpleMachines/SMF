@@ -124,10 +124,10 @@ function Login2()
 		{
 			$tfadata = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
+			list ($tfamember, $tfasecret, $exp, $domain, $path, $preserve) = $tfadata;
 
 			// If we're preserving the cookie, reset it with updated salt
-			if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
+			if (isset($tfamember, $tfasecret, $exp, $domain, $path, $preserve) && $preserve && time() < $exp)
 				setTFACookie(3153600, $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), true);
 			else
 				setTFACookie(-3600, 0, '');
@@ -690,10 +690,10 @@ function Logout($internal = false, $redirect = true)
 	{
 		$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
 
-		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
+		list ($tfamember, $tfasecret, $exp, $domain, $path, $preserve) = $tfadata;
 
 		// If we're preserving the cookie, reset it with updated salt
-		if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
+		if (isset($tfamember, $tfasecret, $exp, $domain, $path, $preserve) && $preserve && time() < $exp)
 			setTFACookie(3153600, $user_info['id'], hash_salt($user_settings['tfa_backup'], $salt), true);
 		else
 			setTFACookie(-3600, 0, '');

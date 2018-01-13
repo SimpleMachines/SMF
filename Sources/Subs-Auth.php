@@ -145,14 +145,13 @@ function setTFACookie($cookie_length, $id, $secret, $preserve = false)
 	global $smcFunc, $modSettings, $cookiename;
 
 	$identifier = $cookiename . '_tfa';
-	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
+	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	if ($preserve)
 		$cookie_length = 81600 * 30;
 
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve), JSON_FORCE_OBJECT);
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, time() + $cookie_length, $cookie_url[0], $cookie_url[1], $preserve), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
 	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
