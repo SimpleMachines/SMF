@@ -98,7 +98,12 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+			$alias_data = $smcFunc['json_decode']($data);
+			$alias_data[3] = $cookie_url[0];
+			$alias_data[4] = $cookie_url[1];
+			$alias_data = $smcFunc['json_encode']($alias_data, JSON_FORCE_OBJECT);
+
+			smf_setcookie($cookiename, $alias_data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
