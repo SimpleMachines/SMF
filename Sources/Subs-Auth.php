@@ -33,6 +33,8 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	$id = (int) $id;
 
+	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
+
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
 
@@ -66,7 +68,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	}
 
 	// Get the data and path to set it on.
-	$data = empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1]) : array($id, $password, time() + $cookie_length, $cookie_url[0], $cookie_url[1]);
+	$data = empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1]) : array($id, $password, $expiry_time, $cookie_url[0], $cookie_url[1]);
 
 	// Allow mods to add custom info to the cookie
 	$custom_data = array();
@@ -75,11 +77,11 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$data = $smcFunc['json_encode'](array_merge($data, $custom_data), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
 	if (!empty($modSettings['forum_alias_urls']))
@@ -103,7 +105,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			$alias_data[4] = $cookie_url[1];
 			$alias_data = $smcFunc['json_encode']($alias_data, JSON_FORCE_OBJECT);
 
-			smf_setcookie($cookiename, $alias_data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $alias_data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
