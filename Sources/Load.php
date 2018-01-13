@@ -411,17 +411,25 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
+		// First try 2.1 json-format cookie
 		$cookie_data = $smcFunc['json_decode']($_COOKIE[$cookiename], true, false);
 
+		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
-		list ($id_member, $password, $timeout, $cookie_state) = $cookie_data;
+		// Malformed or was reset
+		if (empty($cookie_data))
+			$cookie_data = array(0, '', 0, '', '');
+
+		list ($id_member, $password, $login_span, $cookie_domain, $cookie_path) = $cookie_data;
+
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
-		if ($cookie_state !== (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2))
-			setLoginCookie($timeout - time(), $id_member);
+		require_once($sourcedir . '/Subs-Auth.php');
+		if (array($cookie_domain, $cookie_path) != url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
+			setLoginCookie($login_span - time(), $id_member);
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{

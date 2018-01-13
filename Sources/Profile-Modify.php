@@ -3684,7 +3684,7 @@ function profileSendActivation()
 		)
 	);
 	$_SESSION['log_time'] = 0;
-	$_SESSION['login_' . $cookiename] = $smcFunc['json_encode'](array(0, '', 0, (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2)));
+	$_SESSION['login_' . $cookiename] = $smcFunc['json_encode'](array(0, '', 0));
 
 	if (isset($_COOKIE[$cookiename]))
 		$_COOKIE[$cookiename] = '';
