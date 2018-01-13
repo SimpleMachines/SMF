@@ -422,7 +422,7 @@ function loadUserSettings()
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename], true, false);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
@@ -471,6 +471,11 @@ function loadUserSettings()
 
 			// Wrong password or not activated - either way, you're going nowhere.
 			$id_member = $check && ($user_settings['is_activated'] == 1 || $user_settings['is_activated'] == 11) ? (int) $user_settings['id_member'] : 0;
+			if ($id_member === 0 && isset($_COOKIE[$cookiename]))
+			{
+				setLoginCookie(-3600, 0);
+				$user_settings = array();
+			}
 		}
 		else
 			$id_member = 0;
@@ -556,6 +561,10 @@ function loadUserSettings()
 			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
 				redirectexit('action=profile;area=tfasetup;forced');
 		}
+	}
+	else if (!empty($user_settings) && empty($id_member))
+	{
+		$user_settings = array();
 	}
 
 	// Found 'im, let's set up the variables.

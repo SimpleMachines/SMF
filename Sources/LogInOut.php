@@ -97,13 +97,9 @@ function Login2()
 
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
-		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
+		if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d{1,7},"1":"[0-9a-f]{0,128}","2":\d{1,14}(,"3":\d{1}(,"path":"\\\\/.*")?)?}$~' , $_COOKIE[$cookiename]) === 1)
 		{
 			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
-
-			// That didn't work... Maybe it's using serialize?
-			if (is_null($timeout))
-				list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 		}
 		elseif (isset($_SESSION['login_' . $cookiename]))
 		{
@@ -809,9 +805,6 @@ function validatePasswordFlood($id_member, $member_name, $password_flood_value =
 	// Only if they're not validating for 2FA
 	if (!$tfa)
 	{
-		require_once($sourcedir . '/Subs-Auth.php');
-		setLoginCookie(-3600, 0);
-
 		if (isset($_SESSION['login_' . $cookiename]))
 			unset($_SESSION['login_' . $cookiename]);
 	}
