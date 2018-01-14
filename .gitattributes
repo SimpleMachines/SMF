@@ -1,13 +1,5 @@
-# Autodetect text files
-* text=auto
-
-# ...Unless the name matches the following
-# overriding patterns
-
-# Definitively text files 
-*.txt text
-*.c text
-*.h text
+# Force our line endings to be LF, even for Windows
+* text
 
 # Set certain files to be binary
 *.png binary
