@@ -203,7 +203,7 @@ function ModifyGeneralSettings($return_config = false)
 			AlignURLsWithSSLSetting($_POST['force_ssl']);
 		else
 			AlignURLsWithSSLSetting(0);
-			
+
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -240,7 +240,7 @@ $(function()
  *
  * This function will NOT overwrite URLs that are not subfolders of $boardurl.
  * The admin must have pointed those somewhere else on purpose, so they must be updated manually.
- * 
+ *
  * A word of caution: You can't trust the http/https scheme reflected for these URLs in $globals
  * (e.g., $boardurl) or in $modSettings.  This is because SMF may change them in memory to comply
  * with the force_ssl setting - a soft redirect may be in effect...  Thus, conditional updates
@@ -511,13 +511,16 @@ function ModifyCookieSettings($return_config = false)
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
 			unset ($_POST['globalCookies']);
 
+		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
+			$scope_changed = true;
+
 		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
 			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
 
-		// If the cookie name was changed, reset the cookie.
-		if ($cookiename != $_POST['cookiename'])
+		// If the cookie name or scope were changed, reset the cookie.
+		if ($cookiename != $_POST['cookiename'] || !empty($scope_changed))
 		{
 			$original_session_id = $context['session_id'];
 			include_once($sourcedir . '/Subs-Auth.php');
@@ -526,7 +529,7 @@ function ModifyCookieSettings($return_config = false)
 			setLoginCookie(-3600, 0);
 
 			// Set the new one.
-			$cookiename = $_POST['cookiename'];
+			$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : $cookiename;
 			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
