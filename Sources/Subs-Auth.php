@@ -20,10 +20,12 @@ if (!defined('SMF'))
  * Sets the SMF-style login cookie and session based on the id_member and password passed.
  * - password should be already encrypted with the cookie salt.
  * - logs the user out if id_member is zero.
- * - sets the cookie and session to last the number of seconds specified by cookie_length.
- * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
+ * - sets the cookie and session to last the number of seconds specified by cookie_length, or
+ *   ends them if cookie_length is less than 0.
+ * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's
+ *   cookie too.
  *
- * @param int $cookie_length How long the cookie should last (in minutes)
+ * @param int $cookie_length How many seconds the cookie should last. If negative, forces logout.
  * @param int $id The ID of the member to set the cookie for
  * @param string $password The hashed password
  */
