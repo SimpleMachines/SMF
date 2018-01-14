@@ -2140,6 +2140,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
+			if (!in_array($look_for, array_map(function($code){return $code['tag'];}, $open_tags)))
+				continue;
+
 			$to_close = array();
 			$block_level = null;
 
@@ -6018,9 +6021,9 @@ function build_regex($strings, $delim = null, $returnArray = false)
 
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
-	$url = 'ssl://' . $parsedurl['host'] . ':443'; 
-	
-	// Next, check the ssl stream context for certificate info 
+	$url = 'ssl://' . $parsedurl['host'] . ':443';
+
+	// Next, check the ssl stream context for certificate info
 	$result = false;
 	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
 	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
@@ -6067,7 +6070,7 @@ function https_redirect_active($url) {
 
 /**
  * Build query_wanna_see_board and query_see_board for a userid
- * 
+ *
  * Returns array with keys query_wanna_see_board and query_see_board
  * @param int $userid of the user
  */
@@ -6152,7 +6155,7 @@ function build_query_board($userid)
 
 		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
-	
+
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($is_admin)
 		$query_part['query_see_board'] = '1=1';
@@ -6175,16 +6178,16 @@ function build_query_board($userid)
 
 /**
  * Check if the connection is using https.
- * 
+ *
  * @return boolean true if connection used https
  */
 function httpsOn()
 {
 	$secure = false;
 
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') 
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
 		$secure = true;
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') 
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
 		$secure = true;
 
 	return $secure;
