@@ -225,13 +225,13 @@ function template_merge()
 		echo $txt['target_below'];
 
 	echo '		</h4>
-			</div><!-- .title_bar -->';
+			</div><!-- .title_bar -->
+			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Don't show this if there aren't any topics...
 	if (!empty($context['topics']))
 	{
 		echo '
-			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
