@@ -53,9 +53,7 @@ function preparsecode(&$message, $previewing = false)
 		$message = substr($message, 8);
 
 	// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
-	$in_tag = false;
-	$had_tag = false;
-	$codeopen = 0;
+	list($in_tag, $had_tag, $codeopen, $alltags, $codes) = array(false, false, 0, array(), array());
 	if (preg_match_all('~(\[(/)*code(?:=[^\]]+)?\])~is', $message, $matches))
 		foreach ($matches[0] as $index => $dummy)
 		{
@@ -210,7 +208,7 @@ function preparsecode(&$message, $previewing = false)
 
 	require_once($sourcedir . '/Subs.php');
 
-	foreach (($codes = parse_bbc(false)) as $code)
+	foreach ($codes as $code)
 		if (!in_array($code['tag'], $allowedEmpty))
 			$alltags[] = $code['tag'];
 
