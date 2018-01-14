@@ -15,7 +15,7 @@ $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 //https://developers.google.com/recaptcha/docs/language
-$txt['recaptcha_lang'] = 'en';
+$txt['lang_recaptcha'] = 'en';
 
 // Ensure you remember to use uppercase for character set strings.
 $txt['lang_character_set'] = 'UTF-8';
