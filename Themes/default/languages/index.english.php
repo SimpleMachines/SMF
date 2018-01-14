@@ -785,6 +785,7 @@ $txt['visual_verification_hidden'] = 'Please leave this box empty';
 $txt['visual_verification_description'] = 'Type the letters shown in the picture';
 $txt['visual_verification_sound'] = 'Listen to the letters';
 $txt['visual_verification_request_new'] = 'Request another image';
+$txt['recaptcha_lang'] = 'en';
 
 // Sub menu labels
 $txt['summary'] = 'Summary';
