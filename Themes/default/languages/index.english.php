@@ -14,6 +14,8 @@ $txt['native_name'] = 'English';
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
+//https://developers.google.com/recaptcha/docs/language
+$txt['recaptcha_lang'] = 'en';
 
 // Ensure you remember to use uppercase for character set strings.
 $txt['lang_character_set'] = 'UTF-8';
@@ -785,8 +787,6 @@ $txt['visual_verification_hidden'] = 'Please leave this box empty';
 $txt['visual_verification_description'] = 'Type the letters shown in the picture';
 $txt['visual_verification_sound'] = 'Listen to the letters';
 $txt['visual_verification_request_new'] = 'Request another image';
-//https://developers.google.com/recaptcha/docs/language
-$txt['recaptcha_lang'] = 'en';
 
 // Sub menu labels
 $txt['summary'] = 'Summary';
