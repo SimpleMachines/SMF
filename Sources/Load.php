@@ -1838,7 +1838,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		return;
 
 	// Check to see if we're forcing SSL
-	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 1 && empty($maintenance) &&
+	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] > 0 && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')
 	{
 		if (isset($_GET['sslRedirect']))

@@ -1416,7 +1416,7 @@ function template_edit_options()
 	// The main header!
 	// because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
 	$url = !empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member'];
-	$url = $context['require_password'] && !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 1 ? strtr($url, array('http://' => 'https://')) : $url;
+	$url = $context['require_password'] && !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] > 0 ? strtr($url, array('http://' => 'https://')) : $url;
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
@@ -3180,7 +3180,7 @@ function template_profile_tfa()
 
 	if (!$context['tfa_enabled'] && $context['user']['is_owner'])
 		echo '
-								<a href="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 1 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', $txt['tfa_profile_enable'], '</a>';
+								<a href="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] > 0 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', $txt['tfa_profile_enable'], '</a>';
 
 	elseif (!$context['tfa_enabled'])
 		echo '
