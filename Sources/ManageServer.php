@@ -165,7 +165,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
@@ -255,7 +255,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	require_once($sourcedir . '/Subs-Admin.php');
 
 	// Check $boardurl
-	if ($new_force_ssl == 2)
+	if ($new_force_ssl < 1)
 		$newval = strtr($boardurl, array('http://' => 'https://'));
 	else
 		$newval = strtr($boardurl, array('https://' => 'http://'));
@@ -266,7 +266,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// Check $smileys_url, but only if it points to a subfolder of $boardurl
 	if (BoardurlMatch($modSettings['smileys_url']))
 	{
-		if ($new_force_ssl == 2)
+		if ($new_force_ssl < 1)
 			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['smileys_url'], array('https://' => 'http://'));
@@ -276,7 +276,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// Check $avatar_url, but only if it points to a subfolder of $boardurl
 	if (BoardurlMatch($modSettings['avatar_url']))
 	{
-		if ($new_force_ssl == 2)
+		if ($new_force_ssl < 1)
 			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['avatar_url'], array('https://' => 'http://'));
@@ -287,7 +287,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// This one had been optional in the past, make sure it is set first
 	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
 	{
-		if ($new_force_ssl == 2)
+		if ($new_force_ssl < 1)
 			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['custom_avatar_url'], array('https://' => 'http://'));
@@ -317,7 +317,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		// First check to see if it points to a subfolder of $boardurl
 		if (BoardurlMatch($row['value']))
 		{
-			if ($new_force_ssl == 2)
+			if ($new_force_ssl < 1)
 				$newval = strtr($row['value'], array('http://' => 'https://'));
 			else
 				$newval = strtr($row['value'], array('https://' => 'http://'));

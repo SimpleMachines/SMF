@@ -1334,7 +1334,7 @@ function DatabasePopulation()
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
-		$newSettings[] = array('force_ssl', 2);
+		$newSettings[] = array('force_ssl', 1);
 
 	// Setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
