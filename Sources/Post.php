@@ -188,7 +188,12 @@ function Post($post_errors = array())
 	$context['current_attachments'] = array();
 
 	// Clear out prior attachment activity when starting afresh
-	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
+	if (empty($_REQUEST['message']) && empty($_REQUEST['preview']) && !empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/ManageAttachments.php');
+		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
+			removeAttachments(array('id_attach' => $attachID));
+
 		unset($_SESSION['already_attached']);
 	}
 
