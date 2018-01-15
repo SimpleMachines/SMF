@@ -1061,7 +1061,7 @@ function Post($post_errors = array())
 	 * errors are like warnings that let them know that something with
 	 * their post isn't right.
 	 */
-	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied');
+	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied', 'cannot_post_attachment');
 
 	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
 
@@ -1441,6 +1441,20 @@ function Post2()
 	{
 		require_once($sourcedir . '/Subs-Attachments.php');
 		processAttachments();
+	}
+
+	// They've already uploaded some attachments, but they don't have permission to post them
+	// This can sometimes happen when they came from ?action=calendar;sa=post
+	if (!$context['can_post_attachment'] && !empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/ManageAttachments.php');
+
+		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
+			removeAttachments(array('id_attach' => $attachID));
+
+		unset($_SESSION['already_attached']);
+
+		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
 	}
 
 	// If this isn't a new topic load the topic info that we need.
@@ -1922,7 +1936,7 @@ function Post2()
 	}
 
 	// ...or attach a new file...
-	if (empty($ignore_temp) && $context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
+	if ($context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
 	{
 		$attachIDs = array();
 		$attach_errors = array();
@@ -2098,7 +2112,7 @@ function Post2()
 			$topic = $topicOptions['id'];
 	}
 
-	// Assign the previously uploaded attachments to the brand new message.
+	// Are there attachments already uploaded and waiting to be assigned?
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
 		require_once($sourcedir . '/Subs-Attachments.php');
