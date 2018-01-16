@@ -1514,7 +1514,7 @@ function Post2()
 		if (isset($_POST['lock']))
 		{
 			// Nothing is changed to the lock.
-			if ((empty($topic_info['locked']) && empty($_POST['lock'])) || (!empty($_POST['lock']) && !empty($topic_info['locked'])))
+			if (empty($topic_info['locked']) == empty($_POST['lock']))
 				unset($_POST['lock']);
 
 			// You're have no permission to lock this topic.
