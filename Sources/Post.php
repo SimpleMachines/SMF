@@ -2249,7 +2249,7 @@ function Post2()
 
 	call_integration_hook('integrate_post2_end');
 
-	if (!empty($_POST['announce_topic']))
+	if (!empty($_POST['announce_topic']) && allowedTo('announce_topic'))
 		redirectexit('action=announce;sa=selectgroup;topic=' . $topic . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
 	if (!empty($_POST['move']) && allowedTo('move_any'))
