@@ -10,7 +10,7 @@
  */
 div.sceditor-grip,
 .sceditor-button div {
-  background-image: url("../images/editor_icons.png");
+  background-image: url("../images/icons/editor_sprite.png");
   background-repeat: no-repeat;
   width: 16px;
   height: 16px;

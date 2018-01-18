@@ -186,7 +186,7 @@ fieldset.admin_group .inactive {
 	height: 32px;
 }
 .large_admin_menu_icon {
-	background: url(../images/icons/admin_icons_hd.png) no-repeat  -5px -47px;
+	background: url(../images/icons/admin_sprite.png) no-repeat  -5px -47px;
 	margin: 0 auto;
 	display: block;
 	content: '';
