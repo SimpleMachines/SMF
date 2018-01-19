@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -294,8 +294,8 @@ function template_maintain_members()
 					<select name="del_type">
 						<option value="activated" selected>', $txt['maintain_members_activated'], '</option>
 						<option value="logged">', $txt['maintain_members_logged_in'], '</option>
-					</select> 
-					', $txt['maintain_members_since2'], ' 
+					</select>
+					', $txt['maintain_members_since2'], '
 					<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '
 				</p>
 				<p>

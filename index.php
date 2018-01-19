@@ -14,13 +14,13 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
  */
 
-$software_year = '2017';
+$software_year = '2018';
 $forum_version = 'SMF 2.1 Beta 4';
 
 // Get everything started up...

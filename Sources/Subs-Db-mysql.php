@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -777,7 +777,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
-	
+
 	$return_var = null;
 
 	// With nothing to insert, simply return.
@@ -786,9 +786,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-	
+
 	$with_returning = false;
-	
+
 	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		$with_returning = true;
@@ -845,7 +845,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		for($i = 0; $i < $count; $i++)
 		{
 			$old_id = $smcFunc['db_insert_id']();
-			
+
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
@@ -857,7 +857,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$connection
 			);
 			$new_id = $smcFunc['db_insert_id']();
-			
+
 			if ($last_id != $new_id) //the inserted value was new
 			{
 				$ai = $new_id;
@@ -878,21 +878,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					WHERE ' . $where_string . ' LIMIT 1',
 					array()
 				);
-				
+
 				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 				{
 					$row = $smcFunc['db_fetch_assoc']($request);
 					$ai = $row[$keys[0]];
 				}
 			}
-			
+
 			if ($returnmode == 1)
 				$return_var = $ai;
 			else if ($returnmode == 2)
 				$return_var[] = $ai;
 		}
 	}
-	
+
 
 	if ($with_returning)
 	{
@@ -1001,7 +1001,7 @@ function smf_is_resource($result)
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A MySQL result resource
  * @return array An array that contains all rows (records) in the result resource
@@ -1033,7 +1033,7 @@ function smf_db_error_insert($error_array)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));
 	else
 		$error_array[2] = null;
-	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi', 
+	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi',
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
 		$error_array[7], $error_array[8]);
 	mysqli_stmt_execute ($mysql_error_data_prep);

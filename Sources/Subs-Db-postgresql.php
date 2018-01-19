@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -481,7 +481,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		$db_string = $query_hints_set . $db_string;
-		
+
 		if (isset($db_show_debug) && $db_show_debug === true && $db_cache[$db_count]['q'] != '...')
 			$db_cache[$db_count]['q'] = "\t\t" . $db_string;
 	}
@@ -967,7 +967,7 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A PostgreSQL result resource
  * @return array An array that contains all rows (records) in the result resource

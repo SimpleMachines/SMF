@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -14,6 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1 Beta 4');
 define('SMF_LANG_VERSION', '2.1 Beta 4');
+$software_year = '2018';
 
 /**
  * The minimum required PHP version.
@@ -3453,7 +3454,7 @@ function template_upgrade_above()
 
 function template_upgrade_below()
 {
-	global $upcontext, $txt;
+	global $upcontext, $txt, $software_year;
 
 	if (!empty($upcontext['pause']))
 		echo '
@@ -3492,7 +3493,7 @@ function template_upgrade_below()
 		</div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . $software_year . ', Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>

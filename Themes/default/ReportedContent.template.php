@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -96,7 +96,7 @@ function template_reported_posts()
 
 	echo '
 		<div class="pagesection">';
-	
+
 	if (!empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'])
 		echo '
 			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>';
