@@ -795,8 +795,10 @@ img.sort, .sort {
 .top_menu.scrollable .avatar {
 	width: 40px;
 	height: 40px;
+	object-fit: scale-down;
 	margin: 4px;
 	display: inline-block;
+	color: transparent; /* For broken images */ 
 }
 .top_menu.scrollable .details {
 	max-width: 80%;
