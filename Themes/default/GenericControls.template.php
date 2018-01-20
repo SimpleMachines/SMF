@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -296,7 +296,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 
 			if ($verify_context['can_recaptcha'])
 			{
-				$lang = (isset($txt['lang_recaptcha']) ? $txt['lang_recaptcha'] : $txt['lang_dictionary']); 
+				$lang = (isset($txt['lang_recaptcha']) ? $txt['lang_recaptcha'] : $txt['lang_dictionary']);
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
