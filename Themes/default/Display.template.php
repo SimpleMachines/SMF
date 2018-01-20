@@ -1024,13 +1024,29 @@ function template_quickreply()
 				</h3>
 			</div>
 			<div id="quickReplyOptions">
-				<div class="roundframe">
-					', empty($options['use_editor_quick_reply']) ? '
-					<p class="smalltext lefttext">' . $txt['quick_reply_desc'] . '</p>' : '', '
-					', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
-					!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
-					', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
-					', !$context['can_reply_approved'] && $context['require_verification'] ? '<br>' : '', '
+				<div class="roundframe">';
+
+	// Are we hiding the full editor?
+	if (empty($options['use_editor_quick_reply']))
+		echo '
+					<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>';
+
+	// Is the topic locked?
+	if ($context['is_locked'])
+		echo '
+					<p class="alert smalltext">', $txt['quick_reply_warning'], '</p>';
+
+	// Show a warning if the topic is old
+	if (!empty($context['oldTopicError']))
+		echo '
+					<p class="alert smalltext">', sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']), '</p>';
+
+	// Does the post need approval?
+	if (!$context['can_reply_approved'])
+		echo '
+					<p><em>', $txt['wait_for_approval'], '</em></p>';
+
+	echo '
 					<form action="', $scripturl, '?board=', $context['current_board'], ';action=post2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
 						<input type="hidden" name="topic" value="', $context['current_topic'], '">
 						<input type="hidden" name="subject" value="', $context['response_prefix'], $context['subject'], '">

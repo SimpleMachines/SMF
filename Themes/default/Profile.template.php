@@ -2858,12 +2858,44 @@ function template_profile_avatar_select()
 	// Start with the upper menu
 	echo '
 							<dt>
-								<strong id="personal_picture"><label for="avatar_upload_box">', $txt['personal_picture'], '</label></strong>
-								', empty($modSettings['gravatarOverride']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '><label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['no_avatar'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_server_stored']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '><label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choose_avatar_gallery'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_external']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '><label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['my_own_pic'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_upload']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '><label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['avatar_will_upload'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_gravatar']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '><label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>' : '', '
+								<strong id="personal_picture">
+									<label for="avatar_upload_box">', $txt['personal_picture'], '</label>
+								</strong>';
+
+	if (empty($modSettings['gravatarOverride']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									' . $txt['no_avatar'] . '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_server_stored']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['choose_avatar_gallery'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_external']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['my_own_pic'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_upload']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['avatar_will_upload'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_gravatar']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>';
+
+	echo '
 							</dt>
 							<dd>';
 
@@ -3101,37 +3133,63 @@ function template_tfasetup()
 				<h3 class="catbg">', $txt['tfa_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>
-		', !empty($context['tfa_backup']) ? '
-					<div class="smalltext error">' . $txt['tfa_backup_used_desc'] . '</div>' :
-			($modSettings['tfa_mode'] == 2 ? '
-									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
-									<div class="smalltext">', $txt['tfa_desc'], '</div>
-									<div class="floatleft">
-										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-											<div class="title_top">
-												<strong>', $txt['tfa_step1'], '</strong><br>
-												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
-												<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
-											</div>
-											<div class="title_top">
-												<strong>', $txt['tfa_step2'], '</strong>
-												<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
-												<div class="tfacode">', $context['tfa_secret'], '</div>
-											</div>
-											<div class="title_top">
-												<strong>', $txt['tfa_step3'], '</strong><br>
-												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
-												<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
-												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
-											</div>
-											<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
-											<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-										</form>
-									</div>
-									<div class="floatright tfa_qrcode">
-										<img src="', $context['tfa_qr_url'], '" alt="">
-									</div>';
+				<div>';
+
+	if (!empty($context['tfa_backup']))
+		echo '
+					<div class="smalltext error">
+						', $txt['tfa_backup_used_desc'], '
+					</div>';
+
+	elseif ($modSettings['tfa_mode'] == 2)
+		echo '
+					<div class="smalltext">
+						<strong>', $txt['tfa_forced_desc'], '</strong>
+					</div>';
+
+	echo '
+					<div class="smalltext">
+						', $txt['tfa_desc'], '
+					</div>
+					<div class="floatleft">
+						<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
+							<div class="title_top">
+								<strong>', $txt['tfa_step1'], '</strong><br>';
+
+	if (!empty($context['tfa_pass_error']))
+		echo '
+								<div class="error smalltext">
+									', $txt['tfa_pass_invalid'], '
+								</div>';
+
+	echo '
+								<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
+							</div>
+							<div class="title_top">
+								<strong>', $txt['tfa_step2'], '</strong>
+								<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
+								<div class="tfacode">', $context['tfa_secret'], '</div>
+							</div>
+							<div class="title_top">
+								<strong>', $txt['tfa_step3'], '</strong><br>';
+
+	if (!empty($context['tfa_error']))
+		echo '
+								<div class="error smalltext">
+									', $txt['tfa_code_invalid'], '
+								</div>';
+
+	echo '
+								<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
+								<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
+							</div>
+							<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						</form>
+					</div>
+					<div class="floatright tfa_qrcode">
+						<img src="', $context['tfa_qr_url'], '" alt="">
+					</div>';
 
 	if (!empty($context['from_ajax']))
 		echo '
