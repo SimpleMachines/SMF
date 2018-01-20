@@ -13,7 +13,6 @@
 
 $GLOBALS['current_smf_version'] = '2.1 Beta 4';
 $GLOBALS['db_script_version'] = '2-1';
-$software_year = '2018';
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -1966,7 +1965,7 @@ function template_install_above()
 
 function template_install_below()
 {
-	global $incontext, $txt, $software_year;
+	global $incontext, $txt;
 
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
@@ -1996,7 +1995,7 @@ function template_install_below()
 		</div></div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . $software_year . ', Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>

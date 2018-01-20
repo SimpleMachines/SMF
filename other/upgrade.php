@@ -14,7 +14,6 @@
 // Version information...
 define('SMF_VERSION', '2.1 Beta 4');
 define('SMF_LANG_VERSION', '2.1 Beta 4');
-$software_year = '2018';
 
 /**
  * The minimum required PHP version.
@@ -3454,7 +3453,7 @@ function template_upgrade_above()
 
 function template_upgrade_below()
 {
-	global $upcontext, $txt, $software_year;
+	global $upcontext, $txt;
 
 	if (!empty($upcontext['pause']))
 		echo '
@@ -3493,7 +3492,7 @@ function template_upgrade_below()
 		</div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . $software_year . ', Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>
