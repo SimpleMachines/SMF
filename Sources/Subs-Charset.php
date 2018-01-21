@@ -282,7 +282,6 @@ function utf8_strtolower($string)
 	return strtr($string, $case_folding);
 }
 
-// Convert the given UTF-8 string to uppercase.
 /**
  * Convert the given UTF-8 string to uppercase.
  * equivalent to mb_strtoupper($string, 'UTF-8')
