@@ -249,10 +249,10 @@ function displayDebug()
 	$warnings = 0;
 	if (!empty($db_cache))
 	{
-		foreach ($db_cache as $q => $qq)
+		foreach ($db_cache as $q => $query_data)
 		{
-			if (!empty($qq['w']))
-				$warnings += count($qq['w']);
+			if (!empty($query_data['w']))
+				$warnings += count($query_data['w']);
 		}
 
 		$_SESSION['debug'] = &$db_cache;
@@ -307,37 +307,37 @@ function displayDebug()
 	<br>';
 
 	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
-		foreach ($db_cache as $q => $qq)
+		foreach ($db_cache as $q => $query_data)
 		{
-			$is_select = strpos(trim($qq['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
+			$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0;
 			// Temporary tables created in earlier queries are not explainable.
 			if ($is_select)
 			{
 				foreach (array('log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages') as $tmp)
-					if (strpos(trim($qq['q']), $tmp) !== false)
+					if (strpos(trim($query_data['q']), $tmp) !== false)
 					{
 						$is_select = false;
 						break;
 					}
 			}
 			// But actual creation of the temporary tables are.
-			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($qq['q'])) != 0)
+			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($query_data['q'])) != 0)
 				$is_select = true;
 
 			// Make the filenames look a bit better.
-			if (isset($qq['f']))
-				$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
+			if (isset($query_data['f']))
+				$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
 
 			echo '
-	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
+	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
 	&nbsp;&nbsp;&nbsp;';
-			if (!empty($qq['f']) && !empty($qq['l']))
-				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
+			if (!empty($query_data['f']) && !empty($query_data['l']))
+				echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
 
-			if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
-				echo sprintf($txt['debug_query_which_took_at'], round($qq['t'], 8), round($qq['s'], 8)) . '<br>';
-			elseif (isset($qq['t']))
-				echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8)) . '<br>';
+			if (isset($query_data['s'], $query_data['t']) && isset($txt['debug_query_which_took_at']))
+				echo sprintf($txt['debug_query_which_took_at'], round($query_data['a'], 8), round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
+			elseif (isset($query_data['t']))
+				echo sprintf($txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
 			echo '
 	<br>';
 		}
