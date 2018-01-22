@@ -1754,7 +1754,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
 		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 1)
+		if (empty($modSettings['force_ssl']))
 			$image_proxy_enabled = false;
 
 		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
@@ -1838,7 +1838,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		return;
 
 	// Check to see if we're forcing SSL
-	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] > 0 && empty($maintenance) &&
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')
 	{
 		if (isset($_GET['sslRedirect']))

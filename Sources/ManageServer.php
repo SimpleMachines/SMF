@@ -255,7 +255,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	require_once($sourcedir . '/Subs-Admin.php');
 
 	// Check $boardurl
-	if ($new_force_ssl > 0)
+	if (!empty($new_force_ssl))
 		$newval = strtr($boardurl, array('http://' => 'https://'));
 	else
 		$newval = strtr($boardurl, array('https://' => 'http://'));
