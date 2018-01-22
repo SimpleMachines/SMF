@@ -135,9 +135,8 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
 			$smcFunc['db_free_result']($query);
 		}
-
-		// Increment our error count for the menu
-		$context['num_errors']++;
+		else
+			$context['num_errors']++;
 	}
 
 	// reset error call
