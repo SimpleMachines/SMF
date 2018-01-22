@@ -495,7 +495,7 @@ function LoginTFA()
 	loadTemplate('Login');
 	$context['sub_template'] = 'login_tfa';
 	$context['page_title'] = $txt['login'];
-	$context['tfa_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 1 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=logintfa';
+	$context['tfa_url'] = $scripturl . '?action=logintfa';
 }
 
 /**
