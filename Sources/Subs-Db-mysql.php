@@ -428,31 +428,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_callback = array();
 	}
 
-	// Debugging.
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		// Get the file and line number this function was called.
-		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
-
-		// Initialize $db_cache if not already initialized.
-		if (!isset($db_cache))
-			$db_cache = array();
-
-		if (!empty($_SESSION['debug_redirect']))
-		{
-			$db_cache = array_merge($_SESSION['debug_redirect'], $db_cache);
-			$db_count = count($db_cache) + 1;
-			$_SESSION['debug_redirect'] = array();
-		}
-
-		// Don't overload it.
-		$st = microtime(true);
-		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
-		$db_cache[$db_count]['f'] = $file;
-		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = $st - $time_start;
-	}
-
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
@@ -500,6 +475,30 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 		if (!empty($fail) && function_exists('log_error'))
 			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+	}
+
+	// Debugging.
+	if (isset($db_show_debug) && $db_show_debug === true)
+	{
+		// Get the file and line number this function was called.
+		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
+
+		// Initialize $db_cache if not already initialized.
+		if (!isset($db_cache))
+			$db_cache = array();
+
+		if (!empty($_SESSION['debug_redirect']))
+		{
+			$db_cache = array_merge($_SESSION['debug_redirect'], $db_cache);
+			$db_count = count($db_cache) + 1;
+			$_SESSION['debug_redirect'] = array();
+		}
+
+		// Don't overload it.
+		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
+		$db_cache[$db_count]['f'] = $file;
+		$db_cache[$db_count]['l'] = $line;
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
 	}
 
 	if (empty($db_unbuffered))
