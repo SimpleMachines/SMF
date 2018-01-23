@@ -1415,13 +1415,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
-					if (!empty($user_info['possibly_robot']))
-						return;
-
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -1441,13 +1441,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
-					if (!empty($user_info['possibly_robot']))
-						return;
-
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
