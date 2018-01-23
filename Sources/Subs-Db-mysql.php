@@ -354,18 +354,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
 	global $db_unbuffered, $db_callback, $modSettings;
 
-	// One more query....
-	$db_count = !isset($db_count) ? 1 : $db_count + 1;
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		// Initialize $db_cache if not already initialized.
-		if (!isset($db_cache))
-			$db_cache = array();
-		
-		$st = microtime(true);
-		$db_cache[$db_count]['s'] = $st - $time_start;
-	}
-
 	// Comments that are allowed in a query are preg_removed.
 	static $allowed_comments_from = array(
 		'~\s+~s',
@@ -411,6 +399,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$connection = $db_connection;
 	}
 
+	// One more query....
+	$db_count = !isset($db_count) ? 1 : $db_count + 1;
+
 	if (empty($modSettings['disableQueryCheck']) && strpos($db_string, '\'') !== false && empty($db_values['security_override']))
 		smf_db_error_backtrace('Hacking attempt...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 
@@ -443,6 +434,10 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		// Get the file and line number this function was called.
 		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
 
+		// Initialize $db_cache if not already initialized.
+		if (!isset($db_cache))
+			$db_cache = array();
+
 		if (!empty($_SESSION['debug_redirect']))
 		{
 			$db_cache = array_merge($_SESSION['debug_redirect'], $db_cache);
@@ -451,9 +446,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		// Don't overload it.
+		$st = microtime(true);
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
+		$db_cache[$db_count]['s'] = $st - $time_start;
 	}
 
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -503,12 +500,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 		if (!empty($fail) && function_exists('log_error'))
 			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
-	}
-
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		$st = microtime(true);
-		$db_cache[$db_count]['a'] = $st - $db_cache[$db_count]['s'] - $time_start;
 	}
 
 	if (empty($db_unbuffered))
