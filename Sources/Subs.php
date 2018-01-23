@@ -1413,12 +1413,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -1436,12 +1439,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
