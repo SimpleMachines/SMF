@@ -2984,14 +2984,17 @@ function censorText(&$text, $force = false)
 		// Quote them for use in regular expressions.
 		if (!empty($modSettings['censorWholeWord']))
 		{
+			$charset = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
+
 			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
 			{
 				$censor_vulgar[$i] = str_replace(array('\\\\\\*', '\\*', '&', '\''), array('[*]', '[^\s]*?', '&amp;', '&#039;'), preg_quote($censor_vulgar[$i], '/'));
-				$censor_vulgar[$i] = '/(?<=^|\W)' . $censor_vulgar[$i] . '(?=$|\W)/' . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ((empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' ? 'u' : '');
 
-				// @todo I'm thinking the old way is some kind of bug and this is actually fixing it.
-				//if (strpos($censor_vulgar[$i], '\'') !== false)
-					//$censor_vulgar[$i] = str_replace('\'', '&#039;', $censor_vulgar[$i]);
+				// Use the faster \b if we can, or something more complex if we can't
+				$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
+				$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
+
+				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
 			}
 		}
 	}
