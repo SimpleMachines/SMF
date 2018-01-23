@@ -408,6 +408,54 @@ function upgradeExit($fallThrough = false)
 	// Bang - gone!
 	die();
 }
+// Load the list of language files, and the current language file.
+function load_lang_file()
+{
+	global $txt, $incontext, $user_info;
+
+	$incontext['detected_languages'] = array();
+
+	// Make sure the languages directory actually exists.
+	if (file_exists(dirname(__FILE__) . '/Themes/default/languages'))
+	{
+		// Find all the "Install" language files in the directory.
+		$dir = dir(dirname(__FILE__) . '/Themes/default/languages');
+		while ($entry = $dir->read())
+		{
+			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
+				$incontext['detected_languages'][$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+		}
+		$dir->close();
+	}
+
+	// Didn't find any, show an error message!
+	if (empty($incontext['detected_languages']))
+	{
+		// Let's not cache this message, eh?
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: no-cache');
+
+		echo '<!DOCTYPE html>
+<html>
+	<head>
+		<title>SMF Upgrader: Error!</title>
+	</head>
+	<body style="font-family: sans-serif;"><div style="width: 600px;">
+		<h1 style="font-size: 14pt;">A critical error has occurred.</h1>
+
+		<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
+
+		<div style="margin: 1ex; font-family: monospace; font-weight: bold;">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+
+		<p>In some cases, FTP clients do not properly upload files with this many folders.  Please double check to make sure you <span style="font-weight: 600;">have uploaded all the files in the distribution</span>.</p>
+		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
+
+		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
+	</div></body>
+</html>';
+		die;
+	}
 
 // Used to direct the user to another location.
 function redirectLocation($location, $addForm = true)
@@ -4528,7 +4576,7 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug, $txt;
 
 	echo '
-	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done2'], '</h3>
+	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done3'], '</h3>
 	<form action="', $boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script']))
