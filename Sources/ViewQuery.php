@@ -74,11 +74,11 @@ function ViewQuery()
 	<body id="help_popup">
 		<div class="tborder windowbg description">';
 
-	foreach ($_SESSION['debug'] as $q => $query_data)
+	foreach ($_SESSION['debug'] as $q => $qq)
 	{
 		// Fix the indentation....
-		$query_data['q'] = ltrim(str_replace("\r", '', $query_data['q']), "\n");
-		$query = explode("\n", $query_data['q']);
+		$qq['q'] = ltrim(str_replace("\r", '', $qq['q']), "\n");
+		$query = explode("\n", $qq['q']);
 		$min_indent = 0;
 		foreach ($query as $line)
 		{
@@ -88,21 +88,21 @@ function ViewQuery()
 		}
 		foreach ($query as $l => $dummy)
 			$query[$l] = substr($dummy, $min_indent);
-		$query_data['q'] = implode("\n", $query);
+		$qq['q'] = implode("\n", $query);
 
 		// Make the filenames look a bit better.
-		if (isset($query_data['f']))
-			$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
+		if (isset($qq['f']))
+			$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
 
-		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT';
+		$is_select_query = substr(trim($qq['q']), 0, 6) == 'SELECT';
 		if ($is_select_query)
-			$select = $query_data['q'];
-		elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)
+			$select = $qq['q'];
+		elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($qq['q']), $matches) != 0)
 		{
 			$is_select_query = true;
 			$select = $matches[1];
 		}
-		elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)
+		elseif (preg_match('~^CREATE TEMPORARY TABLE .+?(SELECT .+)$~s', trim($qq['q']), $matches) != 0)
 		{
 			$is_select_query = true;
 			$select = $matches[1];
@@ -121,16 +121,16 @@ function ViewQuery()
 		echo '
 		<div id="qq', $q, '" style="margin-bottom: 2ex;">
 			<a', $is_select_query ? ' href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
-				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars']($query_data['q']))), '
+				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars']($qq['q']))), '
 			</a><br>';
 
-		if (!empty($query_data['f']) && !empty($query_data['l']))
-			echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
+		if (!empty($qq['f']) && !empty($qq['l']))
+			echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
 
-		if (isset($query_data['s'], $query_data['t']) && isset($txt['debug_query_which_took_at']))
-			echo sprintf($txt['debug_query_which_took_at'], round($query_data['a'], 8), round($query_data['t'], 8), round($query_data['s'], 8));
+		if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
+			echo sprintf($txt['debug_query_which_took_at'], round($qq['a'], 8), round($qq['t'], 8), round($qq['s'], 8));
 		else
-			echo sprintf($txt['debug_query_which_took'], round($query_data['t'], 8));
+			echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8));
 
 		echo '
 		</div>';
