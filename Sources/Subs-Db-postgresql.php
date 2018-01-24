@@ -441,6 +441,23 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 	}
 
+	// Set optimize stuff
+	if (isset($query_opt[$identifier]))
+	{
+		$query_hints = $query_opt[$identifier];
+		$query_hints_set = '';
+		if (isset($query_hints['join_collapse_limit']))
+		{
+			$query_hints_set .= 'SET LOCAL join_collapse_limit = ' . $query_hints['join_collapse_limit'] . ';';
+		}
+		if (isset($query_hints['enable_seqscan']))
+		{
+			$query_hints_set .= 'SET LOCAL enable_seqscan = ' . $query_hints['enable_seqscan'] . ';';
+		}
+
+		$db_string = $query_hints_set . $db_string;
+	}
+
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
@@ -462,30 +479,8 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-	}
-
-	// Set optimize stuff
-	if (isset($query_opt[$identifier]))
-	{
-		$query_hints = $query_opt[$identifier];
-		$query_hints_set = '';
-		if (isset($query_hints['join_collapse_limit']))
-		{
-			$query_hints_set .= 'SET LOCAL join_collapse_limit = ' . $query_hints['join_collapse_limit'] . ';';
-		}
-		if (isset($query_hints['enable_seqscan']))
-		{
-			$query_hints_set .= 'SET LOCAL enable_seqscan = ' . $query_hints['enable_seqscan'] . ';';
-		}
-
-		$db_string = $query_hints_set . $db_string;
-
-		if (isset($db_show_debug) && $db_show_debug === true && $db_cache[$db_count]['q'] != '...')
-			$db_cache[$db_count]['q'] = "\t\t" . $db_string;
-	}
-
-	if (isset($db_show_debug) && $db_show_debug === true)
 		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
+	}
 
 	$db_last_result = @pg_query($connection, $db_string);
 
