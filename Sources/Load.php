@@ -508,10 +508,12 @@ function loadUserSettings()
 						$tfasecret = null;
 				}
 
+				// They didn't finish logging in before coming here? Then they're no one to us.
 				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
 				{
+					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
-					redirectexit('action=logintfa');
+					$user_settings = array();
 				}
 			}
 		}
