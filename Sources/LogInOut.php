@@ -686,7 +686,7 @@ function Logout($internal = false, $redirect = true)
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
 		list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
-		setTFACookie((int) $exp - time(), $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $salt));
+		setTFACookie((int) $exp - time(), $salt, hash_salt($user_settings['tfa_backup'], $salt));
 	}
 
 	session_destroy();
