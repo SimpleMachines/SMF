@@ -1282,7 +1282,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $cache_enable, $cacheAPI;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1469,7 +1469,13 @@ function scheduled_weekly_maintenance()
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
 	);
-
+	
+	// Run Cache housekeeping
+	if (!empty($cache_enable) && !empty($cacheAPI))
+	{
+		$cacheAPI->housekeeping();
+	}
+	
 	return true;
 }
 
