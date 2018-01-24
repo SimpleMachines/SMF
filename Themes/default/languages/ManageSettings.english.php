@@ -111,6 +111,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
+	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
 	<li>XCache</li>

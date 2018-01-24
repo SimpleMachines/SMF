@@ -108,9 +108,15 @@ class sqlite_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
+		if($type == 'expired')
+			$query = 'DELETE FROM cache WHERE ttl >= ' . time().';';
+		else
+			$query = 'DELETE FROM cache;';
 
-		$query = 'DELETE FROM cache;';
 		$result = $this->cacheDB->exec($query);
+		
+		$query	= 'VACUUM;';
+		$this->cacheDB->exec($query);
 
 		return $result;
 	}
@@ -146,11 +152,14 @@ class sqlite_cache extends cache_api
 	 */
 	public function setCachedir($dir = null)
 	{
-		global $cachedir_sqlite;
+		global $cachedir, $cachedir_sqlite;
 
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
-			$this->cachedir = $cachedir_sqlite;
+			if(is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
+				$this->cachedir = $cachedir;
+			else
+				$this->cachedir = $cachedir_sqlite;
 		else
 			$this->cachedir = $dir;
 	}
@@ -162,6 +171,14 @@ class sqlite_cache extends cache_api
 	{
 		$temp = $this->cacheDB->version();
 		return $temp['versionString'];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function housekeeping()
+	{
+		$this->cleanCache('expired');
 	}
 }
 
