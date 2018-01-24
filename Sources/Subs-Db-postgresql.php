@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -62,6 +62,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_ping'					=> 'pg_ping',
 			'db_fetch_all'				=> 'smf_db_fetch_all',
 			'db_error_insert'			=> 'smf_db_error_insert',
+			'db_custom_order'			=> 'smf_db_custom_order',
 		);
 
 	if (!empty($db_options['persist']))
@@ -391,48 +392,25 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_callback = array();
 	}
 
-	// Debugging.
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		// Get the file and line number this function was called.
-		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
-
-		// Initialize $db_cache if not already initialized.
-		if (!isset($db_cache))
-			$db_cache = array();
-
-		if (!empty($_SESSION['debug_redirect']))
-		{
-			$db_cache = array_merge($_SESSION['debug_redirect'], $db_cache);
-			$db_count = count($db_cache) + 1;
-			$_SESSION['debug_redirect'] = array();
-		}
-
-		$st = microtime(true);
-		// Don't overload it.
-		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
-		$db_cache[$db_count]['f'] = $file;
-		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = $st - $time_start;
-	}
-
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
 		$clean = '';
 		$old_pos = 0;
 		$pos = -1;
+		// Remove the string escape for better runtime
+		$db_string_1 = str_replace('\'\'','',$db_string);
 		while (true)
 		{
-			$pos = strpos($db_string, '\'', $pos + 1);
+			$pos = strpos($db_string_1, '\'', $pos + 1);
 			if ($pos === false)
 				break;
-			$clean .= substr($db_string, $old_pos, $pos - $old_pos);
+			$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
 
 			while (true)
 			{
-				$pos1 = strpos($db_string, '\'', $pos + 1);
-				$pos2 = strpos($db_string, '\\', $pos + 1);
+				$pos1 = strpos($db_string_1, '\'', $pos + 1);
+				$pos2 = strpos($db_string_1, '\\', $pos + 1);
 				if ($pos1 === false)
 					break;
 				elseif ($pos2 === false || $pos2 > $pos1)
@@ -447,7 +425,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 			$old_pos = $pos + 1;
 		}
-		$clean .= substr($db_string, $old_pos);
+		$clean .= substr($db_string_1, $old_pos);
 		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
@@ -478,9 +456,30 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		$db_string = $query_hints_set . $db_string;
-		
-		if (isset($db_show_debug) && $db_show_debug === true && $db_cache[$db_count]['q'] != '...')
-			$db_cache[$db_count]['q'] = "\t\t" . $db_string;
+	}
+
+	// Debugging.
+	if (isset($db_show_debug) && $db_show_debug === true)
+	{
+		// Get the file and line number this function was called.
+		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
+
+		// Initialize $db_cache if not already initialized.
+		if (!isset($db_cache))
+			$db_cache = array();
+
+		if (!empty($_SESSION['debug_redirect']))
+		{
+			$db_cache = array_merge($_SESSION['debug_redirect'], $db_cache);
+			$db_count = count($db_cache) + 1;
+			$_SESSION['debug_redirect'] = array();
+		}
+
+		// Don't overload it.
+		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
+		$db_cache[$db_count]['f'] = $file;
+		$db_cache[$db_count]['l'] = $line;
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
 	}
 
 	$db_last_result = @pg_query($connection, $db_string);
@@ -964,7 +963,7 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A PostgreSQL result resource
  * @return array An array that contains all rows (records) in the result resource
@@ -993,6 +992,28 @@ function smf_db_error_insert($error_array)
 			);
 
 	pg_execute($db_connection, 'smf_log_errors', $error_array);
+}
+
+/**
+ * Function which constructs an optimize custom order string
+ * as an improved alternative to find_in_set()
+ *
+ * @param string $field name
+ * @param array $array_values Field values sequenced in array via order priority. Must cast to int.
+ * @param boolean $desc default false
+ * @return string case field when ... then ... end
+ */
+function smf_db_custom_order($field, $array_values, $desc = false)
+{
+	$return = 'CASE '. $field . ' ';
+	$count = count($array_values);
+	$then = ($desc ? ' THEN -' : ' THEN ');
+
+	for ($i = 0; $i < $count; $i++)
+		$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
+
+	$return .= 'END';
+	return $return;
 }
 
 ?>

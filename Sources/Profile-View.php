@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -217,7 +217,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
-	
+
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
@@ -351,7 +351,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				unset($alerts[$id_alert]);
 				continue;
-			}				
+			}
 			else
 				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
 		if ($alert['content_type'] == 'profile')
@@ -699,7 +699,7 @@ function showPosts($memID)
 		}
 
 		// Make sure we quit this loop.
-		if ($smcFunc['db_num_rows']($request) === $maxIndex || $looped)
+		if ($smcFunc['db_num_rows']($request) === $maxIndex || $looped || $range_limit == '')
 			break;
 		$looped = true;
 		$range_limit = '';

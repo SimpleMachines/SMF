@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1354,7 +1354,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
-				'disabled_content' => '<a href="$1" target="_blank">$1</a>',
+				'disabled_content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 			),
 			array(
 				'tag' => 'float',
@@ -1413,12 +1413,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -1436,12 +1439,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -1714,7 +1720,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_link" target="_blank">$1</a>',
+				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
@@ -1727,7 +1733,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
 				'quoted' => 'optional',
-				'before' => '<a href="$1" class="bbc_link" target="_blank">',
+				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
@@ -4049,7 +4055,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4340,10 +4346,26 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
+	if (allowedTo('admin_forum'))
 	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
-		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		// Get an error count, if necessary
+		if (!isset($context['num_errors']))
+		{
+			$query = $smcFunc['db_query']('', '
+				SELECT COUNT(id_error)
+				FROM {db_prefix}log_errors',
+				array()
+			);
+
+			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+			$smcFunc['db_free_result']($query);
+		}
+
+		if (!empty($context['num_errors']))
+		{
+			$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		}
 	}
 
 	// Show number of reported members
@@ -6016,17 +6038,18 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
  function ssl_cert_found($url) {
 
-	// Ask for the headers for the passed url, but via https...
-	$url = str_ireplace('http://', 'https://', $url) . '/';
+	// First, strip the subfolder from the passed url, if any
+	$parsedurl = parse_url($url);
+	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
+	// Next, check the ssl stream context for certificate info
 	$result = false;
-	$params = array('ssl' => array('capture_peer_cert' => true, 'verify_peer' => true, 'allow_self_signed' => true));
-	$stream = stream_context_create ($params);
-
-	$read = @fopen($url, 'rb', false, $stream);
-	if ($read !== false) {
-		$cont = stream_context_get_params($read);
-		$result = isset($cont['options']['ssl']['peer_certificate']) ? true : false;
+	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+	if ($stream !== false)
+	{
+		$params = stream_context_get_params($stream);
+		$result = isset($params["options"]["ssl"]["peer_certificate"]) ? true : false;
 	}
     return $result;
 }
@@ -6066,7 +6089,7 @@ function https_redirect_active($url) {
 
 /**
  * Build query_wanna_see_board and query_see_board for a userid
- * 
+ *
  * Returns array with keys query_wanna_see_board and query_see_board
  * @param int $userid of the user
  */
@@ -6103,10 +6126,10 @@ function build_query_board($userid)
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		if (empty($row['additional_groups']))
-			$groups = array($row['id_group'], $user_settings['id_post_group']);
+			$groups = array($row['id_group'], $row['id_post_group']);
 		else
 			$groups = array_merge(
-					array($row['id_group'], $user_settings['id_post_group']),
+					array($row['id_group'], $row['id_post_group']),
 					explode(',', $row['additional_groups'])
 			);
 
@@ -6151,7 +6174,7 @@ function build_query_board($userid)
 
 		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
-	
+
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($is_admin)
 		$query_part['query_see_board'] = '1=1';
@@ -6170,6 +6193,23 @@ function build_query_board($userid)
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
 
 	return $query_part;
+}
+
+/**
+ * Check if the connection is using https.
+ *
+ * @return boolean true if connection used https
+ */
+function httpsOn()
+{
+	$secure = false;
+
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		$secure = true;
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		$secure = true;
+
+	return $secure;
 }
 
 ?>

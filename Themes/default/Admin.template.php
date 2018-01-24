@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1326,7 +1326,7 @@ function template_admin_search_results()
 				echo '
 								<li>
 									<p>
-										<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank"><strong>', $result['title'], '</strong></a>
+										<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" rel="noopener"><strong>', $result['title'], '</strong></a>
 									</p>
 									<p class="double_height">
 										', $result['snippet'], '

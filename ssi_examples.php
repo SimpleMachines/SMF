@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -572,8 +572,8 @@ function template_homepage_sample1($method = 'source')
 
 	$footer = '
 	<div id="footer">
-		<a target="_blank" rel="license" href="https://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/publicdomain/88x31.png"></a>
-		This sample website layout is dedicated to the <a target="_blank" rel="license" href="https://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
+		<a target="_blank" rel="noopener" rel="license" href="https://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/publicdomain/88x31.png"></a>
+		This sample website layout is dedicated to the <a target="_blank" rel="noopener" rel="license" href="https://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
 	</div>
 </div>
 </body>

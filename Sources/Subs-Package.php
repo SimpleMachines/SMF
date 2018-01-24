@@ -10,7 +10,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -246,6 +246,11 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		// This may not always be defined...
 		$return = array();
 
+		// Some hosted unix platforms require an extension; win may have .tmp & that works ok
+		if (!in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), array('zip', 'tmp')))
+			if (@rename($file, $file . '.zip'))
+				$file = $file . '.zip';
+
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
 		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
 
@@ -314,6 +319,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 	}
 	catch (Exception $e)
 	{
+		log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 		return false;
 	}
 }

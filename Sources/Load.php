@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -358,19 +358,6 @@ function reloadSettings()
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 
-	// Get an error count, if necessary
-	if (!isset($context['num_errors']))
-	{
-		$query = $smcFunc['db_query']('', '
-			SELECT COUNT(id_error)
-			FROM {db_prefix}log_errors',
-			array()
-		);
-
-		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-		$smcFunc['db_free_result']($query);
-	}
-
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
 }
@@ -411,21 +398,36 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
+		// First try 2.1 json-format cookie
 		$cookie_data = $smcFunc['json_decode']($_COOKIE[$cookiename], true, false);
 
+		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
-		list ($id_member, $password) = $cookie_data;
+		// Malformed or was reset
+		if (empty($cookie_data))
+			$cookie_data = array(0, '', 0, '', '');
+
+		list ($id_member, $password, $login_span, $cookie_domain, $cookie_path) = $cookie_data;
+
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
+
+		// Make sure the cookie is set to the correct domain and path
+		require_once($sourcedir . '/Subs-Auth.php');
+		if (array($cookie_domain, $cookie_path) != url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
+			setLoginCookie($login_span - time(), $id_member);
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename], true);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
+
+		if (empty($cookie_data))
+			$cookie_data = array(0, '', 0);
 
 		list ($id_member, $password, $login_span) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
@@ -450,7 +452,7 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false)
+			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
 
 			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
@@ -498,7 +500,7 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie]);
+					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
 					list ($tfamember, $tfasecret) = $tfa_data;
 
@@ -654,9 +656,9 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
+			list ($id, $user, $exp, $domain, $path, $preserve) = $tfa_data;
 
-			if (!isset($id, $user, $exp, $state, $preserve) || !$preserve || time() > $exp)
+			if (!isset($id, $user, $exp, $domain, $path, $preserve) || !$preserve || time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
@@ -1187,7 +1189,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+	global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1274,7 +1276,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
+			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
 			// Keep track of the member's normal member group
@@ -1539,13 +1541,22 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			$value = $profile['options'][$custom['col_name']];
 
-			// Don't show the "disabled" option for the "gender" field.
-			if ($custom['col_name'] == 'cust_gender' && $value == 'Disabled')
-				continue;
+			$fieldOptions = array();
+			$currentKey = 0;
+
+			// Create a key => value array for multiple options fields
+			if (!empty($custom['options']))
+				foreach ($custom['options'] as $k => $v)
+				{
+					$fieldOptions[] = $v;
+					if (empty($currentKey))
+						$currentKey = $v == $value ? $k : 0;
+				}
 
 			// BBC?
 			if ($custom['bbc'])
 				$value = parse_bbc($value);
+
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
 				$value = $value ? $txt['yes'] : $txt['no'];
@@ -1557,6 +1568,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 					'{INPUT}' => $value,
+					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
@@ -1608,6 +1620,18 @@ function loadMemberCustomFields($users, $params)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$fieldOptions = array();
+		$currentKey = 0;
+
+		// Create a key => value array for multiple options fields
+		if (!empty($row['field_options']))
+			foreach (explode(',', $row['field_options']) as $k => $v)
+			{
+				$fieldOptions[] = $v;
+				if (empty($currentKey))
+					$currentKey = $v == $row['value'] ? $k : 0;
+			}
+
 		// BBC?
 		if (!empty($row['bbc']))
 			$row['value'] = parse_bbc($row['value']);
@@ -1623,6 +1647,7 @@ function loadMemberCustomFields($users, $params)
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($row['value']),
+				'{KEY}' => $currentKey,
 			));
 
 		// Send a simple array if there is just 1 param
@@ -1816,7 +1841,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
-		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
+		!httpsOn() && SMF != 'SSI')
 	{
 		if (isset($_GET['sslRedirect']))
 		{
@@ -1830,7 +1855,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 	{
-		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https://' : 'http://';
+		$detected_url = httpsOn() ? 'https://' : 'http://';
 		$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 		$temp = preg_replace('~/' . basename($scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
 		if ($temp != '/')
@@ -3465,7 +3490,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret;
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3504,7 +3529,7 @@ function set_avatar_data($data = array())
 			else
 			{
 				// Using ssl?
-				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false)
+				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 					$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
 
 				// Just a plain external url.

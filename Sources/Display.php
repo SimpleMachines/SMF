@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1270,14 +1270,14 @@ function Display()
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
 
-	if (!$user_info['is_admin'] && !$modSettings['topic_move_any'])
+	if (!$user_info['is_admin'] && $context['can_move'] && !$modSettings['topic_move_any'])
 	{
 		// We'll use this in a minute
 		$boards_allowed = array_diff(boardsAllowedTo('post_new'), array($board));
 
 		/* You can't move this unless you have permission
 			to start new topics on at least one other board */
-		$context['can_move'] &= count($boards_allowed) > 1;
+		$context['can_move'] = count($boards_allowed) > 1;
 	}
 
 	// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any

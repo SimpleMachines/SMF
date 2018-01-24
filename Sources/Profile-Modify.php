@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1452,7 +1452,7 @@ function editBuddies($memID)
 			);
 
 	// Gotta disable the gender option.
-	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'Disabled')
+	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'None')
 		unset($context['custom_pf']['cust_gender']);
 
 	$smcFunc['db_free_result']($request);
@@ -4038,7 +4038,7 @@ function tfasetup($memID)
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,

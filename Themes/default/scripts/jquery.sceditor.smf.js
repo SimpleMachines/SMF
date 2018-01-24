@@ -3,7 +3,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -511,7 +511,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
-			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
+			return '<a target="_blank" rel="noopener" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 		}
 	}
 );

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -79,7 +79,7 @@ function template_main()
 
 			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 			// Group and date.
 			echo '
@@ -132,7 +132,9 @@ function template_main()
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
 		echo '
-			<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
+			<div class="buttonlist floatright">
+				<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
+			</div>';
 	echo '
 		</div>
 	</div><!-- #memberlist -->';
@@ -183,7 +185,7 @@ function template_search()
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button">
+				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button floatright">
 			</div><!-- #advanced_search -->
 		</div><!-- #memberlist -->
 	</form>';

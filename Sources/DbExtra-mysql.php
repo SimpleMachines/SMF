@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -394,14 +394,7 @@ function smf_db_get_vendor()
 	if (!empty($db_type))
 		return $db_type;
 
-	$request = $smcFunc['db_query']('', 
-				'SELECT VARIABLE_VALUE
-				 FROM INFORMATION_SCHEMA.GLOBAL_VARIABLES
-				 WHERE variable_name = {string:var_name}',
-				array(
-					'var_name' => 'VERSION_COMMENT',
-				)
-			);
+	$request = $smcFunc['db_query']('', 'SELECT @@version_comment');
 	list ($comment) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 

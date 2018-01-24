@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -213,7 +213,7 @@ class fulltext_search extends search_api
 			{
 				$language_ftx = $smcFunc['db_search_language']();
 
-				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:body_match})';
+				$query_where[] = 'to_tsvector({string:language_ftx},body) @@ plainto_tsquery({string:language_ftx},{string:body_match})';
 				$query_params['language_ftx'] = $language_ftx;
 			}
 			else
@@ -247,7 +247,7 @@ class fulltext_search extends search_api
 				{
 					$language_ftx = $smcFunc['db_search_language']();
 
-					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ to_tsquery({string:language_ftx},{string:boolean_match})';
+					$query_where[] = 'to_tsvector({string:language_ftx},body) @@ plainto_tsquery({string:language_ftx},{string:boolean_match})';
 					$query_params['language_ftx'] = $language_ftx;
 				}
 				else

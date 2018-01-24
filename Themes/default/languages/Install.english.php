@@ -2,7 +2,7 @@
 // Version: 2.1 Beta 4; Install
 
 // These should be the same as those in index.language.php.
-$txt['lang_character_set'] = 'ISO-8859-1';
+$txt['lang_character_set'] = 'UTF-8';
 $txt['lang_rtl'] = false;
 
 $txt['install_step_welcome'] = 'Welcome';
@@ -17,7 +17,7 @@ $txt['smf_installer'] = 'SMF Installer';
 $txt['installer_language'] = 'Language';
 $txt['installer_language_set'] = 'Set';
 $txt['congratulations'] = 'Congratulations, the installation process is complete!';
-$txt['congratulations_help'] = 'If at any time you need support, or SMF fails to work properly, please remember that <a href="https://www.simplemachines.org/community/index.php" target="_blank">help is available</a> if you need it.';
+$txt['congratulations_help'] = 'If at any time you need support, or SMF fails to work properly, please remember that <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">help is available</a> if you need it.';
 $txt['still_writable'] = 'Your installation directory is still writable. It\'s a good idea to chmod it so that it is not writable for security reasons.';
 $txt['delete_installer'] = 'Click here to delete this install.php file now.';
 $txt['delete_installer_maybe'] = '<em>(doesn\'t work on all servers.)</em>';
@@ -103,7 +103,7 @@ $txt['install_settings_reg_mode_info'] = 'This field allows you to change the mo
 $txt['install_settings_compress'] = 'Gzip Output';
 $txt['install_settings_compress_title'] = 'Compress output to save bandwidth.';
 // In this string, you can translate the word "PASS" to change what it says when the test passes.
-$txt['install_settings_compress_info'] = 'This function does not work properly on all servers, but can save you a lot of bandwidth.<br>Click <a href="install.php?obgz=1&amp;pass_string=PASS" onclick="return reqWin(this.href, 200, 60);" target="_blank">here</a> to test it. (it should just say "PASS".)';
+$txt['install_settings_compress_info'] = 'This function does not work properly on all servers, but can save you a lot of bandwidth.<br>Click <a href="install.php?obgz=1&amp;pass_string=PASS" onclick="return reqWin(this.href, 200, 60);" target="_blank" rel="noopener">here</a> to test it. (it should just say "PASS".)';
 $txt['install_settings_dbsession'] = 'Database Sessions';
 $txt['install_settings_dbsession_title'] = 'Use the database for sessions instead of using files.';
 $txt['install_settings_dbsession_info1'] = 'This feature is almost always for the best, as it makes sessions more dependable.';
@@ -113,7 +113,7 @@ $txt['install_settings_utf8_title'] = 'Use UTF-8 as default character set';
 $txt['install_settings_utf8_info'] = 'This feature lets both the database and the forum use an international character set, UTF-8. This can be useful when working with multiple languages that use different character sets.';
 $txt['install_settings_stats'] = 'Allow Stat Collection';
 $txt['install_settings_stats_title'] = 'Allow Simple Machines to Collect Basic Stats Monthly';
-$txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.';
+$txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.';
 $txt['install_settings_proceed'] = 'Proceed';
 
 $txt['db_settings'] = 'Database Server Settings';
@@ -254,7 +254,7 @@ $txt['ftp_username_info'] = 'The username to login with. <em>This will not be sa
 $txt['ftp_password'] = 'Password';
 $txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
 $txt['ftp_path'] = 'Install Path';
-$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank">(more help)</a>.';
+$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank" rel="noopener">(more help)</a>.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
 $txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
 $txt['ftp_path_help_close'] = 'Close';

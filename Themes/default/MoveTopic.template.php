@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -225,13 +225,13 @@ function template_merge()
 		echo $txt['target_below'];
 
 	echo '		</h4>
-			</div><!-- .title_bar -->';
+			</div><!-- .title_bar -->
+			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Don't show this if there aren't any topics...
 	if (!empty($context['topics']))
 	{
 		echo '
-			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
@@ -244,7 +244,7 @@ function template_merge()
 			echo '
 						<li>
 							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>
-							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
+							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 
 		echo '
@@ -315,7 +315,7 @@ function template_merge_extra_options()
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
-							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank">' . $topic['subject'] . '</a>
+							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
 						</td>
 						<td>
 							', $topic['started']['link'], '<br>
@@ -378,7 +378,7 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>

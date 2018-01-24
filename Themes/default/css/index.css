@@ -41,8 +41,8 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
-/* Prevent input overflow at smaller screens */
-input[type="text"] {
+/* Prevent inputs overflowing */
+input, select {
 	max-width: 100%;
 }
 /* Remove default mozilla dotted borders */
@@ -135,6 +135,7 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
@@ -283,11 +284,11 @@ h3.largetext {
 	display: inline-block;
 	vertical-align: top;
 }
-.half_content:nth-of-type(even) {
+.half_content:nth-of-type(odd) {
 	margin-right: -0.25em;
 	padding-right: 0.3%;
 }
-.half_content:nth-of-type(odd) {
+.half_content:nth-of-type(even) {
 	margin-left: -0.2em;
 	padding-left: 0.3%;
 }
@@ -576,7 +577,8 @@ dl.settings dt.windowbg {
 dl.settings dd {
 	width: 42%;
 	float: right;
-	overflow: auto;
+/* Disabled this for testing can be reverted at later stages of RC.
+	overflow: auto;*/
 	margin: 0 0 3px 0;
 }
 dl.settings img {
@@ -1311,12 +1313,6 @@ ul li.greeting {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
-.quickbuttons li a img {
-	padding-bottom: 2px;
-}
-.quickbuttons li input {
-	margin-top: 4px;
-}
 
 /* Drop part of QuickButtons */
 .quickbuttons li ul {
@@ -1678,6 +1674,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.gender_None {
 	background: none;
 }
+
+.generic_icons.gender_0 {
+	display: none;
+}
+
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
@@ -1700,7 +1701,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_2 {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1713,7 +1714,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Male {
+.generic_icons.gender_1 {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
@@ -2085,8 +2086,6 @@ dl {
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
-	white-space: pre-wrap;
-	overflow: hidden;
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
@@ -2221,7 +2220,7 @@ dl {
 	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
-	overflow: auto;
+	clear: both;
 	word-break: hyphenate;
 	word-wrap: break-word;
 }
@@ -2317,7 +2316,7 @@ dl {
 	font-size: 0.9em;
 }
 #warn_temp {
-	font-size: smaller;	
+	font-size: smaller;
 }
 
 /* Styles for the statistics center.
@@ -3697,7 +3696,7 @@ h3.profile_hd {
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
 /* Messages that somehow need to attract the attention. */
-.red, .meaction, 
+.red, .meaction,
 .error, .alert, .warn_mute {
 	color: red;
 }

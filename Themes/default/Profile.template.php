@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -227,7 +227,7 @@ function template_summary()
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields as icons?
 	if (!empty($context['print_custom_fields']['icons']))
@@ -1045,7 +1045,7 @@ function template_trackIP()
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
-			<a href="', $server['url'], '" target="_blank"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
+			<a href="', $server['url'], '" target="_blank" rel="noopener"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
 		echo '
 		</div>
 		<br>';
@@ -1607,10 +1607,10 @@ function template_edit_options()
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
-				<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button">';
+				<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button floatright">';
 	else
 		echo '
-				<input type="submit" name="save" value="', $txt['change_profile'], '" class="button">';
+				<input type="submit" name="save" value="', $txt['change_profile'], '" class="button floatright">';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -2473,7 +2473,7 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank">', $txt['profile_warning_new_template'], '</a>]</span>
+					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank" rel="noopener">', $txt['profile_warning_new_template'], '</a>]</span>
 					<br>
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', $context['warning_data']['notify_body'], '</textarea>
 				</dd>';
@@ -2829,7 +2829,7 @@ function template_profile_signature_modify()
 
 	if (!empty($context['show_preview_button']))
 		echo '
-								<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button">';
+								<input type="button" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button floatright">';
 
 	if ($context['signature_warning'])
 		echo '
@@ -3046,7 +3046,7 @@ function template_profile_timeformat_modify()
 									<option value="', $time_format['format'], '"', $time_format['format'] == $context['member']['time_format'] ? ' selected' : '', '>', $time_format['title'], '</option>';
 
 	echo '
-								</select><br>
+								</select>
 								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30">
 							</dd>';
 }

@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -123,8 +123,20 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$smcFunc['db_error_insert']($error_info);
 		$last_error = $error_info;
 
-		// Increment our error count for the menu
-		$context['num_errors']++;
+		// Get an error count, if necessary
+		if (!isset($context['num_errors']))
+		{
+			$query = $smcFunc['db_query']('', '
+				SELECT COUNT(id_error)
+				FROM {db_prefix}log_errors',
+				array()
+			);
+
+			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+			$smcFunc['db_free_result']($query);
+		}
+		else
+			$context['num_errors']++;
 	}
 
 	// reset error call
