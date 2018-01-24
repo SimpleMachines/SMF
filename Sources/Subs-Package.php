@@ -247,7 +247,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		$return = array();
 
 		// Some hosted unix platforms require an extension; win may have .tmp & that works ok
-		if (strtolower(substr($file, -4)) != '.zip' && strtolower(substr($file, -4)) != '.tmp')
+		if (!in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), array('zip', 'tmp')))
 			if (@rename($file, $file . '.zip'))
 				$file = $file . '.zip';
 
