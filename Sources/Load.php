@@ -502,7 +502,7 @@ function loadUserSettings()
 				{
 					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
-					list ($tfamember, $tfasecret) = $tfa_data;
+					list ($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
 
 					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
@@ -658,9 +658,9 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $domain, $path, $preserve) = $tfa_data;
+			list ($id, $user, $exp, $domain, $path) = array_pad((array) $tfa_data, 5, '');
 
-			if (!isset($id, $user, $exp, $domain, $path, $preserve) || !$preserve || time() > $exp)
+			if (time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
