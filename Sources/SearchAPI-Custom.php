@@ -122,7 +122,7 @@ class custom_search extends search_api
 
 		// Excluded phrases don't benefit from being split into subwords.
 		if (count($subwords) > 1 && $isExcluded)
-			return;
+			continue;
 		else
 		{
 			foreach ($subwords as $subword)
