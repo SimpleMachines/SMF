@@ -1079,7 +1079,7 @@ function UpgradeOptions()
 	if (!function_exists('cache_put_data'))
 		require_once($sourcedir . '/Load.php');
 	if (stripos($boardurl, 'https://') !== false)
-		updateSettings(array('force_ssl' => '2'));
+		updateSettings(array('force_ssl' => '1'));
 
 	// If we're overriding the language follow it through.
 	if (isset($_GET['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $_GET['lang'] . '.php'))

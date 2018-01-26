@@ -1749,7 +1749,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
 		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 2)
+		if (empty($modSettings['force_ssl']))
 			$image_proxy_enabled = false;
 
 		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
@@ -1833,7 +1833,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		return;
 
 	// Check to see if we're forcing SSL
-	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')
 	{
 		if (isset($_GET['sslRedirect']))
@@ -1998,7 +1998,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!isset($context['javascript_vars']))
 		$context['javascript_vars'] = array();
 
-	$context['login_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=login2';
+	$context['login_url'] =  $scripturl . '?action=login2';
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';
 	$context['session_var'] = $_SESSION['session_var'];
 	$context['session_id'] = $_SESSION['session_value'];
