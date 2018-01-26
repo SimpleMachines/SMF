@@ -3266,7 +3266,7 @@ EOT;
 	{
 		$settings = preg_replace('~' . $regex . '~', '', $settings);
 		$settings = preg_replace('~(#+\s*Error-Catching\s*#+)~', $replacement . '$1', $settings);
-		$settings = preg_replace('~dirname(__FILE__) . \'/db_last_error.php\'~', '$cachedir . \'/db_last_error.php\'', $settings);
+		$settings = preg_replace('~dirname(__FILE__) . \'/db_last_error.php\'~', '(isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\'', $settings);
 
 		// Blank out the file - done to fix a oddity with some servers.
 		file_put_contents(dirname(__FILE__) . '/Settings.php', '');
