@@ -394,6 +394,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 		$names = explode(',', $names);
 
 	$maybe_email = false;
+	$names_list = array();
 	foreach ($names as $i => $name)
 	{
 		// Trim, and fix wildcards for each name.
@@ -406,6 +407,9 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			$names[$i] = strtr($names[$i], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '\'' => '&#039;'));
 		else
 			$names[$i] = strtr($names[$i], array('\'' => '&#039;'));
+		
+		$names_list[] = '{string:lookup_name_' . $i . '}';
+		$where_params['lookup_name_' . $i] = $names[$i];
 	}
 
 	// What are we using to compare?
@@ -425,22 +429,23 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	$member_name = $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name';
 	$real_name = $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name';
 
+	// Searches.
+	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode( ' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
+	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode( ' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
+
 	// Search by username, display name, and email address.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, email_address
 		FROM {db_prefix}members
-		WHERE ({raw:member_name_search}
-			OR {raw:real_name_search} {raw:email_condition})
+		WHERE (' . $member_name_search . '
+			OR ' . $real_name_search . ' ' . $email_condition . ')
 			' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
 		LIMIT {int:limit}',
-		array(
+		array_merge($where_params, array(
 			'buddy_list' => $user_info['buddies'],
-			'member_name_search' => $member_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $member_name . ' ' . $comparison . ' \'', $names) . '\'',
-			'real_name_search' => $real_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $real_name . ' ' . $comparison . ' \'', $names) . '\'',
-			'email_condition' => $email_condition,
 			'limit' => $max,
-		)
+		))
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
