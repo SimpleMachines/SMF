@@ -522,7 +522,6 @@ function CheckFilesWritable()
 		'agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
-		'db_last_error.php',
 	);
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
@@ -1831,8 +1830,13 @@ function updateSettingsFile($vars)
 
 function updateDbLastError()
 {
+	global $cachedir;
+
 	// Write out the db_last_error file with the error timestamp
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	if (!empty($cachedir) && is_writable($cachedir))
+		file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	else
+		file_put_contents(dirname(__FILE__) . '/cache/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 
 	return true;
 }

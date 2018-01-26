@@ -183,29 +183,29 @@ function writeLog($force = false)
  */
 function logLastDatabaseError()
 {
-	global $boarddir;
+	global $boarddir, $cachedir;
 
 	// Make a note of the last modified time in case someone does this before us
-	$last_db_error_change = @filemtime($boarddir . '/db_last_error.php');
+	$last_db_error_change = @filemtime($cachedir . '/db_last_error.php');
 
 	// save the old file before we do anything
-	$file = $boarddir . '/db_last_error.php';
-	$dberror_backup_fail = !@is_writable($boarddir . '/db_last_error_bak.php') || !@copy($file, $boarddir . '/db_last_error_bak.php');
-	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($boarddir . '/db_last_error_bak.php') || filesize($boarddir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
+	$file = $cachedir . '/db_last_error.php';
+	$dberror_backup_fail = !@is_writable($cachedir . '/db_last_error_bak.php') || !@copy($file, $cachedir . '/db_last_error_bak.php');
+	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($cachedir . '/db_last_error_bak.php') || filesize($cachedir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
 
 	clearstatcache();
-	if (filemtime($boarddir . '/db_last_error.php') === $last_db_error_change)
+	if (filemtime($cachedir . '/db_last_error.php') === $last_db_error_change)
 	{
 		// Write the change
 		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
-		$written_bytes = file_put_contents($boarddir . '/db_last_error.php', $write_db_change, LOCK_EX);
+		$written_bytes = file_put_contents($cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 		// survey says ...
 		if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail)
 		{
 			// Oops. maybe we have no more disk space left, or some other troubles, troubles...
 			// Copy the file back and run for your life!
-			@copy($boarddir . '/db_last_error_bak.php', $boarddir . '/db_last_error.php');
+			@copy($cachedir . '/db_last_error_bak.php', $cachedir . '/db_last_error.php');
 		}
 		else
 		{

@@ -661,11 +661,15 @@ function WelcomeLogin()
 	$writable_files = array(
 		$boarddir . '/Settings.php',
 		$boarddir . '/Settings_bak.php',
-		$boarddir . '/db_last_error.php',
-		$modSettings['theme_dir'] . '/css/minified.css',
-		$modSettings['theme_dir'] . '/scripts/minified.js',
-		$modSettings['theme_dir'] . '/scripts/minified_deferred.js',
 	);
+
+	// Only check for minified writable files if we have it enabled or not set.
+	if (!empty($modSettings['minimize_files']) || !isset($modSettings['minimize_files']))
+		$writable_files += array(
+			$modSettings['theme_dir'] . '/css/minified.css',
+			$modSettings['theme_dir'] . '/scripts/minified.js',
+			$modSettings['theme_dir'] . '/scripts/minified_deferred.js',
+		);
 
 	// Do we need to add this setting?
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
@@ -2392,11 +2396,6 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!is_writable($boarddir . '/Settings_bak.php'))
 		print_error('Error: Unable to obtain write access to "Settings_bak.php".');
 
-	// Make sure db_last_error.php is writable.
-	quickFileWritable($boarddir . '/db_last_error.php');
-	if (!is_writable($boarddir . '/db_last_error.php'))
-		print_error('Error: Unable to obtain write access to "db_last_error.php".');
-
 	if (isset($modSettings['agreement']) && (!is_writable($boarddir) || file_exists($boarddir . '/agreement.txt')) && !is_writable($boarddir . '/agreement.txt'))
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	elseif (isset($modSettings['agreement']))
@@ -2422,6 +2421,11 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	if (!is_writable($cachedir_temp))
 		print_error('Error: Unable to obtain write access to "cache".', true);
+
+	// Make sure db_last_error.php is writable.
+	quickFileWritable($cachedir_temp . '/db_last_error.php');
+	if (!is_writable($cachedir_temp . '/db_last_error.php'))
+		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 
 	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($_GET['lang']))
 		print_error('Error: Unable to find language files!', true);
