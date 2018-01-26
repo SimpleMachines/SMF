@@ -405,18 +405,14 @@ function loadUserSettings()
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
-		// Malformed or was reset
-		if (empty($cookie_data))
-			$cookie_data = array(0, '', 0, '', '');
-
-		list ($id_member, $password, $login_span, $cookie_domain, $cookie_path) = $cookie_data;
+		list($id_member, $password, $login_span, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
 
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
 		require_once($sourcedir . '/Subs-Auth.php');
-		if (array($cookie_domain, $cookie_path) != url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
-			setLoginCookie($login_span - time(), $id_member);
+		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
+			setLoginCookie((int) $login_span - time(), $id_member);
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
@@ -426,11 +422,8 @@ function loadUserSettings()
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
-		if (empty($cookie_data))
-			$cookie_data = array(0, '', 0);
-
-		list ($id_member, $password, $login_span) = $cookie_data;
-		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
+		list($id_member, $password, $login_span) = array_pad((array) $cookie_data, 3, '');
+		$id_member = !empty($id_member) && strlen($password) == 128 && (int) $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
