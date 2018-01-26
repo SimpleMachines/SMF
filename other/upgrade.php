@@ -1158,6 +1158,9 @@ function UpgradeOptions()
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($changes);
 
+	// Tell Settings.php to store db_last_error.php in the cache
+	move_db_last_error_to_cachedir();
+
 	if ($command_line)
 		echo ' Successful.' . "\n";
 
@@ -3233,6 +3236,43 @@ function serialize_to_json()
 	// If this fails we just move on to deleting the upgrade anyway...
 	$_GET['substep'] = 0;
 	return false;
+}
+
+/**
+ * As of 2.1, we want to store db_last_error.php in the cache
+ * To make that happen, Settings.php needs to ensure the $cachedir path is correct before trying to write to db_last_error.php
+ */
+function move_db_last_error_to_cachedir()
+{
+	$settings = file_get_contents(dirname(__FILE__) . '/Settings.php');
+
+	$regex = <<<'EOT'
+(\s*#\s*Make\s+sure\s+the\s+paths\s+are\s+correct\.\.\.\s+at\s+least\s+try\s+to\s+fix\s+them\.\s+)?if\s*\(\!file_exists\(\$boarddir\)\s+&&\s+file_exists\(dirname\(__FILE__\)\s+\.\s+'/agreement\.txt'\)\)\s+\$boarddir\s*\=\s*dirname\(__FILE__\);\s+if\s*\(\!file_exists\(\$sourcedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/Sources'\)\)\s+\$sourcedir\s*\=\s*\$boarddir\s*\.\s*'/Sources';\s+if\s*\(\!file_exists\(\$cachedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/cache'\)\)\s+\$cachedir\s*\=\s*\$boarddir\s*\.\s*'/cache';
+EOT;
+
+	$replacement = <<<'EOT'
+# Make sure the paths are correct... at least try to fix them.
+if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+	$boarddir = dirname(__FILE__);
+if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
+	$sourcedir = $boarddir . '/Sources';
+if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
+	$cachedir = $boarddir . '/cache';
+
+
+EOT;
+
+	if (preg_match('~' . $regex . '~', $settings) && preg_match('~(#+\s*Error-Catching\s*#+)~', $settings))
+	{
+		$settings = preg_replace('~' . $regex . '~', '', $settings);
+		$settings = preg_replace('~(#+\s*Error-Catching\s*#+)~', $replacement . '$1', $settings);
+		$settings = preg_replace('~dirname(__FILE__) . \'/db_last_error.php\'~', '$cachedir . \'/db_last_error.php\'', $settings);
+
+		// Blank out the file - done to fix a oddity with some servers.
+		file_put_contents(dirname(__FILE__) . '/Settings.php', '');
+
+		file_put_contents(dirname(__FILE__) . '/Settings.php', $settings);
+	}
 }
 
 /******************************************************************************
