@@ -2146,6 +2146,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
+			// A closing tag that doesn't match any open tags? Skip it.
+			if (!in_array($look_for, array_map(function($code){return $code['tag'];}, $open_tags)))
+				continue;
+
 			$to_close = array();
 			$block_level = null;
 
