@@ -410,7 +410,7 @@ a img {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background: #f7f7f7 url(../images/toggle.png) no-repeat 0 0 / 17px;
+	background: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
 	overflow: hidden;
 	content: '';
 	vertical-align: middle;
@@ -1659,9 +1659,17 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -5px -5px;
+	background: url(../images/icons/generic_icons_sprite.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
+/* Load better icons for higher resolution screens */
+@media screen and (min-resolution: 160dpi) {
+
+	.generic_icons {
+		background-image: url(../images/icons/generic_icons_sprite_hd.png);
+	}
+}
+
 /* Small fix for topics */
 .quickbuttons span.generic_icons {
 	margin: -3px 3px 0 1px;
@@ -2003,7 +2011,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
-	background: url(../images/generic_icons.png) no-repeat -57px -83px;
+	background: url(../images/icons/generic_icons_sprite.png) no-repeat -57px -83px;
 	left: 10px;
 	content: '';
 	position: absolute;
