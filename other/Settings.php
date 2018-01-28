@@ -194,13 +194,13 @@ if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.
-if (file_exists($cachedir . '/db_last_error.php'))
-	include($cachedir . '/db_last_error.php');
+if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
+	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
 
 if (!isset($db_last_error))
 {
 	// File does not exist so lets try to create it
-	file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 	$db_last_error = 0;
 }
 
