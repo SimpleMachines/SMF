@@ -2259,7 +2259,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (strtolower(substr($message, $pos + 1, $pt_strlen)) != $possible['tag'])
 				continue;
 
-			$next_c = $message[$pos + 1 + $pt_strlen];
+			$next_c = isset($message[$pos + 1 + $pt_strlen]) ? $message[$pos + 1 + $pt_strlen] : '';
+			
+			// A tag is the last char maybe
+			if ($next_c == '')
+				break;
 
 			// A test validation?
 			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos + 1 + $pt_strlen + 1)) === 0)
