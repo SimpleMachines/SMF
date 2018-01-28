@@ -374,7 +374,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// Get a connection if we are shutting down, sometimes the link is closed before sessions are written
 	if (!is_object($connection))
 	{
-		global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
+		global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd, $db_persist;
 
 		// Are we in SSI mode?  If so try that username and password first
 		if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
