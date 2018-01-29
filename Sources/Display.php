@@ -864,7 +864,7 @@ function Display()
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $ascending ? $_SESSION['page_first_id'] : $_SESSION['page_last_id'];
+			$page_id = $ascending ? $context['topicinfo']['id_fist_msg'] : $context['topicinfo']['id_last_msg'];
 		}
 	}
 	// Special case start page
