@@ -843,6 +843,7 @@ function Display()
 	}
 
 	$start = $_REQUEST['start'];
+	$ascending = empty($options['view_newest_first']);
 
 	// Check if we can use the seek method to speed things up
 	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic)
@@ -851,26 +852,26 @@ function Display()
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
 		{
 			$start_char = 'M';
-			$page_id = $_SESSION['page_last_id'];
+			$page_id = $ascending ? $_SESSION['page_last_id'] : $_SESSION['page_first_id'];
 		}
 		// User moved to the previous page
 		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
 		{
 			$start_char = 'L';
-			$page_id = $_SESSION['page_first_id'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $_SESSION['page_last_id'];
 		}
 		// User refreshed the current page
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $_SESSION['page_first_id'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $_SESSION['page_last_id'];
 		}
 	}
 	// Special case start page
 	elseif ($start == 0)
 	{
 		$start_char = 'C';
-		$page_id = $context['topicinfo']['id_first_msg'];
+		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $_SESSION['page_last_id'];
 	}
 	else
 		$start_char = null;
@@ -884,15 +885,15 @@ function Display()
 	{
 		$firstIndex = 0;
 
-		if ($start_char === 'M' or $start_char === 'C')
+		if ($start_char === 'M' || $start_char === 'C')
 		{
-			$ascending = true;
-			$page_operator = '>=';
+			$ascending_seek = true;
+			$page_operator = $ascending ? '>=' : '<=';
 		}
 		else
 		{
-			$ascending = false;
-			$page_operator = '<=';
+			$ascending_seek = false;
+			$page_operator = $ascending ? '<=' : '>=';
 		}
 
 		if ($start_char === 'C')
@@ -906,7 +907,7 @@ function Display()
 			WHERE id_topic = {int:current_topic}
 			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
 				'current_member' => $user_info['id'],
@@ -959,7 +960,6 @@ function Display()
 	if (empty($start_char))
 	{
 		// Calculate the fastest way to get the messages!
-		$ascending = empty($options['view_newest_first']);
 		$firstIndex = 0;
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
