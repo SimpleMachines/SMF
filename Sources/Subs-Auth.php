@@ -102,7 +102,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			$alias_data = $smcFunc['json_decode']($data);
+			$alias_data = $smcFunc['json_decode']($data, true);
 			$alias_data[3] = $cookie_url[0];
 			$alias_data[4] = $cookie_url[1];
 			$alias_data = $smcFunc['json_encode']($alias_data, JSON_FORCE_OBJECT);
@@ -407,7 +407,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			$names[$i] = strtr($names[$i], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '\'' => '&#039;'));
 		else
 			$names[$i] = strtr($names[$i], array('\'' => '&#039;'));
-		
+
 		$names_list[] = '{string:lookup_name_' . $i . '}';
 		$where_params['lookup_name_' . $i] = $names[$i];
 	}
