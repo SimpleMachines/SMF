@@ -317,7 +317,7 @@ You can see it at
 	@description:
 */
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
-$txt['alert_unapproved_post_body'] = 'A new post, \'{SUBJECT}\', has been made which needs approved.
+$txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
 
 You can approve or reject this post by clicking the link below:
 
@@ -332,7 +332,7 @@ You can approve or reject this post by clicking the link below:
 	@description:
 */
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
-$txt['alert_unapproved_topic_body'] = 'A new topic, \'{SUBJECT}\', has been made which needs approved.
+$txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
 
 You can approve or reject this topic by clicking the link below:
 
@@ -528,7 +528,7 @@ Moderation center: {REPORTLINK}
 	@description:
 */
 $txt['change_password_subject'] = 'New Password Details';
-$txt['change_password_body'] = 'Dear, {USERNAME}
+$txt['change_password_body'] = 'Dear {USERNAME},
 
 Your login details at {FORUMNAME} have been changed and your password reset. Below are your new login details.
 
@@ -876,7 +876,7 @@ You can view this members profile by clicking the link below:
 	@description:
 */
 $txt['paid_subscription_error_subject'] = 'Paid Subscription Error Occurred';
-$txt['paid_subscription_error_body'] = 'Dear, {REALNAME},
+$txt['paid_subscription_error_body'] = 'Dear {REALNAME},
 
 The following error occurred when processing a paid subscription
 ---------------------------------------------------------------
