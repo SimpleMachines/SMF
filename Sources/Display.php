@@ -871,7 +871,7 @@ function Display()
 	elseif ($start == 0)
 	{
 		$start_char = 'C';
-		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $_SESSION['page_last_id'];
+		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
 	}
 	else
 		$start_char = null;
