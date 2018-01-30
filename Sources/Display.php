@@ -883,8 +883,6 @@ function Display()
 
 	if (isset($start_char))
 	{
-		$firstIndex = 0;
-
 		if ($start_char === 'M' || $start_char === 'C')
 		{
 			$ascending_seek = true;
