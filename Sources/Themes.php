@@ -925,7 +925,7 @@ function PickTheme()
 		$_GET['th'] = (int) $_GET['th'];
 
 		// Save for this user.
-		if (!isset($_REQUEST['u']) || !allowedTo('admin_forum'))
+		if (!isset($_REQUEST['u']) || !allowedTo('admin_forum') || (!empty($_REQUEST['u']) && $_REQUEST['u'] == $user_info['id']))
 		{
 			updateMemberData($user_info['id'], array('id_theme' => (int) $_GET['th']));
 
