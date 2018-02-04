@@ -1725,27 +1725,27 @@ function loadTheme($id_theme = 0, $initialize = true)
 	else
 		$id_theme = $modSettings['theme_guests'];
 
+	// Verify the id_theme... no foul play.
+	// Always allow the board specific theme, if they are overriding.
+	if (!empty($board_info['theme']) && $board_info['override_theme'])
+		$id_theme = $board_info['theme'];
+	// If they have specified a particular theme to use with SSI allow it to be used.
+	elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
+		$id_theme = (int) $id_theme;
+	elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
+	{
+		$themes = explode(',', $modSettings['enableThemes']);
+		if (!in_array($id_theme, $themes))
+			$id_theme = $modSettings['theme_guests'];
+		else
+			$id_theme = (int) $id_theme;
+	}
+	else
+		$id_theme = (int) $id_theme;
+		
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
-		// Verify the id_theme... no foul play.
-		// Always allow the board specific theme, if they are overriding.
-		if (!empty($board_info['theme']) && $board_info['override_theme'])
-			$id_theme = $board_info['theme'];
-		// If they have specified a particular theme to use with SSI allow it to be used.
-		elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
-			$id_theme = (int) $id_theme;
-		elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
-		{
-			$themes = explode(',', $modSettings['enableThemes']);
-			if (!in_array($id_theme, $themes))
-				$id_theme = $modSettings['theme_guests'];
-			else
-				$id_theme = (int) $id_theme;
-		}
-		else
-			$id_theme = (int) $id_theme;
-
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
 		// Disable image proxy if we don't have SSL enabled
@@ -1769,7 +1769,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 				SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN (-1, 0, {int:id_member})' : ' = {int:id_member}') . '
-					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)'),
+					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)') .'
+				ORDER BY id_theme asc',
 				array(
 					'id_theme' => $id_theme,
 					'id_member' => $member,
