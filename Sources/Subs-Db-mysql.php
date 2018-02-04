@@ -73,11 +73,15 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 
 	$success = false;
 
+	// Windows doesn't support socket
+	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && $db_server == 'localhost')
+			$db_server = '127.0.0.1';
+
 	if ($connection) {
 		if (!empty($db_options['port']))
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, $db_name, $db_options['port'], null, $flags);
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, $db_options['port'], null, $flags);
 		else
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, $db_name, 0, null, $flags);
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, 0, null, $flags);
 	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
