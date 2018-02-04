@@ -1740,8 +1740,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		else
 			$id_theme = (int) $id_theme;
 	}
-	else
-		$id_theme = (int) $id_theme;
 		
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
