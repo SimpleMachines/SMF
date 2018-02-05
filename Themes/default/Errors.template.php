@@ -154,9 +154,9 @@ function template_error_log()
 
 		if (!empty($error['file']))
 			echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><span class="generic_icons filter"></span></a>
 							<div>
-								', $txt['file'], ': ', $error['file']['link'], '<br>
+								<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '">'
+				. '					', $txt['file'], '</a>: ', $error['file']['link'], '<br>
 								', $txt['line'], ': ', $error['file']['line'], '
 							</div>';
 
