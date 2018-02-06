@@ -156,8 +156,7 @@ function template_error_log()
 			echo '
 							<div>
 								<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '">'
-				. '					<span class="generic_icons filter"></span></a> ', $error['file']['link'], '<br>
-								', $txt['line'], ': ', $error['file']['line'], '
+				. '					<span class="generic_icons filter"></span></a> ', $error['file']['link'], ' (', $txt['line'], ' ', $error['file']['line'], ')
 							</div>';
 
 		echo '
