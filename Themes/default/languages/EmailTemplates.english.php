@@ -837,7 +837,7 @@ A member has received a refund on a paid subscription. Below are the details of 
 	User Name: {REFUNDNAME} ({REFUNDUSER})
 	Date: {DATE}
 
-You can view this members profile by clicking the link below:
+You can view this member\'s profile by clicking the link below:
 {PROFILELINK}
 
 {REGARDS}';
@@ -864,7 +864,7 @@ A member has taken out a new paid subscription. Below are the details of this su
 	Price: {PRICE}
 	Date: {DATE}
 
-You can view this members profile by clicking the link below:
+You can view this member\'s profile by clicking the link below:
 {PROFILELINK}
 
 {REGARDS}';
