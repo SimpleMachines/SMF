@@ -2422,3 +2422,14 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 ---#
+
+/******************************************************************************/
+--- Update smileys
+/******************************************************************************/
+---# Transform default from gif to png
+UPDATE {$db_prefix}smileys 
+SET filename = REPLACE(filename, '.gif', '.png')
+WHERE 
+	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
+	filename LIKE '%.gif';
+---#

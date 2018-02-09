@@ -2597,3 +2597,14 @@ DROP INDEX id_topic;
 ALTER TABLE {$db_prefix}topics
 DROP INDEX id_board;
 ---#
+
+/******************************************************************************/
+--- Update smileys
+/******************************************************************************/
+---# Transform default from gif to png
+UPDATE {$db_prefix}smileys 
+SET filename = REPLACE(filename, '.gif', '.png')
+WHERE 
+	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
+	filename LIKE '%.gif';
+---#
