@@ -1282,7 +1282,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc, $cache_enable, $cacheAPI;
+	global $modSettings, $smcFunc, $cache_enable, $cacheAPI, $image_proxy_enabled;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1474,6 +1474,17 @@ function scheduled_weekly_maintenance()
 	if (!empty($cache_enable) && !empty($cacheAPI))
 	{
 		$cacheAPI->housekeeping();
+	}
+	
+	// Run Cache housekeeping
+	if (!empty($image_proxy_enabled))
+	{
+		global $proxyhousekeeping;
+		$proxyhousekeeping = true;
+		
+		require_once(dirname(__FILE__) . '/proxy.php');
+		$proxy = new ProxyServer();
+		$proxy->housekeeping();
 	}
 	
 	return true;
