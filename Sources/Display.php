@@ -880,6 +880,7 @@ function Display()
 
 	$messages = array();
 	$all_posters = array();
+	$firstIndex = 0;
 
 	if (isset($start_char))
 	{
@@ -958,7 +959,6 @@ function Display()
 	if (empty($start_char))
 	{
 		// Calculate the fastest way to get the messages!
-		$firstIndex = 0;
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
 			$ascending = !$ascending;
