@@ -2433,3 +2433,33 @@ WHERE
 	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
 ---#
+
+---# Update Settings sets_known
+UPDATE {$db_prefix}settings
+SET value = value || ',alienine'
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',aaron', '')
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',akyhne', '')
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',fugue', '')
+WHERE variable = 'smiley_sets_known';
+---#
+
+---#  Update Settings sets_names
+UPDATE {$db_prefix}settings
+SET value = value || '\n{$default_alienine_smileyset_name}'
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_akyhne_smileyset_name}', '')
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
+WHERE variable = 'smiley_sets_names';
+---#
