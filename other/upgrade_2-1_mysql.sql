@@ -2611,7 +2611,7 @@ WHERE
 
 ---# Update Settings sets_known
 UPDATE {$db_prefix}settings
-SET value = value || ',alienine'
+SET value = CONCAT(value, ',alienine')
 WHERE variable = 'smiley_sets_known';
 UPDATE {$db_prefix}settings
 SET value = replace (value, ',aaron', '')
@@ -2626,7 +2626,7 @@ WHERE variable = 'smiley_sets_known';
 
 ---#  Update Settings sets_names
 UPDATE {$db_prefix}settings
-SET value = value || '\n{$default_alienine_smileyset_name}'
+SET value = CONCAT(value, '\n{$default_alienine_smileyset_name}')
 WHERE variable = 'smiley_sets_names';
 UPDATE {$db_prefix}settings
 SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
