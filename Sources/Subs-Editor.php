@@ -144,7 +144,7 @@ function html_to_bbc($text)
 		if (empty($modSettings['smiley_enable']))
 		{
 			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
-			$smileysto = array('evil.gif', 'cheesy.gif', 'rolleyes.gif', 'angry.gif', 'smiley.gif', 'wink.gif', 'grin.gif', 'sad.gif', 'shocked.gif', 'cool.gif', 'tongue.gif', 'huh.gif', 'embarrassed.gif', 'lipsrsealed.gif', 'kiss.gif', 'cry.gif', 'undecided.gif', 'azn.gif', 'afro.gif', 'police.gif', 'angel.gif');
+			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
 
 			foreach ($matches[1] as $k => $file)
 			{
@@ -1879,82 +1879,82 @@ function create_control_richedit($editorOptions)
 				'smileys' => array(
 					array(
 						'code' => ':)',
-						'filename' => 'smiley.gif',
+						'filename' => 'smiley.png',
 						'description' => $txt['icon_smiley'],
 					),
 					array(
 						'code' => ';)',
-						'filename' => 'wink.gif',
+						'filename' => 'wink.png',
 						'description' => $txt['icon_wink'],
 					),
 					array(
 						'code' => ':D',
-						'filename' => 'cheesy.gif',
+						'filename' => 'cheesy.png',
 						'description' => $txt['icon_cheesy'],
 					),
 					array(
 						'code' => ';D',
-						'filename' => 'grin.gif',
+						'filename' => 'grin.png',
 						'description' => $txt['icon_grin']
 					),
 					array(
 						'code' => '>:(',
-						'filename' => 'angry.gif',
+						'filename' => 'angry.png',
 						'description' => $txt['icon_angry'],
 					),
 					array(
 						'code' => ':(',
-						'filename' => 'sad.gif',
+						'filename' => 'sad.png',
 						'description' => $txt['icon_sad'],
 					),
 					array(
 						'code' => ':o',
-						'filename' => 'shocked.gif',
+						'filename' => 'shocked.png',
 						'description' => $txt['icon_shocked'],
 					),
 					array(
 						'code' => '8)',
-						'filename' => 'cool.gif',
+						'filename' => 'cool.png',
 						'description' => $txt['icon_cool'],
 					),
 					array(
 						'code' => '???',
-						'filename' => 'huh.gif',
+						'filename' => 'huh.png',
 						'description' => $txt['icon_huh'],
 					),
 					array(
 						'code' => '::)',
-						'filename' => 'rolleyes.gif',
+						'filename' => 'rolleyes.png',
 						'description' => $txt['icon_rolleyes'],
 					),
 					array(
 						'code' => ':P',
-						'filename' => 'tongue.gif',
+						'filename' => 'tongue.png',
 						'description' => $txt['icon_tongue'],
 					),
 					array(
 						'code' => ':-[',
-						'filename' => 'embarrassed.gif',
+						'filename' => 'embarrassed.png',
 						'description' => $txt['icon_embarrassed'],
 					),
 					array(
 						'code' => ':-X',
-						'filename' => 'lipsrsealed.gif',
+						'filename' => 'lipsrsealed.png',
 						'description' => $txt['icon_lips'],
 					),
 					array(
 						'code' => ':-\\',
-						'filename' => 'undecided.gif',
+						'filename' => 'undecided.png',
 						'description' => $txt['icon_undecided'],
 					),
 					array(
 						'code' => ':-*',
-						'filename' => 'kiss.gif',
+						'filename' => 'kiss.png',
 						'description' => $txt['icon_kiss'],
 					),
 					array(
 						'code' => ':\'(',
-						'filename' => 'cry.gif',
+						'filename' => 'cry.png',
 						'description' => $txt['icon_cry'],
 						'isLast' => true,
 					),
