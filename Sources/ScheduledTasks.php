@@ -378,7 +378,7 @@ function scheduled_approval_notification()
  */
 function scheduled_daily_maintenance()
 {
-	global $smcFunc, $modSettings, $sourcedir, $db_type;
+	global $smcFunc, $modSettings, $sourcedir, $db_type, $image_proxy_enabled;
 
 	// First clean out the cache.
 	clean_cache();
@@ -457,6 +457,17 @@ function scheduled_daily_maintenance()
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
+
+	// Run Cache housekeeping
+	if (!empty($image_proxy_enabled))
+	{
+		global $proxyhousekeeping;
+		$proxyhousekeeping = true;
+		
+		require_once(dirname(__FILE__) . '/proxy.php');
+		$proxy = new ProxyServer();
+		$proxy->housekeeping();
+	}
 
 	// Log we've done it...
 	return true;
@@ -1282,7 +1293,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc, $cache_enable, $cacheAPI, $image_proxy_enabled;
+	global $modSettings, $smcFunc, $cache_enable, $cacheAPI;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1474,17 +1485,6 @@ function scheduled_weekly_maintenance()
 	if (!empty($cache_enable) && !empty($cacheAPI))
 	{
 		$cacheAPI->housekeeping();
-	}
-	
-	// Run Cache housekeeping
-	if (!empty($image_proxy_enabled))
-	{
-		global $proxyhousekeeping;
-		$proxyhousekeeping = true;
-		
-		require_once(dirname(__FILE__) . '/proxy.php');
-		$proxy = new ProxyServer();
-		$proxy->housekeeping();
 	}
 	
 	return true;
