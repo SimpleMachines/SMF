@@ -1351,7 +1351,7 @@ function Post($post_errors = array())
 
 			foreach ($category['boards'] as $brd)
 				$context['posting_fields']['board']['dd'] .= '
-								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==' . $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
+								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
 
 			$context['posting_fields']['board']['dd'] .= '
 							</optgroup>';
