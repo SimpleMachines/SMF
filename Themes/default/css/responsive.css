@@ -270,6 +270,12 @@
 	#admincenter select, #quick_search select {
 		width: 90%;
 	}
+	
+	.error_info {
+		width: 100% !important;
+		padding: 0 !important;
+		float: none;
+	}
 
 	/* Calendar */
 	.event_options_left, .event_options_right {
