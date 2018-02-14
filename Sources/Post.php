@@ -63,7 +63,7 @@ function Post($post_errors = array())
 
 		$boards = boardsAllowedTo($post_permissions);
 		if (empty($boards))
-			fatal_lang_error('cannot_post_new', 'user');
+			fatal_lang_error('cannot_post_new', false);
 
 		// Get a list of boards for the select menu
 		require_once($sourcedir . '/Subs-MessageIndex.php');
