@@ -2436,7 +2436,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 	
 	if (empty($context['css_files_order'])) 
-			$context['css_files_order'] = array();
+		$context['css_files_order'] = array();
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
@@ -2492,7 +2492,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		while (isset($context['css_files_order'][$params['order_pos']]))
 			$params['order_pos']++;
 		$context['css_files_order'][$params['order_pos']] = $id;
-		
+
 		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
 	}
 
