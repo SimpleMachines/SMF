@@ -2490,7 +2490,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	{
 		// find a free number/position
 		while (isset($context['css_files_order'][$params['order_pos']]))
-				$params['order_pos']++;
+			$params['order_pos']++;
 		$context['css_files_order'][$params['order_pos']] = $id;
 		
 		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
