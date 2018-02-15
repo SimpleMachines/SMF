@@ -3633,6 +3633,9 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
+	ksort($context['css_files_order']);
+	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
+
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
