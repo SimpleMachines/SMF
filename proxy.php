@@ -31,6 +31,9 @@ class ProxyServer
 
 	/** @var string The cache directory */
 	protected $cache;
+	
+	/** @var int time() value */
+	protected $time;
 
 	/**
 	 * Constructor, loads up the Settings for the proxy
@@ -109,10 +112,7 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
-		$old_timezone = date_default_timezone_get();
-		date_default_timezone_set('UTC');
-		$time = time();
-		date_default_timezone_set($old_timezone);
+		$time = $this->getTime();
 
 		// Is the cache expired?
 		if (!$cached || $time - $cached['time'] > (5 * 86400))
@@ -193,12 +193,9 @@ class ProxyServer
 		// Validate the filesize
 		if ($response['size'] > ($this->maxSize * 1024))
 			return 0;
-		
-		$old_timezone = date_default_timezone_get();
-		date_default_timezone_set('UTC');
-		$time = time();
-		date_default_timezone_set($old_timezone);
-		
+
+		$time = $this->getTime();
+
 		return file_put_contents($dest, json_encode(array(
 			'content_type' => $headers['content-type'],
 			'size' => $response['size'],
@@ -218,6 +215,24 @@ class ProxyServer
 	{
 		header('Location: ' . $request, false, 301);
 		exit;
+	}
+	
+	/**
+	 * Helper function to call time() once with the right logic
+	 * 
+	 * @return int
+	 */
+	protected function getTime()
+	{
+		if (empty($this->time))
+		{
+			$old_timezone = date_default_timezone_get();
+			date_default_timezone_set('UTC');
+			$this->time = time();
+			date_default_timezone_set($old_timezone);
+		}
+
+		return $this->time;
 	}
 }
 
