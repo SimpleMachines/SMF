@@ -43,8 +43,6 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Class-CurlFetchWeb.php');
-		require_once($sourcedir . '/Subs.php');
-
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -71,7 +69,7 @@ class ProxyServer
 			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
 				return false;
 
-		if (empty($_GET['hash']) || empty($_GET['request']))
+		if (empty($_GET['hash']) || empty($_GET['request']) || ($_GET['request'] === "http:") || ($_GET['request'] === "https:"))
 			return false;
 
 		$hash = $_GET['hash'];
@@ -101,32 +99,40 @@ class ProxyServer
 
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
-		if (!$response) {
+		if ($response === -1) {
 			// Throw a 404
 			header('HTTP/1.0 404 Not Found');
 			exit;
 		}
+		// Right, image not cached? Simply redirect, then.
+		if ($response === 0) {
+			$this::redirectexit($request);
+		}
+
+		$old_timezone = date_default_timezone_get();
+		date_default_timezone_set('UTC');
+		$time = time();
+		date_default_timezone_set($old_timezone);
 
 		// Is the cache expired?
-		if (!$cached || time() - $cached['time'] > (5 * 86400))
+		if (!$cached || $time - $cached['time'] > (5 * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
 				$this->serve();
-			redirectexit($request);
+			$this::redirectexit($request);
 		}
-
-		// Right, image not cached? Simply redirect, then.
-		if (!$response)
-		    redirectexit($request);
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
 		if ($contentParts[0] != 'image')
 			exit;
 
+		$max_age = $time - $cached['time'] + (5 * 86400);
 		header('Content-type: ' . $cached['content_type']);
 		header('Content-length: ' . $cached['size']);
+		header('Cache-Control: public, max-age=' . $max_age );
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' UTC');
 		echo base64_decode($cached['body']);
 	}
 
@@ -159,22 +165,22 @@ class ProxyServer
 	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return bool|int Whether the specified image was cached or error code when accessing
+	 * @return int -1 error, 0 to big, 1 is good
 	 */
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-
 		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
-		$request = $curl->get_url_data($request);
-		$responseCode = $request->result('code');
-		$response = $request->result();
+		$curl_request = $curl->get_url_data($request);
+		$responseCode = $curl_request->result('code');
+		$response = $curl_request->result();
 
-		if (empty($response))
-			return false;
+		if (empty($response)) {
+			return -1;
+		}
 
 		if ($responseCode != 200) {
-			return false;
+			return -1;
 		}
 
 		$headers = $response['headers'];
@@ -182,18 +188,36 @@ class ProxyServer
 		// Make sure the url is returning an image
 		$contentParts = explode('/', !empty($headers['content-type']) ? $headers['content-type'] : '');
 		if ($contentParts[0] != 'image')
-			return false;
+			return -1;
 
 		// Validate the filesize
 		if ($response['size'] > ($this->maxSize * 1024))
-			return false;
-
+			return 0;
+		
+		$old_timezone = date_default_timezone_get();
+		date_default_timezone_set('UTC');
+		$time = time();
+		date_default_timezone_set($old_timezone);
+		
 		return file_put_contents($dest, json_encode(array(
 			'content_type' => $headers['content-type'],
 			'size' => $response['size'],
-			'time' => time(),
+			'time' => $time,
 			'body' => base64_encode($response['body']),
-		))) === false ? 1 : null;
+		))) === false ? -1 : 1; 
+	}
+
+	/**
+	 * Static helper function to redirect a request
+	 * 
+	 * @access public
+	 * @param type $request
+	 * @return void
+	 */
+	static public function redirectexit($request)
+	{
+		header('Location: ' . $request, false, 301);
+		exit;
 	}
 }
 
