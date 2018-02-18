@@ -1815,6 +1815,9 @@ function theme($memID)
 	loadTemplate('Settings');
 	loadSubTemplate('options');
 
+	// Let mods hook into the theme options.
+	call_integration_hook('integrate_theme_options');
+
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
 		loadCustomFields($memID, 'theme');

@@ -559,6 +559,9 @@ function SetThemeOptions()
 	loadTemplate('Settings');
 	loadSubTemplate('options');
 
+	// Let mods hook into the theme options.
+	call_integration_hook('integrate_theme_options');
+
 	$context['sub_template'] = 'set_options';
 	$context['page_title'] = $txt['theme_settings'];
 
@@ -691,6 +694,9 @@ function SetThemeSettings()
 		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
 				eval('global $settings;' . $matches[0]);
 	}
+
+	// Let mods hook into the theme settings.
+	call_integration_hook('integrate_theme_settings');
 
 	// Submitting!
 	if (isset($_POST['save']))
