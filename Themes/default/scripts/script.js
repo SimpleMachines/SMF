@@ -1665,3 +1665,20 @@ $(function()
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
 });
+
+function avatar_fallback(e) {
+    var e = window.e || e;
+	var default_avatar = '/avatars/default.png';
+	var default_url = document.URL.substr(0,document.URL.lastIndexOf('/')) + default_avatar;
+	
+    if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
+        return;
+
+	e.target.src = default_url;
+	return true;
+}
+
+if (document.addEventListener)
+    document.addEventListener("error", avatar_fallback, true);
+else
+    document.attachEvent("error", avatar_fallback);
