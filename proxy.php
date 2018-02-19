@@ -122,6 +122,13 @@ class ProxyServer
 				$this->serve();
 			$this::redirectexit($request);
 		}
+		
+		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
+		{
+			header('HTTP/1.1 304 Not Modified');
+			exit;
+		}
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
@@ -133,6 +140,7 @@ class ProxyServer
 		header('Content-length: ' . $cached['size']);
 		header('Cache-Control: public, max-age=' . $max_age );
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' UTC');
+		header('ETag: ' . $eTag);
 		echo base64_decode($cached['body']);
 	}
 
