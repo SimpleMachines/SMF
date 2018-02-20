@@ -210,6 +210,7 @@ function preparsecode(&$message, $previewing = false)
 
 	require_once($sourcedir . '/Subs.php');
 
+	$alltags = array();
 	foreach (($codes = parse_bbc(false)) as $code)
 		if (!in_array($code['tag'], $allowedEmpty))
 			$alltags[] = $code['tag'];
