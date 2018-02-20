@@ -574,7 +574,6 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_website',
 			'link_with' => 'website',
-			'value' => (!empty($_POST['website_title'])? $smcFunc['htmlspecialchars'] ($_POST['website_title'], ENT_QUOTES) : ''),
 		),
 		'website_url' => array(
 			'type' => 'url',
@@ -592,7 +591,6 @@ function loadProfileFields($force_reload = false)
 				return true;
 			},
 			'link_with' => 'website',
-			'value' => (!empty($_POST['website_url'])? $smcFunc['htmlspecialchars'] ($_POST['website_url'], ENT_QUOTES) : ''),
 		),
 	);
 
