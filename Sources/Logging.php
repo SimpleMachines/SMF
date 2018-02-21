@@ -25,7 +25,13 @@ if (!defined('SMF'))
  */
 function truncateArray($arr, $max_length=1900)
 {
-	$curr_length = array_sum(array_map("strlen", $arr));
+	$curr_length = 0;
+	foreach ($arr as $key => $value)
+		if (is_array($value))
+			foreach ($value as $key2 => $value2)
+				$curr_length += strlen ($value2);
+		else
+			$curr_length += strlen ($value);
 	if ($curr_length <= $max_length)
 		return $arr;
 	else
@@ -33,7 +39,11 @@ function truncateArray($arr, $max_length=1900)
 		// Truncate each element's value to a reasonable length
 		$param_max = floor($max_length/count($arr));
 		foreach ($arr as $key => &$value)
-			$value = substr($value, 0, $param_max - strlen($key) - 5);
+			if (is_array($value))
+				foreach ($value as $key2 => &$value2)
+					$value2 = substr($value2, 0, $param_max - strlen($key) - 5);
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
 		return $arr;
 	}
 }
