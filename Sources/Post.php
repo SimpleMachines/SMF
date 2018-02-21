@@ -163,7 +163,7 @@ function Post($post_errors = array())
 		$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
 		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = empty(allowedTo('approve_posts')) ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
@@ -193,7 +193,7 @@ function Post($post_errors = array())
 		$context['can_sticky'] = allowedTo('make_sticky', $boards, true);
 		$context['can_move'] = allowedTo('move_any', $boards, true);
 		$context['can_announce'] = allowedTo('announce_topic', $boards, true) && $context['becomes_approved'];
-		$context['show_approval'] = empty(allowedTo('approve_posts', $boards, true)) ? 0 : ($context['becomes_approved'] ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts', $boards, true) ? 0 : ($context['becomes_approved'] ? 2 : 1);
 	}
 
 	$context['notify'] = !empty($context['notify']);
