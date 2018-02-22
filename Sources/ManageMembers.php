@@ -303,6 +303,12 @@ function ViewMemberlist()
 
 				$search_params[$param_name] = strtotime($search_params[$param_name]);
 			}
+			elseif ($param_info['type'] == 'inet')
+			{
+				$search_params[$param_name] = ip2range($search_params[$param_name]);
+				if (empty($search_params[$param_name]))
+					continue;
+			}
 
 			// Those values that are in some kind of range (<, <=, =, >=, >).
 			if (!empty($param_info['range']))
@@ -350,6 +356,22 @@ function ViewMemberlist()
 
 				$query_parts[] = ($param_info['db_fields'][0]) . ' IN ({array_string:' . $param_name . '_check})';
 				$where_params[$param_name . '_check'] = $search_params[$param_name];
+			}
+			// INET.
+			elseif ($param_info['type'] == 'inet')
+			{
+				if(count($search_params[$param_name]) === 1)
+				{
+					$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
+					$where_params[$param_name] = $search_params[$param_name][0];
+				}
+				elseif (count($search_params[$param_name]) === 2)
+				{
+					$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
+					$where_params[$param_name.'_low'] = $search_params[$param_name]['low'];
+					$where_params[$param_name.'_high'] = $search_params[$param_name]['high'];
+				}
+				
 			}
 			else
 			{
