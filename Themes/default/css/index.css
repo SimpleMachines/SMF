@@ -369,10 +369,6 @@ blockquote cite::before {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_img, .atc_img {
-	border: 0;
-	height: auto;
-}
 .bbc_table {
 	font: inherit;
 	color: inherit;
