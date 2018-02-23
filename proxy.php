@@ -31,7 +31,7 @@ class ProxyServer
 
 	/** @var string The cache directory */
 	protected $cache;
-	
+
 	/** @var int time() value */
 	protected $time;
 
@@ -122,7 +122,7 @@ class ProxyServer
 				$this->serve();
 			$this::redirectexit($request);
 		}
-		
+
 		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
@@ -173,7 +173,7 @@ class ProxyServer
 	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return int -1 error, 0 to big, 1 is good
+	 * @return int -1 error, 0 too big, 1 valid image
 	 */
 	protected function cacheImage($request)
 	{
@@ -183,11 +183,7 @@ class ProxyServer
 		$responseCode = $curl_request->result('code');
 		$response = $curl_request->result();
 
-		if (empty($response)) {
-			return -1;
-		}
-
-		if ($responseCode != 200) {
+		if (empty($response) || $responseCode != 200) {
 			return -1;
 		}
 
@@ -224,7 +220,7 @@ class ProxyServer
 		header('Location: ' . $request, false, 301);
 		exit;
 	}
-	
+
 	/**
 	 * Helper function to call time() once with the right logic
 	 * 
