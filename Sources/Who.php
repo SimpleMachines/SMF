@@ -566,6 +566,9 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
 						'Michele "Illori" Davis',
+						// Former Project Managers
+						'Jessica "Suki" Gonz&aacute;lez',
+						'Kindred',
 					),
 				),
 				array(
@@ -586,6 +589,7 @@ function Credits($in_admin = false)
 						'Hendrik Jan "Compuart" Visser',
 						'Juan "JayBachatero" Hernandez',
 						'John "live627" Rayes',
+						'Jessica "Suki" Gonz&aacute;lez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
 						$user_info['is_admin'] ? 'Matt "Grudge" Wolf': 'Grudge',
@@ -628,11 +632,11 @@ function Credits($in_admin = false)
 						'Krash',
 						'Mashby',
 						'Michael Colin Blaber',
+						'Michele "Illori" Davis',
 						'Old Fossil',
 						'S-Ace',
 						'Storman&trade;',
 						'Wade "s&eta;&sigma;&omega;" Poulsen',
-						'Yoshi',
 						'xenovanis',
 					),
 				),
@@ -644,6 +648,7 @@ function Credits($in_admin = false)
 						// Customizers
 						'Gwenwyfar',
 						'Jessica "Suki" Gonz&aacute;lez',
+						'NanoSector',
 						// Former Customizers
 						'Brannon "B" Hall',
 						'Diego Andrés',
@@ -676,10 +681,9 @@ function Credits($in_admin = false)
 						// Lead Localizer
 						'Nikola "Dzonny" Novakovi&cacute;',
 						// Localizers
-            			'd3vcho',
-            			'Kryzen',
+						'd3vcho',
+						'Robert Monden',
 						// Former Localizers
-						'Dr. Deejay',
 						'Relyana',
 					),
 				),
@@ -687,12 +691,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
-						'Mert "Antes" Al&#305;nbay ',
+
 						// Marketing
+
 						// Former Marketing
 						'Adish "(F.L.A.M.E.R)" Patel',
 						'Bryan "Runic" Deakin',
 						'Marcus "c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;" Forsberg',
+						'Mert "Antes" Al&#305;nbay ',
 						'Ralph "[n3rve]" Otowo',
 					),
 				),
