@@ -61,8 +61,8 @@ function smf_fileUpload(oOptions) {
 
 			$('#maxFiles_progress').show();
 			$('#maxFiles_progress_text').show();
-			$('#maxFiles_progress').removeClass().addClass('progressBar progress_' + percentage_class);
-			$('#maxFiles_progress span').width(usedPercentage + '%');
+			$('#maxFiles_progress').removeClass().addClass('progress_bar progress_' + percentage_class);
+			$('#maxFiles_progress .bar').width(usedPercentage + '%');
 
 			// Show or update the text.
 			$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', maxSize).replace('{currentRemain}', currentSize));
@@ -334,7 +334,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement = $(file.previewElement);
 
 		// Get the current file box progress bar, set its inner span's width accordingly.
-		_thisElement.find('div.progressBar span').width(progress + '%');
+		_thisElement.find('.progress_bar .bar').width(progress + '%');
 	});
 
 	myDropzone.on('complete', function (file, progress, bytesSent) {
@@ -342,7 +342,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement = $(file.previewElement);
 
 		// Hide the progress bar.
-		_thisElement.find('div.progressBar').fadeOut();
+		_thisElement.find('.progress_bar').fadeOut();
 
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
@@ -387,7 +387,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement = $(file.previewElement);
 
 		// Show the progress bar when upload starts.
-		_thisElement.find('div.progressBar').fadeIn();
+		_thisElement.find('.progress_bar').fadeIn();
 
 		// Show the total progress bar when upload starts.
 		$("#total-progress").fadeIn();

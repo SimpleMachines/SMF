@@ -415,7 +415,9 @@ function template_main()
 											</div>
 										</div>
 									</div><!-- .attached_BBC -->
-									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+										<div class="bar"></div>
+									</div>
 									<div class="attach-ui">
 										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
 										<a class="button upload">', $txt['upload'] ,'</a>
@@ -423,7 +425,9 @@ function template_main()
 								</div><!-- .attach-info -->
 							</div><!-- #au-template -->
 						</div><!-- #au-previews -->
-						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
+						<div id ="maxFiles_progress" class="maxFiles_progress progress_bar">
+							<div class="bar"></div>
+						</div>
 						<div id ="maxFiles_progress_text"></div>';
 
 		echo '
@@ -437,7 +441,9 @@ function template_main()
 									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
 									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
 									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
-									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+										<div class="bar"></div>
+									</div>
 									<div class="fallback">
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
 
@@ -1094,8 +1100,8 @@ function template_announcement_send()
 					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" rel="noopener">', $context['topic_subject'], '</a>
 				</p>
 				<div class="progress_bar">
-					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-					<div class="green_percent" style="width: ', $context['percentage_done'], '%;"></div>
+					<span>', $context['percentage_done'], '% ', $txt['announce_done'], '</span>
+					<div class="bar" style="width: ', $context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<div id="confirm_buttons">

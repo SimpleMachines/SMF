@@ -1782,10 +1782,9 @@ function template_action_permissions()
 			<div class="windowbg">
 				<div>
 					<strong>', $progress_message, '</strong><br>
-					<br>
-					<div class="progress_bar">
-						<div class="full_bar">', $progress_percent, '%</div>
-						<div class="blue_percent" style="width: ', $progress_percent, '%;"></div>
+					<div class="progress_bar progress_blue">
+						<span>', $progress_percent, '%</span>
+						<div class="bar" style="width: ', $progress_percent, '%;"></div>
 					</div>
 				</div>';
 
@@ -1798,10 +1797,10 @@ function template_action_permissions()
 		echo '
 				<br>
 				<div>
-					<strong>', $file_progress_message, '</strong><br><br>
+					<strong>', $file_progress_message, '</strong><br>
 					<div class="progress_bar">
-						<div class="full_bar">', $file_progress_percent, '%</div>
-						<div class="green_percent" style="width: ', $file_progress_percent, '%;"></div>
+						<span>', $file_progress_percent, '%</span>
+						<div class="bar" style="width: ', $file_progress_percent, '%;"></div>
 					</div>
 				</div>';
 	}

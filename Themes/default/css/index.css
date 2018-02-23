@@ -2082,6 +2082,79 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 6px 0;
 }
 
+/* Styles for stats bars and progress bars.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.generic_bar, .progress_bar {
+	border: 1px solid #cecaca;
+	background: #fff;
+	min-height: 16px;
+	line-height: 1.4em;
+	border-radius: 2px;
+	position: relative;
+	overflow: hidden;
+	color: rgba(0,0,0,0.6);
+}
+.generic_bar span, .progress_bar span {
+	position: relative;
+	z-index: 2;
+	text-shadow: 1px 1px rgba(255,255,255,.4);
+	display: inline-block;
+	padding: 0 5px;
+}
+.generic_bar .bar, .progress_bar .bar {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	background: orange;
+	transition: width .3s;
+	border-radius: 1px;
+	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset,
+		4px 4px 8px rgba(255,255,255,0.3) inset;
+	display: block;
+}
+.generic_bar.vertical {
+	width: 15px;
+}
+.generic_bar.vertical .bar {
+	right: 0;
+	top: auto;
+	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset,
+		4px 4px 4px rgba(255,255,255,0.3) inset;
+}
+
+.progress_bar {
+	border-radius: 4px;
+	text-align: center;
+	font-weight: bold;
+	color: rgba(0,0,0,0.8);
+}
+.progress_bar .bar {
+	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.25) inset, 
+		1px -1px 0 rgba(0,0,0,0.1) inset;
+	background-color: #75da41;
+	background-size: 30px 30px;
+	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+}
+.progress_yellow .bar {
+	background-color: #f6c51c;
+}
+
+.progress_green .bar {
+	background-color: #75da41;
+}
+
+.progress_red .bar {
+	background-color: #f45d4c;
+}
+
+.progress_blue .bar {
+	background-color: #34c2e3;
+}
+
+
 /* Styles for the profile section.
 ------------------------------------------------- */
 
@@ -2177,6 +2250,7 @@ dl {
 .activity_stats li {
 	width: 4.16%;
 	float: left;
+	text-align: center;
 }
 .activity_stats li span {
 	display: block;
@@ -2184,23 +2258,18 @@ dl {
 	border-left: none;
 	border-right: none;
 	background: #eee;
-	text-align: center;
 }
 .activity_stats li.last span {
 	border-right: none;
 }
-.activity_stats li div.bar {
-	margin: 0 auto;
-	width: 15px;
-	border: 1px solid #cacaca;
+.activity_stats li .generic_bar {
+	height: 100px;
 	border-bottom: none;
-	background: #fff;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	margin: 0 auto;
 }
-.activity_stats li div.bar div {
-	background: orange;
-	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset, 4px 4px 4px rgba(255,255,255,0.3) inset;
-}
-.activity_stats li div.bar span {
+.activity_stats li .generic_bar span {
 	position: absolute;
 	top: -1000em;
 	left: -1000em;
@@ -2354,25 +2423,6 @@ dl.stats dd {
 	font-size: 1em;
 	float: left;
 	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #cecaca;
-	border-radius: 2px;
-	position: relative;
-}
-.statsbar div.bar {
-	float: left;
-	background: orange;
-	border-radius: 1px;
-	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
-	display: block;
-	margin: 0 4px 0 0;
-	height: 1.4em;
-	text-shadow: 1px 1px rgba(255,255,255,0.4);
-}
-.statsbar div.bar.empty {
-	width: 0;
 }
 #profileview dd, .nobb, .nobb dd {
 	background: none !important;
@@ -2380,14 +2430,6 @@ dl.stats dd {
 }
 dl.stats {
 	padding: 5px;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-dl.stats dd span {
-	padding: 0 5px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 2;
 }
 
 /* Forum history table. */
@@ -2495,6 +2537,10 @@ dl.addrules dt.floatleft {
 #mlist .posts {
 	width: 115px;
 }
+#mlist .post_count {
+	width: 15px;
+}
+
 /* Styles for the search section.
 ------------------------------------------------- */
 #searchform fieldset {
@@ -2627,42 +2673,6 @@ dl.addrules dt.floatleft {
 .popup_heading .icon {
 	vertical-align: middle;
 	margin: -4px 4px 0 0;
-}
-
-/* Styles for the progress bar */
-.progress_bar {
-	height: 15pt;
-	border: 1px solid #ddd;
-	background-color: #fff;
-	width: 80%;
-	margin: 20px auto 0 auto; /* Top padding should get rid of the <br /> tags in admin for these bars. */
-	position: relative;
-	border-radius: 2px;
-	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-}
-.progress_bar .full_bar {
-	padding-top: 1pt;
-	width: 100%;
-	color: #222;
-	position: absolute;
-	text-align: center;
-	font-weight: bold;
-	border-radius: 2px;
-	z-index: 2;
-}
-.progress_bar .green_percent {
-	height: 15pt;
-	background-color: #c1ffc1;
-	background-image: linear-gradient(to bottom, #c1ffc1, green);
-	border-radius: 2px;
-	z-index: 1;
-}
-.progress_bar .blue_percent {
-	height: 15pt;
-	background-color: #98b8f4;
-	background-image: linear-gradient(to bottom, #98b8f4, blue);
-	border-radius: 2px;
-	z-index: 1;
 }
 
 .generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
@@ -3049,22 +3059,7 @@ span.postby {
 	max-width: 45em;
 	float: left;
 	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #cecaca;
-	border-radius: 2px;
-	position: relative;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-#poll_options dl.options .percentage {
-	display: block;
-	padding: 0 4px;
-	position: absolute;
-	right: 0;
-	top: -1px;
-	z-index: 2;
-	text-shadow: 1px 1px rgba(255,255,255,0.4);
+	text-align: right;
 }
 
 /* Poll notices */
@@ -3314,6 +3309,9 @@ ul.post_options li {
 }
 #postAdditionalOptions {
 	overflow: hidden;
+}
+#postAdditionalOptions .progress_bar {
+	height: 22px;
 }
 #postMoreOptions, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
@@ -3777,8 +3775,11 @@ input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attach-info .progressBar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
+.attach-info .progress_bar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
 	display: none;
+}
+.attach-info .progress_bar {
+	margin: 6px 0;
 }
 .attached_BBC_width_height label {
 	min-width: 100px;
@@ -3798,46 +3799,8 @@ input[name="attachBBC"] {
 	width:50%;
 	display:none;
 }
-
-.progressBar {
-	height: 20px;
-	margin: 1px;
-	background: #f8f8f8;
-	border: 1px solid #c5c5c5;
-	border-radius: 7px;
-	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
-	vertical-align: middle;
-}
-
-.progressBar span {
-	display: block;
-	height: 100%;
-	border-radius: 3px;
-	box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
-	transition: width .4s ease-in-out;
-	background-color: #34c2e3;
-	background-size: 30px 30px;
-	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-	width: 0px;
-}
-
 #maxFiles_progress, #maxFiles_progress_text {
 	display: none;
-}
-.progress_yellow span {
-	background-color: #fecf23;
-}
-
-.progress_green span {
-	background-color: #a5df41;
-}
-
-.progress_red span {
-	background-color: #f45d4c;
-}
-
-.progress_blue span {
-	background-color: #34c2e3;
 }
 
 /* Hide this from desktop users sshh... our little sekrit */

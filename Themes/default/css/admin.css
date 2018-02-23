@@ -705,3 +705,10 @@ h3.config_hd {
 .move_smileys .selected_item {
 	border-color: #FFB42D;
 }
+
+/* Progress bars */
+
+.progress_bar {
+	margin: 20px auto;
+	max-width: 750px;
+}

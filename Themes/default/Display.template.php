@@ -89,7 +89,7 @@ function template_main()
 			{
 				echo '
 						<dt class="', $option['voted_this'] ? ' voted' : '', '">', $option['option'], '</dt>
-						<dd class="statsbar', $option['voted_this'] ? ' voted' : '', '">';
+						<dd class="statsbar generic_bar', $option['voted_this'] ? ' voted' : '', '">';
 
 				if ($context['allow_results_view'])
 					echo '
