@@ -201,7 +201,7 @@ class ProxyServer
 			'body' => base64_encode($response['body']),
 		))) === false ? 1 : null;
 	}
-	
+
 	/**
 	 * Delete all old entries
 	 *

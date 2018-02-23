@@ -463,10 +463,12 @@ function scheduled_daily_maintenance()
 	{
 		global $proxyhousekeeping;
 		$proxyhousekeeping = true;
-		
+
 		require_once(dirname(__FILE__) . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
+
+		unset($proxyhousekeeping);
 	}
 
 	// Log we've done it...
