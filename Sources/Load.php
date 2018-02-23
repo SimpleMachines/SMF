@@ -2145,7 +2145,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array('order_pos' => 20), 'smf_rtl');
+		loadCSSFile('rtl.css', array('order_pos' => 200), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2168,9 +2168,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 30), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 300), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 40), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 400), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
