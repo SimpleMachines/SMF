@@ -166,6 +166,16 @@ function Register($reg_errors = array())
 		$user_info['permissions'] = array_merge($user_info['permissions'], array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb'));
 		$reg_fields = explode(',', $modSettings['registration_fields']);
 
+		// Website is a little different
+		if (in_array('website', $reg_fields))
+		{
+			unset($reg_fields['website']);
+			if (isset($_POST['website_title']))
+				$cur_profile['website_title'] = $smcFunc['htmlspecialchars']($_POST['website_title']);
+			if (isset($_POST['website_url']))
+				$cur_profile['website_url'] = $smcFunc['htmlspecialchars']($_POST['website_url']);
+		}
+				
 		// We might have had some submissions on this front - go check.
 		foreach ($reg_fields as $field)
 			if (isset($_POST[$field]))
