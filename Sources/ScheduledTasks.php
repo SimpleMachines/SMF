@@ -458,7 +458,7 @@ function scheduled_daily_maintenance()
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
 
-	// Run Cache housekeeping
+	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
 	{
 		global $proxyhousekeeping;

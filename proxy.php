@@ -217,7 +217,7 @@ class ProxyServer
 			{ 
 				$filelastmodified = filemtime($path . $file);
 
-				if((time() - $filelastmodified) > ($this->maxDays * 86400))
+				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
 				{
 				   unlink($path . $file);
 				}
@@ -229,7 +229,7 @@ class ProxyServer
 	}
 }
 
-if(empty($proxyhousekeeping))
+if (empty($proxyhousekeeping))
 {
 	$proxy = new ProxyServer();
 	$proxy->serve();
