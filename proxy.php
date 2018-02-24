@@ -136,11 +136,11 @@ class ProxyServer
 			exit;
 
 		$max_age = $time - $cached['time'] + (5 * 86400);
-		header('Content-type: ' . $cached['content_type']);
-		header('Content-length: ' . $cached['size']);
-		header('Cache-Control: public, max-age=' . $max_age );
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' UTC');
-		header('ETag: ' . $eTag);
+		header('content-type: ' . $cached['content_type']);
+		header('content-length: ' . $cached['size']);
+		header('cache-control: public, max-age=' . $max_age );
+		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' UTC');
+		header('etag: ' . $eTag);
 		echo base64_decode($cached['body']);
 	}
 
