@@ -255,6 +255,14 @@ function ViewMemberlist()
 			'ip' => array(
 				'db_fields' => array('member_ip'),
 				'type' => 'inet'
+			),
+			'membergroups' => array(
+				'db_fields' => array('id_group'),
+				'type' => 'groups'
+			),
+			'postgroups' => array(
+				'db_fields' => array('id_group'),
+				'type' => 'groups'
 			)
 		);
 		$range_trans = array(
@@ -373,7 +381,7 @@ function ViewMemberlist()
 				}
 				
 			}
-			else
+			elseif ($param_info['type'] != 'groups')
 			{
 				// Replace the wildcard characters ('*' and '?') into MySQL ones.
 				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
