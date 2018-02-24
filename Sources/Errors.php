@@ -485,14 +485,14 @@ function display_loadavg_error()
 function set_fatal_error_headers()
 {
 	// Don't cache this page!
-	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	header('Cache-Control: no-cache');
+	header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	header('cache-control: no-cache');
 
 	// Send the right error codes.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
-	header('Status: 503 Service Temporarily Unavailable');
-	header('Retry-After: 3600');
+	header('status: 503 Service Temporarily Unavailable');
+	header('retry-after: 3600');
 }
 
 

@@ -620,20 +620,20 @@ function iCalDownload()
 		ob_start();
 
 	// Send the file headers
-	header('Pragma: ');
-	header('Cache-Control: no-cache');
+	header('pragma: ');
+	header('cache-control: no-cache');
 	if (!isBrowser('gecko'))
-		header('Content-Transfer-Encoding: binary');
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . 'GMT');
-	header('Accept-Ranges: bytes');
-	header('Connection: close');
-	header('Content-Disposition: attachment; filename="' . $event['title'] . '.ics"');
+		header('content-transfer-encoding: binary');
+	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s', time()) . 'GMT');
+	header('accept-ranges: bytes');
+	header('connection: close');
+	header('content-disposition: attachment; filename="' . $event['title'] . '.ics"');
 	if (empty($modSettings['enableCompressedOutput']))
-		header('Content-Length: ' . $smcFunc['strlen']($filecontents));
+		header('content-length: ' . $smcFunc['strlen']($filecontents));
 
 	// This is a calendar item!
-	header('Content-Type: text/calendar');
+	header('content-type: text/calendar');
 
 	// Chuck out the card.
 	echo $filecontents;

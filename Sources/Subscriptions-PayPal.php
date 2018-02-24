@@ -234,10 +234,10 @@ class paypal_payment
 		{
 			// Setup the headers.
 			$header = 'POST /cgi-bin/webscr HTTP/1.1' . "\r\n";
-			$header .= 'Content-Type: application/x-www-form-urlencoded' . "\r\n";
+			$header .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
 			$header .= 'Host: www.' . (!empty($modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com' . "\r\n";
-			$header .= 'Content-Length: ' . strlen ($requestString) . "\r\n";
-			$header .= 'Connection: close' . "\r\n\r\n";
+			$header .= 'content-length: ' . strlen ($requestString) . "\r\n";
+			$header .= 'connection: close' . "\r\n\r\n";
 
 			// Open the connection.
 			if (!empty($modSettings['paidsubs_test']))

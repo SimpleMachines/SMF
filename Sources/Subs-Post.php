@@ -620,8 +620,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 	// Using mime, as it allows to send a plain unencoded alternative.
 	$headers .= 'Mime-Version: 1.0' . $line_break;
-	$headers .= 'Content-Type: multipart/alternative; boundary="' . $mime_boundary . '"' . $line_break;
-	$headers .= 'Content-Transfer-Encoding: 7bit' . $line_break;
+	$headers .= 'content-type: multipart/alternative; boundary="' . $mime_boundary . '"' . $line_break;
+	$headers .= 'content-transfer-encoding: 7bit' . $line_break;
 
 	// Sending HTML?  Let's plop in some basic stuff, then.
 	if ($send_html)
@@ -634,14 +634,14 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		// This is the plain text version.  Even if no one sees it, we need it for spam checkers.
 		list($charset, $plain_charset_message, $encoding) = mimespecialchars($no_html_message, false, false, $line_break);
-		$message .= 'Content-Type: text/plain; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . $encoding . $line_break . $line_break;
+		$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
 		$message .= $plain_charset_message . $line_break . '--' . $mime_boundary . $line_break;
 
 		// This is the actual HTML message, prim and proper.  If we wanted images, they could be inlined here (with multipart/related, etc.)
 		list($charset, $html_message, $encoding) = mimespecialchars($orig_message, false, $hotmail_fix, $line_break);
-		$message .= 'Content-Type: text/html; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . ($encoding == '' ? '7bit' : $encoding) . $line_break . $line_break;
+		$message .= 'content-type: text/html; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . ($encoding == '' ? '7bit' : $encoding) . $line_break . $line_break;
 		$message .= $html_message . $line_break . '--' . $mime_boundary . '--';
 	}
 	// Text is good too.
@@ -653,8 +653,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		// Now add an encoded message using the forum's character set.
 		list ($charset, $encoded_message, $encoding) = mimespecialchars($orig_message, false, false, $line_break);
-		$message .= 'Content-Type: text/plain; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . $encoding . $line_break . $line_break;
+		$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
 		$message .= $encoded_message . $line_break . '--' . $mime_boundary . '--';
 	}
 

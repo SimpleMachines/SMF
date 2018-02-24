@@ -1258,7 +1258,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 {
 	// Found it!
 	require(dirname(dirname(__FILE__)) . \'/Settings.php\');
-	header(\'Location: \' . $boardurl);
+	header(\'location: \' . $boardurl);
 }
 // Can\'t find it... just forget it.
 else
@@ -1297,11 +1297,11 @@ function frameOptionsHeader($override = null)
 		return;
 
 	// Finally set it.
-	header('X-Frame-Options: ' . $option);
+	header('x-frame-options: ' . $option);
 
 	// And some other useful ones.
-	header('X-XSS-Protection: 1');
-	header('X-Content-Type-Options: nosniff');
+	header('x-xss-protection: 1');
+	header('x-content-type-options: nosniff');
 }
 
 ?>

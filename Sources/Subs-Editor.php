@@ -1459,7 +1459,7 @@ function loadLocale()
 })(jQuery);';
 
 	// Make sure they know what type of file we are.
-	header('Content-Type: text/javascript');
+	header('content-type: text/javascript');
 	echo $file_data;
 	obExit(false);
 }

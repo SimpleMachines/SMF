@@ -758,10 +758,10 @@ function CoppaForm()
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
-			header('Connection: close');
-			header('Content-Disposition: attachment; filename="approval.txt"');
-			header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
-			header('Content-Length: ' . count($data));
+			header('connection: close');
+			header('content-disposition: attachment; filename="approval.txt"');
+			header('content-type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+			header('content-length: ' . count($data));
 
 			echo $data;
 			obExit(false);
@@ -798,7 +798,7 @@ function VerificationCode()
 	// Somehow no code was generated or the session was lost.
 	if (empty($code))
 	{
-		header('Content-Type: image/gif');
+		header('content-type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 	}
 
@@ -829,14 +829,14 @@ function VerificationCode()
 			$_REQUEST['letter'] = (int) $_REQUEST['letter'];
 			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code{$_REQUEST['letter'] - 1})))
 			{
-				header('Content-Type: image/gif');
+				header('content-type: image/gif');
 				die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 			}
 		}
 		// You must be up to no good.
 		else
 		{
-			header('Content-Type: image/gif');
+			header('content-type: image/gif');
 			die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 		}
 	}
