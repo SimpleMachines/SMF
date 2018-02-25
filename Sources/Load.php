@@ -2434,14 +2434,13 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
-	
-	if (empty($context['css_files_order'])) 
+
+	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
-	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;

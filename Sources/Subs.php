@@ -3636,13 +3636,20 @@ function template_css()
 	ksort($context['css_files_order']);
 	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
 
+	// Need this in order to prevent responsive themes from breaking.
+	// THEME AUTHORS: Please always put your responsive CSS rules in a file named responsive.css
+	$minimize_below = isset($context['css_files']['smf_responsive']['options']['order_pos']) ? $context['css_files']['smf_responsive']['options']['order_pos'] : 1;
+
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		// By default all files don't get minimized unless the file explicitly says so!
+		// Files loaded before responsive.css are minimized by default.
+		if (!isset($file['options']['minimize']) && $file['options']['order_pos'] <= $minimize_below)
+			$file['options']['minimize'] = true;
+
 		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			$toMinify[] = $file;
