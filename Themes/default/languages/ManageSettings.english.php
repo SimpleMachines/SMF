@@ -97,6 +97,10 @@ $txt['image_proxy_maxsize'] = 'Maximum file size of images to cache (in KB)';
 $txt['force_ssl'] = 'Forum SSL mode';
 $txt['force_ssl_off'] = 'Disable SSL';
 $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
+$txt['image_proxy_off'] = 'Disable';
+$txt['image_proxy_internal'] = 'Internal';
+$txt['image_proxy_external'] = 'External';
+$txt['image_proxy_url'] = 'URL of external Image Proxy';
 $txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.
