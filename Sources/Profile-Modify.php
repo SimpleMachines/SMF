@@ -2341,7 +2341,7 @@ function alert_notifications_topics($memID)
 						$link = $topic['link'];
 
 						if ($topic['new'])
-							$link .= ' <a href="' . $topic['new_href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>';
+							$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . $txt['new'] . '</a>';
 
 						$link .= '<br><span class="smalltext"><em>' . $txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
 
@@ -2493,7 +2493,7 @@ function alert_notifications_boards($memID)
 						$link = $board['link'];
 
 						if ($board['new'])
-							$link .= ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>';
+							$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . $txt['new'] . '</a>';
 
 						return $link;
 					},

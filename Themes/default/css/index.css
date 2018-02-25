@@ -194,7 +194,7 @@ body#help_popup {
 	font-size: 0.9em;
 }
 
-/* the new "button" */
+/* The "new" button */
 .new_posts {
 	color: #fff;
 	font-weight: bold;
@@ -205,13 +205,14 @@ body#help_popup {
 	margin: 0 2px;
 	padding: 2px 4px;
 	font-size: 9px;
-	font-family: verdana, sans-serif; /* @todo Might add extra fallbacks. Possibly monospace. */
+	font-family: verdana, monospace, sans-serif;
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
 	opacity: 0.7;
-	transition: 0.5s all;
+	transition: 0.3s all;
 }
 .new_posts:hover {
-	text-decoration: underline;
+	text-decoration: none;
+	color: #444;
 	opacity: 1;
 }
 
