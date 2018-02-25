@@ -2467,7 +2467,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			}
 
 			else
+			{
 				$fileUrl = false;
+				$filePath = false;
+			}
 		}
 
 		else
