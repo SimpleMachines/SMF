@@ -2139,13 +2139,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css', array('minimize' => true), 'smf_index');
+	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true), 'smf_responsive');
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array(), 'smf_rtl');
+		loadCSSFile('rtl.css', array('order_pos' => 200), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2168,9 +2168,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 300), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 400), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2428,11 +2428,15 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index = - 500, after index = 500, middle = 3000 end(after responsive) = 10000
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
+	
+	if (empty($context['css_files_order'])) 
+		$context['css_files_order'] = array();
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
@@ -2440,6 +2444,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
+	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2482,7 +2487,14 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
+	{
+		// find a free number/position
+		while (isset($context['css_files_order'][$params['order_pos']]))
+			$params['order_pos']++;
+		$context['css_files_order'][$params['order_pos']] = $id;
+
 		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+	}
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
