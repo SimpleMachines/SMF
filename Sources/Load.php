@@ -658,7 +658,7 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $domain, $path) = array_pad((array) $tfa_data, 5, '');
+			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
 
 			if (time() > $exp)
 			{
