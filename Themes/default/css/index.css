@@ -2416,6 +2416,25 @@ dl {
 	font-size: smaller;
 }
 
+/* Warning level bar */
+.warning_level {
+	text-align: center;
+	font-weight: bold;
+	max-width: 250px;
+}
+.warning_level.none .bar {
+	background-color: #75da41;
+}
+.warning_level.watched .bar {
+	background-color: #ffd800;
+}
+.warning_level.moderated .bar {
+	background-color: orange;
+}
+.warning_level.muted .bar {
+	background-color: #f45d4c;
+}
+
 /* Styles for the statistics center.
 ------------------------------------------------- */
 #statistics .roundframe {

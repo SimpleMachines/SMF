@@ -2256,20 +2256,19 @@ function template_load_warning_variables()
 {
 	global $modSettings, $context;
 
-	$context['warningBarWidth'] = 200;
-	// Setup the colors - this is a little messy for theming.
-	$context['colors'] = array(
-		0 => 'green',
-		$modSettings['warning_watch'] => 'darkgreen',
-		$modSettings['warning_moderate'] => 'orange',
-		$modSettings['warning_mute'] => 'red',
+	// Setup the warning mode
+	$context['warning_mode'] = array(
+		0 => 'none',
+		$modSettings['warning_watch'] => 'watched',
+		$modSettings['warning_moderate'] => 'moderated',
+		$modSettings['warning_mute'] => 'muted',
 	);
 
-	// Work out the starting color.
-	$context['current_color'] = $context['colors'][0];
-	foreach ($context['colors'] as $limit => $color)
+	// Work out the starting warning.
+	$context['current_warning_mode'] = $context['warning_mode'][0];
+	foreach ($context['warning_mode'] as $limit => $warning)
 		if ($context['member']['warning'] >= $limit)
-			$context['current_color'] = $color;
+			$context['current_warning_mode'] = $warning;
 }
 
 // Show all warnings of a user?
@@ -2298,13 +2297,9 @@ function template_viewWarning()
 					<strong>', $txt['profile_warning_level'], ':</strong>
 				</dt>
 				<dd>
-					<div>
-						<div>
-							<div style="font-size: 8pt; height: 12pt; width: ', $context['warningBarWidth'], 'px; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-								<div id="warning_text" style="padding-top: 1pt; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['member']['warning'], '%</div>
-								<div id="warning_progress" style="width: ', $context['member']['warning'], '%; height: 12pt; z-index: 1; background-color: ', $context['current_color'], ';">&nbsp;</div>
-							</div>
-						</div>
+					<div class="generic_bar warning_level ', $context['current_warning_mode'], '">
+						<div class="bar" style="width: ', $context['member']['warning'], '%;"></div>
+						<span>', $context['member']['warning'], '%</span>
 					</div>
 				</dd>';
 
