@@ -2428,7 +2428,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
- *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index = - 500, after index = 500, middle = 3000 end(after responsive) = 10000
+ *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index.css = -500, after index.css = 500, middle = 3000, end (i.e. after responsive.css) = 10000
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
@@ -2441,6 +2441,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;

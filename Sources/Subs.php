@@ -3566,7 +3566,7 @@ function template_javascript($do_deferred = false)
 				$toMinify[] = $js_file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($js_file['options']['seed']))
 				$minSeed = $js_file['options']['seed'];
 		}
 
@@ -3583,7 +3583,7 @@ function template_javascript($do_deferred = false)
 
 		foreach ($result as $minFile)
 			echo '
-	<script src="', $minFile['fileUrl'], $minSuccessful ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async="async"' : '', '></script>';
+	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async="async"' : '', '></script>';
 
 	}
 
@@ -3633,18 +3633,14 @@ function template_css()
 	ksort($context['css_files_order']);
 	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
 
-	// Need this in order to prevent responsive themes from breaking.
-	// THEME AUTHORS: Please always put your responsive CSS rules in a file named responsive.css
-	$minimize_below = isset($context['css_files']['smf_responsive']['options']['order_pos']) ? $context['css_files']['smf_responsive']['options']['order_pos'] : 1;
-
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		// Files loaded before responsive.css are minimized by default.
-		if (!isset($file['options']['minimize']) && $file['options']['order_pos'] <= $minimize_below)
+		// Files are minimized unless they explicitly opt out.
+		if (!isset($file['options']['minimize']))
 			$file['options']['minimize'] = true;
 
 		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
@@ -3652,10 +3648,9 @@ function template_css()
 			$toMinify[] = $file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($file['options']['seed']))
 				$minSeed = $file['options']['seed'];
 		}
-
 		else
 			$normal[] = $file['fileUrl'];
 	}
@@ -3668,7 +3663,7 @@ function template_css()
 
 		foreach ($result as $minFile)
 			echo '
-	<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful ? $minSeed : '', '">';
+	<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
 	}
 
 	// Print the rest after the minified files.

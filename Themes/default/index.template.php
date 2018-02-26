@@ -103,10 +103,6 @@ function template_html_above()
 		This approach will let you take advantage of SMF's automatic CSS
 		minimization and other benefits. You can, of course, manually add any
 		other files you want after template_css() has been run.
-
-		If you are writing a theme that uses responsive design (and in this day
-		and age, you probably should be), please always put your responsive CSS
-		rules in a file named responsive.css.
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
