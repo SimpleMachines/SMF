@@ -686,11 +686,29 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		foreach ($to_array as $to)
 		{
-			if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
+			set_error_handler(function($errno, $errstr, $errfile, $errline)
+				{
+					// error was suppressed with the @-operator
+					if (0 === error_reporting()) {
+						return false;
+					}
+
+					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+				}
+			);
+			try
 			{
-				log_error(sprintf($txt['mail_send_unable'], $to));
-				$mail_result = false;
+				if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
+				{
+					log_error(sprintf($txt['mail_send_unable'], $to));
+					$mail_result = false;
+				}
 			}
+			catch(ErrorException $e)
+			{
+				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
+			}
+			restore_error_handler();
 
 			// Wait, wait, I'm still sending here!
 			@set_time_limit(300);
