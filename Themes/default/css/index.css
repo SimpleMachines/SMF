@@ -2808,7 +2808,7 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* BoardIndex */
-/* This place covers board places (boardindex-messageindex) */
+/* This place covers board places (boardindex/messageindex/recent) */
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
@@ -2829,16 +2829,29 @@ h3 .collapse {
 	background-position: -45px -45px;
 }
 .board_icon {
-	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
-	min-width: 60px;
+	width: 60px;
+	flex-shrink: 0;
+}
+.boardindex_table .board_icon {
+	width: 80px;
+}
+.boardindex_table .info {
+	width: calc(55% - 80px);
+}
+.boardindex_table .board_stats {
+	padding: 13px 10px 10px;
+}
+.boardindex_table .board_stats p {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
 }
 .info {
-	width: 50%;
-	margin: 10px 0 5px 0;
 	overflow: hidden; 
 	overflow-wrap: break-word; 
+	padding: 5px 5px 5px 0;
+	flex-grow: 1;
 }
 .info .subject {
 	font-weight: 600;
@@ -2846,26 +2859,19 @@ h3 .collapse {
 	color: #a85400;
 }
 .board_stats {
-	width: 14%;
-	padding: 10px;
+	width: 15%;
 	font-size: 0.9em;
-}
-.board_stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	margin: 0 0 0 auto;
 	text-align: center;
-	margin: 3px 0 0;
 }
 .lastpost {
-	width: 25%;
+	width: 30%;
 	font-size: 0.9em;
-}
-.lastpost p {
-	margin: 3px 0 0 0;
+	padding-top: 3px;
 }
 .board_icon, .info, .board_stats, .lastpost {
 	display: inline-block;
-	vertical-align: middle;
+	align-self: center;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -2873,13 +2879,15 @@ h3 .collapse {
 .up_contain {
 	overflow: hidden;
 	border: 1px solid #ddd;
-	margin-bottom: 3px;
-	margin-top: -1px;
+	margin: -1px 0 3px 0;
+	display: flex;
+	flex-wrap: wrap;
 }
 /* Child boards */
 .children {
 	border-top: 1px solid #ddd;
 	padding: 5px;
+	width: 100%;
 }
 .children p {
 	font-size: 0.9em;
@@ -2979,6 +2987,7 @@ span.postby {
 #topic_header {
 	margin: 0;
 	border-radius: 0;
+	display: flex;
 }
 #topic_header div {
 	font-weight: bold;
@@ -2988,30 +2997,31 @@ span.postby {
 #topic_header input {
 	margin-top: 5px !important;
 }
-#topic_container .windowbg, #topic_container .windowbg2 {
+#topic_container .windowbg {
 	border: 1px solid #ddd;
 	border-top: none;
-}
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2,
-#topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
+	display: flex;
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
 }
+#topic_container .lastpost, #topic_header .lastpost {
+	width: 28ex;
+}
+#topic_container .lastpost, #topic_container .board_stats {
+	flex-shrink: 0;
+}
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
-	border: none;
-}
 .moderation {
 	display: inline-block;
-	min-width: 35px;
-	width: 3%;
+	width: 35px;
+	flex-shrink: 0;
 	vertical-align: middle;
-	text-align: right;
+	text-align: center;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
