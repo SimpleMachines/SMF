@@ -102,13 +102,15 @@ class ProxyServer
 
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
-		if ($response === -1) {
+		if ($response === -1)
+		{
 			// Throw a 404
 			header('HTTP/1.0 404 Not Found');
 			exit;
 		}
 		// Right, image not cached? Simply redirect, then.
-		if ($response === 0) {
+		if ($response === 0)
+		{
 			$this::redirectexit($request);
 		}
 
@@ -183,7 +185,8 @@ class ProxyServer
 		$responseCode = $curl_request->result('code');
 		$response = $curl_request->result();
 
-		if (empty($response) || $responseCode != 200) {
+		if (empty($response) || $responseCode != 200)
+		{
 			return -1;
 		}
 
