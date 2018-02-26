@@ -2430,12 +2430,14 @@ dl.stats dt {
 	line-height: 1.5em;
 	clear: both;
 	font-size: 1em;
+	overflow: hidden;
+	overflow-wrap: break-word;
 }
 dl.stats dd {
-	width: 50%;
+	width: 48%;
 	font-size: 1em;
 	float: left;
-	margin: 0 0 4px 0;
+	margin: 0 0 4px 2%;
 }
 #profileview dd, .nobb, .nobb dd {
 	background: none !important;
@@ -2835,6 +2837,8 @@ h3 .collapse {
 .info {
 	width: 50%;
 	margin: 10px 0 5px 0;
+	overflow: hidden; 
+	overflow-wrap: break-word; 
 }
 .info .subject {
 	font-weight: 600;
@@ -3705,6 +3709,8 @@ h3.profile_hd {
 	font-weight: normal;
 	font-size: 26px;
 	margin-bottom: 0.25em;
+	overflow: hidden;
+	overflow-wrap: break-word;
 }
 
 #reported_posts .generic_icons,
