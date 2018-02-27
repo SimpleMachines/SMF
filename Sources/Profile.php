@@ -886,16 +886,16 @@ function loadCustomFields($memID, $area = 'summary')
 	$context['custom_fields_required'] = false;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-	    $value = $user_profile[$memID]['options'][$row['col_name']];
-	    $currentKey = 0;
-	    if (!empty($row['field_options'])) {
-            $fieldOptions = explode(',', $row['field_options']);
-            foreach ($fieldOptions as $k => $v) {
-                if (empty($currentKey)) {
-                    $currentKey = $v === $value ? $k : 0;
-                }
-            }
-        }
+		$value = $user_profile[$memID]['options'][$row['col_name']];
+		$currentKey = 0;
+		if (!empty($row['field_options'])) {
+			$fieldOptions = explode(',', $row['field_options']);
+			foreach ($fieldOptions as $k => $v) {
+				if (empty($currentKey)) {
+					$currentKey = $v === $value ? $k : 0;
+				}
+			}
+		}
 
 		// Shortcut.
 		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
