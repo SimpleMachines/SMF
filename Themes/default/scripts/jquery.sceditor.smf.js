@@ -32,7 +32,7 @@
 			if (this.inSourceMode())
 				current_value = this.getSourceEditorValue(false);
 			else
-				current_value  = this.getWysiwygEditorValue(filter);
+				current_value = this.getWysiwygEditorValue(filter);
 
 			return current_value;
 		},
@@ -51,7 +51,7 @@
 						if (base.opts.emoticonsCompat)
 						{
 							start = '<span> ';
-							end   = ' </span>';
+							end = ' </span>';
 						}
 
 						if (base.inSourceMode())
@@ -147,7 +147,21 @@
 		}
 	};
 
-	$.extend(true, $['sceditor'].prototype, extensionMethods);
+	var createFn = sceditor.create;
+	var isPatched = false;
+
+	sceditor.create = function (textarea, options) {
+		// Call the original create function
+		createFn(textarea, options);
+
+		// Constructor isn't exposed so get reference to it when
+		// creating the first instance and extend it then
+		var instance = sceditor.instance(textarea);
+		if (!isPatched && instance) {
+			$.extend(true, instance.constructor.prototype, extensionMethods);
+			isPatched = true;
+		}
+	};
 })(jQuery);
 
 sceditor.command.set(
@@ -207,7 +221,7 @@ sceditor.command.set(
 
 sceditor.command.set(
 	'orderedlist', {
-		txtExec:  function (caller, selected) {
+		txtExec: function (caller, selected) {
 			if (selected)
 			{
 				var content = '';
