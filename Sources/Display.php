@@ -864,7 +864,7 @@ function Display()
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $context['topicinfo']['id_last_msg'];
 		}
 	}
 	// Special case start page
@@ -998,7 +998,7 @@ function Display()
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $messages[0];
+	$_SESSION['page_first_id'] = array_values($messages)[0];
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
 	$_SESSION['page_last_id'] = end($messages);
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
