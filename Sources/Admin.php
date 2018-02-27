@@ -623,7 +623,7 @@ if (!(\'smfForum_sessionvar\' in window))
 		@ob_start();
 
 	// Make sure they know what type of file we are.
-	header('Content-Type: ' . $filetype);
+	header('content-type: ' . $filetype);
 	echo $file_data;
 	obExit(false);
 }

@@ -50,7 +50,7 @@ function showAttachment()
 	if (empty($modSettings['enableCompressedOutput']))
 	{
 		ob_start();
-		header('Content-Encoding: none');
+		header('content-encoding: none');
 	}
 
 	// Better handling.
@@ -193,7 +193,7 @@ function showAttachment()
 	if (!file_exists($file['filePath']))
 	{
 		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
-		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
 		die('File not found.');
@@ -248,16 +248,16 @@ function showAttachment()
 		);
 
 	// Send the attachment headers.
-	header('Pragma: ');
+	header('pragma: ');
 
 	if (!isBrowser('gecko'))
-		header('Content-Transfer-Encoding: binary');
+		header('content-transfer-encoding: binary');
 
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($file['filePath'])) . ' GMT');
-	header('Accept-Ranges: bytes');
-	header('Connection: close');
-	header('ETag: ' . $eTag);
+	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s', filemtime($file['filePath'])) . ' GMT');
+	header('accept-ranges: bytes');
+	header('connection: close');
+	header('etag: ' . $eTag);
 
 	// Make sure the mime type warrants an inline display.
 	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
@@ -265,11 +265,11 @@ function showAttachment()
 
 	// Does this have a mime type?
 	elseif (!empty($file['mime_type']) && (isset($_REQUEST['image']) || !in_array($file['fileext'], array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff'))))
-		header('Content-Type: ' . strtr($file['mime_type'], array('image/bmp' => 'image/x-ms-bmp')));
+		header('content-type: ' . strtr($file['mime_type'], array('image/bmp' => 'image/x-ms-bmp')));
 
 	else
 	{
-		header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+		header('content-type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
 		if (isset($_REQUEST['image']))
 			unset($_REQUEST['image']);
 	}
@@ -280,33 +280,33 @@ function showAttachment()
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
 
 	elseif (isBrowser('opera'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
 
 	elseif (isBrowser('ie'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
 
 	else
-		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . $utf8name . '"');
 
 	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
 	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
-		header('Cache-Control: no-cache');
+		header('cache-control: no-cache');
 
 	else
-		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
+		header('cache-control: max-age=' . (525600 * 60) . ', private');
 
 	// Multipart and resuming support
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
 		header("HTTP/1.1 206 Partial Content");
-		header("Content-Length: $new_length");
-		header("Content-Range: bytes $range-$range_end/$size");
+		header("content-length: $new_length");
+		header("content-range: bytes $range-$range_end/$size");
 	}
 	else
-		header("Content-Length: " . $size);
+		header("content-length: " . $size);
 
 
 	// Try to buy some time...

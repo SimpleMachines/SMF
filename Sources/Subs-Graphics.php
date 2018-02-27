@@ -1105,12 +1105,12 @@ function showCodeImage($code)
 	// Show the image.
 	if (function_exists('imagegif'))
 	{
-		header('Content-type: image/gif');
+		header('content-type: image/gif');
 		imagegif($code_image);
 	}
 	else
 	{
-		header('Content-type: image/png');
+		header('content-type: image/png');
 		imagepng($code_image);
 	}
 
@@ -1152,7 +1152,7 @@ function showLetterImage($letter)
 		return false;
 
 	// Include it!
-	header('Content-type: image/png');
+	header('content-type: image/png');
 	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
 
 	// Nothing more to come.

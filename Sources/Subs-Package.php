@@ -3177,23 +3177,23 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		{
 			fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
 			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-			fwrite($fp, 'User-Agent: PHP/SMF' . "\r\n");
+			fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
 			if ($keep_alive)
-				fwrite($fp, 'Connection: Keep-Alive' . "\r\n\r\n");
+				fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
 			else
-				fwrite($fp, 'Connection: close' . "\r\n\r\n");
+				fwrite($fp, 'connection: close' . "\r\n\r\n");
 		}
 		else
 		{
 			fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
 			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-			fwrite($fp, 'User-Agent: PHP/SMF' . "\r\n");
+			fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
 			if ($keep_alive)
-				fwrite($fp, 'Connection: Keep-Alive' . "\r\n");
+				fwrite($fp, 'connection: Keep-Alive' . "\r\n");
 			else
-				fwrite($fp, 'Connection: close' . "\r\n");
-			fwrite($fp, 'Content-Type: application/x-www-form-urlencoded' . "\r\n");
-			fwrite($fp, 'Content-Length: ' . strlen($post_data) . "\r\n\r\n");
+				fwrite($fp, 'connection: close' . "\r\n");
+			fwrite($fp, 'content-type: application/x-www-form-urlencoded' . "\r\n");
+			fwrite($fp, 'content-length: ' . strlen($post_data) . "\r\n\r\n");
 			fwrite($fp, $post_data);
 		}
 
@@ -3205,7 +3205,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			$header = '';
 			$location = '';
 			while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-				if (strpos($header, 'Location:') !== false)
+				if (strpos($header, 'location:') !== false)
 					$location = trim(substr($header, strpos($header, ':') + 1));
 
 			if (empty($location))

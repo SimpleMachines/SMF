@@ -342,7 +342,7 @@ function upgradeExit($fallThrough = false)
 			template_upgrade_above();
 		else
 		{
-			header('Content-Type: text/xml; charset=UTF-8');
+			header('content-type: text/xml; charset=UTF-8');
 			// Sadly we need to retain the $_GET data thanks to the old upgrade scripts.
 			$upcontext['get_data'] = array();
 			foreach ($_GET as $k => $v)
@@ -424,7 +424,7 @@ function redirectLocation($location, $addForm = true)
 	}
 
 	while (@ob_end_clean());
-	header('Location: ' . strtr($location, array('&amp;' => '&')));
+	header('location: ' . strtr($location, array('&amp;' => '&')));
 
 	// Exit - saving status as we go.
 	upgradeExit(true);
@@ -572,7 +572,7 @@ function initialize_inputs()
 		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
 		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
 
-		header('Location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
 	}
 

@@ -2913,7 +2913,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
 	// Set the header.
-	header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+	header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3358,17 +3358,17 @@ function template_header()
 	// Print stuff to prevent caching of pages (except on attachment errors, etc.)
 	if (empty($context['no_last_modified']))
 	{
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
 		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie'))
-			header('Content-Type: application/xhtml+xml');
+			header('content-type: application/xhtml+xml');
 		elseif (!isset($_REQUEST['xml']))
-			header('Content-Type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	}
 
-	header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
 	if ($context['in_maintenance'] && $context['user']['is_admin'])
@@ -5651,7 +5651,7 @@ function isValidIP($IPString)
  * @param string $type The content type. Defaults to Json.
  * @return void
  */
-function smf_serverResponse($data = '', $type = 'Content-Type: application/json')
+function smf_serverResponse($data = '', $type = 'content-type: application/json')
 {
 	global $db_show_debug, $modSettings;
 

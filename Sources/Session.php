@@ -79,7 +79,7 @@ function loadSession()
 
 		// Change it so the cache settings are a little looser than default.
 		if (!empty($modSettings['databaseSession_loose']))
-			header('Cache-Control: private');
+			header('cache-control: private');
 	}
 
 	// Set the randomly generated code.
