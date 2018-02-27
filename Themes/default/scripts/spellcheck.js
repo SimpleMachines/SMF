@@ -18,7 +18,8 @@ function spellCheck(formName, fieldName)
 	var aWordCharacters = ['-', '\''];
 
 	var aWords = new Array(), aResult = new Array();
-	var sText = $('#' + fieldName).data("sceditor").getText(false);
+	var e = $('#' + fieldName).get(0);
+	var sText = sceditor.instance(e).getText(false);
 	var bInCode = false;
 	var iOffset1, iOffset2;
 
@@ -294,11 +295,13 @@ function openSpellWin(width, height)
 
 function spellCheckGetText(editorID)
 {
-	return $("#" + editorID).data("sceditor").getText(false);
+	var e = $('#' + editorID).get(0);
+	return sceditor.instance(e).getText(false);
 }
 function spellCheckSetText(text, editorID)
 {
-	$("#" + editorID).data("sceditor").InsertText(text, true);
-	if (!$("#" + editorID).data("sceditor").wasSource)
-		$("#" + editorID).data("sceditor").toggleTextMode();
+	var e = $("#" + editorID).get(0);
+	sceditor.instance(e).InsertText(text, true);
+	if (!sceditor.instance(e).wasSource)
+		sceditor.instance(e).toggleTextMode();
 }

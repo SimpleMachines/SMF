@@ -150,7 +150,7 @@
 	$.extend(true, $['sceditor'].prototype, extensionMethods);
 })(jQuery);
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'pre', {
 		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],
@@ -159,7 +159,7 @@ $.sceditor.command.set(
 		}
 	}
 );
-$.sceditor.command.set(
+sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
@@ -172,7 +172,7 @@ $.sceditor.command.set(
 		}
 	}
 );
-$.sceditor.command.set(
+sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
@@ -186,7 +186,7 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'bulletlist', {
 		txtExec: function (caller, selected) {
 			if (selected)
@@ -205,7 +205,7 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'orderedlist', {
 		txtExec:  function (caller, selected) {
 			if (selected)
@@ -224,13 +224,13 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'table', {
 		txtExec: ["[table]\n[tr]\n[td]", "[/td]\n[/tr]\n[/table]"]
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'floatleft', {
 		tooltip: 'Float left',
 		txtExec: ["[float=left max=45%]", "[/float]"],
@@ -240,7 +240,7 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'floatright', {
 		tooltip: 'Float right',
 		txtExec: ["[float=right max=45%]", "[/float]"],
@@ -250,7 +250,7 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'abbr', {
 		tags: {
 			abbr: {
@@ -269,7 +269,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'list', {
 		breakStart: true,
 		isInline: false,
@@ -293,7 +293,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'ul', {
 		tags: {
 			ul: null
@@ -310,7 +310,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'ol', {
 		tags: {
 			ol: null
@@ -327,7 +327,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'img', {
 		tags: {
 			img: {
@@ -388,7 +388,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'attach', {
 		tags: {
 			attach: {
@@ -467,7 +467,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
@@ -516,7 +516,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
@@ -530,7 +530,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
@@ -541,7 +541,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'php', {
 		isInline: false,
 		format: "[php]{0}[/php]",
@@ -549,7 +549,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
 			code: null
@@ -593,7 +593,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'quote', {
 		tags: {
 			blockquote: null,
@@ -664,7 +664,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set('font', {
+sceditor.formats.bbcode.set('font', {
 	format: function ($element, content) {
 		var font;
 
@@ -680,7 +680,7 @@ $.sceditor.plugins.bbcode.bbcode.set('font', {
 	}
 });
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'member', {
 		isInline: true,
 		format: function ($element, content) {
@@ -695,7 +695,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'float', {
 		tags: {
 			div: {

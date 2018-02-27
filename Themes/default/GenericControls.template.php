@@ -31,14 +31,15 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			$(document).ready(function() {
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
-				$("#', $editor_id, '").sceditor({
+				var textarea = $("#', $editor_id, '").get(0);
+				sceditor.create(textarea, {
 					',($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
 					rtl: true,' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
-					plugins: "bbcode",
+					format: "bbcode",
 					parserOptions: {
 						quoteType: $.sceditor.BBCodeParser.QuoteType.auto
 					}';
@@ -112,8 +113,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 		echo '
 				});
-				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();', $editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				theEditor = sceditor.instance(textarea);
+				theEditor.createPermanentDropDown();', empty($editor_context['rich_active']) ? '' : '
+				theEditor.toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';

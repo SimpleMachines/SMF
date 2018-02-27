@@ -85,7 +85,8 @@ function quotedTextClick(oOptions)
 				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
 
 				// Get the editor stuff.
-				var oEditor = $('#' + oEditorID).data('sceditor');
+				var e = $('#' + oEditorID).get(0);
+				var oEditor = sceditor.instance(e);
 
 				// Convert any HTML into BBC tags.
 				text = oEditor.toBBCode(text);
