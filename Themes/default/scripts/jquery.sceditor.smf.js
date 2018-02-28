@@ -287,7 +287,7 @@ sceditor.formats.bbcode.set(
 	'list', {
 		breakStart: true,
 		isInline: false,
-		allowedChildren: ['*', 'li'],
+		// allowedChildren: ['*', 'li'], // Disabled for SCE 2.1.2 because it triggers a bug with inserting extra line breaks
 		html: function (element, attrs, content) {
 			var style = '';
 			var code = 'ul';
