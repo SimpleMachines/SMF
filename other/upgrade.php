@@ -82,6 +82,11 @@ require_once($upgrade_path . '/upgrade-helper.php');
 
 global $txt;
 
+// Initialize everything and load the language files.
+initialize_inputs();
+load_lang_file();
+
+
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = array(
@@ -408,6 +413,7 @@ function upgradeExit($fallThrough = false)
 	// Bang - gone!
 	die();
 }
+
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
@@ -455,6 +461,31 @@ function load_lang_file()
 	</div></body>
 </html>';
 		die;
+	}
+
+		// Override the language file?
+		if (isset($_GET['lang_file']))
+			$_SESSION['installer_temp_lang'] = $_GET['lang_file'];
+		elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file']))
+			$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
+
+		// Make sure it exists, if it doesn't reset it.
+		if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
+		{
+			// Use the first one...
+			list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+
+			// If we have english and some other language, use the other language.  We Americans hate english :P.
+			if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
+				list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		}
+
+		// And now include the actual language file itself.
+		require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+
+		// Which language did we load? Assume that he likes his language.
+		preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+		$user_info['language'] = $matches[1];
 	}
 
 // Used to direct the user to another location.
@@ -3608,6 +3639,9 @@ function template_welcome_message()
 {
 	global $upcontext, $disable_security, $settings, $txt;
 
+	$smf_url='https://www.simplemachines.org';
+	$formatted_url='<a href=" '. $smf_url .' ">Simple Machines Website</a>';
+
 	echo '
 		<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
@@ -3617,7 +3651,7 @@ function template_welcome_message()
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
 			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
 			<div style="padding-left: 6ex;">
-				', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION), '
+				', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, $formatted_url), '
 			</div>
 		</div>';
 
@@ -3652,7 +3686,7 @@ function template_welcome_message()
 			<div style="float: left; width: 2ex; font-size: 2em; color: black;">!!</div>
 			<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br>
 			<div style="padding-left: 6ex;">
-				', $txt['upgrade_error_script_js'], '
+				', sprintf($txt['upgrade_error_script_js'], $formatted_url), '
 			</div>
 		</div>';
 
@@ -3788,6 +3822,8 @@ function template_upgrade_options()
 {
 	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle, $txt;
 
+	$smf_url='https://www.simplemachines.org/about/stats.php';
+	$formatted_url='<a href=" '. $smf_url .' " target="_blank" rel="noopener">info page</a>';
 	echo '
 			<h3>', $txt['upgrade_areyouready'], '</h3>
 			<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">';
@@ -3863,7 +3899,7 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="stat">
 								', $txt['upgrade_stats_collection'], '<br>
-								<span class="smalltext">', $txt['upgrade_stats_info'], '</a></span>
+								<span class="smalltext">', sprintf($txt['upgrade_stats_info'], $formatted_url), '</a></span>
 							</label>
 						</td>
 					</tr>
@@ -4575,13 +4611,16 @@ function template_upgrade_complete()
 {
 	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug, $txt;
 
+	$smf_url = 'https://www.simplemachines.org';
+	$formatted_url = '<a href=" '. $smf_url .' ">look to us for assistance</a>.';
+
 	echo '
 	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done3'], '</h3>
 	<form action="', $boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '</label> ', $txt['upgrade_delete_server'], '
+			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '</label> <em>', $txt['upgrade_delete_server'], '</em>
 			<script>
 				function doTheDelete(theCheck)
 				{
@@ -4613,7 +4652,7 @@ function template_upgrade_complete()
 		echo '<br> ', $txt['upgrade_completed_time'], ' ', $totalTime, '<br><br>';
 
 	echo '<br>
-			', $txt['upgrade_problems'], '<br>
+			', sprintf($txt['upgrade_problems'], $formatted_url), '<br>
 			<br>
 			', $txt['upgrade_luck'], '<br>
 			Simple Machines';
