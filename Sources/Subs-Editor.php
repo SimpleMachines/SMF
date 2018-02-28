@@ -2000,6 +2000,75 @@ function create_control_richedit($editorOptions)
 
 	// Set a flag so the sub template knows what to do...
 	$context['show_bbc'] = !empty($modSettings['enableBBC']);
+
+	// Set up the SCEditor options
+	$sce_options = array(
+		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
+		'emoticonsCompat' => 'true',
+		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
+		'format' => 'bbcode',
+		'bbcodeTrim' => 'true',
+	);
+	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
+		$sce_options['locale'] = $context['controls']['richedit'][$editorOptions['id']]['locale'];
+	if (!empty($context['right_to_left']))
+		$sce_options['rtl'] = 'true';
+	if ($editorOptions['id'] != 'quickReply')
+		$sce_options['autofocus'] = 'true';
+
+	$sce_options['emoticons'] = array();
+	$sce_options['emoticonsEnabled'] = false;
+	if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$context['controls']['richedit'][$editorOptions['id']]['disable_smiley_box'])
+	{
+		$sce_options['emoticonsEnabled'] = true;
+		$sce_options['emoticons']['dropdown'] = array();
+		$sce_options['emoticons']['popup'] = array();
+
+		$countLocations = count($context['smileys']);
+		foreach ($context['smileys'] as $location => $smileyRows)
+		{
+			$countLocations--;
+
+			unset($smiley_location);
+			if ($location == 'postform')
+				$smiley_location = &$sce_options['emoticons']['dropdown'];
+			elseif ($location == 'popup')
+				$smiley_location = &$sce_options['emoticons']['popup'];
+
+			$numRows = count($smileyRows);
+
+			// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
+			$emptyPlaceholder = 0;
+			foreach ($smileyRows as $smileyRow)
+			{
+				foreach ($smileyRow['smileys'] as $smiley)
+					$smiley_location[$smiley['code']] = $settings['smileys_url'] . '/' . $smiley['filename'];
+
+				if (empty($smileyRow['isLast']) && $numRows != 1)
+					$smiley_location['-' . $emptyPlaceholder++] = '';
+			}
+		}
+	}
+
+	$sce_options['toolbar'] = '';
+	if ($context['show_bbc'])
+	{
+		$count_tags = count($context['bbc_tags']);
+		foreach ($context['bbc_toolbar'] as $i => $buttonRow)
+		{
+			$sce_options['toolbar'] .= implode('|', $buttonRow);
+
+			$count_tags--;
+
+			if (!empty($count_tags))
+				$sce_options['toolbar'] .= '||';
+		}
+	}
+
+	// Allow mods to change $sce_options. Usful if, e.g., a mod wants to add an SCEditor plugin.
+	call_integration_hook('integrate_sceditor_options', array(&$sce_options));
+
+	$context['controls']['richedit'][$editorOptions['id']]['sce_options'] = $sce_options;
 }
 
 /**
