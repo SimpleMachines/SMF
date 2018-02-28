@@ -33,13 +33,14 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 				var textarea = $("#', $editor_id, '").get(0);
 				sceditor.create(textarea, {
-					',($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
+					', ($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
 					rtl: true,' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
 					format: "bbcode",
+					bbcodeTrim: true,
 					parserOptions: {
 						quoteType: $.sceditor.BBCodeParser.QuoteType.auto
 					}';
