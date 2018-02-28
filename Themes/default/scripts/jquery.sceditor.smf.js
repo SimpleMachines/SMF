@@ -207,7 +207,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				$.each(selected.split(/\r?\n/), function () {
+				each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -226,7 +226,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				$.each(selected.split(/\r?\n/), function () {
+				each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -272,7 +272,7 @@ sceditor.formats.bbcode.set(
 			}
 		},
 		format: function (element, content) {
-			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
+			return '[abbr=' + $(element).attr('title') + ']' + content + '[/abbr]';
 		},
 		html: function (element, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
@@ -316,10 +316,10 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		html: '<ul>{0}</ul>',
 		format: function (element, content) {
-			if ($(element[0]).css('list-style-type') == 'disc')
+			if ($(element).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
-				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
 		}
 	}
 );
@@ -333,10 +333,10 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		html: '<ol>{0}</ol>',
 		format: function (element, content) {
-			if ($(element[0]).css('list-style-type') == 'none')
+			if ($(element).css('list-style-type') == 'none')
 				return '[list type=decimal]' + content + '[/list]';
 			else
-				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
 		}
 	}
 );
@@ -351,7 +351,8 @@ sceditor.formats.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		format: function (element, content) {
-			var	attribs = '',
+			var	element = $(element),
+				attribs = '',
 				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
@@ -362,9 +363,9 @@ sceditor.formats.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + $(element).width();
+				attribs += " width=" + element.width();
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + $(element).height();
+				attribs += " height=" + element.height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -412,7 +413,8 @@ sceditor.formats.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		format: function (element, content) {
-			var	attribs = '',
+			var	element = $(element),
+				attribs = '',
 				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
@@ -491,7 +493,8 @@ sceditor.formats.bbcode.set(
 			}
 		},
 		format: function (element, content) {
-			var url = element.attr('href');
+			var element = $(element),
+				url = element.attr('href');
 
 			// make sure this link is not an e-mail, if it is return e-mail BBCode
 			if (url.substr(0, 7) === 'mailto:')
@@ -571,7 +574,7 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			if ($(element[0]).hasClass('php'))
+			if ($(element).hasClass('php'))
 				return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
 			var from = '';
@@ -617,6 +620,7 @@ sceditor.formats.bbcode.set(
 		breakBefore: false,
 		isInline: false,
 		format: function (element, content) {
+			var element = $(element);
 			var author = '';
 			var date = '';
 			var link = '';
@@ -679,12 +683,13 @@ sceditor.formats.bbcode.set(
 );
 
 sceditor.formats.bbcode.set('font', {
-	format: function ($element, content) {
+	format: function (element, content) {
+		var element = $(element);
 		var font;
 
 		// Get the raw font value from the DOM
-		if (!$element.is('font') || !(font = $element.attr('face'))) {
-			font = $element.css('font-family');
+		if (!element.is('font') || !(font = element.attr('face'))) {
+			font = element.css('font-family');
 		}
 
 		// Strip all quotes
@@ -697,8 +702,8 @@ sceditor.formats.bbcode.set('font', {
 sceditor.formats.bbcode.set(
 	'member', {
 		isInline: true,
-		format: function ($element, content) {
-			return '[member='+ $element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
+		format: function (element, content) {
+			return '[member='+ $(element).attr('data-mention') +']'+ content.replace('@','') +'[/member]';
 		},
 		html: function (token, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
@@ -718,12 +723,13 @@ sceditor.formats.bbcode.set(
 		},
 		isInline: false,
 		skipLastLineBreak: true,
-		format: function ($element, content) {
-			if (!$element.css('float'))
+		format: function (element, content) {
+			var element = $(element);
+			if (!element.css('float'))
 				return content;
 
-			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
-			max = ' max=' + ($element.css('max-width') != "none" ? $element.css('max-width') : '45%');
+			side = (element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			max = ' max=' + (element.css('max-width') != "none" ? element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';
 		},
