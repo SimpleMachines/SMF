@@ -2260,7 +2260,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				continue;
 
 			$next_c = isset($message[$pos + 1 + $pt_strlen]) ? $message[$pos + 1 + $pt_strlen] : '';
-			
+
 			// A tag is the last char maybe
 			if ($next_c == '')
 				break;
@@ -3566,7 +3566,7 @@ function template_javascript($do_deferred = false)
 				$toMinify[] = $js_file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($js_file['options']['seed']))
 				$minSeed = $js_file['options']['seed'];
 		}
 
@@ -3579,15 +3579,12 @@ function template_javascript($do_deferred = false)
 	{
 		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
-		// Minify process couldn't work, print each individual files.
-		if (!empty($result) && is_array($result))
-			foreach ($result as $minFailedFile)
-				echo '
-	<script src="', $minFailedFile['fileUrl'], '"', !empty($minFailedFile['options']['async']) ? ' async="async"' : '', '></script>';
+		$minSuccessful = array_keys($result) === array('smf_minified');
 
-		else
+		foreach ($result as $minFile)
 			echo '
-	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
+	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async="async"' : '', '></script>';
+
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3642,16 +3639,18 @@ function template_css()
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		// By default all files don't get minimized unless the file explicitly says so!
+		// Files are minimized unless they explicitly opt out.
+		if (!isset($file['options']['minimize']))
+			$file['options']['minimize'] = true;
+
 		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			$toMinify[] = $file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($file['options']['seed']))
 				$minSeed = $file['options']['seed'];
 		}
-
 		else
 			$normal[] = $file['fileUrl'];
 	}
@@ -3660,15 +3659,11 @@ function template_css()
 	{
 		$result = custMinify($toMinify, 'css');
 
-		// Minify process couldn't work, print each individual files.
-		if (!empty($result) && is_array($result))
-			foreach ($result as $minFailedFile)
-				echo '
-	<link rel="stylesheet" href="', $minFailedFile['fileUrl'], '">';
+		$minSuccessful = array_keys($result) === array('smf_minified');
 
-		else
+		foreach ($result as $minFile)
 			echo '
-	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
 	}
 
 	// Print the rest after the minified files.
@@ -3719,8 +3714,11 @@ function custMinify($data, $type, $do_deferred = false)
 	if (empty($type) || empty($data))
 		return false;
 
+	// Different pages include different files, so we use a hash to label the different combinations
+	$hash = md5(implode(' ', array_keys($data)));
+
 	// Did we already did this?
-	$toCache = cache_get_data('minimized_'. $settings['theme_id'] .'_'. $type, 86400);
+	$toCache = cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400);
 
 	// Already done?
 	if (!empty($toCache))
@@ -3730,30 +3728,36 @@ function custMinify($data, $type, $do_deferred = false)
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 
 	// Temp path.
-	$cTempPath = $settings['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+	$cTempPath = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/';
 
 	// What kind of file are we going to create?
-	$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+	$toCreate = $cTempPath . 'minified' . ($do_deferred ? '_deferred' : '') . '_' . $hash . '.' . $type;
 
-	// File has to exists, if it isn't try to create it.
+	// File has to exist. If it doesn't, try to create it.
 	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
 	{
 		loadLanguage('Errors');
 		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
 
-		// The process failed so roll back to print each individual file.
+		// The process failed, so roll back to print each individual file.
 		return $data;
 	}
 
 	$minifier = new $classType();
+
+	$async = $type === 'js';
 
 	foreach ($data as $file)
 	{
 		$tempFile = str_replace($file['options']['seed'], '', $file['filePath']);
 		$toAdd = file_exists($tempFile) ? $tempFile : false;
 
-		// The file couldn't be located so it won't be added, log this error.
+		// A minified script should only be loaded asynchronously if all its components wanted to be.
+		if (empty($file['options']['async']))
+			$async = false;
+
+		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
 		{
 			loadLanguage('Errors');
@@ -3775,16 +3779,21 @@ function custMinify($data, $type, $do_deferred = false)
 	{
 		loadLanguage('Errors');
 		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
 
 		// The process failed so roll back to print each individual file.
 		return $data;
 	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, $toCreate, 86400);
+	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, $toCreate, 86400);
 
-	return true;
+	return array('smf_minified' => array(
+		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
+		'filePath' => $toCreate,
+		'fileName' => basename($toCreate),
+		'options' => array('async' => $async),
+	));
 }
 
 /**
