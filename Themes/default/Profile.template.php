@@ -1843,7 +1843,7 @@ function template_alert_configuration()
 		<p class="information">
 			', (empty($context['description']) ? $txt['alert_prefs_desc'] : $context['description']), '
 		</p>
-		<form action="', $scripturl, '?', $context['action'], '" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
+		<form action="', $scripturl, '?', $context['action'], '" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notification_general'], '
