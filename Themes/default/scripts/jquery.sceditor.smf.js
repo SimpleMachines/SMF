@@ -196,6 +196,27 @@ sceditor.command.set(
 				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
+		},
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.link._dropDown(editor, caller, function (url, text) {
+				// needed for IE to restore the last range
+				editor.focus();
+
+				// If there is no selected text then must set the URL as
+				// the text. Most browsers do this automatically, sadly
+				// IE doesn't.
+				if (!editor.getRangeHelper().selectedHtml() || text) {
+					text = text || url;
+
+					editor.wysiwygEditorInsertHtml(
+						'<a target="_blank" rel="noopener" href="' + url + '">' + text + '</a>'
+					);
+				} else {
+					editor.execCommand('createlink', url);
+				}
+			});
 		}
 	}
 );
