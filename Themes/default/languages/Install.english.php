@@ -286,7 +286,7 @@ $txt['upgrade_debug_info'] = 'Output extra debugging information';
 $txt['upgrade_empty_errlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to Collect Basic Stats Monthly.';
-$txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our %1$s.';
+$txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
 $txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
@@ -320,7 +320,7 @@ $txt['upgrade_done3'] = 'Hope you like it!';
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '(doesn\'t work on all servers).';
 $txt['upgrade_completed_time'] = 'Upgrade completed in';
-$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to %1$s.';
+$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="%1$s">look to us for assistance</a>..';
 $txt['upgrade_luck'] = 'Best of luck,';
 
 $txt['upgrade_ftp_login'] = 'Your FTP connection information';
@@ -333,9 +333,9 @@ $txt['upgrade_ftp_error'] = 'The following error was encountered when trying to 
 
 $txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place, and we\'re ready to proceed.';
 
-$txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the %1$s';
+$txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="%1$s">Simple Machines Website</a>';
 
 $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
-$txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the %2$s to ensure you are upgrading to the latest version.';
+$txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="%2$s">Simple Machines Website</a> to ensure you are upgrading to the latest version.';
 
 ?>

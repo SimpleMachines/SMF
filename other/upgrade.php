@@ -3639,9 +3639,6 @@ function template_welcome_message()
 {
 	global $upcontext, $disable_security, $settings, $txt;
 
-	$smf_url='https://www.simplemachines.org';
-	$formatted_url='<a href=" '. $smf_url .' ">Simple Machines Website</a>';
-
 	echo '
 		<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
@@ -3651,7 +3648,7 @@ function template_welcome_message()
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
 			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
 			<div style="padding-left: 6ex;">
-				', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, $formatted_url), '
+				', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
 			</div>
 		</div>';
 
@@ -3686,7 +3683,7 @@ function template_welcome_message()
 			<div style="float: left; width: 2ex; font-size: 2em; color: black;">!!</div>
 			<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br>
 			<div style="padding-left: 6ex;">
-				', sprintf($txt['upgrade_error_script_js'], $formatted_url), '
+				', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
 			</div>
 		</div>';
 
@@ -3822,8 +3819,6 @@ function template_upgrade_options()
 {
 	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle, $txt;
 
-	$smf_url='https://www.simplemachines.org/about/stats.php';
-	$formatted_url='<a href=" '. $smf_url .' " target="_blank" rel="noopener">info page</a>';
 	echo '
 			<h3>', $txt['upgrade_areyouready'], '</h3>
 			<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">';
@@ -3899,7 +3894,7 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="stat">
 								', $txt['upgrade_stats_collection'], '<br>
-								<span class="smalltext">', sprintf($txt['upgrade_stats_info'], $formatted_url), '</a></span>
+								<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 							</label>
 						</td>
 					</tr>
@@ -4611,9 +4606,6 @@ function template_upgrade_complete()
 {
 	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug, $txt;
 
-	$smf_url = 'https://www.simplemachines.org';
-	$formatted_url = '<a href=" '. $smf_url .' ">look to us for assistance</a>.';
-
 	echo '
 	<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done3'], '</h3>
 	<form action="', $boardurl, '/index.php">';
@@ -4652,7 +4644,7 @@ function template_upgrade_complete()
 		echo '<br> ', $txt['upgrade_completed_time'], ' ', $totalTime, '<br><br>';
 
 	echo '<br>
-			', sprintf($txt['upgrade_problems'], $formatted_url), '<br>
+			', sprintf($txt['upgrade_problems'], 'http://simplemachines.org'), '<br>
 			<br>
 			', $txt['upgrade_luck'], '<br>
 			Simple Machines';
