@@ -165,7 +165,7 @@ function template_summary()
 		foreach ($context['print_custom_fields']['above_member'] as $field)
 			if (!empty($field['output_html']))
 				$fields .= '
-					<li>', $field['output_html'], '</li>';
+					<li>' . $field['output_html'] . '</li>';
 
 		if (!empty($fields))
 		{
