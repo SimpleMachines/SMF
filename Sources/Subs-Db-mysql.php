@@ -966,6 +966,10 @@ function smf_db_error_insert($error_array)
 	global  $db_prefix, $db_connection;
 	static $mysql_error_data_prep;
 
+	// without database we can't do anything
+	if (empty($db_connection))
+		return;
+
 	if (empty($mysql_error_data_prep))
 			$mysql_error_data_prep = mysqli_prepare($db_connection,
 				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
