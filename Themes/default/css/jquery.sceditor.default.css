@@ -36,6 +36,7 @@ ul, ol {
 table, td {
 	border: 1px dotted #000;
 	empty-cells: show;
+	min-width: 0.5ch;
 }
 
 code::before {
