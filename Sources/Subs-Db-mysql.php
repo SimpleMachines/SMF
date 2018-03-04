@@ -69,7 +69,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 
 	$connection = mysqli_init();
 
-	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	$flags = 2; //MYSQLI_CLIENT_FOUND_ROWS = 2
 
 	$success = false;
 
