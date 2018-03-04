@@ -2004,17 +2004,17 @@ function create_control_richedit($editorOptions)
 	// Set up the SCEditor options
 	$sce_options = array(
 		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
-		'emoticonsCompat' => 'true',
+		'emoticonsCompat' => true,
 		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
 		'format' => 'bbcode',
-		'bbcodeTrim' => 'true',
+		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
 		$sce_options['locale'] = $context['controls']['richedit'][$editorOptions['id']]['locale'];
 	if (!empty($context['right_to_left']))
-		$sce_options['rtl'] = 'true';
+		$sce_options['rtl'] = true;
 	if ($editorOptions['id'] != 'quickReply')
-		$sce_options['autofocus'] = 'true';
+		$sce_options['autofocus'] = true;
 
 	$sce_options['emoticons'] = array();
 	$sce_options['emoticonsEnabled'] = false;
