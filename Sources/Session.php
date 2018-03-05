@@ -153,10 +153,23 @@ function sessionRead($session_id)
  */
 function sessionWrite($session_id, $data)
 {
-	global $smcFunc;
+	global $smcFunc, $db_connection, $db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_persist, $db_port;
 
 	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
+
+	// php < 7.0 need this
+	if (empty($db_connection))
+	{
+		$db_options = array();
+
+		// Add in the port if needed
+		if (!empty($db_port))
+			$db_options['port'] = $db_port;
+		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
+
+		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+	}
 
 	// First try to update an existing row...
 	$smcFunc['db_query']('', '

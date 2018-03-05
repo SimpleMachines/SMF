@@ -69,7 +69,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 
 	$connection = mysqli_init();
 
-	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	$flags = 2; //MYSQLI_CLIENT_FOUND_ROWS = 2
 
 	$success = false;
 
@@ -965,6 +965,10 @@ function smf_db_error_insert($error_array)
 {
 	global  $db_prefix, $db_connection;
 	static $mysql_error_data_prep;
+
+	// without database we can't do anything
+	if (empty($db_connection))
+		return;
 
 	if (empty($mysql_error_data_prep))
 			$mysql_error_data_prep = mysqli_prepare($db_connection,

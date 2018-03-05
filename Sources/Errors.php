@@ -484,6 +484,9 @@ function display_loadavg_error()
  */
 function set_fatal_error_headers()
 {
+	if (headers_sent())
+		return;
+
 	// Don't cache this page!
 	header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
 	header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
