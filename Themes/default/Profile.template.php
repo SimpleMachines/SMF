@@ -157,10 +157,6 @@ function template_summary()
 	// Are there any custom profile fields for above the name?
 	if (!empty($context['print_custom_fields']['above_member']))
 	{
-		$above = '
-			<div class="custom_fields_above_name">
-				<ul>';
-
 		$fields = '';
 		foreach ($context['print_custom_fields']['above_member'] as $field)
 			if (!empty($field['output_html']))
@@ -169,7 +165,9 @@ function template_summary()
 
 		if (!empty($fields))
 		{
-			echo $above;
+			echo '
+			<div class="custom_fields_above_name">
+				<ul>';
 			echo $fields;
 			echo '
 				</ul>
