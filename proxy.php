@@ -141,7 +141,7 @@ class ProxyServer
 		header('content-type: ' . $cached['content_type']);
 		header('content-length: ' . $cached['size']);
 		header('cache-control: public, max-age=' . $max_age );
-		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' UTC');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' GMT');
 		header('etag: ' . $eTag);
 		echo base64_decode($cached['body']);
 	}
@@ -234,7 +234,7 @@ class ProxyServer
 		if (empty($this->time))
 		{
 			$old_timezone = date_default_timezone_get();
-			date_default_timezone_set('UTC');
+			date_default_timezone_set('GMT');
 			$this->time = time();
 			date_default_timezone_set($old_timezone);
 		}
