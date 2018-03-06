@@ -31,6 +31,7 @@ function db_extra_init()
 			'db_list_tables' => 'smf_db_list_tables',
 			'db_get_version' => 'smf_db_get_version',
 			'db_get_vendor' => 'smf_db_get_vendor',
+			'db_allow_persistent' => 'smf_db_allow_persistent',
 		);
 }
 
@@ -306,6 +307,20 @@ function smf_db_get_version()
 function smf_db_get_vendor()
 {
 	return 'PostgreSQL';
+}
+
+/**
+ * Figures out if persistent connection is allowed
+ *
+ * @return boolean
+*/
+function smf_db_allow_persistent()
+{
+	$value = ini_get('pgsql.allow_persistent');
+	if ($value == 'on' || $value == 'true')
+		return true;
+	else
+		return false;
 }
 
 ?>
