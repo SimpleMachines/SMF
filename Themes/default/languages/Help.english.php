@@ -411,7 +411,7 @@ If a language you need is not listed, ask your database admin to install Postgre
 $helptxt['enableParticipation'] = 'This shows a little icon on the topics the user has posted in.';
 
 $helptxt['db_persist'] = 'This keeps the connection active to increase performance. If you aren\'t on a dedicated server, this may cause you problems with your host.<br>
-When disabled than check you php.ini file for mysqli.allow_persistent or pgsql.allow_persistent is set on.';
+If this option is disabled, you may need to enable the mysqli.allow_persistent or pgsql.allow_persistent setting in your php.ini file.';
 $helptxt['ssi_db_user'] = 'Optional setting to use a different database user and password when you are using SSI.php.';
 
 $helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better. They will look like index.php/topic,1.0.html.<br><br>This feature will ' . (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : 'not') . ' work on your server.';
