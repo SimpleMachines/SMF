@@ -381,6 +381,7 @@ function BoardurlMatch($url = '')
 function ModifyDatabaseSettings($return_config = false)
 {
 	global $scripturl, $context, $txt, $smcFunc;
+	db_extend('extra');
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -422,6 +423,13 @@ function ModifyDatabaseSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=database;save';
 	$context['settings_title'] = $txt['database_settings'];
 	$context['save_disabled'] = $context['settings_not_writable'];
+
+	if (!$smcFunc['db_allow_persistent'])
+		addInlineJavaScript('
+			$(function()
+			{
+				$("#db_persist").prop("disabled", true);
+			});', true);
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
