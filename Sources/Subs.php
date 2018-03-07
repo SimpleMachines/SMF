@@ -6337,4 +6337,116 @@ function httpsOn()
 	return $secure;
 }
 
+/**
+ * A wrapper for `filter_var($url, FILTER_VALIDATE_URL)` that can handle URLs
+ * with international characters (a.k.a. IRIs)
+ *
+ * @param string $iri The IRI to test.
+ * @param int $flags Optional flags to pass to filter_var()
+ * @return string|bool Either the original IRI, or false if the IRI was invalid.
+ */
+function validate_iri($iri, $flags = null)
+{
+	$url = iri_to_url($iri);
+
+	if (filter_var($url, FILTER_VALIDATE_URL, $flags) !== false)
+		return $iri;
+	else
+		return false;
+}
+
+/**
+ * A wrapper for `filter_var($url, FILTER_SANITIZE_URL)` that can handle URLs
+ * with international characters (a.k.a. IRIs)
+ *
+ * Note: The returned value will still be an IRI, not a URL. To convert to URL,
+ * feed the result of this function to iri_to_url()
+ *
+ * @param string $iri The IRI to sanitize.
+ * @return string|bool The sanitized version of the IRI
+ */
+function sanitize_iri($iri)
+{
+	// Encode any non-ASCII characters (but not space or control characters of any sort)
+	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function ($matches) {
+		return rawurlencode($matches[0]);
+	}, $iri);
+
+	// Perform normal sanitization
+	$iri = filter_var($iri, FILTER_SANITIZE_URL);
+
+	// Decode the non-ASCII characters
+	$iri = rawurldecode($iri);
+
+	return $iri;
+}
+
+/**
+ * Converts a URL with international characters (an IRI) into a pure ASCII URL
+ *
+ * Uses Punycode to encode any non-ASCII characters in the domain name, and uses
+ * standard URL encoding on the rest.
+ *
+ * @param string $iri A IRI that may or may not contain non-ASCII characters.
+ * @return string|bool The URL version of the IRI.
+ */
+function iri_to_url($iri)
+{
+	global $sourcedir;
+
+	$host = parse_url((strpos($iri, '://') === false ? 'http://' : '') . ltrim($iri, ':/'), PHP_URL_HOST);
+
+	if (empty($host))
+		return $iri;
+
+	// Convert the domain using the Punycode algorithm
+	require_once($sourcedir . '/punycode/Punycode.php');
+	$Punycode = new TrueBV\Punycode();
+	$encoded_host = $Punycode->encode($host);
+	$pos = strpos($iri, $host);
+	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
+
+	// Encode any disallowed characters in the rest of the URL
+	$unescaped = array(
+		'%21'=>'!', '%23'=>'#', '%24'=>'$', '%26'=>'&',
+		'%27'=>"'", '%28'=>'(', '%29'=>')', '%2A'=>'*',
+		'%2B'=>'+', '%2C'=>',',	'%2F'=>'/', '%3A'=>':',
+		'%3B'=>';', '%3D'=>'=', '%3F'=>'?', '%40'=>'@',
+	);
+	$iri = strtr(rawurlencode($iri), $unescaped);
+
+	return $iri;
+}
+
+/**
+ * Decodes a URL containing encoded international characters to UTF-8
+ *
+ * Decodes any Punycode encoded characters in the domain name, then uses
+ * standard URL decoding on the rest.
+ *
+ * @param string $url The pure ASCII version of a URL.
+ * @return string|bool The UTF-8 version of the URL.
+ */
+function url_to_iri($url)
+{
+	global $sourcedir;
+
+	$host = parse_url((strpos($url, '://') === false ? 'http://' : '') . ltrim($url, ':/'), PHP_URL_HOST);
+
+	if (empty($host))
+		return $url;
+
+	// Decode the domain from Punycode
+	require_once($sourcedir . '/punycode/Punycode.php');
+	$Punycode = new TrueBV\Punycode();
+	$decoded_host = $Punycode->decode($host);
+	$pos = strpos($url, $host);
+	$url = substr_replace($url, $decoded_host, $pos, strlen($host));
+
+	// Decode the rest of the URL
+	$url = rawurldecode($url);
+
+	return $url;
+}
+
 ?>
