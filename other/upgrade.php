@@ -222,7 +222,7 @@ if (!isset($settings['default_theme_dir']))
 
 $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && !empty($modSettings['totalMessages']) && $modSettings['totalMessages'] > 75000;
 // Default title...
-$upcontext['page_title'] = 'Updating Your SMF Installation!';
+$upcontext['page_title'] = $txt['updating_smf_installation'];
 
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
@@ -1017,11 +1017,11 @@ function checkLogin()
 // Step 1: Do the maintenance and backup.
 function UpgradeOptions()
 {
-	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language;
+	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language, $txt;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
 
 	$upcontext['sub_template'] = 'upgrade_options';
-	$upcontext['page_title'] = 'Upgrade Options';
+	$upcontext['page_title'] = $txt['upgrade_options'];
 
 	db_extend('packages');
 	$upcontext['karma_installed'] = array('good' => false, 'bad' => false);
@@ -1263,10 +1263,10 @@ function UpgradeOptions()
 // Backup the database - why not...
 function BackupDatabase()
 {
-	global $upcontext, $db_prefix, $command_line, $support_js, $file_steps, $smcFunc;
+	global $upcontext, $db_prefix, $command_line, $support_js, $file_steps, $smcFunc, $txt;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'backup_xml' : 'backup_database';
-	$upcontext['page_title'] = 'Backup Database';
+	$upcontext['page_title'] = $txt['backup_database'];
 
 	// Done it already - js wise?
 	if (!empty($_POST['backup_done']))
@@ -1361,7 +1361,7 @@ function backupTable($table)
 // Step 2: Everything.
 function DatabaseChanges()
 {
-	global $db_prefix, $modSettings, $smcFunc;
+	global $db_prefix, $modSettings, $smcFunc, $txt;
 	global $upcontext, $support_js, $db_type;
 
 	// Have we just completed this?
@@ -1369,7 +1369,7 @@ function DatabaseChanges()
 		return true;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
-	$upcontext['page_title'] = 'Database Changes';
+	$upcontext['page_title'] = $txt['database_changes'];
 
 	// All possible files.
 	// Name, < version, insert_on_complete
@@ -1455,14 +1455,15 @@ function DatabaseChanges()
 // Delete the damn thing!
 function DeleteUpgrade()
 {
-	global $command_line, $language, $upcontext, $sourcedir, $forum_version, $user_info, $maintenance, $smcFunc, $db_type;
+	global $command_line, $language, $upcontext, $sourcedir, $forum_version;
+	global $user_info, $maintenance, $smcFunc, $db_type, $txt;
 
 	// Now it's nice to have some of the basic SMF source files.
 	if (!isset($_GET['ssi']) && !$command_line)
 		redirectLocation('&ssi=1');
 
 	$upcontext['sub_template'] = 'upgrade_complete';
-	$upcontext['page_title'] = 'Upgrade Complete';
+	$upcontext['page_title'] = $txt['upgrade_complete'];
 
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
@@ -2537,7 +2538,8 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
  */
 function ConvertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language;
+	global $db_prefix, $db_type, $command_line, $support_js, $txt;
 
 	// Done it already?
 	if (!empty($_POST['utf8_done']))
@@ -2557,7 +2559,7 @@ function ConvertUtf8()
 	}
 	else
 	{
-		$upcontext['page_title'] = 'Converting to UTF8';
+		$upcontext['page_title'] = $txt['converting_utf8'];
 		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
 		// The character sets used in SMF's language files with their db equivalent.
@@ -3046,7 +3048,7 @@ function ConvertUtf8()
 
 function serialize_to_json()
 {
-	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js;
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
@@ -3086,7 +3088,7 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
-	$upcontext['page_title'] = 'Converting to JSON';
+	$upcontext['page_title'] = $txt['converting_json'];
 	$upcontext['table_count'] = count($keys);
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];

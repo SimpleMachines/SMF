@@ -233,7 +233,7 @@ $txt['ftp_connect'] = 'Connect';
 
 $txt['force_ssl'] = 'Enable SSL';
 $txt['force_ssl_label'] = 'Force SSL throughout the forum';
-$txt['force_ssl_info'] = '<strong>Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible</strong>';
+$txt['force_ssl_info'] = 'Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible';
 
 $txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
 
@@ -328,12 +328,18 @@ $txt['upgrade_ftp_files'] = 'The following files needs to be made writable to co
 $txt['upgrade_ftp_shell'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
 $txt['upgrade_ftp_error'] = 'The following error was encountered when trying to connect:';
 
-
 $txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place, and we\'re ready to proceed.';
-
 $txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="%1$s">Simple Machines Website</a>';
-
 $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
 $txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="%2$s">Simple Machines Website</a> to ensure you are upgrading to the latest version.';
+
+// Page titles
+$txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
+$txt['upgrade_options'] = 'Upgrade Options';
+$txt['backup_database'] = 'Backup Database';
+$txt['database_changes'] = 'Database Changes';
+$txt['upgrade_complete'] = 'Upgrade Complete';
+$txt['converting_utf8'] = 'Converting to UTF8';
+$txt['converting_json'] = 'Converting to JSON';
 
 ?>
