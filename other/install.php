@@ -2351,7 +2351,7 @@ function template_forum_settings()
 					$incontext['ssl_chkbx_protected'] ? ' disabled' : '', ' />&nbsp;
 					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
 					<br>
-					<div class="smalltext block">', $txt['force_ssl_info'], '</div>
+					<div class="smalltext block"><strong>', $txt['force_ssl_info'], '</strong></div>
 				</td>
 			</tr>
 		</table>
