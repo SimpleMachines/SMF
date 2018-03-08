@@ -70,9 +70,6 @@ function AddLanguage()
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))
 	{
-		// Need fetch_web_data.
-		require_once($sourcedir . '/Subs-Package.php');
-
 		$context['smf_search_term'] = $smcFunc['htmlspecialchars'](trim($_POST['smf_add']));
 
 		$listOptions = array(

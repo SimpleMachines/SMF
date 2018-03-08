@@ -848,7 +848,6 @@ function AdminSearchOM()
 	$postVars = implode('+', $postVars);
 
 	// Get the results from the doc site.
-	require_once($sourcedir . '/Subs-Package.php');
 	// Demo URL:
 	// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
 	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);

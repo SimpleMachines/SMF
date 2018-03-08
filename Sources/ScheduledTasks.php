@@ -1236,9 +1236,6 @@ function scheduled_fetchSMfiles()
 
 	$smcFunc['db_free_result']($request);
 
-	// We're gonna need fetch_web_data() to pull this off.
-	require_once($sourcedir . '/Subs-Package.php');
-
 	// Just in case we run into a problem.
 	loadEssentialThemeData();
 	loadLanguage('Errors', $language, false);
@@ -1482,13 +1479,13 @@ function scheduled_weekly_maintenance()
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
 	);
-	
+
 	// Run Cache housekeeping
 	if (!empty($cache_enable) && !empty($cacheAPI))
 	{
 		$cacheAPI->housekeeping();
 	}
-	
+
 	return true;
 }
 
