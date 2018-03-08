@@ -495,16 +495,18 @@ function loadUserSettings()
 				{
 					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
-					list ($tfamember, $tfasecret) = $tfa_data;
+					list ($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
 
 					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
 				}
 
+				// They didn't finish logging in before coming here? Then they're no one to us.
 				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
 				{
+					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
-					redirectexit('action=logintfa');
+					$user_settings = array();
 				}
 			}
 		}
@@ -649,9 +651,9 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $domain, $path, $preserve) = $tfa_data;
+			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
 
-			if (!isset($id, $user, $exp, $domain, $path, $preserve) || !$preserve || time() > $exp)
+			if (time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
