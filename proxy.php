@@ -33,12 +33,9 @@ class ProxyServer
 
 	/** @var string The cache directory */
 	protected $cache;
-	
+
 	/** @var int $maxDays until enties get deleted */
 	protected $maxDays;
-
-	/** @var int time() value */
-	protected $time;
 
 	/**
 	 * Constructor, loads up the Settings for the proxy
@@ -78,7 +75,11 @@ class ProxyServer
 			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
 				return false;
 
-		if (empty($_GET['hash']) || empty($_GET['request']) || ($_GET['request'] === "http:") || ($_GET['request'] === "https:"))
+		// Basic sanity check
+		$_GET['request'] = filter_var($_GET['request'], FILTER_VALIDATE_URL);
+
+		// We aren't going anywhere without these
+		if (empty($_GET['hash']) || empty($_GET['request']))
 			return false;
 
 		$hash = $_GET['hash'];
@@ -120,10 +121,10 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
-		$time = $this->getTime();
+		$time = time();
 
 		// Is the cache expired?
-		if (!$cached || time() - $cached['time'] > ($this->maxDays * 86400))
+		if (!$cached || $time - $cached['time'] > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
@@ -207,19 +208,17 @@ class ProxyServer
 		if ($response['size'] > ($this->maxSize * 1024))
 			return 0;
 
-		$time = $this->getTime();
-
 		return file_put_contents($dest, json_encode(array(
 			'content_type' => $headers['content-type'],
 			'size' => $response['size'],
-			'time' => $time,
+			'time' => time(),
 			'body' => base64_encode($response['body']),
-		))) === false ? -1 : 1; 
+		))) === false ? -1 : 1;
 	}
 
 	/**
 	 * Static helper function to redirect a request
-	 * 
+	 *
 	 * @access public
 	 * @param type $request
 	 * @return void
@@ -228,24 +227,6 @@ class ProxyServer
 	{
 		header('Location: ' . $request, false, 301);
 		exit;
-	}
-
-	/**
-	 * Helper function to call time() once with the right logic
-	 * 
-	 * @return int
-	 */
-	protected function getTime()
-	{
-		if (empty($this->time))
-		{
-			$old_timezone = date_default_timezone_get();
-			date_default_timezone_set('GMT');
-			$this->time = time();
-			date_default_timezone_set($old_timezone);
-		}
-
-		return $this->time;
 	}
 
 	/**
@@ -260,7 +241,7 @@ class ProxyServer
 		if ($handle = opendir($path)) {
 
 			while (false !== ($file = readdir($handle)))
-			{ 
+			{
 				$filelastmodified = filemtime($path . $file);
 
 				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
@@ -270,7 +251,7 @@ class ProxyServer
 
 			}
 
-			closedir($handle); 
+			closedir($handle);
 		}
 	}
 }
