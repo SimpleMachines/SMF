@@ -2407,6 +2407,14 @@ dl {
 	width: 100%;
 	float: left;
 }
+
+/* Signature preview */
+
+#preview_signature, #preview_signature_display {
+	width: 100%;
+	overflow: hidden;
+}
+
 /* Issue a warning */
 #warn_body {
 	width: 100%;
