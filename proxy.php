@@ -47,7 +47,7 @@ class ProxyServer
 		global $image_proxy_enabled, $image_proxy_maxsize, $image_proxy_secret, $cachedir, $sourcedir;
 
 		require_once(dirname(__FILE__) . '/Settings.php');
-		require_once($sourcedir . '/Class-CurlFetchWeb.php');
+		require_once($sourcedir . '/Subs.php');
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -187,32 +187,37 @@ class ProxyServer
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
-		$curl_request = $curl->get_url_data($request);
-		$responseCode = $curl_request->result('code');
-		$response = $curl_request->result();
+		$ext = strtolower(pathinfo(parse_url($request, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-		if (empty($response) || $responseCode != 200)
-		{
+		$image = fetch_web_data($request);
+
+		// Looks like nobody was home
+		if (empty($image))
 			return -1;
-		}
 
-		$headers = $response['headers'];
+		// What kind of file did they give us?
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mime_type = finfo_buffer($finfo, $image);
+
+		// SVG needs a little extra care
+		if ($ext == 'svg' && $mime_type == 'text/plain')
+			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image
-		$contentParts = explode('/', !empty($headers['content-type']) ? $headers['content-type'] : '');
-		if ($contentParts[0] != 'image')
+		if (strpos($mime_type, 'image/') !== 0)
 			return -1;
 
 		// Validate the filesize
-		if ($response['size'] > ($this->maxSize * 1024))
+		$size = strlen($image);
+		if ($size > ($this->maxSize * 1024))
 			return 0;
 
+		// Cache it for later
 		return file_put_contents($dest, json_encode(array(
-			'content_type' => $headers['content-type'],
-			'size' => $response['size'],
+			'content_type' => $mime_type,
+			'size' => $size,
 			'time' => time(),
-			'body' => base64_encode($response['body']),
+			'body' => base64_encode($image),
 		))) === false ? -1 : 1;
 	}
 
