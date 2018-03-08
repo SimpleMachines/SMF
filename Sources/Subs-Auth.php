@@ -139,30 +139,28 @@ function setLoginCookie($cookie_length, $id, $password = '')
 /**
  * Sets Two Factor Auth cookie
  *
- * @param int $cookie_length How long the cookie should last, in minutes
+ * @param int $cookie_length How long the cookie should last, in seconds
  * @param int $id The ID of the member
  * @param string $secret Should be a salted secret using hash_salt
- * @param bool $preserve Whether to preserve the cookie for 30 days
  */
-function setTFACookie($cookie_length, $id, $secret, $preserve = false)
+function setTFACookie($cookie_length, $id, $secret)
 {
 	global $smcFunc, $modSettings, $cookiename;
+
+	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
 
 	$identifier = $cookiename . '_tfa';
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
-	if ($preserve)
-		$cookie_length = 81600 * 30;
-
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, time() + $cookie_length, $cookie_url[0], $cookie_url[1], $preserve), JSON_FORCE_OBJECT);
+	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, $expiry_time, $cookie_url[0], $cookie_url[1]), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], '');
 
 	$_COOKIE[$identifier] = $data;
 }
@@ -546,7 +544,7 @@ function RequestMembers()
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	if (function_exists('iconv'))
-		header('Content-Type: text/plain; charset=UTF-8');
+		header('content-type: text/plain; charset=UTF-8');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT real_name

@@ -680,7 +680,7 @@ function template_single_post($message)
 	// Some people don't want subject... The div is still required or quick edit breaks.
 	echo '
 								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '">
-									<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
+									', $message['link'], '
 								</div>';
 
 	echo '

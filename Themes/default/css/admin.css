@@ -626,7 +626,7 @@ h3.grid_header {
 	margin: 0 5px 0 0;
 }
 #error_log .error_info {
-	float: left;
+	float: right;
 	width: 50%;
 	line-height: 1.8em;
 	padding: 0 4px 4px 4px;

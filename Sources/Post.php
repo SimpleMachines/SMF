@@ -63,7 +63,7 @@ function Post($post_errors = array())
 
 		$boards = boardsAllowedTo($post_permissions);
 		if (empty($boards))
-			fatal_lang_error('cannot_post_new', 'user');
+			fatal_lang_error('cannot_post_new', false);
 
 		// Get a list of boards for the select menu
 		require_once($sourcedir . '/Subs-MessageIndex.php');
@@ -163,7 +163,7 @@ function Post($post_errors = array())
 		$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
 		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = empty(allowedTo('approve_posts')) ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
@@ -193,7 +193,7 @@ function Post($post_errors = array())
 		$context['can_sticky'] = allowedTo('make_sticky', $boards, true);
 		$context['can_move'] = allowedTo('move_any', $boards, true);
 		$context['can_announce'] = allowedTo('announce_topic', $boards, true) && $context['becomes_approved'];
-		$context['show_approval'] = empty(allowedTo('approve_posts', $boards, true)) ? 0 : ($context['becomes_approved'] ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts', $boards, true) ? 0 : ($context['becomes_approved'] ? 2 : 1);
 	}
 
 	$context['notify'] = !empty($context['notify']);
@@ -1351,7 +1351,7 @@ function Post($post_errors = array())
 
 			foreach ($category['boards'] as $brd)
 				$context['posting_fields']['board']['dd'] .= '
-								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==' . $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
+								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
 
 			$context['posting_fields']['board']['dd'] .= '
 							</optgroup>';
@@ -1773,7 +1773,8 @@ function Post2()
 	// In case we have approval permissions and want to override.
 	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
 	{
-		$becomesApproved = !empty($_REQUEST['approve']) ? 1 : 0;
+		// If 'approve' wasn't specified, assume true for these users
+		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
 

@@ -495,16 +495,18 @@ function loadUserSettings()
 				{
 					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
-					list ($tfamember, $tfasecret) = $tfa_data;
+					list ($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
 
 					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
 				}
 
+				// They didn't finish logging in before coming here? Then they're no one to us.
 				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
 				{
+					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
-					redirectexit('action=logintfa');
+					$user_settings = array();
 				}
 			}
 		}
@@ -649,9 +651,9 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $domain, $path, $preserve) = $tfa_data;
+			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
 
-			if (!isset($id, $user, $exp, $domain, $path, $preserve) || !$preserve || time() > $exp)
+			if (time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
@@ -2139,13 +2141,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css', array('minimize' => true), 'smf_index');
+	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true), 'smf_responsive');
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array(), 'smf_rtl');
+		loadCSSFile('rtl.css', array('order_pos' => 200), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2168,9 +2170,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 300), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 400), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2428,18 +2430,23 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index.css = -500, after index.css = 500, middle = 3000, end (i.e. after responsive.css) = 10000
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
+	if (empty($context['css_files_order']))
+		$context['css_files_order'] = array();
+
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
-	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
+	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2463,7 +2470,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			}
 
 			else
+			{
 				$fileUrl = false;
+				$filePath = false;
+			}
 		}
 
 		else
@@ -2482,7 +2492,14 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
+	{
+		// find a free number/position
+		while (isset($context['css_files_order'][$params['order_pos']]))
+			$params['order_pos']++;
+		$context['css_files_order'][$params['order_pos']] = $id;
+
 		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+	}
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -3056,12 +3073,12 @@ function template_include($filename, $once = false)
 			ob_start();
 
 		if (isset($_GET['debug']))
-			header('Content-Type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// Don't cache error pages!!
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('Cache-Control: no-cache');
+		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('cache-control: no-cache');
 
 		if (!isset($txt['template_parse_error']))
 		{

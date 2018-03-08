@@ -215,33 +215,6 @@ $txt['error_db_filename_exists'] = 'The database that you are trying to create e
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
 $txt['error_utf8_support'] = 'The database you are trying to use is not using UTF8 charset';
 
-$txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
-$txt['upgrade_warning'] = 'Warning!';
-$txt['upgrade_critical_error'] = 'Critical Error!';
-$txt['upgrade_continue'] = 'Continue';
-$txt['upgrade_skip'] = 'Skip';
-$txt['upgrade_note'] = 'Note!';
-$txt['upgrade_step'] = 'Step';
-$txt['upgrade_steps'] = 'Steps';
-$txt['upgrade_progress'] = 'Progress';
-$txt['upgrade_overall_progress'] = 'Overall Progress';
-$txt['upgrade_step_progress'] = 'Step Progress';
-$txt['upgrade_time_elapsed'] = 'Time Elapsed';
-$txt['upgrade_time_mins'] = 'mins';
-$txt['upgrade_time_secs'] = 'seconds';
-
-$txt['upgrade_incomplete'] = 'Incomplete';
-$txt['upgrade_not_quite_done'] = 'Not quite done yet!';
-$txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloading your server. Don\'t worry, nothing\'s wrong - simply click the <label for="contbutt">continue button</label> below to keep going.';
-
-$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place, and we\'re ready to proceed.';
-
-$txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="https://www.simplemachines.org">Simple Machines Website</a>';
-
-$txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
-$txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="https://www.simplemachines.org">Simple Machines</a> website to ensure you are upgrading to the latest version.';
-
-$txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
 $txt['ftp_login'] = 'Your FTP connection information';
 $txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you. Please note that none of this information is saved in your installation, it is just used to setup SMF.';
 $txt['ftp_server'] = 'Server';
@@ -260,8 +233,113 @@ $txt['ftp_connect'] = 'Connect';
 
 $txt['force_ssl'] = 'Enable SSL';
 $txt['force_ssl_label'] = 'Force SSL throughout the forum';
-$txt['force_ssl_info'] = '<strong>Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible</strong>';
+$txt['force_ssl_info'] = 'Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible';
 
 $txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+
+// The upgrader needs text strings too!
+$txt['upgrade_step_login'] = 'Login';
+$txt['upgrade_step_options'] = 'Upgrade Options';
+$txt['upgrade_step_backup'] = 'Backup';
+$txt['upgrade_step_database'] = 'Database Changes';
+$txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
+$txt['upgrade_step_convertjson'] = 'Convert serialized strings to JSON';
+$txt['upgrade_step_delete'] = 'Delete Upgrade.php';
+
+$txt['upgrade_upgrade_utility'] = 'SMF Upgrade Utility';
+$txt['upgrade_warning'] = 'Warning!';
+$txt['upgrade_critical_error'] = 'Critical Error!';
+$txt['upgrade_continue'] = 'Continue';
+$txt['upgrade_skip'] = 'Skip';
+$txt['upgrade_note'] = 'Note!';
+$txt['upgrade_step'] = 'Step';
+$txt['upgrade_steps'] = 'Steps';
+$txt['upgrade_progress'] = 'Progress';
+$txt['upgrade_overall_progress'] = 'Overall Progress';
+$txt['upgrade_step_progress'] = 'Step Progress';
+$txt['upgrade_time_elapsed'] = 'Time Elapsed';
+$txt['upgrade_time_mins'] = 'mins';
+$txt['upgrade_time_secs'] = 'seconds';
+$txt['upgrade_username'] = 'Username:';
+$txt['upgrade_wrong_username'] = 'Username Incorrect';
+$txt['upgrade_password'] = 'Password:';
+$txt['upgrade_wrong_password'] = 'Password Incorrect';
+
+$txt['upgrade_wait'] = 'Please wait while a backup is created. For large forums this may take some time!';
+$txt['upgrade_wait2'] = 'Please wait while your database is converted to UTF-8. For large forums this may take some time!';
+$txt['upgrade_sec_login'] = 'For security purposes please login with your admin account to proceed with the upgrade.';
+$txt['upgrade_incomplete'] = 'Incomplete';
+$txt['upgrade_not_quite_done'] = 'Not quite done yet!';
+$txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloading your server. Don\'t worry, nothing\'s wrong - simply click the <label for="contbutt">continue button</label> below to keep going.';
+$txt['upgrade_continue_step'] = 'Continue from step reached during last execution of upgrade script.';
+$txt['upgrade_bypass'] = '<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.';
+$txt['upgrade_areyouready'] = 'Before the upgrade gets underway please review the options below - and hit continue when you\'re ready to begin.';
+$txt['upgrade_backup_table'] = 'Backup tables in your database with the prefix';
+$txt['upgrade_recommended'] = 'recommended!';
+$txt['upgrade_maintenace'] = 'Put the forum into maintenance mode during upgrade.';
+$txt['upgrade_maintenance_title'] = 'Maintenace Title:';
+$txt['upgrade_maintenace_message'] = 'Maintenance Message:';
+$txt['upgrade_customize'] = 'Customize';
+$txt['upgrade_debug_info'] = 'Output extra debugging information';
+$txt['upgrade_empty_errlog'] = 'Empty error log before upgrading';
+$txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
+$txt['upgrade_stats_collection'] = 'Allow Simple Machines to Collect Basic Stats Monthly.';
+$txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
+$txt['upgrade_db_changes'] = 'Executing database changes';
+$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
+$txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
+$txt['upgrade_db_complete2'] = 'Database Updates Complete! Click Continue to Proceed.';
+$txt['upgrade_script'] = 'Executing upgrade script';
+$txt['upgrade_error'] = 'Error!';
+$txt['upgrade_unknown_error'] = 'Unknown Error!';
+/* Same sentence, 3 different strings */
+$txt['upgrade_completed'] = 'Completed';
+$txt['upgrade_outof'] = 'out of';
+$txt['upgrade_tables'] = 'tables.';
+
+$txt['upgrade_run_script'] = 'We recommend that you do not run this script unless you are sure that';
+$txt['upgrade_run_script2'] = 'has completed their upgrade.';
+$txt['upgrade_run'] = 'You can choose to either run the upgrade again from the beginning - or alternatively continue from the last step reached during the last upgrade.';
+
+$txt['upgrade_completed_table'] = 'Completed Table:';
+$txt['upgrade_current_table'] = 'Current Table:';
+$txt['upgrade_fulltext'] = 'Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.';
+$txt['upgrade_conversion_proceed'] = 'Conversion Complete! Click Continue to Proceed.';
+$txt['upgrade_convert_datajson'] = 'Converting data from serialize to JSON...';
+$txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Proceed.';
+$txt['upgrade_executing'] = 'Executing:';
+$txt['upgrade_of'] = 'of';
+$txt['upgrade_admin_login'] = 'Admin Login:';
+/* Same sentence, 3 different strings */
+$txt['upgrade_done'] = 'That wasn\'t so hard, was it?  Now you are ready to use';
+$txt['upgrade_done2'] = 'your installation of SMF';
+$txt['upgrade_done3'] = 'Hope you like it!';
+
+$txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
+$txt['upgrade_delete_server'] = '(doesn\'t work on all servers).';
+$txt['upgrade_completed_time'] = 'Upgrade completed in';
+$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="%1$s">look to us for assistance</a>..';
+$txt['upgrade_luck'] = 'Best of luck,';
+
+$txt['upgrade_ftp_login'] = 'Your FTP connection information';
+$txt['upgrade_ftp_perms'] = 'The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.';
+$txt['upgrade_ftp_warning'] = 'Warning';
+$txt['upgrade_ftp_files'] = 'The following files needs to be made writable to continue:';
+$txt['upgrade_ftp_shell'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+$txt['upgrade_ftp_error'] = 'The following error was encountered when trying to connect:';
+
+$txt['upgrade_ready_proceed'] = 'Thank you for choosing to upgrade to SMF %1$s. All files appear to be in place, and we\'re ready to proceed.';
+$txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or it is out of date. Make sure your theme paths are correct. You can download a setting checker tool from the <a href="%1$s">Simple Machines Website</a>';
+$txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
+$txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="%2$s">Simple Machines Website</a> to ensure you are upgrading to the latest version.';
+
+// Page titles
+$txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
+$txt['upgrade_options'] = 'Upgrade Options';
+$txt['backup_database'] = 'Backup Database';
+$txt['database_changes'] = 'Database Changes';
+$txt['upgrade_complete'] = 'Upgrade Complete';
+$txt['converting_utf8'] = 'Converting to UTF8';
+$txt['converting_json'] = 'Converting to JSON';
 
 ?>

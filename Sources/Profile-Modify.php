@@ -167,7 +167,7 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. $cur_profile['email_address'] . '")
+		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
 			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
@@ -1814,6 +1814,9 @@ function theme($memID)
 
 	loadTemplate('Settings');
 	loadSubTemplate('options');
+
+	// Let mods hook into the theme options.
+	call_integration_hook('integrate_theme_options');
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))

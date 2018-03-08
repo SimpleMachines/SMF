@@ -37,6 +37,9 @@ class ProxyServer
 	/** @var int $maxDays until enties get deleted */
 	protected $maxDays;
 
+	/** @var int time() value */
+	protected $time;
+
 	/**
 	 * Constructor, loads up the Settings for the proxy
 	 *
@@ -48,8 +51,6 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Class-CurlFetchWeb.php');
-		require_once($sourcedir . '/Subs.php');
-
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -77,7 +78,7 @@ class ProxyServer
 			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
 				return false;
 
-		if (empty($_GET['hash']) || empty($_GET['request']))
+		if (empty($_GET['hash']) || empty($_GET['request']) || ($_GET['request'] === "http:") || ($_GET['request'] === "https:"))
 			return false;
 
 		$hash = $_GET['hash'];
@@ -107,11 +108,19 @@ class ProxyServer
 
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
-		if (!$response) {
+		if ($response === -1)
+		{
 			// Throw a 404
 			header('HTTP/1.0 404 Not Found');
 			exit;
 		}
+		// Right, image not cached? Simply redirect, then.
+		if ($response === 0)
+		{
+			$this::redirectexit($request);
+		}
+
+		$time = $this->getTime();
 
 		// Is the cache expired?
 		if (!$cached || time() - $cached['time'] > ($this->maxDays * 86400))
@@ -119,20 +128,27 @@ class ProxyServer
 			@unlink($cached_file);
 			if ($this->checkRequest())
 				$this->serve();
-			redirectexit($request);
+			$this::redirectexit($request);
 		}
 
-		// Right, image not cached? Simply redirect, then.
-		if (!$response)
-		    redirectexit($request);
+		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
+		{
+			header('HTTP/1.1 304 Not Modified');
+			exit;
+		}
 
 		// Make sure we're serving an image
 		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
 		if ($contentParts[0] != 'image')
 			exit;
 
-		header('Content-type: ' . $cached['content_type']);
-		header('Content-length: ' . $cached['size']);
+		$max_age = $time - $cached['time'] + (5 * 86400);
+		header('content-type: ' . $cached['content_type']);
+		header('content-length: ' . $cached['size']);
+		header('cache-control: public, max-age=' . $max_age );
+		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' GMT');
+		header('etag: ' . $eTag);
 		echo base64_decode($cached['body']);
 	}
 
@@ -165,22 +181,19 @@ class ProxyServer
 	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return bool|int Whether the specified image was cached or error code when accessing
+	 * @return int -1 error, 0 too big, 1 valid image
 	 */
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-
 		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
-		$request = $curl->get_url_data($request);
-		$responseCode = $request->result('code');
-		$response = $request->result();
+		$curl_request = $curl->get_url_data($request);
+		$responseCode = $curl_request->result('code');
+		$response = $curl_request->result();
 
-		if (empty($response))
-			return false;
-
-		if ($responseCode != 200) {
-			return false;
+		if (empty($response) || $responseCode != 200)
+		{
+			return -1;
 		}
 
 		$headers = $response['headers'];
@@ -188,18 +201,51 @@ class ProxyServer
 		// Make sure the url is returning an image
 		$contentParts = explode('/', !empty($headers['content-type']) ? $headers['content-type'] : '');
 		if ($contentParts[0] != 'image')
-			return false;
+			return -1;
 
 		// Validate the filesize
 		if ($response['size'] > ($this->maxSize * 1024))
-			return false;
+			return 0;
+
+		$time = $this->getTime();
 
 		return file_put_contents($dest, json_encode(array(
 			'content_type' => $headers['content-type'],
 			'size' => $response['size'],
-			'time' => time(),
+			'time' => $time,
 			'body' => base64_encode($response['body']),
-		))) === false ? 1 : null;
+		))) === false ? -1 : 1; 
+	}
+
+	/**
+	 * Static helper function to redirect a request
+	 * 
+	 * @access public
+	 * @param type $request
+	 * @return void
+	 */
+	static public function redirectexit($request)
+	{
+		header('Location: ' . $request, false, 301);
+		exit;
+	}
+
+	/**
+	 * Helper function to call time() once with the right logic
+	 * 
+	 * @return int
+	 */
+	protected function getTime()
+	{
+		if (empty($this->time))
+		{
+			$old_timezone = date_default_timezone_get();
+			date_default_timezone_set('GMT');
+			$this->time = time();
+			date_default_timezone_set($old_timezone);
+		}
+
+		return $this->time;
 	}
 
 	/**

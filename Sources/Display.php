@@ -864,7 +864,7 @@ function Display()
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $context['topicinfo']['id_last_msg'];
 		}
 	}
 	// Special case start page
@@ -880,6 +880,7 @@ function Display()
 
 	$messages = array();
 	$all_posters = array();
+	$firstIndex = 0;
 
 	if (isset($start_char))
 	{
@@ -958,7 +959,6 @@ function Display()
 	if (empty($start_char))
 	{
 		// Calculate the fastest way to get the messages!
-		$firstIndex = 0;
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
 			$ascending = !$ascending;
@@ -998,7 +998,7 @@ function Display()
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $messages[0];
+	$_SESSION['page_first_id'] = array_values($messages)[0];
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
 	$_SESSION['page_last_id'] = end($messages);
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
@@ -1587,7 +1587,7 @@ function prepareDisplayContext($reset = false)
 	$output = array(
 		'attachment' => loadAttachmentContext($message['id_msg'], $context['loaded_attachments']),
 		'id' => $message['id_msg'],
-		'href' => $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'],
+		'href' => $scripturl . '?msg=' . $message['id_msg'],
 		'link' => '<a href="' . $scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
