@@ -2048,6 +2048,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function ($matches) {
 							$url = array_shift($matches);
 
+							// If this isn't a clean URL, bail out
+							if ($url != sanitize_iri($url))
+								return $url;
+
 							$scheme = parse_url($url, PHP_URL_SCHEME);
 
 							if ($scheme == 'mailto')
@@ -2064,6 +2068,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								$fullUrl = '//' . ltrim($url, ':/');
 							else
 								$fullUrl = $url;
+
+							// Make sure that $fullUrl really is valid
+							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '' ) . $fullUrl) === false)
+								return $url;
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 						}, $data);
