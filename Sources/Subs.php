@@ -3221,11 +3221,11 @@ function setupThemeContext($forceload = false)
 	// Add max image limits
 	if (!empty($modSettings['max_image_width']))
 		addInlineCss('
-	.bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
 
 	if (!empty($modSettings['max_image_height']))
 		addInlineCss('
-	.bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
+	.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
