@@ -396,6 +396,15 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
+.postarea .bbc_img:hover {
+	cursor: pointer;
+}
+.bbc_img.original_size {
+	height: auto !important;
+	width: auto !important;
+	max-height: none;
+	max-width: 100%;
+}
 /* No image should have a border when linked. */
 a img {
 	border: 0;
