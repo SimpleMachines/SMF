@@ -15,6 +15,8 @@
 
 define('SMF', 'proxy');
 
+global $proxyhousekeeping;
+
 /**
  * Class ProxyServer
  */
@@ -31,6 +33,9 @@ class ProxyServer
 
 	/** @var string The cache directory */
 	protected $cache;
+	
+	/** @var int $maxDays until enties get deleted */
+	protected $maxDays;
 
 	/** @var int time() value */
 	protected $time;
@@ -54,6 +59,7 @@ class ProxyServer
 		$this->maxSize = (int) $image_proxy_maxsize;
 		$this->secret = (string) $image_proxy_secret;
 		$this->cache = $cachedir . '/images';
+		$this->maxDays = 5;
 	}
 
 	/**
@@ -117,7 +123,7 @@ class ProxyServer
 		$time = $this->getTime();
 
 		// Is the cache expired?
-		if (!$cached || $time - $cached['time'] > (5 * 86400))
+		if (!$cached || time() - $cached['time'] > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
@@ -241,9 +247,38 @@ class ProxyServer
 
 		return $this->time;
 	}
+
+	/**
+	 * Delete all old entries
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function housekeeping()
+	{
+		$path = $this->cache . '/';
+		if ($handle = opendir($path)) {
+
+			while (false !== ($file = readdir($handle)))
+			{ 
+				$filelastmodified = filemtime($path . $file);
+
+				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
+				{
+				   unlink($path . $file);
+				}
+
+			}
+
+			closedir($handle); 
+		}
+	}
 }
 
-$proxy = new ProxyServer();
-$proxy->serve();
+if (empty($proxyhousekeeping))
+{
+	$proxy = new ProxyServer();
+	$proxy->serve();
+}
 
 ?>

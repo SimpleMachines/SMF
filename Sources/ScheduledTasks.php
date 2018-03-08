@@ -378,7 +378,7 @@ function scheduled_approval_notification()
  */
 function scheduled_daily_maintenance()
 {
-	global $smcFunc, $modSettings, $sourcedir, $db_type;
+	global $smcFunc, $modSettings, $sourcedir, $db_type, $image_proxy_enabled;
 
 	// First clean out the cache.
 	clean_cache();
@@ -457,6 +457,19 @@ function scheduled_daily_maintenance()
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
+
+	// Run Imageproxy housekeeping
+	if (!empty($image_proxy_enabled))
+	{
+		global $proxyhousekeeping;
+		$proxyhousekeeping = true;
+
+		require_once(dirname(__FILE__) . '/proxy.php');
+		$proxy = new ProxyServer();
+		$proxy->housekeeping();
+
+		unset($proxyhousekeeping);
+	}
 
 	// Log we've done it...
 	return true;
