@@ -25,8 +25,7 @@
 	margin-bottom: 0;
 }
 a.help span {
-	margin: -4px 0 0 0;
-	padding: 0 4px 0 0;
+	margin-right: 2px;
 }
 .table_caption, tr.table_caption td {
 	color: #000;

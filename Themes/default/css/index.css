@@ -591,10 +591,6 @@ dl.settings img {
 	margin: 0 10px 0 0;
 	vertical-align: middle;
 }
-/* help icons */
-dl.settings dt a span {
-	vertical-align: top;
-}
 
 /* a general table class */
 table.table_grid {
