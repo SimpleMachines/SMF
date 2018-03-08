@@ -164,17 +164,12 @@ function template_summary()
 					<li>' . $field['output_html'] . '</li>';
 
 		if (!empty($fields))
-		{
 			echo '
 			<div class="custom_fields_above_name">
-				<ul>';
-			echo $fields;
-			echo '
+				<ul>', $fields, '
 				</ul>
 			</div>
 			<br>';
-		}
-
 	}
 
 	echo '
@@ -206,16 +201,16 @@ function template_summary()
 	// Are there any custom profile fields for below the avatar?
 	if (!empty($context['print_custom_fields']['below_avatar']))
 	{
-		echo '
-			<div class="custom_fields_below_avatar">
-				<ul>';
-
+		$fields = '';
 		foreach ($context['print_custom_fields']['below_avatar'] as $field)
 			if (!empty($field['output_html']))
-				echo '
-					<li>', $field['output_html'], '</li>';
+				$fields .= '
+					<li>' . $field['output_html'] . '</li>';
 
-		echo '
+		if (!empty($fields))
+			echo '
+			<div class="custom_fields_below_avatar">
+				<ul>', $fields, '
 				</ul>
 			</div>
 			<br>';
@@ -274,18 +269,19 @@ function template_summary()
 	// Are there any custom profile fields for bottom?
 	if (!empty($context['print_custom_fields']['bottom_poster']))
 	{
-		echo '
-			<div class="custom_fields_bottom">
-				<ul class="nolist">';
-
+		$fields = '';
 		foreach ($context['print_custom_fields']['bottom_poster'] as $field)
 			if (!empty($field['output_html']))
-				echo '
-					<li>', $field['output_html'], '</li>';
+				$fields .= '
+					<li>' . $field['output_html'] . '</li>';
 
-		echo '
+		if (!empty($fields))
+			echo '
+			<div class="custom_fields_bottom">
+				<ul class="nolist">', $fields, '
 				</ul>
-			</div>';
+			</div>
+			<br>';
 	}
 
 	echo '
@@ -440,16 +436,16 @@ function template_summary()
 	// Are there any custom profile fields for above the signature?
 	if (!empty($context['print_custom_fields']['above_signature']))
 	{
-		echo '
-			<div class="custom_fields_above_signature">
-				<ul class="nolist">';
-
+		$fields = '';
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
 				echo '
 					<li>', $field['output_html'], '</li>';
 
-		echo '
+		if (!empty($fields))
+			echo '
+			<div class="custom_fields_above_signature">
+				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
 	}
@@ -465,16 +461,16 @@ function template_summary()
 	// Are there any custom profile fields for below the signature?
 	if (!empty($context['print_custom_fields']['below_signature']))
 	{
-		echo '
-			<div class="custom_fields_below_signature">
-				<ul class="nolist">';
-
+		$fields = '';
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
 				echo '
 					<li>', $field['output_html'], '</li>';
 
-		echo '
+		if (!empty($fields))
+			echo '
+			<div class="custom_fields_below_signature">
+				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
 	}
