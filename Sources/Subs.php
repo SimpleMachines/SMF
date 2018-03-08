@@ -1413,7 +1413,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info, $image_proxy_url;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1426,7 +1426,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
+								$data = $image_proxy_url . urlencode($data);
+							else
+								$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -1439,7 +1442,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $image_proxy_url, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1452,7 +1455,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
+								$data = $image_proxy_url . urlencode($data);
+							else
+								$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
