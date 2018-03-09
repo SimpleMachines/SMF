@@ -1448,10 +1448,10 @@ function loadLocale()
 	$file_data = '(function ($) {
 	\'use strict\';
 
-	$.sceditor.locale[' . javaScriptEscape($txt['lang_locale']) . '] = {';
+	$.sceditor.locale[' . JavaScriptEscape($txt['lang_locale']) . '] = {';
 	foreach ($editortxt as $key => $val)
 		$file_data .= '
-		' . javaScriptEscape($key) . ': ' . javaScriptEscape($val) . ',';
+		' . JavaScriptEscape($key) . ': ' . JavaScriptEscape($val) . ',';
 
 	$file_data .= '
 		dateFormat: "day.month.year"
@@ -1568,6 +1568,7 @@ function create_control_richedit($editorOptions)
 
 	// Load the Post language file... for the moment at least.
 	loadLanguage('Post');
+	loadLanguage('Editor');
 
 	// Every control must have a ID!
 	assert(isset($editorOptions['id']));
@@ -1648,100 +1649,135 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $editortxt['bold'],
+				'description' => $editortxt['Bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $editortxt['italic'],
+				'description' => $editortxt['Italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $editortxt['underline']
+				'description' => $editortxt['Underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $editortxt['strike']
+				'description' => $editortxt['Strikethrough']
+			),
+			array(
+				'code' => 'superscript',
+				'description' => $editortxt['Superscript']
+			),
+			array(
+				'code' => 'subscript',
+				'description' => $editortxt['Subscript']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $editortxt['preformatted']
+				'description' => $editortxt['Preformatted Text']
 			),
 			array(
 				'code' => 'left',
-				'description' => $editortxt['left_align']
+				'description' => $editortxt['Align left']
 			),
 			array(
 				'code' => 'center',
-				'description' => $editortxt['center']
+				'description' => $editortxt['Center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $editortxt['right_align']
+				'description' => $editortxt['Align right']
+			),
+			array(
+				'code' => 'justify',
+				'description' => $editortxt['Justify']
+			),
+			array(),
+			array(
+				'code' => 'font',
+				'description' => $editortxt['Font Name']
+			),
+			array(
+				'code' => 'size',
+				'description' => $editortxt['Font Size']
+			),
+			array(
+				'code' => 'color',
+				'description' => $editortxt['Font Color']
 			),
 		);
+		if (empty($modSettings['disable_wysiwyg']))
+		{
+			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
+				'code' => 'removeformat',
+				'description' => $editortxt['Remove Formatting'],
+			);
+		}
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
-				'description' => $editortxt['float_left']
+				'description' => $editortxt['Float left']
 			),
 			array(
 				'code' => 'floatright',
-				'description' => $editortxt['float_right']
+				'description' => $editortxt['Float right']
 			),
 			array(),
 			array(
 				'code' => 'flash',
-				'description' => $editortxt['flash']
+				'description' => $editortxt['Flash']
 			),
 			array(
 				'code' => 'image',
-				'description' => $editortxt['image']
+				'description' => $editortxt['Insert an image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $editortxt['hyperlink']
+				'description' => $editortxt['Insert a link']
 			),
 			array(
 				'code' => 'email',
-				'description' => $editortxt['insert_email']
-			),
-			array(),
-			array(
-				'code' => 'superscript',
-				'description' => $editortxt['superscript']
-			),
-			array(
-				'code' => 'subscript',
-				'description' => $editortxt['subscript']
+				'description' => $editortxt['Insert an email']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $editortxt['table']
+				'description' => $editortxt['Insert a table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $editortxt['bbc_code']
+				'description' => $editortxt['Code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $editortxt['bbc_quote']
+				'description' => $editortxt['Insert a Quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $editortxt['list_unordered']
+				'description' => $editortxt['Bullet list']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $editortxt['list_ordered']
+				'description' => $editortxt['Numbered list']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $editortxt['horizontal_rule']
+				'description' => $editortxt['Insert a horizontal rule']
+			),
+			array(),
+			array(
+				'code' => 'maximize',
+				'description' => $editortxt['Maximize']
 			),
 		);
+		if (empty($modSettings['disable_wysiwyg']))
+		{
+			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
+				'code' => 'source',
+				'description' => $editortxt['View source'],
+			);
+		}
 
 		$editor_tag_map = array(
 			'b' => 'bold',
@@ -1756,22 +1792,8 @@ function create_control_richedit($editorOptions)
 		);
 
 		// Allow mods to modify BBC buttons.
-		// Note: pass the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
+		// Note: passing the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$editor_tag_map));
-
-		// Show the toggle?
-		if (empty($modSettings['disable_wysiwyg']))
-		{
-			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array();
-			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
-				'code' => 'unformat',
-				'description' => $editortxt['unformat_text'],
-			);
-			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
-				'code' => 'toggle',
-				'description' => $editortxt['toggle_view'],
-			);
-		}
 
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_tags = array();
@@ -1782,6 +1804,8 @@ function create_control_richedit($editorOptions)
 
 		foreach ($disabled_tags as $tag)
 		{
+			$tag = trim($tag);
+
 			if ($tag === 'list')
 			{
 				$context['disabled_tags']['bulletlist'] = true;
@@ -1792,40 +1816,52 @@ function create_control_richedit($editorOptions)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
 
-			$context['disabled_tags'][trim($tag)] = true;
+			$context['disabled_tags'][$tag] = true;
 		}
 
 		$bbcodes_styles = '';
 		$context['bbcodes_handlers'] = '';
 		$context['bbc_toolbar'] = array();
+
 		foreach ($context['bbc_tags'] as $row => $tagRow)
 		{
 			if (!isset($context['bbc_toolbar'][$row]))
 				$context['bbc_toolbar'][$row] = array();
+
 			$tagsRow = array();
+
 			foreach ($tagRow as $tag)
 			{
 				if ((!empty($tag['code'])) && empty($context['disabled_tags'][$tag['code']]))
 				{
 					$tagsRow[] = $tag['code'];
+
+					// If we have a custom button image, set it now.
 					if (isset($tag['image']))
+					{
 						$bbcodes_styles .= '
-			.sceditor-button-' . $tag['code'] . ' div {
-				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
-			}';
+						.sceditor-button-' . $tag['code'] . ' div {
+							background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
+						}';
+					}
+
+					// Set the tooltip and possibly the command info
+					$context['bbcodes_handlers'] .= '
+						sceditor.command.set(' . JavaScriptEscape($tag['code']) . ', {
+							tooltip: ' . JavaScriptEscape($tag['description']);
+
 					if (isset($tag['before']))
 					{
 						$context['bbcodes_handlers'] .= '
-				$.sceditor.command.set(
-					' . javaScriptEscape($tag['code']) . ', {
-					exec: function () {
-						this.wysiwygEditorInsertHtml(' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ');
-					},
-					txtExec: [' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . '],
-					tooltip: ' . javaScriptEscape($tag['description']) . '
-				});';
+							exec: function () {
+								this.insert(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
+							},
+							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . '],
+							';
 					}
 
+					$context['bbcodes_handlers'] .= '
+						});';
 				}
 				else
 				{
@@ -1834,35 +1870,12 @@ function create_control_richedit($editorOptions)
 				}
 			}
 
-			if ($row == 0)
-			{
-				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
-				$tagsRow = array();
-				if (!isset($context['disabled_tags']['font']))
-					$tagsRow[] = 'font';
-				if (!isset($context['disabled_tags']['size']))
-					$tagsRow[] = 'size';
-				if (!isset($context['disabled_tags']['color']))
-					$tagsRow[] = 'color';
-			}
-			elseif ($row == 1 && empty($modSettings['disable_wysiwyg']))
-			{
-				$tmp = array();
-				$tagsRow[] = 'removeformat';
-				$tagsRow[] = 'source';
-				if (!empty($tmp))
-				{
-					$tagsRow[] = '|' . implode(',', $tmp);
-				}
-			}
-
 			if (!empty($tagsRow))
 				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
 		}
+
 		if (!empty($bbcodes_styles))
-			$context['html_headers'] .= '
-		<style>' . $bbcodes_styles . '
-		</style>';
+			addInlineCss($bbcodes_styles);
 	}
 
 	// Initialize smiley array... if not loaded before.

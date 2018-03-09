@@ -166,7 +166,6 @@
 
 sceditor.command.set(
 	'pre', {
-		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<pre>', '</pre>');
@@ -267,7 +266,6 @@ sceditor.command.set(
 
 sceditor.command.set(
 	'floatleft', {
-		tooltip: 'Float left',
 		txtExec: ["[float=left max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
@@ -277,7 +275,6 @@ sceditor.command.set(
 
 sceditor.command.set(
 	'floatright', {
-		tooltip: 'Float right',
 		txtExec: ["[float=right max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
