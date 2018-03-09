@@ -447,7 +447,7 @@ function loadUserSettings()
 
 			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-					$user_settings['avatar'] = $image_proxy_url . urlencode($user_settings['avatar']);
+					$user_settings['avatar'] = $image_proxy_url . $user_settings['avatar'];
 				else
 					$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
 
@@ -1276,7 +1276,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			// Take care of proxying avatar if required, do this here for maximum reach
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-					$row['avatar'] = $image_proxy_url . urlencode($row['avatar']);
+					$row['avatar'] = $image_proxy_url . $row['avatar'];
 				else
 					$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
@@ -3550,7 +3550,7 @@ function set_avatar_data($data = array())
 				// Using ssl?
 				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 					if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-						$image = $image_proxy_url . urlencode($data['avatar']);
+						$image = $image_proxy_url . $data['avatar'];
 					else
 						$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
 

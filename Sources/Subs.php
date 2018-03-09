@@ -1427,7 +1427,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						if ($scheme != 'https')
 							if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-								$data = $image_proxy_url . urlencode($data);
+								$data = $image_proxy_url . $data;
 							else
 								$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 					}
@@ -1456,7 +1456,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						if ($scheme != 'https')
 							if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-								$data = $image_proxy_url . urlencode($data);
+								$data = $image_proxy_url . $data;
 							else
 								$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 					}
