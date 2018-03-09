@@ -556,10 +556,14 @@ dl.themes_list {
 }
 dl.themes_list dt {
 	margin-bottom: 3px;
+	width: 40%;
 }
 dl.themes_list dd {
+	width: 59%;
 	font-style: italic;
 	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 /* Generic boxes/textboxes requires to be full-width */
