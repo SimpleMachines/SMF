@@ -439,7 +439,7 @@ function template_summary()
 		$fields = '';
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
-				echo '
+				$fields .= '
 					<li>', $field['output_html'], '</li>';
 
 		if (!empty($fields))
@@ -464,7 +464,7 @@ function template_summary()
 		$fields = '';
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
-				echo '
+				$fields .=  '
 					<li>', $field['output_html'], '</li>';
 
 		if (!empty($fields))
