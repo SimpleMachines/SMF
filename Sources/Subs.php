@@ -4782,9 +4782,11 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
 
-	// An FTP url. We should try connecting and RETRieving it...
+	// No scheme? No data for you!
 	if (empty($match[1]))
 		return false;
+
+	// An FTP url. We should try connecting and RETRieving it...
 	elseif ($match[1] == 'ftp')
 	{
 		// Include the file containing the ftp_connection class.
@@ -4815,118 +4817,125 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		$ftp->check_response(226);
 		$ftp->close();
 	}
-	// More likely a standard HTTP URL, first try to use cURL if available
-	elseif (isset($match[1]) && $match[1] === 'http' && function_exists('curl_init'))
-	{
-		// Include the file containing the curl_fetch_web_data class.
-		require_once($sourcedir . '/Class-CurlFetchWeb.php');
 
-		$fetch_data = new curl_fetch_web_data();
-		$fetch_data->get_url_data($url, $post_data);
-
-		// no errors and a 200 result, then we have a good dataset, well we at least have data ;)
-		if ($fetch_data->result('code') == 200 && !$fetch_data->result('error'))
-			$data = $fetch_data->result('body');
-		else
-			return false;
-	}
 	// This is more likely; a standard HTTP URL.
 	elseif (isset($match[1]) && $match[1] == 'http')
 	{
+		// First try to use fsockopen, because it is fastest.
 		if ($keep_alive && $match[3] == $keep_alive_dom)
 			$fp = $keep_alive_fp;
 		if (empty($fp))
 		{
 			// Open the socket on the port we want...
 			$fp = @fsockopen(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5], $err, $err, 5);
-			if (!$fp)
+		}
+		if (!empty($fp))
+		{
+			if ($keep_alive)
+			{
+				$keep_alive_dom = $match[3];
+				$keep_alive_fp = $fp;
+			}
+
+			// I want this, from there, and I'm not going to be bothering you for more (probably.)
+			if (empty($post_data))
+			{
+				fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				if ($keep_alive)
+					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
+				else
+					fwrite($fp, 'connection: close' . "\r\n\r\n");
+			}
+			else
+			{
+				fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				if ($keep_alive)
+					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
+				else
+					fwrite($fp, 'connection: close' . "\r\n");
+				fwrite($fp, 'content-type: application/x-www-form-urlencoded' . "\r\n");
+				fwrite($fp, 'content-length: ' . strlen($post_data) . "\r\n\r\n");
+				fwrite($fp, $post_data);
+			}
+
+			$response = fgets($fp, 768);
+
+			// Redirect in case this location is permanently or temporarily moved.
+			if ($redirection_level < 3 && preg_match('~^HTTP/\S+\s+30[127]~i', $response) === 1)
+			{
+				$header = '';
+				$location = '';
+				while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
+					if (strpos($header, 'location:') !== false)
+						$location = trim(substr($header, strpos($header, ':') + 1));
+
+				if (empty($location))
+					return false;
+				else
+				{
+					if (!$keep_alive)
+						fclose($fp);
+					return fetch_web_data($location, $post_data, $keep_alive, $redirection_level + 1);
+				}
+			}
+
+			// Make sure we get a 200 OK.
+			elseif (preg_match('~^HTTP/\S+\s+20[01]~i', $response) === 0)
 				return false;
-		}
 
-		if ($keep_alive)
-		{
-			$keep_alive_dom = $match[3];
-			$keep_alive_fp = $fp;
-		}
-
-		// I want this, from there, and I'm not going to be bothering you for more (probably.)
-		if (empty($post_data))
-		{
-			fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
-			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-			fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
-			if ($keep_alive)
-				fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
-			else
-				fwrite($fp, 'connection: close' . "\r\n\r\n");
-		}
-		else
-		{
-			fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
-			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-			fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
-			if ($keep_alive)
-				fwrite($fp, 'connection: Keep-Alive' . "\r\n");
-			else
-				fwrite($fp, 'connection: close' . "\r\n");
-			fwrite($fp, 'content-type: application/x-www-form-urlencoded' . "\r\n");
-			fwrite($fp, 'content-length: ' . strlen($post_data) . "\r\n\r\n");
-			fwrite($fp, $post_data);
-		}
-
-		$response = fgets($fp, 768);
-
-		// Redirect in case this location is permanently or temporarily moved.
-		if ($redirection_level < 3 && preg_match('~^HTTP/\S+\s+30[127]~i', $response) === 1)
-		{
-			$header = '';
-			$location = '';
+			// Skip the headers...
 			while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-				if (strpos($header, 'location:') !== false)
-					$location = trim(substr($header, strpos($header, ':') + 1));
+			{
+				if (preg_match('~content-length:\s*(\d+)~i', $header, $match) != 0)
+					$content_length = $match[1];
+				elseif (preg_match('~connection:\s*close~i', $header) != 0)
+				{
+					$keep_alive_dom = null;
+					$keep_alive = false;
+				}
 
-			if (empty($location))
-				return false;
+				continue;
+			}
+
+			$data = '';
+			if (isset($content_length))
+			{
+				while (!feof($fp) && strlen($data) < $content_length)
+					$data .= fread($fp, $content_length - strlen($data));
+			}
 			else
 			{
-				if (!$keep_alive)
-					fclose($fp);
-				return fetch_web_data($location, $post_data, $keep_alive, $redirection_level + 1);
-			}
-		}
-
-		// Make sure we get a 200 OK.
-		elseif (preg_match('~^HTTP/\S+\s+20[01]~i', $response) === 0)
-			return false;
-
-		// Skip the headers...
-		while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-		{
-			if (preg_match('~content-length:\s*(\d+)~i', $header, $match) != 0)
-				$content_length = $match[1];
-			elseif (preg_match('~connection:\s*close~i', $header) != 0)
-			{
-				$keep_alive_dom = null;
-				$keep_alive = false;
+				while (!feof($fp))
+					$data .= fread($fp, 4096);
 			}
 
-			continue;
+			if (!$keep_alive)
+				fclose($fp);
 		}
 
-		$data = '';
-		if (isset($content_length))
+		// If using fsockopen didn't work, try to use cURL if available.
+		elseif (function_exists('curl_init'))
 		{
-			while (!feof($fp) && strlen($data) < $content_length)
-				$data .= fread($fp, $content_length - strlen($data));
+			// Include the file containing the curl_fetch_web_data class.
+			require_once($sourcedir . '/Class-CurlFetchWeb.php');
+
+			$fetch_data = new curl_fetch_web_data();
+			$fetch_data->get_url_data($url, $post_data);
+
+			// no errors and a 200 result, then we have a good dataset, well we at least have data. ;)
+			if ($fetch_data->result('code') == 200 && !$fetch_data->result('error'))
+				$data = $fetch_data->result('body');
+			else
+				return false;
 		}
+
+		// Neither fsockopen nor curl are available. Well, phooey.
 		else
-		{
-			while (!feof($fp))
-				$data .= fread($fp, 4096);
-		}
-
-		if (!$keep_alive)
-			fclose($fp);
+			return false;
 	}
 	else
 	{
