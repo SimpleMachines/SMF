@@ -223,7 +223,7 @@ $(function()
 		$("#image_proxy_secret").prop("disabled", mode);
 		$("#image_proxy_maxsize").prop("disabled", mode);
 	}).change();
-});');
+});', true);
 }
 
 /**
