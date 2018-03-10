@@ -376,7 +376,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $image_proxy_url, $image_proxy_secret, $boardurl;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -446,10 +446,7 @@ function loadUserSettings()
 			$smcFunc['db_free_result']($request);
 
 			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
-				if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-					$user_settings['avatar'] = $image_proxy_url . $user_settings['avatar'];
-				else
-					$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
+				$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
 
 			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
 				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
@@ -1187,7 +1184,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $image_proxy_url, $image_proxy_secret, $boardurl, $user_info;
+	global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1275,10 +1272,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 			// Take care of proxying avatar if required, do this here for maximum reach
 			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
-				if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-					$row['avatar'] = $image_proxy_url . $row['avatar'];
-				else
-					$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
+				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
 
 			// Keep track of the member's normal member group
 			$row['primary_group'] = $row['member_group'];
@@ -3509,7 +3503,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_url, $image_proxy_secret, $user_info;
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3549,10 +3543,7 @@ function set_avatar_data($data = array())
 			{
 				// Using ssl?
 				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
-					if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-						$image = $image_proxy_url . urlencode($data['avatar']);
-					else
-						$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
+					$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
 
 				// Just a plain external url.
 				else
