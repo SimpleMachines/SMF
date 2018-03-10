@@ -2106,7 +2106,7 @@ dl {
 }
 #basicinfo ul {
 	list-style-type: none;
-	margin: 10px 0 0 0;
+	margin: 0;
 }
 #basicinfo ul li {
 	display: block;
