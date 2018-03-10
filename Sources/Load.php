@@ -376,7 +376,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $image_proxy_secret, $boardurl;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $boardurl;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -1184,7 +1184,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
+	global $image_proxy_enabled, $boardurl, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -3503,7 +3503,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret, $user_info;
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $user_info;
 
 	// Come on!
 	if (empty($data))
