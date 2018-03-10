@@ -218,7 +218,7 @@ $(function()
 {
 	$("#force_ssl").change(function()
 	{
-		var mode = $(this).val() == 2 ? false : true;
+		var mode = $(this).val() == 1 ? false : true;
 		$("#image_proxy_enabled").prop("disabled", mode);
 		$("#image_proxy_secret").prop("disabled", mode);
 		$("#image_proxy_maxsize").prop("disabled", mode);
