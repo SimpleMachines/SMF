@@ -447,7 +447,7 @@ function loadUserSettings()
 
 			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				if ($image_proxy_enabled === 2 && !empty($image_proxy_url))
-					$user_settings['avatar'] = $image_proxy_url . urlencode($user_settings['avatar']);
+					$user_settings['avatar'] = $image_proxy_url . $user_settings['avatar'];
 				else
 					$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
 

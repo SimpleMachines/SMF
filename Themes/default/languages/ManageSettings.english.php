@@ -100,7 +100,7 @@ $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 $txt['image_proxy_off'] = 'Disable';
 $txt['image_proxy_internal'] = 'Internal';
 $txt['image_proxy_external'] = 'External';
-$txt['image_proxy_url'] = 'URL of external image proxy';
+$txt['image_proxy_url'] = 'URL of external Image Proxy';
 $txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.

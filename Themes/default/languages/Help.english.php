@@ -626,11 +626,7 @@ $helptxt['image_proxy_enabled'] = 'Required for embedding external images when i
 		</ul>';
 $helptxt['image_proxy_secret'] = 'Keep this a secret, protects your forum from hotlinking images. Change it in order to render current hotlinked images useless';
 $helptxt['image_proxy_maxsize'] = 'Maximum image size that the SSL image proxy will cache: bigger images will be not be cached. Cached images are stored in your SMF cache folder, so make sure you have enough free space.';
-$helptxt['image_proxy_url'] = 'Enter the URL for your external proxy <strong>exactly</strong> the way it should be accessed for the image file.<br>
-<br>
-For example, if your proxy serves files via <code>http://www.example.com/yourproxy.php?file=[URL of proxied file]</code>, enter <code>http://www.example.com/yourproxy.php?file=</code> here.<br>
-<br>
-If this field is left empty, SMF\'s internal proxy will be used.';
+$helptxt['image_proxy_url'] = 'Needs to be maintained with the proxy url, when empty the internal proxy will be used';
 
 $helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.';
 
