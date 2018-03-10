@@ -145,10 +145,9 @@ $cachedir = dirname(__FILE__) . '/cache';
 # This is done entirely in Settings.php to avoid loading the DB while serving the images
 /**
  * Whether the proxy is enabled or not
- * 0 = disable 1 = proxy.php 2 = external proxy
- * @var int
+ * @var bool
  */
-$image_proxy_enabled = 1;
+$image_proxy_enabled = true;
 
 /**
  * Secret key to be used by the proxy
@@ -161,12 +160,6 @@ $image_proxy_secret = 'smfisawesome';
  * @var int
  */
 $image_proxy_maxsize = 5192;
-
-/**
- * Add the url of a external image proxy
- * @var string
- */
-$image_proxy_url = '';
 
 ########## Directories/Files ##########
 # Note: These directories do not have to be changed unless you move things.
