@@ -2881,6 +2881,10 @@ function get_proxied_url($url)
 	if (empty($image_proxy_enabled) || empty($modSettings['force_ssl']) || parse_url($url, PHP_URL_SCHEME) === 'https')
 		return $url;
 
+	// We don't need to proxy our own resources
+	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+		return strtr($url, array('http://' => 'https://'));
+
 	// By default, use SMF's own image proxy script
 	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
 
