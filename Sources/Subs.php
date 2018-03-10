@@ -2864,6 +2864,15 @@ function highlight_php_code($code)
 	return strtr($buffer, array('\'' => '&#039;', '<code>' => '', '</code>' => ''));
 }
 
+/**
+ * Gets the appropriate URL to use for images (or whatever) when using SSL
+ *
+ * The returned URL may or may not be a proxied URL, depending on the situation.
+ * Mods can implement alternative proxies using the 'integrate_proxy' hook.
+ *
+ * @param string $url The original URL of the requested resource
+ * @return string The URL to use
+ */
 function get_proxied_url($url)
 {
 	global $boardurl, $modSettings, $image_proxy_enabled, $image_proxy_secret;
