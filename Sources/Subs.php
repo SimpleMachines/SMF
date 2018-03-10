@@ -2869,7 +2869,7 @@ function get_proxied_url($url)
 	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
 
 	// Only use the proxy if enabled and necessary
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+	if (empty($image_proxy_enabled) || empty($modSettings['force_ssl']) || parse_url($url, PHP_URL_SCHEME) === 'https')
 		return $url;
 
 	// By default, use SMF's own image proxy script
