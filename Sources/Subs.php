@@ -1413,7 +1413,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
+					global $image_proxy_enabled, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1426,7 +1426,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							$data = get_proxied_url($data);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -1439,7 +1439,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl, $user_info;
+					global $image_proxy_enabled, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1452,7 +1452,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							$data = get_proxied_url($data);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -2862,6 +2862,24 @@ function highlight_php_code($code)
 	$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\\(\\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
 
 	return strtr($buffer, array('\'' => '&#039;', '<code>' => '', '</code>' => ''));
+}
+
+function get_proxied_url($url)
+{
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+
+	// Only use the proxy if enabled and necessary
+	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+		return $url;
+
+	// By default, use SMF's own image proxy script
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+
+	// Allow mods to easily implement an alternative proxy
+	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
+	call_integration_hook('integrate_proxy', array($url, &$proxied_url));
+
+	return $proxied_url;
 }
 
 /**
