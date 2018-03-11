@@ -421,7 +421,7 @@ function smf_db_get_vendor()
 function smf_db_allow_persistent()
 {
 	$value = ini_get('mysqli.allow_persistent');
-	if ($value == 'on' || $value == 'true')
+	if (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
 		return true;
 	else
 		return false;
