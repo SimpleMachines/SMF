@@ -2096,6 +2096,9 @@ dl {
 	width: 79.5%;
 	float: right;
 }
+#basicinfo > * {
+	margin-bottom: 3px;
+}
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
@@ -2107,13 +2110,11 @@ dl {
 }
 #basicinfo img.avatar {
 	display: block;
-	margin: 10px 0 0 0;
 }
 #basicinfo ul {
 	list-style-type: none;
-	margin: 10px 0 0 0;
 }
-#basicinfo ul li {
+#basicinfo .icon_fields li {
 	display: block;
 	float: left;
 	margin-right: 5px;
@@ -2122,7 +2123,6 @@ dl {
 #basicinfo #userstatus {
 	display: block;
 	clear: both;
-	margin-top: 6px;
 }
 #basicinfo #userstatus img {
 	vertical-align: middle;

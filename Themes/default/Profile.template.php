@@ -168,8 +168,7 @@ function template_summary()
 			<div class="custom_fields_above_name">
 				<ul>', $fields, '
 				</ul>
-			</div>
-			<br>';
+			</div>';
 	}
 
 	echo '
@@ -212,12 +211,11 @@ function template_summary()
 			<div class="custom_fields_below_avatar">
 				<ul>', $fields, '
 				</ul>
-			</div>
-			<br>';
+			</div>';
 	}
 
 	echo '
-			<ul class="clear">';
+			<ul class="icon_fields clear">';
 
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
@@ -280,8 +278,7 @@ function template_summary()
 			<div class="custom_fields_bottom">
 				<ul class="nolist">', $fields, '
 				</ul>
-			</div>
-			<br>';
+			</div>';
 	}
 
 	echo '
@@ -439,8 +436,8 @@ function template_summary()
 		$fields = '';
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
-				echo '
-					<li>', $field['output_html'], '</li>';
+				$fields .= '
+					<li>' . $field['output_html'] . '</li>';
 
 		if (!empty($fields))
 			echo '
@@ -464,8 +461,8 @@ function template_summary()
 		$fields = '';
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
-				echo '
-					<li>', $field['output_html'], '</li>';
+				$fields .=  '
+					<li>' . $field['output_html'] . '</li>';
 
 		if (!empty($fields))
 			echo '
