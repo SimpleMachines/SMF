@@ -424,7 +424,7 @@ function ModifyDatabaseSettings($return_config = false)
 	$context['settings_title'] = $txt['database_settings'];
 	$context['save_disabled'] = $context['settings_not_writable'];
 
-	if (!$smcFunc['db_allow_persistent'])
+	if (!$smcFunc['db_allow_persistent']())
 		addInlineJavaScript('
 			$(function()
 			{
