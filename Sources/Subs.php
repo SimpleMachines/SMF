@@ -4376,14 +4376,14 @@ function setupMenuContext()
 
 	$total_mod_reports = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']))
 	{
 		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 	}
 
 	// Show how many errors there are
-	if (allowedTo('admin_forum'))
+	if (!empty($context['menu_buttons']['admin']))
 	{
 		// Get an error count, if necessary
 		if (!isset($context['num_errors']))
@@ -4406,20 +4406,20 @@ function setupMenuContext()
 	}
 
 	// Show number of reported members
-	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
+	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
-	if (!empty($context['unapproved_members']))
+	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 	}
 
 	// Do we have any open reports?
-	if ($total_mod_reports > 0)
+	if ($total_mod_reports > 0 && !empty($context['menu_buttons']['moderate']))
 	{
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
@@ -4437,7 +4437,7 @@ function setupMenuContext()
  */
 function smf_seed_generator()
 {
-	updateSettings(array('rand_seed' => microtime() * 1000000));
+	updateSettings(array('rand_seed' => microtime(true)));
 }
 
 /**
