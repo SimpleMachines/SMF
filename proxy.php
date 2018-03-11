@@ -76,7 +76,7 @@ class ProxyServer
 				return false;
 
 		// Basic sanity check
-		$_GET['request'] = filter_var($_GET['request'], FILTER_VALIDATE_URL);
+		$_GET['request'] = validate_iri($_GET['request']);
 
 		// We aren't going anywhere without these
 		if (empty($_GET['hash']) || empty($_GET['request']))
@@ -87,6 +87,9 @@ class ProxyServer
 
 		if (md5($request . $this->secret) != $hash)
 			return false;
+
+		// Ensure any non-ASCII characters in the URL are encoded correctly
+		$request = iri_to_url($request);
 
 		// Attempt to cache the request if it doesn't exist
 		if (!$this->isCached($request))
