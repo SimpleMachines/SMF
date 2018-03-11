@@ -1167,6 +1167,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		)
 	);
 	$changes = array();
+	$deletes = array();
 	$log_changes = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -1253,26 +1254,43 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 					'member_affected' => $memID,
 				),
 			);
-			$changes[] = array(1, $row['col_name'], $value, $memID);
-			$user_profile[$memID]['options'][$row['col_name']] = $value;
+			if (empty($value))
+			{
+				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				unset($user_profile[$memID]['options'][$row['col_name']]);
+			}
+			else
+			{
+				$changes[] = array(1, $row['col_name'], $value, $memID);
+				$user_profile[$memID]['options'][$row['col_name']] = $value;
+			}		
 		}
 	}
 	$smcFunc['db_free_result']($request);
 
-	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
+	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize, &$deletes));
 
 	if (!empty($hook_errors) && is_array($hook_errors))
 		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']) && empty($errors))
+	if ((!empty($changes) || !empty($deletes)) && empty($context['password_auth_failed']) && empty($errors))
 	{
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534', 'id_member' => 'int'),
-			$changes,
-			array('id_theme', 'variable', 'id_member')
-		);
+		if (!empty($changes))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534', 'id_member' => 'int'),
+				$changes,
+				array('id_theme', 'variable', 'id_member')
+			);
+		if (!empty($deletes))
+			$smcFunc['db_query']('','
+				DELETE FROM {db_prefix}themes 
+				WHERE id_theme = {int:id_theme} AND 
+						variable = {string:variable} AND 
+						id_member = {int:id_member}',
+				$deletes
+				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
