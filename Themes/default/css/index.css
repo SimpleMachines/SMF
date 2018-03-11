@@ -369,10 +369,6 @@ blockquote cite::before {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_img, .atc_img {
-	border: 0;
-	height: auto;
-}
 .bbc_table {
 	font: inherit;
 	color: inherit;
@@ -399,6 +395,15 @@ blockquote cite::before {
 .bbc_float.floatright {
 	margin-left: 1em;
 	clear: right;
+}
+.postarea .bbc_img:hover {
+	cursor: pointer;
+}
+.bbc_img.original_size {
+	height: auto !important;
+	width: auto !important;
+	max-height: none;
+	max-width: 100%;
 }
 /* No image should have a border when linked. */
 a img {

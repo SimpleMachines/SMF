@@ -1922,28 +1922,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						// Check if the image is larger than allowed.
-						if (!empty($modSettings['max_image_width']) && !empty($modSettings['max_image_height']))
-						{
-							list ($width, $height) = url_image_size($imgtag);
-
-							if (!empty($modSettings['max_image_width']) && $width > $modSettings['max_image_width'])
-							{
-								$height = (int) (($modSettings['max_image_width'] * $height) / $width);
-								$width = $modSettings['max_image_width'];
-							}
-
-							if (!empty($modSettings['max_image_height']) && $height > $modSettings['max_image_height'])
-							{
-								$width = (int) (($modSettings['max_image_height'] * $width) / $height);
-								$height = $modSettings['max_image_height'];
-							}
-
-							// Set the new image tag.
-							$replaces[$matches[0][$match]] = '[img width=' . $width . ' height=' . $height . $alt . ']' . $imgtag . '[/img]';
-						}
-						else
-							$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
+						$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
 					}
 
 					$data = strtr($data, $replaces);
@@ -3260,7 +3239,16 @@ function setupThemeContext($forceload = false)
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 		addInlineCss('
-img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+
+	// Add max image limits
+	if (!empty($modSettings['max_image_width']))
+		addInlineCss('
+	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+
+	if (!empty($modSettings['max_image_height']))
+		addInlineCss('
+	.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
