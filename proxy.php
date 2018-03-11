@@ -33,12 +33,9 @@ class ProxyServer
 
 	/** @var string The cache directory */
 	protected $cache;
-	
+
 	/** @var int $maxDays until enties get deleted */
 	protected $maxDays;
-
-	/** @var int time() value */
-	protected $time;
 
 	/**
 	 * Constructor, loads up the Settings for the proxy
@@ -50,7 +47,7 @@ class ProxyServer
 		global $image_proxy_enabled, $image_proxy_maxsize, $image_proxy_secret, $cachedir, $sourcedir;
 
 		require_once(dirname(__FILE__) . '/Settings.php');
-		require_once($sourcedir . '/Class-CurlFetchWeb.php');
+		require_once($sourcedir . '/Subs.php');
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -78,7 +75,11 @@ class ProxyServer
 			if (!mkdir($this->cache) || !copy(dirname($this->cache) . '/index.php', $this->cache . '/index.php'))
 				return false;
 
-		if (empty($_GET['hash']) || empty($_GET['request']) || ($_GET['request'] === "http:") || ($_GET['request'] === "https:"))
+		// Basic sanity check
+		$_GET['request'] = filter_var($_GET['request'], FILTER_VALIDATE_URL);
+
+		// We aren't going anywhere without these
+		if (empty($_GET['hash']) || empty($_GET['request']))
 			return false;
 
 		$hash = $_GET['hash'];
@@ -120,10 +121,10 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
-		$time = $this->getTime();
+		$time = time();
 
 		// Is the cache expired?
-		if (!$cached || time() - $cached['time'] > ($this->maxDays * 86400))
+		if (!$cached || $time - $cached['time'] > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
@@ -186,40 +187,43 @@ class ProxyServer
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
-		$curl_request = $curl->get_url_data($request);
-		$responseCode = $curl_request->result('code');
-		$response = $curl_request->result();
+		$ext = strtolower(pathinfo(parse_url($request, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-		if (empty($response) || $responseCode != 200)
-		{
+		$image = fetch_web_data($request);
+
+		// Looks like nobody was home
+		if (empty($image))
 			return -1;
-		}
 
-		$headers = $response['headers'];
+		// What kind of file did they give us?
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mime_type = finfo_buffer($finfo, $image);
+
+		// SVG needs a little extra care
+		if ($ext == 'svg' && $mime_type == 'text/plain')
+			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image
-		$contentParts = explode('/', !empty($headers['content-type']) ? $headers['content-type'] : '');
-		if ($contentParts[0] != 'image')
+		if (strpos($mime_type, 'image/') !== 0)
 			return -1;
 
 		// Validate the filesize
-		if ($response['size'] > ($this->maxSize * 1024))
+		$size = strlen($image);
+		if ($size > ($this->maxSize * 1024))
 			return 0;
 
-		$time = $this->getTime();
-
+		// Cache it for later
 		return file_put_contents($dest, json_encode(array(
-			'content_type' => $headers['content-type'],
-			'size' => $response['size'],
-			'time' => $time,
-			'body' => base64_encode($response['body']),
-		))) === false ? -1 : 1; 
+			'content_type' => $mime_type,
+			'size' => $size,
+			'time' => time(),
+			'body' => base64_encode($image),
+		))) === false ? -1 : 1;
 	}
 
 	/**
 	 * Static helper function to redirect a request
-	 * 
+	 *
 	 * @access public
 	 * @param type $request
 	 * @return void
@@ -228,24 +232,6 @@ class ProxyServer
 	{
 		header('Location: ' . $request, false, 301);
 		exit;
-	}
-
-	/**
-	 * Helper function to call time() once with the right logic
-	 * 
-	 * @return int
-	 */
-	protected function getTime()
-	{
-		if (empty($this->time))
-		{
-			$old_timezone = date_default_timezone_get();
-			date_default_timezone_set('GMT');
-			$this->time = time();
-			date_default_timezone_set($old_timezone);
-		}
-
-		return $this->time;
 	}
 
 	/**
@@ -260,7 +246,7 @@ class ProxyServer
 		if ($handle = opendir($path)) {
 
 			while (false !== ($file = readdir($handle)))
-			{ 
+			{
 				$filelastmodified = filemtime($path . $file);
 
 				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
@@ -270,7 +256,7 @@ class ProxyServer
 
 			}
 
-			closedir($handle); 
+			closedir($handle);
 		}
 	}
 }

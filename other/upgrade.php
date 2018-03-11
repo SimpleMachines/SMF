@@ -1576,7 +1576,7 @@ function cli_scheduled_fetchSMfiles()
 	$smcFunc['db_free_result']($request);
 
 	// We're gonna need fetch_web_data() to pull this off.
-	require_once($sourcedir . '/Subs-Package.php');
+	require_once($sourcedir . '/Subs.php');
 
 	foreach ($js_files as $ID_FILE => $file)
 	{
