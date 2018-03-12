@@ -13,7 +13,8 @@
  * @version 2.1 Beta 4
  */
 
-define('SMF', 'proxy');
+if (!defined('SMF'))
+	define('SMF', 'proxy');
 
 global $proxyhousekeeping;
 
