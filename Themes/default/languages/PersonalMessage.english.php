@@ -112,7 +112,7 @@ $txt['pm_report_pm_hidden'] = '%1$d hidden recipient(s)';
 $txt['pm_report_pm_unedited_below'] = 'Below are the original contents of the personal message which was reported:';
 $txt['pm_report_pm_sent'] = 'Sent:';
 
-$txt['pm_report_done'] = 'Thank you for submitting this report. You should hear back from the admin team shortly.';
+$txt['pm_report_done'] = 'Thank you for submitting this report. You should hear back from the administration shortly.';
 $txt['pm_report_return'] = 'Return to the inbox';
 
 $txt['pm_search_title'] = 'Search personal messages';
