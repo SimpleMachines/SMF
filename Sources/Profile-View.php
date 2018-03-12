@@ -1893,7 +1893,7 @@ function TrackIP($memID = 0)
 	if (isset($_REQUEST['searchip']))
 		$context['ip'] = ip2range(trim($_REQUEST['searchip']));
 
-	if (count($context['ip']) != 2)
+	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
 	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
@@ -1904,7 +1904,7 @@ function TrackIP($memID = 0)
 
 	$ip_var = $context['ip'];
 
-	if ($context['ip']['low'] !=  $context['ip']['high'])
+	if ($context['ip']['low'] !==  $context['ip']['high'])
 		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];
