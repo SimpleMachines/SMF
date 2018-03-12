@@ -1834,8 +1834,8 @@ function Post2()
 		preparsecode($_POST['message']);
 
 		// Youtube BBC would be stripped out in the next check without this
-		$disabledBBC = $modSettings['disabledBBC'];
-		$modSettings['disabledBBC'] .= strpos($modSettings['disabledBBC'], 'youtube') === false ? (empty($modSettings['disabledBBC']) ? '' : ',') . 'youtube' : '';
+		$disabledBBC = !empty($modSettings['disabledBBC']) ? $modSettings['disabledBBC'] : null;
+		$modSettings['disabledBBC'] = implode(',', array_unique(array_merge(array_filter(explode(',', (!empty($modSettings['disabledBBC']) ? $modSettings['disabledBBC'] : ''))), array('youtube'))));
 
 		// Let's see if there's still some content left without the tags.
 		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('admin_forum') || strpos($_POST['message'], '[html]') === false))
