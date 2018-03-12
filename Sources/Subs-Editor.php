@@ -1728,6 +1728,10 @@ function create_control_richedit($editorOptions)
 				'description' => $editortxt['Flash']
 			),
 			array(
+				'code' => 'youtube',
+				'description' => $editortxt['Insert a YouTube video']
+			),
+			array(
 				'code' => 'image',
 				'description' => $editortxt['Insert an image']
 			),
@@ -2020,6 +2024,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
 		'format' => 'bbcode',
+		'plugins' => 'autoyoutube',
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
