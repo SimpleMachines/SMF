@@ -2026,7 +2026,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
 		'format' => 'bbcode',
-		'plugins' => 'autoyoutube,undo',
+		'plugins' => 'undo' . (strpos($modSettings['disabledBBC'], 'youtube') === false ? ',autoyoutube' : ''),
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
