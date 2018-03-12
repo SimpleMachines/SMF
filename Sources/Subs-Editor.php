@@ -2024,7 +2024,7 @@ function create_control_richedit($editorOptions)
 	$sce_options = array(
 		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
-		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
+		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
 		'plugins' => 'undo' . (strpos($modSettings['disabledBBC'], 'youtube') === false ? ',autoyoutube' : ''),
 		'bbcodeTrim' => true,
