@@ -176,7 +176,6 @@ div.sceditor-grip {
   min-width: 100%;
   max-width: 100%;
   min-height: 250px;
-  height: auto !important;
 }
 .sceditor-container *,
 .sceditor-container *::before,
