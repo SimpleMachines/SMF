@@ -1590,6 +1590,8 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array(), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array(), 'smf_sceditor_smf');
+		loadJavaScriptFile('sceditor.autoyoutube.js', array(), 'smf_sceditor_autoyoutube');
+		loadJavaScriptFile('sceditor.undo.js', array(), 'smf_sceditor_undo');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -2024,7 +2026,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white',
 		'format' => 'bbcode',
-		'plugins' => 'autoyoutube',
+		'plugins' => 'autoyoutube,undo',
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
