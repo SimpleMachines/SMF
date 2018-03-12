@@ -1492,6 +1492,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
+				'tag' => 'justify',
+				'before' => '<div style="text-align: justify;">',
+				'after' => '</div>',
+				'block_level' => true,
+			),
+			array(
 				'tag' => 'left',
 				'before' => '<div style="text-align: left;">',
 				'after' => '</div>',
@@ -2260,7 +2266,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				continue;
 
 			$next_c = isset($message[$pos + 1 + $pt_strlen]) ? $message[$pos + 1 + $pt_strlen] : '';
-			
+
 			// A tag is the last char maybe
 			if ($next_c == '')
 				break;
