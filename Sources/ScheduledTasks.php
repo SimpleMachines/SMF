@@ -378,7 +378,7 @@ function scheduled_approval_notification()
  */
 function scheduled_daily_maintenance()
 {
-	global $smcFunc, $modSettings, $sourcedir, $db_type, $image_proxy_enabled;
+	global $smcFunc, $modSettings, $sourcedir, $boarddir, $db_type, $image_proxy_enabled;
 
 	// First clean out the cache.
 	clean_cache();
@@ -464,7 +464,7 @@ function scheduled_daily_maintenance()
 		global $proxyhousekeeping;
 		$proxyhousekeeping = true;
 
-		require_once(dirname(__FILE__) . '/proxy.php');
+		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
 
