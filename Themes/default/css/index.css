@@ -3889,3 +3889,19 @@ tr[id^='list_news_lists_'] textarea {
 	resize: vertical;
 	min-height: 100px;
 }
+
+/* Responsive Youtube embed */
+.videocontainer {
+	max-width: 560px;
+}
+.videocontainer div {
+	position: relative;
+	padding-bottom: 56.25%;
+}
+.videocontainer iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
+}

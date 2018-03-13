@@ -762,3 +762,23 @@ sceditor.formats.bbcode.set(
 		}
 	}
 );
+
+sceditor.formats.bbcode.set(
+	'youtube', {
+		allowsEmpty: true,
+		tags: {
+			div: {
+				class: 'videocontainer'
+			}
+		},
+		format: function (element, content) {
+			youtube_id = $(element).find('iframe').data('youtube-id');
+
+			if (typeof youtube_id !== "undefined")
+				return '[youtube]' + youtube_id + '[/youtube]';
+			else
+				return content;
+		},
+		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" allowfullscreen></iframe></div></div>'
+	}
+);
