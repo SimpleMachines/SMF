@@ -3,27 +3,31 @@ html, p, code::before, table {
 	margin: 0;
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 13px;
+	font-size: 14px;
 	color: #111;
+	line-height: 1.25;
+	overflow: visible;
 }
 html {
 	height: 100%;
-
+}
+.ios {
 	/* Needed for iOS scrolling bug fix */
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
-body {
+.ios body {
 	/* Needed for iOS scrolling bug fix */
 	position: relative;
 	overflow: auto;
-
+}
+body {
 	/* Needed to make sure body covers the whole editor and that
 		long lines don't cause horizontal scrolling */
 	min-height: 100%;
 	word-wrap: break-word;
-    margin: 0 5px;
-    padding: 0;
+	margin: 0 5px;
+	padding: 0;
 }
 
 ul, ol {
