@@ -1,3 +1,90 @@
-/* SCEditor v2.1.2 | (C) 2017, Sam Clarke | sceditor.com/license */
+/**
+ * SCEditor Auto Youtube Plugin
+ * http://www.sceditor.com/
+ *
+ * Copyright (C) 2016, Sam Clarke (samclarke.com)
+ *
+ * SCEditor is licensed under the MIT license:
+ *	http://www.opensource.org/licenses/mit-license.php
+ *
+ * @author Sam Clarke
+ */
+(function (document, sceditor) {
+	'use strict';
 
-!function(e,t){"use strict";function n(e){return'<iframe width="560" height="315" frameborder="0" src="https://www.youtube-nocookie.com/embed/'+e+'" data-youtube-id="'+e+'" allowfullscreen></iframe>'}function o(t){for(var s=t.firstChild;s;){if(3===s.nodeType){var u=s.nodeValue,a=s.parentNode,c=u.match(r);c&&(a.insertBefore(e.createTextNode(u.substr(0,c.index)+c[1]),s),a.insertBefore(i.parseHTML(n(c[2])),s),s.nodeValue=c[3]+u.substr(c.index+c[0].length))}else i.is(s,"code")||o(s);s=s.nextSibling}}var i=t.dom,r=/(^|\s)(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)([^"&?\/ ]{11})(?:\&[\&_\?0-9a-z\#]+)?(\s|$)/i;t.plugins.autoyoutube=function(){this.signalPasteRaw=function(t){if(!i.closest(this.currentNode(),"code")&&(t.html||t.text)){var n=e.createElement("div");t.html?n.innerHTML=t.html:n.textContent=t.text,o(n),t.html=n.innerHTML}}}}(document,sceditor);
+	var dom = sceditor.dom;
+
+	/*
+		(^|\s)					Start of line or space
+		(?:https?:\/\/)?  		Optional scheme like http://
+		(?:www\.)?      		Optional www. prefix
+		(?:
+			youtu\.be\/     	Ends with .be/ so whatever comes next is the ID
+		|
+			youtube\.com\/watch\?v=		Matches the .com version
+		)
+		([^"&?\/ ]{11}) 				The actual YT ID
+		(?:\&[\&_\?0-9a-z\#]+)?			Any extra URL params
+		(\s|$)							End of line or space
+	*/
+	var ytUrlRegex = /(^|\s)(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)([^"&?\/ ]{11})(?:\&[\&_\?0-9a-z\#]+)?(\s|$)/i;
+
+	function youtubeEmbedCode(id) {
+		return '<div class="videocontainer"><div><iframe frameborder="0" ' +
+			'src="https://www.youtube-nocookie.com/embed/' + id + '" ' +
+			'data-youtube-id="' + id + '" allowfullscreen></iframe></div></div>';
+	}
+
+	function convertYoutubeLinks(root) {
+		var node = root.firstChild;
+
+		while (node) {
+			// 3 is TextNodes
+			if (node.nodeType === 3) {
+				var text   = node.nodeValue;
+				var parent = node.parentNode;
+				var match  = text.match(ytUrlRegex);
+
+				if (match) {
+					parent.insertBefore(document.createTextNode(
+						text.substr(0, match.index) + match[1]
+					), node);
+
+					parent.insertBefore(
+						dom.parseHTML(youtubeEmbedCode(match[2])), node
+					);
+
+					node.nodeValue = match[3] +
+						text.substr(match.index + match[0].length);
+				}
+			} else {
+				// TODO: Make this tag configurable.
+				if (!dom.is(node, 'code')) {
+					convertYoutubeLinks(node);
+				}
+			}
+
+			node = node.nextSibling;
+		}
+	};
+
+	sceditor.plugins.autoyoutube = function () {
+		this.signalPasteRaw = function (data) {
+			// TODO: Make this tag configurable.
+			// Skip code tags
+			if (dom.closest(this.currentNode(), 'code')) {
+				return;
+			}
+
+			if (data.text) {
+				var html = document.createElement('div');
+
+				html.textContent = data.text;
+
+				convertYoutubeLinks(html);
+
+				data.html = html.innerHTML;
+			}
+		};
+	};
+})(document, sceditor);
