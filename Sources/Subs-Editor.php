@@ -1638,13 +1638,14 @@ function create_control_richedit($editorOptions)
 	if (empty($context['bbc_tags']))
 	{
 		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
+		// Note: 'before' and 'after' are deprecated as of SMF 2.1. Instead, use a separate JS file to configure the functionality of your toolbar buttons.
 		/*
 			array(
-				'image' => 'bold',
-				'code' => 'b',
-				'before' => '[b]',
-				'after' => '[/b]',
-				'description' => $txt['bold'],
+				'code' => 'b', // Required
+				'description' => $editortxt['bold'], // Required
+				'image' => 'bold', // Optional
+				'before' => '[b]', // Deprecated
+				'after' => '[/b]', // Deprecated
 			),
 		*/
 		$context['bbc_tags'] = array();
@@ -1854,16 +1855,16 @@ function create_control_richedit($editorOptions)
 					// Set the tooltip and possibly the command info
 					$context['bbcodes_handlers'] .= '
 						sceditor.command.set(' . JavaScriptEscape($tag['code']) . ', {
-							tooltip: ' . JavaScriptEscape($tag['description']);
+							tooltip: ' . JavaScriptEscape(isset($tag['description']) ? $tag['description'] : $tag['code']);
 
+					// Legacy support for 2.0 BBC mods
 					if (isset($tag['before']))
 					{
-						$context['bbcodes_handlers'] .= '
+						$context['bbcodes_handlers'] .= ',
 							exec: function () {
 								this.insert(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
 							},
-							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . '],
-							';
+							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ']';
 					}
 
 					$context['bbcodes_handlers'] .= '
