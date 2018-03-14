@@ -282,6 +282,18 @@ sceditor.command.set(
 	}
 );
 
+sceditor.command.set(
+	'youtube', {
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
+				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '"></iframe></div></div>');
+			});
+		}
+	}
+);
+
 sceditor.formats.bbcode.set(
 	'abbr', {
 		tags: {
