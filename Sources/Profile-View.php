@@ -1876,7 +1876,7 @@ function TrackIP($memID = 0)
 
 	if ($memID == 0)
 	{
-		$context['ip'] = $user_info['ip'];
+		$context['ip'] = ip2range($user_info['ip']);
 		loadTemplate('Profile');
 		loadLanguage('Profile');
 		$context['sub_template'] = 'trackIP';
@@ -1885,22 +1885,29 @@ function TrackIP($memID = 0)
 	}
 	else
 	{
-		$context['ip'] = $user_profile[$memID]['member_ip'];
+		$context['ip'] = ip2range($user_profile[$memID]['member_ip']);
 		$context['base_url'] = $scripturl . '?action=profile;area=tracking;sa=ip;u=' . $memID;
 	}
 
 	// Searching?
 	if (isset($_REQUEST['searchip']))
-		$context['ip'] = trim($_REQUEST['searchip']);
+		$context['ip'] = ip2range(trim($_REQUEST['searchip']));
 
-	if (isValidIP($context['ip']) === false)
+	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	//mysql didn't support like search with varbinary
-	//$ip_var = str_replace('*', '%', $context['ip']);
-	//$ip_string = strpos($ip_var, '%') === false ? '= {inet:ip_address}' : 'LIKE {string:ip_address}';
+	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
+	$fields = array(
+			'ip_address_low' => $context['ip']['low'],
+			'ip_address_high' => $context['ip']['high'],
+		);
+
 	$ip_var = $context['ip'];
-	$ip_string = '= {inet:ip_address}';
+
+	if ($context['ip']['low'] !==  $context['ip']['high'])
+		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
+	else
+		$context['ip'] = $context['ip']['low'];
 
 	if (empty($context['tracking_area']))
 		$context['page_title'] = $txt['trackIP'] . ' - ' . $context['ip'];
@@ -1908,10 +1915,8 @@ function TrackIP($memID = 0)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name AS display_name, member_ip
 		FROM {db_prefix}members
-		WHERE member_ip ' . $ip_string,
-		array(
-			'ip_address' => $ip_var,
-		)
+		WHERE member_ip >= ' . $ip_string[0] . ' and member_ip <= ' . $ip_string[1],
+		$fields
 	);
 	$context['ips'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1938,15 +1943,15 @@ function TrackIP($memID = 0)
 		'get_items' => array(
 			'function' => 'list_getIPMessages',
 			'params' => array(
-				'm.poster_ip ' . $ip_string,
-				array('ip_address' => $ip_var),
+				'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
+				$fields,
 			),
 		),
 		'get_count' => array(
 			'function' => 'list_getIPMessageCount',
 			'params' => array(
-				'm.poster_ip ' . $ip_string,
-				array('ip_address' => $ip_var),
+				'm.poster_ip >= ' . $ip_string[0] . ' and m.poster_ip <= ' . $ip_string[1],
+				$fields,
 			),
 		),
 		'columns' => array(
@@ -2026,15 +2031,15 @@ function TrackIP($memID = 0)
 		'get_items' => array(
 			'function' => 'list_getUserErrors',
 			'params' => array(
-				'le.ip ' . $ip_string,
-				array('ip_address' => $ip_var),
+				'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
+				$fields,
 			),
 		),
 		'get_count' => array(
 			'function' => 'list_getUserErrorCount',
 			'params' => array(
-				'ip ' . $ip_string,
-				array('ip_address' => $ip_var),
+				'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
+				$fields,
 			),
 		),
 		'columns' => array(
@@ -2105,48 +2110,31 @@ function TrackIP($memID = 0)
 	$context['additional_track_lists'] = array();
 	call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));
 
-	$context['single_ip'] = strpos($context['ip'], '*') === false;
+	$context['single_ip'] = ($ip_var['low'] === $ip_var['high']);
 	if ($context['single_ip'])
 	{
 		$context['whois_servers'] = array(
 			'afrinic' => array(
 				'name' => $txt['whois_afrinic'],
 				'url' => 'https://www.afrinic.net/cgi-bin/whois?searchtext=' . $context['ip'],
-				'range' => array(41, 154, 196),
 			),
 			'apnic' => array(
 				'name' => $txt['whois_apnic'],
 				'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . $context['ip'],
-				'range' => array(58, 59, 60, 61, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
-					125, 126, 133, 150, 153, 163, 171, 202, 203, 210, 211, 218, 219, 220, 221, 222),
 			),
 			'arin' => array(
 				'name' => $txt['whois_arin'],
 				'url' => 'https://whois.arin.net/rest/ip/' . $context['ip'],
-				'range' => array(7, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 96, 97, 98, 99,
-					128, 129, 130, 131, 132, 134, 135, 136, 137, 138, 139, 140, 142, 143, 144, 146, 147, 148, 149,
-					152, 155, 156, 157, 158, 159, 160, 161, 162, 164, 165, 166, 167, 168, 169, 170, 172, 173, 174,
-					192, 198, 199, 204, 205, 206, 207, 208, 209, 216),
 			),
 			'lacnic' => array(
 				'name' => $txt['whois_lacnic'],
 				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
-				'range' => array(186, 187, 189, 190, 191, 200, 201),
 			),
 			'ripe' => array(
 				'name' => $txt['whois_ripe'],
 				'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . $context['ip'],
-				'range' => array(62, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
-					141, 145, 151, 188, 193, 194, 195, 212, 213, 217),
 			),
 		);
-
-		foreach ($context['whois_servers'] as $whois)
-		{
-			// Strip off the "decimal point" and anything following...
-			if (in_array((int) $context['ip'], $whois['range']))
-				$context['auto_whois_server'] = $whois;
-		}
 	}
 }
 
