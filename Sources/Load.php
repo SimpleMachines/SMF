@@ -3458,7 +3458,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
+	return empty($value) ? null : (isset($smcFunc['json_decode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
 }
 
 /**
