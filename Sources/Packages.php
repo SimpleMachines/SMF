@@ -83,7 +83,7 @@ function Packages()
 	);
 
 	if ($context['sub_action'] == 'browse')
-		loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 
 	call_integration_hook('integrate_manage_packages', array(&$subActions));
 

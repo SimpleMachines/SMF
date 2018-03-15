@@ -1586,9 +1586,9 @@ function create_control_richedit($editorOptions)
 		loadTemplate('GenericControls');
 
 		// JS makes the editor go round
-		loadJavaScriptFile('editor.js', array(), 'smf_editor');
+		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
-		loadJavaScriptFile('jquery.sceditor.smf.js', array(), 'smf_sceditor_smf');
+		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1602,7 +1602,7 @@ function create_control_richedit($editorOptions)
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 		if ($context['show_spellchecking'])
 		{
-			loadJavaScriptFile('spellcheck.js', array(), 'smf_spellcheck');
+			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
@@ -2021,7 +2021,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		// Some javascript ma'am?
 		if (!empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
-			loadJavaScriptFile('captcha.js', array(), 'smf_captcha');
+			loadJavaScriptFile('captcha.js', array('minimize' => true), 'smf_captcha');
 
 		$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 
