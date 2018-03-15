@@ -2220,7 +2220,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavaScriptFile('jquery.custom-scrollbar.js', array(), 'smf_jquery_scrollbar');
+		loadJavaScriptFile('jquery.custom-scrollbar.js', array('minimize' => true), 'smf_jquery_scrollbar');
 		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
@@ -2551,6 +2551,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['async'] = isset($params['async']) ? $params['async'] : false;
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
