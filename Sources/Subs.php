@@ -3539,8 +3539,8 @@ function template_footer()
 
 /**
  * Output the Javascript files
- * 	- tabbing in this function is to make the HTML source look good proper
- *  - if defered is set function will output all JS (source & inline) set to load at page end
+ * 	- tabbing in this function is to make the HTML source look good and proper
+ *  - if defered is set function will output all JS set to load at page end
  *
  * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
@@ -3551,8 +3551,11 @@ function template_javascript($do_deferred = false)
 	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
 
-	$toMinify = array();
-	$toMinifyDefer = array();
+	$toMinify = array(
+		'standard' => array(),
+		'defer' => array(),
+		'async' => array(),
+	);
 
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_deferred)
@@ -3578,42 +3581,51 @@ function template_javascript($do_deferred = false)
 	</script>';
 	}
 
-	// While we have JavaScript files to place in the template.
-	foreach ($context['javascript_files'] as $id => $js_file)
+	// In the dark days before HTML5, deferred JS files needed to be loaded at the end of the body.
+	// Now we load them in the head and use 'async' and/or 'defer' attributes. Much better performance.
+	if (!$do_deferred)
 	{
-		// Last minute call! allow theme authors to disable single files.
-		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
-			continue;
-
-		// By default all files don't get minimized unless the file explicitly says so!
-		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		// While we have JavaScript files to place in the template.
+		foreach ($context['javascript_files'] as $id => $js_file)
 		{
-			if ($do_deferred && !empty($js_file['options']['defer']))
-				$toMinifyDefer[] = $js_file;
+			// Last minute call! allow theme authors to disable single files.
+			if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
+				continue;
 
-			elseif (!$do_deferred && empty($js_file['options']['defer']))
-				$toMinify[] = $js_file;
+			// By default files don't get minimized unless the file explicitly says so!
+			if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+			{
+				if (!empty($js_file['options']['async']))
+					$toMinify['async'][] = $js_file;
+				elseif (!empty($js_file['options']['defer']))
+					$toMinify['defer'][] = $js_file;
+				else
+					$toMinify['standard'][] = $js_file;
 
-			// Grab a random seed.
-			if (!isset($minSeed) && isset($js_file['options']['seed']))
-				$minSeed = $js_file['options']['seed'];
+				// Grab a random seed.
+				if (!isset($minSeed) && isset($js_file['options']['seed']))
+					$minSeed = $js_file['options']['seed'];
+			}
+
+			else
+				echo '
+	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
 		}
 
-		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
-			echo '
-	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
-	}
+		foreach ($toMinify as $js_files)
+		{
+			if (!empty($js_files))
+			{
+				$result = custMinify($js_files, 'js');
 
-	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
-	{
-		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+				$minSuccessful = array_keys($result) === array('smf_minified');
 
-		$minSuccessful = array_keys($result) === array('smf_minified');
+				foreach ($result as $minFile)
+					echo '
+	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
 
-		foreach ($result as $minFile)
-			echo '
-	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async="async"' : '', '></script>';
-
+			}
+		}
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3724,30 +3736,29 @@ function template_css()
 }
 
 /**
- * Get an array of previously defined files and adds them to our main minified file.
+ * Get an array of previously defined files and adds them to our main minified files.
  * Sets a one day cache to avoid re-creating a file on every request.
  *
  * @param array $data The files to minify.
  * @param string $type either css or js.
- * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
  * @return array Info about the minified file, or about the original files if the minify process failed.
  */
-function custMinify($data, $type, $do_deferred = false)
+function custMinify($data, $type)
 {
 	global $settings, $txt;
 
 	$types = array('css', 'js');
 	$type = !empty($type) && in_array($type, $types) ? $type : false;
-	$data = !empty($data) ? $data : false;
+	$data = is_array($data) ? $data : array();
 
 	if (empty($type) || empty($data))
-		return (array) $data;
+		return $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_keys($data)));
 
 	// Did we already do this?
-	list($toCache, $async) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 2, null);
+	list($toCache, $async, $defer) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 3, null);
 
 	// Already done?
 	if (!empty($toCache))
@@ -3755,7 +3766,7 @@ function custMinify($data, $type, $do_deferred = false)
 			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
 			'filePath' => $toCache,
 			'fileName' => basename($toCache),
-			'options' => array('async' => !empty($async)),
+			'options' => array('async' => !empty($async), 'defer' => !empty($defer)),
 		));
 
 
@@ -3766,7 +3777,7 @@ function custMinify($data, $type, $do_deferred = false)
 	$cTempPath = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/';
 
 	// What kind of file are we going to create?
-	$toCreate = $cTempPath . 'minified' . ($do_deferred ? '_deferred' : '') . '_' . $hash . '.' . $type;
+	$toCreate = $cTempPath . 'minified_' . $hash . '.' . $type;
 
 	// File has to exist. If it doesn't, try to create it.
 	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
@@ -3782,21 +3793,32 @@ function custMinify($data, $type, $do_deferred = false)
 	$minifier = new $classType();
 
 	$async = $type === 'js';
+	$defer = $type === 'js';
 
-	foreach ($data as $file)
+	foreach ($data as $id => $file)
 	{
-		$tempFile = str_replace($file['options']['seed'], '', $file['filePath']);
-		$toAdd = file_exists($tempFile) ? $tempFile : false;
+		if (empty($file['filePath']))
+			$toAdd = false;
+		else
+		{
+			$seed = isset($file['options']['seed']) ? $file['options']['seed'] : '';
+			$tempFile = str_replace($seed, '', $file['filePath']);
+			$toAdd = file_exists($tempFile) ? $tempFile : false;
+		}
 
 		// A minified script should only be loaded asynchronously if all its components wanted to be.
 		if (empty($file['options']['async']))
 			$async = false;
 
+		// A minified script should only be deferred if all its components wanted to be.
+		if (empty($file['options']['defer']))
+			$defer = false;
+
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['file_minimize_fail'], $file['fileName']), 'general');
+			log_error(sprintf($txt['file_minimize_fail'], (!empty($file['fileName']) ? $file['fileName']) : $id), 'general');
 			continue;
 		}
 
@@ -3820,14 +3842,14 @@ function custMinify($data, $type, $do_deferred = false)
 		return $data;
 	}
 
-	// And create a long lived cache entry.
-	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async), 86400);
+	// And create a one day cache entry.
+	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async, $defer), 86400);
 
 	return array('smf_minified' => array(
 		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
 		'filePath' => $toCreate,
 		'fileName' => basename($toCreate),
-		'options' => array('async' => $async),
+		'options' => array('async' => $async, 'defer' => $defer),
 	));
 }
 
