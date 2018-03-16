@@ -85,10 +85,8 @@ function preparsecode(&$message, $previewing = false)
 	if ($codeopen && !$had_tag)
 		$message = '[code]' . $message;
 
-	// Now that we've fixed all the code tags, let's fix the img and url tags...
-	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
-
 	// Replace code BBC with placeholders. We'll restore them at the end.
+	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 	for ($i = 0, $n = count($parts); $i < $n; $i++)
 	{
 		// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
@@ -106,6 +104,7 @@ function preparsecode(&$message, $previewing = false)
 	// The regular expression non breaking space has many versions.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
+	// Now that we've fixed all the code tags, let's fix the img and url tags...
 	fixTags($message);
 
 	// Replace /me.+?\n with [me=name]dsf[/me]\n.

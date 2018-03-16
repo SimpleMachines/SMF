@@ -1492,6 +1492,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
+				'tag' => 'justify',
+				'before' => '<div style="text-align: justify;">',
+				'after' => '</div>',
+				'block_level' => true,
+			),
+			array(
 				'tag' => 'left',
 				'before' => '<div style="text-align: left;">',
 				'after' => '</div>',
@@ -1743,6 +1749,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
+			),
+			array(
+				'tag' => 'youtube',
+				'type' => 'unparsed_content',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 			),
 		);
 

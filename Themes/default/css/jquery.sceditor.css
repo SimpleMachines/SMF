@@ -161,6 +161,10 @@ div.sceditor-grip {
     More info at: http://lesselements.com
   ---------------------------------------------------*/
 .sceditor-container {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
   position: relative;
   background: #fff;
   border: 1px solid #d9d9d9;
@@ -169,6 +173,8 @@ div.sceditor-grip {
   color: #222;
   line-height: 1;
   font-weight: bold;
+  overflow: hidden;
+  height: 250px;
   border-radius: 4px;
   background-clip: padding-box;
   min-width: 100%;
@@ -191,10 +197,13 @@ div.sceditor-dropdown div {
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
+  display: block;
+  -ms-flex: 1 1 0%;
+  flex: 1 1 0%;
   line-height: normal;
   border: 0;
   outline: none;
-  font-size: 13px;
+  font-size: 14px;
   color: #111;
   box-sizing: border-box;
   padding: 5px;
@@ -204,13 +213,32 @@ div.sceditor-dropdown div {
   display: block;
   min-width: 100%;
   max-width: 100%;
-
+  height: auto !important;
+  min-height: 1px;
 }
 .sceditor-container iframe {
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 .sceditor-container textarea {
   font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
+}
+div.sceditor-dnd-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 5px dashed #aaa;
+  z-index: 200;
+  font-size: 2em;
+  text-align: center;
+  color: #aaa;
+}
+div.sceditor-dnd-cover p {
+  position: relative;
+  top: 45%;
+  pointer-events: none;
 }
 div.sceditor-resize-cover {
   position: absolute;
@@ -222,14 +250,6 @@ div.sceditor-resize-cover {
   z-index: 10;
   opacity: 0.3;
 }
-.ie6 div.sceditor-resize-cover,
-.ie7 div.sceditor-resize-cover,
-.ie8 div.sceditor-resize-cover {
-  background: #efefef;
-}
-.sceditor-container.ie6 {
-  overflow: hidden;
-}
 div.sceditor-grip {
   overflow: hidden;
   width: 10px;
@@ -239,6 +259,10 @@ div.sceditor-grip {
   bottom: 0;
   right: 0;
   z-index: 3;
+  line-height: 0;
+}
+div.sceditor-grip.has-icon {
+  background-image: none;
 }
 .sceditor-maximize {
   position: fixed;
@@ -445,6 +469,7 @@ div.sceditor-color-picker {
 	 * Toolbar styleing
 	 */
 div.sceditor-toolbar {
+  flex-shrink: 0;
   overflow: hidden;
   padding: 3px 5px 2px;
   background: #f7f7f7;
@@ -464,11 +489,6 @@ div.sceditor-group {
   border-radius: 3px;
   background-clip: padding-box;
 }
-.ie6 div.sceditor-group,
-.ie7 div.sceditor-group {
-  display: inline;
-  zoom: 1;
-}
 .sceditor-button {
   float: left;
   cursor: pointer;
@@ -477,26 +497,6 @@ div.sceditor-group {
   height: 20px;
   border-radius: 3px;
   background-clip: padding-box;
-  /* Needed for Safari 5? */
-  text-indent: -9999px;
-}
-.ie .sceditor-button {
-  text-indent: 0;
-}
-.ie6 .sceditor-button,
-.ie7 .sceditor-button {
-  float: none !important;
-  display: inline;
-  zoom: 1;
-}
-.ie6 .sceditor-button {
-  padding: 0;
-}
-.ie6 .sceditor-button div {
-  margin: 5px;
-}
-.ie7 .sceditor-button div {
-  margin: 5px 0;
 }
 .sceditor-button:hover,
 .sceditor-button:active,
@@ -517,6 +517,18 @@ div.sceditor-group {
 .sceditor-button div {
   display: block;
 }
+.sceditor-button svg {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  margin: 2px 0;
+  fill: #111;
+  pointer-events: none;
+  line-height: 1;
+}
+.sceditor-button.disabled svg {
+  fill: #888;
+}
 .sceditor-button div {
   margin: 2px 0;
   padding: 0;
@@ -525,8 +537,10 @@ div.sceditor-group {
   font-size: 0;
   color: transparent;
 }
+.sceditor-button.has-icon div {
+  display: none;
+}
 .sceditor-button.disabled div {
-  filter: alpha(opacity=30);
   opacity: 0.3;
 }
 .text .sceditor-button,
@@ -537,17 +551,23 @@ div.sceditor-group {
 .text-icon .sceditor-button div,
 .sceditor-button.text-icon,
 .sceditor-button.text-icon div {
+  display: inline-block;
   width: auto;
-  overflow: visible;
   line-height: 16px;
   font-size: 1em;
   color: inherit;
   text-indent: 0;
 }
+.text-icon .sceditor-button.has-icon div,
+.sceditor-button.has-icon div,
 .text .sceditor-button div,
 .sceditor-button.text div {
   padding: 0 2px;
   background: none;
+}
+.text .sceditor-button svg,
+.sceditor-button.text svg {
+  display: none;
 }
 .text-icon .sceditor-button div,
 .sceditor-button.text-icon div {

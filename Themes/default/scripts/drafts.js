@@ -45,7 +45,8 @@ smf_DraftAutoSave.prototype.init = function ()
 // Moved away from the page, where did you go? ... till you return we pause autosaving
 smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 {
-	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
+	var e = $('#' + this.opt.sSceditorID).get(0);
+	if (sceditor.instance(e).inSourceMode() == source)
 	{
 		// save what we have and turn of the autosave
 		if (this.bPM)
@@ -63,7 +64,8 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 // Since you're back we resume the autosave timer
 smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 {
-	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
+	var e = $('#' + this.opt.sSceditorID).get(0);
+	if (sceditor.instance(e).inSourceMode() == source)
 	{
 		if (this.interval_id == "")
 			this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
@@ -74,7 +76,8 @@ smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 // Make the call to save this draft in the background
 smf_DraftAutoSave.prototype.draftSave = function ()
 {
-	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText(true);
+	var e = $('#' + this.opt.sSceditorID).get(0);
+	var sPostdata = sceditor.instance(e).getText(true);
 	var sPosticon = (typeof document.forms.postmodify['icon'] === 'undefined' ? 'xx' : document.forms.postmodify['icon'].value);
 	var sPostsubj = (typeof document.forms.postmodify['subject'] === 'undefined' ? '' : document.forms.postmodify['subject'].value);
 
@@ -111,7 +114,8 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	}
 
 	// keep track of source or wysiwyg
-	aSections[aSections.length] = 'message_mode=' + $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode();
+	var e = $('#' + this.opt.sSceditorID).get(0);
+	aSections[aSections.length] = 'message_mode=' + sceditor.instance(e).inSourceMode();
 
 	// Send in document for saving and hope for the best
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=post2;board=" + this.opt.iBoard + ";xml", aSections.join("&"), this.onDraftDone);
@@ -123,7 +127,8 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 // Make the call to save this PM draft in the background
 smf_DraftAutoSave.prototype.draftPMSave = function ()
 {
-	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText();
+	var e = $('#' + this.opt.sSceditorID).get(0);
+	var sPostdata = sceditor.instance(e).getText();
 
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)

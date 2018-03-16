@@ -32,7 +32,7 @@
 			if (this.inSourceMode())
 				current_value = this.getSourceEditorValue(false);
 			else
-				current_value  = this.getWysiwygEditorValue(filter);
+				current_value = this.getWysiwygEditorValue(filter);
 
 			return current_value;
 		},
@@ -51,7 +51,7 @@
 						if (base.opts.emoticonsCompat)
 						{
 							start = '<span> ';
-							end   = ' </span>';
+							end = ' </span>';
 						}
 
 						if (base.inSourceMode())
@@ -147,19 +147,32 @@
 		}
 	};
 
-	$.extend(true, $['sceditor'].prototype, extensionMethods);
+	var createFn = sceditor.create;
+	var isPatched = false;
+
+	sceditor.create = function (textarea, options) {
+		// Call the original create function
+		createFn(textarea, options);
+
+		// Constructor isn't exposed so get reference to it when
+		// creating the first instance and extend it then
+		var instance = sceditor.instance(textarea);
+		if (!isPatched && instance) {
+			$.extend(true, instance.constructor.prototype, extensionMethods);
+			isPatched = true;
+		}
+	};
 })(jQuery);
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'pre', {
-		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<pre>', '</pre>');
 		}
 	}
 );
-$.sceditor.command.set(
+sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
@@ -172,7 +185,7 @@ $.sceditor.command.set(
 		}
 	}
 );
-$.sceditor.command.set(
+sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
@@ -182,18 +195,39 @@ $.sceditor.command.set(
 				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
+		},
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.link._dropDown(editor, caller, function (url, text) {
+				// needed for IE to restore the last range
+				editor.focus();
+
+				// If there is no selected text then must set the URL as
+				// the text. Most browsers do this automatically, sadly
+				// IE doesn't.
+				if (!editor.getRangeHelper().selectedHtml() || text) {
+					text = text || url;
+
+					editor.wysiwygEditorInsertHtml(
+						'<a target="_blank" rel="noopener" href="' + url + '">' + text + '</a>'
+					);
+				} else {
+					editor.execCommand('createlink', url);
+				}
+			});
 		}
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'bulletlist', {
 		txtExec: function (caller, selected) {
 			if (selected)
 			{
 				var content = '';
 
-				$.each(selected.split(/\r?\n/), function () {
+				each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -205,14 +239,14 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'orderedlist', {
-		txtExec:  function (caller, selected) {
+		txtExec: function (caller, selected) {
 			if (selected)
 			{
 				var content = '';
 
-				$.each(selected.split(/\r?\n/), function () {
+				each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -224,15 +258,14 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'table', {
 		txtExec: ["[table]\n[tr]\n[td]", "[/td]\n[/tr]\n[/table]"]
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'floatleft', {
-		tooltip: 'Float left',
 		txtExec: ["[float=left max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatleft">', '</div>');
@@ -240,9 +273,8 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.command.set(
+sceditor.command.set(
 	'floatright', {
-		tooltip: 'Float right',
 		txtExec: ["[float=right max=45%]", "[/float]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
@@ -250,7 +282,19 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.command.set(
+	'youtube', {
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
+				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '"></iframe></div></div>');
+			});
+		}
+	}
+);
+
+sceditor.formats.bbcode.set(
 	'abbr', {
 		tags: {
 			abbr: {
@@ -258,7 +302,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			}
 		},
 		format: function (element, content) {
-			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
+			return '[abbr=' + $(element).attr('title') + ']' + content + '[/abbr]';
 		},
 		html: function (element, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
@@ -269,11 +313,11 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'list', {
 		breakStart: true,
 		isInline: false,
-		allowedChildren: ['*', 'li'],
+		// allowedChildren: ['*', 'li'], // Disabled for SCE 2.1.2 because it triggers a bug with inserting extra line breaks
 		html: function (element, attrs, content) {
 			var style = '';
 			var code = 'ul';
@@ -293,7 +337,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'ul', {
 		tags: {
 			ul: null
@@ -302,15 +346,15 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		html: '<ul>{0}</ul>',
 		format: function (element, content) {
-			if ($(element[0]).css('list-style-type') == 'disc')
+			if ($(element).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
-				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
 		}
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'ol', {
 		tags: {
 			ol: null
@@ -319,15 +363,15 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		html: '<ol>{0}</ol>',
 		format: function (element, content) {
-			if ($(element[0]).css('list-style-type') == 'none')
+			if ($(element).css('list-style-type') == 'none')
 				return '[list type=decimal]' + content + '[/list]';
 			else
-				return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+				return '[list type=' + $(element).css('list-style-type') + ']' + content + '[/list]';
 		}
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'img', {
 		tags: {
 			img: {
@@ -337,7 +381,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		format: function (element, content) {
-			var	attribs = '',
+			var	element = $(element),
+				attribs = '',
 				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
@@ -348,9 +393,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + $(element).width();
+				attribs += " width=" + element.width();
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + $(element).height();
+				attribs += " height=" + element.height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -388,7 +433,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'attach', {
 		tags: {
 			attach: {
@@ -398,7 +443,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		format: function (element, content) {
-			var	attribs = '',
+			var	element = $(element),
+				attribs = '',
 				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
@@ -467,7 +513,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
@@ -477,7 +523,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			}
 		},
 		format: function (element, content) {
-			var url = element.attr('href');
+			var element = $(element),
+				url = element.attr('href');
 
 			// make sure this link is not an e-mail, if it is return e-mail BBCode
 			if (url.substr(0, 7) === 'mailto:')
@@ -516,7 +563,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
@@ -530,7 +577,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
@@ -541,7 +588,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'php', {
 		isInline: false,
 		format: "[php]{0}[/php]",
@@ -549,7 +596,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'code', {
 		tags: {
 			code: null
@@ -557,7 +604,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			if ($(element[0]).hasClass('php'))
+			if ($(element).hasClass('php'))
 				return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
 			var from = '';
@@ -593,7 +640,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'quote', {
 		tags: {
 			blockquote: null,
@@ -603,6 +650,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		breakBefore: false,
 		isInline: false,
 		format: function (element, content) {
+			var element = $(element);
 			var author = '';
 			var date = '';
 			var link = '';
@@ -664,13 +712,14 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set('font', {
-	format: function ($element, content) {
+sceditor.formats.bbcode.set('font', {
+	format: function (element, content) {
+		var element = $(element);
 		var font;
 
 		// Get the raw font value from the DOM
-		if (!$element.is('font') || !(font = $element.attr('face'))) {
-			font = $element.css('font-family');
+		if (!element.is('font') || !(font = element.attr('face'))) {
+			font = element.css('font-family');
 		}
 
 		// Strip all quotes
@@ -680,11 +729,11 @@ $.sceditor.plugins.bbcode.bbcode.set('font', {
 	}
 });
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'member', {
 		isInline: true,
-		format: function ($element, content) {
-			return '[member='+ $element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
+		format: function (element, content) {
+			return '[member='+ $(element).attr('data-mention') +']'+ content.replace('@','') +'[/member]';
 		},
 		html: function (token, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
@@ -695,7 +744,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 	}
 );
 
-$.sceditor.plugins.bbcode.bbcode.set(
+sceditor.formats.bbcode.set(
 	'float', {
 		tags: {
 			div: {
@@ -704,12 +753,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		},
 		isInline: false,
 		skipLastLineBreak: true,
-		format: function ($element, content) {
-			if (!$element.css('float'))
+		format: function (element, content) {
+			var element = $(element);
+			if (!element.css('float'))
 				return content;
 
-			side = ($element.css('float').indexOf('left') == 0 ? 'left' : 'right');
-			max = ' max=' + ($element.css('max-width') != "none" ? $element.css('max-width') : '45%');
+			side = (element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			max = ' max=' + (element.css('max-width') != "none" ? element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';
 		},
@@ -722,5 +772,25 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			return '<div class="' + floatclass + '"' + style + '>' + content + '</div>';
 		}
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'youtube', {
+		allowsEmpty: true,
+		tags: {
+			div: {
+				class: 'videocontainer'
+			}
+		},
+		format: function (element, content) {
+			youtube_id = $(element).find('iframe').data('youtube-id');
+
+			if (typeof youtube_id !== "undefined")
+				return '[youtube]' + youtube_id + '[/youtube]';
+			else
+				return content;
+		},
+		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" allowfullscreen></iframe></div></div>'
 	}
 );

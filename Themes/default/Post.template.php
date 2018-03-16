@@ -597,8 +597,9 @@ function template_main()
 						if (textFields[i] in document.forms.postmodify)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && $("#', $context['post_box_name'], '").data("sceditor") != undefined)
-								x[x.length] = textFields[i] + \'=\' + $("#', $context['post_box_name'], '").data("sceditor").getText().html();
+							var e = $("#', $context['post_box_name'], '").get(0);
+							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && sceditor.instance(e) != undefined)
+								x[x.length] = textFields[i] + \'=\' + sceditor.instance(e).getText().html();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.html();
 						}
@@ -885,14 +886,15 @@ function template_main()
 			function onDocReceived(XMLDoc)
 			{
 				var text = \'\';
+				var e = $("#', $context['post_box_name'], '").get(0);
 
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+				sceditor.instance(e).InsertText(text);
 			}
 			function onReceiveOpener(text)
 			{
-				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+				sceditor.instance(e).InsertText(text);
 			}
 		</script>';
 	}
