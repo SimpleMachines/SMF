@@ -631,6 +631,18 @@ function printMemberListRows($request)
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 			{
+
+				$value = $context['members'][$member]['options'][$key];
+				$currentKey = 0;
+				if (!empty($column['options'])) {
+					$fieldOptions = explode(',', $column['options']);
+					foreach ($fieldOptions as $k => $v)
+					{
+						if (empty($currentKey))
+							$currentKey = $v === $value ? $k : 0;
+					}
+				}
+
 				// Don't show anything if there isn't anything to show.
 				if (!isset($context['members'][$member]['options'][$key]))
 				{
@@ -651,6 +663,7 @@ function printMemberListRows($request)
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 						'{INPUT}' => $context['members'][$member]['options'][$key],
+						'{KEY}' => $currentKey
 					));
 			}
 		}
