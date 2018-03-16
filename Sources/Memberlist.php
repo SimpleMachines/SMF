@@ -669,7 +669,7 @@ function getCustFieldsMList()
 	$cpf = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND show_mlist = {int:show}
@@ -687,6 +687,7 @@ function getCustFieldsMList()
 		$cpf['columns'][$row['col_name']] = array(
 			'label' => $row['field_name'],
 			'type' => $row['field_type'],
+			'options' => $row['field_options'],
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
 		);
