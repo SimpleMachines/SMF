@@ -1077,7 +1077,7 @@ function template_quickreply()
 								var text = \'\';
 								for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 									text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-								$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+								sceditor.instance($("#', $context['post_box_name'], '").get(0)).InsertText(text);
 
 								ajax_indicator(false);
 							}

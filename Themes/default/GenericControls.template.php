@@ -19,9 +19,15 @@
  */
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $modSettings;
+	global $context, $settings, $modSettings, $smcFunc;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
+
+	if ($smileyContainer === null)
+		$editor_context['sce_options']['emoticonsEnabled'] = false;
+
+	if ($bbcContainer === null)
+		$editor_context['sce_options']['toolbar'] = '';
 
 	echo '
 		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty($context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
@@ -31,89 +37,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			$(document).ready(function() {
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
-				$("#', $editor_id, '").sceditor({
-					',($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
-					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
-					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
-					rtl: true,' : '', '
-					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
-					plugins: "bbcode",
-					parserOptions: {
-						quoteType: $.sceditor.BBCodeParser.QuoteType.auto
-					}';
-
-		// Show the smileys.
-		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
-		{
-			echo ',
-					emoticons:
-					{';
-			$countLocations = count($context['smileys']);
-			foreach ($context['smileys'] as $location => $smileyRows)
-			{
-				$countLocations--;
-				if ($location == 'postform')
-					echo '
-						dropdown:
-						{';
-				elseif ($location == 'popup')
-					echo '
-						popup:
-						{';
-
-				$numRows = count($smileyRows);
-
-				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
-				$emptyPlaceholder = 0;
-				foreach ($smileyRows as $smileyRow)
-				{
-					foreach ($smileyRow['smileys'] as $smiley)
-						echo '
-							', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
-
-					if (empty($smileyRow['isLast']) && $numRows != 1)
-						echo ',
-						\'-', $emptyPlaceholder++, '\': \'\',';
-				}
-				echo '
-						}', $countLocations != 0 ? ',' : '';
-			}
-			echo '
-					}';
-		}
-		else
-			echo ',
-					emoticons:
-					{},
-					emoticonsEnabled:false';
-
-		if ($context['show_bbc'] && $bbcContainer !== null)
-		{
-			echo ',
-					toolbar: "';
-
-			$count_tags = count($context['bbc_tags']);
-			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
-			{
-				echo implode('|', $buttonRow);
-
-				$count_tags--;
-
-				if (!empty($count_tags))
-					echo '||';
-			}
-
-			echo '",';
-		}
-		else
-			echo ',
-					toolbar: "",';
-
-		echo '
-				});
-				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();', $editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				var textarea = $("#', $editor_id, '").get(0);
+				sceditor.create(textarea, ', $smcFunc['json_encode']($editor_context['sce_options'], JSON_PRETTY_PRINT), ');', !$editor_context['sce_options']['emoticonsEnabled'] ? '' : '
+				sceditor.instance(textarea).createPermanentDropDown();', empty($editor_context['rich_active']) ? '' : '
+				sceditor.instance(textarea).toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';

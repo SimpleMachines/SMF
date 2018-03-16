@@ -155,7 +155,8 @@ function smf_fileUpload(oOptions) {
 					h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
 					// Get the editor stuff.
-					var oEditor = $('#' + oEditorID).data('sceditor');
+					var e = $('#' + oEditorID).get(0);
+					var oEditor = sceditor.instance(e);
 
 					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
 				})
