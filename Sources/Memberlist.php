@@ -634,7 +634,8 @@ function printMemberListRows($request)
 
 				$value = $context['members'][$member]['options'][$key];
 				$currentKey = 0;
-				if (!empty($column['options'])) {
+				if (!empty($column['options']))
+				{
 					$fieldOptions = explode(',', $column['options']);
 					foreach ($fieldOptions as $k => $v)
 					{

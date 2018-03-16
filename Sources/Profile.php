@@ -888,12 +888,13 @@ function loadCustomFields($memID, $area = 'summary')
 	{
 		$value = $user_profile[$memID]['options'][$row['col_name']];
 		$currentKey = 0;
-		if (!empty($row['field_options'])) {
+		if (!empty($row['field_options']))
+		{
 			$fieldOptions = explode(',', $row['field_options']);
-			foreach ($fieldOptions as $k => $v) {
-				if (empty($currentKey)) {
+			foreach ($fieldOptions as $k => $v)
+			{
+				if (empty($currentKey))
 					$currentKey = $v === $value ? $k : 0;
-				}
 			}
 		}
 
