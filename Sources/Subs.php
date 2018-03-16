@@ -3730,7 +3730,7 @@ function template_css()
  * @param array $data The files to minify.
  * @param string $type either css or js.
  * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
- * @return bool|array If an array the minify process failed and the data is returned intact.
+ * @return array Info about the minified file, or about the original files if the minify process failed.
  */
 function custMinify($data, $type, $do_deferred = false)
 {
@@ -3741,17 +3741,23 @@ function custMinify($data, $type, $do_deferred = false)
 	$data = !empty($data) ? $data : false;
 
 	if (empty($type) || empty($data))
-		return false;
+		return (array) $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_keys($data)));
 
-	// Did we already did this?
-	$toCache = cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400);
+	// Did we already do this?
+	list($toCache, $async) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 2, null);
 
 	// Already done?
 	if (!empty($toCache))
-		return true;
+		return array('smf_minified' => array(
+			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
+			'filePath' => $toCache,
+			'fileName' => basename($toCache),
+			'options' => array('async' => !empty($async)),
+		));
+
 
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
@@ -3815,7 +3821,7 @@ function custMinify($data, $type, $do_deferred = false)
 	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, $toCreate, 86400);
+	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async), 86400);
 
 	return array('smf_minified' => array(
 		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
@@ -4151,7 +4157,7 @@ function setupMenuContext()
 			addInlineJavaScript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavaScriptFile('alerts.js', array(), 'smf_alerts');
+			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
 		}
 	}
 
