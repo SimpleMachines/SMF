@@ -3826,6 +3826,39 @@ function custMinify($data, $type, $do_deferred = false)
 }
 
 /**
+ * Clears out old minimized CSS and JavaScript files
+ */
+function unlinkMinified()
+{
+	global $smcFunc;
+
+	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_theme AS id, value AS dir
+		FROM {db_prefix}themes
+		WHERE variable = {string:var}',
+		array(
+			'var' => 'theme_dir',
+		)
+	);
+	while ($theme = $smcFunc['db_fetch_assoc']($request))
+	{
+		foreach (array('css', 'js') as $type)
+		{
+			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified*.' . $type) as $filename)
+			{
+				// Remove the cache entry
+				if (preg_match('~([a-zA-Z0-9]+)\.' . $type . '$~', $filename, $matches))
+					cache_put_data('minimized_' . $theme['id'] . '_' . $type . '_' . $matches[1], null);
+
+				// Delete the file (but don't complain if we can't for some reason)
+				@unlink($filename);
+			}
+		}
+	}
+}
+
+/**
  * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
  * @todo this currently returns the hash if new, and the full filename otherwise.
  * Something messy like that.

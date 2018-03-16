@@ -1482,9 +1482,10 @@ function scheduled_weekly_maintenance()
 
 	// Run Cache housekeeping
 	if (!empty($cache_enable) && !empty($cacheAPI))
-	{
 		$cacheAPI->housekeeping();
-	}
+
+	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
+	unlinkMinified();
 
 	return true;
 }

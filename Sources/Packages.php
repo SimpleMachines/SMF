@@ -1222,8 +1222,9 @@ function PackageInstall()
 	// Log what we just did.
 	logAction($context['uninstalling'] ? 'uninstall_package' : (!empty($is_upgrade) ? 'upgrade_package' : 'install_package'), array('package' => $smcFunc['htmlspecialchars']($packageInfo['name']), 'version' => $smcFunc['htmlspecialchars']($packageInfo['version'])), 'admin');
 
-	// Just in case, let's clear the whole cache to avoid anything going up the swanny.
+	// Just in case, let's clear the whole cache and any minimized CSS and JS to avoid anything going up the swanny.
 	clean_cache();
+	unlinkMinified();
 
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
