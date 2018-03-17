@@ -463,30 +463,34 @@ function load_lang_file()
 		die;
 	}
 
-		// Override the language file?
-		if (isset($_GET['lang_file']))
-			$_SESSION['installer_temp_lang'] = $_GET['lang_file'];
-		elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file']))
-			$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
+	// Override the language file?
+	if (isset($_GET['lang_file']))
+		$_SESSION['installer_temp_lang'] = $_GET['lang_file'];
+	elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file']))
+		$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
 
-		// Make sure it exists, if it doesn't reset it.
-		if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
-		{
-			// Use the first one...
-			list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+	// Make sure it exists, if it doesn't reset it.
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
+	{
+		// Use the first one...
+		list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
-			// If we have english and some other language, use the other language.  We Americans hate english :P.
-			if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
-				list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
-		}
+		// If we have english and some other language, use the other language.  We Americans hate english :P.
+		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
+			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
-		// And now include the actual language file itself.
-		require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
-
-		// Which language did we load? Assume that he likes his language.
-		preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
-		$user_info['language'] = $matches[1];
+		// For backup we load the english at first -> second language overwrite the english one
+		if (count($incontext['detected_languages']) > 1)
+			require_once(dirname(__FILE__) . '/Themes/default/languages/Install.english.php');
 	}
+
+	// And now include the actual language file itself.
+	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+
+	// Which language did we load? Assume that he likes his language.
+	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+	$user_info['language'] = $matches[1];
+}
 
 // Used to direct the user to another location.
 function redirectLocation($location, $addForm = true)
