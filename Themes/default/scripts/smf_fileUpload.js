@@ -30,24 +30,22 @@ function smf_fileUpload(oOptions) {
 		currentUsedSize: 0,
 		smf_insertBBC: function (file, w, h) {
 
-			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : '');
-
-			var bbcOptionalParams = {
-				width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
-				height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
-				name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
-				type: ' type=' + mime_type,
-			};
+			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : ''),
+				bbcOptionalParams = {
+					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
+					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
+					name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
+					type: ' type=' + mime_type,
+				};
 
 			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type + ']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
 			// Update the MaxSize bar to reflect the new size percentage.
-			var currentSize = Math.round(myDropzone.options.currentUsedSize / 1024);
-			var maxSize = myDropzone.options.maxTotalSize;
-
-			var usedPercentage = Math.round($.fn.percentToRange($.fn.rangeToPercent(currentSize, 0, maxSize), 0, 100));
+			var currentSize = Math.round(myDropzone.options.currentUsedSize / 1024),
+				maxSize = myDropzone.options.maxTotalSize,
+				usedPercentage = Math.round($.fn.percentToRange($.fn.rangeToPercent(currentSize, 0, maxSize), 0, 100));
 
 			// 3 basic colors.
 			if (usedPercentage <= 33)
@@ -59,9 +57,8 @@ function smf_fileUpload(oOptions) {
 			else
 				percentage_class = 'red';
 
-			$('#maxFiles_progress').show();
+			$('#maxFiles_progress').removeClass().addClass('progressBar progress_' + percentage_class).show();
 			$('#maxFiles_progress_text').show();
-			$('#maxFiles_progress').removeClass().addClass('progressBar progress_' + percentage_class);
 			$('#maxFiles_progress span').width(usedPercentage + '%');
 
 			// Show or update the text.
@@ -77,14 +74,17 @@ function smf_fileUpload(oOptions) {
 			// Need to check if the added file doesn't surpass the total max size setting.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
 
-			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024;
-			var totalKB = myDropzone.options.maxTotalSize;
-			var fileKB = myDropzone.options.maxFileSize;
-			var uploadedFileKB = file.size / 1024;
+			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024,
+				totalKB = myDropzone.options.maxTotalSize,
+				fileKB = myDropzone.options.maxFileSize,
+				uploadedFileKB = file.size / 1024;
 
 			// This file has reached the max total size per post.
 			if (totalKB > 0 && currentlyUsedKB > totalKB) {
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
+
+				// Remove the file size from the total
+				myDropzone.options.currentUsedSize - file.size;
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
@@ -436,6 +436,11 @@ function smf_fileUpload(oOptions) {
 
 		myDropzone.removeAllFiles(true);
 		myDropzone.options.createMaxSizeBar();
+
+		// Set to zero
+		myDropzone.options.currentUsedSize = 0;
+		myDropzone.options.maxTotalSize = 0;
+
 	});
 
 	$('a#attach-uploadAll').on('click', function () {
