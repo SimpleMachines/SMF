@@ -75,7 +75,7 @@ $txt['package_installed_redirect_go_now'] = 'Redirect Now';
 $txt['package_installed_redirect_cancel'] = 'Return to Package Manager';
 
 $txt['packages_adding_title'] = 'Obtaining Packages';
-$txt['packages_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="https://custom.simplemachines.org/mods/" target="_blank">https://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+$txt['packages_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="https://custom.simplemachines.org/mods/" target="_blank" rel="noopener">https://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['package_upgrade'] = 'Upgrade';
 $txt['package_uninstall_readme'] = 'Uninstallation Readme';
@@ -118,7 +118,7 @@ $txt['package_uninstall'] = 'removal';
 $txt['package_install_now'] = 'Install now';
 $txt['package_uninstall_now'] = 'Uninstall now';
 $txt['package_other_themes'] = 'Install in other themes';
-$txt['package_other_themes_uninstall'] = 'UnInstall in other themes';
+$txt['package_other_themes_uninstall'] = 'Uninstall in other themes';
 $txt['package_other_themes_desc'] = 'To use this modification in themes other than the default, the package manager needs to make additional changes to the other themes. If you\'d like to install this modification in the other themes, please select these themes below.';
 // Don't use entities in the below string.
 $txt['package_theme_failure_warning'] = 'At least one error was encountered during a test install of this theme. Are you sure you wish to attempt installation?';

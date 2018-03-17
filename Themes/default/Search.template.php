@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -18,22 +18,26 @@ function template_main()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
+	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">';
+
+	if (!empty($context['search_errors']))
+		echo '
+		<div class="errorbox">
+			', implode('<br>', $context['search_errors']['messages']), '
+		</div>';
+
+	if (!empty($context['search_ignored']))
+		echo '
+		<div class="noticebox">
+			', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
+		</div>';
+
+	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
 		</div>';
-
-	if (!empty($context['search_errors']))
-		echo '
-		<div class="errorbox">', implode('<br>', $context['search_errors']['messages']), '</div>';
-
-	if (!empty($context['search_ignored']))
-		echo '
-		<p class="noticebox">
-			', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '
-		</p>';
 
 	echo '
 		<div id="advanced_search" class="roundframe">
@@ -97,7 +101,7 @@ function template_main()
 					$txt['search_post_age'], ':
 				</dt>
 				<dd>
-					<label for="minage">',$txt['search_between'], ' </label> 
+					<label for="minage">',$txt['search_between'], ' </label>
 					<input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4">
 					<label for="maxage"> ', $txt['search_and'], ' </label>
 					<input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4"> ', $txt['days_word'], '
@@ -111,13 +115,11 @@ function template_main()
 
 	// Require an image to be typed to save spamming?
 	if ($context['require_verification'])
-	{
 		echo '
 			<p>
 				<strong>', $txt['verification'], ':</strong>
 				', template_control_verification($context['visual_verification_id'], 'all'), '
 			</p>';
-	}
 
 	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
 	if (!empty($context['search_params']['topic']))
@@ -184,10 +186,10 @@ function template_main()
 					</ul>
 				</div><!-- #advanced_panel_div -->
 				<br class="clear">
-				<div class="padding flow_auto">
-					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="floatleft">
-					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
-					<input type="submit" name="b_search" value="', $txt['search'], '" class="button">
+				<div class="padding">
+					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
+					<label for="check_all"><em>', $txt['check_all'], '</em></label>
+					<input type="submit" name="b_search" value="', $txt['search'], '" class="button floatright">
 				</div>
 			</div><!-- .roundframe -->
 		</fieldset>';
@@ -248,7 +250,7 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<div class="roundframe">';
+		<div class="roundframe noup">';
 
 		// Did they make any typos or mistakes, perhaps?
 		if (isset($context['did_you_mean']))
@@ -273,7 +275,7 @@ function template_results()
 						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
 					</dd>
 				</dl>
-				<div class="flow_auto" >
+				<div class="floatright">
 					<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button">
 					<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
 					<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
@@ -292,8 +294,7 @@ function template_results()
 		echo '
 			</form>
 		</div><!-- .roundframe -->
-	</div><!-- #search_results -->
-	<br>';
+	</div><!-- #search_results -->';
 	}
 
 	if ($context['compact'])
@@ -313,7 +314,7 @@ function template_results()
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 		echo '
 				</span>
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+				<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -326,35 +327,33 @@ function template_results()
 
 		else
 			echo '
-		<div class="roundframe">', $txt['find_no_results'], '</div>';
+		<div class="roundframe noup">', $txt['find_no_results'], '</div>';
 
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
-
 			echo '
-		<div class="', $topic['css_class'], '">
-			<div class="flow_auto">';
+		<div class="', $topic['css_class'], '">';
 
-			foreach ($topic['matches'] as $message)
-			{
-				echo '
-					<div class="topic_details floatleft">
-						<div class="counter">', $message['counter'], '</div>
-						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-						<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
-					</div>';
+		foreach ($topic['matches'] as $message)
+		{
+			echo '
+			<div class="block">
+				<span class="floatleft half_content">
+					<div class="counter">', $message['counter'], '</div>
+					<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+					<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+				</span>';
 
 				if (!empty($options['display_quick_mod']))
 				{
 					echo '
-				<div class="floatright">';
+				<span class="floatright">';
 
 					if ($options['display_quick_mod'] == 1)
-					{
 						echo '
 					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-					}
+
 					else
 					{
 						if ($topic['quick_mod']['remove'])
@@ -379,17 +378,18 @@ function template_results()
 					}
 
 					echo '
-				</div><!-- .floatright -->';
+				</span><!-- .floatright -->';
 				}
+
+			echo '
+			</div><!-- .block -->';
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<br class="clear">
 				<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
-			</div><!-- .flow_auto -->
 		</div><!-- $topic[css_class] -->';
 
 		}
@@ -402,8 +402,7 @@ function template_results()
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-			<div style="padding: 4px;">
-				<div class="floatright flow_auto">
+		<div class="quick_actions righttext">
 			<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 				<option value="">--------</option>';
 
@@ -417,12 +416,11 @@ function template_results()
 
 			if ($context['can_move'])
 				echo '
-			<span id="quick_mod_jump_to">&nbsp;</span>';
+			<span id="quick_mod_jump_to"></span>';
 
 			echo '
 			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button" style="float: none;font-size: .8em;"/>
-				</div>
+			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button">
 		</div><!-- .quick_actions -->';
 		}
 
@@ -438,7 +436,7 @@ function template_results()
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'], ':&nbsp;', $context['search_params']['search'], '
+			<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 		</h3>
 	</div>
 	<div class="pagesection">
@@ -471,12 +469,12 @@ function template_results()
 			// If they *can* reply?
 			if ($topic['can_reply'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 			// If they *can* quote?
 			if ($topic['can_quote'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			if ($topic['can_reply'])
 				echo '
@@ -496,7 +494,7 @@ function template_results()
 	// Show a jump to box for easy navigation.
 	echo '
 	<br class="clear">
-	<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
+	<div class="smalltext righttext" id="search_jump_to"></div>
 	<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
@@ -531,7 +529,6 @@ function template_results()
 				sGoButtonLabel: "', $txt['quick_mod_go'], '"
 			});
 		</script>';
-
 }
 
 ?>

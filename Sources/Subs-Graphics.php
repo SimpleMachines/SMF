@@ -12,7 +12,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -330,8 +330,6 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		'6' => 'bmp',
 		'15' => 'wbmp'
 	);
-
-	require_once($sourcedir . '/Subs-Package.php');
 
 	// Get the image file, we have to work with something after all
 	$fp_destination = fopen($destination, 'wb');
@@ -1105,12 +1103,12 @@ function showCodeImage($code)
 	// Show the image.
 	if (function_exists('imagegif'))
 	{
-		header('Content-type: image/gif');
+		header('content-type: image/gif');
 		imagegif($code_image);
 	}
 	else
 	{
-		header('Content-type: image/png');
+		header('content-type: image/png');
 		imagepng($code_image);
 	}
 
@@ -1152,7 +1150,7 @@ function showLetterImage($letter)
 		return false;
 
 	// Include it!
-	header('Content-type: image/png');
+	header('content-type: image/png');
 	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
 
 	// Nothing more to come.

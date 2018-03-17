@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -88,7 +88,7 @@ function template_registration_form()
 	}
 
 	echo '
-		<form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, '?action=signup2" method="post" accept-charset="', $context['character_set'], '" name="registration" id="registration" onsubmit="return verifyAgree();">
+		<form action="', !empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, '?action=signup2" method="post" accept-charset="', $context['character_set'], '" name="registration" id="registration" onsubmit="return verifyAgree();">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_form'], '</h3>
 			</div>
@@ -102,7 +102,7 @@ function template_registration_form()
 							<strong><label for="smf_autov_username">', $txt['username'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="user" id="smf_autov_username" size="30" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
+							<input type="text" name="user" id="smf_autov_username" size="50" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
 							<span id="smf_autov_username_div" style="display: none;">
 								<a id="smf_autov_username_link" href="#">
 									<span id="smf_autov_username_img" class="generic_icons check"></span>
@@ -111,13 +111,13 @@ function template_registration_form()
 						</dd>
 						<dt><strong><label for="smf_autov_reserve1">', $txt['user_email_address'], ':</label></strong></dt>
 						<dd>
-							<input type="text" name="email" id="smf_autov_reserve1" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '">
+							<input type="text" name="email" id="smf_autov_reserve1" size="50" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '">
 						</dd>
 					</dl>
 					<dl class="register_form" id="password1_group">
 						<dt><strong><label for="smf_autov_pwmain">', ucwords($txt['choose_pass']), ':</label></strong></dt>
 						<dd>
-							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '">
+							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwmain_div" style="display: none;">
 								<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
 							</span>
@@ -128,7 +128,7 @@ function template_registration_form()
 							<strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '">
+							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwverify_div" style="display: none;">
 								<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 							</span>
@@ -139,7 +139,7 @@ function template_registration_form()
 							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' />
+							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', '>
 						</dd>
 					</dl>';
 
@@ -147,7 +147,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
 	{
 		echo '
-
 					<dl class="register_form">';
 
 		foreach ($context['custom_fields'] as $field)
@@ -169,7 +168,6 @@ function template_registration_form()
 
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['additional_information'], '</h3>
@@ -177,7 +175,6 @@ function template_registration_form()
 			<div class="roundframe noup">
 				<fieldset>
 					<dl class="register_form" id="custom_group">';
-	}
 
 	if (!empty($context['profile_fields']))
 	{
@@ -218,7 +215,7 @@ function template_registration_form()
 							', $field['value'];
 
 				// Maybe it's a text box - very likely!
-				elseif (in_array($field['type'], array('int', 'float', 'text', 'password')))
+				elseif (in_array($field['type'], array('int', 'float', 'text', 'password', 'url')))
 					echo '
 							<input type="', $field['type'] == 'password' ? 'password' : 'text', '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" tabindex="', $context['tabindex']++, '" ', $field['input_attr'], '>';
 
@@ -265,7 +262,6 @@ function template_registration_form()
 	if (!empty($context['custom_fields']))
 	{
 		foreach ($context['custom_fields'] as $field)
-		{
 			if ($field['show_reg'] < 2)
 				echo '
 						<dt>
@@ -273,20 +269,16 @@ function template_registration_form()
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', $field['input_html'], '</dd>';
-		}
 	}
 
 	// If we have either of these, close the list like a proper gent.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
-	{
 		echo '
 					</dl>
 				</fieldset>
 			</div><!-- .roundframe -->';
-	}
 
 	if ($context['visual_verification'])
-	{
 		echo '
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $txt['verification'], '</h3>
@@ -296,7 +288,6 @@ function template_registration_form()
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
 			</div>';
-	}
 
 	echo '
 			<div id="confirm_buttons" class="flow_auto">';
@@ -310,6 +301,7 @@ function template_registration_form()
 	else
 		echo '
 				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+
 	echo '
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -365,36 +357,31 @@ function template_coppa()
 			<div id="coppa" class="roundframe noup">
 				<p>', $context['coppa']['body'], '</p>
 				<p>
-					<span><a href="', $scripturl, '?action=coppa;form;member=', $context['coppa']['id'], '" target="_blank">', $txt['coppa_form_link_popup'], '</a> | <a href="', $scripturl, '?action=coppa;form;dl;member=', $context['coppa']['id'], '">', $txt['coppa_form_link_download'], '</a></span>
+					<span><a href="', $scripturl, '?action=coppa;form;member=', $context['coppa']['id'], '" target="_blank" rel="noopener">', $txt['coppa_form_link_popup'], '</a> | <a href="', $scripturl, '?action=coppa;form;dl;member=', $context['coppa']['id'], '">', $txt['coppa_form_link_download'], '</a></span>
 				</p>
 				<p>', $context['coppa']['many_options'] ? $txt['coppa_send_to_two_options'] : $txt['coppa_send_to_one_option'], '</p>';
 
 	// Can they send by post?
 	if (!empty($context['coppa']['post']))
-	{
 		echo '
 				<h4>1) ', $txt['coppa_send_by_post'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['post'], '
 				</div>';
-	}
 
 	// Can they send by fax??
 	if (!empty($context['coppa']['fax']))
-	{
 		echo '
 				<h4>', !empty($context['coppa']['post']) ? '2' : '1', ') ', $txt['coppa_send_by_fax'], '</h4>
 				<div class="coppa_contact">
 					', $context['coppa']['fax'], '
 				</div>';
-	}
 
 	// Offer an alternative Phone Number?
 	if ($context['coppa']['phone'])
-	{
 		echo '
 				<p>', $context['coppa']['phone'], '</p>';
-	}
+
 	echo '
 			</div><!-- #coppa -->';
 }
@@ -457,6 +444,7 @@ function template_verification_sound()
 	</head>
 	<body style="margin: 1ex;">
 		<div class="windowbg description" style="text-align: center;">';
+
 	if (isBrowser('is_ie') || isBrowser('is_ie11'))
 		echo '
 			<object classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95" type="audio/x-wav">
@@ -470,6 +458,7 @@ function template_verification_sound()
 					<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
 				</object>
 			</audio>';
+
 	echo '
 			<br>
 			<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
@@ -509,21 +498,21 @@ function template_admin_register()
 							<span class="smalltext">', $txt['admin_register_username_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="30" maxlength="25">
+							<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="50" maxlength="25">
 						</dd>
 						<dt>
 							<strong><label for="email_input">', $txt['admin_register_email'], ':</label></strong>
 							<span class="smalltext">', $txt['admin_register_email_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="30">
+							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="50">
 						</dd>
 						<dt>
 							<strong><label for="password_input">', $txt['admin_register_password'], ':</label></strong>
 							<span class="smalltext">', $txt['admin_register_password_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="30" onchange="onCheckChange();">
+							<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="50" onchange="onCheckChange();">
 						</dd>';
 
 	if (!empty($context['member_groups']))
@@ -596,6 +585,7 @@ function template_edit_agreement()
 	if (!empty($context['saved_successful']))
 		echo '
 		<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	elseif (!empty($context['could_not_save']))
 		echo '
 		<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';
@@ -624,7 +614,7 @@ function template_edit_agreement()
 				</div>
 				<div class="information">
 					<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
-						<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
+						<strong>', $txt['admin_agreement_select_language'], ':</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['editable_agreements'] as $file => $name)
@@ -708,7 +698,7 @@ function template_edit_reserved_words()
 				</dd>
 			</dl>
 			<div class="flow_auto">
-					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button">
+				<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" class="button">
 				<input type="hidden" name="sa" value="reservednames">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">

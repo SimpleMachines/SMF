@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -61,6 +61,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_ping'                   => 'mysqli_ping',
 			'db_fetch_all'              => 'smf_db_fetch_all',
 			'db_error_insert'			=> 'smf_db_error_insert',
+			'db_custom_order'			=> 'smf_db_custom_order',
 		);
 
 	if (!empty($db_options['persist']))
@@ -68,15 +69,15 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 
 	$connection = mysqli_init();
 
-	$flags = MYSQLI_CLIENT_FOUND_ROWS;
+	$flags = 2; //MYSQLI_CLIENT_FOUND_ROWS = 2
 
 	$success = false;
 
 	if ($connection) {
 		if (!empty($db_options['port']))
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', $db_options['port'], null, $flags);
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, $db_options['port'], null, $flags);
 		else
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, '', 0, null, $flags);
+			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, 0, null, $flags);
 	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
@@ -92,10 +93,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	$smcFunc['db_query']('', 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'',
-		array(),
-		false
-	);
+	mysqli_query($connection, 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'');
 
 	return $connection;
 }
@@ -370,34 +368,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
 
-	// Get a connection if we are shutting down, sometimes the link is closed before sessions are written
-	if (!is_object($connection))
-	{
-		global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
-
-		// Are we in SSI mode?  If so try that username and password first
-		if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
-		{
-			if (empty($db_persist))
-				$db_connection = @mysqli_connect($db_server, $ssi_db_user, $ssi_db_passwd);
-			else
-				$db_connection = @mysqli_connect('p:' . $db_server, $ssi_db_user, $ssi_db_passwd);
-		}
-		// Fall back to the regular username and password if need be
-		if (!$db_connection)
-		{
-			if (empty($db_persist))
-				$db_connection = @mysqli_connect($db_server, $db_user, $db_passwd);
-			else
-				$db_connection = @mysqli_connect('p:' . $db_server, $db_user, $db_passwd);
-		}
-
-		if (!$db_connection || !@mysqli_select_db($db_connection, $db_name))
-			$db_connection = false;
-
-		$connection = $db_connection;
-	}
-
 	// One more query....
 	$db_count = !isset($db_count) ? 1 : $db_count + 1;
 
@@ -427,6 +397,55 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_callback = array();
 	}
 
+	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
+	if (empty($modSettings['disableQueryCheck']))
+	{
+		$clean = '';
+		$old_pos = 0;
+		$pos = -1;
+		// Remove the string escape for better runtime
+		$db_string_1 = str_replace('\\\'','',$db_string);
+		while (true)
+		{
+			$pos = strpos($db_string_1, '\'', $pos + 1);
+			if ($pos === false)
+				break;
+			$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
+
+			while (true)
+			{
+				$pos1 = strpos($db_string_1, '\'', $pos + 1);
+				$pos2 = strpos($db_string_1, '\\', $pos + 1);
+				if ($pos1 === false)
+					break;
+				elseif ($pos2 === false || $pos2 > $pos1)
+				{
+					$pos = $pos1;
+					break;
+				}
+
+				$pos = $pos2 + 1;
+			}
+			$clean .= ' %s ';
+
+			$old_pos = $pos + 1;
+		}
+		$clean .= substr($db_string_1, $old_pos);
+		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
+
+		// Comments?  We don't use comments in our queries, we leave 'em outside!
+		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
+			$fail = true;
+		// Trying to change passwords, slow us down, or something?
+		elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0)
+			$fail = true;
+		elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0)
+			$fail = true;
+
+		if (!empty($fail) && function_exists('log_error'))
+			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+	}
+
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
@@ -445,58 +464,10 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		}
 
 		// Don't overload it.
-		$st = microtime(true);
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = $st - $time_start;
-	}
-
-	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
-	if (empty($modSettings['disableQueryCheck']))
-	{
-		$clean = '';
-		$old_pos = 0;
-		$pos = -1;
-		while (true)
-		{
-			$pos = strpos($db_string, '\'', $pos + 1);
-			if ($pos === false)
-				break;
-			$clean .= substr($db_string, $old_pos, $pos - $old_pos);
-
-			while (true)
-			{
-				$pos1 = strpos($db_string, '\'', $pos + 1);
-				$pos2 = strpos($db_string, '\\', $pos + 1);
-				if ($pos1 === false)
-					break;
-				elseif ($pos2 === false || $pos2 > $pos1)
-				{
-					$pos = $pos1;
-					break;
-				}
-
-				$pos = $pos2 + 1;
-			}
-			$clean .= ' %s ';
-
-			$old_pos = $pos + 1;
-		}
-		$clean .= substr($db_string, $old_pos);
-		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
-
-		// Comments?  We don't use comments in our queries, we leave 'em outside!
-		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
-			$fail = true;
-		// Trying to change passwords, slow us down, or something?
-		elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0)
-			$fail = true;
-		elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0)
-			$fail = true;
-
-		if (!empty($fail) && function_exists('log_error'))
-			smf_db_error_backtrace('Hacking attempt...', 'Hacking attempt...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
 	}
 
 	if (empty($db_unbuffered))
@@ -597,8 +568,6 @@ function smf_db_error($db_string, $connection = null)
 	//    1035: Old key file for table.
 	//    1205: Lock wait timeout exceeded.
 	//    1213: Deadlock found.
-	//    2006: Server has gone away.
-	//    2013: Lost connection to server during query.
 
 	// Log the error.
 	if ($query_errno != 1213 && $query_errno != 1205 && function_exists('log_error'))
@@ -680,31 +649,8 @@ function smf_db_error($db_string, $connection = null)
 			$modSettings['cache_enable'] = $old_cache;
 
 		// Check for the "lost connection" or "deadlock found" errors - and try it just one more time.
-		if (in_array($query_errno, array(1205, 1213, 2006, 2013)))
+		if (in_array($query_errno, array(1205, 1213)))
 		{
-			if (in_array($query_errno, array(2006, 2013)) && $db_connection == $connection)
-			{
-				// Are we in SSI mode?  If so try that username and password first
-				if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
-				{
-					if (empty($db_persist))
-						$db_connection = @mysqli_connect($db_server, $ssi_db_user, $ssi_db_passwd);
-					else
-						$db_connection = @mysqli_connect('p:' . $db_server, $ssi_db_user, $ssi_db_passwd);
-				}
-				// Fall back to the regular username and password if need be
-				if (!$db_connection)
-				{
-					if (empty($db_persist))
-						$db_connection = @mysqli_connect($db_server, $db_user, $db_passwd);
-					else
-						$db_connection = @mysqli_connect('p:' . $db_server, $db_user, $db_passwd);
-				}
-
-				if (!$db_connection || !@mysqli_select_db($db_connection, $db_name))
-					$db_connection = false;
-			}
-
 			if ($db_connection)
 			{
 				// Try a deadlock more than once more.
@@ -774,7 +720,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	global $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
-	
+
 	$return_var = null;
 
 	// With nothing to insert, simply return.
@@ -783,9 +729,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
-	
+
 	$with_returning = false;
-	
+
 	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		$with_returning = true;
@@ -842,7 +788,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		for($i = 0; $i < $count; $i++)
 		{
 			$old_id = $smcFunc['db_insert_id']();
-			
+
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
@@ -854,7 +800,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$connection
 			);
 			$new_id = $smcFunc['db_insert_id']();
-			
+
 			if ($last_id != $new_id) //the inserted value was new
 			{
 				$ai = $new_id;
@@ -875,21 +821,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					WHERE ' . $where_string . ' LIMIT 1',
 					array()
 				);
-				
+
 				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 				{
 					$row = $smcFunc['db_fetch_assoc']($request);
 					$ai = $row[$keys[0]];
 				}
 			}
-			
+
 			if ($returnmode == 1)
 				$return_var = $ai;
 			else if ($returnmode == 2)
 				$return_var[] = $ai;
 		}
 	}
-	
+
 
 	if ($with_returning)
 	{
@@ -998,7 +944,7 @@ function smf_is_resource($result)
 }
 
 /**
- * Fetches all rows from a result as an array 
+ * Fetches all rows from a result as an array
  *
  * @param resource $request A MySQL result resource
  * @return array An array that contains all rows (records) in the result resource
@@ -1020,6 +966,10 @@ function smf_db_error_insert($error_array)
 	global  $db_prefix, $db_connection;
 	static $mysql_error_data_prep;
 
+	// without database we can't do anything
+	if (empty($db_connection))
+		return;
+
 	if (empty($mysql_error_data_prep))
 			$mysql_error_data_prep = mysqli_prepare($db_connection,
 				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
@@ -1030,10 +980,32 @@ function smf_db_error_insert($error_array)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));
 	else
 		$error_array[2] = null;
-	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi', 
+	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi',
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
 		$error_array[7], $error_array[8]);
 	mysqli_stmt_execute ($mysql_error_data_prep);
+}
+
+/**
+ * Function which constructs an optimize custom order string
+ * as an improved alternative to find_in_set()
+ *
+ * @param string $field name
+ * @param array $array_values Field values sequenced in array via order priority. Must cast to int.
+ * @param boolean $desc default false
+ * @return string case field when ... then ... end
+ */
+function smf_db_custom_order($field, $array_values, $desc = false)
+{
+	$return = 'CASE '. $field . ' ';
+	$count = count($array_values);
+	$then = ($desc ? ' THEN -' : ' THEN ');
+
+	for ($i = 0; $i < $count; $i++)
+		$return .= 'WHEN ' . (int) $array_values[$i] . $then . $i . ' ';
+
+	$return .= 'END';
+	return $return;
 }
 
 ?>

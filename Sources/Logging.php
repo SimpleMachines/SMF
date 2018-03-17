@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -25,7 +25,13 @@ if (!defined('SMF'))
  */
 function truncateArray($arr, $max_length=1900)
 {
-	$curr_length = array_sum(array_map("strlen", $arr));
+	$curr_length = 0;
+	foreach ($arr as $key => $value)
+		if (is_array($value))
+			foreach ($value as $key2 => $value2)
+				$curr_length += strlen ($value2);
+		else
+			$curr_length += strlen ($value);
 	if ($curr_length <= $max_length)
 		return $arr;
 	else
@@ -33,7 +39,11 @@ function truncateArray($arr, $max_length=1900)
 		// Truncate each element's value to a reasonable length
 		$param_max = floor($max_length/count($arr));
 		foreach ($arr as $key => &$value)
-			$value = substr($value, 0, $param_max - strlen($key) - 5);
+			if (is_array($value))
+				foreach ($value as $key2 => &$value2)
+					$value2 = substr($value2, 0, $param_max - strlen($key) - 5);
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
 		return $arr;
 	}
 }
@@ -183,29 +193,29 @@ function writeLog($force = false)
  */
 function logLastDatabaseError()
 {
-	global $boarddir;
+	global $boarddir, $cachedir;
 
 	// Make a note of the last modified time in case someone does this before us
-	$last_db_error_change = @filemtime($boarddir . '/db_last_error.php');
+	$last_db_error_change = @filemtime($cachedir . '/db_last_error.php');
 
 	// save the old file before we do anything
-	$file = $boarddir . '/db_last_error.php';
-	$dberror_backup_fail = !@is_writable($boarddir . '/db_last_error_bak.php') || !@copy($file, $boarddir . '/db_last_error_bak.php');
-	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($boarddir . '/db_last_error_bak.php') || filesize($boarddir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
+	$file = $cachedir . '/db_last_error.php';
+	$dberror_backup_fail = !@is_writable($cachedir . '/db_last_error_bak.php') || !@copy($file, $cachedir . '/db_last_error_bak.php');
+	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($cachedir . '/db_last_error_bak.php') || filesize($cachedir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
 
 	clearstatcache();
-	if (filemtime($boarddir . '/db_last_error.php') === $last_db_error_change)
+	if (filemtime($cachedir . '/db_last_error.php') === $last_db_error_change)
 	{
 		// Write the change
 		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
-		$written_bytes = file_put_contents($boarddir . '/db_last_error.php', $write_db_change, LOCK_EX);
+		$written_bytes = file_put_contents($cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 		// survey says ...
 		if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail)
 		{
 			// Oops. maybe we have no more disk space left, or some other troubles, troubles...
 			// Copy the file back and run for your life!
-			@copy($boarddir . '/db_last_error_bak.php', $boarddir . '/db_last_error.php');
+			@copy($cachedir . '/db_last_error_bak.php', $cachedir . '/db_last_error.php');
 		}
 		else
 		{
@@ -249,10 +259,10 @@ function displayDebug()
 	$warnings = 0;
 	if (!empty($db_cache))
 	{
-		foreach ($db_cache as $q => $qq)
+		foreach ($db_cache as $q => $query_data)
 		{
-			if (!empty($qq['w']))
-				$warnings += count($qq['w']);
+			if (!empty($query_data['w']))
+				$warnings += count($query_data['w']);
 		}
 
 		$_SESSION['debug'] = &$db_cache;
@@ -303,41 +313,41 @@ function displayDebug()
 	}
 
 	echo '
-	<a href="', $scripturl, '?action=viewquery" target="_blank">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br>
+	<a href="', $scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br>
 	<br>';
 
 	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
-		foreach ($db_cache as $q => $qq)
+		foreach ($db_cache as $q => $query_data)
 		{
-			$is_select = strpos(trim($qq['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
+			$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0;
 			// Temporary tables created in earlier queries are not explainable.
 			if ($is_select)
 			{
 				foreach (array('log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages') as $tmp)
-					if (strpos(trim($qq['q']), $tmp) !== false)
+					if (strpos(trim($query_data['q']), $tmp) !== false)
 					{
 						$is_select = false;
 						break;
 					}
 			}
 			// But actual creation of the temporary tables are.
-			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($qq['q'])) != 0)
+			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($query_data['q'])) != 0)
 				$is_select = true;
 
 			// Make the filenames look a bit better.
-			if (isset($qq['f']))
-				$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
+			if (isset($query_data['f']))
+				$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
 
 			echo '
-	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
+	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars'](ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
 	&nbsp;&nbsp;&nbsp;';
-			if (!empty($qq['f']) && !empty($qq['l']))
-				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
+			if (!empty($query_data['f']) && !empty($query_data['l']))
+				echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
 
-			if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
-				echo sprintf($txt['debug_query_which_took_at'], round($qq['t'], 8), round($qq['s'], 8)) . '<br>';
-			elseif (isset($qq['t']))
-				echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8)) . '<br>';
+			if (isset($query_data['s'], $query_data['t']) && isset($txt['debug_query_which_took_at']))
+				echo sprintf($txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
+			elseif (isset($query_data['t']))
+				echo sprintf($txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
 			echo '
 	<br>';
 		}

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -19,12 +19,10 @@ function template_reported_posts()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=reportedposts;sa=show', $context['view_closed'] ? ';closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -84,7 +82,7 @@ function template_reported_posts()
 			echo '
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
-			echo '
+		echo '
 			</ul>
 		</div><!-- .windowbg -->';
 	}
@@ -98,7 +96,7 @@ function template_reported_posts()
 
 	echo '
 		<div class="pagesection">';
-	
+
 	if (!empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'])
 		echo '
 			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>';
@@ -192,12 +190,10 @@ function template_viewmodreport()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<div id="modcenter">
@@ -303,24 +299,18 @@ function template_edit_comment()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">';
-
-	echo '
+		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'], '</h3>
 			</div>
-			<div class="windowbg2">';
-
-	echo '
+			<div class="windowbg2">
 				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'], '</textarea>
 				<div>
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button">
 				</div>
 			</div>
-			<br>';
-
-	echo '
+			<br>
 			<input type="hidden" name="', $context['mod-reportC-edit_token_var'], '" value="', $context['mod-reportC-edit_token'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
@@ -405,12 +395,10 @@ function template_reported_members()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_' . $context['report_post_action']]))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<form id="reported_members" action="', $scripturl, '?action=moderate;area=reportedmembers;sa=show', $context['view_closed'] ? ';closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -495,12 +483,10 @@ function template_viewmemberreport()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 	<div class="infobox">
 		', $txt['report_action_' . $context['report_post_action']], '
 	</div>';
-	}
 
 	echo '
 	<div id="modcenter">

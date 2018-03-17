@@ -135,7 +135,7 @@ $txt['cannot_who_view'] = 'Sorry - you don\'t have the proper permissions to vie
 $txt['no_theme'] = 'That theme does not exist.';
 $txt['theme_dir_wrong'] = 'The default theme\'s directory is wrong, please correct it by clicking this text.';
 $txt['registration_disabled'] = 'Sorry, registration is currently disabled.';
-$txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disable until this is fixed';
+$txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disabled until this is fixed';
 $txt['registration_no_secret_question'] = 'Sorry, there is no secret question set for this member.';
 $txt['poll_range_error'] = 'Sorry, the poll must run for more than 0 days.';
 $txt['delFirstPost'] = 'You are not allowed to delete the first post in a topic.<p>If you want to delete this topic, click on the Remove Topic link, or ask a moderator/administrator to do it for you.</p>';
@@ -277,7 +277,7 @@ $txt['search_invalid_weights'] = 'Search weights are not properly configured. At
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
 
 $txt['package_no_file'] = 'Unable to find package file!';
-$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank">this URL</a> instead.';
+$txt['packageget_unable'] = 'Unable to connect to the server. Please try using <a href="%1$s" target="_blank" rel="noopener">this URL</a> instead.';
 $txt['not_on_simplemachines'] = 'Sorry, packages can only be downloaded like this from the simplemachines.org server.';
 $txt['package_cant_uninstall'] = 'This package was either never installed or was already uninstalled - you can\'t uninstall it now.';
 $txt['package_cant_download'] = 'You cannot download or install new packages because the Packages directory or one of the files in it are not writable!';

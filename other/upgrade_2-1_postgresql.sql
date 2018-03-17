@@ -477,7 +477,7 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN credits text NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -999,7 +999,7 @@ $request = $smcFunc['db_query']('', '
 		'theme_dir' => 'theme_dir',
 	)
 );
-// Check which themes exist in the filesystem & save off their IDs 
+// Check which themes exist in the filesystem & save off their IDs
 // Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = $GLOBALS['boarddir'] . '/Themes/core';
@@ -1045,17 +1045,15 @@ ADD COLUMN show_mlist smallint NOT NULL default '0';
 
 ---# Insert fields
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1065,8 +1063,8 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 		FROM {db_prefix}custom_fields
 		WHERE field_order = 0');
 
-		// We start counting from 6 because we already have the first 6 fields.
-		$fields_count = 6;
+		// We start counting from 5 because we already have the first 5 fields.
+		$fields_count = 5;
 
 		while ($row = $smcFunc['db_fetch_assoc']($ocf))
 		{
@@ -1091,7 +1089,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('aim', 'icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
@@ -1106,9 +1104,6 @@ if (!empty($select_columns))
 	$genderTypes = array(1 => 'Male', 2 => 'Female');
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!empty($row['aim']))
-			$inserts[] = array($row['id_member'], 1, 'cust_aolins', $row['aim']);
-
 		if (!empty($row['icq']))
 			$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
@@ -2423,7 +2418,48 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 /******************************************************************************/
 --- Create index for messages likes
 /******************************************************************************/
----# Add Index for messages likes 
+---# Add Index for messages likes
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
+---#
+
+/******************************************************************************/
+--- Update smileys
+/******************************************************************************/
+---# Transform default from gif to png
+UPDATE {$db_prefix}smileys 
+SET filename = REPLACE(filename, '.gif', '.png')
+WHERE 
+	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
+	filename LIKE '%.gif';
+---#
+
+---# Update Settings sets_known
+UPDATE {$db_prefix}settings
+SET value = CONCAT(value, ',alienine')
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',aaron', '')
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',akyhne', '')
+WHERE variable = 'smiley_sets_known';
+UPDATE {$db_prefix}settings
+SET value = replace (value, ',fugue', '')
+WHERE variable = 'smiley_sets_known';
+---#
+
+---#  Update Settings sets_names
+UPDATE {$db_prefix}settings
+SET value = CONCAT(value, '\n{$default_alienine_smileyset_name}')
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_akyhne_smileyset_name}', '')
+WHERE variable = 'smiley_sets_names';
+UPDATE {$db_prefix}settings
+SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
+WHERE variable = 'smiley_sets_names';
 ---#

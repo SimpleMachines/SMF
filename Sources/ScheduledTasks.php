@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -152,9 +152,9 @@ function AutoTask()
 		return true;
 
 	// Finally, send some stuff...
-	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	header('Content-Type: image/gif');
+	header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	header('content-type: image/gif');
 	die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 }
 
@@ -378,7 +378,7 @@ function scheduled_approval_notification()
  */
 function scheduled_daily_maintenance()
 {
-	global $smcFunc, $modSettings, $sourcedir, $db_type;
+	global $smcFunc, $modSettings, $sourcedir, $boarddir, $db_type, $image_proxy_enabled;
 
 	// First clean out the cache.
 	clean_cache();
@@ -457,6 +457,19 @@ function scheduled_daily_maintenance()
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
+
+	// Run Imageproxy housekeeping
+	if (!empty($image_proxy_enabled))
+	{
+		global $proxyhousekeeping;
+		$proxyhousekeeping = true;
+
+		require_once($boarddir . '/proxy.php');
+		$proxy = new ProxyServer();
+		$proxy->housekeeping();
+
+		unset($proxyhousekeeping);
+	}
 
 	// Log we've done it...
 	return true;
@@ -1223,9 +1236,6 @@ function scheduled_fetchSMfiles()
 
 	$smcFunc['db_free_result']($request);
 
-	// We're gonna need fetch_web_data() to pull this off.
-	require_once($sourcedir . '/Subs-Package.php');
-
 	// Just in case we run into a problem.
 	loadEssentialThemeData();
 	loadLanguage('Errors', $language, false);
@@ -1282,7 +1292,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $cache_enable, $cacheAPI;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1469,6 +1479,12 @@ function scheduled_weekly_maintenance()
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
 	);
+
+	// Run Cache housekeeping
+	if (!empty($cache_enable) && !empty($cacheAPI))
+	{
+		$cacheAPI->housekeeping();
+	}
 
 	return true;
 }

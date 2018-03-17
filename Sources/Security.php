@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -55,7 +55,7 @@ function validateSession($type = 'admin')
 	if (isset($_POST[$type . '_pass']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		checkSession();
@@ -885,13 +885,15 @@ function checkSubmitOnce($action, $is_fatal = true)
  * Check the user's permissions.
  * checks whether the user is allowed to do permission. (ie. post_new.)
  * If boards is specified, checks those boards instead of the current one.
+ * If any is true, will return true if the user has the permission on any of the specified boards
  * Always returns true if the user is an administrator.
  *
  * @param string|array $permission A single permission to check or an array of permissions to check
  * @param int|array $boards The ID of a board or an array of board IDs if we want to check board-level permissions
+ * @param bool $any Whether to check for permission on at least one board instead of all boards
  * @return bool Whether the user has the specified permission
  */
-function allowedTo($permission, $boards = null)
+function allowedTo($permission, $boards = null, $any = false)
 {
 	global $user_info, $smcFunc;
 
@@ -942,6 +944,19 @@ function allowedTo($permission, $boards = null)
 		)
 	);
 
+	if ($any)
+	{
+		$result = false;
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$result = !empty($row['add_deny']);
+			if ($result == true)
+				break;
+		}
+		$smcFunc['db_free_result']($request);
+		return $result;
+	}
+
 	// Make sure they can do it on all of the boards.
 	if ($smcFunc['db_num_rows']($request) != count($boards))
 		return false;
@@ -959,13 +974,15 @@ function allowedTo($permission, $boards = null)
  * Fatal error if they cannot.
  * Uses allowedTo() to check if the user is allowed to do permission.
  * Checks the passed boards or current board for the permission.
+ * If $any is true, the user only needs permission on at least one of the boards to pass
  * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
  * If they are a guest and cannot do it, this calls is_not_guest().
  *
  * @param string|array $permission A single permission to check or an array of permissions to check
  * @param int|array $boards The ID of a single board or an array of board IDs if we're checking board-level permissions (null otherwise)
+ * @param bool $any Whether to check for permission on at least one board instead of all boards
  */
-function isAllowedTo($permission, $boards = null)
+function isAllowedTo($permission, $boards = null, $any = false)
 {
 	global $user_info, $txt;
 
@@ -987,7 +1004,7 @@ function isAllowedTo($permission, $boards = null)
 	call_integration_hook('integrate_heavy_permissions_session', array(&$heavy_permissions));
 
 	// Check the permission and return an error...
-	if (!allowedTo($permission, $boards))
+	if (!allowedTo($permission, $boards, $any))
 	{
 		// Pick the last array entry as the permission shown as the error.
 		$error_permission = array_shift($permission);
@@ -1241,7 +1258,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 {
 	// Found it!
 	require(dirname(dirname(__FILE__)) . \'/Settings.php\');
-	header(\'Location: \' . $boardurl);
+	header(\'location: \' . $boardurl);
 }
 // Can\'t find it... just forget it.
 else
@@ -1280,11 +1297,11 @@ function frameOptionsHeader($override = null)
 		return;
 
 	// Finally set it.
-	header('X-Frame-Options: ' . $option);
+	header('x-frame-options: ' . $option);
 
 	// And some other useful ones.
-	header('X-XSS-Protection: 1');
-	header('X-Content-Type-Options: nosniff');
+	header('x-xss-protection: 1');
+	header('x-content-type-options: nosniff');
 }
 
 ?>

@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -53,9 +53,31 @@ function Post($post_errors = array())
 	$context['notify_prefs'] = (array) array_pop($temp);
 	$context['auto_notify'] = !empty($context['notify_prefs']['msg_auto_notify']);
 
-	// You must be posting to *some* board.
-	if (empty($board) && !$context['make_event'])
-		fatal_lang_error('no_board', false);
+	// Not in a board? Fine, but we'll make them pick one eventually.
+	if (empty($board) || $context['make_event'])
+	{
+		// Get ids of all the boards they can post in.
+		$post_permissions = array('post_new');
+		if ($modSettings['postmod_active'])
+			$post_permissions[] = 'post_unapproved_topics';
+
+		$boards = boardsAllowedTo($post_permissions);
+		if (empty($boards))
+			fatal_lang_error('cannot_post_new', false);
+
+		// Get a list of boards for the select menu
+		require_once($sourcedir . '/Subs-MessageIndex.php');
+		$boardListOptions = array(
+			'included_boards' => in_array(0, $boards) ? null : $boards,
+			'not_redirection' => true,
+			'use_permissions' => true,
+			'selected_board' => !empty($board) ? $board : ($context['make_event'] && !empty($modSettings['cal_defaultboard']) ? $modSettings['cal_defaultboard'] : $boards[0]),
+		);
+		$board_list = getBoardList($boardListOptions);
+	}
+	// Let's keep things simple for ourselves below
+	else
+		$boards = array($board);
 
 	require_once($sourcedir . '/Subs-Post.php');
 
@@ -90,7 +112,7 @@ function Post($post_errors = array())
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				t.locked, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
+				t.locked, t.approved, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
 				t.id_first_msg, mf.subject, ml.modified_reason,
 				CASE WHEN ml.poster_time > ml.modified_time THEN ml.poster_time ELSE ml.modified_time END AS last_post_time
 			FROM {db_prefix}topics AS t
@@ -104,7 +126,7 @@ function Post($post_errors = array())
 				'current_topic' => $topic,
 			)
 		);
-		list ($locked, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
+		list ($locked, $topic_approved, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If this topic already has a poll, they sure can't add another.
@@ -138,11 +160,14 @@ function Post($post_errors = array())
 
 		$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
 		$context['can_sticky'] = allowedTo('make_sticky');
+		$context['can_move'] = allowedTo('move_any');
+		// You can only announce topics that will get approved...
+		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
 		$context['already_sticky'] = $sticky;
-		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
 
 		// Check whether this is a really old post being bumped...
@@ -151,44 +176,44 @@ function Post($post_errors = array())
 	}
 	else
 	{
+		// @todo Should use JavaScript to hide and show the warning based on the selection in the board select menu
 		$context['becomes_approved'] = true;
-		if ((!$context['make_event'] || !empty($board)))
-		{
-			if ($modSettings['postmod_active'] && !allowedTo('post_new') && allowedTo('post_unapproved_topics'))
-				$context['becomes_approved'] = false;
-			else
-				isAllowedTo('post_new');
-		}
+		if ($modSettings['postmod_active'] && !allowedTo('post_new', $boards, true) && allowedTo('post_unapproved_topics', $boards, true))
+			$context['becomes_approved'] = false;
+		else
+			isAllowedTo('post_new', $boards, true);
 
 		$locked = 0;
-
-		// @todo These won't work if you're making an event.
-		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'));
-		$context['can_sticky'] = allowedTo('make_sticky');
-		$context['already_sticky'] = 0;
 		$context['already_locked'] = 0;
-		$context['notify'] = !empty($context['notify']);
+		$context['already_sticky'] = 0;
 		$context['sticky'] = !empty($_REQUEST['sticky']);
+
+		// What options should we show?
+		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'), $boards, true);
+		$context['can_sticky'] = allowedTo('make_sticky', $boards, true);
+		$context['can_move'] = allowedTo('move_any', $boards, true);
+		$context['can_announce'] = allowedTo('announce_topic', $boards, true) && $context['becomes_approved'];
+		$context['show_approval'] = !allowedTo('approve_posts', $boards, true) ? 0 : ($context['becomes_approved'] ? 2 : 1);
 	}
 
-	// @todo These won't work if you're posting an event!
+	$context['notify'] = !empty($context['notify']);
+
 	$context['can_notify'] = !$context['user']['is_guest'];
-	$context['can_move'] = allowedTo('move_any');
 	$context['move'] = !empty($_REQUEST['move']);
 	$context['announce'] = !empty($_REQUEST['announce']);
-	// You can only announce topics that will get approved...
-	$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
 	$context['locked'] = !empty($locked) || !empty($_REQUEST['lock']);
 	$context['can_quote'] = empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC']));
-
-	// Generally don't show the approval box... (Assume we want things approved)
-	$context['show_approval'] = allowedTo('approve_posts') && $context['becomes_approved'] ? 2 : (allowedTo('approve_posts') ? 1 : 0);
 
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
 
 	// Clear out prior attachment activity when starting afresh
-	if (empty ($_REQUEST['message']) && empty ($_REQUEST['preview'])) {
+	if (empty($_REQUEST['message']) && empty($_REQUEST['preview']) && !empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/ManageAttachments.php');
+		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
+			removeAttachments(array('id_attach' => $attachID));
+
 		unset($_SESSION['already_attached']);
 	}
 
@@ -208,8 +233,15 @@ function Post($post_errors = array())
 		else
 			isAllowedTo('poll_add_any');
 
-		require_once($sourcedir . '/Subs-Members.php');
-		$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
+		if (!empty($board))
+		{
+			require_once($sourcedir . '/Subs-Members.php');
+			$allowedVoteGroups = groupsAllowedTo('poll_vote', $board);
+			$guest_vote_enabled = in_array(-1, $allowedVoteGroups['allowed']);
+		}
+		// No board, so we'll have to check this again in Post2
+		else
+			$guest_vote_enabled = true;
 
 		// Set up the poll options.
 		$context['poll_options'] = array(
@@ -218,7 +250,7 @@ function Post($post_errors = array())
 			'expire' => !isset($_POST['poll_expire']) ? '' : $_POST['poll_expire'],
 			'change_vote' => isset($_POST['poll_change_vote']),
 			'guest_vote' => isset($_POST['poll_guest_vote']),
-			'guest_vote_enabled' => in_array(-1, $allowedVoteGroups['allowed']),
+			'guest_vote_enabled' => $guest_vote_enabled,
 		);
 
 		// Make all five poll choices empty.
@@ -289,20 +321,7 @@ function Post($post_errors = array())
 			if ($context['event']['year'] < $modSettings['cal_minyear'] || $context['event']['year'] > $modSettings['cal_maxyear'])
 				fatal_lang_error('invalid_year', false);
 
-			// Get a list of boards they can post in.
-			$boards = boardsAllowedTo('post_new');
-			if (empty($boards))
-				fatal_lang_error('cannot_post_new', 'user');
-
-			// Load a list of boards for this event in the context.
-			require_once($sourcedir . '/Subs-MessageIndex.php');
-			$boardListOptions = array(
-				'included_boards' => in_array(0, $boards) ? null : $boards,
-				'not_redirection' => true,
-				'use_permissions' => true,
-				'selected_board' => empty($context['current_board']) ? $modSettings['cal_defaultboard'] : $context['current_board'],
-			);
-			$context['event']['categories'] = getBoardList($boardListOptions);
+			$context['event']['categories'] = $board_list;
 		}
 
 		// Find the last day of the month.
@@ -449,7 +468,6 @@ function Post($post_errors = array())
 		{
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
-
 		}
 		else
 		{
@@ -891,7 +909,8 @@ function Post($post_errors = array())
 		}
 	}
 
-	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
+	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $boards, true) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $boards, true)));
+
 	if ($context['can_post_attachment'])
 	{
 		// If there are attachments, calculate the total size and how many.
@@ -928,7 +947,7 @@ function Post($post_errors = array())
 			elseif ($context['current_action'] != 'post2' || !empty($_POST['from_qr']))
 			{
 				// Let's be nice and see if they belong here first.
-				if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == $board) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg']))
+				if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty($board) ? $board : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg']))
 				{
 					// See if any files still exist before showing the warning message and the files attached.
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
@@ -951,7 +970,7 @@ function Post($post_errors = array())
 					if (!empty($topic))
 						$delete_url = $scripturl . '?action=post' . (!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
 					else
-						$delete_url = $scripturl . '?action=post;board=' . $board . ';delete_temp';
+						$delete_url = $scripturl . '?action=post' . (!empty($board) ? ';board=' . $board : '') . ';delete_temp';
 
 					// Compile a list of the files to show the user.
 					$file_list = array();
@@ -1061,7 +1080,7 @@ function Post($post_errors = array())
 	 * errors are like warnings that let them know that something with
 	 * their post isn't right.
 	 */
-	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied');
+	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied', 'cannot_post_attachment');
 
 	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
 
@@ -1157,7 +1176,7 @@ function Post($post_errors = array())
 	$context['make_poll'] = isset($_REQUEST['poll']);
 
 	// Message icons - customized icons are off?
-	$context['icons'] = getMessageIcons($board);
+	$context['icons'] = getMessageIcons(!empty($board) ? $board : 0);
 
 	if (!empty($context['icons']))
 		$context['icons'][count($context['icons']) - 1]['is_last'] = true;
@@ -1318,6 +1337,29 @@ function Post($post_errors = array())
 		}
 	}
 
+	// Gotta post it somewhere.
+	if (empty($board) && !$context['make_event'])
+	{
+		$context['posting_fields']['board'] = array(
+			'dt' => '<span id="caption_board">' . $txt['calendar_post_in'] . '</span>',
+			'dd' => '<select name="board">',
+		);
+		foreach ($board_list as $category)
+		{
+			$context['posting_fields']['board']['dd'] .= '
+							<optgroup label="' . $category['name'] . '">';
+
+			foreach ($category['boards'] as $brd)
+				$context['posting_fields']['board']['dd'] .= '
+								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
+
+			$context['posting_fields']['board']['dd'] .= '
+							</optgroup>';
+		}
+		$context['posting_fields']['board']['dd'] .= '
+						</select>';
+	}
+
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
 		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
@@ -1443,6 +1485,20 @@ function Post2()
 		processAttachments();
 	}
 
+	// They've already uploaded some attachments, but they don't have permission to post them
+	// This can sometimes happen when they came from ?action=calendar;sa=post
+	if (!$context['can_post_attachment'] && !empty($_SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/ManageAttachments.php');
+
+		foreach ($_SESSION['already_attached'] as $attachID => $attachment)
+			removeAttachments(array('id_attach' => $attachID));
+
+		unset($_SESSION['already_attached']);
+
+		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
+	}
+
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
 	{
@@ -1465,18 +1521,6 @@ function Post2()
 		// Did this topic suddenly move? Just checking...
 		if ($topic_info['id_board'] != $board)
 			fatal_lang_error('not_a_topic');
-	}
-
-	// Replying to a topic?
-	if (!empty($topic) && !isset($_REQUEST['msg']))
-	{
-		// Don't allow a post if it's locked.
-		if ($topic_info['locked'] != 0 && !allowedTo('moderate_board'))
-			fatal_lang_error('topic_locked', false);
-
-		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
-		if (isset($_REQUEST['poll']) && $topic_info['id_poll'] > 0)
-			unset($_REQUEST['poll']);
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
@@ -1493,6 +1537,18 @@ function Post2()
 			// Set a nice session var...
 			$_SESSION['becomesUnapproved'] = true;
 		}
+	}
+
+	// Replying to a topic?
+	if (!empty($topic) && !isset($_REQUEST['msg']))
+	{
+		// Don't allow a post if it's locked.
+		if ($topic_info['locked'] != 0 && !allowedTo('moderate_board'))
+			fatal_lang_error('topic_locked', false);
+
+		// Sorry, multiple polls aren't allowed... yet.  You should stop giving me ideas :P.
+		if (isset($_REQUEST['poll']) && $topic_info['id_poll'] > 0)
+			unset($_REQUEST['poll']);
 
 		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
@@ -1514,7 +1570,7 @@ function Post2()
 		if (isset($_POST['lock']))
 		{
 			// Nothing is changed to the lock.
-			if ((empty($topic_info['locked']) && empty($_POST['lock'])) || (!empty($_POST['lock']) && !empty($topic_info['locked'])))
+			if (empty($topic_info['locked']) == empty($_POST['lock']))
 				unset($_POST['lock']);
 
 			// You're have no permission to lock this topic.
@@ -1703,7 +1759,8 @@ function Post2()
 
 		// Can they approve it?
 		$can_approve = allowedTo('approve_posts');
-		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? (!empty($_REQUEST['approve']) ? 1 : 0) : $row['approved']) : 1;
+		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
+		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
 
 		if (!allowedTo('moderate_forum') || !$posterIsGuest)
@@ -1713,9 +1770,10 @@ function Post2()
 		}
 	}
 
-	// In case we want to override but still respect the unapproved topic rule.
-	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
+	// In case we have approval permissions and want to override.
+	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
 	{
+		// If 'approve' wasn't specified, assume true for these users
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
@@ -1775,9 +1833,15 @@ function Post2()
 			$user_info['name'] = $_POST['guestname'];
 		preparsecode($_POST['message']);
 
+		// Youtube BBC would be stripped out in the next check without this
+		$context['allowed_html_tags'][] = '<iframe>';
+
 		// Let's see if there's still some content left without the tags.
 		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('admin_forum') || strpos($_POST['message'], '[html]') === false))
 			$post_errors[] = 'no_message';
+
+		// Remove iframe from the list
+		array_pop($context['allowed_html_tags']);
 	}
 	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && $smcFunc['htmltrim']($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';
@@ -1921,7 +1985,7 @@ function Post2()
 	}
 
 	// ...or attach a new file...
-	if (empty($ignore_temp) && $context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
+	if ($context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
 	{
 		$attachIDs = array();
 		$attach_errors = array();
@@ -2097,7 +2161,7 @@ function Post2()
 			$topic = $topicOptions['id'];
 	}
 
-	// Assign the previously uploaded attachments to the brand new message.
+	// Are there attachments already uploaded and waiting to be assigned?
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
 		require_once($sourcedir . '/Subs-Attachments.php');
@@ -2248,7 +2312,7 @@ function Post2()
 
 	call_integration_hook('integrate_post2_end');
 
-	if (!empty($_POST['announce_topic']))
+	if (!empty($_POST['announce_topic']) && allowedTo('announce_topic'))
 		redirectexit('action=announce;sa=selectgroup;topic=' . $topic . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
 	if (!empty($_POST['move']) && allowedTo('move_any'))

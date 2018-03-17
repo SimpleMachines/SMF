@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -154,7 +154,7 @@ function template_modify_category()
 						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_cat_description_desc']), '</span>
 					</dt>
 					<dd>
-						<textarea name="cat_desc" rows="3" cols="35" style="width: 99%;">', $context['category']['description'], '</textarea>
+						<textarea name="cat_desc" rows="3" cols="35">', $context['category']['description'], '</textarea>
 					</dd>
 					<dt>
 						<strong>', $txt['collapse_enable'], '</strong><br>
@@ -287,10 +287,10 @@ function template_modify_board()
 					<dd>
 						<select name="new_cat" onchange="if (this.form.order) {this.form.order.disabled = this.options[this.selectedIndex].value != 0; this.form.board_order.disabled = this.options[this.selectedIndex].value != 0 || this.form.order.options[this.form.order.selectedIndex].value == \'\';}">';
 
-		foreach ($context['categories'] as $category)
-			echo '
-							<option', $category['selected'] ? ' selected' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
+	foreach ($context['categories'] as $category)
 		echo '
+							<option', $category['selected'] ? ' selected' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
+	echo '
 						</select>
 					</dd>';
 
@@ -339,7 +339,7 @@ function template_modify_board()
 						<span class="smalltext">', str_replace('{allowed_tags}', implode(', ', $context['description_allowed_tags']), $txt['mboards_description_desc']), '</span>
 					</dt>
 					<dd>
-						<textarea name="desc" rows="3" cols="35" style="width:99%;">', $context['board']['description'], '</textarea>
+						<textarea name="desc" rows="3" cols="35">', $context['board']['description'], '</textarea>
 					</dd>
 					<dt>
 						<strong>', $txt['permission_profile'], ':</strong><br>
@@ -624,14 +624,14 @@ function template_modify_board()
 
 	foreach ($context['board']['moderators'] as $id_member => $member_name)
 		echo '
-					{
-						sItemId: ', JavaScriptEscape($id_member), ',
-						sItemName: ', JavaScriptEscape($member_name), '
-					}', $id_member == $context['board']['last_moderator_id'] ? '' : ',';
+				{
+					sItemId: ', JavaScriptEscape($id_member), ',
+					sItemName: ', JavaScriptEscape($member_name), '
+				}', $id_member == $context['board']['last_moderator_id'] ? '' : ',';
 
 	echo '
-				]
-			});
+			]
+		});
 
 		var oModeratorGroupSuggest = new smc_AutoSuggest({
 			sSelf: \'oModeratorGroupSuggest\',
@@ -649,14 +649,14 @@ function template_modify_board()
 
 	foreach ($context['board']['moderator_groups'] as $id_group => $group_name)
 		echo '
-					{
-						sItemId: ', JavaScriptEscape($id_group), ',
-						sItemName: ', JavaScriptEscape($group_name), '
-					}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
+				{
+					sItemId: ', JavaScriptEscape($id_group), ',
+					sItemName: ', JavaScriptEscape($group_name), '
+				}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
 
 		echo '
-				]
-			});
+			]
+		});
 	</script>';
 
 	// Javascript for deciding what to show.
@@ -745,7 +745,7 @@ function template_confirm_board_delete()
 				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '"
+				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '">
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #manage_boards -->';

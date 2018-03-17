@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1008,8 +1008,8 @@ function EditSmileys()
 						},
 					),
 					'sort' => array(
-						'default' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\')',
-						'reverse' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\') DESC',
+						'default' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations)) ,
+						'reverse' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations), true),
 					),
 				),
 				'tooltip' => array(

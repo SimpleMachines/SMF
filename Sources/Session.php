@@ -11,7 +11,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -62,7 +62,9 @@ function loadSession()
 		// Use database sessions? (they don't work in 4.1.x!)
 		if (!empty($modSettings['databaseSession_enable']))
 		{
-			@ini_set('session.serialize_handler', 'php');
+			@ini_set('session.serialize_handler', 'php_serialize');
+			if (ini_get('session.serialize_handler') != 'php_serialize')
+				@ini_set('session.serialize_handler', 'php');
 			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
 			@ini_set('session.gc_probability', '1');
 		}
@@ -77,7 +79,7 @@ function loadSession()
 
 		// Change it so the cache settings are a little looser than default.
 		if (!empty($modSettings['databaseSession_loose']))
-			header('Cache-Control: private');
+			header('cache-control: private');
 	}
 
 	// Set the randomly generated code.
@@ -151,10 +153,23 @@ function sessionRead($session_id)
  */
 function sessionWrite($session_id, $data)
 {
-	global $smcFunc;
+	global $smcFunc, $db_connection, $db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_persist, $db_port;
 
 	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
+
+	// php < 7.0 need this
+	if (empty($db_connection))
+	{
+		$db_options = array();
+
+		// Add in the port if needed
+		if (!empty($db_port))
+			$db_options['port'] = $db_port;
+		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
+
+		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+	}
 
 	// First try to update an existing row...
 	$smcFunc['db_query']('', '

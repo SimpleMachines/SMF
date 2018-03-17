@@ -711,7 +711,7 @@ CREATE TABLE {$db_prefix}log_packages (
   failed_steps text NOT NULL,
   themes_installed varchar(255) NOT NULL DEFAULT '',
   db_changes text NOT NULL,
-  credits varchar(255) NOT NULL DEFAULT '',
+  credits text NOT NULL,
   PRIMARY KEY (id_install)
 );
 
@@ -2218,12 +2218,11 @@ VALUES (1, 0, '{$default_category_name}', '', 1);
 
 INSERT INTO {$db_prefix}custom_fields
 	(col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement)
-VALUES ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
-	('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-	('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-	('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-	('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-	('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+VALUES ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+	('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+	('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+	('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+	('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
 
@@ -2504,8 +2503,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('time_offset', '0'),
 	('cookieTime', '60'),
 	('lastActive', '15'),
-	('smiley_sets_known', 'default,aaron,akyhne,fugue'),
-	('smiley_sets_names', '{$default_smileyset_name}\n{$default_aaron_smileyset_name}\n{$default_akyhne_smileyset_name}\n{$default_fugue_smileyset_name}'),
+	('smiley_sets_known', 'default,alienine'),
+	('smiley_sets_names', '{$default_smileyset_name}\n{$default_alienine_smileyset_name}'),
 	('smiley_sets_default', 'default'),
 	('cal_days_for_index', '7'),
 	('requireAgreement', '1'),
@@ -2576,7 +2575,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('tfa_mode', '1'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
-	('displayFields', '[{"col_name":"cust_aolins","title":"AOL Instant Messenger","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"aim\\" href=\\"aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?\\" target=\\"_blank\\" title=\\"AIM - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/aim.png\\" alt=\\"AIM - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_icq","title":"ICQ","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"3","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_yahoo","title":"Yahoo! Messenger","type":"text","order":"4","bbc":"0","placement":"1","enclose":"<a class=\\"yim\\" href=\\"\\/\\/edit.yahoo.com\\/config\\/send_webmesg?.target={INPUT}\\" target=\\"_blank\\" title=\\"Yahoo! Messenger - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/yahoo.png\\" alt=\\"Yahoo! Messenger - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"5","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"6","bbc":"0","placement":"1","enclose":"<span class=\\" generic_icons gender_{INPUT}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0"}]'),
+	('displayFields', '[{"col_name":"cust_icq","title":"ICQ","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_yahoo","title":"Yahoo! Messenger","type":"text","order":"3","bbc":"0","placement":"1","enclose":"<a class=\\"yim\\" href=\\"\\/\\/edit.yahoo.com\\/config\\/send_webmesg?.target={INPUT}\\" target=\\"_blank\\" title=\\"Yahoo! Messenger - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/yahoo.png\\" alt=\\"Yahoo! Messenger - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"4","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"5","bbc":"0","placement":"1","enclose":"<span class=\\" generic_icons gender_{KEY}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0",,"options":["None","Male","Female"]}]'),
 	('minimize_files', '1');
 # --------------------------------------------------------
 
@@ -2586,28 +2585,28 @@ VALUES ('smfVersion', '{$smf_version}'),
 
 INSERT INTO {$db_prefix}smileys
 	(code, filename, description, smiley_order, hidden)
-VALUES (':)', 'smiley.gif', '{$default_smiley_smiley}', 0, 0),
-	(';)', 'wink.gif', '{$default_wink_smiley}', 1, 0),
-	(':D', 'cheesy.gif', '{$default_cheesy_smiley}', 2, 0),
-	(';D', 'grin.gif', '{$default_grin_smiley}', 3, 0),
-	('>:(', 'angry.gif', '{$default_angry_smiley}', 4, 0),
-	(':(', 'sad.gif', '{$default_sad_smiley}', 5, 0),
-	(':o', 'shocked.gif', '{$default_shocked_smiley}', 6, 0),
-	('8)', 'cool.gif', '{$default_cool_smiley}', 7, 0),
-	('???', 'huh.gif', '{$default_huh_smiley}', 8, 0),
-	('::)', 'rolleyes.gif', '{$default_roll_eyes_smiley}', 9, 0),
-	(':P', 'tongue.gif', '{$default_tongue_smiley}', 10, 0),
-	(':-[', 'embarrassed.gif', '{$default_embarrassed_smiley}', 11, 0),
-	(':-X', 'lipsrsealed.gif', '{$default_lips_sealed_smiley}', 12, 0),
-	(':-\\', 'undecided.gif', '{$default_undecided_smiley}', 13, 0),
-	(':-*', 'kiss.gif', '{$default_kiss_smiley}', 14, 0),
-	(':''(', 'cry.gif', '{$default_cry_smiley}', 15, 0),
-	('>:D', 'evil.gif', '{$default_evil_smiley}', 16, 1),
-	('^-^', 'azn.gif', '{$default_azn_smiley}', 17, 1),
-	('O0', 'afro.gif', '{$default_afro_smiley}', 18, 1),
-	(':))', 'laugh.gif', '{$default_laugh_smiley}', 19, 1),
-	('C:-)', 'police.gif', '{$default_police_smiley}', 20, 1),
-	('O:-)', 'angel.gif', '{$default_angel_smiley}', 21, 1);
+VALUES (':)', 'smiley.png', '{$default_smiley_smiley}', 0, 0),
+	(';)', 'wink.png', '{$default_wink_smiley}', 1, 0),
+	(':D', 'cheesy.png', '{$default_cheesy_smiley}', 2, 0),
+	(';D', 'grin.png', '{$default_grin_smiley}', 3, 0),
+	('>:(', 'angry.png', '{$default_angry_smiley}', 4, 0),
+	(':(', 'sad.png', '{$default_sad_smiley}', 5, 0),
+	(':o', 'shocked.png', '{$default_shocked_smiley}', 6, 0),
+	('8)', 'cool.png', '{$default_cool_smiley}', 7, 0),
+	('???', 'huh.png', '{$default_huh_smiley}', 8, 0),
+	('::)', 'rolleyes.png', '{$default_roll_eyes_smiley}', 9, 0),
+	(':P', 'tongue.png', '{$default_tongue_smiley}', 10, 0),
+	(':-[', 'embarrassed.png', '{$default_embarrassed_smiley}', 11, 0),
+	(':-X', 'lipsrsealed.png', '{$default_lips_sealed_smiley}', 12, 0),
+	(':-\\', 'undecided.png', '{$default_undecided_smiley}', 13, 0),
+	(':-*', 'kiss.png', '{$default_kiss_smiley}', 14, 0),
+	(':''(', 'cry.png', '{$default_cry_smiley}', 15, 0),
+	('>:D', 'evil.png', '{$default_evil_smiley}', 16, 1),
+	('^-^', 'azn.png', '{$default_azn_smiley}', 17, 1),
+	('O0', 'afro.png', '{$default_afro_smiley}', 18, 1),
+	(':))', 'laugh.png', '{$default_laugh_smiley}', 19, 1),
+	('C:-)', 'police.png', '{$default_police_smiley}', 20, 1),
+	('O:-)', 'angel.png', '{$default_angel_smiley}', 21, 1);
 # --------------------------------------------------------
 
 #

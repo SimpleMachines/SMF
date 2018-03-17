@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -85,10 +85,8 @@ function preparsecode(&$message, $previewing = false)
 	if ($codeopen && !$had_tag)
 		$message = '[code]' . $message;
 
-	// Now that we've fixed all the code tags, let's fix the img and url tags...
-	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
-
 	// Replace code BBC with placeholders. We'll restore them at the end.
+	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 	for ($i = 0, $n = count($parts); $i < $n; $i++)
 	{
 		// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
@@ -106,6 +104,7 @@ function preparsecode(&$message, $previewing = false)
 	// The regular expression non breaking space has many versions.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
+	// Now that we've fixed all the code tags, let's fix the img and url tags...
 	fixTags($message);
 
 	// Replace /me.+?\n with [me=name]dsf[/me]\n.
@@ -210,6 +209,7 @@ function preparsecode(&$message, $previewing = false)
 
 	require_once($sourcedir . '/Subs.php');
 
+	$alltags = array();
 	foreach (($codes = parse_bbc(false)) as $code)
 		if (!in_array($code['tag'], $allowedEmpty))
 			$alltags[] = $code['tag'];
@@ -361,66 +361,6 @@ function fixTags(&$message)
 		return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
 	}, $message);
 
-	// Limit the size of images posted?
-	if (!empty($modSettings['max_image_width']) || !empty($modSettings['max_image_height']))
-	{
-		// Find all the img tags - with or without width and height.
-		preg_match_all('~\[img(\s+width=\d+)?(\s+height=\d+)?(\s+width=\d+)?\](.+?)\[/img\]~is', $message, $matches, PREG_PATTERN_ORDER);
-
-		$replaces = array();
-		foreach ($matches[0] as $match => $dummy)
-		{
-			// If the width was after the height, handle it.
-			$matches[1][$match] = !empty($matches[3][$match]) ? $matches[3][$match] : $matches[1][$match];
-
-			// Now figure out if they had a desired height or width...
-			$desired_width = !empty($matches[1][$match]) ? (int) substr(trim($matches[1][$match]), 6) : 0;
-			$desired_height = !empty($matches[2][$match]) ? (int) substr(trim($matches[2][$match]), 7) : 0;
-
-			// One was omitted, or both.  We'll have to find its real size...
-			if (empty($desired_width) || empty($desired_height))
-			{
-				list ($width, $height) = url_image_size(un_htmlspecialchars($matches[4][$match]));
-
-				// They don't have any desired width or height!
-				if (empty($desired_width) && empty($desired_height))
-				{
-					$desired_width = $width;
-					$desired_height = $height;
-				}
-				// Scale it to the width...
-				elseif (empty($desired_width) && !empty($height))
-					$desired_width = (int) (($desired_height * $width) / $height);
-				// Scale if to the height.
-				elseif (!empty($width))
-					$desired_height = (int) (($desired_width * $height) / $width);
-			}
-
-			// If the width and height are fine, just continue along...
-			if ($desired_width <= $modSettings['max_image_width'] && $desired_height <= $modSettings['max_image_height'])
-				continue;
-
-			// Too bad, it's too wide.  Make it as wide as the maximum.
-			if ($desired_width > $modSettings['max_image_width'] && !empty($modSettings['max_image_width']))
-			{
-				$desired_height = (int) (($modSettings['max_image_width'] * $desired_height) / $desired_width);
-				$desired_width = $modSettings['max_image_width'];
-			}
-
-			// Now check the height, as well.  Might have to scale twice, even...
-			if ($desired_height > $modSettings['max_image_height'] && !empty($modSettings['max_image_height']))
-			{
-				$desired_width = (int) (($modSettings['max_image_height'] * $desired_width) / $desired_height);
-				$desired_height = $modSettings['max_image_height'];
-			}
-
-			$replaces[$matches[0][$match]] = '[img' . (!empty($desired_width) ? ' width=' . $desired_width : '') . (!empty($desired_height) ? ' height=' . $desired_height : '') . ']' . $matches[4][$match] . '[/img]';
-		}
-
-		// If any img tags were actually changed...
-		if (!empty($replaces))
-			$message = strtr($message, $replaces);
-	}
 }
 
 /**
@@ -619,8 +559,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 	// Using mime, as it allows to send a plain unencoded alternative.
 	$headers .= 'Mime-Version: 1.0' . $line_break;
-	$headers .= 'Content-Type: multipart/alternative; boundary="' . $mime_boundary . '"' . $line_break;
-	$headers .= 'Content-Transfer-Encoding: 7bit' . $line_break;
+	$headers .= 'content-type: multipart/alternative; boundary="' . $mime_boundary . '"' . $line_break;
+	$headers .= 'content-transfer-encoding: 7bit' . $line_break;
 
 	// Sending HTML?  Let's plop in some basic stuff, then.
 	if ($send_html)
@@ -633,14 +573,14 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		// This is the plain text version.  Even if no one sees it, we need it for spam checkers.
 		list($charset, $plain_charset_message, $encoding) = mimespecialchars($no_html_message, false, false, $line_break);
-		$message .= 'Content-Type: text/plain; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . $encoding . $line_break . $line_break;
+		$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
 		$message .= $plain_charset_message . $line_break . '--' . $mime_boundary . $line_break;
 
 		// This is the actual HTML message, prim and proper.  If we wanted images, they could be inlined here (with multipart/related, etc.)
 		list($charset, $html_message, $encoding) = mimespecialchars($orig_message, false, $hotmail_fix, $line_break);
-		$message .= 'Content-Type: text/html; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . ($encoding == '' ? '7bit' : $encoding) . $line_break . $line_break;
+		$message .= 'content-type: text/html; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . ($encoding == '' ? '7bit' : $encoding) . $line_break . $line_break;
 		$message .= $html_message . $line_break . '--' . $mime_boundary . '--';
 	}
 	// Text is good too.
@@ -652,8 +592,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		// Now add an encoded message using the forum's character set.
 		list ($charset, $encoded_message, $encoding) = mimespecialchars($orig_message, false, false, $line_break);
-		$message .= 'Content-Type: text/plain; charset=' . $charset . $line_break;
-		$message .= 'Content-Transfer-Encoding: ' . $encoding . $line_break . $line_break;
+		$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
+		$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
 		$message .= $encoded_message . $line_break . '--' . $mime_boundary . '--';
 	}
 
@@ -685,11 +625,31 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		foreach ($to_array as $to)
 		{
-			if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
+			set_error_handler(function($errno, $errstr, $errfile, $errline)
+				{
+					// error was suppressed with the @-operator
+					if (0 === error_reporting()) {
+						return false;
+					}
+
+					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+				}
+			);
+			try
 			{
+				if (!mail(strtr($to, array("\r" => '', "\n" => '')), $subject, $message, $headers))
+				{
+					log_error(sprintf($txt['mail_send_unable'], $to));
+					$mail_result = false;
+				}
+			}
+			catch(ErrorException $e)
+			{
+				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 				log_error(sprintf($txt['mail_send_unable'], $to));
 				$mail_result = false;
 			}
+			restore_error_handler();
 
 			// Wait, wait, I'm still sending here!
 			@set_time_limit(300);

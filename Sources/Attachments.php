@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -373,6 +373,10 @@ class Attachments
 					unlink($attachment['tmp_name']);
 			}
 
+			// You don't need to know.
+			unset($attachmentOptions['tmp_name']);
+			unset($attachmentOptions['destination']);
+
 			// Regardless of errors, pass the results.
 			$this->_attachResults[] = $attachmentOptions;
 		}
@@ -433,7 +437,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('Content-Type: application/json; charset='. $context['character_set'] .'');
+		header('content-type: application/json; charset='. $context['character_set'] .'');
 
 		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
 

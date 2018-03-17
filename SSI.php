@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -39,7 +39,7 @@ require_once(dirname(__FILE__) . '/Settings.php');
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
-$ssi_error_reporting = error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : E_ALL);
+$ssi_error_reporting = error_reporting(E_ALL);
 /* Set this to one of three values depending on what you want to happen in the case of a fatal error.
 	false:	Default, will just load the error sub template and die - not putting any theme layers around it.
 	true:	Will load the error sub template AND put the SMF layers around it (Not useful if on total custom pages).
@@ -99,6 +99,49 @@ if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression')
 else
 	$modSettings['enableCompressedOutput'] = '0';
 
+/**
+ * An autoloader for certain classes.
+ *
+ * @param string $class The fully-qualified class name.
+ */
+spl_autoload_register(function ($class) use ($sourcedir)
+{
+	$classMap = array(
+		'ReCaptcha\\' => 'ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => 'minify/src/',
+		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+	);
+
+	// Do any third-party scripts want in on the fun?
+	call_integration_hook('integrate_autoload', array(&$classMap));
+
+	foreach ($classMap as $prefix => $dirName)
+	{
+		// does the class use the namespace prefix?
+		$len = strlen($prefix);
+		if (strncmp($prefix, $class, $len) !== 0)
+		{
+			continue;
+		}
+
+		// get the relative class name
+		$relativeClass = substr($class, $len);
+
+		// replace the namespace prefix with the base directory, replace namespace
+		// separators with directory separators in the relative class name, append
+		// with .php
+		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
+
+		// if the file exists, require it
+		if (file_exists($fileName = $sourcedir . '/' . $fileName))
+		{
+			require_once $fileName;
+
+			return;
+		}
+	}
+});
+
 // Primarily, this is to fix the URLs...
 ob_start('ob_sessrewrite');
 
@@ -140,7 +183,7 @@ loadTheme(isset($ssi_theme) ? (int) $ssi_theme : 0);
 
 // @todo: probably not the best place, but somewhere it should be set...
 if (!headers_sent())
-	header('Content-Type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
+	header('content-type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
 
 // Take care of any banning that needs to be done.
 if (isset($_REQUEST['ssi_ban']) || (isset($ssi_ban) && $ssi_ban === true))

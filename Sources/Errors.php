@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -123,8 +123,20 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$smcFunc['db_error_insert']($error_info);
 		$last_error = $error_info;
 
-		// Increment our error count for the menu
-		$context['num_errors']++;
+		// Get an error count, if necessary
+		if (!isset($context['num_errors']))
+		{
+			$query = $smcFunc['db_query']('', '
+				SELECT COUNT(id_error)
+				FROM {db_prefix}log_errors',
+				array()
+			);
+
+			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+			$smcFunc['db_free_result']($query);
+		}
+		else
+			$context['num_errors']++;
 	}
 
 	// reset error call
@@ -225,8 +237,8 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 {
 	global $settings, $modSettings, $db_show_debug;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
+	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	if (error_reporting() == 0)
 		return;
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
@@ -472,15 +484,18 @@ function display_loadavg_error()
  */
 function set_fatal_error_headers()
 {
+	if (headers_sent())
+		return;
+
 	// Don't cache this page!
-	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	header('Cache-Control: no-cache');
+	header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	header('cache-control: no-cache');
 
 	// Send the right error codes.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
-	header('Status: 503 Service Temporarily Unavailable');
-	header('Retry-After: 3600');
+	header('status: 503 Service Temporarily Unavailable');
+	header('retry-after: 3600');
 }
 
 

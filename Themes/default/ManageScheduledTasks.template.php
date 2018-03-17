@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -36,7 +36,6 @@ function template_view_scheduled_tasks()
 			</dt>';
 
 			foreach ($context['scheduled_errors'] as $task => $errors)
-			{
 				echo '
 			<dd class="error">
 				<strong>', isset($txt['scheduled_task_' . $task]) ? $txt['scheduled_task_' . $task] : $task, '</strong>
@@ -44,7 +43,6 @@ function template_view_scheduled_tasks()
 					<li>', implode('</li><li>', $errors), '</li>
 				</ul>
 			</dd>';
-			}
 
 			echo '
 		</dl>

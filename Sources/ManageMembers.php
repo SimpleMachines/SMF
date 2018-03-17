@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -255,6 +255,14 @@ function ViewMemberlist()
 			'ip' => array(
 				'db_fields' => array('member_ip'),
 				'type' => 'inet'
+			),
+			'membergroups' => array(
+				'db_fields' => array('id_group'),
+				'type' => 'groups'
+			),
+			'postgroups' => array(
+				'db_fields' => array('id_group'),
+				'type' => 'groups'
 			)
 		);
 		$range_trans = array(
@@ -302,6 +310,12 @@ function ViewMemberlist()
 					continue;
 
 				$search_params[$param_name] = strtotime($search_params[$param_name]);
+			}
+			elseif ($param_info['type'] == 'inet')
+			{
+				$search_params[$param_name] = ip2range($search_params[$param_name]);
+				if (empty($search_params[$param_name]))
+					continue;
 			}
 
 			// Those values that are in some kind of range (<, <=, =, >=, >).
@@ -351,7 +365,23 @@ function ViewMemberlist()
 				$query_parts[] = ($param_info['db_fields'][0]) . ' IN ({array_string:' . $param_name . '_check})';
 				$where_params[$param_name . '_check'] = $search_params[$param_name];
 			}
-			else
+			// INET.
+			elseif ($param_info['type'] == 'inet')
+			{
+				if(count($search_params[$param_name]) === 1)
+				{
+					$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
+					$where_params[$param_name] = $search_params[$param_name][0];
+				}
+				elseif (count($search_params[$param_name]) === 2)
+				{
+					$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
+					$where_params[$param_name.'_low'] = $search_params[$param_name]['low'];
+					$where_params[$param_name.'_high'] = $search_params[$param_name]['high'];
+				}
+				
+			}
+			elseif ($param_info['type'] != 'groups')
 			{
 				// Replace the wildcard characters ('*' and '?') into MySQL ones.
 				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));

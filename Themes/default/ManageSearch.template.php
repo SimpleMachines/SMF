@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -116,7 +116,7 @@ function template_select_search_method()
 			<h3 class="catbg">', $txt['search_method'], '</h3>
 		</div>
 		<div class="information">
-			<div class="smalltext" style="font-weight: normal;">
+			<div class="smalltext">
 				<a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a>
 			</div>
 		</div>
@@ -163,18 +163,18 @@ function template_select_search_method()
 						<dd>
 							<span class="smalltext">';
 
-	if (empty($context['fulltext_index']) && empty($context['cannot_create_fulltext']))
-		echo '
+		if (empty($context['fulltext_index']) && empty($context['cannot_create_fulltext']))
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_no_index_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createfulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_create'], '</a>]';
 
-	elseif (empty($context['fulltext_index']) && !empty($context['cannot_create_fulltext']))
-		echo '
+		elseif (empty($context['fulltext_index']) && !empty($context['cannot_create_fulltext']))
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_fulltext_cannot_create'];
-	else
-		echo '
+		else
+			echo '
 								<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br>
 								<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['fulltext_length'];
-	echo '
+		echo '
 							</span>
 						</dd>';
 	}
@@ -214,8 +214,8 @@ function template_select_search_method()
 							', $api['label'], '
 						</dt>';
 
-	if ($api['desc'])
-		echo '
+		if ($api['desc'])
+			echo '
 						<dd>
 							<span class="smalltext">', $api['desc'], '</span>
 						</dd>';
@@ -229,7 +229,7 @@ function template_select_search_method()
 					<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', $txt['search_force_index'], '</label><br>
 					<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 				</fieldset>
-				<br class="clear"/>
+				<br class="clear">
 				<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '">
@@ -290,7 +290,7 @@ function template_create_index_progress()
 					<p>', $txt['search_create_index_not_ready'], '</p>
 					<div class="progress_bar">
 						<div class="full_bar">', $context['percentage'], '%</div>
-						<div class="green_percent" style="width: ', $context['percentage'], '%;">&nbsp;</div>
+						<div class="green_percent" style="width: ', $context['percentage'], '%;"></div>
 					</div>
 				</div>
 				<hr>
@@ -328,6 +328,7 @@ function template_create_index_progress()
 function template_create_index_done()
 {
 	global $scripturl, $txt;
+
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">
@@ -348,6 +349,7 @@ function template_create_index_done()
 function template_spider_edit()
 {
 	global $context, $scripturl, $txt;
+
 	echo '
 	<div id="admincenter">
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">

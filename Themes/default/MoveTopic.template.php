@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -51,7 +51,9 @@ function template_move()
 	// Disable the reason textarea when the postRedirect checkbox is unchecked...
 	echo '
 					</dl>
-					<label for="reset_subject"><input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.</label><br>
+					<label for="reset_subject">
+						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.
+					</label><br>
    					<fieldset id="subjectArea" style="display: none;">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
@@ -92,7 +94,7 @@ function template_redirect_options($type)
 					<label for="postRedirect">
 						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.
 					</label>
-					<fieldset id="reasonArea" style="margin-top: 1ex;', $context['is_approved'] ? '' : 'display: none;', '">
+					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'style="display: none;"', '>
 						<dl class="settings">
 							<dt>
 								', $txt[$type . '_why'], '
@@ -125,10 +127,8 @@ function template_redirect_options($type)
 							</dd>';
 	}
 	else
-	{
 		echo '
 							<input type="hidden" name="redirect_expires" value="0">';
-	}
 
 	echo '
 						</dl>
@@ -199,18 +199,17 @@ function template_merge()
 	{
 		echo '
 					<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '" id="mergeSelectBoard">
-						', $txt['target_below'], ' (', $txt['board'], ':&nbsp;
+						', $txt['target_below'], ' (', $txt['board'], ':
 						<select name="targetboard" onchange="this.form.submit();">';
+
 		foreach ($context['merge_categories'] as $cat)
 		{
 			echo '
 							<optgroup label="', $cat['name'], '">';
 
 			foreach ($cat['boards'] as $board)
-			{
 				echo '
-								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
-			}
+								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 
 			echo '
 							</optgroup>';
@@ -226,13 +225,13 @@ function template_merge()
 		echo $txt['target_below'];
 
 	echo '		</h4>
-			</div><!-- .title_bar -->';
+			</div><!-- .title_bar -->
+			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Don't show this if there aren't any topics...
 	if (!empty($context['topics']))
 	{
 		echo '
-			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
@@ -244,8 +243,8 @@ function template_merge()
 		foreach ($context['topics'] as $topic)
 			echo '
 						<li>
-							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>&nbsp;
-							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
+							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>
+							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 
 		echo '
@@ -256,12 +255,10 @@ function template_merge()
 					', $context['page_index'], '
 				</div>';
 	}
+	// Just a nice "There aren't any topics" message
 	else
-	{
-		// Just a nice "There aren't any topics" message
 		echo '
 				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
-	}
 
 	echo '
 				<br>
@@ -318,7 +315,7 @@ function template_merge_extra_options()
 							<input type="checkbox" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
-							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank">' . $topic['subject'] . '</a>
+							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
 						</td>
 						<td>
 							', $topic['started']['link'], '<br>
@@ -381,7 +378,7 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>

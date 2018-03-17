@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -167,7 +167,7 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. $cur_profile['email_address'] . '")
+		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
 			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
@@ -1167,6 +1167,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		)
 	);
 	$changes = array();
+	$deletes = array();
 	$log_changes = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -1253,26 +1254,43 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 					'member_affected' => $memID,
 				),
 			);
-			$changes[] = array(1, $row['col_name'], $value, $memID);
-			$user_profile[$memID]['options'][$row['col_name']] = $value;
+			if (empty($value))
+			{
+				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				unset($user_profile[$memID]['options'][$row['col_name']]);
+			}
+			else
+			{
+				$changes[] = array(1, $row['col_name'], $value, $memID);
+				$user_profile[$memID]['options'][$row['col_name']] = $value;
+			}		
 		}
 	}
 	$smcFunc['db_free_result']($request);
 
-	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
+	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize, &$deletes));
 
 	if (!empty($hook_errors) && is_array($hook_errors))
 		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']) && empty($errors))
+	if ((!empty($changes) || !empty($deletes)) && empty($context['password_auth_failed']) && empty($errors))
 	{
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534', 'id_member' => 'int'),
-			$changes,
-			array('id_theme', 'variable', 'id_member')
-		);
+		if (!empty($changes))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534', 'id_member' => 'int'),
+				$changes,
+				array('id_theme', 'variable', 'id_member')
+			);
+		if (!empty($deletes))
+			$smcFunc['db_query']('','
+				DELETE FROM {db_prefix}themes 
+				WHERE id_theme = {int:id_theme} AND 
+						variable = {string:variable} AND 
+						id_member = {int:id_member}',
+				$deletes
+				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1452,7 +1470,7 @@ function editBuddies($memID)
 			);
 
 	// Gotta disable the gender option.
-	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'Disabled')
+	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'None')
 		unset($context['custom_pf']['cust_gender']);
 
 	$smcFunc['db_free_result']($request);
@@ -1814,6 +1832,9 @@ function theme($memID)
 
 	loadTemplate('Settings');
 	loadSubTemplate('options');
+
+	// Let mods hook into the theme options.
+	call_integration_hook('integrate_theme_options');
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -3174,8 +3195,6 @@ function profileSaveAvatarData(&$value)
 		if (!is_writable($uploadDir))
 			fatal_lang_error('attachments_no_write', 'critical');
 
-		require_once($sourcedir . '/Subs-Package.php');
-
 		$url = parse_url($_POST['userpicpersonal']);
 		$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
 
@@ -4038,7 +4057,7 @@ function tfasetup($memID)
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,

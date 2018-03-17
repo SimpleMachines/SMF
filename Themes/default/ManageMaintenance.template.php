@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -40,7 +40,6 @@ function template_maintain_database()
 
 	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
 	if (isset($context['convert_to']))
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
@@ -54,11 +53,9 @@ function template_maintain_database()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
 	if ($context['convert_utf8'])
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['utf8_title'], '</h3>
@@ -67,16 +64,14 @@ function template_maintain_database()
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['utf8_introduction'], '</p>
 				', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<div class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</div>' : '', '
-				<input type="submit" value="', $txt['maintain_run_now'], '" class="button" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '/><br class="clear_right">
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '><br class="clear_right">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	// We might want to convert entities if we're on UTF-8.
 	if ($context['convert_entities'])
-	{
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['entity_convert_title'], '</h3>
@@ -89,7 +84,6 @@ function template_maintain_database()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
 		</div>';
-	}
 
 	echo '
 	</div><!-- #manage_maintenance -->';
@@ -242,9 +236,9 @@ function template_maintain_members()
 	</script>
 	<div id="manage_maintenance">';
 
-	// If maintenance has finished tell the user.
+	// If maintenance has finished, tell the user.
 	if (!empty($context['maintenance_finished']))
-	echo '
+		echo '
 		<div class="infobox">
 			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 		</div>';
@@ -300,16 +294,14 @@ function template_maintain_members()
 					<select name="del_type">
 						<option value="activated" selected>', $txt['maintain_members_activated'], '</option>
 						<option value="logged">', $txt['maintain_members_logged_in'], '</option>
-					</select> 
-					', $txt['maintain_members_since2'], ' 
+					</select>
+					', $txt['maintain_members_since2'], '
 					<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '
-				</p>';
-
-	echo '
+				</p>
 				<p>
 					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a>
 				</p>
-				<div style="display: none; padding: 3px" id="membersPanel">';
+				<div style="display: none;" id="membersPanel">';
 
 	foreach ($context['membergroups'] as $group)
 		echo '
@@ -462,7 +454,7 @@ function template_maintain_topics()
 		<div class="windowbg2 noup">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
 				<p>
-					', $txt['maintain_old_drafts_days'], '&nbsp;<input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3">&nbsp;', $txt['days_word'], '
+					', $txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3"> ', $txt['days_word'], '
 				</p>
 				<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -516,7 +508,9 @@ function template_maintain_topics()
 					</select>
 				</p>
 				<p>
-					', $txt['move_topics_older_than'], '<input type="number" name="maxdays" value="30" size="3">', $txt['manageposts_days'], '&nbsp;(', $txt['move_zero_all'], ')
+					', $txt['move_topics_older_than'], '
+					<input type="number" name="maxdays" value="30" size="3">
+					', $txt['manageposts_days'], ' (', $txt['move_zero_all'], ')
 				</p>
 				<p>
 					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', $txt['move_type_locked'], '</label><br>

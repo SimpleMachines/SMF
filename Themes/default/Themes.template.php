@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -160,16 +160,14 @@ function template_main()
 					<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=dir" method="post" accept-charset="', $context['character_set'], '" class="padding">
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						<input type="hidden" name="', $context['admin-t-dir_token_var'], '" value="', $context['admin-t-dir_token'], '">
-						<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;">
+						<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40">
 						<input type="submit" name="save_dir" value="' . $txt['save'] . '" class="button">
 					</form>
 				</fieldset>';
 
 	echo '
 			</div><!-- .windowbg2 -->
-		</div><!-- #admin_form_wrapper -->';
-
-	echo '
+		</div><!-- #admin_form_wrapper -->
 	</div><!-- #admincenter -->';
 
 	echo '
@@ -196,9 +194,7 @@ function template_list_themes()
 	</div>';
 
 	echo '
-	<div id="admincenter">';
-
-	echo '
+	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_list_heading'], '</h3>
 		</div>
@@ -264,13 +260,13 @@ function template_list_themes()
 						<label for="reset_dir">', $txt['themeadmin_list_reset_dir'], '</label>:
 					</dt>
 					<dd>
-						<input type="text" name="reset_dir" id="reset_dir" value="', $context['reset_dir'], '" size="40" style="width: 80%;">
+						<input type="text" name="reset_dir" id="reset_dir" value="', $context['reset_dir'], '" size="40">
 					</dd>
 					<dt>
 						<label for="reset_url">', $txt['themeadmin_list_reset_url'], '</label>:
 					</dt>
 					<dd>
-						<input type="text" name="reset_url" id="reset_url" value="', $context['reset_url'], '" size="40" style="width: 80%;">
+						<input type="text" name="reset_url" id="reset_url" value="', $context['reset_url'], '" size="40">
 					</dd>
 				</dl>
 				<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button">
@@ -404,12 +400,11 @@ function template_set_options()
 
 		// Display checkbox options
 		if ($setting['type'] == 'checkbox')
-		{
 			echo '
 					<dd>
 						<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled' : '', ' value="1" class="floatleft">';
-		}
+
 		// How about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
 		{
@@ -418,10 +413,8 @@ function template_set_options()
 						<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled' : '', '>';
 
 			foreach ($setting['options'] as $value => $label)
-			{
 				echo '
 							<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
-			}
 
 			echo '
 						</select>';
@@ -441,17 +434,13 @@ function template_set_options()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
-			else if (isset($setting['type']) && $setting['type'] == 'url')
-			{
+			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo'
 						<input type="url"';
-			}
+
 			else
-			{
 				echo '
 						<input type="text"';
-			}
-
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', '>';
 		}
@@ -631,13 +620,12 @@ function template_set_settings()
 
 		// A checkbox?
 		if ($setting['type'] == 'checkbox')
-		{
 			echo '
 					<dd>
 						<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0">
 						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
 					</dd>';
-		}
+
 		// A list with options?
 		elseif ($setting['type'] == 'list')
 		{
@@ -658,8 +646,7 @@ function template_set_settings()
 		{
 			echo '
 					<dd>
-						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
-			echo '
+						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>
 					</dd>';
 		}
 		// A regular input box, then?
@@ -677,16 +664,13 @@ function template_set_settings()
 				echo '
 						<input type="number"', $min . $max . $step;
 			}
-			else if (isset($setting['type']) && $setting['type'] == 'url')
-			{
+			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo'
 						<input type="url"';
-			}
+
 			else
-			{
 				echo '
 						<input type="text"';
-			}
 
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($settings['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
@@ -759,10 +743,9 @@ function template_pick()
 					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant', $theme['id'], '(this.value);">';
 
 			foreach ($theme['variants'] as $key => $variant)
-			{
 				echo '
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
-			}
+
 			echo '
 					</select>
 					<noscript>
@@ -1069,6 +1052,7 @@ function template_edit_style()
 					try
 					{
 					';
+
 	if (isBrowser('is_ie'))
 		echo '
 						var sheets = frames["css_preview_box"].document.styleSheets;

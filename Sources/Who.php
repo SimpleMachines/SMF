@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -565,8 +565,9 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
-						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+						'Michele "Illori" Davis',
 						// Former Project Managers
+						'Jessica "Suki" Gonz&aacute;lez',
 						'Kindred',
 					),
 				),
@@ -574,31 +575,33 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						'Michael &quot;Oldiesmann&quot; Eshom',
-						// Developers
 						'Colin Schoen',
-						'John &quot;live627&quot; Rayes',
+						// Developers
+						'Jon "Sesquipedalian" Stovell',
+						'Michael "Oldiesmann" Eshom',
 
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
-						'Bjoern &quot;Bloc&quot; Kristiansen',
-						'Brad &quot;IchBin&trade;&quot; Grow',
+						'Bjoern "Bloc" Kristiansen',
+						'Brad "IchBin&trade;" Grow',
 						'emanuele',
-						'Hendrik Jan &quot;Compuart&quot; Visser',
-						'Juan &quot;JayBachatero&quot; Hernandez',
-						'Shitiz &quot;Dragooon&quot; Garg',
-						'Karl &quot;RegularExpression&quot; Benson',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
-						'Michael &quot;Thantos&quot; Miller',
+						'Hendrik Jan "Compuart" Visser',
+						'Juan "JayBachatero" Hernandez',
+						'John "live627" Rayes',
+						'Jessica "Suki" Gonz&aacute;lez',
+						'Karl "RegularExpression" Benson',
+						'Matthew "Labradoodle-360" Kerle',
+						$user_info['is_admin'] ? 'Matt "Grudge" Wolf': 'Grudge',
+						'Michael "Thantos" Miller',
 						'Norv',
 						'Peter "Arantor" Spicer',
-						'Selman &quot;[SiNaN]&quot; Eser',
+						'Selman "[SiNaN]" Eser',
+						'Shitiz "Dragooon" Garg',
 						// 'Spuds', // Doesn't want to be listed here
-						// 'Steven &quot;Fustrate&quot; Hoffman',
-						'Theodore &quot;Orstio&quot; Hildebrandt',
-						'Thorsten &quot;TE&quot; Eurich',
+						// 'Steven "Fustrate" Hoffman',
+						'Theodore "Orstio" Hildebrandt',
+						'Thorsten "TE" Eurich',
 						'winrules',
 					),
 				),
@@ -606,15 +609,17 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'Michele &quot;Illori&quot; Davis',
+						'br360',
 						// Support Specialists
+						'Aleksi "Lex" Kilpinen',
+						'Kindred',
+						'Steve',
+						'shawnb',
+						'ziycon',
+						// Former Support Specialists
 						'Adam Tallon',
 						'Bigguy',
 						'Bruno "margarett" Alves',
-						'br360',
-						'Krash',
-						// Former Support Specialists
-						'Aleksi &quot;Lex&quot; Kilpinen',
 						'CapadY',
 						'ChalkCat',
 						'Chas Large',
@@ -623,14 +628,15 @@ function Credits($in_admin = false)
 						'JimM',
 						'Justyne',
 						'Kat',
-						'Kevin &quot;greyknight17&quot; Hou',
+						'Kevin "greyknight17" Hou',
+						'Krash',
 						'Mashby',
 						'Michael Colin Blaber',
+						'Michele "Illori" Davis',
 						'Old Fossil',
 						'S-Ace',
 						'Storman&trade;',
-						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
-						'Yoshi',
+						'Wade "s&eta;&sigma;&omega;" Poulsen',
 						'xenovanis',
 					),
 				),
@@ -638,18 +644,21 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Russell "NEND" Najar',
-						// Customizers
 						'Gary M. Gadsdon',
-						'Jason "JBlaze" Clemons',
-						'SA&#8482;',
+						// Customizers
+						'Gwenwyfar',
+						'Jessica "Suki" Gonz&aacute;lez',
+						'NanoSector',
 						// Former Customizers
-						'Brannon &quot;B&quot; Hall',
+						'Brannon "B" Hall',
 						'Diego Andrés',
 						'Jack "akabugeyes" Thorsen',
-						'Joey &quot;Tyrsson&quot; Smith',
+						'Jason "JBlaze" Clemons',
+						'Joey "Tyrsson" Smith',
 						'Kays',
 						'Ricky.',
+						'Russell "NEND" Najar',
+						'SA&#8482;',
 					),
 				),
 				array(
@@ -663,17 +672,17 @@ function Credits($in_admin = false)
 						'AngelinaBelle',
 						'Chainy',
 						'Graeme Spence',
-						'Joshua &quot;groundup&quot; Dickerson',
+						'Joshua "groundup" Dickerson',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						'Nikola "Dzonny" Novakovi&cacute;',
 						// Localizers
-						'Dr. Deejay',
-                        			'd3vcho',
+						'd3vcho',
+						'Robert Monden',
 						// Former Localizers
 						'Relyana',
 					),
@@ -682,19 +691,21 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
-						'Mert &quot;Antes&quot; Al&#305;nbay ',
+
 						// Marketing
+
 						// Former Marketing
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-						'Bryan &quot;Runic&quot; Deakin',
-						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
-						'Ralph &quot;[n3rve]&quot; Otowo',
+						'Adish "(F.L.A.M.E.R)" Patel',
+						'Bryan "Runic" Deakin',
+						'Marcus "c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;" Forsberg',
+						'Mert "Antes" Al&#305;nbay ',
+						'Ralph "[n3rve]" Otowo',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_site'],
 					'members' => array(
-						'Jeremy &quot;SleePy&quot; Darwood',
+						'Jeremy "SleePy" Darwood',
 					),
 				),
 				array(
@@ -702,7 +713,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy van Hoewijk (CoreISP)',
+						'Liroy "CoreISP" van Hoewijk',
 					),
 				),
 			),
@@ -730,9 +741,8 @@ function Credits($in_admin = false)
 				'members' => array(
 					'albertlast',
 					'Brett Flannigan',
-					'Jon "Sesquipedalian" Stovell',
 					'Mark Rose',
-					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
+					'Ren&eacute;-Gilles "Nao &#23578;" Deberdt',
 					'tinoest',
 				),
 			),
@@ -751,7 +761,7 @@ function Credits($in_admin = false)
 			array(
 				'title' => $txt['credits_groups_founder'],
 				'members' => array(
-					'Unknown W. &quot;[Unknown]&quot; Brackets',
+					'Unknown W. "[Unknown]" Brackets',
 				),
 			),
 			array(

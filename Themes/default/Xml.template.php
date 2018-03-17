@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -65,7 +65,6 @@ function template_modifydone()
 	if (empty($context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-
 		$modified = empty($context['message']['modified']['time']) ? '' : sprintf($txt['last_edit_by'], $context['message']['modified']['time'], $context['message']['modified']['name']);
 		$modified .= empty($context['message']['modified']['reason']) ? '' : ' ' . sprintf($txt['last_edit_reason'], $context['message']['modified']['reason']);
 
@@ -101,6 +100,7 @@ function template_modifytopicdone()
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : cleanXml('&#171; <em>' . $modified . '</em>&#187;'), ']]></modified>';
+
 		if (!empty($context['message']['subject']))
 			echo '
 		<subject><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>';
@@ -127,10 +127,12 @@ function template_post()
 		<body><![CDATA[', $context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '" topic_locked="', $context['locked'] ? '1' : '0', '">';
+
 	if (!empty($context['post_error']))
 		foreach ($context['post_error'] as $message)
 			echo '
 		<error><![CDATA[', cleanXml($message), ']]></error>';
+
 	echo '
 		<caption name="guestname" class="', isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? 'error' : '', '" />
 		<caption name="email" class="', isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? 'error' : '', '" />
@@ -145,6 +147,7 @@ function template_post()
 	{
 		echo '
 	<new_posts>';
+
 		foreach ($context['previous_posts'] as $post)
 			echo '
 		<post id="', $post['id'], '">
@@ -153,6 +156,7 @@ function template_post()
 			<message><![CDATA[', cleanXml($post['message']), ']]></message>
 			<is_ignored>', $post['is_ignored'] ? '1' : '0', '</is_ignored>
 		</post>';
+
 		echo '
 	</new_posts>';
 	}
@@ -176,6 +180,7 @@ function template_pm()
 		<body><![CDATA[', $context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+
 	if (!empty($context['post_error']['messages']))
 		foreach ($context['post_error']['messages'] as $message)
 			echo '
@@ -208,6 +213,7 @@ function template_warning()
 		<body><![CDATA[', $context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+
 	if (!empty($context['post_error']['messages']))
 		foreach ($context['post_error']['messages'] as $message)
 			echo '
@@ -237,13 +243,16 @@ function template_stats()
 		{
 			echo '
 	<month id="', $month['date']['year'], $month['date']['month'], '">';
+
 			foreach ($month['days'] as $day)
 				echo '
 		<day date="', $day['year'], '-', $day['month'], '-', $day['day'], '" new_topics="', $day['new_topics'], '" new_posts="', $day['new_posts'], '" new_members="', $day['new_members'], '" most_members_online="', $day['most_members_online'], '"', empty($modSettings['hitStats']) ? '' : ' hits="' . $day['hits'] . '"', ' />';
+
 			echo '
 	</month>';
 		}
-		echo '
+
+	echo '
 </smf>';
 }
 
@@ -326,6 +335,7 @@ function template_results()
 					<href>', $topic['category']['href'], '</href>
 				</category>
 				<messages>';
+
 			foreach ($topic['matches'] as $message)
 			{
 				echo '
@@ -366,10 +376,12 @@ function template_jump_to()
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';
+
 	foreach ($context['jump_to'] as $category)
 	{
 		echo '
 	<item type="category" id="', $category['id'], '"><![CDATA[', cleanXml($category['name']), ']]></item>';
+
 		foreach ($category['boards'] as $board)
 			echo '
 	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '"><![CDATA[', cleanXml($board['name']), ']]></item>';
@@ -387,9 +399,11 @@ function template_message_icons()
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';
+
 	foreach ($context['icons'] as $icon)
 		echo '
 	<icon value="', $icon['value'], '" url="', $icon['url'], '"><![CDATA[', cleanXml($icon['name']), ']]></icon>';
+
 	echo '
 </smf>';
 }

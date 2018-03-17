@@ -53,7 +53,7 @@ $txt['search_method_kilobytes'] = 'KB';
 $txt['search_method_fulltext_index'] = 'Fulltext index';
 $txt['search_method_no_index_exists'] = 'doesn\'t currently exist';
 $txt['search_method_fulltext_create'] = 'create a fulltext index';
-$txt['search_method_fulltext_cannot_create'] = 'cannot be created because the max message length is above 65,535 or table type is not MyISAM';
+$txt['search_method_fulltext_cannot_create'] = 'cannot be created because fulltext search is not supported for your MySQL engine and version';
 $txt['search_method_index_already_exists'] = 'already created';
 $txt['search_method_fulltext_remove'] = 'remove fulltext index';
 $txt['search_method_index_partial'] = 'partially created';
@@ -108,7 +108,7 @@ $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
 $txt['spider_mode'] = 'Search Engine Tracking Level';
-$txt['spider_mode_note'] = 'Note that logging of every spider action only occurs if tracking is set to either "high" or "very high". Detail of every spiders action is only logged if tracking is set to "very high".';
+$txt['spider_mode_note'] = 'Note that logging of every spider action only occurs if tracking is set to either "moderate" or "aggressive". Detail of every spider\'s action is only logged if tracking is set to "aggressive".';
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
 $txt['spider_mode_high'] = 'Moderate';

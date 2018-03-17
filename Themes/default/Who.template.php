@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -26,9 +26,9 @@ function template_main()
 			</div>
 			<div id="mlist">
 				<div class="pagesection">
-					<div class="pagelinks floatleft">', $context['page_index'], '</div>';
-	echo '
-					<div class="selectbox floatright" id="upper_show">', $txt['who_show1'], '
+					<div class="pagelinks floatleft">', $context['page_index'], '</div>
+					<div class="selectbox floatright" id="upper_show">
+						', $txt['who_show1'], '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
 	foreach ($context['show_methods'] as $value => $label)
@@ -59,12 +59,10 @@ function template_main()
 
 		// Guests can't be messaged.
 		if (!$member['is_guest'])
-		{
 			echo '
 								<span class="contact_info floatright">
 									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 								</span>';
-		}
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
@@ -84,23 +82,20 @@ function template_main()
 
 	// No members?
 	if (empty($context['members']))
-	{
 		echo '
 						<tr class="windowbg">
 							<td colspan="3">
 							', $txt['who_no_online_' . ($context['show_by'] == 'guests' || $context['show_by'] == 'spiders' ? $context['show_by'] : 'members')], '
 							</td>
 						</tr>';
-	}
 
 	echo '
 					</tbody>
 				</table>
 				<div class="pagesection" id="lower_pagesection">
-					<div class="pagelinks floatleft" id="lower_pagelinks">', $context['page_index'], '</div>';
-
-	echo '
-					<div class="selectbox floatright">', $txt['who_show1'], '
+					<div class="pagelinks floatleft" id="lower_pagelinks">', $context['page_index'], '</div>
+					<div class="selectbox floatright">
+						', $txt['who_show1'], '
 						<select name="show" onchange="document.forms.whoFilter.submit();">';
 
 	foreach ($context['show_methods'] as $value => $label)

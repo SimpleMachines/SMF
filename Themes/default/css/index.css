@@ -41,8 +41,8 @@ input, button, select, textarea, textarea.editor {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 	padding: 3px;
 }
-/* Prevent input overflow at smaller screens */
-input[type="text"] {
+/* Prevent inputs overflowing */
+input, select {
 	max-width: 100%;
 }
 /* Remove default mozilla dotted borders */
@@ -135,6 +135,7 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
@@ -283,11 +284,11 @@ h3.largetext {
 	display: inline-block;
 	vertical-align: top;
 }
-.half_content:nth-of-type(even) {
+.half_content:nth-of-type(odd) {
 	margin-right: -0.25em;
 	padding-right: 0.3%;
 }
-.half_content:nth-of-type(odd) {
+.half_content:nth-of-type(even) {
 	margin-left: -0.2em;
 	padding-left: 0.3%;
 }
@@ -368,10 +369,6 @@ blockquote cite::before {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_img, .atc_img {
-	border: 0;
-	height: auto;
-}
 .bbc_table {
 	font: inherit;
 	color: inherit;
@@ -399,6 +396,15 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
+.postarea .bbc_img:hover {
+	cursor: pointer;
+}
+.bbc_img.original_size {
+	height: auto !important;
+	width: auto !important;
+	max-height: none;
+	max-width: 100%;
+}
 /* No image should have a border when linked. */
 a img {
 	border: 0;
@@ -409,7 +415,7 @@ a img {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background: #f7f7f7 url(../images/toggle.png) no-repeat 0 0 / 17px;
+	background: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
 	overflow: hidden;
 	content: '';
 	vertical-align: middle;
@@ -461,6 +467,9 @@ a img {
 .pages::after, .jump_to::after, .code::after,
 strong[id^='child_list_']::after {
 	content: ": ";
+}
+small .pages {
+	margin-left: 7px;
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
@@ -573,7 +582,8 @@ dl.settings dt.windowbg {
 dl.settings dd {
 	width: 42%;
 	float: right;
-	overflow: auto;
+/* Disabled this for testing can be reverted at later stages of RC.
+	overflow: auto;*/
 	margin: 0 0 3px 0;
 }
 dl.settings img {
@@ -1308,12 +1318,6 @@ ul li.greeting {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
-.quickbuttons li a img {
-	padding-bottom: 2px;
-}
-.quickbuttons li input {
-	margin-top: 4px;
-}
 
 /* Drop part of QuickButtons */
 .quickbuttons li ul {
@@ -1394,7 +1398,7 @@ ul li.greeting {
 }
 
 .quickModifyMargin {
-	margin-bottom: 5px;
+	margin: 10px 0 5px 0;
 	padding-bottom: 5px;
 }
 
@@ -1448,7 +1452,6 @@ div.event_options {
 }
 #post_event input[type="checkbox"] {
     height: auto;
-    vertical-align: baseline;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
@@ -1484,6 +1487,7 @@ div.event_options {
 	text-align: left;
 }
 div.move_topic fieldset {
+	margin-top: 1ex;
 	padding: 6px;
 }
 /* Styles for the report topic/user section. */
@@ -1555,6 +1559,10 @@ fieldset.merge_options {
 }
 .login p {
 	text-align: center;
+}
+
+.login input[type="submit"] {
+	margin: 1em 0 0 1em;
 }
 
 /* Additional register fields */
@@ -1633,13 +1641,18 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 
 .errorfile_table {
 	background: #f0f4f7;
-	border-spacing: 3px;
 	border-collapse: collapse;
+}
+.errorfile_table .file_line {
+	text-align: right;
+	padding-right: 6px;
 }
 .errorfile_table td.current {
 	font-weight: bold;
-	border: 1px solid #000;
+	border-top: 1px solid rgba(0,0,0,0.2);
+	border-bottom: 1px solid rgba(0,0,0,0.2);
 	border-width: 1px 0 1px 1px;
+	background: rgba(245,141,15,0.2);
 }
 
 .generic_menu {
@@ -1651,9 +1664,17 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -5px -5px;
+	background: url(../images/icons/generic_icons_sprite.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
+/* Load better icons for higher resolution screens */
+@media screen and (min-resolution: 160dpi) {
+
+	.generic_icons {
+		background-image: url(../images/icons/generic_icons_sprite_hd.png);
+	}
+}
+
 /* Small fix for topics */
 .quickbuttons span.generic_icons {
 	margin: -3px 3px 0 1px;
@@ -1666,6 +1687,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.gender_None {
 	background: none;
 }
+
+.generic_icons.gender_0 {
+	display: none;
+}
+
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
@@ -1688,7 +1714,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_2 {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1701,7 +1727,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Male {
+.generic_icons.gender_1 {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
@@ -1990,7 +2016,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
-	background: url(../images/generic_icons.png) no-repeat -57px -83px;
+	background: url(../images/icons/generic_icons_sprite.png) no-repeat -57px -83px;
 	left: 10px;
 	content: '';
 	position: absolute;
@@ -2070,11 +2096,12 @@ dl {
 	width: 79.5%;
 	float: right;
 }
+#basicinfo > * {
+	margin-bottom: 3px;
+}
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
-	white-space: pre-wrap;
-	overflow: hidden;
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
@@ -2083,13 +2110,11 @@ dl {
 }
 #basicinfo img.avatar {
 	display: block;
-	margin: 10px 0 0 0;
 }
 #basicinfo ul {
 	list-style-type: none;
-	margin: 10px 0 0 0;
 }
-#basicinfo ul li {
+#basicinfo .icon_fields li {
 	display: block;
 	float: left;
 	margin-right: 5px;
@@ -2098,7 +2123,6 @@ dl {
 #basicinfo #userstatus {
 	display: block;
 	clear: both;
-	margin-top: 6px;
 }
 #basicinfo #userstatus img {
 	vertical-align: middle;
@@ -2209,7 +2233,7 @@ dl {
 	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
-	overflow: auto;
+	clear: both;
 	word-break: hyphenate;
 	word-wrap: break-word;
 }
@@ -2299,10 +2323,13 @@ dl {
 	width: 100%;
 	float: left;
 }
-/*Issue a warning*/
+/* Issue a warning */
 #warn_body {
-	width: 80%;
+	width: 100%;
 	font-size: 0.9em;
+}
+#warn_temp {
+	font-size: smaller;
 }
 
 /* Styles for the statistics center.
@@ -3682,7 +3709,7 @@ h3.profile_hd {
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
 /* Messages that somehow need to attract the attention. */
-.red, .meaction, 
+.red, .meaction,
 .error, .alert, .warn_mute {
 	color: red;
 }
@@ -3859,4 +3886,27 @@ input[name="attachBBC"] {
 }
 .collapsed:hover {
 	opacity: 1;
+}
+
+/* Lets not allow our textarea in news section overflow too much to left */
+tr[id^='list_news_lists_'] textarea {
+	width: 100%;
+	resize: vertical;
+	min-height: 100px;
+}
+
+/* Responsive Youtube embed */
+.videocontainer {
+	max-width: 560px;
+}
+.videocontainer div {
+	position: relative;
+	padding-bottom: 56.25%;
+}
+.videocontainer iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
 }

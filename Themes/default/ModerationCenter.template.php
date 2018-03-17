@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -51,26 +51,24 @@ function template_group_requests_block()
 				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg2" id="group_requests_panel">
-			<div class="modbox">
-				<ul>';
+		<div class="windowbg2 noup" id="group_requests_panel">
+			<ul>';
 
-		foreach ($context['group_requests'] as $request)
-			echo '
-					<li class="smalltext">
-						<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
-					</li>';
-
-		// Don't have any watched users right now?
-		if (empty($context['group_requests']))
-			echo '
-					<li>
-						<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
-					</li>';
-
+	foreach ($context['group_requests'] as $request)
 		echo '
-				</ul>
-			</div><!-- .modbox -->
+				<li class="smalltext">
+					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', $txt['mc_groupr_by'], ' ', $request['member']['link'], '
+				</li>';
+
+	// Don't have any watched users right now?
+	if (empty($context['group_requests']))
+		echo '
+				<li>
+					<strong class="smalltext">', $txt['mc_group_requests_none'], '</strong>
+				</li>';
+
+	echo '
+			</ul>
 		</div><!-- #group_requests_panel -->
 
 		<script>
@@ -120,26 +118,24 @@ function template_watched_users()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg2" id="watched_users_panel">
-			<div class="modbox">
-				<ul>';
+		<div class="windowbg2 noup" id="watched_users_panel">
+			<ul>';
 
-		foreach ($context['watched_users'] as $user)
-			echo '
-					<li>
-						<span class="smalltext">', sprintf(!empty($user['last_login']) ? $txt['mc_seen'] : $txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
-					</li>';
-
-		// Don't have any watched users right now?
-		if (empty($context['watched_users']))
-			echo '
-					<li>
-						<strong class="smalltext">', $txt['mc_watched_users_none'], '</strong>
-					</li>';
-
+	foreach ($context['watched_users'] as $user)
 		echo '
-				</ul>
-			</div><!-- .modbox -->
+				<li>
+					<span class="smalltext">', sprintf(!empty($user['last_login']) ? $txt['mc_seen'] : $txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
+				</li>';
+
+	// Don't have any watched users right now?
+	if (empty($context['watched_users']))
+		echo '
+				<li>
+					<strong class="smalltext">', $txt['mc_watched_users_none'], '</strong>
+				</li>';
+
+	echo '
+			</ul>
 		</div><!-- #watched_users_panel -->
 
 		<script>
@@ -189,26 +185,24 @@ function template_reported_posts_block()
 				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg2" id="reported_posts_panel">
-			<div class="modbox">
-				<ul>';
+		<div class="windowbg2 noup" id="reported_posts_panel">
+			<ul>';
 
-		foreach ($context['reported_posts'] as $post)
-			echo '
-					<li>
-						<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
-					</li>';
-
-		// Don't have any watched users right now?
-		if (empty($context['reported_posts']))
-			echo '
-					<li>
-						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
-					</li>';
-
+	foreach ($context['reported_posts'] as $post)
 		echo '
-				</ul>
-			</div><!-- .modbox -->
+				<li>
+					<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
+				</li>';
+
+	// Don't have any watched users right now?
+	if (empty($context['reported_posts']))
+		echo '
+				<li>
+					<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
+				</li>';
+
+	echo '
+			</ul>
 		</div><!-- #reported_posts_panel -->
 
 		<script>
@@ -258,26 +252,24 @@ function template_reported_users_block()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg2" id="reported_users_panel">
-			<div class="modbox">
-				<ul>';
+		<div class="windowbg2 noup" id="reported_users_panel">
+			<ul>';
 
-		foreach ($context['reported_users'] as $user)
-			echo '
-					<li>
-						<span class="smalltext">', $user['user']['link'], '</span>
-					</li>';
-
-		// Don't have any watched users right now?
-		if (empty($context['reported_users']))
-			echo '
-					<li>
-						<strong class="smalltext">', $txt['mc_reported_users_none'], '</strong>
-					</li>';
-
+	foreach ($context['reported_users'] as $user)
 		echo '
-				</ul>
-			</div><!-- .modbox -->
+				<li>
+					<span class="smalltext">', $user['user']['link'], '</span>
+				</li>';
+
+	// Don't have any watched users right now?
+	if (empty($context['reported_users']))
+		echo '
+				<li>
+					<strong class="smalltext">', $txt['mc_reported_users_none'], '</strong>
+				</li>';
+
+	echo '
+			</ul>
 		</div><!-- #reported_users_panel -->
 
 		<script>
@@ -322,52 +314,48 @@ function template_notes()
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
-	{
 		echo '
 		<div class="infobox">
 			', $txt['report_action_' . $context['report_post_action']], '
 		</div>';
-	}
 
 	echo '
-		<div class="modnotes">
+		<div id="modnotes">
 			<form action="', $scripturl, '?action=moderate;area=index;modnote" method="post">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['mc_notes'], '</h3>
 				</div>
-				<div class="windowbg2">
-					<div class="modbox">';
+				<div class="windowbg2 noup">';
 
 	if (!empty($context['notes']))
 	{
 		echo '
-						<ul class="moderation_notes">';
+					<ul class="moderation_notes">';
 
 		// Cycle through the notes.
 		foreach ($context['notes'] as $note)
 			echo '
-							<li class="smalltext">
-								', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
-							</li>';
+						<li class="smalltext">
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+						</li>';
 
 		echo '
-						</ul>
-						<div class="pagesection notes">
-							<span class="smalltext">', $context['page_index'], '</span>
-						</div>';
+					</ul>
+					<div class="pagesection notes">
+						<span class="smalltext">', $context['page_index'], '</span>
+					</div>';
 	}
 
 	echo '
-						<div class="floatleft post_note">
-							<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '" style="width: 95%;">
-						</div>
-						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
-						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
-					</div><!-- .modbox -->
+					<div class="floatleft post_note">
+						<input type="text" name="new_note" placeholder="', $txt['mc_click_add_note'], '">
+					</div>
+					<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
+					<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button">
 				</div><!-- .windowbg2 -->
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
-		</div><!-- .modnotes -->';
+		</div><!-- #modnotes -->';
 }
 
 /**
@@ -475,6 +463,7 @@ function template_user_watch_post_callback($post)
 	global $scripturl, $context, $txt, $delete_button;
 
 	// We'll have a delete please bob.
+	// @todo Discuss this with the team and rewrite if required.
 	if (empty($delete_button))
 		$delete_button = create_button('delete', 'remove_message', 'remove', 'class="centericon"');
 
@@ -497,8 +486,9 @@ function template_user_watch_post_callback($post)
 					<div class="smalltext">
 						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
-					<hr>
-					' . $post['body'];
+					<div class="list_posts double_height">
+						' . $post['body'] . '
+					</div>';
 
 	return $output_html;
 }
@@ -637,11 +627,10 @@ function template_warn_template()
 				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
 						<strong>', $txt['mc_warning_template_personal'], '</strong>
-					</label><br>
-					<span class="smalltext">', $txt['mc_warning_template_personal_desc'], '</span><br>';
+					</label>
+					<p class="smalltext">', $txt['mc_warning_template_personal_desc'], '</p>';
 
 	echo '
-				<hr>
 				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button">
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 			</div><!-- .windowbg -->

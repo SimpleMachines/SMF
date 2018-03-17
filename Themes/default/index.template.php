@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -89,11 +89,20 @@ function template_html_above()
 <head>
 	<meta charset="', $context['character_set'], '">';
 
-	/*	You don't need to manually load index.css, this will be set up for you. You can, of course, add
-		any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
+	/*
+		You don't need to manually load index.css, this will be set up for you.
+		Note that RTL will also be loaded for you.
 
-		The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
-		If you've set them up properly (through $settings['theme_variants'], loadCSSFile will load the variant files for you.
+		The most efficient way of writing multi themes is to use a master
+		index.css plus variant.css files. If you've set them up properly
+		(through $settings['theme_variants']), the variant files will be loaded
+		for you automatically.
+
+		If you want to load other CSS files, the best way is to use the
+		'integrate_load_theme' integration hook and the loadCSSFile() function.
+		This approach will let you take advantage of SMF's automatic CSS
+		minimization and other benefits. You can, of course, manually add any
+		other files you want after template_css() has been run.
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
@@ -147,16 +156,12 @@ function template_html_above()
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty($context['links']['next']))
-	{
 		echo '
 	<link rel="next" href="', $context['links']['next'], '">';
-	}
 
 	if (!empty($context['links']['prev']))
-	{
 		echo '
 	<link rel="prev" href="', $context['links']['prev'], '">';
-	}
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
@@ -193,22 +198,21 @@ function template_body_above()
 			<ul class="floatleft" id="top_info">
 				<li>
 					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
-			if (!empty($context['user']['avatar']))
-				echo $context['user']['avatar']['image'];
 
-			echo $context['user']['name'], '</a>
+		if (!empty($context['user']['avatar']))
+			echo $context['user']['avatar']['image'];
+
+		echo $context['user']['name'], '</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
 		// Secondly, PMs if we're doing them
 		if ($context['allow_pm'])
-		{
 			echo '
 				<li>
 					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
-		}
 
 		// Thirdly, alerts
 		echo '
@@ -248,7 +252,7 @@ function template_body_above()
 		echo '
 				</select>
 				<noscript>
-					<input type="submit" value="', $txt['quick_mod_go'], '" />
+					<input type="submit" value="', $txt['quick_mod_go'], '">
 				</noscript>
 			</form>';
 	}
@@ -288,6 +292,7 @@ function template_body_above()
 		if (!empty($context['current_topic']))
 			echo '
 				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
+
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '

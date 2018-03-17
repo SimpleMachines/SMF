@@ -96,7 +96,6 @@ $txt['image_proxy_secret'] = 'Image Proxy Secret';
 $txt['image_proxy_maxsize'] = 'Maximum file size of images to cache (in KB)';
 $txt['force_ssl'] = 'Forum SSL mode';
 $txt['force_ssl_off'] = 'Disable SSL';
-$txt['force_ssl_auth'] = 'Enable SSL for Authentication (Login and Register)';
 $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 $txt['search_language'] = 'Fulltext Search Language';
 
@@ -111,6 +110,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
+	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
 	<li>XCache</li>
@@ -224,11 +224,7 @@ $txt['setting_user_limit'] = 'Maximum user warning points per day';
 $txt['setting_user_limit_note'] = 'This value is the maximum amount of warning points a single moderator can assign to a user in a 24 hour period - 0 for no limit.';
 $txt['setting_warning_decrement'] = 'Warning points that are decreased every 24 hours';
 $txt['setting_warning_decrement_note'] = 'Only applies to users not warned within last 24 hours.';
-$txt['setting_warning_show'] = 'Users who can see warning status';
-$txt['setting_warning_show_note'] = 'Determines who can see the warning level of users on the forum.';
-$txt['setting_warning_show_mods'] = 'Moderators Only';
-$txt['setting_warning_show_user'] = 'Moderators and Warned Users';
-$txt['setting_warning_show_all'] = 'All Users';
+$txt['setting_view_warning'] = 'Users who can see warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
@@ -359,7 +355,7 @@ $txt['edit_language_entries'] = 'Edit Language Entries';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
-$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank">pSpell</a> - if installed';
+$txt['languages_for_pspell'] = 'This is for <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> - if installed';
 $txt['languages_rtl'] = 'Enable &quot;Right to Left&quot; Mode';
 
 $txt['lang_file_desc_index'] = 'General Strings';

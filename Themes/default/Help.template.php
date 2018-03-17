@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -88,7 +88,9 @@ function template_find_members()
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-					<span class="smalltext"><label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
+					<span class="smalltext">
+						<label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label>
+					</span><br>';
 
 	echo '
 					<div class="padding righttext">
@@ -112,13 +114,11 @@ function template_find_members()
 				<ul class="padding">';
 
 		foreach ($context['results'] as $result)
-		{
 			echo '
 					<li class="windowbg">
-						<a href="', $result['href'], '" target="_blank"> <span class="generic_icons profile_sm"></span>
+						<a href="', $result['href'], '" target="_blank" rel="noopener"> <span class="generic_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
-		}
 
 		echo '
 				</ul>
@@ -128,7 +128,6 @@ function template_find_members()
 	}
 
 	echo '
-
 			</div><!-- .roundframe -->
 			<input type="hidden" name="input" value="', $context['input_box_name'], '">
 			<input type="hidden" name="delim" value="', $context['delimiter'], '">
@@ -164,10 +163,8 @@ function template_manual()
 					<ul>';
 
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
-	{
 		echo '
-						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
-	}
+						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 
 	echo '
 					</ul>

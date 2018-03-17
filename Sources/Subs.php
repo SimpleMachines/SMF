@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -1354,7 +1354,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
 				},
-				'disabled_content' => '<a href="$1" target="_blank">$1</a>',
+				'disabled_content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 			),
 			array(
 				'tag' => 'float',
@@ -1413,17 +1413,20 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							$data = get_proxied_url($data);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -1436,17 +1439,20 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+					global $image_proxy_enabled, $user_info;
 
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
+						if (!empty($user_info['possibly_robot']))
+							return;
+
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
 						if ($scheme != 'https')
-							$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
+							$data = get_proxied_url($data);
 					}
 					elseif (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -1484,6 +1490,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
+			),
+			array(
+				'tag' => 'justify',
+				'before' => '<div style="text-align: justify;">',
+				'after' => '</div>',
+				'block_level' => true,
 			),
 			array(
 				'tag' => 'left',
@@ -1714,7 +1726,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_link" target="_blank">$1</a>',
+				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
@@ -1727,7 +1739,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
 				'quoted' => 'optional',
-				'before' => '<a href="$1" class="bbc_link" target="_blank">',
+				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
@@ -1737,6 +1749,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
+			),
+			array(
+				'tag' => 'youtube',
+				'type' => 'unparsed_content',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 			),
 		);
 
@@ -1916,28 +1934,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						// Check if the image is larger than allowed.
-						if (!empty($modSettings['max_image_width']) && !empty($modSettings['max_image_height']))
-						{
-							list ($width, $height) = url_image_size($imgtag);
-
-							if (!empty($modSettings['max_image_width']) && $width > $modSettings['max_image_width'])
-							{
-								$height = (int) (($modSettings['max_image_width'] * $height) / $width);
-								$width = $modSettings['max_image_width'];
-							}
-
-							if (!empty($modSettings['max_image_height']) && $height > $modSettings['max_image_height'])
-							{
-								$width = (int) (($modSettings['max_image_height'] * $width) / $height);
-								$height = $modSettings['max_image_height'];
-							}
-
-							// Set the new image tag.
-							$replaces[$matches[0][$match]] = '[img width=' . $width . ' height=' . $height . $alt . ']' . $imgtag . '[/img]';
-						}
-						else
-							$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
+						$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
 					}
 
 					$data = strtr($data, $replaces);
@@ -2140,6 +2137,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
+			// A closing tag that doesn't match any open tags? Skip it.
+			if (!in_array($look_for, array_map(function($code){return $code['tag'];}, $open_tags)))
+				continue;
+
 			$to_close = array();
 			$block_level = null;
 
@@ -2249,7 +2250,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (strtolower(substr($message, $pos + 1, $pt_strlen)) != $possible['tag'])
 				continue;
 
-			$next_c = $message[$pos + 1 + $pt_strlen];
+			$next_c = isset($message[$pos + 1 + $pt_strlen]) ? $message[$pos + 1 + $pt_strlen] : '';
+
+			// A tag is the last char maybe
+			if ($next_c == '')
+				break;
 
 			// A test validation?
 			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos + 1 + $pt_strlen + 1)) === 0)
@@ -2757,7 +2762,7 @@ function parsesmileys(&$message)
 		if (empty($modSettings['smiley_enable']))
 		{
 			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
-			$smileysto = array('evil.gif', 'cheesy.gif', 'rolleyes.gif', 'angry.gif', 'laugh.gif', 'smiley.gif', 'wink.gif', 'grin.gif', 'sad.gif', 'shocked.gif', 'cool.gif', 'tongue.gif', 'huh.gif', 'embarrassed.gif', 'lipsrsealed.gif', 'kiss.gif', 'cry.gif', 'undecided.gif', 'azn.gif', 'afro.gif', 'police.gif', 'angel.gif');
+			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'laugh.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
 			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
 		}
 		else
@@ -2851,6 +2856,37 @@ function highlight_php_code($code)
 }
 
 /**
+ * Gets the appropriate URL to use for images (or whatever) when using SSL
+ *
+ * The returned URL may or may not be a proxied URL, depending on the situation.
+ * Mods can implement alternative proxies using the 'integrate_proxy' hook.
+ *
+ * @param string $url The original URL of the requested resource
+ * @return string The URL to use
+ */
+function get_proxied_url($url)
+{
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+
+	// Only use the proxy if enabled and necessary
+	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+		return $url;
+
+	// We don't need to proxy our own resources
+	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+		return strtr($url, array('http://' => 'https://'));
+
+	// By default, use SMF's own image proxy script
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+
+	// Allow mods to easily implement an alternative proxy
+	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
+	call_integration_hook('integrate_proxy', array($url, &$proxied_url));
+
+	return $proxied_url;
+}
+
+/**
  * Make sure the browser doesn't come back and repost the form data.
  * Should be used whenever anything is posted.
  *
@@ -2899,7 +2935,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
 	// Set the header.
-	header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+	header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3065,8 +3101,6 @@ function url_image_size($url)
 				// This probably means allow_url_fopen is off, let's try GD.
 				if ($size === false && function_exists('imagecreatefromstring'))
 				{
-					include_once($sourcedir . '/Subs-Package.php');
-
 					// It's going to hate us for doing this, but another request...
 					$image = @imagecreatefromstring(fetch_web_data($url));
 					if ($image !== false)
@@ -3217,7 +3251,16 @@ function setupThemeContext($forceload = false)
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 		addInlineCss('
-img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+
+	// Add max image limits
+	if (!empty($modSettings['max_image_width']))
+		addInlineCss('
+	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+
+	if (!empty($modSettings['max_image_height']))
+		addInlineCss('
+	.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
@@ -3344,17 +3387,17 @@ function template_header()
 	// Print stuff to prevent caching of pages (except on attachment errors, etc.)
 	if (empty($context['no_last_modified']))
 	{
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
 		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie'))
-			header('Content-Type: application/xhtml+xml');
+			header('content-type: application/xhtml+xml');
 		elseif (!isset($_REQUEST['xml']))
-			header('Content-Type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	}
 
-	header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
 	if ($context['in_maintenance'] && $context['user']['is_admin'])
@@ -3552,7 +3595,7 @@ function template_javascript($do_deferred = false)
 				$toMinify[] = $js_file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($js_file['options']['seed']))
 				$minSeed = $js_file['options']['seed'];
 		}
 
@@ -3565,15 +3608,12 @@ function template_javascript($do_deferred = false)
 	{
 		$result = custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
-		// Minify process couldn't work, print each individual files.
-		if (!empty($result) && is_array($result))
-			foreach ($result as $minFailedFile)
-				echo '
-	<script src="', $minFailedFile['fileUrl'], '"', !empty($minFailedFile['options']['async']) ? ' async="async"' : '', '></script>';
+		$minSuccessful = array_keys($result) === array('smf_minified');
 
-		else
+		foreach ($result as $minFile)
 			echo '
-	<script src="', $settings['theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
+	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async="async"' : '', '></script>';
+
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3619,22 +3659,27 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
+	ksort($context['css_files_order']);
+	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
+
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		// By default all files don't get minimized unless the file explicitly says so!
+		// Files are minimized unless they explicitly opt out.
+		if (!isset($file['options']['minimize']))
+			$file['options']['minimize'] = true;
+
 		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			$toMinify[] = $file;
 
 			// Grab a random seed.
-			if (!isset($minSeed))
+			if (!isset($minSeed) && isset($file['options']['seed']))
 				$minSeed = $file['options']['seed'];
 		}
-
 		else
 			$normal[] = $file['fileUrl'];
 	}
@@ -3643,15 +3688,11 @@ function template_css()
 	{
 		$result = custMinify($toMinify, 'css');
 
-		// Minify process couldn't work, print each individual files.
-		if (!empty($result) && is_array($result))
-			foreach ($result as $minFailedFile)
-				echo '
-	<link rel="stylesheet" href="', $minFailedFile['fileUrl'], '">';
+		$minSuccessful = array_keys($result) === array('smf_minified');
 
-		else
+		foreach ($result as $minFile)
 			echo '
-	<link rel="stylesheet" href="', $settings['theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
 	}
 
 	// Print the rest after the minified files.
@@ -3689,7 +3730,7 @@ function template_css()
  * @param array $data The files to minify.
  * @param string $type either css or js.
  * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
- * @return bool|array If an array the minify process failed and the data is returned intact.
+ * @return array Info about the minified file, or about the original files if the minify process failed.
  */
 function custMinify($data, $type, $do_deferred = false)
 {
@@ -3700,43 +3741,58 @@ function custMinify($data, $type, $do_deferred = false)
 	$data = !empty($data) ? $data : false;
 
 	if (empty($type) || empty($data))
-		return false;
+		return (array) $data;
 
-	// Did we already did this?
-	$toCache = cache_get_data('minimized_'. $settings['theme_id'] .'_'. $type, 86400);
+	// Different pages include different files, so we use a hash to label the different combinations
+	$hash = md5(implode(' ', array_keys($data)));
+
+	// Did we already do this?
+	list($toCache, $async) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 2, null);
 
 	// Already done?
 	if (!empty($toCache))
-		return true;
+		return array('smf_minified' => array(
+			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
+			'filePath' => $toCache,
+			'fileName' => basename($toCache),
+			'options' => array('async' => !empty($async)),
+		));
+
 
 	// No namespaces, sorry!
 	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 
 	// Temp path.
-	$cTempPath = $settings['theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/';
+	$cTempPath = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/';
 
 	// What kind of file are we going to create?
-	$toCreate = $cTempPath .'minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+	$toCreate = $cTempPath . 'minified' . ($do_deferred ? '_deferred' : '') . '_' . $hash . '.' . $type;
 
-	// File has to exists, if it isn't try to create it.
+	// File has to exist. If it doesn't, try to create it.
 	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
 	{
 		loadLanguage('Errors');
 		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
 
-		// The process failed so roll back to print each individual file.
+		// The process failed, so roll back to print each individual file.
 		return $data;
 	}
 
 	$minifier = new $classType();
+
+	$async = $type === 'js';
 
 	foreach ($data as $file)
 	{
 		$tempFile = str_replace($file['options']['seed'], '', $file['filePath']);
 		$toAdd = file_exists($tempFile) ? $tempFile : false;
 
-		// The file couldn't be located so it won't be added, log this error.
+		// A minified script should only be loaded asynchronously if all its components wanted to be.
+		if (empty($file['options']['async']))
+			$async = false;
+
+		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
 		{
 			loadLanguage('Errors');
@@ -3758,16 +3814,21 @@ function custMinify($data, $type, $do_deferred = false)
 	{
 		loadLanguage('Errors');
 		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, null);
+		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
 
 		// The process failed so roll back to print each individual file.
 		return $data;
 	}
 
 	// And create a long lived cache entry.
-	cache_put_data('minimized_'. $settings['theme_id'] .'_'. $type, $toCreate, 86400);
+	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async), 86400);
 
-	return true;
+	return array('smf_minified' => array(
+		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
+		'filePath' => $toCreate,
+		'fileName' => basename($toCreate),
+		'options' => array('async' => $async),
+	));
 }
 
 /**
@@ -4049,7 +4110,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4333,34 +4394,50 @@ function setupMenuContext()
 
 	$total_mod_reports = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']))
 	{
 		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 	}
 
 	// Show how many errors there are
-	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
+	if (!empty($context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
-		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		// Get an error count, if necessary
+		if (!isset($context['num_errors']))
+		{
+			$query = $smcFunc['db_query']('', '
+				SELECT COUNT(id_error)
+				FROM {db_prefix}log_errors',
+				array()
+			);
+
+			list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+			$smcFunc['db_free_result']($query);
+		}
+
+		if (!empty($context['num_errors']))
+		{
+			$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		}
 	}
 
 	// Show number of reported members
-	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
+	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
-	if (!empty($context['unapproved_members']))
+	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 	}
 
 	// Do we have any open reports?
-	if ($total_mod_reports > 0)
+	if ($total_mod_reports > 0 && !empty($context['menu_buttons']['moderate']))
 	{
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
@@ -4378,7 +4455,7 @@ function setupMenuContext()
  */
 function smf_seed_generator()
 {
-	updateSettings(array('rand_seed' => microtime() * 1000000));
+	updateSettings(array('rand_seed' => microtime(true)));
 }
 
 /**
@@ -4722,6 +4799,192 @@ function load_file($string)
 }
 
 /**
+ * Get the contents of a URL, irrespective of allow_url_fopen.
+ *
+ * - reads the contents of an http or ftp address and returns the page in a string
+ * - will accept up to 3 page redirections (redirectio_level in the function call is private)
+ * - if post_data is supplied, the value and length is posted to the given url as form data
+ * - URL must be supplied in lowercase
+ *
+ * @param string $url The URL
+ * @param string $post_data The data to post to the given URL
+ * @param bool $keep_alive Whether to send keepalive info
+ * @param int $redirection_level How many levels of redirection
+ * @return string|false The fetched data or false on failure
+ */
+function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
+{
+	global $webmaster_email, $sourcedir;
+	static $keep_alive_dom = null, $keep_alive_fp = null;
+
+	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
+
+	// No scheme? No data for you!
+	if (empty($match[1]))
+		return false;
+
+	// An FTP url. We should try connecting and RETRieving it...
+	elseif ($match[1] == 'ftp')
+	{
+		// Include the file containing the ftp_connection class.
+		require_once($sourcedir . '/Class-Package.php');
+
+		// Establish a connection and attempt to enable passive mode.
+		$ftp = new ftp_connection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', $webmaster_email);
+		if ($ftp->error !== false || !$ftp->passive())
+			return false;
+
+		// I want that one *points*!
+		fwrite($ftp->connection, 'RETR ' . $match[6] . "\r\n");
+
+		// Since passive mode worked (or we would have returned already!) open the connection.
+		$fp = @fsockopen($ftp->pasv['ip'], $ftp->pasv['port'], $err, $err, 5);
+		if (!$fp)
+			return false;
+
+		// The server should now say something in acknowledgement.
+		$ftp->check_response(150);
+
+		$data = '';
+		while (!feof($fp))
+			$data .= fread($fp, 4096);
+		fclose($fp);
+
+		// All done, right?  Good.
+		$ftp->check_response(226);
+		$ftp->close();
+	}
+
+	// This is more likely; a standard HTTP URL.
+	elseif (isset($match[1]) && $match[1] == 'http')
+	{
+		// First try to use fsockopen, because it is fastest.
+		if ($keep_alive && $match[3] == $keep_alive_dom)
+			$fp = $keep_alive_fp;
+		if (empty($fp))
+		{
+			// Open the socket on the port we want...
+			$fp = @fsockopen(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5], $err, $err, 5);
+		}
+		if (!empty($fp))
+		{
+			if ($keep_alive)
+			{
+				$keep_alive_dom = $match[3];
+				$keep_alive_fp = $fp;
+			}
+
+			// I want this, from there, and I'm not going to be bothering you for more (probably.)
+			if (empty($post_data))
+			{
+				fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				if ($keep_alive)
+					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
+				else
+					fwrite($fp, 'connection: close' . "\r\n\r\n");
+			}
+			else
+			{
+				fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
+				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
+				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				if ($keep_alive)
+					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
+				else
+					fwrite($fp, 'connection: close' . "\r\n");
+				fwrite($fp, 'content-type: application/x-www-form-urlencoded' . "\r\n");
+				fwrite($fp, 'content-length: ' . strlen($post_data) . "\r\n\r\n");
+				fwrite($fp, $post_data);
+			}
+
+			$response = fgets($fp, 768);
+
+			// Redirect in case this location is permanently or temporarily moved.
+			if ($redirection_level < 3 && preg_match('~^HTTP/\S+\s+30[127]~i', $response) === 1)
+			{
+				$header = '';
+				$location = '';
+				while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
+					if (strpos($header, 'location:') !== false)
+						$location = trim(substr($header, strpos($header, ':') + 1));
+
+				if (empty($location))
+					return false;
+				else
+				{
+					if (!$keep_alive)
+						fclose($fp);
+					return fetch_web_data($location, $post_data, $keep_alive, $redirection_level + 1);
+				}
+			}
+
+			// Make sure we get a 200 OK.
+			elseif (preg_match('~^HTTP/\S+\s+20[01]~i', $response) === 0)
+				return false;
+
+			// Skip the headers...
+			while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
+			{
+				if (preg_match('~content-length:\s*(\d+)~i', $header, $match) != 0)
+					$content_length = $match[1];
+				elseif (preg_match('~connection:\s*close~i', $header) != 0)
+				{
+					$keep_alive_dom = null;
+					$keep_alive = false;
+				}
+
+				continue;
+			}
+
+			$data = '';
+			if (isset($content_length))
+			{
+				while (!feof($fp) && strlen($data) < $content_length)
+					$data .= fread($fp, $content_length - strlen($data));
+			}
+			else
+			{
+				while (!feof($fp))
+					$data .= fread($fp, 4096);
+			}
+
+			if (!$keep_alive)
+				fclose($fp);
+		}
+
+		// If using fsockopen didn't work, try to use cURL if available.
+		elseif (function_exists('curl_init'))
+		{
+			// Include the file containing the curl_fetch_web_data class.
+			require_once($sourcedir . '/Class-CurlFetchWeb.php');
+
+			$fetch_data = new curl_fetch_web_data();
+			$fetch_data->get_url_data($url, $post_data);
+
+			// no errors and a 200 result, then we have a good dataset, well we at least have data. ;)
+			if ($fetch_data->result('code') == 200 && !$fetch_data->result('error'))
+				$data = $fetch_data->result('body');
+			else
+				return false;
+		}
+
+		// Neither fsockopen nor curl are available. Well, phooey.
+		else
+			return false;
+	}
+	else
+	{
+		// Umm, this shouldn't happen?
+		trigger_error('fetch_web_data(): Bad URL', E_USER_NOTICE);
+		$data = false;
+	}
+
+	return $data;
+}
+
+/**
  * Prepares an array of "likes" info for the topic specified by $topic
  * @param integer $topic The topic ID to fetch the info from.
  * @return array An array of IDs of messages in the specified topic that the current user likes
@@ -4980,7 +5243,7 @@ function get_gravatar_url($email_address)
 		if (!empty($size_string))
 			$url_params[] = 's=' . $size_string;
 	}
-	$http_method = !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 ? 'https://secure' : 'http://www';
+	$http_method = !empty($modSettings['force_ssl']) ? 'https://secure' : 'http://www';
 
 	return $http_method . '.gravatar.com/avatar/' . md5($smcFunc['strtolower']($email_address)) . '?' . implode('&', $url_params);
 }
@@ -5618,7 +5881,7 @@ function isValidIP($IPString)
  * @param string $type The content type. Defaults to Json.
  * @return void
  */
-function smf_serverResponse($data = '', $type = 'Content-Type: application/json')
+function smf_serverResponse($data = '', $type = 'content-type: application/json')
 {
 	global $db_show_debug, $modSettings;
 
@@ -5674,7 +5937,6 @@ function set_tld_regex($update = false)
 	// Should we get a new copy of the official list of TLDs?
 	if ($update)
 	{
-		require_once($sourcedir . '/Subs-Package.php');
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 
 		// If the Internet Assigned Numbers Authority can't be reached, the Internet is gone. We're probably running on a server hidden in a bunker deep underground to protect it from marauding bandits roaming on the surface. We don't want to waste precious electricity on pointlessly repeating background tasks, so we'll wait until the next regularly scheduled update to see if civilization has been restored.
@@ -6016,17 +6278,18 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
  function ssl_cert_found($url) {
 
-	// Ask for the headers for the passed url, but via https...
-	$url = str_ireplace('http://', 'https://', $url) . '/';
+	// First, strip the subfolder from the passed url, if any
+	$parsedurl = parse_url($url);
+	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
+	// Next, check the ssl stream context for certificate info
 	$result = false;
-	$params = array('ssl' => array('capture_peer_cert' => true, 'verify_peer' => true, 'allow_self_signed' => true));
-	$stream = stream_context_create ($params);
-
-	$read = @fopen($url, 'rb', false, $stream);
-	if ($read !== false) {
-		$cont = stream_context_get_params($read);
-		$result = isset($cont['options']['ssl']['peer_certificate']) ? true : false;
+	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+	if ($stream !== false)
+	{
+		$params = stream_context_get_params($stream);
+		$result = isset($params["options"]["ssl"]["peer_certificate"]) ? true : false;
 	}
     return $result;
 }
@@ -6066,7 +6329,7 @@ function https_redirect_active($url) {
 
 /**
  * Build query_wanna_see_board and query_see_board for a userid
- * 
+ *
  * Returns array with keys query_wanna_see_board and query_see_board
  * @param int $userid of the user
  */
@@ -6103,10 +6366,10 @@ function build_query_board($userid)
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		if (empty($row['additional_groups']))
-			$groups = array($row['id_group'], $user_settings['id_post_group']);
+			$groups = array($row['id_group'], $row['id_post_group']);
 		else
 			$groups = array_merge(
-					array($row['id_group'], $user_settings['id_post_group']),
+					array($row['id_group'], $row['id_post_group']),
 					explode(',', $row['additional_groups'])
 			);
 
@@ -6151,7 +6414,7 @@ function build_query_board($userid)
 
 		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
-	
+
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($is_admin)
 		$query_part['query_see_board'] = '1=1';
@@ -6170,6 +6433,23 @@ function build_query_board($userid)
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
 
 	return $query_part;
+}
+
+/**
+ * Check if the connection is using https.
+ *
+ * @return boolean true if connection used https
+ */
+function httpsOn()
+{
+	$secure = false;
+
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		$secure = true;
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		$secure = true;
+
+	return $secure;
 }
 
 ?>

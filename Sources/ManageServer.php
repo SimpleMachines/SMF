@@ -53,7 +53,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -165,7 +165,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
@@ -203,7 +203,7 @@ function ModifyGeneralSettings($return_config = false)
 			AlignURLsWithSSLSetting($_POST['force_ssl']);
 		else
 			AlignURLsWithSSLSetting(0);
-			
+
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -218,12 +218,12 @@ $(function()
 {
 	$("#force_ssl").change(function()
 	{
-		var mode = $(this).val() == 2 ? false : true;
+		var mode = $(this).val() == 1 ? false : true;
 		$("#image_proxy_enabled").prop("disabled", mode);
 		$("#image_proxy_secret").prop("disabled", mode);
 		$("#image_proxy_maxsize").prop("disabled", mode);
 	}).change();
-});');
+});', true);
 }
 
 /**
@@ -240,7 +240,7 @@ $(function()
  *
  * This function will NOT overwrite URLs that are not subfolders of $boardurl.
  * The admin must have pointed those somewhere else on purpose, so they must be updated manually.
- * 
+ *
  * A word of caution: You can't trust the http/https scheme reflected for these URLs in $globals
  * (e.g., $boardurl) or in $modSettings.  This is because SMF may change them in memory to comply
  * with the force_ssl setting - a soft redirect may be in effect...  Thus, conditional updates
@@ -255,7 +255,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	require_once($sourcedir . '/Subs-Admin.php');
 
 	// Check $boardurl
-	if ($new_force_ssl == 2)
+	if (!empty($new_force_ssl))
 		$newval = strtr($boardurl, array('http://' => 'https://'));
 	else
 		$newval = strtr($boardurl, array('https://' => 'http://'));
@@ -266,7 +266,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// Check $smileys_url, but only if it points to a subfolder of $boardurl
 	if (BoardurlMatch($modSettings['smileys_url']))
 	{
-		if ($new_force_ssl == 2)
+		if (!empty($new_force_ssl))
 			$newval = strtr($modSettings['smileys_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['smileys_url'], array('https://' => 'http://'));
@@ -276,7 +276,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// Check $avatar_url, but only if it points to a subfolder of $boardurl
 	if (BoardurlMatch($modSettings['avatar_url']))
 	{
-		if ($new_force_ssl == 2)
+		if (!empty($new_force_ssl))
 			$newval = strtr($modSettings['avatar_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['avatar_url'], array('https://' => 'http://'));
@@ -287,7 +287,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// This one had been optional in the past, make sure it is set first
 	if (isset($modSettings['custom_avatar_url']) && BoardurlMatch($modSettings['custom_avatar_url']))
 	{
-		if ($new_force_ssl == 2)
+		if (!empty($new_force_ssl))
 			$newval = strtr($modSettings['custom_avatar_url'], array('http://' => 'https://'));
 		else
 			$newval = strtr($modSettings['custom_avatar_url'], array('https://' => 'http://'));
@@ -317,7 +317,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		// First check to see if it points to a subfolder of $boardurl
 		if (BoardurlMatch($row['value']))
 		{
-			if ($new_force_ssl == 2)
+			if (!empty($new_force_ssl))
 				$newval = strtr($row['value'], array('http://' => 'https://'));
 			else
 				$newval = strtr($row['value'], array('https://' => 'http://'));
@@ -381,6 +381,7 @@ function BoardurlMatch($url = '')
 function ModifyDatabaseSettings($return_config = false)
 {
 	global $scripturl, $context, $txt, $smcFunc;
+	db_extend('extra');
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -423,6 +424,13 @@ function ModifyDatabaseSettings($return_config = false)
 	$context['settings_title'] = $txt['database_settings'];
 	$context['save_disabled'] = $context['settings_not_writable'];
 
+	if (!$smcFunc['db_allow_persistent']())
+		addInlineJavaScript('
+			$(function()
+			{
+				$("#db_persist").prop("disabled", true);
+			});', true);
+
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
@@ -455,7 +463,7 @@ function ModifyCookieSettings($return_config = false)
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
-		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !isset($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on'),
+		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
 		// Sessions
@@ -511,13 +519,16 @@ function ModifyCookieSettings($return_config = false)
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
 			unset ($_POST['globalCookies']);
 
+		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
+			$scope_changed = true;
+
 		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
 			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
 
-		// If the cookie name was changed, reset the cookie.
-		if ($cookiename != $_POST['cookiename'])
+		// If the cookie name or scope were changed, reset the cookie.
+		if ($cookiename != $_POST['cookiename'] || !empty($scope_changed))
 		{
 			$original_session_id = $context['session_id'];
 			include_once($sourcedir . '/Subs-Auth.php');
@@ -526,7 +537,7 @@ function ModifyCookieSettings($return_config = false)
 			setLoginCookie(-3600, 0);
 
 			// Set the new one.
-			$cookiename = $_POST['cookiename'];
+			$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : $cookiename;
 			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);

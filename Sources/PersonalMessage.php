@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -710,7 +710,7 @@ function MessageFolder()
 					AND pmr.deleted = {int:is_deleted}
 					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ('
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
-			WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {raw:current_member}
+			WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
 				AND pm.deleted_by_sender = {int:is_deleted}' : '1=1') . (empty($pmsg) ? '' : '
 				AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
 			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'pmr.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '

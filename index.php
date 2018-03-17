@@ -14,18 +14,18 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
  */
 
-$software_year = '2017';
+$software_year = '2018';
 $forum_version = 'SMF 2.1 Beta 4';
 
 // Get everything started up...
 define('SMF', 1);
-error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : E_ALL);
+error_reporting(E_ALL);
 $time_start = microtime(true);
 
 // This makes it so headers can be sent!
@@ -165,7 +165,7 @@ function smf_main()
 	// Special case: session keep-alive, output a transparent pixel.
 	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
 	{
-		header('Content-Type: image/gif');
+		header('content-type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 	}
 

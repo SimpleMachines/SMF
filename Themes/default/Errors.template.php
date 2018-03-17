@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -50,7 +50,7 @@ function template_fatal_error()
 		// Show a back button (using javascript.)
 		echo '
 	<div class="centertext">
-		<a class="button" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
+		<a class="button" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
 	</div>';
 	}
 }
@@ -63,9 +63,7 @@ function template_error_log()
 	global $context, $settings, $scripturl, $txt;
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">';
-
-	echo '
+		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errlog'], '
@@ -83,7 +81,7 @@ function template_error_log()
 			<table class="table_grid" id="error_log">
 				<tr class="title_bar">
 					<td colspan="3">
-						&nbsp;&nbsp;', $txt['apply_filter_of_type'], ':';
+						', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();
 
@@ -91,7 +89,7 @@ function template_error_log()
 		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt=""> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . $details['label'] . '</a>';
 
 	echo '
-						', implode('&nbsp;|&nbsp;', $error_types), '
+						', implode(' | ', $error_types), '
 					</td>
 				</tr>';
 
@@ -99,14 +97,14 @@ function template_error_log()
 		echo '
 				<tr>
 					<td colspan="3" class="windowbg">
-						<strong>&nbsp;&nbsp;', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], '&nbsp;&nbsp;[<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
+						<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
 					</td>
 				</tr>';
 
 	echo '
 				<tr>
 					<td colspan="3" class="righttext">
-						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>
 						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;">
 					</td>
 				</tr>';
@@ -118,13 +116,13 @@ function template_error_log()
 					<td class="centertext" colspan="2">', $txt['errlog_no_entries'], '</td>
 				</tr>';
 
-	// we have some errors, must be some mods installed :P
+	// We have some errors, must be some mods installed :P
 	foreach ($context['errors'] as $error)
 	{
 		echo '
 				<tr class="windowbg">
 					<td colspan="2">
-						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px 4px 4px; vertical-align: bottom;">
+						<div class="error_info">
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="generic_icons filter centericon"></span></a>
 							<strong>', $error['member']['link'], '</strong><br>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></a>
@@ -133,40 +131,36 @@ function template_error_log()
 		if (!empty($error['member']['ip']))
 			echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><span class="generic_icons filter centericon"></span></a>
-							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>&nbsp;&nbsp;<br>';
-
-		echo '
-						</div>
-						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px;">';
-
+							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
+		
 		if ($error['member']['session'] != '')
 			echo '
+							<br>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="generic_icons filter centericon"></span></a>
 							', $error['member']['session'], '<br>';
 
 		echo '
+						</div>
+						<div class="error_info">';
+
+		echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="generic_icons filter centericon"></span></a>
 							', $txt['error_type'], ': ', $error['error_type']['name'], '<br>
-							<a style="display: table-cell; padding: 4px 0; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="generic_icons filter"></span></a>
-							<span style="display: table-cell;">', $error['message']['html'], '</span>
-						</div>
-
-						<div style="float: left; width: 100%; padding: 4px 0; line-height: 1.6em; border-top: 1px solid #e3e3e3;">
-							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="generic_icons filter"></span></a>
-							<a style="display: table-cell;" href="', $error['url']['html'], '">', $error['url']['html'], '</a>
-						</div>';
+							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="generic_icons filter"></span></a>
+							<span class="error_message">', $error['message']['html'], '</span>
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="generic_icons filter"></span></a>
+							<a href="', $error['url']['html'], '">', $error['url']['html'], '</a>
+';
 
 		if (!empty($error['file']))
 			echo '
-						<div style="float: left; width: 100%; padding: 4px 0; line-height: 1.6em; border-top: 1px solid #e3e3e3;">
-							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><span class="generic_icons filter"></span></a>
 							<div>
-								', $txt['file'], ': ', $error['file']['link'], '<br>
-								', $txt['line'], ': ', $error['file']['line'], '
-							</div>
-						</div>';
+								<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '">'
+				. '					<span class="generic_icons filter"></span></a> ', $error['file']['link'], ' (', $txt['line'], ' ', $error['file']['line'], ')
+							</div>';
 
 		echo '
+						</div>
 					</td>
 					<td class="checkbox_column">
 						<input type="checkbox" name="delete[]" value="', $error['id'], '">
@@ -176,8 +170,8 @@ function template_error_log()
 
 	echo '
 				<tr>
-					<td colspan="3" class="righttext" style="padding-right: 1.2ex">
-						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+					<td colspan="3" class="righttext">
+						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>
 						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;">
 					</td>
 				</tr>
@@ -225,8 +219,8 @@ function template_show_file()
 
 		echo '
 			<tr>
-				<td class="righttext', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
-				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;' : '', '">', $line, '</td>
+				<td class="file_line', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
+				<td ', $is_target ? 'class="current"' : '', '>', $line, '</td>
 			</tr>';
 	}
 	echo '

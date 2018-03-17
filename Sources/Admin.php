@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -623,7 +623,7 @@ if (!(\'smfForum_sessionvar\' in window))
 		@ob_start();
 
 	// Make sure they know what type of file we are.
-	header('Content-Type: ' . $filetype);
+	header('content-type: ' . $filetype);
 	echo $file_data;
 	obExit(false);
 }
@@ -848,7 +848,6 @@ function AdminSearchOM()
 	$postVars = implode('+', $postVars);
 
 	// Get the results from the doc site.
-	require_once($sourcedir . '/Subs-Package.php');
 	// Demo URL:
 	// https://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
 	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);

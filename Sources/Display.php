@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -843,6 +843,7 @@ function Display()
 	}
 
 	$start = $_REQUEST['start'];
+	$ascending = empty($options['view_newest_first']);
 
 	// Check if we can use the seek method to speed things up
 	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic)
@@ -851,26 +852,26 @@ function Display()
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
 		{
 			$start_char = 'M';
-			$page_id = $_SESSION['page_last_id'];
+			$page_id = $ascending ? $_SESSION['page_last_id'] : $_SESSION['page_first_id'];
 		}
 		// User moved to the previous page
 		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
 		{
 			$start_char = 'L';
-			$page_id = $_SESSION['page_first_id'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $_SESSION['page_last_id'];
 		}
 		// User refreshed the current page
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $_SESSION['page_first_id'];
+			$page_id = $ascending ? $_SESSION['page_first_id'] : $context['topicinfo']['id_last_msg'];
 		}
 	}
 	// Special case start page
 	elseif ($start == 0)
 	{
 		$start_char = 'C';
-		$page_id = $context['topicinfo']['id_first_msg'];
+		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
 	}
 	else
 		$start_char = null;
@@ -879,20 +880,19 @@ function Display()
 
 	$messages = array();
 	$all_posters = array();
+	$firstIndex = 0;
 
 	if (isset($start_char))
 	{
-		$firstIndex = 0;
-
-		if ($start_char === 'M' or $start_char === 'C')
+		if ($start_char === 'M' || $start_char === 'C')
 		{
-			$ascending = true;
-			$page_operator = '>=';
+			$ascending_seek = true;
+			$page_operator = $ascending ? '>=' : '<=';
 		}
 		else
 		{
-			$ascending = false;
-			$page_operator = '<=';
+			$ascending_seek = false;
+			$page_operator = $ascending ? '<=' : '>=';
 		}
 
 		if ($start_char === 'C')
@@ -906,7 +906,7 @@ function Display()
 			WHERE id_topic = {int:current_topic}
 			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
 				'current_member' => $user_info['id'],
@@ -959,8 +959,6 @@ function Display()
 	if (empty($start_char))
 	{
 		// Calculate the fastest way to get the messages!
-		$ascending = empty($options['view_newest_first']);
-		$firstIndex = 0;
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
 			$ascending = !$ascending;
@@ -1000,7 +998,7 @@ function Display()
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $messages[0];
+	$_SESSION['page_first_id'] = array_values($messages)[0];
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
 	$_SESSION['page_last_id'] = end($messages);
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
@@ -1270,14 +1268,14 @@ function Display()
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
 
-	if (!$user_info['is_admin'] && !$modSettings['topic_move_any'])
+	if (!$user_info['is_admin'] && $context['can_move'] && !$modSettings['topic_move_any'])
 	{
 		// We'll use this in a minute
 		$boards_allowed = array_diff(boardsAllowedTo('post_new'), array($board));
 
 		/* You can't move this unless you have permission
 			to start new topics on at least one other board */
-		$context['can_move'] &= count($boards_allowed) > 1;
+		$context['can_move'] = count($boards_allowed) > 1;
 	}
 
 	// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
@@ -1589,7 +1587,7 @@ function prepareDisplayContext($reset = false)
 	$output = array(
 		'attachment' => loadAttachmentContext($message['id_msg'], $context['loaded_attachments']),
 		'id' => $message['id_msg'],
-		'href' => $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'],
+		'href' => $scripturl . '?msg=' . $message['id_msg'],
 		'link' => '<a href="' . $scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -28,7 +28,7 @@ function template_main()
 				<span class="floatleft">', $txt['members_list'], '</span>';
 
 	if (!isset($context['old_search']))
-			echo '
+		echo '
 				<span class="floatright">', $context['letter_links'], '</span>';
 	echo '
 			</h3>
@@ -52,12 +52,14 @@ function template_main()
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
 							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></th>';
+
 		// This is just some column... show the link and be done with it.
 		else
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' style="width: ' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
 						', $column['link'], '</th>';
 	}
+
 	echo '
 					</tr>
 				</thead>
@@ -77,7 +79,7 @@ function template_main()
 
 			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 			// Group and date.
 			echo '
@@ -102,11 +104,9 @@ function template_main()
 
 			// Show custom fields marked to be shown here
 			if (!empty($context['custom_profile_fields']['columns']))
-			{
 				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
 						<td class="righttext">', $member['options'][$key], '</td>';
-			}
 
 			echo '
 					</tr>';
@@ -132,7 +132,9 @@ function template_main()
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
 		echo '
-			<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
+			<div class="buttonlist floatright">
+				<a class="button" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
+			</div>';
 	echo '
 		</div>
 	</div><!-- #memberlist -->';
@@ -173,19 +175,17 @@ function template_search()
 						<ul>';
 
 	foreach ($context['search_fields'] as $id => $title)
-	{
 		echo '
 							<li>
 								<input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', '>
 								<label for="fields-', $id, '">', $title, '</label>
 							</li>';
-	}
 
 	echo '
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button">
+				<input type="submit" name="submit" value="' . $txt['search'] . '" class="button floatright">
 			</div><!-- #advanced_search -->
 		</div><!-- #memberlist -->
 	</form>';

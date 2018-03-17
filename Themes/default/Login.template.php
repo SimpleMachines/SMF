@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -82,7 +82,7 @@ function template_login()
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
 
-	if (!empty($context['from_ajax']) && (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] == 2))
+	if (!empty($context['from_ajax']))
 		echo '
 						form = $("#frmLogin");
 						form.submit(function(e) {
@@ -126,6 +126,7 @@ function template_login()
 		echo '
 				<br>
 				<a href="javascript:self.close();"></a>';
+
 	echo '
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -156,56 +157,55 @@ function template_login_tfa()
 	echo '
 				<form action="', $context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
-						', $txt['tfa_login_desc'], '<br>
-						<div>
+						<p style="margin-bottom: 0.5em">', $txt['tfa_login_desc'], '</p>
+						<div class="centertext">
 							<strong>', $txt['tfa_code'], ':</strong>
-							<input type="text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
-							<input type="submit" class="button" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br>
-						</div>
-						<br>
-						<div>
-							<input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/>
-							<label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label>
+							<input type="text" name="tfa_code" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
+							<input type="submit" class="button" name="submit" value="', $txt['login'], '">
 						</div>
 						<hr>
-						<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
+						<div class="centertext">
+							<input type="button" class="button" name="backup" value="', $txt['tfa_backup'], '">
+						</div>
 					</div>
 					<div id="tfaBackup" style="display: none;">
-						', $txt['tfa_backup_desc'], '<br>
-						<strong>', $txt['tfa_backup_code'], ': </strong>
-						<input type="text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
-						<input type="submit" class="button" name="submit" value="', $txt['login'], '">
+						<p style="margin-bottom: 0.5em">', $txt['tfa_backup_desc'], '</p>
+						<div class="centertext">
+							<strong>', $txt['tfa_backup_code'], ': </strong>
+							<input type="text" name="tfa_backup" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
+							<input type="submit" class="button" name="submit" value="', $txt['login'], '">
+						</div>
 					</div>
 				</form>
 				<script>
-						form = $("#frmTfa");';
+					form = $("#frmTfa");';
 
 	if (!empty($context['from_ajax']))
 		echo '
-						form.submit(function(e) {
-							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
-							if (form.find("input[name=tfa_backup]:first").val().length > 0)
-								return true;
+					form.submit(function(e) {
+						// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+						if (form.find("input[name=tfa_backup]:first").val().length > 0)
+							return true;
 
-							e.preventDefault();
-							e.stopPropagation();
+						e.preventDefault();
+						e.stopPropagation();
 
-							$.post(form.prop("action"), form.serialize(), function(data) {
-								if (data.indexOf("<bo" + "dy") > -1)
-									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
-								else {
-									form.parent().html($(data).find(".roundframe").html());
-								}
-							});
+						$.post(form.prop("action"), form.serialize(), function(data) {
+							if (data.indexOf("<bo" + "dy") > -1)
+								document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+							else {
+								form.parent().html($(data).find(".roundframe").html());
+							}
+						});
 
-							return false;
-						});';
+						return false;
+					});';
 
 	echo '
-						form.find("input[name=backup]").click(function(e) {
-							$("#tfaBackup").show();
-							$("#tfaCode").hide();
-						});
+					form.find("input[name=backup]").click(function(e) {
+						$("#tfaBackup").show();
+						$("#tfaCode").hide();
+					});
 				</script>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->';
@@ -230,7 +230,6 @@ function template_kick_guest()
 	echo '
 			<p class="information centertext">
 				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br>';
-
 
 	if ($context['can_register'])
 		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
@@ -326,7 +325,7 @@ function template_admin_login()
 
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-	<form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
+	<form action="', !empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -345,7 +344,7 @@ function template_admin_login()
 				<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><br>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
-				<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button">';
+				<input type="submit" value="', $txt['login'], '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
@@ -374,12 +373,12 @@ function template_retry_activate()
 			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe">
+				<dl>';
 
 	// You didn't even have an ID?
 	if (empty($context['member_id']))
 		echo '
-				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 

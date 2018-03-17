@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -20,10 +20,12 @@ if (!defined('SMF'))
  * Sets the SMF-style login cookie and session based on the id_member and password passed.
  * - password should be already encrypted with the cookie salt.
  * - logs the user out if id_member is zero.
- * - sets the cookie and session to last the number of seconds specified by cookie_length.
- * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
+ * - sets the cookie and session to last the number of seconds specified by cookie_length, or
+ *   ends them if cookie_length is less than 0.
+ * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's
+ *   cookie too.
  *
- * @param int $cookie_length How long the cookie should last (in minutes)
+ * @param int $cookie_length How many seconds the cookie should last. If negative, forces logout.
  * @param int $id The ID of the member to set the cookie for
  * @param string $password The hashed password
  */
@@ -33,37 +35,55 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	$id = (int) $id;
 
+	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
+
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
 
-	// The cookie may already exist, and have been set with different options.
-	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
-	{
-		$array = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+	// Extract our cookie domain and path from $boardurl
+	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
-		// Legacy format
-		if (is_null($array))
-			$array = safe_unserialize($_COOKIE[$cookiename]);
+	// The cookie may already exist, and have been set with different options.
+	if (isset($_COOKIE[$cookiename]))
+	{
+		// First check for 2.1 json-format cookie
+		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
+			list(,,, $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+
+		// Legacy format (for recent 2.0 --> 2.1 upgrades)
+		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
+		{
+			list(,,, $old_state) = safe_unserialize($_COOKIE[$cookiename]);
+
+			$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
+
+			// Maybe we need to temporarily pretend to be using local cookies
+			if ($cookie_state == 0 && $old_state == 1)
+				list($old_domain, $old_path) = url_parts(true, false);
+			else
+				list($old_domain, $old_path) = url_parts($old_state & 1 > 0, $old_state & 2 > 0);
+		}
 
 		// Out with the old, in with the new!
-		if (isset($array[3]) && $array[3] != $cookie_state)
-		{
-			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
-			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0]);
-		}
+		if (isset($old_domain) && $old_domain != $cookie_url[0] || isset($old_path) && $old_path != $cookie_url[1])
+			smf_setcookie($cookiename, $smcFunc['json_encode'](array(0, '', 0, $old_domain, $old_path), JSON_FORCE_OBJECT), 1, $old_path, $old_domain);
 	}
 
 	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0) : array($id, $password, time() + $cookie_length, $cookie_state));
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+	$data = empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1]) : array($id, $password, $expiry_time, $cookie_url[0], $cookie_url[1]);
+
+	// Allow mods to add custom info to the cookie
+	$custom_data = array();
+	call_integration_hook('integrate_cookie_data', array($data, &$custom_data));
+
+	$data = $smcFunc['json_encode'](array_merge($data, $custom_data), JSON_FORCE_OBJECT);
 
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($cookiename, $data, $expiry_time, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
 	if (!empty($modSettings['forum_alias_urls']))
@@ -82,7 +102,12 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+			$alias_data = $smcFunc['json_decode']($data, true);
+			$alias_data[3] = $cookie_url[0];
+			$alias_data[4] = $cookie_url[1];
+			$alias_data = $smcFunc['json_encode']($alias_data, JSON_FORCE_OBJECT);
+
+			smf_setcookie($cookiename, $alias_data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
@@ -114,31 +139,28 @@ function setLoginCookie($cookie_length, $id, $password = '')
 /**
  * Sets Two Factor Auth cookie
  *
- * @param int $cookie_length How long the cookie should last, in minutes
+ * @param int $cookie_length How long the cookie should last, in seconds
  * @param int $id The ID of the member
  * @param string $secret Should be a salted secret using hash_salt
- * @param bool $preserve Whether to preserve the cookie for 30 days
  */
-function setTFACookie($cookie_length, $id, $secret, $preserve = false)
+function setTFACookie($cookie_length, $id, $secret)
 {
 	global $smcFunc, $modSettings, $cookiename;
 
+	$expiry_time = ($cookie_length >= 0 ? time() + $cookie_length : 1);
+
 	$identifier = $cookiename . '_tfa';
-	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-
-	if ($preserve)
-		$cookie_length = 81600 * 30;
-
-	// Get the data and path to set it on.
-	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_state, false) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve));
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
+	// Get the data and path to set it on.
+	$data = $smcFunc['json_encode'](empty($id) ? array(0, '', 0, $cookie_url[0], $cookie_url[1], false) : array($id, $secret, $expiry_time, $cookie_url[0], $cookie_url[1]), JSON_FORCE_OBJECT);
+
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($identifier, $data, $expiry_time, $cookie_url[1], '');
 
 	$_COOKIE[$identifier] = $data;
 }
@@ -370,6 +392,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 		$names = explode(',', $names);
 
 	$maybe_email = false;
+	$names_list = array();
 	foreach ($names as $i => $name)
 	{
 		// Trim, and fix wildcards for each name.
@@ -382,6 +405,9 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			$names[$i] = strtr($names[$i], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '\'' => '&#039;'));
 		else
 			$names[$i] = strtr($names[$i], array('\'' => '&#039;'));
+
+		$names_list[] = '{string:lookup_name_' . $i . '}';
+		$where_params['lookup_name_' . $i] = $names[$i];
 	}
 
 	// What are we using to compare?
@@ -401,22 +427,23 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	$member_name = $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name';
 	$real_name = $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name';
 
+	// Searches.
+	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode( ' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
+	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode( ' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
+
 	// Search by username, display name, and email address.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, email_address
 		FROM {db_prefix}members
-		WHERE ({raw:member_name_search}
-			OR {raw:real_name_search} {raw:email_condition})
+		WHERE (' . $member_name_search . '
+			OR ' . $real_name_search . ' ' . $email_condition . ')
 			' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
 		LIMIT {int:limit}',
-		array(
+		array_merge($where_params, array(
 			'buddy_list' => $user_info['buddies'],
-			'member_name_search' => $member_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $member_name . ' ' . $comparison . ' \'', $names) . '\'',
-			'real_name_search' => $real_name . ' ' . $comparison . ' \'' . implode('\' OR ' . $real_name . ' ' . $comparison . ' \'', $names) . '\'',
-			'email_condition' => $email_condition,
 			'limit' => $max,
-		)
+		))
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -517,7 +544,7 @@ function RequestMembers()
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	if (function_exists('iconv'))
-		header('Content-Type: text/plain; charset=UTF-8');
+		header('content-type: text/plain; charset=UTF-8');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT real_name

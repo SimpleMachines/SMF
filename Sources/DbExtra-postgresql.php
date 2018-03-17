@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -30,7 +30,8 @@ function db_extra_init()
 			'db_table_sql' => 'smf_db_table_sql',
 			'db_list_tables' => 'smf_db_list_tables',
 			'db_get_version' => 'smf_db_get_version',
-			'db_get_engine' => 'smf_db_get_engine',
+			'db_get_vendor' => 'smf_db_get_vendor',
+			'db_allow_persistent' => 'smf_db_allow_persistent',
 		);
 }
 
@@ -303,9 +304,23 @@ function smf_db_get_version()
  *
  * @return string The database engine we are using
 */
-function smf_db_get_engine()
+function smf_db_get_vendor()
 {
 	return 'PostgreSQL';
+}
+
+/**
+ * Figures out if persistent connection is allowed
+ *
+ * @return boolean
+*/
+function smf_db_allow_persistent()
+{
+	$value = ini_get('pgsql.allow_persistent');
+	if (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1')
+		return true;
+	else
+		return false;
 }
 
 ?>

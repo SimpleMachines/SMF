@@ -3,27 +3,31 @@ html, p, code::before, table {
 	margin: 0;
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 13px;
+	font-size: 14px;
 	color: #111;
+	line-height: 1.25;
+	overflow: visible;
 }
 html {
 	height: 100%;
-
+}
+.ios {
 	/* Needed for iOS scrolling bug fix */
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
-body {
+.ios body {
 	/* Needed for iOS scrolling bug fix */
 	position: relative;
 	overflow: auto;
-
+}
+body {
 	/* Needed to make sure body covers the whole editor and that
 		long lines don't cause horizontal scrolling */
 	min-height: 100%;
 	word-wrap: break-word;
-    margin: 0 5px;
-    padding: 0;
+	margin: 0 5px;
+	padding: 0;
 }
 
 ul, ol {
@@ -36,6 +40,7 @@ ul, ol {
 table, td {
 	border: 1px dotted #000;
 	empty-cells: show;
+	min-width: 0.5ch;
 }
 
 code::before {
@@ -93,6 +98,22 @@ h1,h2,h3,h4,h5,h6 {
 /* Make sure images stay within bounds */
 img {
 	max-width: 100%;
+}
+
+/* Responsive Youtube embed */
+.videocontainer {
+	max-width: 560px;
+}
+.videocontainer div {
+	position: relative;
+	padding-bottom: 56.25%;
+}
+.videocontainer iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 .floatleft, .floatright {

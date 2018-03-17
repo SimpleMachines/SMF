@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -64,7 +64,7 @@ function template_ban_edit()
 						<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
+						<textarea name="reason" id="reason" cols="40" rows="3">', $context['ban']['reason'], '</textarea>
 					</dd>';
 
 	if (isset($context['ban']['notes']))
@@ -74,7 +74,7 @@ function template_ban_edit()
 						<span class="smalltext">', $txt['ban_notes_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
+						<textarea name="notes" id="ban_notes" cols="40" rows="3">', $context['ban']['notes'], '</textarea>
 					</dd>';
 
 	echo '

@@ -14,7 +14,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -245,8 +245,8 @@ function smf_error_handler_cron($error_level, $error_string, $file, $line)
 {
 	global $modSettings;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
+	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	if (error_reporting() == 0)
 		return;
 
 	$error_type = 'cron';
@@ -267,7 +267,7 @@ function obExit_cron()
 		die(0);
 	else
 	{
-		header('Content-Type: image/gif');
+		header('content-type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 	}
 }

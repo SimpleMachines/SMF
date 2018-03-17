@@ -77,7 +77,7 @@ $txt['site_slogan_desc'] = 'Add your own text for a slogan here. It will replace
 $txt['enable_random_news'] = 'Enable random news line in the forum header';
 $txt['show_group_key'] = 'Show group key on board index';
 $txt['allow_no_censored'] = 'Allow users to turn off word censoring';
-$txt['who_display_viewing'] = 'Show who is viewing the board index and posts';
+$txt['who_display_viewing'] = 'Show who is viewing boards and topics';
 $txt['who_display_viewing_off'] = 'Don\'t show';
 $txt['who_display_viewing_numbers'] = 'Show only numbers';
 $txt['who_display_viewing_names'] = 'Show member names';
@@ -93,7 +93,7 @@ $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
-$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank" rel="noopener">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';

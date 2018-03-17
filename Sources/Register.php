@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -163,9 +163,19 @@ function Register($reg_errors = array())
 		$context['user']['is_owner'] = true;
 
 		// Here, and here only, emulate the permissions the user would have to do this.
-		$user_info['permissions'] = array_merge($user_info['permissions'], array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own'));
+		$user_info['permissions'] = array_merge($user_info['permissions'], array('profile_account_own', 'profile_extra_own', 'profile_other_own', 'profile_password_own', 'profile_website_own', 'profile_blurb'));
 		$reg_fields = explode(',', $modSettings['registration_fields']);
 
+		// Website is a little different
+		if (in_array('website', $reg_fields))
+		{
+			unset($reg_fields['website']);
+			if (isset($_POST['website_title']))
+				$cur_profile['website_title'] = $smcFunc['htmlspecialchars']($_POST['website_title']);
+			if (isset($_POST['website_url']))
+				$cur_profile['website_url'] = $smcFunc['htmlspecialchars']($_POST['website_url']);
+		}
+				
 		// We might have had some submissions on this front - go check.
 		foreach ($reg_fields as $field)
 			if (isset($_POST[$field]))
@@ -216,7 +226,7 @@ function Register2()
 	validateToken('register');
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 		fatal_lang_error('register_ssl_required');
 
 	// Start collecting together any errors.
@@ -305,7 +315,7 @@ function Register2()
 
 		// Website is a little different
 		if (in_array('website', $reg_fields))
-			$possible_strings += array('website_url', 'website_title');
+			$possible_strings = array_merge(array('website_url', 'website_title'), $possible_strings);
 	}
 
 	if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '')
@@ -748,10 +758,10 @@ function CoppaForm()
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
-			header('Connection: close');
-			header('Content-Disposition: attachment; filename="approval.txt"');
-			header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
-			header('Content-Length: ' . count($data));
+			header('connection: close');
+			header('content-disposition: attachment; filename="approval.txt"');
+			header('content-type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+			header('content-length: ' . count($data));
 
 			echo $data;
 			obExit(false);
@@ -788,7 +798,7 @@ function VerificationCode()
 	// Somehow no code was generated or the session was lost.
 	if (empty($code))
 	{
-		header('Content-Type: image/gif');
+		header('content-type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 	}
 
@@ -819,14 +829,14 @@ function VerificationCode()
 			$_REQUEST['letter'] = (int) $_REQUEST['letter'];
 			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code{$_REQUEST['letter'] - 1})))
 			{
-				header('Content-Type: image/gif');
+				header('content-type: image/gif');
 				die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 			}
 		}
 		// You must be up to no good.
 		else
 		{
-			header('Content-Type: image/gif');
+			header('content-type: image/gif');
 			die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 		}
 	}

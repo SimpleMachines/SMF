@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -146,6 +146,15 @@ interface cache_api_interface
 	 * @return string the value of $key.
 	 */
 	public function getVersion();
+	
+	/**
+	 * Run housekeeping of this cache
+	 * exp. clean up old data or do optimization
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	public function housekeeping();
 }
 
 /**
@@ -326,6 +335,13 @@ abstract class cache_api implements cache_api_interface
 	public function getVersion()
 	{
 		return $this->min_smf_version;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function housekeeping()
+	{
 	}
 }
 

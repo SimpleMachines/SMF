@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -66,7 +66,7 @@ function getServerVersions($checkFor)
 		else
 		{
 			$versions['db_engine'] = array('title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']), 'version' => '');
-			$versions['db_engine']['version'] = $smcFunc['db_get_engine']();
+			$versions['db_engine']['version'] = $smcFunc['db_get_vendor']();
 
 			$versions['db_server'] = array('title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']), 'version' => '');
 			$versions['db_server']['version'] = $smcFunc['db_get_version']();

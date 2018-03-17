@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -19,21 +19,17 @@ function template_main()
 
 	// Let them know, if their report was a success!
 	if ($context['report_sent'])
-	{
 		echo '
 		<div class="infobox">
 			', $txt['report_sent'], '
 		</div>';
-	}
 
 	// Let them know why their message became unapproved.
 	if ($context['becomesUnapproved'])
-	{
 		echo '
 		<div class="noticebox">
 			', $txt['post_becomesUnapproved'], '
 		</div>';
-	}
 
 	// Show new topic info here?
 	echo '
@@ -247,9 +243,7 @@ function template_main()
 
 	// Show the topic information - icon, subject, etc.
 	echo '
-		<div id="forumposts">';
-
-	echo '
+		<div id="forumposts">
 			<form action="', $scripturl, '?action=quickmod2;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\') : false">';
 
 	$context['ignoredMsgs'] = array();
@@ -292,11 +286,11 @@ function template_main()
 
 	// Show the jumpto box, or actually...let Javascript do it.
 	echo '
-		<div id="display_jump_to">&nbsp;</div>';
+		<div id="display_jump_to"></div>';
 
 	// Show quickreply
 	if ($context['can_reply'])
-	template_quickreply();
+		template_quickreply();
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	echo '
@@ -325,7 +319,7 @@ function template_main()
 			</div>
 		</div>';
 
-		echo '
+	echo '
 		<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
@@ -393,12 +387,12 @@ function template_main()
 					sTemplateBodyEdit: ', JavaScriptEscape('
 						<div id="quick_edit_body_container">
 							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" style="margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
+							<textarea class="editor" name="message" rows="12" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
 							<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 							<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 							<input type="hidden" name="msg" value="%msg_id%">
 							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button">&nbsp;&nbsp;' . ($context['show_spellchecking'] ? '<input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">&nbsp;&nbsp;' : '') . '<input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
+								<input type="submit" name="post" value="' . $txt['save'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\');" accesskey="s" class="button">' . ($context['show_spellchecking'] ? ' <input type="button" value="' . $txt['spell_check'] . '" tabindex="' . $context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . $txt['modify_cancel'] . '" tabindex="' . $context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
 							</div>
 						</div>'), ',
 					sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '">'), ',
@@ -527,6 +521,7 @@ function template_single_post($message)
 			echo '
 								<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
 
+	// Begin display of user info
 	echo '
 							</h4>
 							<ul class="user_info">';
@@ -604,7 +599,7 @@ function template_single_post($message)
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset($context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if ($context['can_send_pm'])
@@ -616,9 +611,9 @@ function template_single_post($message)
 				echo '
 										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
-				echo '
+			echo '
 									</ol>
-								</li>';
+								</li><!-- .profile -->';
 		}
 
 		// Any custom fields for standard placement?
@@ -631,22 +626,30 @@ function template_single_post($message)
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
-								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+								<li class="email">
+									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a>
+								</li>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+								</li>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
+								</li>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!$context['user']['is_guest'])
 		echo '
-								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a></li>';
+								<li class="poster_ip">
+									<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+								</li>';
 
 	// Otherwise, you see NOTHING!
 	else
@@ -657,7 +660,9 @@ function template_single_post($message)
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
-								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
+								<li class="warning">
+									', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span>
+								</li>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
 	if (!empty($message['custom_fields']['bottom_poster']))
@@ -672,9 +677,11 @@ function template_single_post($message)
 						<div class="postarea">
 							<div class="keyinfo">';
 
-	// Some people don't want subject... The div is still required or quick edit breaks...
+	// Some people don't want subject... The div is still required or quick edit breaks.
 	echo '
-								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '"><a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a></div>';
+								<div id="subject_', $message['id'], '" class="subject_title', (empty($modSettings['subject_toggle']) ? ' subject_hidden' : ''), '">
+									', $message['link'], '
+								</div>';
 
 	echo '
 								<h5>
@@ -682,7 +689,6 @@ function template_single_post($message)
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
-
 									<span class="page_number floatright">
 										', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 									</span>';
@@ -753,7 +759,8 @@ function template_single_post($message)
 				$last_approved_state = 0;
 				echo '
 								<fieldset>
-									<legend>', $txt['attach_awaiting_approve'];
+									<legend>
+										', $txt['attach_awaiting_approve'];
 
 				if ($context['can_approve'])
 					echo '
@@ -788,7 +795,7 @@ function template_single_post($message)
 
 			if (!$attachment['is_approved'] && $context['can_approve'])
 				echo '
-											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>]&nbsp;|&nbsp;[<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
+											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>] [<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
 			echo '
 											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
 										</div><!-- .attachments_bot -->';
@@ -875,12 +882,16 @@ function template_single_post($message)
 		if ($context['can_quote'])
 			echo '
 									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
-									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>';
+									<li style="display:none;" id="quoteSelected_', $message['id'], '">
+										<a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a>
+									</li>';
 
 		// Can the user modify the contents of this post? Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="quick_edit"><a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons quick_edit_button"></span>', $txt['quick_edit'], '</a></li>';
+									<li class="quick_edit">
+										<a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons quick_edit_button"></span>', $txt['quick_edit'], '</a>
+									</li>';
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
@@ -898,6 +909,7 @@ function template_single_post($message)
 		if ($context['can_delete'] && ($context['topic_first_message'] == $message['id']))
 			echo '
 											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['are_sure_remove_topic'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove_topic'], '</a></li>';
+
 		elseif ($message['can_remove'] && ($context['topic_first_message'] != $message['id']))
 			echo '
 											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message_question'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
@@ -1065,7 +1077,7 @@ function template_quickreply()
 								var text = \'\';
 								for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 									text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-								$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+								sceditor.instance($("#', $context['post_box_name'], '").get(0)).InsertText(text);
 
 								ajax_indicator(false);
 							}
@@ -1073,13 +1085,11 @@ function template_quickreply()
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
-	{
 		echo '
 						<div class="post_verification">
 							<strong>', $txt['verification'], ':</strong>
 							', template_control_verification($context['visual_verification_id'], 'all'), '
 						</div>';
-	}
 
 	// Finally, the submit buttons.
 	echo '
@@ -1094,7 +1104,7 @@ function template_quickreply()
 		</div><!-- #quickreplybox -->
 		<br class="clear">';
 
-	// draft autosave available and the user has it enabled?
+	// Draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']))
 		echo '
 		<script>

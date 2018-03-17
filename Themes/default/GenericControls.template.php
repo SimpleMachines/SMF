@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -19,9 +19,15 @@
  */
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $modSettings;
+	global $context, $settings, $modSettings, $smcFunc;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
+
+	if ($smileyContainer === null)
+		$editor_context['sce_options']['emoticonsEnabled'] = false;
+
+	if ($bbcContainer === null)
+		$editor_context['sce_options']['toolbar'] = '';
 
 	echo '
 		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty($context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
@@ -31,105 +37,26 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			$(document).ready(function() {
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
-				$("#', $editor_id, '").sceditor({
-					',($editor_id != 'quickReply' ? 'autofocus : true,' : ''), '
-					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
-					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
-					rtl: true,' : '', '
-					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
-					plugins: "bbcode",
-					parserOptions: {
-						quoteType: $.sceditor.BBCodeParser.QuoteType.auto
-					}';
-
-		// Show the smileys.
-		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
-		{
-			echo ',
-					emoticons:
-					{';
-			$countLocations = count($context['smileys']);
-			foreach ($context['smileys'] as $location => $smileyRows)
-			{
-				$countLocations--;
-				if ($location == 'postform')
-					echo '
-						dropdown:
-						{';
-				elseif ($location == 'popup')
-					echo '
-						popup:
-						{';
-
-				$numRows = count($smileyRows);
-
-				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
-				$emptyPlaceholder = 0;
-				foreach ($smileyRows as $smileyRow)
-				{
-					foreach ($smileyRow['smileys'] as $smiley)
-					{
-						echo '
-							', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
-					}
-					if (empty($smileyRow['isLast']) && $numRows != 1)
-						echo ',
-						\'-', $emptyPlaceholder++, '\': \'\',';
-				}
-				echo '
-						}', $countLocations != 0 ? ',' : '';
-			}
-			echo '
-					}';
-		}
-		else
-			echo ',
-					emoticons:
-					{},
-					emoticonsEnabled:false';
-
-		if ($context['show_bbc'] && $bbcContainer !== null)
-		{
-			echo ',
-					toolbar: "';
-			$count_tags = count($context['bbc_tags']);
-			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
-			{
-				echo implode('|', $buttonRow);
-
-				$count_tags--;
-
-				if (!empty($count_tags))
-					echo '||';
-			}
-
-			echo '",';
-		}
-		else
-			echo ',
-					toolbar: "",';
-
-		echo '
-				});
-				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();', $editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				var textarea = $("#', $editor_id, '").get(0);
+				sceditor.create(textarea, ', $smcFunc['json_encode']($editor_context['sce_options'], JSON_PRETTY_PRINT), ');', !$editor_context['sce_options']['emoticonsEnabled'] ? '' : '
+				sceditor.instance(textarea).createPermanentDropDown();', empty($editor_context['rich_active']) ? '' : '
+				sceditor.instance(textarea).toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';
 
 		// Now for backward compatibility let's collect few infos in the good ol' style
 		echo '
-				var oEditorHandle_', $editor_id, ' = new smc_Editor({
-					sUniqueId: ', JavaScriptEscape($editor_id), ',
-					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
-					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
-					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
-					oSmileyBox: null,
-					oBBCBox: null
-				});
-				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
-			</script>';
+			var oEditorHandle_', $editor_id, ' = new smc_Editor({
+				sUniqueId: ', JavaScriptEscape($editor_id), ',
+				sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
+				sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
+				bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
+				oSmileyBox: null,
+				oBBCBox: null
+			});
+			smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
+		</script>';
 }
 
 /**
@@ -180,7 +107,6 @@ function template_control_richedit_buttons($editor_id)
 		echo '
 		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? 'return event.ctrlKey || previewPost();' : 'return submitThisOnce(this);', '" accesskey="p" class="button">';
 
-
 	echo '
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';
 
@@ -188,7 +114,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
@@ -209,7 +135,7 @@ function template_control_richedit_buttons($editor_id)
 	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
 		echo '
 		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
@@ -291,16 +217,17 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
 					<a href="', $verify_context['image_href'], ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', $txt['visual_verification_sound'], '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', $txt['visual_verification_request_new'], '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
 					', $txt['visual_verification_description'], ':', $display_type != 'quick_reply' ? '<br>' : '', '
-					<input type="text" name="', $verify_id, '_vv[code]" value="', !empty($verify_context['text_value']) ? $verify_context['text_value'] : '', '" size="30" tabindex="', $context['tabindex']++, '" required>
+					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', $context['tabindex']++, '" autocomplete="off" required>
 				</div>';
 			}
 
 			if ($verify_context['can_recaptcha'])
 			{
+				$lang = (isset($txt['lang_recaptcha']) ? $txt['lang_recaptcha'] : $txt['lang_dictionary']);
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
-				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>';
+				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl='.$lang.'"></script>';
 			}
 		}
 		else
@@ -324,7 +251,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			break;
 	}
 
-	// Assume we found something, always,
+	// Assume we found something, always.
 	$verify_context['tracking']++;
 
 	// Tell something displaying piecemeal to keep going.

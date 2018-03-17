@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -838,7 +838,7 @@ function EditBoardSettings($return_config = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
-	
+
 	if (!empty($recycle_boards))
 	{
 		require_once($sourcedir . '/Subs-Boards.php');

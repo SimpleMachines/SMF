@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -100,12 +100,12 @@ function createWaveFile($word)
 
 	// Disable compression.
 	ob_end_clean();
-	header('Content-Encoding: none');
+	header('content-encoding: none');
 
 	// Output the wav.
-	header('Content-type: audio/x-wav');
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('Content-Length: ' . ($file_size + 0x08));
+	header('content-type: audio/x-wav');
+	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
+	header('content-length: ' . ($file_size + 0x08));
 
 	echo pack('nnVnnnnnnnnVVnnnnV', 0x5249, 0x4646, $file_size, 0x5741, 0x5645, 0x666D, 0x7420, 0x1000, 0x0000, 0x0100, 0x0100, $sample_rate, $sample_rate, 0x0100, 0x0800, 0x6461, 0x7461, $data_size), $sound_word;
 

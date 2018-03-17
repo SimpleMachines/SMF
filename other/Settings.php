@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -184,23 +184,6 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  */
 $tasksdir = $sourcedir . '/tasks';
 
-########## Error-Catching ##########
-# Note: You shouldn't touch these settings.
-if (file_exists(dirname(__FILE__) . '/db_last_error.php'))
-	include(dirname(__FILE__) . '/db_last_error.php');
-
-if (!isset($db_last_error))
-{
-	// File does not exist so lets try to create it
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	$db_last_error = 0;
-}
-
-if (file_exists(dirname(__FILE__) . '/install.php'))
-{
-	header('Location: http' . (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php'); exit;
-}
-
 # Make sure the paths are correct... at least try to fix them.
 if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
@@ -208,5 +191,28 @@ if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
 if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
+
+########## Error-Catching ##########
+# Note: You shouldn't touch these settings.
+if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
+	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
+
+if (!isset($db_last_error))
+{
+	// File does not exist so lets try to create it
+	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	$db_last_error = 0;
+}
+
+if (file_exists(dirname(__FILE__) . '/install.php'))
+{
+	$secure = false;
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		$secure = true;
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		$secure = true;
+
+	header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php'); exit;
+}
 
 ?>

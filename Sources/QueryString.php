@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -244,7 +244,7 @@ function cleanRequest()
 	// Some mail providers like to encode semicolons in activation URLs...
 	if (!empty($_REQUEST['action']) && substr($_SERVER['QUERY_STRING'], 0, 18) == 'action=activate%3b')
 	{
-		header('Location: ' . $scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
+		header('location: ' . $scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
 		exit;
 	}
 

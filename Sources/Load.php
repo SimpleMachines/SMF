@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -76,7 +76,7 @@ function reloadSettings()
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
 	// Set a list of common functions.
-	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
+	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
 		{
 			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
@@ -125,9 +125,6 @@ function reloadSettings()
 		return $new_string;
 	};
 
-	// Preg_replace space characters depend on the character set in use
-	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
-
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
 		'entity_fix' => function($string)
@@ -139,17 +136,20 @@ function reloadSettings()
 		{
 			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
-		'htmltrim' => function($string) use ($utf8, $space_chars, $ent_check)
+		'htmltrim' => function($string) use ($utf8, $ent_check)
 		{
-			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
+			// Preg_replace space characters depend on the character set in use
+			$space_chars = $utf8 ? '\p{Z}\p{C}' : '\x00-\x20\x80-\xA0';
+
+			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
 		},
 		'strlen' => function($string) use ($ent_list, $utf8, $ent_check)
 		{
 			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
 		},
-		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $modSettings)
+		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
-			$haystack_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$haystack_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if (strlen($needle) === 1)
 			{
@@ -158,7 +158,7 @@ function reloadSettings()
 			}
 			else
 			{
-				$needle_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+				$needle_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 				$needle_size = count($needle_arr);
 
 				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
@@ -172,9 +172,9 @@ function reloadSettings()
 				return false;
 			}
 		},
-		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $modSettings)
+		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
-			$ent_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
 		'strtolower' => $utf8 ? function($string) use ($sourcedir)
@@ -358,19 +358,6 @@ function reloadSettings()
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 
-	// Get an error count, if necessary
-	if (!isset($context['num_errors']))
-	{
-		$query = $smcFunc['db_query']('', '
-			SELECT COUNT(id_error)
-			FROM {db_prefix}log_errors',
-			array()
-		);
-
-		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-		$smcFunc['db_free_result']($query);
-	}
-
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
 }
@@ -389,7 +376,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $image_proxy_secret, $boardurl;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $boardurl;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -411,24 +398,32 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
+		// First try 2.1 json-format cookie
 		$cookie_data = $smcFunc['json_decode']($_COOKIE[$cookiename], true, false);
 
+		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_COOKIE[$cookiename]);
 
-		list ($id_member, $password) = $cookie_data;
+		list($id_member, $password, $login_span, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
+
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
+
+		// Make sure the cookie is set to the correct domain and path
+		require_once($sourcedir . '/Subs-Auth.php');
+		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
+			setLoginCookie((int) $login_span - time(), $id_member);
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+		$cookie_data = $smcFunc['json_decode']($_SESSION['login_' . $cookiename], true);
 
 		if (empty($cookie_data))
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
-		list ($id_member, $password, $login_span) = $cookie_data;
-		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
+		list($id_member, $password, $login_span) = array_pad((array) $cookie_data, 3, '');
+		$id_member = !empty($id_member) && strlen($password) == 128 && (int) $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -450,8 +445,8 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false)
-				$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
+			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
 			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
 				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
@@ -498,18 +493,20 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie]);
+					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
-					list ($tfamember, $tfasecret) = $tfa_data;
+					list ($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
 
 					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
 				}
 
+				// They didn't finish logging in before coming here? Then they're no one to us.
 				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
 				{
+					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
-					redirectexit('action=logintfa');
+					$user_settings = array();
 				}
 			}
 		}
@@ -654,9 +651,9 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
+			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
 
-			if (!isset($id, $user, $exp, $state, $preserve) || !$preserve || time() > $exp)
+			if (time() > $exp)
 			{
 				$_COOKIE[$cookiename . '_tfa'] = '';
 				setTFACookie(-3600, 0, '');
@@ -1187,7 +1184,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+	global $image_proxy_enabled, $boardurl, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1274,8 +1271,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
-				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
+			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
 			$row['primary_group'] = $row['member_group'];
@@ -1539,13 +1536,22 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			$value = $profile['options'][$custom['col_name']];
 
-			// Don't show the "disabled" option for the "gender" field.
-			if ($custom['col_name'] == 'cust_gender' && $value == 'Disabled')
-				continue;
+			$fieldOptions = array();
+			$currentKey = 0;
+
+			// Create a key => value array for multiple options fields
+			if (!empty($custom['options']))
+				foreach ($custom['options'] as $k => $v)
+				{
+					$fieldOptions[] = $v;
+					if (empty($currentKey))
+						$currentKey = $v == $value ? $k : 0;
+				}
 
 			// BBC?
 			if ($custom['bbc'])
 				$value = parse_bbc($value);
+
 			// ... or checkbox?
 			elseif (isset($custom['type']) && $custom['type'] == 'check')
 				$value = $value ? $txt['yes'] : $txt['no'];
@@ -1557,6 +1563,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 					'{INPUT}' => $value,
+					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
@@ -1608,6 +1615,18 @@ function loadMemberCustomFields($users, $params)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$fieldOptions = array();
+		$currentKey = 0;
+
+		// Create a key => value array for multiple options fields
+		if (!empty($row['field_options']))
+			foreach (explode(',', $row['field_options']) as $k => $v)
+			{
+				$fieldOptions[] = $v;
+				if (empty($currentKey))
+					$currentKey = $v == $row['value'] ? $k : 0;
+			}
+
 		// BBC?
 		if (!empty($row['bbc']))
 			$row['value'] = parse_bbc($row['value']);
@@ -1623,6 +1642,7 @@ function loadMemberCustomFields($users, $params)
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($row['value']),
+				'{KEY}' => $currentKey,
 			));
 
 		// Send a simple array if there is just 1 param
@@ -1731,7 +1751,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
 		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 2)
+		if (empty($modSettings['force_ssl']))
 			$image_proxy_enabled = false;
 
 		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
@@ -1815,14 +1835,22 @@ function loadTheme($id_theme = 0, $initialize = true)
 		return;
 
 	// Check to see if we're forcing SSL
-	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
-		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
-		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')));
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
+		!httpsOn() && SMF != 'SSI')
+	{
+		if (isset($_GET['sslRedirect']))
+		{
+			loadLanguage('Errors');
+			fatal_lang_error($txt['login_ssl_required']);
+		}
+
+		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
+	}
 
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 	{
-		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https://' : 'http://';
+		$detected_url = httpsOn() ? 'https://' : 'http://';
 		$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 		$temp = preg_replace('~/' . basename($scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
 		if ($temp != '/')
@@ -1851,7 +1879,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 				redirectexit('wwwRedirect');
 			else
 			{
-				list ($k, $v) = each($_GET);
+				$k = key($_GET);
+				$v = current($_GET);
 
 				if ($k != 'wwwRedirect')
 					redirectexit('wwwRedirect;' . $k . '=' . $v);
@@ -1971,7 +2000,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!isset($context['javascript_vars']))
 		$context['javascript_vars'] = array();
 
-	$context['login_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=login2';
+	$context['login_url'] =  $scripturl . '?action=login2';
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';
 	$context['session_var'] = $_SESSION['session_var'];
 	$context['session_id'] = $_SESSION['session_value'];
@@ -2112,13 +2141,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css', array('minimize' => true), 'smf_index');
+	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true), 'smf_responsive');
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array(), 'smf_rtl');
+		loadCSSFile('rtl.css', array('order_pos' => 200), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2141,9 +2170,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 300), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 400), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2175,17 +2204,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavaScriptFile('jquery-3.1.1.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('jquery-3.2.1.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -2401,18 +2430,23 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index.css = -500, after index.css = 500, middle = 3000, end (i.e. after responsive.css) = 10000
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
+	if (empty($context['css_files_order']))
+		$context['css_files_order'] = array();
+
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
-	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
+	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
 
 	// If this is an external file, automatically set this to false.
 	if (!empty($params['external']))
@@ -2436,7 +2470,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			}
 
 			else
+			{
 				$fileUrl = false;
+				$filePath = false;
+			}
 		}
 
 		else
@@ -2455,7 +2492,14 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	// Add it to the array for use in the template
 	if (!empty($fileName))
+	{
+		// find a free number/position
+		while (isset($context['css_files_order'][$params['order_pos']]))
+			$params['order_pos']++;
+		$context['css_files_order'][$params['order_pos']] = $id;
+
 		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+	}
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2950,14 +2994,17 @@ function censorText(&$text, $force = false)
 		// Quote them for use in regular expressions.
 		if (!empty($modSettings['censorWholeWord']))
 		{
+			$charset = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
+
 			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
 			{
 				$censor_vulgar[$i] = str_replace(array('\\\\\\*', '\\*', '&', '\''), array('[*]', '[^\s]*?', '&amp;', '&#039;'), preg_quote($censor_vulgar[$i], '/'));
-				$censor_vulgar[$i] = '/(?<=^|\W)' . $censor_vulgar[$i] . '(?=$|\W)/' . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ((empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' ? 'u' : '');
 
-				// @todo I'm thinking the old way is some kind of bug and this is actually fixing it.
-				//if (strpos($censor_vulgar[$i], '\'') !== false)
-					//$censor_vulgar[$i] = str_replace('\'', '&#039;', $censor_vulgar[$i]);
+				// Use the faster \b if we can, or something more complex if we can't
+				$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
+				$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
+
+				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
 			}
 		}
 	}
@@ -3026,12 +3073,12 @@ function template_include($filename, $once = false)
 			ob_start();
 
 		if (isset($_GET['debug']))
-			header('Content-Type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// Don't cache error pages!!
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('Cache-Control: no-cache');
+		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('cache-control: no-cache');
 
 		if (!isset($txt['template_parse_error']))
 		{
@@ -3069,8 +3116,6 @@ function template_include($filename, $once = false)
 </html>';
 		else
 		{
-			require_once($sourcedir . '/Subs-Package.php');
-
 			$error = fetch_web_data($boardurl . strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
 			$error_array = error_get_last();
 			if (empty($error) && ini_get('track_errors') && !empty($error_array))
@@ -3413,7 +3458,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
+	return empty($value) ? null : (isset($smcFunc['json_decode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
 }
 
 /**
@@ -3456,7 +3501,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret;
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3495,8 +3540,8 @@ function set_avatar_data($data = array())
 			else
 			{
 				// Using ssl?
-				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false)
-					$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
+				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+					$image = get_proxied_url($data['avatar']);
 
 				// Just a plain external url.
 				else

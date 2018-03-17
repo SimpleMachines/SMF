@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -806,9 +806,9 @@ function SMStats()
 
 			$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
 			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'Content-Type: application/x-www-form-urlencoded' . "\r\n";
-			$out .= 'Connection: Close' . "\r\n";
-			$out .= 'Content-Length: ' . $length . "\r\n\r\n";
+			$out .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
+			$out .= 'connection: Close' . "\r\n";
+			$out .= 'content-length: ' . $length . "\r\n\r\n";
 			$out .= $stats_to_send . "\r\n";
 			fwrite($fp, $out);
 			fclose($fp);

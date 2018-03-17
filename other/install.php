@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -29,7 +29,7 @@ require_once('Sources/Class-Package.php');
 $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
-		'version' => '5.0.3',
+		'version' => '5.0.22',
 		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
@@ -39,7 +39,7 @@ $databases = array(
 		'utf8_support' => function() {
 			return true;
 		},
-		'utf8_version' => '5.0.3',
+		'utf8_version' => '5.0.22',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
 		'utf8_required' => true,
@@ -228,7 +228,14 @@ function initialize_inputs()
 		}
 
 		// Now just redirect to a blank.png...
-		header('Location: http' . (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		$secure = false;
+
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+			$secure = true;
+		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+			$secure = true;
+
+		header('location: http' . ($secure ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
 	}
 
@@ -259,7 +266,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext;
+	global $txt, $incontext, $user_info;
 
 	$incontext['detected_languages'] = array();
 
@@ -280,9 +287,9 @@ function load_lang_file()
 	if (empty($incontext['detected_languages']))
 	{
 		// Let's not cache this message, eh?
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('Cache-Control: no-cache');
+		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('cache-control: no-cache');
 
 		echo '<!DOCTYPE html>
 <html>
@@ -324,6 +331,10 @@ function load_lang_file()
 
 	// And now include the actual language file itself.
 	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+
+	// Which language did we load? Assume that he likes his language.
+	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+	$user_info['language'] = $matches[1];
 }
 
 // This handy function loads some settings and the like.
@@ -382,7 +393,7 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl, $txt;
 
 	// Send character set.
-	header('Content-Type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8'));
+	header('content-type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8'));
 
 	// We usually dump our templates out.
 	if (!$fallThrough)
@@ -511,7 +522,6 @@ function CheckFilesWritable()
 		'agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
-		'db_last_error.php',
 	);
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
@@ -927,8 +937,15 @@ function ForumSettings()
 	// What host and port are we on?
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
+		$secure = false;
+
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+			$secure = true;
+		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+			$secure = true;
+
 	// Now, to put what we've learned together... and add a path.
-	$incontext['detected_url'] = 'http' . (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
+	$incontext['detected_url'] = 'http' . ($secure ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
 
 	// Check if the database sessions will even work.
 	$incontext['test_dbsession'] = (ini_get('session.auto_start') != 1);
@@ -968,7 +985,7 @@ function ForumSettings()
 		if (empty($_POST['force_ssl']))
 			$_POST['boardurl'] = strtr($_POST['boardurl'], array('https://' => 'http://'));
 		else
-			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));		
+			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));
 
 		// Save these variables.
 		$vars = array(
@@ -1316,7 +1333,7 @@ function DatabasePopulation()
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
-		$newSettings[] = array('force_ssl', 2);
+		$newSettings[] = array('force_ssl', 1);
 
 	// Setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
@@ -1746,13 +1763,12 @@ function updateSettingsFile($vars)
 	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
 	{
 		// Remove the redirect...
-		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 3]) == '}')
+		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 9]) == '}')
 		{
-			// Get the four lines to nothing.
-			$settingsArray[$i] = '';
-			$settingsArray[++$i] = '';
-			$settingsArray[++$i] = '';
-			$settingsArray[++$i] = '';
+			// Set the ten lines to nothing.
+			for ($j=0; $j < 10; $j++)
+				$settingsArray[$i++] = '';
+
 			continue;
 		}
 
@@ -1814,8 +1830,13 @@ function updateSettingsFile($vars)
 
 function updateDbLastError()
 {
+	global $cachedir;
+
 	// Write out the db_last_error file with the error timestamp
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	if (!empty($cachedir) && is_writable($cachedir))
+		file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	else
+		file_put_contents(dirname(__FILE__) . '/cache/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 
 	return true;
 }
@@ -1884,7 +1905,7 @@ function template_install_above()
 		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
 
-		<script src="Themes/default/scripts/jquery-3.1.1.min.js"></script>
+		<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body><div id="footerfix">
@@ -1978,7 +1999,7 @@ function template_install_below()
 		</div></div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank">SMF &copy; 2017, Simple Machines</a></li>
+				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>
@@ -2330,7 +2351,7 @@ function template_forum_settings()
 					$incontext['ssl_chkbx_protected'] ? ' disabled' : '', ' />&nbsp;
 					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
 					<br>
-					<div class="smalltext block">', $txt['force_ssl_info'], '</div>
+					<div class="smalltext block"><strong>', $txt['force_ssl_info'], '</strong></div>
 				</td>
 			</tr>
 		</table>

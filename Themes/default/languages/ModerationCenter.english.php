@@ -57,7 +57,7 @@ $txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
 $txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
-$txt['mc_reportedp_ignore_confirm'] = 'If you choose "OK", then this forum will silently ignore and ignore all future attempts to report this post; moderators will not see any future reports about this post. Are you sure you wish to do this?';
+$txt['mc_reportedp_ignore_confirm'] = 'If you choose &quot;OK&quot;, then this forum will silently ignore and ignore all future attempts to report this post; moderators will not see any future reports about this post. Are you sure you wish to do this?';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
 
 $txt['mc_groupr_group'] = 'Membergroups';

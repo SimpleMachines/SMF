@@ -51,8 +51,11 @@ $editortxt['Insert current date'] = 'Insert current date';
 $editortxt['Insert current time'] = 'Insert current time';
 $editortxt['Print'] = 'Print';
 $editortxt['Preformatted Text'] = 'Preformatted Text';
-$editortxt['View source'] = 'View source';
+$editortxt['View source'] = 'Toggle source view';
 $editortxt['Pre'] = 'Preformatted text';
-$editortxt['flash'] = 'Insert Flash';
+$editortxt['Flash'] = 'Insert Flash';
+$editortxt['Float left'] = 'Float left';
+$editortxt['Float right'] = 'Float right';
+$editortxt['Maximize'] = 'Maximize';
 
 ?>

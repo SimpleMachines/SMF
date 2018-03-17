@@ -38,19 +38,12 @@ if (is_ie || is_webkit || is_ff)
 // Toggles the element height and width styles of an image.
 function smc_toggleImageDimensions()
 {
-	var images = $('img.bbc_img');
-
-	$.each(images, function(key, img)
+	$('.postarea .bbc_img').each(function(index, item)
 	{
-		if ($(img).hasClass('resized'))
+		$(item).click(function(e)
 		{
-			$(img).css({cursor: 'pointer'});
-			$(img).on('click', function()
-			{
-				var size = $(this)[0].style.width == 'auto' ? '' : 'auto';
-				$(this).css({width: size, height: size});
-			});
-		}
+			$(item).toggleClass('original_size');
+		});
 	});
 }
 

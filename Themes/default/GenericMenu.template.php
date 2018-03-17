@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -74,9 +74,7 @@ function template_generic_menu(&$menu_context)
 	global $context;
 
 	echo '
-				<div class="generic_menu">';
-
-	echo '
+				<div class="generic_menu">
 					<ul class="dropmenu dropdown_menu_', $context['cur_menu_id'], '">';
 
 	// Main areas first.
@@ -95,9 +93,7 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
-
-			echo '
+								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
 									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
 
 			// Is this the current area, or just some area?
@@ -230,10 +226,8 @@ function template_generic_menu_tabs(&$menu_context)
 			echo $tab_context['title'];
 		}
 		else
-		{
 			echo '
 								', $tab_context['title'];
-		}
 
 		echo '
 							</h3>', (function_exists('template_admin_quick_search') ? '
@@ -262,12 +256,10 @@ function template_generic_menu_tabs(&$menu_context)
 				continue;
 
 			if (!empty($tab['is_selected']))
-			{
 				echo '
 							<li>
 								<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
 							</li>';
-			}
 			else
 				echo '
 							<li>
@@ -279,7 +271,6 @@ function template_generic_menu_tabs(&$menu_context)
 		echo '
 						</ul>
 					</div><!-- #adm_submenus -->';
-
 	}
 }
 

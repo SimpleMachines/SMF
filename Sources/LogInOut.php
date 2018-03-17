@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2017 Simple Machines and individual contributors
+ * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 4
@@ -83,7 +83,7 @@ function Login2()
 	global $cookiename, $modSettings, $context, $sourcedir, $maintenance;
 
 	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 		fatal_lang_error('login_ssl_required');
 
 	// Load cookie authentication stuff.
@@ -97,22 +97,22 @@ function Login2()
 
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
-		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
-		{
+		// First check for 2.1 json-format cookie in $_COOKIE
+		if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_COOKIE[$cookiename]) === 1)
 			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
-			// That didn't work... Maybe it's using serialize?
-			if (is_null($timeout))
-				list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
-		}
-		elseif (isset($_SESSION['login_' . $cookiename]))
-		{
+		// Try checking for 2.1 json-format cookie in $_SESSION
+		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_SESSION['login_' . $cookiename]) === 1)
 			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
-			// Try for old format
-			if (is_null($timeout))
-				list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
-		}
+		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
+		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_COOKIE[$cookiename]) === 1)
+			list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
+
+		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
+		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_SESSION['login_' . $cookiename]) === 1)
+			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
 
@@ -122,18 +122,11 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			$tfadata = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
-
-			list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
-
-			// If we're preserving the cookie, reset it with updated salt
-			if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
-				setTFACookie(3153600, $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), true);
-			else
-				setTFACookie(-3600, 0, '');
+			list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+			setTFACookie((int) $exp - time(), $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']));
 		}
 
-		setLoginCookie($timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
+		setLoginCookie((int) $timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
 	}
@@ -153,6 +146,10 @@ function Login2()
 		{
 			unset ($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
+		}
+		elseif (!empty($user_settings['tfa_secret']))
+		{
+			redirectexit('action=logintfa');
 		}
 		else
 		{
@@ -443,7 +440,7 @@ function LoginTFA()
 	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		$code = $_POST['tfa_code'];
@@ -452,7 +449,7 @@ function LoginTFA()
 		{
 			updateMemberData($member['id_member'], array('last_login' => time()));
 
-			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']), !empty($_POST['tfa_preserve']));
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit();
 		}
 		else
@@ -466,7 +463,7 @@ function LoginTFA()
 	elseif (!empty($_POST['tfa_backup']))
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 			fatal_lang_error('login_ssl_required');
 
 		$backup = $_POST['tfa_backup'];
@@ -495,7 +492,7 @@ function LoginTFA()
 	loadTemplate('Login');
 	$context['sub_template'] = 'login_tfa';
 	$context['page_title'] = $txt['login'];
-	$context['tfa_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=logintfa';
+	$context['tfa_url'] = $scripturl . '?action=logintfa';
 }
 
 /**
@@ -688,15 +685,8 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		$tfadata = smf_json_decode($_COOKIE[$cookiename . '_tfa'], true);
-
-		list ($tfamember, $tfasecret, $exp, $state, $preserve) = $tfadata;
-
-		// If we're preserving the cookie, reset it with updated salt
-		if (isset($tfamember, $tfasecret, $exp, $state, $preserve) && $preserve && time() < $exp)
-			setTFACookie(3153600, $user_info['id'], hash_salt($user_settings['tfa_backup'], $salt), true);
-		else
-			setTFACookie(-3600, 0, '');
+		list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+		setTFACookie((int) $exp - time(), $salt, hash_salt($user_settings['tfa_backup'], $salt));
 	}
 
 	session_destroy();
