@@ -172,7 +172,7 @@ $txt['attach_folder_warning'] = 'The attachments directory can not be located. P
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
-$txt['attach_remaining'] = '%1$d attachments remaining';
+$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachments remaining';
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
