@@ -42,7 +42,19 @@ input, button, select, textarea, textarea.editor {
 	vertical-align: middle;
 	border-radius: 3px;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
-	padding: 3px;
+	padding: 0.3em 0.4em;
+}
+input, button, select {
+	padding: 0 0.4em;
+	height: 2em;
+	line-height: 2em;
+}
+select {
+	padding: 0.22em 0.2em; /* selects don't apply line-height */
+}
+input[type="file"] {
+	padding: 2px;
+	height: auto;
 }
 /* Prevent inputs overflowing */
 input, select {
@@ -73,25 +85,8 @@ dd textarea {
 input, button, select {
 	font-size: 0.9em;
 }
-/* Height fixation */
-input, select, .button {
-	height: 25px;
-}
-/* Small fix for type="file" elements */
-input[type="file"] {
-	height: auto;
-}
-input[type="checkbox"] {
-	height: 13px;
-}
-select {
-	padding: 2px;
-}
 select option {
 	padding: 0 4px;
-}
-select[size], input[type="checkbox"], input[type="radio"] {
-	height: auto;
 }
 input:hover, textarea:hover, button:hover, select:hover {
 	outline: none !important;
@@ -467,7 +462,6 @@ a img {
 
 /* the page navigation area */
 .pagesection {
-	font-size: 0.9em;
 	padding: 2px 0;
 	overflow: hidden;
 	clear: both;
@@ -476,14 +470,14 @@ a img {
 strong[id^='child_list_']::after {
 	content: ": ";
 }
-small .pages {
+.pages {
+	font-size: 0.9em;
 	margin-left: 7px;
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
 .pagelinks .button {
-	margin: 0 5px 0 0;
 	padding: 0 5px;
 }
 .navPages {
@@ -943,16 +937,17 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 0 8px;
-	margin: 0 0 0 5px;
+	padding: 0 0.7em;
 	overflow: visible;
 	color: #444;
-	font-size: 0.8em;
-	line-height: 25px;
+	font-size: 0.85em;
+	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	line-height: 2em;
 }
-/* Keep a consistent size when wrapped in pagesection. */
+.button:not(:first-child) {
+	margin-left: 4px;
+}
 .pagesection .button {
-	font-size: 0.889em;
 	color: #346;
 }
 .button:hover {
@@ -1057,7 +1052,6 @@ img.sort, .sort {
 	min-width: 25em;
 }
 #search_form input[type="search"], #search_form select, #search_form .button {
-	padding: 2px;
 	margin: 2px;
 	background: #fff;
 	border: 1px solid #ddd;
