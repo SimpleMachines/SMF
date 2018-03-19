@@ -3830,7 +3830,9 @@ function custMinify($data, $type, $do_deferred = false)
  */
 function unlinkMinified()
 {
-	global $smcFunc;
+	global $smcFunc, $txt;
+
+	$not_deleted = array();
 
 	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 	$request = $smcFunc['db_query']('', '
@@ -3851,10 +3853,18 @@ function unlinkMinified()
 				if (preg_match('~([a-zA-Z0-9]+)\.' . $type . '$~', $filename, $matches))
 					cache_put_data('minimized_' . $theme['id'] . '_' . $type . '_' . $matches[1], null);
 
-				// Delete the file (but don't complain if we can't for some reason)
-				@unlink($filename);
+				// Try to delete the file. Add it to our error list if it fails.
+				if (!@unlink($filename))
+					$not_deleted[] = $filename;
 			}
 		}
+	}
+
+	// If any of the files could not be deleted, log an error about it.
+	if (!empty($not_deleted))
+	{
+		loadLanguage('Errors');
+		log_error(sprintf($txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
 	}
 }
 
