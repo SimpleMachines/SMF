@@ -231,6 +231,10 @@ function ModifyBasicSettings($return_config = false)
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
+		// Do a bit of housekeeping
+		if (empty($_POST['minimize_files']))
+			deleteAllMinified();
+
 		writeLog();
 		redirectexit('action=admin;area=featuresettings;sa=basic');
 	}
