@@ -1485,7 +1485,7 @@ function scheduled_weekly_maintenance()
 		$cacheAPI->housekeeping();
 
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
-	unlinkMinified();
+	deleteAllMinified();
 
 	return true;
 }

@@ -233,7 +233,7 @@ function ModifyBasicSettings($return_config = false)
 
 		// Do a bit of housekeeping
 		if (empty($_POST['minimize_files']))
-			unlinkMinified();
+			deleteAllMinified();
 
 		writeLog();
 		redirectexit('action=admin;area=featuresettings;sa=basic');

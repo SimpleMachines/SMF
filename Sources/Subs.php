@@ -3828,7 +3828,7 @@ function custMinify($data, $type, $do_deferred = false)
 /**
  * Clears out old minimized CSS and JavaScript files
  */
-function unlinkMinified()
+function deleteAllMinified()
 {
 	global $smcFunc, $txt;
 

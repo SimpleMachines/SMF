@@ -1224,7 +1224,7 @@ function PackageInstall()
 
 	// Just in case, let's clear the whole cache and any minimized CSS and JS to avoid anything going up the swanny.
 	clean_cache();
-	unlinkMinified();
+	deleteAllMinified();
 
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
