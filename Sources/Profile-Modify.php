@@ -1263,7 +1263,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			{
 				$changes[] = array(1, $row['col_name'], $value, $memID);
 				$user_profile[$memID]['options'][$row['col_name']] = $value;
-			}		
+			}
 		}
 	}
 	$smcFunc['db_free_result']($request);
@@ -1285,9 +1285,9 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 		if (!empty($deletes))
 			$smcFunc['db_query']('','
-				DELETE FROM {db_prefix}themes 
-				WHERE id_theme = {int:id_theme} AND 
-						variable = {string:variable} AND 
+				DELETE FROM {db_prefix}themes
+				WHERE id_theme = {int:id_theme} AND
+						variable = {string:variable} AND
 						id_member = {int:id_member}',
 				$deletes
 				);
@@ -1337,7 +1337,7 @@ function editBuddyIgnoreLists($memID)
 		),
 	);
 
-	loadJavaScriptFile('suggest.js', array('defer' => false), 'smf_suggest');
+	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['list_area']][0];
@@ -1905,7 +1905,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavaScriptFile('alertSettings.js', array(), 'smf_alertSettings');
+	loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -2986,7 +2986,7 @@ function profileLoadSignatureData()
 
 	// Load the spell checker?
 	if ($context['show_spellchecking'])
-		loadJavaScriptFile('spellcheck.js', array('defer' => false), 'smf_spellcheck');
+		loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
 
 	return true;
 }

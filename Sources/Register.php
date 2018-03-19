@@ -91,7 +91,7 @@ function Register($reg_errors = array())
 
 	// Kinda need this.
 	if ($context['sub_template'] == 'registration_form')
-		loadJavaScriptFile('register.js', array('defer' => false), 'smf_register');
+		loadJavaScriptFile('register.js', array('defer' => false, 'minimize' => true), 'smf_register');
 
 	// Add the register chain to the link tree.
 	$context['linktree'][] = array(
@@ -175,7 +175,7 @@ function Register($reg_errors = array())
 			if (isset($_POST['website_url']))
 				$cur_profile['website_url'] = $smcFunc['htmlspecialchars']($_POST['website_url']);
 		}
-				
+
 		// We might have had some submissions on this front - go check.
 		foreach ($reg_fields as $field)
 			if (isset($_POST[$field]))

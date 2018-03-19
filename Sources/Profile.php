@@ -579,7 +579,7 @@ function ModifyProfile($post_errors = array())
 	$check_password = $context['user']['is_owner'] && in_array($profile_include_data['current_area'], $context['password_areas']);
 	$context['require_password'] = $check_password;
 
-	loadJavaScriptFile('profile.js', array('defer' => false), 'smf_profile');
+	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 
 	// These will get populated soon!
 	$post_errors = array();
