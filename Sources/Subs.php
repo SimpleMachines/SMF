@@ -3818,7 +3818,7 @@ function custMinify($data, $type)
 		if (empty($toAdd))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['file_minimize_fail'], (!empty($file['fileName']) ? $file['fileName']) : $id), 'general');
+			log_error(sprintf($txt['file_minimize_fail'], !empty($file['fileName']) ? $file['fileName'] : $id), 'general');
 			continue;
 		}
 
