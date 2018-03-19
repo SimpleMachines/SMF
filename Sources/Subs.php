@@ -3744,7 +3744,7 @@ function custMinify($data, $type, $do_deferred = false)
 		return (array) $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
-	$hash = md5(implode(' ', array_map(function($file) { return $file['filePath'] . md5_file($file['filePath']); }, $data)));
+	$hash = md5(implode(' ', array_map(function($file) { return $file['filePath'] . filesize($file['filePath']); }, $data)));
 
 	// Did we already do this?
 	list($toCache, $async) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 2, null);
