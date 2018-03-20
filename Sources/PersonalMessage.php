@@ -672,7 +672,7 @@ function MessageFolder()
 				AND pl.id_label = ' . $context['current_label_id'];
 		}
 
-		$request = $smcFunc['db_query']('pm_conversation_list', '
+		$request = $smcFunc['db_query']('', '
 				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
