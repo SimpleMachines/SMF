@@ -39,7 +39,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 				var textarea = $("#', $editor_id, '").get(0);
 				sceditor.create(textarea, ', $smcFunc['json_encode']($editor_context['sce_options'], JSON_PRETTY_PRINT), ');', !$editor_context['sce_options']['emoticonsEnabled'] ? '' : '
-				sceditor.instance(textarea).createPermanentDropDown();', !empty($editor_context['rich_active']) ? '' : '
+				sceditor.instance(textarea).createPermanentDropDown();', empty($editor_context['rich_active']) ? '' : '
 				sceditor.instance(textarea).toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
