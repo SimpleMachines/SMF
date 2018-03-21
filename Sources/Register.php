@@ -315,7 +315,13 @@ function Register2()
 
 		// Website is a little different
 		if (in_array('website', $reg_fields))
+		{
 			$possible_strings = array_merge(array('website_url', 'website_title'), $possible_strings);
+
+			// Make sure their website URL is squeaky clean
+			if (isset($_POST['website_url']))
+				$_POST['website_url'] = (string) validate_iri(sanitize_iri($_POST['website_url']));
+		}
 	}
 
 	if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '')
