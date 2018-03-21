@@ -1331,7 +1331,7 @@ function InstallFile()
 
 	// Get the theme's name.
 	$name = pathinfo($_FILES['theme_gz']['name'], PATHINFO_FILENAME);
-	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/', '/\.tar$/'), array('_', '.', '', ''), $name);
+	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// Start setting some vars.
 	$context['to_install'] = array(
