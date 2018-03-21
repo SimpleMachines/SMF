@@ -672,7 +672,7 @@ function MessageFolder()
 				AND pl.id_label = ' . $context['current_label_id'];
 		}
 
-		$request = $smcFunc['db_query']('pm_conversation_list', '
+		$request = $smcFunc['db_query']('', '
 				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
@@ -685,7 +685,7 @@ function MessageFolder()
 					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
 					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
 				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
-				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
+				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
 				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
 					'current_member' => $user_info['id'],
@@ -997,7 +997,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			'timestamp' => forum_time(true, $subject['msgtime']),
 			'number_recipients' => count($recipients[$subject['id_pm']]['to']),
 			'labels' => &$context['message_labels'][$subject['id_pm']],
-			'fully_labeled' => count($context['message_labels'][$subject['id_pm']]) == count($context['labels']),
+			'fully_labeled' => count(isset($context['message_labels'][$subject['id_pm']]) ? $context['message_labels'][$subject['id_pm']] : array()) == count($context['labels']),
 			'is_replied_to' => &$context['message_replied'][$subject['id_pm']],
 			'is_unread' => &$context['message_unread'][$subject['id_pm']],
 			'is_selected' => !empty($temp_pm_selected) && in_array($subject['id_pm'], $temp_pm_selected),
@@ -1069,7 +1069,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'recipients' => &$recipients[$message['id_pm']],
 		'number_recipients' => count($recipients[$message['id_pm']]['to']),
 		'labels' => &$context['message_labels'][$message['id_pm']],
-		'fully_labeled' => count($context['message_labels'][$message['id_pm']]) == count($context['labels']),
+		'fully_labeled' => count(isset($context['message_labels'][$message['id_pm']]) ? $context['message_labels'][$message['id_pm']] : array()) == count($context['labels']),
 		'is_replied_to' => &$context['message_replied'][$message['id_pm']],
 		'is_unread' => &$context['message_unread'][$message['id_pm']],
 		'is_selected' => !empty($temp_pm_selected) && in_array($message['id_pm'], $temp_pm_selected),

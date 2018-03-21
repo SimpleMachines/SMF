@@ -332,9 +332,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
 		),
-		'pm_conversation_list' => array(
-			'~ORDER\\s+BY\\s+\\{raw:sort\\}~' => 'ORDER BY ' . (isset($db_values['sort']) ? ($db_values['sort'] === 'pm.id_pm' ? 'MAX(pm.id_pm)' : $db_values['sort']) : ''),
-		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
