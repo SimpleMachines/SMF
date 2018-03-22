@@ -3630,7 +3630,7 @@ function template_javascript($do_deferred = false)
 
 				foreach ($result as $minFile)
 					echo '
-	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async' : '', !empty($minFile['options']['defer']) ? ' defer' : '', '></script>';
 
 			}
 		}
