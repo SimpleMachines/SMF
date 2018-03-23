@@ -640,7 +640,7 @@ function ConvertEntities()
 					if ($column_name !== $primary_key && strpos($column_value, '&#') !== false)
 					{
 						$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
-						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,7}|x[0-9a-fA-F]{1,6});~', 'fixchar__callback', $column_value);
+						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,5}|x[0-9a-fA-F]{1,4});~', 'fixchardb__callback', $column_value);
 					}
 
 				$where = array();
@@ -2279,6 +2279,31 @@ function get_hook_info_from_raw($rawData)
 		$hookData['pureFunc'] = $modFunc;
 
 	return $hookData;
+}
+
+/**
+ * Converts html entities to utf8 equivalents
+ * special db wrapper for mysql based on the limitation of mysql
+ *
+ * Callback function for preg_replace_callback
+ * Uses capture group 1 in the supplied array
+ * Does basic checks to keep characters inside a viewable range.
+ *
+ * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
+ * @return string The fixed string or return the old when limitation of mysql is hit
+ */
+function fixchardb__callback($matches)
+{
+	if (!isset($matches[1]))
+		return '';
+
+	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
+	
+	// it's to big for mysql?
+	if ($num > 0xFFFF)
+		return $matches[0];
+	else
+		return fixchar__callback ($matches);
 }
 
 ?>
