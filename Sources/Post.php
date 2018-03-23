@@ -352,8 +352,8 @@ function Post($post_errors = array())
 			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
 		}
 
-		loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
-		loadCSSFile('jquery.timepicker.css', array('defer' => false), 'smf_timepicker');
+		loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
+		loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
 		loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
 		loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 		loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
