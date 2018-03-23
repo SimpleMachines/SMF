@@ -703,7 +703,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		}
 	}
 
-	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
+	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
 	addInlineJavaScript('
 	$("#calendar_range .date_input").datepicker({

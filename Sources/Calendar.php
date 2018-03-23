@@ -476,8 +476,8 @@ function CalendarPost()
 		'name' => $context['page_title'],
 	);
 
-	loadCSSFile('jquery-ui.datepicker.css', array('defer' => false), 'smf_datepicker');
-	loadCSSFile('jquery.timepicker.css', array('defer' => false), 'smf_timepicker');
+	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
+	loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
 	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');

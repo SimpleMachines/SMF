@@ -3642,12 +3642,14 @@ function template_javascript($do_deferred = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
-<script>';
+<script>
+window.addEventListener("DOMContentLoaded", function() {';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
+});
 </script>';
 		}
 
