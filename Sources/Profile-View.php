@@ -385,7 +385,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc, $txt, $sourcedir, $scripturl;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $options;
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
@@ -399,22 +399,26 @@ function showAlerts($memID)
 	$toMark = false;
 	$action = '';
 
+	//  Are we using checkboxes?
+	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
+
 	// Create the pagination.
 	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
-	addInlineJavaScript('
-	$(function(){
-		$(\'#select_all\').on(\'change\', function() {
-			var checkboxes = $(\'ul.quickbuttons\').find(\':checkbox\');
-			if($(this).prop(\'checked\')) {
-				checkboxes.prop(\'checked\', true);
-			}
-			else {
-				checkboxes.prop(\'checked\', false);
-			}
-		});
-	});', true);
+	if ($context['showCheckboxes'])
+		addInlineJavaScript('
+		$(function(){
+			$(\'#select_all\').on(\'change\', function() {
+				var checkboxes = $(\'ul.quickbuttons\').find(\':checkbox\');
+				if($(this).prop(\'checked\')) {
+					checkboxes.prop(\'checked\', true);
+				}
+				else {
+					checkboxes.prop(\'checked\', false);
+				}
+			});
+		});', true);
 
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
