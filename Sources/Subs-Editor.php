@@ -2038,6 +2038,7 @@ function create_control_richedit($editorOptions)
 		$sce_options['autofocus'] = true;
 
 	$sce_options['emoticons'] = array();
+	$sce_options['emoticonsDescriptions'] = array();
 	$sce_options['emoticonsEnabled'] = false;
 	if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$context['controls']['richedit'][$editorOptions['id']]['disable_smiley_box'])
 	{
@@ -2063,7 +2064,10 @@ function create_control_richedit($editorOptions)
 			foreach ($smileyRows as $smileyRow)
 			{
 				foreach ($smileyRow['smileys'] as $smiley)
+				{
 					$smiley_location[$smiley['code']] = $settings['smileys_url'] . '/' . $smiley['filename'];
+					$sce_options['emoticonsDescriptions'][$smiley['code']] = $smiley['description'];
+				}
 
 				if (empty($smileyRow['isLast']) && $numRows != 1)
 					$smiley_location['-' . $emptyPlaceholder++] = '';

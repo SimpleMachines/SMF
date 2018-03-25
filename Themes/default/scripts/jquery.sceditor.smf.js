@@ -36,7 +36,7 @@
 
 			return current_value;
 		},
-		appendEmoticon: function (code, emoticon) {
+		appendEmoticon: function (code, emoticon, description) {
 			if (emoticon == '')
 				line.append($('<br>'));
 			else
@@ -44,6 +44,7 @@
 					.attr({
 						src: emoticon,
 						alt: code,
+						title: description,
 					})
 					.click(function (e) {
 						var	start = '', end = '';
@@ -98,7 +99,9 @@
 							$(".sceditor-smileyPopup").fadeOut('fast');
 						});
 
-						$.each(emoticons, base.appendEmoticon);
+						$.each(emoticons, function( code, emoticon ) {
+							base.appendEmoticon(code, emoticon, base.opts.emoticonsDescriptions[code]);
+						});
 
 						if (line.children().length > 0)
 							popupContent.append(line);
@@ -138,7 +141,9 @@
 					}
 				});
 			}
-			$.each(emoticons, base.appendEmoticon);
+			$.each(emoticons, function( code, emoticon ) {
+				base.appendEmoticon(code, emoticon, base.opts.emoticonsDescriptions[code]);
+			});
 			if (line.children().length > 0)
 				content.append(line);
 			$(".sceditor-toolbar").append(content);
