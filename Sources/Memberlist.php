@@ -631,6 +631,19 @@ function printMemberListRows($request)
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 			{
+
+				$value = $context['members'][$member]['options'][$key];
+				$currentKey = 0;
+				if (!empty($column['options']))
+				{
+					$fieldOptions = explode(',', $column['options']);
+					foreach ($fieldOptions as $k => $v)
+					{
+						if (empty($currentKey))
+							$currentKey = $v === $value ? $k : 0;
+					}
+				}
+
 				// Don't show anything if there isn't anything to show.
 				if (!isset($context['members'][$member]['options'][$key]))
 				{
@@ -651,6 +664,7 @@ function printMemberListRows($request)
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 						'{INPUT}' => $context['members'][$member]['options'][$key],
+						'{KEY}' => $currentKey
 					));
 			}
 		}
@@ -669,7 +683,7 @@ function getCustFieldsMList()
 	$cpf = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND show_mlist = {int:show}
@@ -687,6 +701,7 @@ function getCustFieldsMList()
 		$cpf['columns'][$row['col_name']] = array(
 			'label' => $row['field_name'],
 			'type' => $row['field_type'],
+			'options' => $row['field_options'],
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
 		);

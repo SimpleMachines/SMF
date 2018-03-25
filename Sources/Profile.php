@@ -886,6 +886,18 @@ function loadCustomFields($memID, $area = 'summary')
 	$context['custom_fields_required'] = false;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$value = $user_profile[$memID]['options'][$row['col_name']];
+		$currentKey = 0;
+		if (!empty($row['field_options']))
+		{
+			$fieldOptions = explode(',', $row['field_options']);
+			foreach ($fieldOptions as $k => $v)
+			{
+				if (empty($currentKey))
+					$currentKey = $v === $value ? $k : 0;
+			}
+		}
+
 		// Shortcut.
 		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
 		$value = $exists ? $user_profile[$memID]['options'][$row['col_name']] : '';
@@ -961,6 +973,7 @@ function loadCustomFields($memID, $area = 'summary')
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
 				'{INPUT}' => un_htmlspecialchars($output_html),
+				'{KEY}' => $currentKey
 			));
 
 		$context['custom_fields'][] = array(
