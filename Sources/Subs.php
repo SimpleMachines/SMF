@@ -6042,8 +6042,8 @@ function set_tld_regex($update = false)
 		});
 
 		// Convert Punycode to Unicode
-		require_once($sourcedir . '/punycode/Punycode.php');
-		$Punycode = new TrueBV\Punycode();
+		require_once($sourcedir . '/Class-Punycode.php');
+		$Punycode = new Punycode();
 		$tlds = array_map(function ($input) use ($Punycode) { return $Punycode->decode($input); }, $tlds);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
@@ -6493,8 +6493,8 @@ function iri_to_url($iri)
 		return $iri;
 
 	// Convert the domain using the Punycode algorithm
-	require_once($sourcedir . '/punycode/Punycode.php');
-	$Punycode = new TrueBV\Punycode();
+	require_once($sourcedir . '/Class-Punycode.php');
+	$Punycode = new Punycode();
 	$encoded_host = $Punycode->encode($host);
 	$pos = strpos($iri, $host);
 	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
@@ -6530,8 +6530,8 @@ function url_to_iri($url)
 		return $url;
 
 	// Decode the domain from Punycode
-	require_once($sourcedir . '/punycode/Punycode.php');
-	$Punycode = new TrueBV\Punycode();
+	require_once($sourcedir . '/Class-Punycode.php');
+	$Punycode = new Punycode();
 	$decoded_host = $Punycode->decode($host);
 	$pos = strpos($url, $host);
 	$url = substr_replace($url, $decoded_host, $pos, strlen($host));

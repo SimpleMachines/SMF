@@ -1,8 +1,25 @@
 <?php
-namespace TrueBV;
+/**
+ * A class for encoding/decoding Punycode.
+ *
+ * Derived from this library: https://github.com/true/php-punycode
+ *
+ * @author TrueServer B.V. <support@true.nl>
+ * @package php-punycode
+ * @license MIT
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2018 Simple Machines and individual contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Beta 4
+ */
 
-use TrueBV\Exception\DomainOutOfBoundsException;
-use TrueBV\Exception\LabelOutOfBoundsException;
+if (!defined('SMF'))
+    die('No direct access...');
 
 /**
  * Punycode implementation as described in RFC 3492
@@ -79,17 +96,10 @@ class Punycode
         $input = mb_strtolower($input, $this->encoding);
         $parts = explode('.', $input);
         foreach ($parts as &$part) {
-            $length = strlen($part);
-            if ($length < 1) {
-                throw new LabelOutOfBoundsException(sprintf('The length of any one label is limited to between 1 and 63 octets, but %s given.', $length));
-            }
             $part = $this->encodePart($part);
         }
         $output = implode('.', $parts);
         $length = strlen($output);
-        if ($length > 255) {
-            throw new DomainOutOfBoundsException(sprintf('A full domain name is limited to 255 octets (including the separators), %s given.', $length));
-        }
 
         return $output;
     }
@@ -159,10 +169,6 @@ class Punycode
             $n++;
         }
         $out = static::PREFIX . $output;
-        $length = strlen($out);
-        if ($length > 63 || $length < 1) {
-            throw new LabelOutOfBoundsException(sprintf('The length of any one label is limited to between 1 and 63 octets, but %s given.', $length));
-        }
 
         return $out;
     }
@@ -178,10 +184,6 @@ class Punycode
         $input = strtolower($input);
         $parts = explode('.', $input);
         foreach ($parts as &$part) {
-            $length = strlen($part);
-            if ($length > 63 || $length < 1) {
-                throw new LabelOutOfBoundsException(sprintf('The length of any one label is limited to between 1 and 63 octets, but %s given.', $length));
-            }
             if (strpos($part, static::PREFIX) !== 0) {
                 continue;
             }
@@ -190,10 +192,6 @@ class Punycode
             $part = $this->decodePart($part);
         }
         $output = implode('.', $parts);
-        $length = strlen($output);
-        if ($length > 255) {
-            throw new DomainOutOfBoundsException(sprintf('A full domain name is limited to 255 octets (including the separators), %s given.', $length));
-        }
 
         return $output;
     }
@@ -358,3 +356,5 @@ class Punycode
         }
     }
 }
+
+?>
