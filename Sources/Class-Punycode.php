@@ -1,5 +1,25 @@
 <?php
-namespace TrueBV;
+/**
+ * A class for encoding/decoding Punycode.
+ *
+ * Derived from this library: https://github.com/true/php-punycode
+ *
+ * @author TrueServer B.V. <support@true.nl>
+ * @package php-punycode
+ * @license MIT
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2018 Simple Machines and individual contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Beta 4
+ */
+
+if (!defined('SMF'))
+    die('No direct access...');
 
 /**
  * Punycode implementation as described in RFC 3492
