@@ -356,3 +356,5 @@ class Punycode
         }
     }
 }
+
+?>
