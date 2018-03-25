@@ -1209,15 +1209,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
-				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != filter_var($value, FILTER_SANITIZE_STRING) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
-				{
-					if ($returnErrors)
-						$errors[] = 'custom_field_nohtml_fail';
-
-					else
-						$value = '';
-				}
-				elseif ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_mail_fail';
