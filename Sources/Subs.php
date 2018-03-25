@@ -6042,7 +6042,7 @@ function set_tld_regex($update = false)
 		});
 
 		// Convert Punycode to Unicode
-		require_once($sourcedir . '/punycode/Punycode.php');
+		require_once($sourcedir . '/Punycode.php');
 		$Punycode = new TrueBV\Punycode();
 		$tlds = array_map(function ($input) use ($Punycode) { return $Punycode->decode($input); }, $tlds);
 	}
@@ -6493,7 +6493,7 @@ function iri_to_url($iri)
 		return $iri;
 
 	// Convert the domain using the Punycode algorithm
-	require_once($sourcedir . '/punycode/Punycode.php');
+	require_once($sourcedir . '/Punycode.php');
 	$Punycode = new TrueBV\Punycode();
 	$encoded_host = $Punycode->encode($host);
 	$pos = strpos($iri, $host);
@@ -6530,7 +6530,7 @@ function url_to_iri($url)
 		return $url;
 
 	// Decode the domain from Punycode
-	require_once($sourcedir . '/punycode/Punycode.php');
+	require_once($sourcedir . '/Punycode.php');
 	$Punycode = new TrueBV\Punycode();
 	$decoded_host = $Punycode->decode($host);
 	$pos = strpos($url, $host);
