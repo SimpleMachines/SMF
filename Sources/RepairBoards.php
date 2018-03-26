@@ -1530,7 +1530,7 @@ function findForumErrors($do_fix = false)
 
 	// Don't allow the cache to get too full.
 	$db_temp_cache = $db_cache;
-	$db_cache = '';
+	$db_cache = array();
 
 	$context['total_steps'] = count($errorTests);
 
@@ -1686,7 +1686,7 @@ function findForumErrors($do_fix = false)
 			// Free the result.
 			$smcFunc['db_free_result']($request);
 			// Keep memory down.
-			$db_cache = '';
+			$db_cache = array();
 
 			// Are we done yet?
 			if (isset($test['substeps']))
