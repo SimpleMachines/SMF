@@ -1683,18 +1683,14 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: -8px 3px 0 0;
 }
 
-.generic_icons.gender_None {
-	background: none;
-}
-
-.generic_icons.gender_0 {
-	display: none;
-}
-
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
 	vertical-align: middle;
+}
+
+.generic_icons.gender_None {
+	background: none;
 }
 
 /* Top row */
@@ -1713,7 +1709,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_2 {
+.generic_icons.gender_Female {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1726,7 +1722,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_1 {
+.generic_icons.gender_Male {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
