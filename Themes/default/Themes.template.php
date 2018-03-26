@@ -949,7 +949,6 @@ function template_edit_browse()
 
 	foreach ($context['theme_files'] as $file)
 	{
-
 		echo '
 				<tr class="windowbg">
 					<td>';

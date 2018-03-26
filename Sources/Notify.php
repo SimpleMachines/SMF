@@ -66,7 +66,6 @@ function BoardNotify()
 					'current_member' => $user_info['id'],
 				)
 			);
-
 	}
 
 	// Back to the board!
@@ -170,7 +169,6 @@ function TopicNotify()
 						'topic' => $log['id_topic'],
 						'member' => $user_info['id'],
 					));
-
 		}
 	}
 

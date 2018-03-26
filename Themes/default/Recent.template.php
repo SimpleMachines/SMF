@@ -66,7 +66,6 @@ function template_recent()
 
 		echo '
 		</div><!-- $post[css_class] -->';
-
 	}
 
 	echo '

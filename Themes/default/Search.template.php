@@ -391,8 +391,8 @@ function template_results()
 
 			echo '
 		</div><!-- $topic[css_class] -->';
-
 		}
+
 		if (!empty($context['topics']))
 			echo '
 		<div class="pagesection">
@@ -429,7 +429,6 @@ function template_results()
 			echo '
 		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
-
 	}
 	else
 	{

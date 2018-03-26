@@ -24,7 +24,6 @@
 
 			if (!bIsSource)
 				this.toggleSourceMode();
-
 		},
 		getText: function (filter) {
 			var current_value = '';
@@ -633,7 +632,6 @@ sceditor.formats.bbcode.set(
 			}
 
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
-
 		},
 		html: function (element, attrs, content) {
 			var from = '';

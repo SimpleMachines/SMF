@@ -150,7 +150,6 @@ function template_admin()
 								</div>
 							'), ',
 							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
-
 						});
 					</script>';
 }
@@ -1455,7 +1454,6 @@ function template_repair_boards()
 							<p class="padding">
 								<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
 							</p>';
-
 	}
 	else
 	{

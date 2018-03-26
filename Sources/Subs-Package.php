@@ -2153,7 +2153,6 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 				{
 					foreach ($actual_operation['searches'] as $i => $search)
 					{
-
 						// Reverse modification of regular expressions are not allowed.
 						if ($search['is_reg_exp'])
 						{
@@ -2680,7 +2679,6 @@ function package_get_contents($filename)
 
 	if (!isset($package_cache))
 	{
-
 		$mem_check = setMemoryLimit('128M');
 
 		// Windows doesn't seem to care about the memory_limit.

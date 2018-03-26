@@ -1840,7 +1840,6 @@ function getXmlProfile($xml_format)
 				'tag' => 'age',
 				'content' => $age,
 			);
-
 		}
 	}
 

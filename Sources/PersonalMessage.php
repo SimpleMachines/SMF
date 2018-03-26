@@ -695,7 +695,6 @@ function MessageFolder()
 					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
 				)
 		);
-
 	}
 	// This is kinda simple!
 	else
@@ -3232,7 +3231,6 @@ function ManageLabels()
 							$label_updates[$id] = $_POST['label_name'][$id];
 
 						$the_labels[(int) $id] = $_POST['label_name'][$id];
-
 					}
 					else
 					{

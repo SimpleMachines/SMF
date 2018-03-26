@@ -421,7 +421,6 @@ function template_user_subscription()
 		// Print out all the subscriptions.
 		foreach ($context['subscriptions'] as $id => $subscription)
 		{
-
 			// Ignore the inactive ones...
 			if (empty($subscription['active']))
 				continue;
@@ -503,7 +502,6 @@ function template_user_subscription()
 
 	foreach ($context['current'] as $sub)
 	{
-
 		if (!$sub['hide'])
 			echo '
 				<tr class="windowbg">

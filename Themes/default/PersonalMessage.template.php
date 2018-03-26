@@ -217,7 +217,6 @@ function template_folder()
 
 		while ($message = $context['get_pmessage']('message'))
 		{
-
 			echo '
 			<div class="windowbg">
 				<div class="poster">';

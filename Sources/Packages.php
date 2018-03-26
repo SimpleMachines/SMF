@@ -364,7 +364,6 @@ function PackageInstallTest()
 			}
 			else
 			{
-
 				if ($action['boardmod'])
 					$mod_actions = parseBoardMod(@file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 				else
@@ -625,7 +624,6 @@ function PackageInstallTest()
 			// Could this be theme related?
 			if (!empty($action['unparsed_filename']) && preg_match('~^\$(languagedir|languages_dir|imagesdir|themedir|themes_dir)~i', $action['unparsed_filename'], $matches))
 			{
-
 				// Is the action already stated?
 				$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], array('no', 'yes', 'auto')) ? $action['theme_action'] : 'auto';
 				$action['unparsed_destination'] = $action['unparsed_filename'];
@@ -2104,7 +2102,6 @@ function PackagePermissions()
 			'type' => 'dir',
 			'writable_on' => 'restrictive',
 		);
-
 	}
 	elseif (substr($modSettings['attachmentUploadDir'], 0, strlen($boarddir)) != $boarddir)
 	{

@@ -1570,11 +1570,9 @@ function updateActionDef(optNum)
 
 function smc_resize(selector)
 {
-
 	var allElements = [];
 
 	$(selector).each(function(){
-
 		$thisElement = $(this);
 
 		// Get rid of the width and height attributes.
@@ -1587,13 +1585,10 @@ function smc_resize(selector)
 		$thisElement.aspectRatio = $thisElement.defaultHeight / $thisElement.defaultWidth;
 
 		allElements.push($thisElement);
-
 	});
 
 	$(window).resize(function(){
-
 		$(allElements).each(function(){
-
 			_innerElement = this;
 
 			// Get the new width and height.
@@ -1619,17 +1614,13 @@ function smc_resize(selector)
 	}).resize();
 }
 
-$(function()
-{
-	$('.buttonlist > .dropmenu').each(function(index, item)
-	{
-		$(item).prev().click(function(e)
-		{
+$(function() {
+	$('.buttonlist > .dropmenu').each(function(index, item) {
+		$(item).prev().click(function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 
-			if ($(item).is(':visible'))
-			{
+			if ($(item).is(':visible')) {
 				$(item).css('display', 'none');
 
 				return true;
@@ -1640,15 +1631,13 @@ $(function()
 			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).outerWidth(), 0));
 			$(item).height($(item).find('div:first').height());
 		});
-		$(document).click(function()
-		{
+		$(document).click(function() {
 			$(item).css('display', 'none');
 		});
 	});
 
 	// Generic confirmation message.
-	$(document).on('click', '.you_sure', function()
-	{
+	$(document).on('click', '.you_sure', function() {
 		var custom_message = $(this).attr('data-confirm');
 
 		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
@@ -1656,7 +1645,6 @@ $(function()
 
 	// Generic event for smfSelectText()
 	$('.smf_select_text').on('click', function(e) {
-
 		e.preventDefault();
 
 		// Do you want to target yourself?
@@ -1670,7 +1658,7 @@ function avatar_fallback(e) {
     var e = window.e || e;
 	var default_avatar = '/avatars/default.png';
 	var default_url = document.URL.substr(0,document.URL.lastIndexOf('/')) + default_avatar;
-	
+
     if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
         return;
 

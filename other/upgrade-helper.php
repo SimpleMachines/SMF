@@ -292,7 +292,6 @@ function makeFilesWritable(&$files)
  */
 function quickFileWritable($file)
 {
-
 	// Some files won't exist, try to address up front
 	if (!file_exists($file))
 		@touch($file);

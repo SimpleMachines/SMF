@@ -880,7 +880,6 @@ function showCodeImage($code)
 			$ttfont_list = array('AnonymousPro.ttf');
 		else
 			$ttfont_list = empty($ttfont_list) ? array() : array($ttfont_list[0]);
-
 	}
 
 	// Create a list of characters to be shown.
