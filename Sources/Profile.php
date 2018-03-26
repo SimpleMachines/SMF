@@ -886,7 +886,10 @@ function loadCustomFields($memID, $area = 'summary')
 	$context['custom_fields_required'] = false;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$value = $user_profile[$memID]['options'][$row['col_name']];
+		// Shortcut.
+		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
+		$value = $exists ? $user_profile[$memID]['options'][$row['col_name']] : '';
+
 		$currentKey = 0;
 		if (!empty($row['field_options']))
 		{
@@ -897,10 +900,6 @@ function loadCustomFields($memID, $area = 'summary')
 					$currentKey = $v === $value ? $k : 0;
 			}
 		}
-
-		// Shortcut.
-		$exists = $memID && isset($user_profile[$memID], $user_profile[$memID]['options'][$row['col_name']]);
-		$value = $exists ? $user_profile[$memID]['options'][$row['col_name']] : '';
 
 		// If this was submitted already then make the value the posted version.
 		if (isset($_POST['customfield']) && isset($_POST['customfield'][$row['col_name']]))
