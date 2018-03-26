@@ -362,14 +362,15 @@ function loadForumTests()
 				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
 				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
-				if(empty($row['id_board']))
+				if (empty($row['id_board']))
 				{
 					// Only if we don't have a reasonable idea of where to put it.
 					createSalvageArea();
 					$row['id_board'] = (int)$salvageBoardID;
 				}
 
-				if(empty($row['id_topic'])) {
+				if (empty($row['id_topic']))
+				{
 					$newMessageID = $smcFunc['db_insert']('',
 						'{db_prefix}messages',
 						array(

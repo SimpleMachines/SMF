@@ -725,6 +725,7 @@ if (!function_exists('imagecreatefrombmp'))
 					$byte = ord($scan_line{$j++});
 
 					imagesetpixel($dst_img, $x, $y, $palette[(int) ($byte / 16)]);
+
 					if (++$x < $info['width'])
 						imagesetpixel($dst_img, $x, $y, $palette[$byte & 15]);
 				}
@@ -737,8 +738,11 @@ if (!function_exists('imagecreatefrombmp'))
 					$byte = ord($scan_line{$j++});
 
 					imagesetpixel($dst_img, $x, $y, $palette[(($byte) & 128) != 0]);
-					for ($shift = 1; $shift < 8; $shift++) {
-						if (++$x < $info['width']) imagesetpixel($dst_img, $x, $y, $palette[(($byte << $shift) & 128) != 0]);
+
+					for ($shift = 1; $shift < 8; $shift++)
+					{
+						if (++$x < $info['width'])
+							imagesetpixel($dst_img, $x, $y, $palette[(($byte << $shift) & 128) != 0]);
 					}
 				}
 			}

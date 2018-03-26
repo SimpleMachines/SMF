@@ -256,7 +256,6 @@ namespace {
 			return $status === 0;
 		}
 	}
-
 }
 
 namespace PasswordCompat\binary {
@@ -297,7 +296,6 @@ namespace PasswordCompat\binary {
 		}
 		return substr($binary_string, $start, $length);
 	}
-
 }
 
 ?>

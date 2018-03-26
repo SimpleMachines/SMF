@@ -77,9 +77,8 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		// If the person who sent the notification is on this person's ignore list, do nothing.
-		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
+		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members))
 			return true;
-		}
 
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);

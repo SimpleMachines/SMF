@@ -595,7 +595,6 @@ function template_showAlerts()
 
 	else
 	{
-
 		// Start the form if checkboxes are in use
 		if ($context['showCheckboxes'])
 			echo '

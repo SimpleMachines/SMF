@@ -1873,10 +1873,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$message = strtr($message, array("\n" => '<br>'));
 
 	$alltags = array();
-	foreach ($bbc_codes as $section) {
-		foreach ($section as $code) {
+	foreach ($bbc_codes as $section)
+	{
+		foreach ($section as $code)
 			$alltags[] = $code['tag'];
-		}
 	}
 	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
 
@@ -6292,8 +6292,10 @@ function https_redirect_active($url)
 
 	// Search for the location entry to confirm https
 	$result = false;
-	foreach ($headers as $header) {
-		if (stristr($header, 'Location: https://') !== false) {
+	foreach ($headers as $header)
+	{
+		if (stristr($header, 'Location: https://') !== false)
+		{
 			$result = true;
 			break;
 		}
