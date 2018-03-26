@@ -247,8 +247,8 @@ class ProxyServer
 	public function housekeeping()
 	{
 		$path = $this->cache . '/';
-		if ($handle = opendir($path)) {
-
+		if ($handle = opendir($path))
+		{
 			while (false !== ($file = readdir($handle)))
 			{
 				$filelastmodified = filemtime($path . $file);
@@ -257,7 +257,6 @@ class ProxyServer
 				{
 				   unlink($path . $file);
 				}
-
 			}
 
 			closedir($handle);

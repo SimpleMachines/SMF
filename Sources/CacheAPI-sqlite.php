@@ -48,7 +48,6 @@ class sqlite_cache extends cache_api
 	 */
 	public function connect()
 	{
-
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
 		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
@@ -58,7 +57,6 @@ class sqlite_cache extends cache_api
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
 		$this->cacheTime = time();
-
 	}
 
 	/**
@@ -95,7 +93,6 @@ class sqlite_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-
 		$ttl = $this->cacheTime + $ttl;
 		$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $this->cacheDB->escapeString($ttl) . ');';
 		$result = $this->cacheDB->exec($query);
@@ -114,7 +111,7 @@ class sqlite_cache extends cache_api
 			$query = 'DELETE FROM cache;';
 
 		$result = $this->cacheDB->exec($query);
-		
+
 		$query	= 'VACUUM;';
 		$this->cacheDB->exec($query);
 

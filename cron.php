@@ -279,7 +279,6 @@ function obExit_cron()
  */
 abstract class SMF_BackgroundTask
 {
-
 	/**
 	 * @var array Holds the details for the task
 	 */

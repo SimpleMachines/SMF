@@ -1402,7 +1402,6 @@ function saveDBSettings(&$config_vars)
 		// BBC.
 		elseif ($var[0] == 'bbc')
 		{
-
 			$bbcTags = array();
 			foreach (parse_bbc(false) as $tag)
 				$bbcTags[] = $tag['tag'];

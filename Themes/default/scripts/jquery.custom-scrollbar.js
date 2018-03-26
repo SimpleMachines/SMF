@@ -1,7 +1,5 @@
 (function ($) {
-
 	$.fn.customScrollbar = function (options, args) {
-
 		var defaultOptions = {
 			skin: undefined,
 			hScroll: true,
@@ -195,7 +193,6 @@
 				if (this.options.onCustomScroll)
 					this.$element.on("customScroll", this.options.onCustomScroll);
 			}
-
 		}
 
 		var Scrollbar = function (scrollable, sizing) {
@@ -564,7 +561,6 @@
 					event.stopPropagation();
 				}
 			}
-
 		}
 
 		var HSizing = function () {
@@ -631,7 +627,6 @@
 				return (elementOffset.left >= wrappingElementOffset.left) &&
 					(elementOffset.left + $element.width() <= wrappingElementOffset.left + $wrappingElement.width());
 			}
-
 		}
 
 		var VSizing = function () {
@@ -705,7 +700,6 @@
 				return (elementOffset.top >= wrappingElementOffset.top) &&
 					(elementOffset.top + $element.height() <= wrappingElementOffset.top + $wrappingElement.height());
 			}
-
 		}
 
 		return this.each(function () {
@@ -723,15 +717,10 @@
 			else
 				throw "Invalid type of options";
 		});
-
-	}
-	;
-
-})
-	(jQuery);
+	};
+})(jQuery);
 
 (function ($) {
-
 	var types = ['DOMMouseScroll', 'mousewheel'];
 
 	if ($.event.fixHooks) {
@@ -772,7 +761,6 @@
 		}
 	});
 
-
 	function handler(event) {
 		var orgEvent = event || window.event, args = [].slice.call(arguments, 1), delta = 0, returnValue = true, deltaX = 0, deltaY = 0;
 		event = $.event.fix(orgEvent);
@@ -808,5 +796,4 @@
 
 		return ($.event.dispatch || $.event.handle).apply(this, args);
 	}
-
 })(jQuery);

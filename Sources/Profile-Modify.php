@@ -915,7 +915,6 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 		}
 		$_POST['ignore_boards'] = implode(',', $_POST['ignore_brd']);
 		unset($_POST['ignore_brd']);
-
 	}
 
 	// Here's where we sort out all the 'other' values...

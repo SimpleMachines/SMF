@@ -190,7 +190,6 @@ function PackageServers()
 			icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
 			icon.prop(\'title\', '. JavaScriptEscape($txt['show']) .');
 		}
-
 	});', true);
 }
 

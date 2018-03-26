@@ -219,7 +219,6 @@ function template_merge()
 						<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
 						<input type="submit" value="', $txt['go'], '" class="button">
 					</form>';
-
 	}
 	else
 		echo $txt['target_below'];

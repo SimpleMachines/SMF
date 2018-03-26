@@ -28,7 +28,6 @@ if (!defined('SMF'))
  */
 class Punycode
 {
-
     /**
      * Bootstring parameter values
      *

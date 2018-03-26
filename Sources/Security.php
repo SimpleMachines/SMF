@@ -1232,7 +1232,8 @@ RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 	else
 	{
 		$fh = @fopen($path . '/.htaccess', 'w');
-		if ($fh) {
+		if ($fh)
+		{
 			fwrite($fh, '<Files *>
 	Order Deny,Allow
 	Deny from all' . $close);
@@ -1246,7 +1247,8 @@ RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 	else
 	{
 		$fh = @fopen($path . '/index.php', 'w');
-		if ($fh) {
+		if ($fh)
+		{
 			fwrite($fh, '<' . '?php
 
 /**

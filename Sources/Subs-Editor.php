@@ -675,7 +675,6 @@ function html_to_bbc($text)
 
 		for ($i = $listDepth; $i > 0; $i--)
 			$text .= '[/li]' . "\n" . str_repeat("\t", $i - 1) . '[/list]';
-
 	}
 
 	// I love my own image...
@@ -1298,7 +1297,6 @@ function legalise_bbc($text)
 						$inlineElements[$elementContent] = $tag;
 					}
 				}
-
 			}
 
 			// Closing tag.

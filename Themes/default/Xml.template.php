@@ -464,7 +464,6 @@ function template_generic_xml_recursive($xml_data, $parent_ident, $child_ident, 
 					echo ' ' . $k . '="' . $v . '"';
 			echo '><![CDATA[', cleanXml($data['value']), ']]></', $child_ident, '>';
 		}
-
 	}
 
 	echo "\n", str_repeat("\t", $level), '</', $parent_ident, '>';

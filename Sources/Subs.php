@@ -1873,10 +1873,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$message = strtr($message, array("\n" => '<br>'));
 
 	$alltags = array();
-	foreach ($bbc_codes as $section) {
-		foreach ($section as $code) {
+	foreach ($bbc_codes as $section)
+	{
+		foreach ($section as $code)
 			$alltags[] = $code['tag'];
-		}
 	}
 	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
 
@@ -2333,7 +2333,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$blob_counter = 1;
 				while ($blob_counter <= count($blobs))
 				{
-
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
 
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
@@ -2551,7 +2550,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$pos += strlen($code) - 1 + 2;
 			$last_pos = $pos + 1;
-
 		}
 		// Don't parse the content, just skip it.
 		elseif ($tag['type'] == 'unparsed_equals_content')
@@ -3631,7 +3629,6 @@ function template_javascript($do_deferred = false)
 				foreach ($result as $minFile)
 					echo '
 	<script src="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '"', !empty($minFile['options']['async']) ? ' async' : '', !empty($minFile['options']['defer']) ? ' defer' : '', '></script>';
-
 			}
 		}
 	}
@@ -4040,7 +4037,6 @@ function ip2range($fullip)
 			$ip_array['low'] = $ip_parts[0];
 			$ip_array['high'] = $ip_parts[1];
 		}
-
 	}
 
 	return $ip_array;
@@ -6254,8 +6250,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Returns true if a cert was found & false if not.
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
- function ssl_cert_found($url) {
-
+ function ssl_cert_found($url)
+ {
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
@@ -6280,8 +6276,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
-function https_redirect_active($url) {
-
+function https_redirect_active($url)
+{
 	// Ask for the headers for the passed url, but via http...
 	// Need to add the trailing slash, or it puts it there & thinks there's a redirect when there isn't...
 	$url = str_ireplace('https://', 'http://', $url) . '/';
@@ -6296,8 +6292,10 @@ function https_redirect_active($url) {
 
 	// Search for the location entry to confirm https
 	$result = false;
-	foreach ($headers as $header) {
-		if (stristr($header, 'Location: https://') !== false) {
+	foreach ($headers as $header)
+	{
+		if (stristr($header, 'Location: https://') !== false)
+		{
 			$result = true;
 			break;
 		}

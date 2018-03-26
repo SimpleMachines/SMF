@@ -66,7 +66,6 @@ function ViewModlog()
 
 		$log_type = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 'admin' : 'moderate';
 		logAction('clearlog_' . $log_type, array(), $log_type);
-
 	}
 	elseif (!empty($_POST['remove']) && isset($_POST['delete']) && $context['can_delete'])
 	{

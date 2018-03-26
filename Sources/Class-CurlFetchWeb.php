@@ -275,7 +275,6 @@ class curl_fetch_web_data
 		}
 		else
 			return $post_data;
-
 	}
 
 	/**

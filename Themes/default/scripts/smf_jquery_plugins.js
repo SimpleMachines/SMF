@@ -183,7 +183,6 @@
 				hideTooltip(this);
 				return true;
 			});
-
 		});
 	};
 

@@ -631,7 +631,6 @@ function printMemberListRows($request)
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 			{
-
 				$value = $context['members'][$member]['options'][$key];
 				$currentKey = 0;
 				if (!empty($column['options']))

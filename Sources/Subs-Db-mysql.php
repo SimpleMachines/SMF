@@ -73,7 +73,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 
 	$success = false;
 
-	if ($connection) {
+	if ($connection)
+	{
 		if (!empty($db_options['port']))
 			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, $db_options['port'], null, $flags);
 		else

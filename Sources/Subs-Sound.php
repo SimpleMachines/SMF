@@ -88,7 +88,6 @@ function createWaveFile($word)
 						$sound_word .= chr(min(max(ord($sound_letter{$j}) + $shift, 0x00), 0xFF));
 				}
 			break;
-
 		}
 
 		$sound_word .= str_repeat(chr(0x80), mt_rand(10000, 10500));

@@ -304,7 +304,6 @@ function template_show_month_grid($grid_name, $is_mini = false)
 	// Our looping begins on a per-week basis.
 	foreach ($calendar_data['weeks'] as $week)
 	{
-
 		// Some useful looping variables.
 		$current_month_started = false;
 		$count = 1;
@@ -327,7 +326,6 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			$classes = array('days');
 			if (!empty($day['day']))
 			{
-
 				// Default Classes (either compact or comfortable and either calendar_today or windowbg).
 				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
@@ -369,7 +367,6 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			// If it's within this current month, go ahead and begin.
 			if (!empty($day['day']))
 			{
-
 				// If it's the first day of this month and not a mini-calendar, we'll add the month title - whether short or full.
 				$title_prefix = !empty($day['is_first_of_month']) && $context['current_month'] == $calendar_data['current_month'] && $is_mini === false ? (!empty($calendar_data['short_month_titles']) ? $txt['months_short'][$calendar_data['current_month']] . ' ' : $txt['months_titles'][$calendar_data['current_month']] . ' ') : '';
 

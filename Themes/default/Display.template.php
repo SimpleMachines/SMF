@@ -557,7 +557,6 @@ function template_single_post($message)
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
-
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
@@ -621,7 +620,6 @@ function template_single_post($message)
 			foreach ($message['custom_fields']['standard'] as $custom)
 				echo '
 								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
-
 	}
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])

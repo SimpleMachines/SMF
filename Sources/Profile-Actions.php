@@ -387,7 +387,6 @@ function issueWarning($memID)
 			list ($context['warned_message_subject']) = $smcFunc['db_fetch_row']($request);
 		}
 		$smcFunc['db_free_result']($request);
-
 	}
 
 	// Didn't find the message?
@@ -941,7 +940,6 @@ function subscriptions($memID)
 					)
 				);
 			}
-
 		}
 		// Never had this before, lovely.
 		else

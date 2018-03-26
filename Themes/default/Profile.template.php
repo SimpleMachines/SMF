@@ -341,7 +341,6 @@ function template_summary()
 			echo '
 			</dl>';
 		}
-
 	}
 
 	echo '
@@ -367,7 +366,6 @@ function template_summary()
 	// Is this member requiring activation and/or banned?
 	if (!empty($context['activate_message']) || !empty($context['member']['bans']))
 	{
-
 		// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
 		if (!empty($context['activate_message']))
 			echo '
@@ -597,8 +595,7 @@ function template_showAlerts()
 
 	else
 	{
-	
-		// Start the form if checkboxes are in use	
+		// Start the form if checkboxes are in use
 		if ($context['showCheckboxes'])
 			echo '
 		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
@@ -1598,7 +1595,6 @@ function template_edit_options()
 
 		echo '
 				</dl>';
-
 	}
 
 	// Any closing HTML?

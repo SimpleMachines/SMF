@@ -788,7 +788,6 @@ function Post($post_errors = array())
 		{
 			if ($attachment['filesize'] >= 0 && !empty($modSettings['attachmentEnable']))
 				$temp[$attachment['id_attach']] = $attachment;
-
 		}
 		ksort($temp);
 

@@ -233,7 +233,6 @@ function ManageAttachmentSettings($return_config = false)
 
 					$_POST['use_subdirectories_for_attachments'] = 1;
 					$_POST['attachmentUploadDir'] = $smcFunc['json_encode']($modSettings['attachmentUploadDir']);
-
 				}
 			}
 		}

@@ -185,7 +185,6 @@ function ManageBoardsMain()
 
 				$prev_board = $boardid;
 				$prev_child_level = $boards[$boardid]['level'];
-
 			}
 			if (!empty($stack) && !empty($context['categories'][$catid]['boards'][$prev_board]['move_links']))
 				$context['categories'][$catid]['boards'][$prev_board]['move_links'] = array_merge($stack, $context['categories'][$catid]['boards'][$prev_board]['move_links']);

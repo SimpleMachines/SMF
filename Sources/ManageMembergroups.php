@@ -566,7 +566,6 @@ function AddMembergroup()
 			'allow' => false,
 			'deny' => false
 		);
-
 	}
 	$smcFunc['db_free_result']($request);
 

@@ -1669,7 +1669,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* Load better icons for higher resolution screens */
 @media screen and (min-resolution: 160dpi) {
-
 	.generic_icons {
 		background-image: url(../images/icons/generic_icons_sprite_hd.png);
 	}

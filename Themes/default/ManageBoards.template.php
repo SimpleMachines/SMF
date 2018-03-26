@@ -64,7 +64,6 @@ function template_main()
 		// List through every board in the category, printing its name and link to modify the board.
 		foreach ($category['boards'] as $board)
 		{
-
 			echo '
 					<li', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-' . ($context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;">
 						<span class="floatleft"><a', $board['move'] ? ' class="red"' : '', ' href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
@@ -77,7 +76,6 @@ function template_main()
 
 			if (!empty($board['move_links']))
 			{
-
 				echo '
 					<li class="windowbg" style="padding-', $context['right_to_left'] ? 'right' : 'left', ': ', 5 + 30 * $board['move_links'][0]['child_level'], 'px;">';
 
