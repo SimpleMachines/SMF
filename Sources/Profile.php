@@ -886,6 +886,9 @@ function loadCustomFields($memID, $area = 'summary')
 	$context['custom_fields_required'] = false;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($user_profile[$memID]['options'][$row['col_name']]))
+			continue;
+
 		$value = $user_profile[$memID]['options'][$row['col_name']];
 		$currentKey = 0;
 		if (!empty($row['field_options']))
