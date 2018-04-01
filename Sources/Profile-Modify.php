@@ -89,7 +89,7 @@ function loadProfileFields($force_reload = false)
 			'preload' => function() use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
-				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) ? '1004-01-01' : $cur_profile['birthdate']);
+				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] === '1004-01-01' ? '--' : $cur_profile['birthdate']);
 				$context['member']['birth_date'] = array(
 					'year' => $uyear,
 					'month' => $umonth,
