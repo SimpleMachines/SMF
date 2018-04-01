@@ -31,7 +31,7 @@ table {
 	empty-cells: show;
 }
 abbr {
-	border-bottom: 0.1em dotted #4d4d4d;
+	border-bottom: 0.1em dotted;
 }
 input, button, select, textarea, textarea.editor {
 	color: #222;
