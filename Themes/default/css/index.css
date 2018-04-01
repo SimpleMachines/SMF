@@ -30,6 +30,9 @@ img {
 table {
 	empty-cells: show;
 }
+abbr {
+	border-bottom: 0.1em dotted #4d4d4d;
+}
 input, button, select, textarea, textarea.editor {
 	color: #222;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
