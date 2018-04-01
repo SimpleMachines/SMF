@@ -322,7 +322,7 @@ $txt['return_to_post'] = 'Return to topics after posting by default.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
 $txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view.';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
-$txt['wysiwyg_default'] = 'Show WYSIWYG editor on post page by default.';
+$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default.';
 
 $txt['timeformat_default'] = '(Forum Default)';
 $txt['timeformat_easy1'] = 'Month Day, Year, HH:MM:SS am/pm';
@@ -341,7 +341,7 @@ $txt['topics_per_page'] = 'Topics to display per page:';
 $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
-$txt['use_editor_quick_reply'] = 'Use full editor in Quick Reply';
+$txt['use_editor_quick_reply'] = 'Use full editor toolbar in Quick Reply';
 $txt['display_quick_mod'] = 'Show quick-moderation as';
 $txt['display_quick_mod_none'] = 'don\'t show';
 $txt['display_quick_mod_check'] = 'checkboxes';
