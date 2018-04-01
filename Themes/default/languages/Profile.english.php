@@ -322,7 +322,7 @@ $txt['return_to_post'] = 'Return to topics after posting by default.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
 $txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view.';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
-$txt['wysiwyg_default'] = 'Load editor in WYSIWYG mode by default.';
+$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default.';
 
 $txt['timeformat_default'] = '(Forum Default)';
 $txt['timeformat_easy1'] = 'Month Day, Year, HH:MM:SS am/pm';
