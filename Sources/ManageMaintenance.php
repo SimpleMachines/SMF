@@ -134,7 +134,7 @@ function MaintainDatabase()
 
 	// Show some conversion options?
 	$context['convert_utf8'] = ($db_type == 'mysql') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
-	$context['convert_entities'] = ($db_type == 'mysql') && isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
+	$context['convert_entities'] = isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
 
 	if ($db_type == 'mysql')
 	{
@@ -490,7 +490,7 @@ function ConvertMsgBody()
  */
 function ConvertEntities()
 {
-	global $db_character_set, $modSettings, $context, $sourcedir, $smcFunc;
+	global $db_character_set, $modSettings, $context, $sourcedir, $smcFunc, $db_type, $db_prefix;
 
 	isAllowedTo('admin_forum');
 
@@ -563,30 +563,54 @@ function ConvertEntities()
 
 		// Get a list of text columns.
 		$columns = array();
-		$request = $smcFunc['db_query']('', '
-			SHOW FULL COLUMNS
-			FROM {db_prefix}{raw:cur_table}',
-			array(
-				'cur_table' => $cur_table,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$request = $smcFunc['db_query']('', '
+				SELECT column_name "Field",data_type "Type"
+				FROM information_schema.columns 
+				WHERE table_name = {string:cur_table}
+				AND (data_type = \'character varying\' or data_type = \'text\')',
+				array(
+					'cur_table' => $db_prefix.$cur_table,
+				)
+			);
+		else
+			$request = $smcFunc['db_query']('', '
+				SHOW FULL COLUMNS
+				FROM {db_prefix}{raw:cur_table}',
+				array(
+					'cur_table' => $cur_table,
+				)
+			);
 		while ($column_info = $smcFunc['db_fetch_assoc']($request))
 			if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false)
 				$columns[] = strtolower($column_info['Field']);
 
 		// Get the column with the (first) primary key.
-		$request = $smcFunc['db_query']('', '
-			SHOW KEYS
-			FROM {db_prefix}{raw:cur_table}',
-			array(
-				'cur_table' => $cur_table,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$request = $smcFunc['db_query']('', '
+				SELECT a.attname "Column_name", \'PRIMARY\' "Key_name", attnum "Seq_in_index"
+				FROM   pg_index i
+				JOIN   pg_attribute a ON a.attrelid = i.indrelid
+									 AND a.attnum = ANY(i.indkey)
+				WHERE  i.indrelid = {string:cur_table}::regclass
+				AND    i.indisprimary',
+				array(
+					'cur_table' => $db_prefix.$cur_table,
+				)
+			);
+		else
+			$request = $smcFunc['db_query']('', '
+				SHOW KEYS
+				FROM {db_prefix}{raw:cur_table}',
+				array(
+					'cur_table' => $cur_table,
+				)
+			);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($row['Key_name'] === 'PRIMARY')
 			{
-				if (empty($primary_key) || ($row['Seq_in_index'] == 1 && !in_array(strtolower($row['Column_name']), $columns)))
+				if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !in_array(strtolower($row['Column_name']), $columns))
 					$primary_key = $row['Column_name'];
 
 				$primary_keys[] = $row['Column_name'];
@@ -2300,10 +2324,10 @@ function fixchardb__callback($matches)
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
 	
 	// it's to big for mysql?
-	if ($num > 0xFFFF)
+	if ($num > 0xFFFF && $db_type == 'mysql')
 		return $matches[0];
 	else
-		return fixchar__callback ($matches);
+		return fixchar__callback($matches);
 }
 
 ?>
