@@ -4465,14 +4465,14 @@ function setupMenuContext()
 
 	$total_mod_reports = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']))
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
 		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 	}
 
 	// Show how many errors there are
-	if (!empty($context['menu_buttons']['admin']))
+	if (!empty($context['menu_buttons']['admin']['sub_buttons']['errorlog']))
 	{
 		// Get an error count, if necessary
 		if (!isset($context['num_errors']))
@@ -4495,7 +4495,7 @@ function setupMenuContext()
 	}
 
 	// Show number of reported members
-	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']))
+	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
