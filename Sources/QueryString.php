@@ -364,34 +364,7 @@ function isValidIPv6($ip)
 		return false;
 
 	//check valid address
-	return inet_pton($ip);
-}
-
-/**
- * Converts IPv6s to numbers.  This makes ban checks much easier.
- *
- * @param string $ip The IP address to be converted
- * @return array An array containing the expanded IP parts
- */
-function convertIPv6toInts($ip)
-{
-	static $expanded = array();
-
-	// Check if we have done this already.
-	if (isset($expanded[$ip]))
-		return $expanded[$ip];
-
-	// Expand the IP out.
-	$expanded_ip = explode(':', expandIPv6($ip));
-
-	$new_ip = array();
-	foreach ($expanded_ip as $int)
-		$new_ip[] = hexdec($int);
-
-	// Save this incase of repeated use.
-	$expanded[$ip] = $new_ip;
-
-	return $expanded[$ip];
+	return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
 }
 
 /**
@@ -457,7 +430,36 @@ function expandIPv6($addr, $strict_check = true)
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
     list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
-    return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+	
+	//v6?
+	if ((strpos($cidr_network, ':') !== false))
+	{
+		if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
+				return false;
+
+		$ip_address = inet_pton($ip_address);
+		$cidr_network = inet_pton($cidr_network);
+		$binMask = str_repeat("f", $cidr_subnetmask / 4);
+		switch ($cidr_subnetmask % 4) {
+		  case 0:
+			break;
+		  case 1:
+			$binMask .= "8";
+			break;
+		  case 2:
+			$binMask .= "c";
+			break;
+		  case 3:
+			$binMask .= "e";
+			break;
+		}
+		$binMask = str_pad($binMask, 32, '0');
+		$binMask = pack("H*" , $binMask);
+
+		return ($ip_address & $binMask) == $cidr_network;
+	}
+	else
+		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
 }
 
 /**
