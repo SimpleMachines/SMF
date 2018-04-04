@@ -216,6 +216,8 @@ $txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for 
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
+$txt['scheduled_tasks_settings'] = 'Settings';
+$txt['scheduled_tasks_settings_desc'] = 'Settings to control how scheduled tasks are run.';
 
 $txt['scheduled_log'] = 'Task Log';
 $txt['scheduled_log_desc'] = 'This log shows all the scheduled tasks that have been run on your forum.';

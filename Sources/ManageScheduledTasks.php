@@ -37,6 +37,7 @@ function ManageScheduledTasks()
 		'taskedit' => 'EditTask',
 		'tasklog' => 'TaskLog',
 		'tasks' => 'ScheduledTasks',
+		'settings' => 'TaskSettings',
 	);
 
 	// We need to find what's the action.
@@ -56,6 +57,9 @@ function ManageScheduledTasks()
 			),
 			'tasklog' => array(
 				'description' => $txt['scheduled_log_desc'],
+			),
+			'settings' => array(
+				'description' => $txt['scheduled_tasks_settings_desc'],
 			),
 		),
 	);
@@ -628,6 +632,50 @@ function list_getNumTaskLogEntries()
 	$smcFunc['db_free_result']($request);
 
 	return $num_entries;
+}
+
+function TaskSettings($return_config = false)
+{
+	global $sourcedir, $txt, $context, $modSettings, $scripturl;
+
+	// We will need the utility functions from here.
+	require_once($sourcedir . '/ManageServer.php');
+
+	loadLanguage('Help');
+
+	$config_vars = array(
+		array('check', 'cron_is_real_cron', 'subtext' => $txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'),
+	);
+
+	call_integration_hook('integrate_scheduled_tasks_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Set up the template.
+	$context['page_title'] = $txt['scheduled_tasks_settings'];
+	$context['sub_template'] = 'show_settings';
+
+	$context['post_url'] = $scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
+	$context['settings_title'] = $txt['scheduled_tasks_settings'];
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		$save_vars = $config_vars;
+
+		call_integration_hook('integrate_save_scheduled_tasks_settings', array(&$save_vars));
+
+		saveDBSettings($save_vars);
+
+		$_SESSION['adm-save'] = true;
+
+		redirectexit('action=admin;area=scheduledtasks;sa=settings');
+	}
+
+	prepareDBSettingContext($config_vars);
 }
 
 ?>
