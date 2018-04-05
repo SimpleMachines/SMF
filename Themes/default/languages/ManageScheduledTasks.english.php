@@ -64,5 +64,6 @@ $txt['scheduled_task_desc_remove_old_drafts'] = 'Deletes drafts older than the n
 
 $txt['cron_is_real_cron'] = 'Disable JavaScript-based method of running scheduled tasks.';
 $txt['cron_is_real_cron_desc'] = '<strong>Do not check this box</strong> unless you are <strong><u>sure</u></strong> that you have configured another method to tell your server to run SMF\'s cron.php on a regular basis.';
+$txt['cron_not_working'] = 'No scheduled tasks have been run in the last 24 hours. Re-enabling JavaScript-based method of running scheduled tasks.';
 
 ?>

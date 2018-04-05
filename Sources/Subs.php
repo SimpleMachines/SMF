@@ -6540,4 +6540,42 @@ function url_to_iri($url)
 	return $url;
 }
 
+/**
+ * Ensures SMF's scheduled tasks are being run as intended
+ *
+ * If the admin activated the cron_is_real_cron setting, but the cron job is
+ * not running things at least once per day, we need to go back to SMF's default
+ * behaviour using "web cron" JavaScript calls.
+ */
+function check_cron()
+{
+	global $user_info, $modSettings, $smcFunc, $txt;
+
+	if (empty($modSettings['cron_last_checked']))
+		$modSettings['cron_last_checked'] = 0;
+
+	if ($user_info['is_admin'] && !empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT time_run
+			FROM {db_prefix}log_scheduled_tasks
+			ORDER BY id_log DESC
+			LIMIT 1',
+			array()
+		);
+		list($time_run) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
+		// If its been more than 24 hours since the last task ran, cron must not be working
+		if (!empty($time_run) && time() - $time_run > 84600)
+		{
+			loadLanguage('ManageScheduledTasks');
+			log_error($txt['cron_not_working']);
+			updateSettings(array('cron_is_real_cron' => 0));
+		}
+		else
+			updateSettings(array('cron_last_checked' => time()));
+	}
+}
+
 ?>

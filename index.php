@@ -209,6 +209,9 @@ function smf_main()
 	}
 	unset($no_stat_actions);
 
+	// Make sure that our scheduled tasks have been running as intended
+	check_cron();
+
 	// Is the forum in maintenance mode? (doesn't apply to administrators.)
 	if (!empty($maintenance) && !allowedTo('admin_forum'))
 	{
