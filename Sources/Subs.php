@@ -5327,7 +5327,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc, $modSettings, $tztxt;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5352,57 +5352,8 @@ function smf_list_timezones($when = 'now')
 	$date_when = date_create('@' . $when);
 	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
 
-	// Prefer and give custom descriptions for these time zones
-	// If the description is left empty, it will be filled in with the names of matching cities
-	$timezone_descriptions = array(
-		'America/Adak' => 'Aleutian Islands',
-		'Pacific/Marquesas' => 'Marquesas Islands',
-		'Pacific/Gambier' => 'Gambier Islands',
-		'America/Anchorage' => 'Alaska',
-		'Pacific/Pitcairn' => 'Pitcairn Islands',
-		'America/Los_Angeles' => 'Pacific Time (USA, Canada)',
-		'America/Denver' => 'Mountain Time (USA, Canada)',
-		'America/Phoenix' => 'Mountain Time (no DST)',
-		'America/Chicago' => 'Central Time (USA, Canada)',
-		'America/Belize' => 'Central Time (no DST)',
-		'America/New_York' => 'Eastern Time (USA, Canada)',
-		'America/Atikokan' => 'Eastern Time (no DST)',
-		'America/Halifax' => 'Atlantic Time (Canada)',
-		'America/Anguilla' => 'Atlantic Time (no DST)',
-		'America/St_Johns' => 'Newfoundland',
-		'America/Chihuahua' => 'Chihuahua, Mazatlan',
-		'Pacific/Easter' => 'Easter Island',
-		'Atlantic/Stanley' => 'Falkland Islands',
-		'America/Miquelon' => 'Saint Pierre and Miquelon',
-		'America/Argentina/Buenos_Aires' => 'Buenos Aires',
-		'America/Sao_Paulo' => 'Brasilia Time',
-		'America/Araguaina' => 'Brasilia Time (no DST)',
-		'America/Godthab' => 'Greenland',
-		'America/Noronha' => 'Fernando de Noronha',
-		'Atlantic/Reykjavik' => 'Greenwich Mean Time (no DST)',
-		'Europe/London' => '',
-		'Europe/Berlin' => 'Central European Time',
-		'Europe/Helsinki' => 'Eastern European Time',
-		'Africa/Brazzaville' => 'Brazzaville, Lagos, Porto-Novo',
-		'Asia/Jerusalem' => 'Jerusalem',
-		'Europe/Moscow' => '',
-		'Africa/Khartoum' => 'Eastern Africa Time',
-		'Asia/Riyadh' => 'Arabia Time',
-		'Asia/Kolkata' => 'India, Sri Lanka',
-		'Asia/Yekaterinburg' => 'Yekaterinburg, Tyumen',
-		'Asia/Dhaka' => 'Astana, Dhaka',
-		'Asia/Rangoon' => 'Yangon/Rangoon',
-		'Indian/Christmas' => 'Christmas Island',
-		'Antarctica/DumontDUrville' => 'Dumont D\'Urville Station',
-		'Antarctica/Vostok' => 'Vostok Station',
-		'Australia/Lord_Howe' => 'Lord Howe Island',
-		'Pacific/Guadalcanal' => 'Solomon Islands',
-		'Pacific/Norfolk' => 'Norfolk Island',
-		'Pacific/Noumea' => 'New Caledonia',
-		'Pacific/Auckland' => 'Auckland, McMurdo Station',
-		'Pacific/Kwajalein' => 'Marshall Islands',
-		'Pacific/Chatham' => 'Chatham Islands',
-	);
+	// Load up any custom time zone descriptions we might have
+	loadLanguage('Timezones');
 
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
@@ -5415,7 +5366,7 @@ function smf_list_timezones($when = 'now')
 	}
 
 	// Process the preferred timezones first, then the rest.
-	$tzids = array_keys($timezone_descriptions) + array_diff(timezone_identifiers_list(), array_keys($timezone_descriptions));
+	$tzids = array_keys($tztxt) + array_diff(timezone_identifiers_list(), array_keys($tztxt));
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	foreach ($tzids as $tzid)
@@ -5463,10 +5414,12 @@ function smf_list_timezones($when = 'now')
 	{
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-		if (!empty($timezone_descriptions[$tzvalue['tzid']]))
-			$desc = $timezone_descriptions[$tzvalue['tzid']];
+		// Use the custom description, if there is one
+		if (!empty($tztxt[$tzvalue['tzid']]))
+			$desc = $tztxt[$tzvalue['tzid']];
+		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
-			$desc = implode(', ', array_unique($tzvalue['locations']));
+			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5));
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
@@ -5476,7 +5429,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('' => '(Forum Default)', 'UTC' => 'UTC - Coordinated Universal Time'),
+		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC']),
 		$timezones
 	);
 
