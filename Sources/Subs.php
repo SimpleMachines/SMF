@@ -6554,7 +6554,7 @@ function check_cron()
 	if (empty($modSettings['cron_last_checked']))
 		$modSettings['cron_last_checked'] = 0;
 
-	if ($user_info['is_admin'] && !empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
+	if (!empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT time_run
