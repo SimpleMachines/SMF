@@ -6566,7 +6566,7 @@ function check_cron()
 		list($time_run) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		// If its been more than 24 hours since the last task ran, cron must not be working
+		// If it's been more than 24 hours since the last task ran, cron must not be working
 		if (!empty($time_run) && time() - $time_run > 84600)
 		{
 			loadLanguage('ManageScheduledTasks');
