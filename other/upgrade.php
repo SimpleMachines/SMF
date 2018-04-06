@@ -1977,6 +1977,13 @@ function upgrade_query($string, $unbuffered = false)
 	// Get the query result - working around some SMF specific security - just this once!
 	$modSettings['disableQueryCheck'] = true;
 	$db_unbuffered = $unbuffered;
+	$ignore_insert_error = false;
+	// If we got an old pg version and use a insert ignore query
+	if ($db_type == 'postgresql' && !$smcFunc['db_native_replace'] && strpos($string, 'ON CONFLICT DO NOTHING') !== false)
+	{
+		$ignore_insert_error = true;
+		$string = str_replace('ON CONFLICT DO NOTHING', '', $string);
+	}
 	$result = $smcFunc['db_query']('', $string, array('security_override' => true, 'db_error_skip' => true));
 	$db_unbuffered = false;
 
@@ -2047,7 +2054,7 @@ function upgrade_query($string, $unbuffered = false)
 		}
 		elseif (strpos(trim($string), 'INSERT ') !== false)
 		{
-			if (strpos($db_error_message, 'duplicate') !== false)
+			if (strpos($db_error_message, 'duplicate') !== false || $ignore_insert_error)
 				return true;
 		}
 	}
