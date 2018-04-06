@@ -714,23 +714,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	{
 		$key_str = '';
 		$col_str = '';
-		static $pg_version;
-		static $replace_support;
-
-		if (empty($pg_version))
-		{
-			db_extend();
-			//pg 9.5 got replace support
-			$pg_version = $smcFunc['db_get_version']();
-			// if we got a Beta Version
-			if (stripos($pg_version, 'beta') !== false)
-				$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')) . '.0';
-			// or RC
-			if (stripos($pg_version, 'rc') !== false)
-				$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')) . '.0';
-
-			$replace_support = (version_compare($pg_version, '9.5.0', '>=') ? true : false);
-		}
+		$replace_support = $smcFunc['db_native_replace']();
 
 		$count = 0;
 		$where = '';

@@ -1979,7 +1979,7 @@ function upgrade_query($string, $unbuffered = false)
 	$db_unbuffered = $unbuffered;
 	$ignore_insert_error = false;
 	// If we got an old pg version and use a insert ignore query
-	if ($db_type == 'postgresql' && !$smcFunc['db_native_replace'] && strpos($string, 'ON CONFLICT DO NOTHING') !== false)
+	if ($db_type == 'postgresql' && !$smcFunc['db_native_replace']() && strpos($string, 'ON CONFLICT DO NOTHING') !== false)
 	{
 		$ignore_insert_error = true;
 		$string = str_replace('ON CONFLICT DO NOTHING', '', $string);
