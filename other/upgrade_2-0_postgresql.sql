@@ -1158,7 +1158,7 @@ if ($smcFunc['db_server_info'] < 8.2)
 	if ($return_type['type_udt_name'] != 'int4')
 	{
 		upgrade_query("
-			DROP FUNCTION INSTR(text, text)");
+			DROP FUNCTION IF EXISTS INSTR(text, text)");
 	}
 }
 else
@@ -1229,13 +1229,13 @@ if ($smcFunc['db_server_info'] < 8.2)
 	$query = upgrade_query("SELECT * FROM pg_proc WHERE proname = 'find_in_set' AND proargtypes = '25 25'");
 	if ($smcFunc['db_num_rows']($query) != 0)
 	{
-		upgrade_query("DROP FUNCTION FIND_IN_SET(text, text)");
+		upgrade_query("DROP FUNCTION IF EXISTS FIND_IN_SET(text, text)");
 	}
 
 	$query = upgrade_query("SELECT * FROM pg_proc WHERE proname = 'find_in_set' AND proargtypes = '23 1043'");
 	if ($smcFunc['db_num_rows']($query) != 0)
 	{
-		upgrade_query("DROP FUNCTION FIND_IN_SET(integer, character varying)");
+		upgrade_query("DROP FUNCTION IF EXISTS FIND_IN_SET(integer, character varying)");
 	}
 }
 else
