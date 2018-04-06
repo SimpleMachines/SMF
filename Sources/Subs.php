@@ -5327,7 +5327,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt;
+	global $smcFunc, $modSettings, $tztxt, $txt;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5419,12 +5419,14 @@ function smf_list_timezones($when = 'now')
 			$desc = $tztxt[$tzvalue['tzid']];
 		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
-			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5));
+			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
+
+		$desc = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 
 		if (isset($priority_zones[$tzkey]))
-			$priority_timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
-			$timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+			$timezones[$tzvalue['tzid']] = $desc;
 	}
 
 	if (!empty($priority_timezones))
