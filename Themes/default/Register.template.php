@@ -240,7 +240,7 @@ function template_registration_form()
 						if (is_array($field['options']))
 							foreach ($field['options'] as $value => $name)
 								echo '
-								<option value="', $value, '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
+								<option', is_numeric($value) ? ' value="" disabled' : ' value="' . $value . '"', $value === $field['value'] ? ' selected' : '', '>', $name, '</option>';
 					}
 
 					echo '

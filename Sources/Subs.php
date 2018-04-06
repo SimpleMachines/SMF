@@ -5427,9 +5427,12 @@ function smf_list_timezones($when = 'now')
 			$timezones[$tzvalue['tzid']] = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
 	}
 
+	if (!empty($priority_timezones))
+		$priority_timezones[] = '-----';
+
 	$timezones = array_merge(
 		$priority_timezones,
-		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC']),
+		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC'], '-----'),
 		$timezones
 	);
 
