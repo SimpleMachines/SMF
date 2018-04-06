@@ -489,6 +489,11 @@ function load_lang_file()
 
 	// Which language did we load? Assume that he likes his language.
 	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
+	if (empty($matches[1]))
+		$matches = [
+			0 => 'nothing',
+			1 => 'english',
+		];
 	$user_info['language'] = $matches[1];
 }
 
