@@ -88,6 +88,7 @@ $txt['Asia/Kolkata'] = 'India';
 $txt['Asia/Colombo'] = 'Sri Lanka';
 $txt['Asia/Dhaka'] = 'Bangladesh';
 $txt['Antarctica/DumontDUrville'] = 'Dumont D\'Urville Station';
+$txt['Antarctica/Troll'] = 'Troll Station';
 $txt['Antarctica/Vostok'] = 'Vostok Station';
 $txt['Australia/Lord_Howe'] = 'Lord Howe Island';
 $txt['Pacific/Guadalcanal'] = 'Solomon Islands';
