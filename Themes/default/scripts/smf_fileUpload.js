@@ -63,18 +63,17 @@ function smf_fileUpload(oOptions) {
 		},
 		accept: function (file, done) {
 
-			if ((myDropzone.options.maxFileAmount != null) && (myDropzone.getAcceptedFiles().length) >= myDropzone.options.maxFileAmount) {
-				done(this.options.dictMaxFilesExceeded);
-				// return myDropzone.emit("maxfilesexceeded", file);
-			}
-
-			// Need to check if the added file doesn't surpass the total max size setting.
-			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
-
 			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024,
 				totalKB = myDropzone.options.maxTotalSize,
 				fileKB = myDropzone.options.maxFileSize,
 				uploadedFileKB = file.size / 1024;
+
+			// Check againts the max amount of files setting
+			if ((myDropzone.options.maxFileAmount != null) && (myDropzone.getAcceptedFiles().length) >= myDropzone.options.maxFileAmount)
+				done(this.options.dictMaxFilesExceeded);
+
+			// Need to check if the added file doesn't surpass the total max size setting.
+			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
 
 			// This file has reached the max total size per post.
 			if (totalKB > 0 && currentlyUsedKB > totalKB) {
@@ -226,7 +225,6 @@ function smf_fileUpload(oOptions) {
 				.appendTo(_innerElement.find('.attach-ui'));
 
 				// Show the current amount of remaining files
-				console.log(myDropzone.getAcceptedFiles().length);
 				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
 		};
 
