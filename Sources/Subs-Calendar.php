@@ -1550,11 +1550,13 @@ function setEventStartEnd($eventOptions = array())
  */
 function buildEventDatetimes($row)
 {
-	global $sourcedir, $user_info;
+	global $sourcedir, $user_info, $txt;
 	static $date_format = '', $time_format = '';
 
 	require_once($sourcedir . '/Subs.php');
 	static $timezone_array = array();
+
+	loadLanguage('Timezones');
 
 	// First, try to create a better date format, ignoring the "time" elements.
 	if (empty($date_format))
@@ -1617,7 +1619,19 @@ function buildEventDatetimes($row)
 
 	// The time zone identifier (e.g. 'Europe/London') and abbreviation (e.g. 'GMT')
 	$tz = date_format($start_object, 'e');
-	$tz_abbrev = fix_tz_abbrev($row['timezone'], date_format($start_object, 'T'));
+	$tz_abbrev = date_format($start_object, 'T');
+
+	// Some abbreviations are just numerical offsets. In that case, use the city.
+	if (strspn($tz_abbrev, '+-') > 0)
+	{
+		if (!empty($txt[$tz]))
+			$tz_abbrev = $txt[$tz];
+		else
+		{
+			$tz_parts = explode('/', $tz);
+			$tz_abbrev = array_pop($tz_parts);
+		}
+	}
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }

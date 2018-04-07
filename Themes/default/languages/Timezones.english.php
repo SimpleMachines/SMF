@@ -35,15 +35,16 @@
  * This tells SMF (1) to use 'Europe/London' as the specific location to
  * represent all locations that use the same time zone rules that London does,
  * and (2) to place London first in the list of locations used as the
- * description string shown to the user.
+ * description string shown to the user in the select menu.
  *
  * The third secion uses this format:
  *
  *     $txt['America/Adak'] = 'Aleutian Islands';
  *
- * This simply tells SMF to replace 'Adak' with 'Aleutian Islands' in the
- * description string shown to the user. It does not tell SMF anything in
- * particular about where or how it should use the 'America/Adak' location.
+ * This simply tells SMF to replace 'Adak' with 'Aleutian Islands' anywhere it
+ * might be used, including in the select menu, on the calendar, in event info
+ * in a topic, etc. It does not tell SMF anything in particular about where or
+ * how it should use the 'America/Adak' location.
  */
 
 global $tztxt;
@@ -64,9 +65,9 @@ $tztxt['America/Sao_Paulo'] = 'Brasilia Time';
 $tztxt['America/Araguaina'] = 'Brasilia Time (no DST)';
 $tztxt['Atlantic/Reykjavik'] = 'Greenwich Mean Time (no DST)';
 $tztxt['Europe/Berlin'] = 'Central European Time';
-$tztxt['Africa/Khartoum'] = 'Eastern Africa Time';
+$tztxt['Africa/Khartoum'] = 'Eastern African Time';
 $tztxt['Europe/Helsinki'] = 'Eastern European Time';
-$tztxt['Asia/Riyadh'] = 'Arabia Time';
+$tztxt['Asia/Riyadh'] = 'Arabian Time';
 
 // Use a list of locations as the description, but force the named one to always be first
 $tztxt['Europe/London'] = '';

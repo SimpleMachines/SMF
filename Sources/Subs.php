@@ -5390,7 +5390,7 @@ function smf_list_timezones($when = 'now')
 		if (empty($zones[$tzkey]['tzid']))
 		{
 			$zones[$tzkey]['tzid'] = $tzid;
-			$zones[$tzkey]['abbr'] = fix_tz_abbrev($tzid, $tzinfo[0]['abbr']);
+			$zones[$tzkey]['abbr'] = $tzinfo[0]['abbr'];
 		}
 
 		// A time zone from a prioritized country?
@@ -5426,7 +5426,8 @@ function smf_list_timezones($when = 'now')
 		else
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
-		$desc = $tzvalue['abbr'] . ' - ' . $desc . ' [UTC' . date_format($date_when, 'P') . ']';
+		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (empty(strspn($tzvalue['abbr'], '+-')) ? $tzvalue['abbr'] . ' - ' : '') . $desc;
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;
@@ -5444,72 +5445,6 @@ function smf_list_timezones($when = 'now')
 	);
 
 	return $timezones;
-}
-
-/**
- * Reformats certain time zone abbreviations to look better.
- *
- * Some of PHP's time zone abbreviations are just numerical offsets from UTC, e.g. '+04'
- * These look weird and are kind of useless, so we make them look better.
- *
- * @param string $tzid The Olsen time zome identifier for a time zone.
- * @param string $tz_abbrev The abbreviation PHP provided for this time zone.
- * @return string The fixed version of $tz_abbrev.
- */
-function fix_tz_abbrev($tzid, $tz_abbrev)
-{
-	// Is this abbreviation just a numerical offset?
-	if (strspn($tz_abbrev, '+-') > 0)
-	{
-		// To get on this list, a time zone must be historically stable and must not observe daylight saving time
-		$missing_tz_abbrs = array(
-			'Antarctica/Casey' => 'CAST',
-			'Antarctica/Davis' => 'DAVT',
-			'Antarctica/DumontDUrville' => 'DDUT',
-			'Antarctica/Mawson' => 'MAWT',
-			'Antarctica/Rothera' => 'ART',
-			'Antarctica/Syowa' => 'SYOT',
-			'Antarctica/Vostok' => 'VOST',
-			'Asia/Almaty' => 'ALMT',
-			'Asia/Aqtau' => 'ORAT',
-			'Asia/Aqtobe' => 'AQTT',
-			'Asia/Ashgabat' => 'TMT',
-			'Asia/Bishkek' => 'KGT',
-			'Asia/Colombo' => 'IST',
-			'Asia/Dushanbe' => 'TJT',
-			'Asia/Oral' => 'ORAT',
-			'Asia/Qyzylorda' => 'QYZT',
-			'Asia/Samarkand' => 'UZT',
-			'Asia/Tashkent' => 'UZT',
-			'Asia/Tbilisi' => 'GET',
-			'Asia/Yerevan' => 'AMT',
-			'Europe/Istanbul' => 'TRT',
-			'Europe/Minsk' => 'MSK',
-			'Indian/Kerguelen' => 'TFT',
-		);
-
-		if (!empty($missing_tz_abbrs[$tzid]))
-			$tz_abbrev = $missing_tz_abbrs[$tzid];
-		else
-		{
-			// Russia likes to experiment with time zones often, and names them as offsets from Moscow
-			$tz_location = timezone_location_get(timezone_open($tzid));
-			if ($tz_location['country_code'] == 'RU')
-			{
-				$msk_offset = intval($tz_abbrev) - 3;
-				$tz_abbrev = 'MSK' . (!empty($msk_offset) ? sprintf('%+0d', $msk_offset) : '');
-			}
-		}
-
-		// Still no good? We'll just mark it as a UTC offset
-		if (strspn($tz_abbrev, '+-') > 0)
-		{
-			$tz_abbrev = intval($tz_abbrev);
-			$tz_abbrev = 'UTC' . (!empty($tz_abbrev) ? sprintf('%+0d', $tz_abbrev) : '');
-		}
-	}
-
-	return $tz_abbrev;
 }
 
 /**
