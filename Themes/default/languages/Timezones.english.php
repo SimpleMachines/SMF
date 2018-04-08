@@ -3,7 +3,7 @@
 
 /**
  * This file defines custom descriptions for certain time zones to be used in
- * the time zone select menu.
+ * the time zone select menu, calendar event info, etc.
  *
  * It is not necessary to define a custom description for every time zone. By
  * default SMF will populate the description with a list of locations (usually
