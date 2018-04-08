@@ -5365,8 +5365,12 @@ function smf_list_timezones($when = 'now')
 			$priority_tzids = array_merge($priority_tzids, $country_tzids);
 	}
 
-	// Process the preferred timezones first, then the rest.
-	$tzids = array_keys($tztxt) + array_diff(timezone_identifiers_list(), array_keys($tztxt));
+	// Antarctic research stations should be listed last, unless you're running a penguin forum
+	$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(DateTimeZone::ANTARCTICA) : array();
+
+	// Process the preferred timezones first, then the normal ones, then the low priority ones.
+	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
+
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	foreach ($tzids as $tzid)
