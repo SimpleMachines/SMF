@@ -284,7 +284,16 @@ function Register2()
 	foreach ($_POST as $key => $value)
 	{
 		if (!is_array($_POST[$key]))
-			$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $_POST[$key]));
+		{
+			// For UTF-8, replace any kind of space with a normal space, and remove any kind of control character (incl. "\n" and "\r"), then trim.
+			if ($context['utf8'])
+				$_POST[$key] = $smcFunc['htmltrim'](preg_replace(array('~\p{Z}+~u', '~\p{C}+~u'), array(' ', ''), $_POST[$key]));
+			// Otherwise, just remove "\n" and "\r", then trim.
+			else
+				$_POST[$key] = $smcFunc['htmltrim'](str_replace(array("\n", "\r"), '', $_POST[$key]));
+		}
+		else
+			$_POST[$key] = htmltrim__recursive($_POST[$key]);
 	}
 
 	// Collect all extra registration fields someone might have filled in.
@@ -353,15 +362,9 @@ function Register2()
 			$smcFunc['db_free_result']($request);
 		}
 
-		if ($canEditDisplayName)
-		{
-			// Sanitize it
-			$_POST['real_name'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $_POST['real_name']));
-
-			// Only set it if we are sure it is good
-			if (trim($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
+		// Only set it if you can and if we are sure it is good
+		if ($canEditDisplayName && $smcFunc['htmltrim']($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
 				$possible_strings[] = 'real_name';
-		}
 	}
 
 	// Handle a string as a birthdate...
