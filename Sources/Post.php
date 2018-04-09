@@ -349,7 +349,7 @@ function Post($post_errors = array())
 		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
 		{
 			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => fix_tz_abbrev($context['event']['tz'], date_format($d, 'T')) . ' - ' . $context['event']['tz'] . ' [UTC' . date_format($d, 'P') . ']') + $context['all_timezones'];
+			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
 		}
 
 		loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');

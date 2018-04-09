@@ -220,7 +220,7 @@ function template_main()
 
 		foreach ($context['all_timezones'] as $tz => $tzname)
 			echo '
-										<option value="', $tz, '"', $tz == $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+										<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
 
 		echo '
 									</select>
