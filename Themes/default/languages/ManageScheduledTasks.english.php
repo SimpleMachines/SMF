@@ -9,7 +9,7 @@ $txt['scheduled_tasks_regularity'] = 'Regularity';
 $txt['scheduled_tasks_enabled'] = 'Enabled';
 $txt['scheduled_tasks_run_now'] = 'Run Now';
 $txt['scheduled_tasks_save_changes'] = 'Save Changes';
-$txt['scheduled_tasks_time_offset'] = '<strong>Note:</strong> All times given below are <em>server time</em> and do not take any time offsets setup within SMF into account.';
+$txt['scheduled_tasks_time_offset'] = '<strong>Note:</strong> All times given below are <em>server time</em> and do not take into account any time offsets set up within SMF.';
 $txt['scheduled_tasks_were_run'] = 'All selected tasks were completed';
 $txt['scheduled_tasks_were_run_errors'] = 'All selected tasks were completed but some had errors:';
 
@@ -61,5 +61,9 @@ $txt['scheduled_log_empty_log_confirm'] = 'Are you sure you want to completely c
 
 $txt['scheduled_task_remove_old_drafts'] = 'Remove old drafts';
 $txt['scheduled_task_desc_remove_old_drafts'] = 'Deletes drafts older than the number of days defined in the draft settings in the admin panel.';
+
+$txt['cron_is_real_cron'] = 'Disable JavaScript-based method of running scheduled tasks.';
+$txt['cron_is_real_cron_desc'] = '<strong>Do not check this box</strong> unless you are <strong><u>sure</u></strong> that you have configured another method to tell your server to run SMF\'s cron.php on a regular basis.';
+$txt['cron_not_working'] = 'No scheduled tasks have been run in the last 24 hours. Re-enabling JavaScript-based method of running scheduled tasks.';
 
 ?>

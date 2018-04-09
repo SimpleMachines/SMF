@@ -394,6 +394,7 @@ function AdminMain()
 					'subsections' => array(
 						'tasks' => array($txt['maintain_tasks'], 'admin_forum'),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
+						'settings' => array($txt['scheduled_tasks_settings'], 'admin_forum'),
 					),
 				),
 				'mailqueue' => array(
