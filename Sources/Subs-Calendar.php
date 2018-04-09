@@ -1621,17 +1621,9 @@ function buildEventDatetimes($row)
 	$tz = date_format($start_object, 'e');
 	$tz_abbrev = date_format($start_object, 'T');
 
-	// Some abbreviations are just numerical offsets. In that case, use the city.
+	// If the abbreviation is just a numerical offset from UTC, make that clear.
 	if (strspn($tz_abbrev, '+-') > 0)
-	{
-		if (!empty($txt[$tz]))
-			$tz_abbrev = $txt[$tz];
-		else
-		{
-			$tz_parts = explode('/', $tz);
-			$tz_abbrev = array_pop($tz_parts);
-		}
-	}
+		$tz_abbrev = 'UTC' . $tz_abbrev;
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
 }
