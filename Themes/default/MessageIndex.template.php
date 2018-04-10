@@ -110,10 +110,6 @@ function template_main()
 	</div><!-- #board_[current_board]_childboards -->';
 	}
 
-	// They can only mark read if they are logged in and it's enabled!
-	if (!$context['user']['is_logged'])
-		unset($context['normal_buttons']['markread']);
-
 	if (!$context['no_topic_listing'])
 	{
 		// Mobile action buttons (top)
