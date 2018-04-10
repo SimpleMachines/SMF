@@ -1692,7 +1692,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	vertical-align: middle;
 }
 
-.generic_icons.gender_None {
+.generic_icons.gender_0 {
 	background: none;
 }
 
@@ -1712,7 +1712,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_2 {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
@@ -1725,7 +1725,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Male {
+.generic_icons.gender_1 {
 	background-position: -57px -31px;
 }
 .generic_icons.features {
