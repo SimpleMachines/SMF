@@ -2070,7 +2070,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
-	
+
 	// Update search api
 	require_once($sourcedir . '/Search.php');
 	$searchAPI = findSearchAPI();
