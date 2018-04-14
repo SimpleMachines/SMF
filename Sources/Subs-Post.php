@@ -2070,6 +2070,12 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
+	
+	// Update search api
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if ($searchAPI->supportsMethod('postRemoved'))
+		$searchAPI->postRemoved($msgOptions['id']);
 
 	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{

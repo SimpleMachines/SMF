@@ -1767,6 +1767,13 @@ function Post2()
 			$_POST['guestname'] = $row['poster_name'];
 			$_POST['email'] = $row['poster_email'];
 		}
+
+		// Update search api
+		require_once($sourcedir . '/Search.php');
+		$searchAPI = findSearchAPI();
+		if ($searchAPI->supportsMethod('postRemoved'))
+			$searchAPI->postRemoved($_REQUEST['msg']);
+
 	}
 
 	// In case we have approval permissions and want to override.

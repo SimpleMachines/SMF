@@ -33,7 +33,7 @@ class fulltext_search extends search_api
 	/**
 	 * @var array Which databases support this method?
 	 */
-	protected $supported_databases = array('mysql');
+	protected $supported_databases = array('mysql','postgresql');
 
 	/**
 	 * The constructor function
@@ -63,6 +63,7 @@ class fulltext_search extends search_api
 			case 'searchSort':
 			case 'prepareIndexes':
 			case 'indexedWordQuery':
+			case 'postRemoved':
 				return true;
 			break;
 
@@ -82,8 +83,10 @@ class fulltext_search extends search_api
 	 */
 	protected function _getMinWordLength()
 	{
-		global $smcFunc;
+		global $smcFunc, $db_type;
 
+		if ($db_type == 'postgresql')
+			return 0;
 		// Try to determine the minimum number of letters for a fulltext search.
 		$request = $smcFunc['db_search_query']('max_fulltext_length', '
 			SHOW VARIABLES
@@ -271,6 +274,55 @@ class fulltext_search extends search_api
 
 		return $ignoreRequest;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function postRemoved($id_msg)
+	{
+		global $smcFunc;
+		
+		$result = $smcFunc['db_query']('','
+			SELECT DISTINCT id_search
+			FROM {db_prefix}log_search_results
+			WHERE id_msg = {int:id_msg}',
+			array(
+				'id_msg' => $id_msg,
+			)
+		);
+
+		$id_searchs = array();
+		while ($row = $smcFunc['db_fetch_assoc']($result))
+			$id_searchs[] = $row['id_search'];
+
+		if (count($id_searchs) < 1)
+			return;
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_results
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_topics
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_messages
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
+	}
+
 }
 
 ?>
