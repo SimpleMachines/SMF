@@ -173,6 +173,9 @@ class fulltext_search extends search_api
 			$query_select['id_search'] = '{int:id_search}';
 
 		$count = 0;
+
+		$words['indexed_words'] = str_replace(array('*','%'),'',$words['indexed_words'] );
+
 		if (empty($modSettings['search_simple_fulltext']))
 			foreach ($words['words'] as $regularWord)
 			{
