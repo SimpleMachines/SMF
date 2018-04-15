@@ -62,7 +62,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_fetch_all'              => 'smf_db_fetch_all',
 			'db_error_insert'			=> 'smf_db_error_insert',
 			'db_custom_order'			=> 'smf_db_custom_order',
-			'db_native_replace'			=> true,
+			'db_native_replace'			=> 'smf_db_native_replace',
 		);
 
 	if (!empty($db_options['persist']))
@@ -1008,6 +1008,16 @@ function smf_db_custom_order($field, $array_values, $desc = false)
 
 	$return .= 'END';
 	return $return;
+}
+
+/**
+ * Function which return the information if the database supports native replace inserts
+ *
+ * @return boolean true or false
+ */
+function smf_db_native_replace()
+{
+	return true;
 }
 
 ?>
