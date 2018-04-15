@@ -28,7 +28,7 @@ class standard_search extends search_api
 
 		// Maybe parent got support
 		if (!$return)
-			$return = parant::supportsMethod($methodName, $query_params);
+			$return = parent::supportsMethod($methodName, $query_params);
 
 		return $return;
 	}
