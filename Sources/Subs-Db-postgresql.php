@@ -1003,7 +1003,7 @@ function smf_db_custom_order($field, $array_values, $desc = false)
 }
 
 /**
- * Function which return the information if the database support native replace inserts
+ * Function which return the information if the database supports native replace inserts
  *
  * @return boolean true or false
  */
