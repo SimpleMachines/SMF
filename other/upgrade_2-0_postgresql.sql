@@ -5,7 +5,7 @@
 /******************************************************************************/
 
 ---# Adding Open ID Assocation table...
-CREATE TABLE {$db_prefix}openid_assoc (
+CREATE TABLE IF NOT EXISTS {$db_prefix}openid_assoc (
 	server_url text NOT NULL,
 	handle varchar(255) NOT NULL,
 	secret text NOT NULL,
@@ -131,7 +131,7 @@ CREATE SEQUENCE {$db_prefix}spiders_seq;
 ---#
 
 ---# Creating spider table.
-CREATE TABLE {$db_prefix}spiders (
+CREATE TABLE IF NOT EXISTS {$db_prefix}spiders (
 	id_spider smallint NOT NULL default nextval('{$db_prefix}spiders_seq'),
 	spider_name varchar(255) NOT NULL,
 	user_agent varchar(255) NOT NULL,
@@ -139,26 +139,26 @@ CREATE TABLE {$db_prefix}spiders (
 	PRIMARY KEY (id_spider)
 );
 
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (1, 'Google', 'googlebot', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (2, 'Yahoo!', 'slurp', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (3, 'MSN', 'msnbot', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (4, 'Google (Mobile)', 'Googlebot-Mobile', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (5, 'Google (Image)', 'Googlebot-Image', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (6, 'Google (AdSense)', 'Mediapartners-Google', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (7, 'Google (Adwords)', 'AdsBot-Google', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (10, 'MSN (Mobile)', 'MSNBOT_Mobile', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (11, 'MSN (Media)', 'msnbot-media', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (12, 'Cuil', 'twiceler', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (13, 'Ask', 'Teoma', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (14, 'Baidu', 'Baiduspider', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (15, 'Gigablast', 'Gigabot', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (16, 'InternetArchive', 'ia_archiver-web.archive.org', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Alexa', 'ia_archiver', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (18, 'Omgili', 'omgilibot', '');
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (19, 'EntireWeb', 'Speedy Spider', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '');
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (1, 'Google', 'googlebot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (2, 'Yahoo!', 'slurp', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (3, 'MSN', 'msnbot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (4, 'Google (Mobile)', 'Googlebot-Mobile', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (5, 'Google (Image)', 'Googlebot-Image', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (6, 'Google (AdSense)', 'Mediapartners-Google', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (7, 'Google (Adwords)', 'AdsBot-Google', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (10, 'MSN (Mobile)', 'MSNBOT_Mobile', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (11, 'MSN (Media)', 'msnbot-media', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (12, 'Cuil', 'twiceler', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (13, 'Ask', 'Teoma', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (14, 'Baidu', 'Baiduspider', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (15, 'Gigablast', 'Gigabot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (16, 'InternetArchive', 'ia_archiver-web.archive.org', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Alexa', 'ia_archiver', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (18, 'Omgili', 'omgilibot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (19, 'EntireWeb', 'Speedy Spider', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Removing a spider.
@@ -176,7 +176,7 @@ CREATE SEQUENCE {$db_prefix}log_spider_hits_seq;
 ---#
 
 ---# Creating spider hit tracking table.
-CREATE TABLE {$db_prefix}log_spider_hits (
+CREATE TABLE IF NOT EXISTS {$db_prefix}log_spider_hits (
 	id_hit int default nextval('{$db_prefix}log_spider_hits_seq'),
 	id_spider smallint NOT NULL default '0',
 	log_time int NOT NULL,
@@ -190,7 +190,7 @@ CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hit
 ---#
 
 ---# Creating spider statistic table.
-CREATE TABLE {$db_prefix}log_spider_stats (
+CREATE TABLE IF NOT EXISTS {$db_prefix}log_spider_stats (
   id_spider smallint NOT NULL default '0',
   page_hits smallint NOT NULL default '0',
   last_seen int NOT NULL default '0',
@@ -248,7 +248,7 @@ $smcFunc['db_insert']('ignore',
 ALTER TABLE {$db_prefix}log_online DROP CONSTRAINT {$db_prefix}log_online_log_time;
 ALTER TABLE {$db_prefix}log_online DROP CONSTRAINT {$db_prefix}log_online_id_member;
 DROP TABLE {$db_prefix}log_online;
-CREATE TABLE {$db_prefix}log_online (
+CREATE TABLE IF NOT EXISTS {$db_prefix}log_online (
   session varchar(32) NOT NULL default '',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -362,7 +362,7 @@ else
 /******************************************************************************/
 
 ---# Adding weekly maintenance task...
-INSERT INTO {$db_prefix}scheduled_tasks (next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (0, 0, 1, 'w', 0, 'weekly_maintenance');
+	INSERT INTO {$db_prefix}scheduled_tasks (next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (0, 0, 1, 'w', 0, 'weekly_maintenance') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Setting the birthday email template if not set...
@@ -383,7 +383,7 @@ if (!isset($modSettings['birthday_email']))
 /******************************************************************************/
 
 ---# Adding pruning option...
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pruningOptions', '30,180,180,180,30');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pruningOptions', '30,180,180,180,30') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -1084,11 +1084,11 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 
 			if (!empty($insertRows))
 				upgrade_query("
-					INSERT IGNORE INTO {$db_prefix}themes
+					INSERT INTO {$db_prefix}themes
 						(id_member, id_theme, variable, value)
 					VALUES
 						" . implode(',
-						', $insertRows));
+						', $insertRows). ' ON CONFLICT DO NOTHING');
 		}
 	}
 	$smcFunc['db_free_result']($theme_request);
@@ -1098,7 +1098,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
 		array('dont_repeat_theme_core', '1'),
-		array('variable', 'value')
+		array('variable')
 	);
 }
 
@@ -1131,7 +1131,7 @@ if (empty($modSettings['installed_new_smiley_sets_20']))
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
 		array('installed_new_smiley_sets_20', '1'),
-		array('variable', 'value')
+		array('variable')
 	);
 }
 ---}
@@ -1158,7 +1158,7 @@ if ($smcFunc['db_server_info'] < 8.2)
 	if ($return_type['type_udt_name'] != 'int4')
 	{
 		upgrade_query("
-			DROP FUNCTION INSTR(text, text)");
+			DROP FUNCTION IF EXISTS INSTR(text, text)");
 	}
 }
 else
@@ -1229,13 +1229,13 @@ if ($smcFunc['db_server_info'] < 8.2)
 	$query = upgrade_query("SELECT * FROM pg_proc WHERE proname = 'find_in_set' AND proargtypes = '25 25'");
 	if ($smcFunc['db_num_rows']($query) != 0)
 	{
-		upgrade_query("DROP FUNCTION FIND_IN_SET(text, text)");
+		upgrade_query("DROP FUNCTION IF EXISTS FIND_IN_SET(text, text)");
 	}
 
 	$query = upgrade_query("SELECT * FROM pg_proc WHERE proname = 'find_in_set' AND proargtypes = '23 1043'");
 	if ($smcFunc['db_num_rows']($query) != 0)
 	{
-		upgrade_query("DROP FUNCTION FIND_IN_SET(integer, character varying)");
+		upgrade_query("DROP FUNCTION IF EXISTS FIND_IN_SET(integer, character varying)");
 	}
 }
 else

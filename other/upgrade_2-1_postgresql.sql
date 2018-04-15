@@ -122,7 +122,7 @@ DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 ---#
 
 ---# Adding new "topic_move_any" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding new "browser_cache" setting
@@ -137,19 +137,19 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding new "minimize_files" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Collapse object
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding new "defaultMaxListItems" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding new "loginHistoryDays" setting
@@ -187,7 +187,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		$inserts,
-		array('id_theme', 'id_member', 'variable')
+		array('variable')
 	);
 ---}
 ---#
@@ -198,7 +198,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Adding more space to the mime_type column.
 ALTER TABLE {$db_prefix}attachments
-CHANGE `mime_type` `mime_type` VARCHAR(128) NOT NULL DEFAULT '';
+	ALTER COLUMN mime_type TYPE VARCHAR(128);
 ---#
 
 ---# Converting legacy attachments.
@@ -1289,7 +1289,7 @@ ADD COLUMN likes smallint NOT NULL default '0';
 --- Adding support for mentions
 /******************************************************************************/
 ---# Creating mentions table
-CREATE TABLE  {$db_prefix}mentions (
+CREATE TABLE IF NOT EXISTS  {$db_prefix}mentions (
 	content_id int DEFAULT '0',
 	content_type varchar(10) DEFAULT '',
 	id_mentioned int DEFAULT 0,
