@@ -24,8 +24,13 @@ class standard_search extends search_api
 	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
-		// Always fall back to the standard search method.
-		return false;
+		$return = false;
+
+		// Maybe parent got support
+		if (!$return)
+			$return = parant::supportsMethod($methodName, $query_params);
+
+		return $return;
 	}
 }
 

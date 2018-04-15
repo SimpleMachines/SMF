@@ -68,6 +68,7 @@ class custom_search extends search_api
 	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
+		$return = false;
 		switch ($methodName)
 		{
 			case 'isValid':
@@ -76,13 +77,19 @@ class custom_search extends search_api
 			case 'indexedWordQuery':
 			case 'postCreated':
 			case 'postModified':
-				return true;
+				$return = true;
 			break;
 
 			// All other methods, too bad dunno you.
 			default:
-				return false;
+				$return = false;
 		}
+
+		// Maybe parent got support
+		if (!$return)
+			$return = parant::supportsMethod($methodName, $query_params);
+
+		return $return;
 	}
 
 	/**
