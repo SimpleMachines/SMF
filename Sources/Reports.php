@@ -627,6 +627,9 @@ function GroupPermissionsReport()
 {
 	global $txt, $modSettings, $smcFunc;
 
+	// We need some txt from ManagePermissions
+	loadLanguage('ManagePermissions');
+
 	if (isset($_REQUEST['groups']))
 	{
 		if (!is_array($_REQUEST['groups']))
@@ -718,7 +721,12 @@ function GroupPermissionsReport()
 				addData($curData);
 
 			// Add the permission name in the left column.
-			$curData = array('col' => isset($txt['group_perms_name_' . $row['permission']]) ? $txt['group_perms_name_' . $row['permission']] : $row['permission']);
+			if (isset($txt['group_perms_name_' . $row['permission']]))
+				$curData = array('col' => $txt['group_perms_name_' . $row['permission']]);
+			else if (isset($txt['permissionname_' . $row['permission']]))
+				$curData = array('col' => $txt['permissionname_' . $row['permission']]);
+			else
+				$curData = array('col' => $row['permission']);
 
 			$lastPermission = $row['permission'];
 		}
