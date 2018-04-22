@@ -5431,7 +5431,7 @@ function smf_list_timezones($when = 'now')
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
 		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
-		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (empty(strspn($tzvalue['abbr'], '+-')) ? $tzvalue['abbr'] . ' - ' : '') . $desc;
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (!strspn($tzvalue['abbr'], '+-') ? $tzvalue['abbr'] . ' - ' : '') . $desc;
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;
