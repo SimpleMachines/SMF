@@ -47,7 +47,7 @@ function getBoardIndex($boardIndexOptions)
 	$result_boards = $smcFunc['db_query']('', '
 		SELECT' . ($boardIndexOptions['include_categories'] ? '
 			c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
-			b.id_board, b.name AS board_name, b.description,
+			b.child_level, b.id_board, b.name AS board_name, b.description,
 			CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
 			b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
 			COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
@@ -64,7 +64,7 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
 			AND b.child_level >= {int:child_level}') : '
-			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)) . '
+			AND b.child_level >= ' . $boardIndexOptions['base_level']) . '
 			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level, b.board_order',
 		array(
 			'current_member' => $user_info['id'],
@@ -79,10 +79,35 @@ function getBoardIndex($boardIndexOptions)
 	else
 		$this_category = array();
 	$boards = array();
+	
+	$row_boards = array();
 
-	// Run through the categories and boards (or only boards)....
 	while ($row_board = $smcFunc['db_fetch_assoc']($result_boards))
 	{
+		$row_boards[$row_board['id_board']] = $row_board;
+		if (empty($row_lvl[$row_board['child_level']]))
+			$row_lvl[$row_board['child_level']] = array();
+		$row_lvl[$row_board['child_level']][] =  $row_board['id_board'];
+	}
+	
+	$max_level = max(array_keys($row_lvl));
+	$min_level = min(array_keys($row_lvl));
+	for($i = $max_level; $i >= $min_level; $i--)
+	{
+		$count_ar = count($row_lvl[$i]);
+		for($x = 0; $x < $count_ar; $x++)
+		{
+			$num = $row_lvl[$i][$x];
+			if ($row_boards[$num]['is_read'] == 0 && $row_boards[$num]['id_parent'] != 0 && isset($row_boards[$row_boards[$num]['id_parent']]))
+				$row_boards[$row_boards[$num]['id_parent']]['is_read'] = 0;
+		}
+			
+	}
+
+	// Run through the categories and boards (or only boards)....
+	foreach($row_boards as $row_board)
+	{
+		//$row_board = $row_boards[$i];
 		// Perhaps we are ignoring this board?
 		$ignoreThisBoard = in_array($row_board['id_board'], $user_info['ignoreboards']);
 		$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
