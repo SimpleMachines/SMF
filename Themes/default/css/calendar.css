@@ -261,11 +261,12 @@ span.hidelink {
 
 /* Break long words in calendar table cells to avoid layout problems */
 #main_grid td.days {
-	-webkit-hyphens: auto;
-	-ms-hyphens: auto;
-	hyphens: auto;
 	overflow-wrap: break-word;
 	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 #chrome #main_grid td.days {
 	word-break: break-word;

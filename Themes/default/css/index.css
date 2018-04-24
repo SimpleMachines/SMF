@@ -2100,6 +2100,12 @@ dl {
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
@@ -2232,8 +2238,12 @@ dl {
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
 	clear: both;
-	word-break: hyphenate;
+	overflow-wrap: break-word;
 	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 .topic h4 {
 	margin: 3px 0;
@@ -3121,8 +3131,12 @@ div#pollmoderation {
 	/* Don't set this in em.It will eat too much space if people need to set large text sizes. */
 	/* Better to just break the few words here, and leave more space for actual topic content. */
 	width: 160px;
-	word-break: hyphenate;
+	overflow-wrap: break-word;
 	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 .poster h4 {
 	font-size: 1.2em;
@@ -3225,8 +3239,12 @@ div#pollmoderation {
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
-	word-break: hyphenate;
+	overflow-wrap: break-word;
 	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 img.smiley {
 	vertical-align: bottom;
