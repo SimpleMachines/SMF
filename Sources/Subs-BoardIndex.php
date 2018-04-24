@@ -98,7 +98,7 @@ function getBoardIndex($boardIndexOptions)
 		for($x = 0; $x < $count_ar; $x++)
 		{
 			$num = $row_lvl[$i][$x];
-			if ($row_boards[$num]['is_read'] == 0 && $row_boards[$num]['id_parent'] != 0 && isset($row_boards[$row_boards[$num]['id_parent']]))
+			if ($row_boards[$num]['is_read'] == 0 && $row_boards[$num]['id_parent'] != 0 && isset($row_boards[$row_boards[$num]['id_parent']]) && $row_boards[$num]['child_level'] > 1)
 				$row_boards[$row_boards[$num]['id_parent']]['is_read'] = 0;
 		}
 			
