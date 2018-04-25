@@ -292,6 +292,18 @@ CREATE INDEX {$db_prefix}boards_id_msg_updated ON {$db_prefix}boards (id_msg_upd
 CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
 
 #
+# Table structure for table `board_permissions_view`
+#
+
+CREATE TABLE {$db_prefix}board_permissions_view
+(
+    grp integer NOT NULL,
+    id_board integer NOT NULL,
+    deny smallint NOT NULL,
+    PRIMARY KEY (grp, id_board, deny)
+);
+
+#
 # Sequence for table `calendar`
 #
 
@@ -2076,6 +2088,15 @@ VALUES (-1, 1, 'poll_view'),
 INSERT INTO {$db_prefix}boards
 	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
 VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `board_permissions_view`
+#
+
+INSERT INTO {$db_prefix}board_permissions_view
+	(grp, id_board, deny)
+VALUES (-1,1,0), (0,1,0), (2,1,0);
 # --------------------------------------------------------
 
 #
