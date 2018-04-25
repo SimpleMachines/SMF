@@ -225,7 +225,7 @@ function template_modify_language_entries()
 
 		foreach ($theme['files'] as $file)
 			echo '
-						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '> =&gt; ', $file['name'], '</option>';
+						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '>', $file['name'], '</option>';
 
 		echo '
 					</optgroup>';
@@ -253,50 +253,17 @@ function template_modify_language_entries()
 			<div class="windowbg2">
 				<dl class="settings">';
 
-		$cached = array();
 		foreach ($context['file_entries'] as $entry)
 		{
-			// Do it in two's!
-			if (empty($cached))
-			{
-				$cached = $entry;
-				continue;
-			}
-
 			echo '
 					<dt>
-						<span class="smalltext">', $cached['key'], '</span>
-					</dt>
-					<dd>
 						<span class="smalltext">', $entry['key'], '</span>
-					</dd>
-					<dt>
-						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="width: 96%;">', $cached['value'], '</textarea>
 					</dt>
 					<dd>
 						<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
 						<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
 					</dd>';
-
-			$cached = array();
 		}
-
-		// Odd number?
-		if (!empty($cached))
-			echo '
-
-					<dt>
-						<span class="smalltext">', $cached['key'], '</span>
-					</dt>
-					<dd>
-					</dd>
-					<dt>
-						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="width: 96%;">', $cached['value'], '</textarea>
-					</dt>
-					<dd>
-					</dd>';
 
 		echo '
 				</dl>
