@@ -236,9 +236,10 @@ function DisplayStats()
 	$boards_result = $smcFunc['db_query']('', '
 		SELECT id_board, name, num_posts
 		FROM {db_prefix}boards AS b
-		WHERE {query_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . '
-			AND b.redirect = {string:blank_redirect}
+		{query_see_board_join}
+		WHERE ' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+			b.id_board != {int:recycle_board} AND ' : '') . '
+			b.redirect = {string:blank_redirect}
 		ORDER BY num_posts DESC
 		LIMIT 10',
 		array(
@@ -299,8 +300,9 @@ function DisplayStats()
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			AND b.id_board != {int:recycle_board}' : '') . ')
-		WHERE {query_see_board}' . (!empty($topic_ids) ? '
-			AND t.id_topic IN ({array_int:topic_list})' : ($modSettings['postmod_active'] ? '
+			{query_see_board_join}
+		WHERE' . (!empty($topic_ids) ? '
+			t.id_topic IN ({array_int:topic_list})' : ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : '')) . '
 		ORDER BY t.num_replies DESC
 		LIMIT 10',
@@ -369,8 +371,9 @@ function DisplayStats()
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			AND b.id_board != {int:recycle_board}' : '') . ')
-		WHERE {query_see_board}' . (!empty($topic_ids) ? '
-			AND t.id_topic IN ({array_int:topic_list})' : ($modSettings['postmod_active'] ? '
+			{query_see_board_join}
+		WHERE ' . (!empty($topic_ids) ? '
+			 t.id_topic IN ({array_int:topic_list})' : ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : '')) . '
 		ORDER BY t.num_views DESC
 		LIMIT 10',
@@ -537,8 +540,9 @@ function DisplayStats()
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			AND b.id_board != {int:recycle_board}' : '') . ')
-			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . '
+				{query_see_board_join}
+			 ' . ($modSettings['postmod_active'] ? '
+				WHERE t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
 			LIMIT 10',
 			array(

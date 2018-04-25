@@ -126,7 +126,8 @@ function showAttachment()
 				SELECT a.id_msg
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+					{query_see_board_join}
 				WHERE a.id_attach = {int:attach}
 				LIMIT 1',
 				array(

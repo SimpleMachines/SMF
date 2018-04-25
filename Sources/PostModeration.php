@@ -122,9 +122,9 @@ function UnapprovedPosts()
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			{query_see_board_join}
 			WHERE m.id_msg IN ({array_int:message_list})
-				AND m.approved = {int:not_approved}
-				AND {query_see_board}',
+				AND m.approved = {int:not_approved}',
 			array(
 				'message_list' => $toAction,
 				'not_approved' => 0,
@@ -191,8 +191,8 @@ function UnapprovedPosts()
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_first_msg != m.id_msg)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			{query_see_board_join}
 		WHERE m.approved = {int:not_approved}
-			AND {query_see_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,
@@ -206,8 +206,8 @@ function UnapprovedPosts()
 		SELECT COUNT(m.id_topic)
 		FROM {db_prefix}topics AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+			{query_see_board_join}
 		WHERE m.approved = {int:not_approved}
-			AND {query_see_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,
@@ -250,9 +250,9 @@ function UnapprovedPosts()
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
+			{query_see_board_join}
 		WHERE m.approved = {int:not_approved}
 			AND t.id_first_msg ' . ($context['current_view'] == 'topics' ? '=' : '!=') . ' m.id_msg
-			AND {query_see_board}
 			' . $approve_query . '
 		LIMIT {int:start}, {int:limit}',
 		array(
@@ -360,10 +360,10 @@ function UnapprovedAttachments()
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 				LEFT JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+				{query_see_board_join}
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.approved = {int:not_approved}
 				AND a.attachment_type = {int:attachment_type}
-				AND {query_see_board}
 				' . $approve_query,
 			array(
 				'attachments' => $attachments,
@@ -560,9 +560,9 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
+			{query_see_board_join}
 		WHERE a.approved = {int:not_approved}
 			AND a.attachment_type = {int:attachment_type}
-			AND {query_see_board}
 			{raw:approve_query}
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items_per_page}',
@@ -632,9 +632,9 @@ function list_getNumUnapprovedAttachments($approve_query)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+			{query_see_board_join}
 		WHERE a.approved = {int:not_approved}
 			AND a.attachment_type = {int:attachment_type}
-			AND {query_see_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,

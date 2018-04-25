@@ -2573,9 +2573,9 @@ function list_getTopicNotificationCount($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_notify AS ln' . (!$modSettings['postmod_active'] && $user_info['query_see_board'] === '1=1' ? '' : '
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . ($user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)') . '
-		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_board'] === '1=1' ? '' : '
-			AND {query_see_board}') . ($modSettings['postmod_active'] ? '
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			{query_see_board_join}') . '
+		WHERE ln.id_member = {int:selected_member}' . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : ''),
 		array(
 			'selected_member' => $memID,
@@ -2615,7 +2615,8 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 			lt.unwatched
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic' . ($modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
+			{query_see_board_join}
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ms.id_member)
@@ -2683,8 +2684,8 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
+			{query_see_board_join}
 		WHERE ln.id_member = {int:selected_member}
-			AND {query_see_board}
 		ORDER BY {raw:sort}',
 		array(
 			'current_member' => $user_info['id'],
@@ -2781,8 +2782,8 @@ function ignoreboards($memID)
 			'. (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-		WHERE {query_see_board}
-			AND redirect = {string:empty_string}',
+			{query_see_board_join}
+		WHERE redirect = {string:empty_string}',
 		array(
 			'ignore_boards' => !empty($cur_profile['ignore_boards']) ? explode(',', $cur_profile['ignore_boards']) : array(),
 			'empty_string' => '',

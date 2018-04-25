@@ -86,8 +86,8 @@ function ShowXmlFeed()
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
-			WHERE b.id_cat IN ({array_int:current_category_list})
-				AND {query_see_board}',
+			{query_see_board_join}
+			WHERE b.id_cat IN ({array_int:current_category_list})',
 			array(
 				'current_category_list' => $_REQUEST['c'],
 			)
@@ -117,8 +117,8 @@ function ShowXmlFeed()
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts, b.name
 			FROM {db_prefix}boards AS b
+			{query_see_board_join}
 			WHERE b.id_board IN ({array_int:board_list})
-				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],

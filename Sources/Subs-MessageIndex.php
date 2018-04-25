@@ -46,7 +46,7 @@ function getBoardList($boardListOptions = array())
 		$where[] = '{query_wanna_see_board}';
 
 	elseif (!empty($boardListOptions['use_permissions']))
-		$where[] = '{query_see_board}';
+		$join = '{query_see_board_join}';
 
 	if (!empty($boardListOptions['not_redirection']))
 	{
@@ -57,6 +57,7 @@ function getBoardList($boardListOptions = array())
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level
 		FROM {db_prefix}boards AS b
+		' . (!empty($join) ? $join : '') . '
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' . (empty($where) ? '' : '
 		WHERE ' . implode('
 			AND ', $where)),

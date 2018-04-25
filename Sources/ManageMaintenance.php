@@ -213,8 +213,9 @@ function MaintainTopics()
 		SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-		WHERE {query_see_board}
-			AND redirect = {string:blank_redirect}',
+			{query_see_board_join}
+		WHERE 
+			redirect = {string:blank_redirect}',
 		array(
 			'blank_redirect' => '',
 		)
