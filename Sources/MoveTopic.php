@@ -187,8 +187,8 @@ function MoveTopic2()
 		FROM {db_prefix}boards AS b
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-		WHERE {query_see_board}
-			AND b.id_board = {int:to_board}
+			{query_see_board_join}
+		WHERE b.id_board = {int:to_board}
 			AND b.redirect = {string:blank_redirect}
 		LIMIT 1',
 		array(

@@ -165,9 +165,9 @@ function RecentPosts()
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
+			{query_see_board_join}
 			WHERE b.id_board IN ({array_int:board_list})
 				AND b.redirect = {string:empty}
-				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],
@@ -553,8 +553,8 @@ function UnreadTopics()
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
-			WHERE {query_see_board}
-				AND b.id_board IN ({array_int:board_list})',
+			{query_see_board_join}
+			WHERE b.id_board IN ({array_int:board_list})',
 			array(
 				'board_list' => $_REQUEST['boards'],
 			)
@@ -732,7 +732,7 @@ function UnreadTopics()
 				SELECT MIN(lmr.id_msg)
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = b.id_board AND lmr.id_member = {int:current_member})
-				WHERE {query_see_board}',
+					{query_see_board_join}',
 				array(
 					'current_member' => $user_info['id'],
 				)

@@ -1157,8 +1157,9 @@ function MergeExecute($topics = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board
 		FROM {db_prefix}boards AS b
+		{query_see_board_join}
 		WHERE b.id_board IN ({array_int:boards})
-			AND {query_see_board}' . (!in_array(0, $merge_boards) ? '
+			' . (!in_array(0, $merge_boards) ? '
 			AND b.id_board IN ({array_int:merge_boards})' : '') . '
 		LIMIT {int:limit}',
 		array(
