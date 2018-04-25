@@ -253,15 +253,17 @@ function template_modify_language_entries()
 			<div class="windowbg2">
 				<dl class="settings">';
 
+		$entry_num = 0;
 		foreach ($context['file_entries'] as $entry)
 		{
 			echo '
 					<dt>
 						<span class="smalltext">', $entry['key'], '</span>
+						<span class="floatright entry_toggle" style="display:none">', $txt['edit'], ' <input type="checkbox" data-target="#entry_', ++$entry_num, '"></span>
 					</dt>
-					<dd>
-						<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-						<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
+					<dd id="entry_', $entry_num, '">
+						<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
+						<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
 					</dd>';
 		}
 
@@ -270,9 +272,37 @@ function template_modify_language_entries()
 				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
 			</div><!-- .windowbg2 -->';
 	}
+
 	echo '
 		</form>
 	</div><!-- #admincenter -->';
+
+	if (!empty($context['file_entries']))
+		echo '
+	<script>
+		max_inputs = ', $context['max_inputs'], ';
+		num_inputs = 0;
+
+		$(".entry_toggle").show();
+		$(".entry_textfield").prop("disabled", true);
+		$(".entry_oldvalue").prop("disabled", true);
+
+		$(".entry_toggle").click(function() {
+			var target_dd = $( $(this).data("target") );
+
+			if ($(this).prop("checked") === true) {
+				if (++num_inputs <= max_inputs) {
+					target_dd.find("input, textarea").prop("disabled", false);
+				} else {
+					alert("', sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']), '");
+					$(this).prop("checked", false);
+				}
+			} else {
+				--num_inputs;
+				target_dd.find("input, textarea").prop("disabled", true);
+			}
+		});
+	</script>';
 }
 
 /**

@@ -1002,6 +1002,10 @@ function ModifyLanguage()
 	{
 		$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf($txt['lang_entries_not_writable'], $current_file);
 
+		// How many strings will PHP let us edit at once?
+		// Each string needs 2 inputs, and there are 5 others in the form.
+		$context['max_inputs'] = (ini_get('max_input_vars') / 2) - 5;
+
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
 		$multiline_cache = '';
