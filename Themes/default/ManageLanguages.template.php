@@ -213,31 +213,32 @@ function template_modify_language_entries()
 					', $txt['edit_language_entries'], '
 				</h3>
 			</div>
-			<div id="taskpad" class="floatright">
-				', $txt['edit_language_entries_file'], ':
-				<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
-					<option value="-1">&nbsp;</option>';
+			<div class="information">
+				<div id="taskpad" class="floatright">
+					', $txt['edit_language_entries_file'], ':
+					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
+						<option value="-1">&nbsp;</option>';
 
 	foreach ($context['possible_files'] as $id_theme => $theme)
 	{
 		echo '
-					<optgroup label="', $theme['name'], '">';
+						<optgroup label="', $theme['name'], '">';
 
 		foreach ($theme['files'] as $file)
 			echo '
-						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '>', $file['name'], '</option>';
+							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '>', $file['name'], '</option>';
 
 		echo '
-					</optgroup>';
+						</optgroup>';
 	}
 
 	echo '
-				</select>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
-			</div><!-- #taskpad -->
-			<br class="clear">';
+					</select>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
+					<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
+				</div><!-- #taskpad -->
+			</div><!-- .information -->';
 
 	// Is it not writable? Show an error.
 	if (!empty($context['entries_not_writable_message']))
