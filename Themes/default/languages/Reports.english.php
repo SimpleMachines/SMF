@@ -130,6 +130,12 @@ $txt['group_perms_name_send_email_to_members'] = 'Send a forum email to members'
 $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_who_view'] = 'See who\'s online';
+$txt['group_perms_name_profile_blurb_own'] = 'Edit own personal text';
+$txt['group_perms_name_profile_displayed_name_own'] = 'Edit own displayed name';
+$txt['group_perms_name_profile_forum_own'] = 'Allow Forum own Profile edits';
+$txt['group_perms_name_profile_password_own'] = 'Change own password';
+$txt['group_perms_name_profile_signature_own'] = 'Edit own signature';
+$txt['group_perms_name_profile_website_own'] = 'Edit own website';
 
 $txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 staff members.';
 $txt['report_staff_position'] = 'Position';
