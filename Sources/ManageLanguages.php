@@ -1256,6 +1256,7 @@ function ModifyLanguage()
 		$txt = $old_txt;
 
 		if (!empty($context['file_entries']))
+		{
 			addInlineJavaScript('
 				max_inputs = ' . $context['max_inputs'] . ';
 				num_inputs = 0;
@@ -1278,6 +1279,7 @@ function ModifyLanguage()
 						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
 					}
 				});', true);
+		}
 
 		if (!empty($context['can_add_lang_entry']))
 		{
@@ -1297,9 +1299,6 @@ function ModifyLanguage()
 				$(".add_lang_entry_button").show();', true);
 		}
 	}
-
-	global $var_dump;
-	$var_dump = $context['can_add_lang_entry'];
 
 	// If we saved, redirect.
 	if ($madeSave)
