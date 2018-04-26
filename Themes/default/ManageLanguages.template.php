@@ -214,6 +214,10 @@ function template_modify_language_entries()
 				</h3>
 			</div>
 			<div class="information">
+				<div>
+					', $txt['edit_language_entries_desc'], '
+				</div>
+				<br>
 				<div id="taskpad" class="floatright">
 					', $txt['edit_language_entries_file'], ':
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
