@@ -820,15 +820,15 @@ function ModifyLanguage()
 	// This will be where we look
 	$lang_dirs = array();
 
-	// Some files allow the admin to add and/or delete certain types of strings
-	$allows_add_delete = array(
+	// Some files allow the admin to add and/or remove certain types of strings
+	$allows_add_remove = array(
 		'Timezones' => array(
 			'add' => array('tztxt', 'txt'),
-			'delete' => array('tztxt', 'txt'),
+			'remove' => array('tztxt', 'txt'),
 		),
 		'Modifications' => array(
 			'add' => array('txt'),
-			'delete' => array('txt'),
+			'remove' => array('txt'),
 		),
 		'Themes' => array(
 			'add' => array('txt'),
@@ -836,7 +836,7 @@ function ModifyLanguage()
 	);
 
 	// Does a hook need to add in some additional places to look for languages?
-	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_delete));
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove));
 
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
@@ -998,7 +998,7 @@ function ModifyLanguage()
 
 	// Are we saving?
 	$save_strings = array();
-	$delete_strings = array();
+	$remove_strings = array();
 	$add_strings = array();
 	if (isset($_POST['save_entries']))
 	{
@@ -1013,9 +1013,9 @@ function ModifyLanguage()
 				if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
 					$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
 
-				// Record any add or delete requests. We'll decide later.
-				elseif ($v == 'delete')
-					$delete_strings[] = $k;
+				// Record any add or remove requests. We'll decide on them later.
+				elseif ($v == 'remove')
+					$remove_strings[] = $k;
 				elseif ($v == 'add' && isset($_POST['entry'][$k]))
 				{
 					$add_strings[$k] = array(
@@ -1056,13 +1056,13 @@ function ModifyLanguage()
 				{
 					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
-					if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
+					if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
 						$context['can_add_lang_entry'][$group] = true;
 
 					$entries[$matches[2]] = array(
 						'type' => $matches[1],
 						'group' => $group,
-						'can_delete' => isset($allows_add_delete[$file_id]['delete']) && in_array($matches[1], $allows_add_delete[$file_id]['delete']),
+						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
 						'full' => $matches[0],
 						'entry' => $matches[3],
 					);
@@ -1079,13 +1079,13 @@ function ModifyLanguage()
 			{
 				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
-				if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
+				if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
 					$context['can_add_lang_entry'][$group] = true;
 
 				$entries[$matches[2]] = array(
 					'type' => $matches[1],
 					'group' => $group,
-					'can_delete' => isset($allows_add_delete[$file_id]['delete']) && in_array($matches[1], $allows_add_delete[$file_id]['delete']),
+					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
 					'full' => $matches[0],
 					'entry' => $matches[3],
 				);
@@ -1190,12 +1190,12 @@ function ModifyLanguage()
 					);
 				}
 				// Deleting? (But only if this entry allows it)
-				if (in_array($entryKey, $delete_strings) && $entryValue['can_delete'])
+				if (in_array($entryKey, $remove_strings) && $entryValue['can_remove'])
 				{
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
-						'find' => "\n" . $entryValue['full'],
-						'replace' => '',
+						'find' => $entryValue['full'],
+						'replace' => '// ' . $entryValue['full'],
 					);
 				}
 
@@ -1204,13 +1204,13 @@ function ModifyLanguage()
 					'key' => $entryKey,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
-					'can_delete' => $entryValue['can_delete'],
+					'can_remove' => $entryValue['can_remove'],
 				);
 			}
 		}
 
 		// Do they want to add some brand new strings? Does this file allow that?
-		if (!empty($add_strings) && !empty($allows_add_delete[$file_id]['add']))
+		if (!empty($add_strings) && !empty($allows_add_remove[$file_id]['add']))
 		{
 			$special_types = array_flip($special_groups[$file_id]);
 
@@ -1218,7 +1218,7 @@ function ModifyLanguage()
 			{
 				$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-				if (!in_array($type, $allows_add_delete[$file_id]['add']))
+				if (!in_array($type, $allows_add_remove[$file_id]['add']))
 					continue;
 
 				$final_saves[$string_key] = array(
