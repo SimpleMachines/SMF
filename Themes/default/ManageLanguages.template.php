@@ -266,14 +266,37 @@ function template_modify_language_entries()
 
 			foreach ($entries as $entry)
 			{
+				++$entry_num;
+
 				echo '
 						<dt>
-							<span class="smalltext">', $entry['key'], '</span>
-							<span class="floatright entry_toggle" style="display:none">', $txt['edit'], ' <input type="checkbox" data-target="#entry_', ++$entry_num, '"></span>
+							<span>', $entry['key'], '</span>
 						</dt>
-						<dd id="entry_', $entry_num, '">
+						<dd id="entry_', $entry_num, '">';
+
+				if ($entry['allows_add_delete'])
+					echo '
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
+								<label for="entry_', $entry_num, '_none">', $txt['no_change'], '</label>
+							</span>
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
+							</span>
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_delete" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="delete" data-target="#entry_', $entry_num, '">
+								<label for="entry_', $entry_num, '_delete">', $txt['delete'], '</label>
+							</span>';
+				else
+					echo '
+							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+							<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>';
+
+				echo '
+							</span>
 							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
+							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
 						</dd>';
 			}
 
@@ -297,23 +320,22 @@ function template_modify_language_entries()
 		max_inputs = ', $context['max_inputs'], ';
 		num_inputs = 0;
 
-		$(".entry_toggle").show();
 		$(".entry_textfield").prop("disabled", true);
 		$(".entry_oldvalue").prop("disabled", true);
 
 		$(".entry_toggle").click(function() {
 			var target_dd = $( $(this).data("target") );
 
-			if ($(this).prop("checked") === true) {
+			if ($(this).prop("checked") === true && $(this).val() === "edit") {
 				if (++num_inputs <= max_inputs) {
-					target_dd.find("input, textarea").prop("disabled", false);
+					target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
 				} else {
 					alert("', sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']), '");
 					$(this).prop("checked", false);
 				}
 			} else {
 				--num_inputs;
-				target_dd.find("input, textarea").prop("disabled", true);
+				target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
 			}
 		});
 	</script>';

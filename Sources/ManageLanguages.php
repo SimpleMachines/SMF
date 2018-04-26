@@ -820,8 +820,13 @@ function ModifyLanguage()
 	// This will be where we look
 	$lang_dirs = array();
 
+	// Some files allow the admin to add and delete certain types of strings
+	$allows_add_delete = array(
+		'Timezones' => array('tztxt', 'txt'),
+	);
+
 	// Does a hook need to add in some additional places to look for languages?
-	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs));
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_delete));
 
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
@@ -983,17 +988,31 @@ function ModifyLanguage()
 
 	// Are we saving?
 	$save_strings = array();
-	if (isset($_POST['save_entries']) && !empty($_POST['entry']))
+	$delete_strings = array();
+	if (isset($_POST['save_entries']))
 	{
 		checkSession();
 		validateToken('admin-mlang');
 
 		// Clean each entry!
-		foreach ($_POST['entry'] as $k => $v)
+		if (!empty($_POST['entry']))
 		{
-			// Only try to save if it's changed!
-			if ($_POST['entry'][$k] != $_POST['comp'][$k])
-				$save_strings[$k] = cleanLangString($v, false);
+			foreach ($_POST['entry'] as $k => $v)
+			{
+				// Only try to save if the edit action was specified and if it's changed!
+				if (isset($_POST['edit'][$k]) && $_POST['edit'][$k] == 'edit' && $_POST['entry'][$k] != $_POST['comp'][$k])
+					$save_strings[$k] = cleanLangString($v, false);
+			}
+		}
+
+		// Have they asked to delete anything?
+		if (!empty($_POST['edit']))
+		{
+			foreach ($_POST['edit'] as $k => $v)
+			{
+				if ($v == 'delete')
+					$delete_strings[] = $k;
+			}
 		}
 	}
 
@@ -1003,8 +1022,8 @@ function ModifyLanguage()
 		$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf($txt['lang_entries_not_writable'], $current_file);
 
 		// How many strings will PHP let us edit at once?
-		// Each string needs 2 inputs, and there are 5 others in the form.
-		$context['max_inputs'] = (ini_get('max_input_vars') / 2) - 5;
+		// Each string needs 3 inputs, and there are 5 others in the form.
+		$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
 
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_types = array(
@@ -1024,7 +1043,9 @@ function ModifyLanguage()
 				if (!empty($matches[3]))
 				{
 					$entries[$matches[2]] = array(
-						'type' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
+						'type' => $matches[1],
+						'group' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
+						'allows_add_delete' => isset($allows_add_delete[$file_id]) && in_array($matches[1], $allows_add_delete[$file_id]),
 						'full' => $matches[0],
 						'entry' => $matches[3],
 					);
@@ -1039,7 +1060,9 @@ function ModifyLanguage()
 			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
 				$entries[$matches[2]] = array(
-					'type' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
+					'type' => $matches[1],
+					'group' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
+					'allows_add_delete' => isset($allows_add_delete[$file_id]) && in_array($matches[1], $allows_add_delete[$file_id]),
 					'full' => $matches[0],
 					'entry' => $matches[3],
 				);
@@ -1091,7 +1114,7 @@ function ModifyLanguage()
 					else
 						$save_cache['entries'][$cur_index] = $subValue;
 
-					$context['file_entries'][$entryValue['type']][] = array(
+					$context['file_entries'][$entryValue['group']][] = array(
 						'key' => $entryKey . '-+- ' . $cur_index,
 						'value' => $subValue,
 						'rows' => 1,
@@ -1142,12 +1165,22 @@ function ModifyLanguage()
 						'replace' => '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = ' . $save_strings[$entryKey] . ';',
 					);
 				}
+				// Deleting? (But only if this entry allows it)
+				if (in_array($entryKey, $delete_strings) && $entryValue['allows_add_delete'])
+				{
+					$entryValue['entry'] = '\'\'';
+					$final_saves[$entryKey] = array(
+						'find' => "\n" . $entryValue['full'],
+						'replace' => '',
+					);
+				}
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
-				$context['file_entries'][$entryValue['type']][] = array(
+				$context['file_entries'][$entryValue['group']][] = array(
 					'key' => $entryKey,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
+					'allows_add_delete' => $entryValue['allows_add_delete'],
 				);
 			}
 		}
