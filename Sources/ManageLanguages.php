@@ -1005,25 +1005,18 @@ function ModifyLanguage()
 		checkSession();
 		validateToken('admin-mlang');
 
-		// Clean each entry!
-		if (!empty($_POST['entry']))
-		{
-			foreach ($_POST['entry'] as $k => $v)
-			{
-				// Only try to save if the edit action was specified and if it's changed!
-				if (isset($_POST['edit'][$k]) && $_POST['edit'][$k] == 'edit' && $_POST['entry'][$k] != $_POST['comp'][$k])
-					$save_strings[$k] = cleanLangString($v, false);
-			}
-		}
-
-		// Have they asked to add or delete anything?
 		if (!empty($_POST['edit']))
 		{
 			foreach ($_POST['edit'] as $k => $v)
 			{
-				if ($v == 'delete')
+				// Only try to save if 'edit' was specified and if the string has changed
+				if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
+					$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
+
+				// Record any add or delete requests. We'll decide later.
+				elseif ($v == 'delete')
 					$delete_strings[] = $k;
-				elseif ($v == 'add')
+				elseif ($v == 'add' && isset($_POST['entry'][$k]))
 				{
 					$add_strings[$k] = array(
 						'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
@@ -1045,10 +1038,10 @@ function ModifyLanguage()
 		$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
 
 		// Do we want to override the helptxt for certain types of text variables?
-		$special_types = array(
+		$special_groups = array(
 			'Timezones' => array('txt' => 'txt_for_timezones'),
 		);
-		call_integration_hook('integrate_language_edit_helptext', array(&$special_types));
+		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
@@ -1061,7 +1054,7 @@ function ModifyLanguage()
 				preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 				if (!empty($matches[3]))
 				{
-					$group = !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1];
+					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
 					if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
 						$context['can_add_lang_entry'][$group] = true;
@@ -1084,7 +1077,7 @@ function ModifyLanguage()
 			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
 			{
-				$group = !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1];
+				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
 				if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
 					$context['can_add_lang_entry'][$group] = true;
@@ -1219,11 +1212,11 @@ function ModifyLanguage()
 		// Do they want to add some brand new strings? Does this file allow that?
 		if (!empty($add_strings) && !empty($allows_add_delete[$file_id]['add']))
 		{
-			$flipped = array_flip($special_types[$file_id]);
+			$special_types = array_flip($special_groups[$file_id]);
 
 			foreach ($add_strings as $string_key => $string_val)
 			{
-				$type = isset($flipped[$string_val['group']]) ? $flipped[$string_val['group']] : $string_val['group'];
+				$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
 				if (!in_array($type, $allows_add_delete[$file_id]['add']))
 					continue;
@@ -1284,7 +1277,6 @@ function ModifyLanguage()
 		if (!empty($context['can_add_lang_entry']))
 		{
 			addInlineJavaScript('
-				$(".add_lang_entry_button").show();
 				function add_lang_entry(group) {
 					var key = prompt("' . $txt['languages_enter_key'] . '");
 
