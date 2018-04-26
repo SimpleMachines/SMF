@@ -251,25 +251,38 @@ function template_modify_language_entries()
 	if (!empty($context['file_entries']))
 	{
 		echo '
-			<div class="windowbg2">
-				<dl class="settings">';
+			<div class="windowbg2">';
 
 		$entry_num = 0;
-		foreach ($context['file_entries'] as $entry)
+		foreach ($context['file_entries'] as $type => $entries)
 		{
 			echo '
-					<dt>
-						<span class="smalltext">', $entry['key'], '</span>
-						<span class="floatright entry_toggle" style="display:none">', $txt['edit'], ' <input type="checkbox" data-target="#entry_', ++$entry_num, '"></span>
-					</dt>
-					<dd id="entry_', $entry_num, '">
-						<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-						<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
-					</dd>';
+				<fieldset>
+					<legend>
+						<a id="settings_language_', $type, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $type, '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<span>', $txt['languages_' . $type], '</span>
+					</legend>
+					<dl class="settings">';
+
+			foreach ($entries as $entry)
+			{
+				echo '
+						<dt>
+							<span class="smalltext">', $entry['key'], '</span>
+							<span class="floatright entry_toggle" style="display:none">', $txt['edit'], ' <input type="checkbox" data-target="#entry_', ++$entry_num, '"></span>
+						</dt>
+						<dd id="entry_', $entry_num, '">
+							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
+							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
+						</dd>';
+			}
+
+			echo '
+					</dl>
+				</fieldset>';
 		}
 
 		echo '
-				</dl>
 				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
 			</div><!-- .windowbg2 -->';
 	}

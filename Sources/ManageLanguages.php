@@ -1006,6 +1006,12 @@ function ModifyLanguage()
 		// Each string needs 2 inputs, and there are 5 others in the form.
 		$context['max_inputs'] = (ini_get('max_input_vars') / 2) - 5;
 
+		// Do we want to override the helptxt for certain types of text variables?
+		$special_types = array(
+			'Timezones' => array('txt' => 'txt_for_timezones'),
+		);
+		call_integration_hook('integrate_language_edit_helptext', array(&$special_types));
+
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
 		$multiline_cache = '';
@@ -1018,7 +1024,7 @@ function ModifyLanguage()
 				if (!empty($matches[3]))
 				{
 					$entries[$matches[2]] = array(
-						'type' => $matches[1],
+						'type' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
 						'full' => $matches[0],
 						'entry' => $matches[3],
 					);
@@ -1033,7 +1039,7 @@ function ModifyLanguage()
 			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
 				$entries[$matches[2]] = array(
-					'type' => $matches[1],
+					'type' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
 					'full' => $matches[0],
 					'entry' => $matches[3],
 				);
@@ -1085,7 +1091,7 @@ function ModifyLanguage()
 					else
 						$save_cache['entries'][$cur_index] = $subValue;
 
-					$context['file_entries'][] = array(
+					$context['file_entries'][$entryValue['type']][] = array(
 						'key' => $entryKey . '-+- ' . $cur_index,
 						'value' => $subValue,
 						'rows' => 1,
@@ -1138,7 +1144,7 @@ function ModifyLanguage()
 				}
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
-				$context['file_entries'][] = array(
+				$context['file_entries'][$entryValue['type']][] = array(
 					'key' => $entryKey,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,

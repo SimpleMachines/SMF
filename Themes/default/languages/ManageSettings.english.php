@@ -385,6 +385,11 @@ $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
 $txt['languages_max_inputs_warning'] = 'You can only save %1$s edits at a time. Please click the Save button now, and then continue editing when this page reloads.';
+$txt['languages_txt'] = 'Standard text strings';
+$txt['languages_helptxt'] = 'Help text';
+$txt['languages_editortxt'] = 'User interface for the editor';
+$txt['languages_tztxt'] = 'Time zone descriptions';
+$txt['languages_txt_for_timezones'] = 'Custom location names';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
