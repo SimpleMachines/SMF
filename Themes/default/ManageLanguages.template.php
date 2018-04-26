@@ -274,7 +274,7 @@ function template_modify_language_entries()
 						</dt>
 						<dd id="entry_', $entry_num, '">';
 
-				if ($entry['can_delete'])
+				if ($entry['can_remove'])
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
@@ -285,8 +285,8 @@ function template_modify_language_entries()
 								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_delete" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="delete" data-target="#entry_', $entry_num, '">
-								<label for="entry_', $entry_num, '_delete">', $txt['delete'], '</label>
+								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="remove" data-target="#entry_', $entry_num, '">
+								<label for="entry_', $entry_num, '_remove">', $txt['remove'], '</label>
 							</span>';
 				else
 					echo '
