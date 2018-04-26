@@ -326,6 +326,9 @@ QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
+	
+	// Jump to the message
+	window.location.hash = '#msg' + iMessageId;
 }
 
 // The callback function used for the XMLhttp request retrieving the message.
