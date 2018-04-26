@@ -820,9 +820,19 @@ function ModifyLanguage()
 	// This will be where we look
 	$lang_dirs = array();
 
-	// Some files allow the admin to add and delete certain types of strings
+	// Some files allow the admin to add and/or delete certain types of strings
 	$allows_add_delete = array(
-		'Timezones' => array('tztxt', 'txt'),
+		'Timezones' => array(
+			'add' => array('tztxt', 'txt'),
+			'delete' => array('tztxt', 'txt'),
+		),
+		'Modifications' => array(
+			'add' => array('txt'),
+			'delete' => array('txt'),
+		),
+		'Themes' => array(
+			'add' => array('txt'),
+		),
 	);
 
 	// Does a hook need to add in some additional places to look for languages?
@@ -989,6 +999,7 @@ function ModifyLanguage()
 	// Are we saving?
 	$save_strings = array();
 	$delete_strings = array();
+	$add_strings = array();
 	if (isset($_POST['save_entries']))
 	{
 		checkSession();
@@ -1005,18 +1016,26 @@ function ModifyLanguage()
 			}
 		}
 
-		// Have they asked to delete anything?
+		// Have they asked to add or delete anything?
 		if (!empty($_POST['edit']))
 		{
 			foreach ($_POST['edit'] as $k => $v)
 			{
 				if ($v == 'delete')
 					$delete_strings[] = $k;
+				elseif ($v == 'add')
+				{
+					$add_strings[$k] = array(
+						'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
+						'string' => cleanLangString($_POST['entry'][$k], false),
+					);
+				}
 			}
 		}
 	}
 
 	// If we are editing a file work away at that.
+	$context['can_add_lang_entry'] = array();
 	if ($current_file)
 	{
 		$context['entries_not_writable_message'] = is_writable($current_file) ? '' : sprintf($txt['lang_entries_not_writable'], $current_file);
@@ -1042,10 +1061,15 @@ function ModifyLanguage()
 				preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 				if (!empty($matches[3]))
 				{
+					$group = !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1];
+
+					if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
+						$context['can_add_lang_entry'][$group] = true;
+
 					$entries[$matches[2]] = array(
 						'type' => $matches[1],
-						'group' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
-						'allows_add_delete' => isset($allows_add_delete[$file_id]) && in_array($matches[1], $allows_add_delete[$file_id]),
+						'group' => $group,
+						'can_delete' => isset($allows_add_delete[$file_id]['delete']) && in_array($matches[1], $allows_add_delete[$file_id]['delete']),
 						'full' => $matches[0],
 						'entry' => $matches[3],
 					);
@@ -1059,13 +1083,20 @@ function ModifyLanguage()
 		{
 			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
+			{
+				$group = !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1];
+
+				if (isset($allows_add_delete[$file_id]['add']) && in_array($matches[1], $allows_add_delete[$file_id]['add']))
+					$context['can_add_lang_entry'][$group] = true;
+
 				$entries[$matches[2]] = array(
 					'type' => $matches[1],
-					'group' => !empty($special_types[$file_id][$matches[1]]) ? $special_types[$file_id][$matches[1]] : $matches[1],
-					'allows_add_delete' => isset($allows_add_delete[$file_id]) && in_array($matches[1], $allows_add_delete[$file_id]),
+					'group' => $group,
+					'can_delete' => isset($allows_add_delete[$file_id]['delete']) && in_array($matches[1], $allows_add_delete[$file_id]['delete']),
 					'full' => $matches[0],
 					'entry' => $matches[3],
 				);
+			}
 		}
 
 		// These are the entries we can definitely save.
@@ -1166,7 +1197,7 @@ function ModifyLanguage()
 					);
 				}
 				// Deleting? (But only if this entry allows it)
-				if (in_array($entryKey, $delete_strings) && $entryValue['allows_add_delete'])
+				if (in_array($entryKey, $delete_strings) && $entryValue['can_delete'])
 				{
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
@@ -1180,7 +1211,26 @@ function ModifyLanguage()
 					'key' => $entryKey,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
-					'allows_add_delete' => $entryValue['allows_add_delete'],
+					'can_delete' => $entryValue['can_delete'],
+				);
+			}
+		}
+
+		// Do they want to add some brand new strings? Does this file allow that?
+		if (!empty($add_strings) && !empty($allows_add_delete[$file_id]['add']))
+		{
+			$flipped = array_flip($special_types[$file_id]);
+
+			foreach ($add_strings as $string_key => $string_val)
+			{
+				$type = isset($flipped[$string_val['group']]) ? $flipped[$string_val['group']] : $string_val['group'];
+
+				if (!in_array($type, $allows_add_delete[$file_id]['add']))
+					continue;
+
+				$final_saves[$string_key] = array(
+					'find' => "\n\n?".'>',
+					'replace' => "\n$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
 				);
 			}
 		}
@@ -1204,7 +1254,52 @@ function ModifyLanguage()
 
 		// Another restore.
 		$txt = $old_txt;
+
+		if (!empty($context['file_entries']))
+			addInlineJavaScript('
+				max_inputs = ' . $context['max_inputs'] . ';
+				num_inputs = 0;
+
+				$(".entry_textfield").prop("disabled", true);
+				$(".entry_oldvalue").prop("disabled", true);
+
+				$(".entry_toggle").click(function() {
+					var target_dd = $( $(this).data("target") );
+
+					if ($(this).prop("checked") === true && $(this).val() === "edit") {
+						if (++num_inputs <= max_inputs) {
+							target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
+						} else {
+							alert("' . sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']) . '");
+							$(this).prop("checked", false);
+						}
+					} else {
+						--num_inputs;
+						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
+					}
+				});', true);
+
+		if (!empty($context['can_add_lang_entry']))
+		{
+			addInlineJavaScript('
+				$(".add_lang_entry_button").show();
+				function add_lang_entry(group) {
+					var key = prompt("' . $txt['languages_enter_key'] . '");
+
+					if (key !== null) {
+						++entry_num;
+
+						$("#language_" + group).append("<dt><span>" + key + "</span></dt> <dd id=\"entry_" + entry_num + "\"><input id=\"entry_" + entry_num + "_edit\" class=\"entry_toggle\" type=\"checkbox\" name=\"edit[" + key + "]\" value=\"add\" data-target=\"#entry_" + entry_num + "\" checked> <label for=\"entry_" + entry_num + "_edit\">' . $txt['edit'] . '</label> <input type=\"hidden\" class=\"entry_oldvalue\" name=\"grp[" + key + "]\" value=\"" + group + "\"> <textarea name=\"entry[" + key + "]\" class=\"entry_textfield\" cols=\"40\" rows=\"1\" style=\"width: 96%; margin-bottom: 2em;\"></textarea></dd>");
+					}
+				};');
+
+			addInlineJavaScript('
+				$(".add_lang_entry_button").show();', true);
+		}
 	}
+
+	global $var_dump;
+	$var_dump = $context['can_add_lang_entry'];
 
 	// If we saved, redirect.
 	if ($madeSave)

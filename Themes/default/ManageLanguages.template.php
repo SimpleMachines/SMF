@@ -254,15 +254,15 @@ function template_modify_language_entries()
 			<div class="windowbg2">';
 
 		$entry_num = 0;
-		foreach ($context['file_entries'] as $type => $entries)
+		foreach ($context['file_entries'] as $group => $entries)
 		{
 			echo '
 				<fieldset>
 					<legend>
-						<a id="settings_language_', $type, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $type, '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
-						<span>', $txt['languages_' . $type], '</span>
+						<a id="settings_language_', $group, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $group, '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<span>', $txt['languages_' . $group], '</span>
 					</legend>
-					<dl class="settings">';
+					<dl class="settings" id="language_', $group, '">';
 
 			foreach ($entries as $entry)
 			{
@@ -274,7 +274,7 @@ function template_modify_language_entries()
 						</dt>
 						<dd id="entry_', $entry_num, '">';
 
-				if ($entry['allows_add_delete'])
+				if ($entry['can_delete'])
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
 								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
@@ -301,7 +301,20 @@ function template_modify_language_entries()
 			}
 
 			echo '
-					</dl>
+					</dl>';
+
+			if (!empty($context['can_add_lang_entry'][$group]))
+			{
+				echo '
+				<span class="add_lang_entry_button" style="display: none;">
+					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . $txt['editnews_clickadd'] . '</a>
+				</span>
+				<script>
+					entry_num = ', $entry_num, ';
+				</script>';
+			}
+
+			echo '
 				</fieldset>';
 		}
 
@@ -313,32 +326,6 @@ function template_modify_language_entries()
 	echo '
 		</form>
 	</div><!-- #admincenter -->';
-
-	if (!empty($context['file_entries']))
-		echo '
-	<script>
-		max_inputs = ', $context['max_inputs'], ';
-		num_inputs = 0;
-
-		$(".entry_textfield").prop("disabled", true);
-		$(".entry_oldvalue").prop("disabled", true);
-
-		$(".entry_toggle").click(function() {
-			var target_dd = $( $(this).data("target") );
-
-			if ($(this).prop("checked") === true && $(this).val() === "edit") {
-				if (++num_inputs <= max_inputs) {
-					target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
-				} else {
-					alert("', sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']), '");
-					$(this).prop("checked", false);
-				}
-			} else {
-				--num_inputs;
-				target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
-			}
-		});
-	</script>';
 }
 
 /**
