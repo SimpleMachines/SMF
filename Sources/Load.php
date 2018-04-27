@@ -1558,7 +1558,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 			// Enclosing the user input within some other text?
 			if (!empty($custom['enclose']))
-				$value = strtr($custom['enclose'], array(
+				$value = strtr(un_htmlspecialchars($custom['enclose']), array(
 					'{SCRIPTURL}' => $scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
@@ -1569,7 +1569,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			$memberContext[$user]['custom_fields'][] = array(
 				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
 				'col_name' => $custom['col_name'],
-				'value' => un_htmlspecialchars($value),
+				'value' => $value,
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
 		}
