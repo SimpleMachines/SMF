@@ -846,13 +846,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$str = $finalizedFormats[$str];
 
 	if (!isset($locale_cache))
-		$locale_cache = setlocale(LC_TIME, $txt['lang_locale']);
+		$locale_cache = setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
 
 	if ($locale_cache !== false)
 	{
 		// Check if another process changed the locale
 		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
-			setlocale(LC_TIME, $txt['lang_locale']);
+			setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
 
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
