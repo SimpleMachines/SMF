@@ -355,6 +355,9 @@ function MoveTopic2()
 	// Notify people that this topic has been moved?
 	sendNotifications($topic, 'move');
 
+	// Mod authors can use this hook for additional operations
+	call_integration_hook('integrate_movetopic2_end');
+
 	// Why not go back to the original board in case they want to keep moving?
 	if (!isset($_REQUEST['goback']))
 		redirectexit('board=' . $board . '.0');
