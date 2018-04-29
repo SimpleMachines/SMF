@@ -91,7 +91,7 @@ function DisplayStats()
 		SELECT
 			SUM(posts) AS posts, SUM(topics) AS topics, SUM(registers) AS registers,
 			SUM(most_on) AS most_on, MIN(date) AS date, SUM(hits) AS hits
-		FROM {db_prefix}log_activity',
+		FROM {db_prefix}log_activity where {string:asd}',
 		array(
 		)
 	);

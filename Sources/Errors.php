@@ -115,8 +115,10 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 
-	// Collect backtrace
+	// Collect backtrace and remove himself
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+	array_shift($backtrace);
+	$backtrace = json_encode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...
 	$error_info = array($user_info['id'], time(), $user_info['ip'], $query_string, $error_message, (string) $sc, $error_type, $file, $line, $backtrace);
