@@ -326,6 +326,11 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		},
 		error: function (xhr, textStatus, errorThrown) {
 			oPopup_body.html(textStatus);
+		},
+		statusCode: {
+			500: function() {
+			  oPopup_body.html(banned_text);
+			}
 		}
 	});
 	return false;
