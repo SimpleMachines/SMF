@@ -329,7 +329,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		},
 		statusCode: {
 			500: function() {
-			  oPopup_body.html(banned_text);
+				oPopup_body.html(banned_text);
 			}
 		}
 	});
