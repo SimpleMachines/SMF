@@ -329,7 +329,10 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		},
 		statusCode: {
 			500: function() {
-				oPopup_body.html(banned_text);
+				if (sHeader == 'Login')
+					oPopup_body.html(banned_text);
+				else
+					oPopup_body.html('500 Internal Server Error');
 			}
 		}
 	});
