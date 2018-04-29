@@ -447,12 +447,16 @@ function ViewBacktrace()
 	$request = $smcFunc['db_query']('',
 			'SELECT backtrace
 				FROM {db_prefix}log_errors
-				WHERE id_error = {int:id_error',
+				WHERE id_error = {int:id_error}',
 			array(
 				'id_error' => $id_error,
 				)
 			);
 
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$context['error_backtrace'] = $smcFunc['json_decode']($row['backtrace']);
+	}
 	loadTemplate('Errors');
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'show_backtrace';

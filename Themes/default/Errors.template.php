@@ -267,24 +267,11 @@ function template_show_backtrace()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', $context['character_set'], '">
-		<title>', $context['file_data']['file'], '</title>
+		<title>Backtrace</title>
 		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 	</head>
 	<body>
-		<table class="errorfile_table">';
-	foreach ($context['file_data']['contents'] as $index => $line)
-	{
-		$line_num = $index + $context['file_data']['min'];
-		$is_target = $line_num == $context['file_data']['target'];
-
-		echo '
-			<tr>
-				<td class="file_line', $is_target ? ' current">==&gt;' : '">', $line_num, ':</td>
-				<td ', $is_target ? 'class="current"' : '', '>', $line, '</td>
-			</tr>';
-	}
-	echo '
-		</table>
+	', var_dump(!empty($context['error_backtrace'])? $context['error_backtrace'] : ''),'
 	</body>
 </html>';
 }
