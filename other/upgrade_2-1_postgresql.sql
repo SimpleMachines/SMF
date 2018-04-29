@@ -2465,7 +2465,7 @@ WHERE variable = 'smiley_sets_names';
 ---#
 
 /******************************************************************************/
---- Change log_erros add backtrace
+--- Add backtrace to log_error
 /******************************************************************************/
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_error

@@ -32,7 +32,7 @@ function ViewErrorLog()
 	// Viewing contents of a file?
 	if (isset($_GET['file']))
 		return ViewFile();
-	
+
 	// Viewing contents of a backtrace?
 	if (isset($_GET['backtrace']))
 		return ViewBacktrace();

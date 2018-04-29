@@ -115,7 +115,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 
-	// Collect backtrace and remove himself
+	// Collect a backtrace (but leave out the call to log_error)
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 20);
 	array_shift($backtrace);
 	$backtrace = json_encode($backtrace);
