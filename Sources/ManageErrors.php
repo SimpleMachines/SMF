@@ -438,14 +438,14 @@ function ViewFile()
  */
 function ViewBacktrace()
 {
-	global $context, $boarddir, $sourcedir, $cachedir, $smcFunc;
+	global $context, $boarddir, $sourcedir, $cachedir, $smcFunc, $scripturl;
 
 	// Check for the administrative permission to do this.
 	isAllowedTo('admin_forum');
 
 	$id_error = (int) $_REQUEST['backtrace'];
 	$request = $smcFunc['db_query']('',
-			'SELECT backtrace
+			'SELECT backtrace, error_type, message, file, line, url
 				FROM {db_prefix}log_errors
 				WHERE id_error = {int:id_error}',
 			array(
@@ -455,9 +455,12 @@ function ViewBacktrace()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['error_backtrace'] = $smcFunc['json_decode']($row['backtrace']);
+		$context['error_info'] = $row;
+		$context['error_info']['url'] = $scripturl . $row['url'];
+		$context['error_info']['backtrace'] = $smcFunc['json_decode']($row['backtrace']);
 	}
 	loadTemplate('Errors');
+	loadLanguage('ManageMaintenance');
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'show_backtrace';
 

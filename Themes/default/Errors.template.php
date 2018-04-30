@@ -132,7 +132,7 @@ function template_error_log()
 			echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><span class="generic_icons filter centericon"></span></a>
 							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
-		
+
 		if ($error['member']['session'] != '')
 			echo '
 							<br>
@@ -261,7 +261,7 @@ function template_attachment_errors()
  */
 function template_show_backtrace()
 {
-	global $context, $settings, $modSettings;
+	global $context, $settings, $modSettings, $txt;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -270,10 +270,68 @@ function template_show_backtrace()
 		<title>Backtrace</title>
 		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 	</head>
-	<body>
-		<pre class="backtrace">
-		', print_r(!empty($context['error_backtrace']) ? $context['error_backtrace'] : ''),'
-		</pre>
+	<body class="padding">';
+
+	if (!empty($context['error_info']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['error'], '
+				</h3>
+			</div>
+			<div class="windowbg noup">
+				<ul class="padding">';
+
+		if (isset($context['error_info']['type']))
+			echo '
+					<li>', $txt['error_type'], ': ', ucfirst($context['error_info']['type']), '</li>';
+
+		if (isset($context['error_info']['message']))
+			echo '
+					<li>', $txt['error_message'], ': ', $context['error_info']['message'], '</li>';
+
+		if (isset($context['error_info']['file']))
+			echo '
+					<li>', $txt['error_file'], ': ', $context['error_info']['file'], '</li>';
+
+		if (isset($context['error_info']['line']))
+			echo '
+					<li>', $txt['error_line'], ': ', $context['error_info']['line'], '</li>';
+
+		if (isset($context['error_info']['url']))
+			echo '
+					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
+
+
+		echo '
+				</ul>
+			</div>';
+	}
+
+	if (!empty($context['error_info']['backtrace']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['backtrace_title'], '
+				</h3>
+			</div>
+			<div class="windowbg noup">
+				<ul class="padding">';
+
+		foreach ($context['error_info']['backtrace'] as $key => $value)
+		{
+				echo '
+					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
+		}
+
+		echo '
+				</ul>
+			</div>';
+	}
+
+	echo '
 	</body>
 </html>';
 }
