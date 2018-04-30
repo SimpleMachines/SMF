@@ -63,6 +63,13 @@
 					})
 				);
 		},
+		storeLastState: function (){
+			this.wasSource = this.inSourceMode();
+		},
+		setTextMode: function () {
+			if (!this.inSourceMode())
+				this.toggleSourceMode();
+		},
 		createPermanentDropDown: function () {
 			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
