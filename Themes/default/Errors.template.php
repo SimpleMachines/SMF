@@ -271,7 +271,9 @@ function template_show_backtrace()
 		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 	</head>
 	<body>
-	', var_dump(!empty($context['error_backtrace'])? $context['error_backtrace'] : ''),'
+		<pre class="backtrace">
+		', print_r(!empty($context['error_backtrace']) ? $context['error_backtrace'] : ''),'
+		</pre>
 	</body>
 </html>';
 }

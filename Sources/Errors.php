@@ -118,7 +118,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	// Collect a backtrace (but leave out the call to log_error)
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 20);
 	array_shift($backtrace);
-	$backtrace = json_encode($backtrace);
+	$backtrace = !empty($smcFunc['json_encode']) ? $smcFunc['json_encode']($backtrace) : json_encode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...
 	$error_info = array($user_info['id'], time(), $user_info['ip'], $query_string, $error_message, (string) $sc, $error_type, $file, $line, $backtrace);
