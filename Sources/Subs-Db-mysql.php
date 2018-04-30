@@ -974,8 +974,8 @@ function smf_db_error_insert($error_array)
 
 	if (empty($mysql_error_data_prep))
 			$mysql_error_data_prep = mysqli_prepare($db_connection,
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
-													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?)'
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?, ?)'
 			);
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)

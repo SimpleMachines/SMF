@@ -973,8 +973,8 @@ function smf_db_error_insert($error_array)
 
 	if (empty($pg_error_data_prep))
 			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
-													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9)'
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9, $10)'
 			);
 
 	pg_execute($db_connection, 'smf_log_errors', $error_array);

@@ -145,7 +145,7 @@ function template_error_log()
 
 		echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="generic_icons filter centericon"></span></a>
-							', $txt['error_type'], ': ', $error['error_type']['name'], '<br>
+							', $txt['error_type'], ': ', $error['error_type']['name'], ' <a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="generic_icons details"></span></a><br>
 							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="generic_icons filter"></span></a>
 							<span class="error_message">', $error['message']['html'], '</span>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="generic_icons filter"></span></a>
@@ -254,6 +254,28 @@ function template_attachment_errors()
 			</div>
 		</div>
 	</div>';
+}
+
+/**
+ * This template shows a backtrace of the given error
+ */
+function template_show_backtrace()
+{
+	global $context, $settings, $modSettings;
+
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	<head>
+		<meta charset="', $context['character_set'], '">
+		<title>Backtrace</title>
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+	</head>
+	<body>
+		<pre class="backtrace">
+		', print_r(!empty($context['error_backtrace']) ? $context['error_backtrace'] : ''),'
+		</pre>
+	</body>
+</html>';
 }
 
 ?>
