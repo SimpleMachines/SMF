@@ -1254,8 +1254,6 @@ function getBoardModerators(array $boards)
 	}
 	$smcFunc['db_free_result']($request);
 
-	log_error('fake error', 'general', __FILE__, __LINE__);
-
 	return $moderators;
 }
 
