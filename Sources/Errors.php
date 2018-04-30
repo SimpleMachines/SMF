@@ -38,13 +38,15 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	$error_call++;
 
+	// Collect a backtrace
+	if (!isset($db_show_debug) || $db_show_debug === false)
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	else
+		$backtrace = debug_backtrace();
+
 	// are we in a loop?
 	if($error_call > 2)
 	{
-		if (!isset($db_show_debug) || $db_show_debug === false)
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		else
-			$backtrace = debug_backtrace();
 		var_dump($backtrace);
 		die('Error loop.');
 	}
@@ -115,8 +117,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 
-	// Collect a backtrace (but leave out the call to log_error)
-	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 20);
+	// leave out the call to log_error
 	array_shift($backtrace);
 	$backtrace = !empty($smcFunc['json_encode']) ? $smcFunc['json_encode']($backtrace) : json_encode($backtrace);
 
