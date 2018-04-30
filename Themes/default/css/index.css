@@ -3908,3 +3908,9 @@ tr[id^='list_news_lists_'] textarea {
 	width: 100% !important;
 	height: 100% !important;
 }
+
+.backtrace:not(:last-child) {
+	padding-bottom: 0.5em;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 0.5em;
+}

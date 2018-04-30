@@ -639,7 +639,7 @@ h3.grid_header {
 }
 #error_log a.error_message {
 	float: left;
-	margin-right: 5px; 
+	margin-right: 5px;
 }
 #error_log span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
