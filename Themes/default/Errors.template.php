@@ -283,23 +283,23 @@ function template_show_backtrace()
 			<div class="windowbg noup">
 				<ul class="padding">';
 
-		if (isset($context['error_info']['type']))
+		if (!empty($context['error_info']['error_type']))
 			echo '
-					<li>', $txt['error_type'], ': ', ucfirst($context['error_info']['type']), '</li>';
+					<li>', $txt['error_type'], ': ', ucfirst($context['error_info']['error_type']), '</li>';
 
-		if (isset($context['error_info']['message']))
+		if (!empty($context['error_info']['message']))
 			echo '
 					<li>', $txt['error_message'], ': ', $context['error_info']['message'], '</li>';
 
-		if (isset($context['error_info']['file']))
+		if (!empty($context['error_info']['file']))
 			echo '
 					<li>', $txt['error_file'], ': ', $context['error_info']['file'], '</li>';
 
-		if (isset($context['error_info']['line']))
+		if (!empty($context['error_info']['line']))
 			echo '
 					<li>', $txt['error_line'], ': ', $context['error_info']['line'], '</li>';
 
-		if (isset($context['error_info']['url']))
+		if (!empty($context['error_info']['url']))
 			echo '
 					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
 
