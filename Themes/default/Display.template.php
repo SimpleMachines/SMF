@@ -304,8 +304,8 @@ function template_main()
 			</div>
 		</div>';
 
-	// Show the moderation button & pop only if user can moderate
-	if ($context['can_moderate_forum'] || $context['user']['is_mod'])
+	// Show the moderation button & pop (if there is anything to show)
+	if (!empty($context['mod_buttons']))
 		echo '
 		<div id="mobile_moderation" class="popup_container">
 			<div class="popup_window description">
