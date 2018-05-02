@@ -68,6 +68,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (!empty($db_options['persist']))
 		$db_server = 'p:' . $db_server;
 
+	// We are not going to make it very far without these.
+	if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
+		display_db_error();
+
 	$connection = mysqli_init();
 
 	$flags = 2; //MYSQLI_CLIENT_FOUND_ROWS = 2
