@@ -1148,18 +1148,7 @@ function EditMembergroup()
 
 			// If the extension is not empty, and it is valid
 			if (!empty($ext) && in_array($ext, $imageExts))
-			{
-				// Get the size of the image.
-				$image_info = getimagesize($settings['default_theme_dir'] . '/images/membericons/' . $value);
-
-				// If this is bigger than 128 in width or 32 in height, skip this one.
-				if ($image_info == false || $image_info[0] > 128 || $image_info[1] > 32)
-					continue;
-
-				// Else it's valid. Add it in.
-				else
-					$context['possible_icons'][] = $value;
-			}
+				$context['possible_icons'][] = $value;
 		}
 	}
 
