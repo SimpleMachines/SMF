@@ -425,6 +425,7 @@ $txt['in'] = 'in';
 $txt['sticky_topic'] = 'Sticky Topic';
 
 $txt['delete'] = 'Delete';
+$txt['no_change'] = 'No change';
 
 $txt['your_pms'] = 'Your Personal Messages';
 
