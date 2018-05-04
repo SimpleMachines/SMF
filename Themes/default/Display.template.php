@@ -238,7 +238,7 @@ function template_main()
 	echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -261,7 +261,7 @@ function template_main()
 	echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
 	// Show the page index... "Pages: [1]".
