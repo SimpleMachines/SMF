@@ -2640,6 +2640,14 @@ WHERE variable = 'smiley_sets_names';
 ---#
 
 /******************************************************************************/
+--- Add backtrace to log_error
+/******************************************************************************/
+---# add backtrace column
+ALTER TABLE {$db_prefix}log_error
+ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
 --- Update permissions system
 /******************************************************************************/
 ---# Create table board_permissions_view

@@ -351,6 +351,7 @@ $txt['add_language_smf_version'] = 'Version';
 
 $txt['edit_language_entries_primary'] = 'Below are the primary language settings for this language pack.';
 $txt['edit_language_entries'] = 'Edit Language Entries';
+$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="' . $scripturl . '?action=admin;area=theme;sa=edit">' . $txt['themeadmin_edit_title'] . '</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
@@ -384,6 +385,13 @@ $txt['languages_download_illegal_paths'] = 'Package contains illegal paths - ple
 $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
+$txt['languages_max_inputs_warning'] = 'You can only save %1$s edits at a time. Please click the Save button now, and then continue editing when this page reloads.';
+$txt['languages_txt'] = 'Standard text strings';
+$txt['languages_helptxt'] = 'Help text';
+$txt['languages_editortxt'] = 'User interface for the editor';
+$txt['languages_tztxt'] = 'Time zone descriptions';
+$txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_enter_key'] = 'Enter a variable name for this text string';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';

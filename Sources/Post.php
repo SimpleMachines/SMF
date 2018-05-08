@@ -1261,7 +1261,7 @@ function Post($post_errors = array())
 
 	// Mock files to show already attached files.
 	addInlineJavaScript('
-	var current_attachments = [];', true);
+	var current_attachments = [];');
 
 	if (!empty($context['current_attachments']))
 	{
@@ -1274,7 +1274,7 @@ function Post($post_errors = array())
 		approved: '. $mock['approved'] . ',
 		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
 		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
-	});', true);
+	});');
 	}
 
 	// File Upload.

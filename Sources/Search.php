@@ -2097,6 +2097,10 @@ function prepareSearchContext($reset = false)
 		$query = trim($query, "\*+");
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
+		// Highlighting empty strings would make a terrible mess...
+		if (strlen($query) == 0)
+			continue;
+
 		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function ($m)
 		{
 			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
