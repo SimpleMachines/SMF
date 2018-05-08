@@ -213,10 +213,18 @@ function summary($memID)
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
 {
-	global $smcFunc, $txt, $scripturl, $memberContext;
+	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
+
+	// are we someone else?
+	if (empty($user_info) || $user_info['id'] !== $memID)
+	{
+		$user_old = !empty($user_info) ? $user_info : null;
+		loadMemberData($memID, false, 'minimal');
+		$user_info = $user_profile[$memID];
+	}
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -374,6 +382,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
 		}
 	}
+
+	$user_info = !empty($user_old) ? $user_old : null;
 
 	return $alerts;
 }
