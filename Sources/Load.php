@@ -1179,12 +1179,13 @@ function loadPermissions()
  * @param array|string $users An array of users by id or name or a single username/id
  * @param bool $is_name Whether $users contains names
  * @param string $set What kind of data to load (normal, profile, minimal)
+ * @param boolean $load_guests Load guest user data when member not found
  * @return array The ids of the members loaded
  */
-function loadMemberData($users, $is_name = false, $set = 'normal')
+function loadMemberData($users, $is_name = false, $set = 'normal', $load_guests = false)
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $boardurl, $user_info;
+	global $image_proxy_enabled, $boardurl, $user_info, $language;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1362,6 +1363,49 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$user_profile[$id]['icons'] = $row['icons'];
 			if (!empty($row['member_group_color']))
 				$user_profile[$id]['member_group_color'] = $row['member_group_color'];
+		}
+	}
+
+	// Add the guest
+	if ($load_guests)
+	{
+		$guests = array_diff($users, $loaded_ids);
+		foreach ($guests as $id)
+		{
+			$user_profile[$id] = array('groups' => array(-1));
+			$user_profile[$id] += array(
+				'id' => $id,
+				'username' => '',
+				'name' => '',
+				'email' => '',
+				'passwd' => '',
+				'language' =>  $language,
+				'is_guest' => true,
+				'is_admin' => false,
+				'theme' => 0,
+				'last_login' =>  0,
+				'ip' => '127.0.0.1',
+				'ip2' => '127.0.0.1',
+				'posts' => 0,
+				'time_format' => $modSettings['time_format'],
+				'avatar' => array(
+					'url' => '',
+					'filename' => '',
+					'custom_dir' => false,
+					'id_attach' => 0
+				),
+				'smiley_set' => '',
+				'messages' => 0,
+				'unread_messages' => 0,
+				'alerts' => 0,
+				'total_time_logged_in' => 0,
+				'buddies' => array(),
+				'ignoreboards' => array(),
+				'ignoreusers' => array(),
+				'warning' => 0,
+				'permissions' => array(),
+			);
+			$loaded_ids[] = $id;
 		}
 	}
 
