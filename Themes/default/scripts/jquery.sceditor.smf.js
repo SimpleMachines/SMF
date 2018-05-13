@@ -217,7 +217,11 @@ sceditor.command.set(
 						'<a target="_blank" rel="noopener" href="' + url + '">' + text + '</a>'
 					);
 				} else {
-					editor.execCommand('createlink', url);
+					// Can't just use `editor.execCommand('createlink', url)`
+					// because we need to set the target attribute.
+					editor.wysiwygEditorInsertHtml(
+						'<a target="_blank" rel="noopener" href="' + url + '">', '</a>'
+					);
 				}
 			});
 		}
