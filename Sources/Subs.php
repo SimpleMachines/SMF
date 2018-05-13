@@ -739,6 +739,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
+	// Ensure required values are set
+	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
+	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
+
 	// Offset the time.
 	if (!$offset_type)
 		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
