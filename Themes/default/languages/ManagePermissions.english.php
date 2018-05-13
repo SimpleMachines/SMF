@@ -238,7 +238,7 @@ $txt['permissionhelp_report_any'] = 'This permission adds a link to each message
 
 $txt['permissiongroup_likes'] = 'Likes';
 $txt['permissionname_likes_like'] = 'Can like any content';
-$txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
+$txt['permissionhelp_likes_like'] = 'This permission allows a user to like any content. Users aren\'t allowed to like their own content.';
 
 $txt['permissiongroup_mentions'] = 'Mentions';
 $txt['permissionname_mention'] = 'Mention others via @name';
