@@ -222,7 +222,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	if (empty($user_info) || $user_info['id'] !== $memID)
 	{
 		$user_old = !empty($user_info) ? $user_info : null;
-		loadMemberData($memID, false, 'minimal', true);
+		loadMemberData($memID, false, 'minimal');
 		$user_info = $user_profile[$memID];
 	}
 
