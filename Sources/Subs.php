@@ -739,6 +739,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
+	$unsupportedFormatsWindows = array('z','Z');
+
 	// Offset the time.
 	if (!$offset_type)
 		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
@@ -817,10 +819,15 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
-			if ($context['server']['is_windows'] && !empty($strftimeFormatSubstitutions['Z']))
+			if ($context['server']['is_windows'])
 			{
-				$unsupportedFormats[] = 'Z';
-				unset($strftimeFormatSubstitutions['Z']);
+				foreach ($unsupportedFormatsWindows as $value)
+				{
+					if (empty($strftimeFormatSubstitutions[$value]))
+						continue;
+					$unsupportedFormats[] = $value;
+					unset($strftimeFormatSubstitutions[$value]);
+				}
 			}
 
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
