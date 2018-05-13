@@ -68,7 +68,7 @@ function smf_fileUpload(oOptions) {
 				fileKB = myDropzone.options.maxFileSize,
 				uploadedFileKB = file.size / 1024;
 
-			// Check againts the max amount of files setting
+			// Check against the max amount of files setting.
 			if ((myDropzone.options.maxFileAmount != null) && (myDropzone.getAcceptedFiles().length) >= myDropzone.options.maxFileAmount)
 				done(this.options.dictMaxFilesExceeded);
 
