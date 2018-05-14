@@ -819,19 +819,15 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
-			if ($context['server']['is_windows'])
-			{
-				foreach ($unsupportedFormatsWindows as $value)
-				{
-					if (empty($strftimeFormatSubstitutions[$value]))
-						continue;
-					$unsupportedFormats[] = $value;
-					unset($strftimeFormatSubstitutions[$value]);
-				}
-			}
-
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
 			{
+				// Avoid a crashing bug with PHP 7 on certain versions of Windows
+				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
+				{
+					$unsupportedFormats[] = $format;
+					continue;
+				}
+
 				$value = @strftime('%' . $format);
 
 				// Windows will return false for unsupported formats
