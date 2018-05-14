@@ -739,6 +739,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
+	$unsupportedFormatsWindows = array('z','Z');
+
 	// Ensure required values are set
 	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
 	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
@@ -824,6 +826,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		{
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
 			{
+				// Avoid a crashing bug with PHP 7 on certain versions of Windows
+				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
+				{
+					$unsupportedFormats[] = $format;
+					continue;
+				}
+
 				$value = @strftime('%' . $format);
 
 				// Windows will return false for unsupported formats
