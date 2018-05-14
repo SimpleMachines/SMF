@@ -213,31 +213,36 @@ function template_modify_language_entries()
 					', $txt['edit_language_entries'], '
 				</h3>
 			</div>
-			<div id="taskpad" class="floatright">
-				', $txt['edit_language_entries_file'], ':
-				<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
-					<option value="-1">&nbsp;</option>';
+			<div class="information">
+				<div>
+					', $txt['edit_language_entries_desc'], '
+				</div>
+				<br>
+				<div id="taskpad" class="floatright">
+					', $txt['edit_language_entries_file'], ':
+					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
+						<option value="-1">&nbsp;</option>';
 
 	foreach ($context['possible_files'] as $id_theme => $theme)
 	{
 		echo '
-					<optgroup label="', $theme['name'], '">';
+						<optgroup label="', $theme['name'], '">';
 
 		foreach ($theme['files'] as $file)
 			echo '
-						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '> =&gt; ', $file['name'], '</option>';
+							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '>', $file['name'], '</option>';
 
 		echo '
-					</optgroup>';
+						</optgroup>';
 	}
 
 	echo '
-				</select>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
-			</div><!-- #taskpad -->
-			<br class="clear">';
+					</select>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
+					<input type="submit" value="', $txt['go'], '" class="button" style="float: none">
+				</div><!-- #taskpad -->
+			</div><!-- .information -->';
 
 	// Is it not writable? Show an error.
 	if (!empty($context['entries_not_writable_message']))
@@ -250,59 +255,78 @@ function template_modify_language_entries()
 	if (!empty($context['file_entries']))
 	{
 		echo '
-			<div class="windowbg2">
-				<dl class="settings">';
+			<div class="windowbg2">';
 
-		$cached = array();
-		foreach ($context['file_entries'] as $entry)
+		$entry_num = 0;
+		foreach ($context['file_entries'] as $group => $entries)
 		{
-			// Do it in two's!
-			if (empty($cached))
+			echo '
+				<fieldset>
+					<legend>
+						<a id="settings_language_', $group, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $group, '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+						<span>', $txt['languages_' . $group], '</span>
+					</legend>
+					<dl class="settings" id="language_', $group, '">';
+
+			foreach ($entries as $entry)
 			{
-				$cached = $entry;
-				continue;
+				++$entry_num;
+
+				echo '
+						<dt>
+							<span>', $entry['key'], '</span>
+						</dt>
+						<dd id="entry_', $entry_num, '">';
+
+				if ($entry['can_remove'])
+					echo '
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
+								<label for="entry_', $entry_num, '_none">', $txt['no_change'], '</label>
+							</span>
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
+							</span>
+							<span style="margin-right: 1ch; white-space: nowrap">
+								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="remove" data-target="#entry_', $entry_num, '">
+								<label for="entry_', $entry_num, '_remove">', $txt['remove'], '</label>
+							</span>';
+				else
+					echo '
+							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+							<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>';
+
+				echo '
+							</span>
+							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
+							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
+						</dd>';
 			}
 
 			echo '
-					<dt>
-						<span class="smalltext">', $cached['key'], '</span>
-					</dt>
-					<dd>
-						<span class="smalltext">', $entry['key'], '</span>
-					</dd>
-					<dt>
-						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="width: 96%;">', $cached['value'], '</textarea>
-					</dt>
-					<dd>
-						<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-						<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
-					</dd>';
+					</dl>';
 
-			$cached = array();
+			if (!empty($context['can_add_lang_entry'][$group]))
+			{
+				echo '
+				<span class="add_lang_entry_button" style="display: none;">
+					<a class="button" href="javascript:void(0);" onclick="add_lang_entry(\'', $group, '\'); return false;">' . $txt['editnews_clickadd'] . '</a>
+				</span>
+				<script>
+					entry_num = ', $entry_num, ';
+				</script>';
+			}
+
+			echo '
+				</fieldset>';
 		}
 
-		// Odd number?
-		if (!empty($cached))
-			echo '
-
-					<dt>
-						<span class="smalltext">', $cached['key'], '</span>
-					</dt>
-					<dd>
-					</dd>
-					<dt>
-						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="width: 96%;">', $cached['value'], '</textarea>
-					</dt>
-					<dd>
-					</dd>';
-
 		echo '
-				</dl>
 				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
 			</div><!-- .windowbg2 -->';
 	}
+
 	echo '
 		</form>
 	</div><!-- #admincenter -->';

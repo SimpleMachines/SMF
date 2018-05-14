@@ -532,8 +532,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
-				AND type = {int:draft_type}
-			LIMIT 1',
+				AND type = {int:draft_type}',
 			array(
 				'id_draft' => $id_delete,
 				'id_member' => $memID,
