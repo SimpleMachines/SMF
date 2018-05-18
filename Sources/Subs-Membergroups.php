@@ -604,7 +604,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	// Log the data.
 	require_once($sourcedir . '/Logging.php');
 	foreach ($members as $member)
-		logAction('added_to_group', array('group' => $group_names[$group], 'member' => $member), 'admin');
+		logAction('added_to_group', array('group' => $group_names[$group], 'member_affected' => $member), 'admin');
 
 	return true;
 }

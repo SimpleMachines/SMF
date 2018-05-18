@@ -101,6 +101,8 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 			// And update the count of alerts for those people.
 			updateMemberData($notifies['alert'], array('alerts' => '+'));
 		}
+
+		return true;
 	}
 }
 
