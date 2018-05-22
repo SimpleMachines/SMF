@@ -53,7 +53,7 @@ function getBoardIndex($boardIndexOptions)
 			COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 			m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
-			(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
+			(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse,' : '')) . '
 			COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
@@ -62,10 +62,9 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
 			LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
-		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
-			AND b.child_level >= {int:child_level}') : '
-			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)) . '
-			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level, b.board_order',
+		WHERE {query_see_board}
+			AND b.child_level >= {int:child_level}
+			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
 		array(
 			'current_member' => $user_info['id'],
 			'child_level' => $boardIndexOptions['base_level'],
@@ -80,9 +79,17 @@ function getBoardIndex($boardIndexOptions)
 		$this_category = array();
 	$boards = array();
 
-	// Run through the categories and boards (or only boards)....
+	// Children can affect parents, so we need to gather all the boards first and then process them after.
+	$row_boards = array();
 	while ($row_board = $smcFunc['db_fetch_assoc']($result_boards))
+		$row_boards[$row_board['id_board']] = $row_board;
+	$smcFunc['db_free_result']($result_boards);
+
+	// Run through the categories and boards (or only boards)....
+	for (reset($row_boards); key($row_boards)!==null; next($row_boards))
 	{
+		$row_board = current($row_boards);
+
 		// Perhaps we are ignoring this board?
 		$ignoreThisBoard = in_array($row_board['id_board'], $user_info['ignoreboards']);
 		$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
@@ -112,7 +119,7 @@ function getBoardIndex($boardIndexOptions)
 
 			// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
 			if (empty($modSettings['recycle_enable']) || $modSettings['recycle_board'] != $row_board['id_board'])
-				$categories[$row_board['id_cat']]['new'] |= empty($row_board['is_read']) && $row_board['poster_name'] != '';
+				$categories[$row_board['id_cat']]['new'] |= empty($row_board['is_read']);
 
 			// Avoid showing category unread link where it only has redirection boards.
 			$categories[$row_board['id_cat']]['show_unread'] = !empty($categories[$row_board['id_cat']]['show_unread']) ? 1 : !$row_board['is_redirect'];
@@ -125,12 +132,16 @@ function getBoardIndex($boardIndexOptions)
 		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'])
 		{
 			// Is this a new board, or just another moderator?
-			if (!isset($this_category[$row_board['id_board']]))
+			if (!isset($this_category[$row_board['id_board']]['type']))
 			{
 				// Not a child.
 				$isChild = false;
 
-				$this_category[$row_board['id_board']] = array(
+				// We might or might not have already added this board, so...
+				if (!isset($this_category[$row_board['id_board']]))
+					$this_category[$row_board['id_board']] = array();
+
+				$this_category[$row_board['id_board']] += array(
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
@@ -174,18 +185,25 @@ function getBoardIndex($boardIndexOptions)
 				}
 			}
 		}
-		// Found a child board.... make sure we've found its parent and the child hasn't been set already.
-		elseif (isset($this_category[$row_board['id_parent']]['children']) && !isset($this_category[$row_board['id_parent']]['children'][$row_board['id_board']]))
+		// This is a child board.
+		elseif (isset($row_boards[$row_board['id_parent']]['id_parent']) && $row_boards[$row_board['id_parent']]['id_parent'] == $boardIndexOptions['parent_id'])
 		{
-			// A valid child!
 			$isChild = true;
+
+			// Ensure the parent has at least the most important info defined
+			if (!isset($this_category[$row_board['id_parent']]))
+				$this_category[$row_board['id_parent']] = array(
+					'children' => array(),
+					'children_new' => false,
+					'board_class' => 'off',
+				);
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
 				'name' => $row_board['board_name'],
 				'description' => $row_board['description'],
 				'short_description' => shorten_subject(strip_tags($row_board['description']), 128),
-				'new' => empty($row_board['is_read']) && $row_board['poster_name'] != '',
+				'new' => empty($row_board['is_read']),
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
 				'is_redirect' => $row_board['is_redirect'],
@@ -196,11 +214,11 @@ function getBoardIndex($boardIndexOptions)
 				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
 			);
 
-			// Counting child board posts is... slow :/.
+			// Counting child board posts in the parent's totals?
 			if (!empty($boardIndexOptions['countChildPosts']) && !$row_board['is_redirect'])
 			{
-				$this_category[$row_board['id_parent']]['posts'] += $row_board['num_posts'];
-				$this_category[$row_board['id_parent']]['topics'] += $row_board['num_topics'];
+				$row_boards[$row_board['id_parent']]['num_posts'] += $row_board['num_posts'];
+				$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
 			}
 
 			// Does this board contain new boards?
@@ -216,39 +234,24 @@ function getBoardIndex($boardIndexOptions)
 			// This is easier to use in many cases for the theme....
 			$this_category[$row_board['id_parent']]['link_children'][] = &$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['link'];
 		}
-		// Child of a child... just add it on...
-		elseif (!empty($boardIndexOptions['countChildPosts']))
+		// A further descendent (grandchild, great-grandchild, etc.)
+		else
 		{
-			if (!isset($parent_map))
-				$parent_map = array();
-
-			if (!isset($parent_map[$row_board['id_parent']]))
-				foreach ($this_category as $id => $board)
-				{
-					if (!isset($board['children'][$row_board['id_parent']]))
-						continue;
-
-					$parent_map[$row_board['id_parent']] = array(&$this_category[$id], &$this_category[$id]['children'][$row_board['id_parent']]);
-					$parent_map[$row_board['id_board']] = array(&$this_category[$id], &$this_category[$id]['children'][$row_board['id_parent']]);
-
-					break;
-				}
-
-			if (isset($parent_map[$row_board['id_parent']]) && !$row_board['is_redirect'])
+			// Propagate some values to the parent board
+			if (isset($row_boards[$row_board['id_parent']]))
 			{
-				$parent_map[$row_board['id_parent']][0]['posts'] += $row_board['num_posts'];
-				$parent_map[$row_board['id_parent']][0]['topics'] += $row_board['num_topics'];
-				$parent_map[$row_board['id_parent']][1]['posts'] += $row_board['num_posts'];
-				$parent_map[$row_board['id_parent']][1]['topics'] += $row_board['num_topics'];
+				if (empty($row_board['is_read']))
+					$row_boards[$row_board['id_parent']]['is_read'] = $row_board['is_read'];
 
-				continue;
+				if (!empty($boardIndexOptions['countChildPosts']) && !$row_board['is_redirect'])
+				{
+					$row_boards[$row_board['id_parent']]['num_posts'] += $row_board['num_posts'];
+					$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
+				}
 			}
 
 			continue;
 		}
-		// Found a child of a child - skip.
-		else
-			continue;
 
 		// Prepare the subject, and make sure it's not too long.
 		censorText($row_board['subject']);
@@ -295,7 +298,7 @@ function getBoardIndex($boardIndexOptions)
 		}
 
 		// Set the last post in the parent board.
-		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'] || ($isChild && !empty($row_board['poster_time']) && $this_category[$row_board['id_parent']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])))
+		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'] || ($isChild && !empty($row_board['poster_time']) && forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time'])))
 			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
 		// Just in the child...?
 		if ($isChild)
@@ -303,11 +306,12 @@ function getBoardIndex($boardIndexOptions)
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['last_post'] = $this_last_post;
 
 			// If there are no posts in this board, it really can't be new...
-			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['new'] &= $row_board['poster_name'] != '';
+			// if ($row_board['poster_name'] == '')
+			// 	$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['new'] = false;
 		}
 		// No last post for this board?  It's not new then, is it..?
-		elseif ($row_board['poster_name'] == '')
-			$this_category[$row_board['id_board']]['new'] = false;
+		// elseif ($row_board['poster_name'] == '')
+		// 	$this_category[$row_board['id_board']]['new'] = false;
 
 		// Determine a global most recent topic.
 		if (!empty($boardIndexOptions['set_latest_post']) && !empty($row_board['poster_time']) && $row_board['poster_time'] > $latest_post['timestamp'] && !$ignoreThisBoard)
@@ -316,7 +320,6 @@ function getBoardIndex($boardIndexOptions)
 				'ref' => &$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'],
 			);
 	}
-	$smcFunc['db_free_result']($result_boards);
 
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);
