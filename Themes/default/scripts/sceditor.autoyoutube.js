@@ -56,6 +56,11 @@
 
 					node.nodeValue = match[3] +
 						text.substr(match.index + match[0].length);
+
+					// Avoid wrapping the iframe in an unnecessary link
+					if (parent.nodeName === 'A' &&
+						parent.getAttribute('href') === match[0].trim())
+						parent.replaceWith(...parent.childNodes);
 				}
 			} else {
 				// TODO: Make this tag configurable.
