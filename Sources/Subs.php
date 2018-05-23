@@ -2775,6 +2775,9 @@ function parsesmileys(&$message)
 	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
 		return;
 
+	// Maybe a mod wants to implement an alternative method (e.g. emojis instead of images)
+	call_integration_hook('integrate_smileys', array(&$smileyPregSearch, &$smileyPregReplacements));
+
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
@@ -2858,7 +2861,7 @@ function parsesmileys(&$message)
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
