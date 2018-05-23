@@ -2821,19 +2821,20 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = $smcFunc['htmlspecialchars']($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
+		$smileys_dir = $modSettings['smileys_dir'] . '/' . $user_info['smiley_set'] . '/';
 
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
 			// If the image file is missing, see if there is an alternative available
-			if (!file_exists($smileys_path . $smileysto[$i]))
+			if (!file_exists($smileys_dir . $smileysto[$i]))
 			{
 				$exts = array('svg', 'png', 'gif', 'jpg');
 				$fname = pathinfo($smileysto[$i], PATHINFO_FILENAME);
-				$alt_images = glob($smileys_path . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
+				$alt_images = glob($smileys_dir . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
 				if (!empty($alt_images))
 				{
 					foreach ($exts as $ext)
-						if (in_array($smileys_path . $fname . '.' . $ext, $alt_images))
+						if (in_array($smileys_dir . $fname . '.' . $ext, $alt_images))
 						{
 							$smileysto[$i] = $fname . '.' . $ext;
 							break;
