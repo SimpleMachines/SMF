@@ -130,19 +130,21 @@ function getBoardIndex($boardIndexOptions)
 			$row_lvl[$row_board['child_level']] = array();
 		$row_lvl[$row_board['child_level']][] =  $row_board['id_board'];
 	}
-	
-	$max_level = max(array_keys($row_lvl));
-	$min_level = min(array_keys($row_lvl));
-	for($i = $max_level; $i >= $min_level; $i--)
+
+	if (!empty($row_lvl))
 	{
-		$count_ar = count($row_lvl[$i]);
-		for($x = 0; $x < $count_ar; $x++)
+		$max_level = max(array_keys($row_lvl));
+		$min_level = min(array_keys($row_lvl));
+		for($i = $max_level; $i >= $min_level; $i--)
 		{
-			$num = $row_lvl[$i][$x];
-			if ($row_boards[$num]['is_read'] == 0 && $row_boards[$num]['id_parent'] != 0 && isset($row_boards[$row_boards[$num]['id_parent']]) && $row_boards[$num]['child_level'] > 1)
-				$row_boards[$row_boards[$num]['id_parent']]['is_read'] = 0;
+			$count_ar = count($row_lvl[$i]);
+			for($x = 0; $x < $count_ar; $x++)
+			{
+				$num = $row_lvl[$i][$x];
+				if ($row_boards[$num]['is_read'] == 0 && $row_boards[$num]['id_parent'] != 0 && isset($row_boards[$row_boards[$num]['id_parent']]) && $row_boards[$num]['child_level'] > 1)
+					$row_boards[$row_boards[$num]['id_parent']]['is_read'] = 0;
+			}
 		}
-			
 	}
 
 	// Run through the categories and boards (or only boards)....
