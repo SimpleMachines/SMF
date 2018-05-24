@@ -20,6 +20,7 @@ function smf_fileUpload(oOptions) {
 		autoQueue: false,
 		clickable: '.fileinput-button',
 		currentUsedSize: 0,
+		timeout: null,
 		smf_insertBBC: function (file, w, h) {
 
 			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : ''),
