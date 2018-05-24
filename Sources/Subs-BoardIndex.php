@@ -44,7 +44,7 @@ function getBoardIndex($boardIndexOptions)
 		);
 
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
-	if (true)
+	if (true && $boardIndexOptions['parent_id'] != 0)
 		$result_boards = $smcFunc['db_query']('', '
 			WITH RECURSIVE 
 				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
@@ -52,7 +52,7 @@ function getBoardIndex($boardIndexOptions)
 			(
 				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards as b
-				WHERE {query_see_board} AND b.id_parent = {int:id_parent}
+				WHERE {query_see_board} AND b.id_board = {int:id_parent}
 				UNION ALL
 				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards as b
@@ -76,9 +76,6 @@ function getBoardIndex($boardIndexOptions)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
 				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
-			WHERE ' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
-				 b.child_level >= {int:child_level}') : '
-				 b.child_level >= ' . $boardIndexOptions['base_level']) . '
 				ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level, b.board_order',
 			array(
 				'current_member' => $user_info['id'],
