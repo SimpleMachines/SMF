@@ -2617,20 +2617,6 @@ function updateLastMessages($setboards, $id_msg = 0)
 			$board_updates[$msg . '-' . $lastModified[$id]]['boards'][] = $id;
 	}
 
-	// Now commit the changes!
-	foreach ($parent_updates as $id_msg => $boards)
-	{
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}boards
-			SET id_msg_updated = {int:id_msg_updated}
-			WHERE id_board IN ({array_int:board_list})
-				AND id_msg_updated < {int:id_msg_updated}',
-			array(
-				'board_list' => $boards,
-				'id_msg_updated' => $id_msg,
-			)
-		);
-	}
 	foreach ($board_updates as $board_data)
 	{
 		$smcFunc['db_query']('', '
