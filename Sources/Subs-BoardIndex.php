@@ -44,7 +44,7 @@ function getBoardIndex($boardIndexOptions)
 		);
 
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
-	if (true && $boardIndexOptions['parent_id'] != 0)
+	if ($smcFunc['db_cte_support']() && $boardIndexOptions['parent_id'] != 0)
 		$result_boards = $smcFunc['db_query']('', '
 			WITH RECURSIVE 
 				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
