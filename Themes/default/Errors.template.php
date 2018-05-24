@@ -132,7 +132,7 @@ function template_error_log()
 			echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><span class="generic_icons filter centericon"></span></a>
 							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
-		
+
 		if ($error['member']['session'] != '')
 			echo '
 							<br>
@@ -145,7 +145,7 @@ function template_error_log()
 
 		echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="generic_icons filter centericon"></span></a>
-							', $txt['error_type'], ': ', $error['error_type']['name'], '<br>
+							', $txt['error_type'], ': ', $error['error_type']['name'], ' <a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="generic_icons details"></span></a><br>
 							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="generic_icons filter"></span></a>
 							<span class="error_message">', $error['message']['html'], '</span>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="generic_icons filter"></span></a>
@@ -254,6 +254,86 @@ function template_attachment_errors()
 			</div>
 		</div>
 	</div>';
+}
+
+/**
+ * This template shows a backtrace of the given error
+ */
+function template_show_backtrace()
+{
+	global $context, $settings, $modSettings, $txt;
+
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	<head>
+		<meta charset="', $context['character_set'], '">
+		<title>Backtrace</title>
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+	</head>
+	<body class="padding">';
+
+	if (!empty($context['error_info']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['error'], '
+				</h3>
+			</div>
+			<div class="windowbg noup">
+				<ul class="padding">';
+
+		if (!empty($context['error_info']['error_type']))
+			echo '
+					<li>', $txt['error_type'], ': ', ucfirst($context['error_info']['error_type']), '</li>';
+
+		if (!empty($context['error_info']['message']))
+			echo '
+					<li>', $txt['error_message'], ': ', $context['error_info']['message'], '</li>';
+
+		if (!empty($context['error_info']['file']))
+			echo '
+					<li>', $txt['error_file'], ': ', $context['error_info']['file'], '</li>';
+
+		if (!empty($context['error_info']['line']))
+			echo '
+					<li>', $txt['error_line'], ': ', $context['error_info']['line'], '</li>';
+
+		if (!empty($context['error_info']['url']))
+			echo '
+					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
+
+
+		echo '
+				</ul>
+			</div>';
+	}
+
+	if (!empty($context['error_info']['backtrace']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['backtrace_title'], '
+				</h3>
+			</div>
+			<div class="windowbg noup">
+				<ul class="padding">';
+
+		foreach ($context['error_info']['backtrace'] as $key => $value)
+		{
+				echo '
+					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
+		}
+
+		echo '
+				</ul>
+			</div>';
+	}
+
+	echo '
+	</body>
+</html>';
 }
 
 ?>

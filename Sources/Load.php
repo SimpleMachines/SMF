@@ -2199,6 +2199,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_member_id' => $context['user']['id'],
 		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
 		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
+		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], $context['user']['name'])),
 	);
 
 	// Add the JQuery library to the list of files to load.

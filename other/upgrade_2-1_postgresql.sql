@@ -2463,3 +2463,11 @@ UPDATE {$db_prefix}settings
 SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
 WHERE variable = 'smiley_sets_names';
 ---#
+
+/******************************************************************************/
+--- Add backtrace to log_error
+/******************************************************************************/
+---# add backtrace column
+ALTER TABLE {$db_prefix}log_errors
+ADD COLUMN backtrace text NOT NULL default '';
+---#

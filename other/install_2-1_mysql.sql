@@ -342,6 +342,7 @@ CREATE TABLE {$db_prefix}log_errors (
   error_type CHAR(15) NOT NULL DEFAULT 'general',
   file VARCHAR(255) NOT NULL DEFAULT '',
   line MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
+  backtrace VARCHAR(10000) NOT NULL DEFAULT '',
   PRIMARY KEY (id_error),
   INDEX idx_log_time (log_time),
   INDEX idx_id_member (id_member),

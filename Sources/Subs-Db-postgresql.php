@@ -66,6 +66,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_native_replace'			=> 'smf_db_native_replace',
 		);
 
+	// We are not going to make it very far without these.
+	if (!function_exists('pg_pconnect'))
+		display_db_error();
+
 	if (!empty($db_options['persist']))
 		$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 	else
@@ -973,8 +977,8 @@ function smf_db_error_insert($error_array)
 
 	if (empty($pg_error_data_prep))
 			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
-													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9)'
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9, $10)'
 			);
 
 	pg_execute($db_connection, 'smf_log_errors', $error_array);

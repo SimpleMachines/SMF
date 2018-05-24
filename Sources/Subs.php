@@ -739,6 +739,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
+	$unsupportedFormatsWindows = array('z','Z');
+
+	// Ensure required values are set
+	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
+	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
+
 	// Offset the time.
 	if (!$offset_type)
 		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
@@ -819,6 +826,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		{
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
 			{
+				// Avoid a crashing bug with PHP 7 on certain versions of Windows
+				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
+				{
+					$unsupportedFormats[] = $format;
+					continue;
+				}
+
 				$value = @strftime('%' . $format);
 
 				// Windows will return false for unsupported formats
@@ -846,13 +860,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$str = $finalizedFormats[$str];
 
 	if (!isset($locale_cache))
-		$locale_cache = setlocale(LC_TIME, $txt['lang_locale']);
+		$locale_cache = setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
 
 	if ($locale_cache !== false)
 	{
 		// Check if another process changed the locale
 		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
-			setlocale(LC_TIME, $txt['lang_locale']);
+			setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
 
 		if (!isset($non_twelve_hour))
 			$non_twelve_hour = trim(strftime('%p')) === '';
@@ -5431,7 +5445,7 @@ function smf_list_timezones($when = 'now')
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
 		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
-		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (empty(strspn($tzvalue['abbr'], '+-')) ? $tzvalue['abbr'] . ' - ' : '') . $desc;
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (!strspn($tzvalue['abbr'], '+-') ? $tzvalue['abbr'] . ' - ' : '') . $desc;
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;

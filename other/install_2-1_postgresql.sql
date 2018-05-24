@@ -566,6 +566,7 @@ CREATE TABLE {$db_prefix}log_errors (
   error_type varchar(15) NOT NULL DEFAULT 'general',
   file varchar(255) NOT NULL DEFAULT '',
   line int NOT NULL DEFAULT '0',
+  backtrace text NOT NULL DEFAULT '',
   PRIMARY KEY (id_error)
 );
 

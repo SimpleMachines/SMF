@@ -68,6 +68,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (!empty($db_options['persist']))
 		$db_server = 'p:' . $db_server;
 
+	// We are not going to make it very far without these.
+	if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
+		display_db_error();
+
 	$connection = mysqli_init();
 
 	$flags = 2; //MYSQLI_CLIENT_FOUND_ROWS = 2
@@ -974,17 +978,17 @@ function smf_db_error_insert($error_array)
 
 	if (empty($mysql_error_data_prep))
 			$mysql_error_data_prep = mysqli_prepare($db_connection,
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line)
-													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?)'
+				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?, ?)'
 			);
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));
 	else
 		$error_array[2] = null;
-	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssi',
+	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssis',
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
-		$error_array[7], $error_array[8]);
+		$error_array[7], $error_array[8], $error_array[9]);
 	mysqli_stmt_execute ($mysql_error_data_prep);
 }
 

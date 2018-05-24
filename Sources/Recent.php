@@ -86,6 +86,8 @@ function RecentPosts()
 	if (isset($_REQUEST['start']) && $_REQUEST['start'] > 95)
 		$_REQUEST['start'] = 95;
 
+	$_REQUEST['start'] = (int) $_REQUEST['start'];
+
 	$query_parameters = array();
 	if (!empty($_REQUEST['c']) && empty($board))
 	{
