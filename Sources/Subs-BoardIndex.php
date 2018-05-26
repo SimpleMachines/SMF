@@ -302,16 +302,7 @@ function getBoardIndex($boardIndexOptions)
 			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
 		// Just in the child...?
 		if ($isChild)
-		{
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['last_post'] = $this_last_post;
-
-			// If there are no posts in this board, it really can't be new...
-			// if ($row_board['poster_name'] == '')
-			// 	$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['new'] = false;
-		}
-		// No last post for this board?  It's not new then, is it..?
-		// elseif ($row_board['poster_name'] == '')
-		// 	$this_category[$row_board['id_board']]['new'] = false;
 
 		// Determine a global most recent topic.
 		if (!empty($boardIndexOptions['set_latest_post']) && !empty($row_board['poster_time']) && $row_board['poster_time'] > $latest_post['timestamp'] && !$ignoreThisBoard)
