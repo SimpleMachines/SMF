@@ -43,6 +43,10 @@ function getBoardIndex($boardIndexOptions)
 			'ref' => 0,
 		);
 
+	// This setting is not allowed to be empty
+	if (empty($modSettings['boardindex_max_depth']))
+		$modSettings['boardindex_max_depth'] = 1;
+
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
 	$result_boards = $smcFunc['db_query']('', '
 		SELECT' . ($boardIndexOptions['include_categories'] ? '
@@ -63,11 +67,12 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 		WHERE {query_see_board}
-			AND b.child_level >= {int:child_level}
+			AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
 			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
 		array(
 			'current_member' => $user_info['id'],
 			'child_level' => $boardIndexOptions['base_level'],
+			'max_child_level' => $boardIndexOptions['base_level'] + $modSettings['boardindex_max_depth'],
 			'blank_string' => '',
 		)
 	);
