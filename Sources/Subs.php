@@ -2853,15 +2853,15 @@ function parsesmileys(&$message)
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
-			$searchParts[] = preg_quote($smileysfrom[$i], '~');
+			$searchParts[] = $smileysfrom[$i];
 			if ($smileysfrom[$i] != $specialChars)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
-				$searchParts[] = preg_quote($specialChars, '~');
+				$searchParts[] = $specialChars;
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
