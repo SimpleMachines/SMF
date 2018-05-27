@@ -2775,6 +2775,9 @@ function parsesmileys(&$message)
 	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
 		return;
 
+	// Maybe a mod wants to implement an alternative method (e.g. emojis instead of images)
+	call_integration_hook('integrate_smileys', array(&$smileyPregSearch, &$smileyPregReplacements));
+
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
@@ -2821,23 +2824,44 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = $smcFunc['htmlspecialchars']($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
+		$smileys_dir = $modSettings['smileys_dir'] . '/' . $user_info['smiley_set'] . '/';
 
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
+			// If the image file is missing, see if there is an alternative available
+			if (!file_exists($smileys_dir . $smileysto[$i]))
+			{
+				$exts = array('svg', 'png', 'gif', 'jpg');
+				$fname = pathinfo($smileysto[$i], PATHINFO_FILENAME);
+				$alt_images = glob($smileys_dir . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
+				if (!empty($alt_images))
+				{
+					foreach ($exts as $ext)
+						if (in_array($smileys_dir . $fname . '.' . $ext, $alt_images))
+						{
+							$smileysto[$i] = $fname . '.' . $ext;
+							break;
+						}
+				}
+				// If we have no image, just leave the text version in place
+				else
+					continue;
+			}
+
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
 			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
-			$searchParts[] = preg_quote($smileysfrom[$i], '~');
+			$searchParts[] = $smileysfrom[$i];
 			if ($smileysfrom[$i] != $specialChars)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
-				$searchParts[] = preg_quote($specialChars, '~');
+				$searchParts[] = $specialChars;
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
