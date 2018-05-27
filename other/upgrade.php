@@ -1897,7 +1897,7 @@ function parse_sql($filename)
 					continue;
 				}
 
-				if (eval('global $db_prefix, $modSettings, $smcFunc; ' . $current_data) === false)
+				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)
