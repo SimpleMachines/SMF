@@ -153,7 +153,8 @@ function sessionRead($session_id)
  */
 function sessionWrite($session_id, $data)
 {
-	global $smcFunc, $db_connection, $db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_persist, $db_port;
+	global $smcFunc, $db_connection, $db_server, $db_name, $db_user, $db_passwd;
+	global $db_prefix, $db_persist, $db_port, $db_mb4;
 
 	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
@@ -166,6 +167,10 @@ function sessionWrite($session_id, $data)
 		// Add in the port if needed
 		if (!empty($db_port))
 			$db_options['port'] = $db_port;
+
+		if (!empty($db_mb4))
+		$db_options['db_mb4'] = $db_mb4;
+
 		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
 
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
