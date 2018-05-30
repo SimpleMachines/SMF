@@ -2307,7 +2307,7 @@ function get_hook_info_from_raw($rawData)
 
 /**
  * Converts html entities to utf8 equivalents
- * special db wrapper for mysql based on the limitation of mysql
+ * special db wrapper for mysql based on the limitation of mysql/mb3
  *
  * Callback function for preg_replace_callback
  * Uses capture group 1 in the supplied array
@@ -2318,13 +2318,14 @@ function get_hook_info_from_raw($rawData)
  */
 function fixchardb__callback($matches)
 {
+	global $smcFunc;
 	if (!isset($matches[1]))
 		return '';
 
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
 	
-	// it's to big for mysql?
-	if ($num > 0xFFFF && $db_type == 'mysql')
+	// it's to big for mb3?
+	if ($num > 0xFFFF && !$smcFunc['db_mb4'])
 		return $matches[0];
 	else
 		return fixchar__callback($matches);
