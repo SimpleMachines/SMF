@@ -102,7 +102,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	mysqli_query($connection, 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\'');
 
 	if (!empty($db_options['db_mb4']))
-		$smcFunc['db_mb4'] = (bool) $db_mb4;
+		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
 
 	return $connection;
 }

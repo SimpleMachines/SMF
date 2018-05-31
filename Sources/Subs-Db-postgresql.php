@@ -89,7 +89,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	}
 
 	if (!empty($db_options['db_mb4']))
-		$smcFunc['db_mb4'] = (bool) $db_mb4;
+		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
 
 	return $connection;
 }
