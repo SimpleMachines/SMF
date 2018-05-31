@@ -158,6 +158,24 @@ abstract class search_api implements search_api_interface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function supportsMethod($methodName, $query_params = null)
+	{
+		switch ($methodName)
+		{
+			case 'postRemoved':
+				return true;
+			break;
+
+			// All other methods, too bad dunno you.
+			default:
+				return false;
+			break;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function isValid()
 	{
 	}
@@ -202,6 +220,48 @@ abstract class search_api implements search_api_interface
 	 */
 	public function postRemoved($id_msg)
 	{
+
+		global $smcFunc;
+
+		$result = $smcFunc['db_query']('','
+			SELECT DISTINCT id_search
+			FROM {db_prefix}log_search_results
+			WHERE id_msg = {int:id_msg}',
+			array(
+				'id_msg' => $id_msg,
+			)
+		);
+
+		$id_searchs = array();
+		while ($row = $smcFunc['db_fetch_assoc']($result))
+			$id_searchs[] = $row['id_search'];
+
+		if (count($id_searchs) < 1)
+			return;
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_results
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_topics
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
+
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}log_search_messages
+			WHERE id_search in ({array_int:id_searchs})',
+			array(
+				'id_searchs' => $id_searchs,
+			)
+		);
 	}
 
 	/**
