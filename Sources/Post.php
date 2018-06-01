@@ -46,6 +46,8 @@ function Post($post_errors = array())
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
 
+	call_integration_hook('integrate_post_start');
+
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
 	// use $temp to get around "Only variables should be passed by reference"
@@ -1438,6 +1440,8 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	call_integration_hook('integrate_post2_start');
 
 	// Drafts enabled and needed?
 	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
