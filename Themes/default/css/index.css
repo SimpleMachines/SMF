@@ -846,7 +846,7 @@ img.sort, .sort {
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
 .top_menu {
-	width: 25em;
+	width: 30em;
 }
 .top_menu .login {
 	width: 100%;
