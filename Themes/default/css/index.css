@@ -762,10 +762,15 @@ img.sort, .sort {
 .profile_user_links ol {
 	margin: 0 10px;
 	clear: both;
+	column-count: 2;
 }
 .profile_user_links li {
 	font-size: .8rem;
-	margin-bottom: 4px;
+	margin: 4px 0;
+	padding-left: 24px;
+	text-indent: -24px;
+	-webkit-hyphens: auto;
+	hyphens: auto;
 }
 /* Fixes bug with border-box on scrollable js */
 .scrollable, .scrollable * {
@@ -841,8 +846,8 @@ img.sort, .sort {
 	vertical-align: middle;
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
-#pm_menu, #alerts_menu {
-	width: 25em;
+.top_menu {
+	min-width: 25em;
 }
 .top_menu .login {
 	width: 100%;
