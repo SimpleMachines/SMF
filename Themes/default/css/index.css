@@ -766,7 +766,7 @@ img.sort, .sort {
 }
 .profile_user_links li {
 	font-size: .8rem;
-	margin: 4px 0;
+	line-height: 2em;
 	padding-left: 24px;
 	text-indent: -24px;
 	-webkit-hyphens: auto;
