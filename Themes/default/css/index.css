@@ -678,7 +678,7 @@ img.sort, .sort {
 	position: relative;
 }
 /* Level 1 button background. */
-.dropmenu li, #top_info > li {
+.dropmenu > li, #top_info > li {
 	display: inline-block;
 	margin: 0 2px 0 1px;
 	font-size: 0.9em;
@@ -761,15 +761,16 @@ img.sort, .sort {
 }
 .profile_user_links ol {
 	margin: 0 10px;
-	font-size: 0; /* fix for extra space between inline-blocks */
 	clear: both;
+	column-count: 2;
 }
 .profile_user_links li {
-	display: inline-block;
 	font-size: .8rem;
-	min-width: 18ex;
-	width: 50%;
-	margin-bottom: 4px;
+	line-height: 2em;
+	padding-left: 24px;
+	text-indent: -24px;
+	-webkit-hyphens: auto;
+	hyphens: auto;
 }
 /* Fixes bug with border-box on scrollable js */
 .scrollable, .scrollable * {
@@ -814,7 +815,7 @@ img.sort, .sort {
 	z-index: 90;
 	position: absolute;
 	display: none;
-	width: 18.2em;
+	min-width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
 	border: solid 1px #999;
@@ -846,7 +847,7 @@ img.sort, .sort {
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
 .top_menu {
-	width: 25em;
+	min-width: 25em;
 }
 .top_menu .login {
 	width: 100%;
