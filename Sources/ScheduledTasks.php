@@ -644,6 +644,7 @@ function scheduled_daily_digest()
 	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
 
 	// Right - send out the silly things - this will take quite some space!
+	$members_sent = array();
 	foreach ($members as $mid => $member)
 	{
 		$frequency = !empty($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 1;
@@ -732,6 +733,8 @@ function scheduled_daily_digest()
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
+
+		$members_sent[] = $mid;
 	}
 
 	// Clean up...
@@ -776,13 +779,12 @@ function scheduled_daily_digest()
 	}
 
 	// Just in case the member changes their settings mark this as sent.
-	$members = array_keys($members);
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_notify
 		SET sent = {int:is_sent}
 		WHERE id_member IN ({array_int:member_list})',
 		array(
-			'member_list' => $members,
+			'member_list' => $members_sent,
 			'is_sent' => 1,
 		)
 	);
