@@ -647,7 +647,7 @@ function scheduled_daily_digest()
 	$members_sent = array();
 	foreach ($members as $mid => $member)
 	{
-		$frequency = !empty($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 1;
+		$frequency = isset($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 0;
 		$notify_types = !empty($prefs[$mid]['msg_notify_type']) ? $prefs[$mid]['msg_notify_type'] : 1;
 
 		// Did they not elect to choose this?
