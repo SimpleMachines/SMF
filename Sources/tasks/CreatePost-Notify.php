@@ -98,6 +98,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Notify members which might've been quoted
 		self::handleQuoteNotifications($msgOptions, $posterOptions, $quotedMembers, $prefs, $done_members, $alert_rows);
 
+		// Save ourselves a bit of work in the big loop below
+		foreach ($done_members as $done_member)
+			unset($watched[$done_member]);
+
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
@@ -116,7 +120,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			elseif ($notify_types == 4)
 				continue;
 
-			if (empty($frequency) || $frequency > 2 || $data['sent'] || in_array($member, $done_members)
+			if (empty($frequency) || $frequency > 2 || $data['sent']
 				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
 				continue;
 
