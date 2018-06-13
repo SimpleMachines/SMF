@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings;
+	global $sourcedir, $context, $user_profile, $modSettings, $language, $scripturl;
 
 	isAllowedTo('moderate_forum');
 
@@ -53,6 +53,20 @@ function activateAccount($memID)
 
 		// Make sure we update the stats too.
 		updateStats('member', false);
+		
+		// Send out an approval confirmation
+		$replacements = array(
+			'NAME' => $user_profile[$memID]['real_name'],
+			'USERNAME' => $user_profile[$memID]['member_name'],
+			'PROFILELINK' => $scripturl . '?action=profile;u=' . $memID,
+			'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
+		);
+		
+		require_once($sourcedir . '/Subs-Post.php');
+		loadLanguage('Login');
+		
+		$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $language);
+		sendmail($user_profile[$memID]['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
 	}
 
 	// Leave it be...
