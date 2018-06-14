@@ -80,6 +80,9 @@ input, select, .button {
 input[type="checkbox"] {
 	height: 13px;
 }
+.input_file {
+	height: auto;
+}
 select {
 	padding: 2px;
 }
