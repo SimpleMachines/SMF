@@ -77,6 +77,10 @@ input, button, select {
 input, select, .button {
 	height: 25px;
 }
+/* Small fix for type="file" elements */
+input[type="file"] {
+	height: auto;
+}
 input[type="checkbox"] {
 	height: 13px;
 }
