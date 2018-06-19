@@ -205,7 +205,7 @@ body#help_popup {
 	margin: 0 2px;
 	padding: 2px 4px;
 	font-size: 9px;
-	font-family: verdana, monospace, sans-serif;
+	font-family: verdana, sans-serif;
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
 	opacity: 0.7;
 	transition: 0.3s all;
@@ -2186,6 +2186,11 @@ dl {
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
@@ -2455,6 +2460,7 @@ dl.stats dt {
 	clear: both;
 	font-size: 1em;
 	overflow: hidden;
+	word-wrap: break-word; /* IE fallback */
 	overflow-wrap: break-word;
 }
 dl.stats dd {
@@ -3173,6 +3179,8 @@ div#pollmoderation {
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 .poster h4 {
 	font-size: 1.2em;

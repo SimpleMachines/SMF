@@ -264,6 +264,7 @@ span.hidelink {
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
 	overflow-wrap: break-word;
 }
 
