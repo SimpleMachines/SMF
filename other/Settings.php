@@ -115,6 +115,12 @@ $db_persist = 0;
  * @var int|bool
  */
 $db_error_send = 0;
+/**
+ * Override the default behavior of the database layer for mb4 handling
+ * null keep the default behavior untouched
+ * @var null|bool
+ */
+$db_mb4 = null;
 
 ########## Cache Info ##########
 /**
