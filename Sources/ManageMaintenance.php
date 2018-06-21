@@ -565,7 +565,7 @@ function ConvertEntities()
 		$columns = array();
 		if ($db_type == 'postgresql')
 			$request = $smcFunc['db_query']('', '
-				SELECT column_name "Field",data_type "Type"
+				SELECT column_name "Field", data_type "Type"
 				FROM information_schema.columns 
 				WHERE table_name = {string:cur_table}
 				AND (data_type = \'character varying\' or data_type = \'text\')',
