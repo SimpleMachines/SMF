@@ -11,7 +11,6 @@ $txt['draft_save'] = 'Save Draft';
 $txt['draft_save_note'] = 'This will save the text of your post, but it will not save attachments, poll or event information.';
 $txt['draft_none'] = 'You have no drafts.';
 $txt['draft_edit'] = 'Edit draft';
-$txt['draft_load'] = 'Load drafts';
 $txt['draft_hide'] = 'Hide drafts';
 $txt['draft_delete'] = 'Delete draft';
 $txt['draft_saved_on'] = 'Draft last saved';

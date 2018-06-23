@@ -1124,7 +1124,7 @@ function template_send()
 		echo '
 				<div id="postDraftOptionsHeader" class="title_bar title_top">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 					</h4>
 				</div>
 				<div id="postDraftOptions">
@@ -1284,7 +1284,7 @@ function template_send()
 					{
 						sId: \'postDraftExpandLink\',
 						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+						msgCollapsed: ', JavaScriptEscape($txt['drafts_show']), '
 					}
 				]
 			});';
