@@ -297,10 +297,10 @@ CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_grou
 
 CREATE TABLE {$db_prefix}board_permissions_view
 (
-    grp integer NOT NULL,
-    id_board integer NOT NULL,
+    id_group smallint NOT NULL DEFAULT '0',
+    id_board smallint NOT NULL,
     deny smallint NOT NULL,
-    PRIMARY KEY (grp, id_board, deny)
+    PRIMARY KEY (id_group, id_board, deny)
 );
 
 #

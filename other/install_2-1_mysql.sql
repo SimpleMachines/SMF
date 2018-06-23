@@ -151,10 +151,10 @@ CREATE TABLE {$db_prefix}boards (
 
 CREATE TABLE {$db_prefix}board_permissions_view
 (
-    grp integer NOT NULL,
-    id_board integer NOT NULL,
+    id_group SMALLINT NOT NULL DEFAULT '0',
+    id_board SMALLINT UNSIGNED NOT NULL,
     deny smallint NOT NULL,
-    PRIMARY KEY (grp, id_board, deny)
+    PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE={$engine};
 
 #

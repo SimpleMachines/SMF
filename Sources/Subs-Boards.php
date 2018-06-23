@@ -669,9 +669,9 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 		$smcFunc['db_insert']('insert',
 				'{db_prefix}board_permissions_view',
-				array('grp' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 				$insert,
-				array('grp','id_board','deny')
+				array('id_group','id_board','deny')
 				);
 	if (!empty($boardUpdateParameters['member_groups']))
 	{
@@ -687,9 +687,9 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 		$smcFunc['db_insert']('insert',
 				'{db_prefix}board_permissions_view',
-				array('grp' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 				$insert,
-				array('grp','id_board','deny')
+				array('id_group','id_board','deny')
 				);
 	}
 
@@ -901,9 +901,9 @@ function createBoard($boardOptions)
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}board_permissions_view',
-		array('grp' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 		$insert,
-		array('grp','id_board','deny'),
+		array('id_group','id_board','deny'),
 		1
 	);
 
