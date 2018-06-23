@@ -3595,8 +3595,7 @@ function template_upgrade_above()
 		</div><!-- #content_section -->
 		<div id="main_screen" class="clear">
 			<h2>', $upcontext['page_title'], '</h2>
-			<div class="panel">
-				<div style="max-height: 360px; overflow: auto;">';
+			<div class="panel">';
 }
 
 function template_upgrade_below()
@@ -3631,9 +3630,8 @@ function template_upgrade_below()
 							<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button">';
 
 	echo '
-						</div>
-					</form>
-				</div>
+					</div>
+				</form>
 			</div><!-- .panel -->
 		</div><!-- #main_screen -->
 	</div><!-- #wrapper -->
