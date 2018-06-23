@@ -855,7 +855,7 @@ while ($_GET['m'] < $totalMembers)
 			LEFT JOIN {$db_prefix}pm_recipients AS pmr ON (pmr.ID_MEMBER = mem.ID_MEMBER AND pmr.deleted = 0)
 		WHERE mem.ID_MEMBER > $_GET[m]
 			AND mem.ID_MEMBER <= $_GET[m] + 128
-		GROUP BY mem.ID_MEMBER
+		GROUP BY mem.ID_MEMBER, mem.instantMessages
 		HAVING instantMessages_real != instantMessages
 		LIMIT 256");
 	while ($row = smf_mysql_fetch_assoc($mrequest))
@@ -893,7 +893,7 @@ while ($_GET['m'] < $totalMembers)
 			LEFT JOIN {$db_prefix}pm_recipients AS pmr ON (pmr.ID_MEMBER = mem.ID_MEMBER AND pmr.deleted = 0 AND pmr.is_read = 0)
 		WHERE mem.ID_MEMBER > $_GET[m]
 			AND mem.ID_MEMBER <= $_GET[m] + 128
-		GROUP BY mem.ID_MEMBER
+		GROUP BY mem.ID_MEMBER, mem.unreadMessages
 		HAVING unreadMessages_real != unreadMessages
 		LIMIT 256");
 	while ($row = smf_mysql_fetch_assoc($mrequest))
