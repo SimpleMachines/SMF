@@ -1897,74 +1897,75 @@ function template_install_above()
 
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
-	<head>
-		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
-		<meta name="robots" content="noindex">
-		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
+<head>
+	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
+	<meta name="robots" content="noindex">
+	<title>', $txt['smf_installer'], '</title>
+	<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
+	<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
 
-		<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
-		<script src="Themes/default/scripts/script.js"></script>
-	</head>
-	<body><div id="footerfix">
-		<div id="header">
-			<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-			<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
-		</div>
-		<div id="wrapper">
-			<div id="upper_section">
-				<div id="inner_section">
-					<div id="inner_wrap">';
+	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
+	<script src="Themes/default/scripts/script.js"></script>
+</head>
+<body>
+	<div id="footerfix">
+	<div id="header">
+		<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
+		<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
+	</div>
+	<div id="wrapper">
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap">';
 
 	// Have we got a language drop down - if so do it on the first step only.
 	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0)
 	{
 		echo '
-						<div class="news">
-							<form action="', $installurl, '" method="get">
-								<label for="installer_language">', $txt['installer_language'], ':</label>
-								<select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
+					<div class="news">
+						<form action="', $installurl, '" method="get">
+							<label for="installer_language">', $txt['installer_language'], ':</label>
+							<select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 		foreach ($incontext['detected_languages'] as $lang => $name)
 			echo '
-									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
+								<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
 
 		echo '
-								</select>
-								<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button" /></noscript>
-							</form>
-						</div>
-						<hr class="clear" />';
+							</select>
+							<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button" /></noscript>
+						</form>
+					</div><!-- .news -->
+					<hr class="clear" />';
 	}
 
 	echo '
-					</div>
-				</div>
-			</div>
-			<div id="content_section">
-				<div id="main_content_section">
-					<div id="main_steps">
-						<h2>', $txt['upgrade_progress'], '</h2>
-						<ul>';
+				</div><!-- #inner_wrap -->
+			</div><!-- #inner_section -->
+		</div><!-- #upper_section -->
+		<div id="content_section">
+			<div id="main_content_section">
+				<div id="main_steps">
+					<h2>', $txt['upgrade_progress'], '</h2>
+					<ul>';
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-							<li class="', $num < $incontext['current_step'] ? 'stepdone' : ($num == $incontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
+						<li class="', $num < $incontext['current_step'] ? 'stepdone' : ($num == $incontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
 
 	echo '
-						</ul>
+					</ul>
+				</div>
+				<div id="progress_bar">
+					<div id="overall_text">', $incontext['overall_percent'], '%</div>
+					<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">
+						<span>'. $txt['upgrade_overall_progress'], '</span>
 					</div>
-					<div id="progress_bar">
-						<div id="overall_text">', $incontext['overall_percent'], '%</div>
-						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">
-							<span>'. $txt['upgrade_overall_progress'], '</span>
-						</div>
-					</div>
-					<div id="main_screen" class="clear">
-						<h2>', $incontext['page_title'], '</h2>
-						<div class="panel">';
+				</div>
+				<div id="main_screen" class="clear">
+					<h2>', $incontext['page_title'], '</h2>
+					<div class="panel">';
 }
 
 function template_install_below()
@@ -1974,35 +1975,36 @@ function template_install_below()
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
 		echo '
-								<div class="floatright">';
+							<div class="floatright">';
 
 		if (!empty($incontext['continue']))
 			echo '
-									<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button" />';
+								<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button" />';
 		if (!empty($incontext['skip']))
 			echo '
-									<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button" />';
+								<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button" />';
 		echo '
-								</div>';
+							</div>';
 	}
 
 	// Show the closing form tag and other data only if not in the last step
 	if (count($incontext['steps']) - 1 !== (int) $incontext['current_step'])
 		echo '
-							</form>';
+						</form>';
 
 	echo '
-						</div>
-					</div>
-				</div>
-			</div>
-		</div></div>
-		<div id="footer">
-			<ul>
-				<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
-			</ul>
-		</div>
-	</body>
+					</div><!-- .panel -->
+				</div><!-- #main_screen -->
+			</div><!-- #main_content_section -->
+		</div><!-- #content_section -->
+	</div><!-- #wrapper -->
+	</div><!-- #footerfix -->
+	<div id="footer">
+		<ul>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
+		</ul>
+	</div>
+</body>
 </html>';
 }
 
@@ -2150,7 +2152,9 @@ function template_chmod_files()
 					</td>
 				</tr>
 			</table>
-			<div style="margin: 1ex; margin-top: 1ex; text-align: ', $txt['lang_rtl'] == false ? 'right' : 'left', ';"><input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button" /></div>
+			<div style="margin: 1ex; margin-top: 1ex; text-align: ', $txt['lang_rtl'] == false ? 'right' : 'left', ';">
+				<input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button" />
+			</div>
 		</form>
 		<a href="', $incontext['form_url'], '">', $txt['error_message_click'], '</a> ', $txt['ftp_setup_again'];
 }
@@ -2247,16 +2251,16 @@ function template_database_settings()
 
 	// Toggles a warning related to db names in PostgreSQL
 	echo '
-	<script>
-		function toggleDBInput()
-		{
-			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
-				document.getElementById(\'db_name_info_warning\').style.display = \'none\';
-			else
-				document.getElementById(\'db_name_info_warning\').style.display = \'\';
-		}
-		toggleDBInput();
-	</script>';
+		<script>
+			function toggleDBInput()
+			{
+				if (document.getElementById(\'db_type_input\').value == \'postgresql\')
+					document.getElementById(\'db_name_info_warning\').style.display = \'none\';
+				else
+					document.getElementById(\'db_name_info_warning\').style.display = \'\';
+			}
+			toggleDBInput();
+		</script>';
 }
 
 // Stick in their forum settings.
@@ -2378,15 +2382,15 @@ function template_populate_database()
 	if (!empty($incontext['failures']))
 	{
 		echo '
-				<div style="color: red;">', $txt['error_db_queries'], '</div>
-				<ul>';
+		<div style="color: red;">', $txt['error_db_queries'], '</div>
+		<ul>';
 
 		foreach ($incontext['failures'] as $line => $fail)
 			echo '
-						<li><strong>', $txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
+			<li><strong>', $txt['error_db_queries_line'], $line + 1, ':</strong> ', nl2br(htmlspecialchars($fail)), '</li>';
 
 		echo '
-				</ul>';
+		</ul>';
 	}
 
 	echo '
@@ -2395,7 +2399,7 @@ function template_populate_database()
 	template_warning_divs();
 
 	echo '
-	<input type="hidden" name="pop_done" value="1" />';
+		<input type="hidden" name="pop_done" value="1" />';
 }
 
 // Create the admin account.
