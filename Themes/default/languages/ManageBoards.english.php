@@ -88,6 +88,7 @@ $txt['recycle_enable'] = 'Enable recycling of deleted topics';
 $txt['recycle_board'] = 'Board for recycled topics';
 $txt['redirect_board_desc'] = 'A board that redirects users if they visit it';
 $txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of topics without specifying a board to place them in. This feature will not be enabled until you specify a board to place recycled topics into.';
+$txt['boardindex_max_depth'] = 'Maximum depth of sub-boards to check for new posts, etc.';
 $txt['countChildPosts'] = 'Count sub-board\'s posts in parent\'s totals';
 $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
 $txt['deny_boards_access'] = 'Enable the option to deny board access based on membergroup';
