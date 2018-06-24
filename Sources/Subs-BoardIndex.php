@@ -48,34 +48,76 @@ function getBoardIndex($boardIndexOptions)
 		$modSettings['boardindex_max_depth'] = 1;
 
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
-	$result_boards = $smcFunc['db_query']('', '
-		SELECT' . ($boardIndexOptions['include_categories'] ? '
-			c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
-			b.id_board, b.name AS board_name, b.description,
-			CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
-			b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
-			COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
-			m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
-			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
-			(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
-			c.can_collapse,' : '')) . '
-			COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
-		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
-			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
-			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
-			LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
-			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
-		WHERE {query_see_board}
-			AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
+	if ($boardIndexOptions['parent_id'] != 0 && $smcFunc['db_cte_support']())
+		$result_boards = $smcFunc['db_query']('', '
+			WITH RECURSIVE 
+				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
+			as
+			(
+				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
+				FROM {db_prefix}boards as b
+				WHERE {query_see_board} AND b.id_board = {int:id_parent}
+				UNION ALL
+				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
+				FROM {db_prefix}boards as b
+				JOIN boards_cte as bc ON (b.id_parent = bc.id_board)
+				WHERE {query_see_board}
+					AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
+			)
+			SELECT' . ($boardIndexOptions['include_categories'] ? '
+				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
+				b.id_board, b.name AS board_name, b.description,
+				CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
+				b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
+				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
+				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
+				' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
+				(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
+				c.can_collapse,' : '')) . '
+				COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
+			FROM {db_prefix}boards_cte AS b' . ($boardIndexOptions['include_categories'] ? '
+				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
-		array(
-			'current_member' => $user_info['id'],
-			'child_level' => $boardIndexOptions['base_level'],
-			'max_child_level' => $boardIndexOptions['base_level'] + $modSettings['boardindex_max_depth'],
-			'blank_string' => '',
-		)
-	);
+			array(
+				'current_member' => $user_info['id'],
+				'child_level' => $boardIndexOptions['base_level'],
+				'max_child_level' => $boardIndexOptions['base_level'] + $modSettings['boardindex_max_depth'],
+				'blank_string' => '',
+			)
+		);
+	else
+		$result_boards = $smcFunc['db_query']('', '
+			SELECT' . ($boardIndexOptions['include_categories'] ? '
+				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
+				b.id_board, b.name AS board_name, b.description,
+				CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
+				b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
+				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
+				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
+				' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
+				(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
+				c.can_collapse,' : '')) . '
+				COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
+			FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
+				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
+				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
+			WHERE {query_see_board}
+				AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
+				ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
+			array(
+				'current_member' => $user_info['id'],
+				'child_level' => $boardIndexOptions['base_level'],
+				'max_child_level' => $boardIndexOptions['base_level'] + $modSettings['boardindex_max_depth'],
+				'blank_string' => '',
+			)
+		);
 
 	// Start with an empty array.
 	if ($boardIndexOptions['include_categories'])
