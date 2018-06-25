@@ -779,15 +779,18 @@ function scheduled_daily_digest()
 	}
 
 	// Just in case the member changes their settings mark this as sent.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}log_notify
-		SET sent = {int:is_sent}
-		WHERE id_member IN ({array_int:member_list})',
-		array(
-			'member_list' => $members_sent,
-			'is_sent' => 1,
-		)
-	);
+	if (!empty($members_sent))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_notify
+			SET sent = {int:is_sent}
+			WHERE id_member IN ({array_int:member_list})',
+			array(
+				'member_list' => $members_sent,
+				'is_sent' => 1,
+			)
+		);
+	}
 
 	// Log we've done it...
 	return true;
