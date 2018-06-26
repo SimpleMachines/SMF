@@ -621,6 +621,16 @@ ADD COLUMN deny_member_groups VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Adding setting for max depth of sub-boards to check for new posts, etc.
+/******************************************************************************/
+---# Adding the boardindex_max_depth setting.
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('boardindex_max_depth', '1');
+---#
+
+/******************************************************************************/
 --- Updating board access rules
 /******************************************************************************/
 ---# Updating board access rules
@@ -2602,9 +2612,9 @@ DROP INDEX id_board;
 --- Update smileys
 /******************************************************************************/
 ---# Transform default from gif to png
-UPDATE {$db_prefix}smileys 
+UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.gif', '.png')
-WHERE 
+WHERE
 	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
 ---#

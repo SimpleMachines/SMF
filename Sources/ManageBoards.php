@@ -822,7 +822,7 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
 
 	// Load the boards list - for the recycle bin!
 	$request = $smcFunc['db_query']('order_by_board_order', '
@@ -847,6 +847,10 @@ function EditBoardSettings($return_config = false)
 	else
 		$recycle_boards = array('');
 
+	// If this setting is missing, set it to 1
+	if (empty($modSettings['boardindex_max_depth']))
+		$modSettings['boardindex_max_depth'] = 1;
+
 	// Here and the board settings...
 	$config_vars = array(
 		array('title', 'settings'),
@@ -854,6 +858,7 @@ function EditBoardSettings($return_config = false)
 			array('permissions', 'manage_boards'),
 		'',
 			// Other board settings.
+			array('int', 'boardindex_max_depth', 'step' => 1, 'min' => 1, 'max' => 100),
 			array('check', 'countChildPosts'),
 			array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
 			array('select', 'recycle_board', $recycle_boards),
