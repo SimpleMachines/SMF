@@ -235,6 +235,7 @@ function template_main()
 		</div>';
 
 	// Mobile action - moderation buttons (top)
+	if (!empty($context['normal_buttons']))
 	echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -258,6 +259,7 @@ function template_main()
 		</div><!-- #forumposts -->';
 
 	// Mobile action - moderation buttons (bottom)
+	if (!empty($context['normal_buttons']))
 	echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>

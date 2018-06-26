@@ -113,6 +113,7 @@ function template_main()
 	if (!$context['no_topic_listing'])
 	{
 		// Mobile action buttons (top)
+		if (!empty($context['normal_buttons']))
 		echo '
 	<div class="mobile_buttons floatright">
 		<a class="button mobile_act">', $txt['mobile_action'], '</a>
@@ -346,6 +347,7 @@ function template_main()
 	</form>';
 
 		// Mobile action buttons (bottom)
+		if (!empty($context['normal_buttons']))
 		echo '
 	<div class="mobile_buttons floatright">
 		<a class="button mobile_act">', $txt['mobile_action'], '</a>
