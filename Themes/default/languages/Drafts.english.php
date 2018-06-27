@@ -2,12 +2,12 @@
 // Version: 2.1 Beta 4; Drafts
 
 // profile
-$txt['drafts_show'] = 'Show Drafts';
+$txt['drafts_show'] = 'Show drafts';
 $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently have saved. From here you can edit them before posting, or you can remove them';
 
 // misc
 $txt['drafts'] = 'Drafts';
-$txt['draft_save'] = 'Save Draft';
+$txt['draft_save'] = 'Save draft';
 $txt['draft_save_note'] = 'This will save the text of your post, but it will not save attachments, poll or event information.';
 $txt['draft_none'] = 'You have no drafts.';
 $txt['draft_edit'] = 'Edit draft';
