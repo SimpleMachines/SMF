@@ -389,13 +389,13 @@ $txt['posts_per_day'] = 'per day';
 
 $txt['buddy_ignore_desc'] = 'This area allows you to maintain your buddy and ignore lists for this forum. Adding members to these lists will, amongst other things, help control mail and PM traffic, depending on your preferences.';
 
-$txt['buddy_add'] = 'Add To Buddy List';
-$txt['buddy_remove'] = 'Remove From Buddy List';
+$txt['buddy_add'] = 'Add to buddy list';
+$txt['buddy_remove'] = 'Remove from buddy list';
 $txt['buddy_add_button'] = 'Add';
 $txt['no_buddies'] = 'Your buddy list is currently empty';
 
-$txt['ignore_add'] = 'Add To Ignore List';
-$txt['ignore_remove'] = 'Remove From Ignore List';
+$txt['ignore_add'] = 'Add to ignore list';
+$txt['ignore_remove'] = 'Remove from ignore list';
 $txt['ignore_add_button'] = 'Add';
 $txt['no_ignore'] = 'Your ignore list is currently empty';
 
