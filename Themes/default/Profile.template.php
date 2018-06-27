@@ -245,7 +245,7 @@ function template_summary()
 	if (!empty($context['can_have_buddy']) && !$context['user']['is_owner'])
 		echo '
 				<br>
-				<a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">[', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], ']</a>';
+				<a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], '</a>';
 
 	echo '
 			</span>';
