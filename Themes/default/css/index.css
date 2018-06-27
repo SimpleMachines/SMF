@@ -2663,7 +2663,8 @@ dl.addrules dt.floatleft {
 	position: absolute;
 	z-index: 999;
 	left: -9999px;
-	word-wrap: break-word;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 	max-width: 350px;
 	padding: 6px 9px;
 	color: #333;
@@ -3283,8 +3284,8 @@ div#pollmoderation {
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
-	word-break: break-all;
-	word-wrap: break-word;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 img.smiley {
 	vertical-align: bottom;
