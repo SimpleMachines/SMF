@@ -3622,11 +3622,10 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['custom_warning']))
 		echo '
-						<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-							<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-							<strong style="text-decoration: underline;">', $txt['upgrade_note'], '</strong><br>
-							<div style="padding-left: 6ex;">', $upcontext['custom_warning'], '</div>
-						</div>';
+					<div class="errorbox">
+						<h3>', $txt['upgrade_note'], '</h3>
+						', $upcontext['custom_warning'], '
+					</div>';
 
 	echo '
 						<div class="righttext" style="margin: 1ex;">';
@@ -3721,12 +3720,10 @@ function template_welcome_message()
 				<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
-					<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
-						<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
-						<div style="padding-left: 6ex;">
-							', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
-						</div>
+
+					<div id="version_warning" class="noticebox" style="display: none;">
+						<h3>', $txt['upgrade_warning'], '</h3>
+						', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
 					</div>';
 
 	$upcontext['chmod_in_form'] = true;
@@ -3735,33 +3732,24 @@ function template_welcome_message()
 	// For large, pre 1.1 RC2 forums give them a warning about the possible impact of this upgrade!
 	if ($upcontext['is_large_forum'])
 		echo '
-					<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-						<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
-						<div style="padding-left: 6ex;">
-							', $txt['upgrade_warning_lots_data'], '
-						</div>
+					<div class="errorbox">
+						<h3>', $txt['upgrade_warning'], '</h3>
+						', $txt['upgrade_warning_lots_data'], '
 					</div>';
 
 	// A warning message?
 	if (!empty($upcontext['warning']))
 		echo '
-					<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-						<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
-						<div style="padding-left: 6ex;">
-							', $upcontext['warning'], '
-						</div>
+					<div class="errorbox">
+						<h3>', $txt['upgrade_warning'], '</h3>
+						', $upcontext['warning'], '
 					</div>';
 
 	// Paths are incorrect?
 	echo '
-					<div style="margin: 2ex; padding: 2ex; border: 2px dashed #804840; color: black; background-color: #fe5a44; ', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? 'display: none;' : ''), '" id="js_script_missing_error">
-						<div style="float: left; width: 2ex; font-size: 2em; color: black;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br>
-						<div style="padding-left: 6ex;">
-							', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
-						</div>
+					<div class="errorbox"', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' style="display: none;"' : ''), ' id="js_script_missing_error">
+						<h3>', $txt['upgrade_critical_error'], '</h3>
+						', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -3784,25 +3772,22 @@ function template_welcome_message()
 			$updated = (int) ($active / 3600) . ' hours';
 
 		echo '
-					<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-						<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
-						<div style="padding-left: 6ex;">
-							&quot;', $upcontext['user']['name'], '&quot; has been running the upgrade script for the last ', $ago, ' - and was last active ', $updated, ' ago.';
+					<div class="errorbox">
+						<h3>', $txt['upgrade_warning'], '</h3>
+						<p>&quot;', $upcontext['user']['name'], '&quot; has been running the upgrade script for the last ', $ago, ' - and was last active ', $updated, ' ago.</p>';
 
 		if ($active < 600)
 			echo '
-						', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '';
+						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '</p>';
 
 		if ($active > $upcontext['inactive_timeout'])
 			echo '
-						<br><br>',$txt['upgrade_run'], '';
+						<p>',$txt['upgrade_run'], '</p>';
 		else
 			echo '
-						<br><br>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!');
+						<p>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!'), '</p>';
 
 		echo '
-						</div>
 					</div>';
 	}
 
@@ -3904,12 +3889,9 @@ function template_upgrade_options()
 	// Warning message?
 	if (!empty($upcontext['upgrade_options_warning']))
 		echo '
-				<div style="margin: 1ex; padding: 1ex; border: 1px dashed #cc3344; color: black; background-color: #ffe4e9;">
-					<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-					<strong style="text-decoration: underline;">Warning!</strong><br>
-					<div style="padding-left: 4ex;">
-						', $upcontext['upgrade_options_warning'], '
-					</div>
+				<div class="errorbox">
+					<h3>Warning!</h3>
+					', $upcontext['upgrade_options_warning'], '
 				</div>';
 
 	echo '
@@ -4173,10 +4155,9 @@ function template_database_changes()
 
 	// Place for the XML error message.
 	echo '
-					<div id="error_block" style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9; display: ', empty($upcontext['error_message']) ? 'none' : '', ';">
-						<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-						<strong style="text-decoration: underline;">', $txt['upgrade_error'], '</strong><br>
-						<div style="padding-left: 6ex;" id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : $txt['upgrade_unknown_error'], '</div>
+					<div id="error_block" class="errorbox"', empty($upcontext['error_message']) ? 'style="display: none;"' : '', '>
+						<h3>', $txt['upgrade_error'], '</h3>
+						<div id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : $txt['upgrade_unknown_error'], '</div>
 					</div>';
 
 	// We want to continue at some point!

@@ -2017,12 +2017,9 @@ function template_welcome_message()
 	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
-		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
-			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['error_warning_notice'], '</strong><br>
-			<div style="padding-left: 6ex;">
-				', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
-			</div>
+		<div id="version_warning" class="noticebox" style="display: none;">
+			<h3>', $txt['error_warning_notice'], '</h3>
+			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
 		</div>';
 
 	// Show the warnings, or not.
@@ -2068,22 +2065,16 @@ function template_warning_divs()
 	// Errors are very serious..
 	if (!empty($incontext['error']))
 		echo '
-		<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['upgrade_critical_error'], '</strong><br>
-			<div style="padding-left: 6ex;">
-				', $incontext['error'], '
-			</div>
+		<div class="errorbox">
+			<h3>', $txt['upgrade_critical_error'], '</h3>
+			', $incontext['error'], '
 		</div>';
 	// A warning message?
 	elseif (!empty($incontext['warning']))
 		echo '
-		<div style="margin: 2ex; padding: 2ex; border: 2px dashed #cc3344; color: black; background-color: #ffe4e9;">
-			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
-			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br>
-			<div style="padding-left: 6ex;">
-				', $incontext['warning'], '
-			</div>
+		<div class="errorbox">
+			<h3>', $txt['upgrade_warning'], '</h3>
+			', $incontext['warning'], '
 		</div>';
 
 	return empty($incontext['error']) && empty($incontext['warning']);
