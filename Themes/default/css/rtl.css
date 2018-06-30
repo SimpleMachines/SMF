@@ -40,10 +40,10 @@
 }
 
 /* the page navigation area */
-.generic_icons.move, .generic_icons.next_page {
+.generic_icons.move::before, .generic_icons.next_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.previous_page {
+.generic_icons.previous_page::before {
 	background-position: -5px -31px;
 }
 

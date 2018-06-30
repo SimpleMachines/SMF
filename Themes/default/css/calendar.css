@@ -264,11 +264,8 @@ span.hidelink {
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
 	overflow-wrap: break-word;
-	word-wrap: break-word;
-}
-#chrome #main_grid td.days {
-	word-break: break-word;
 }
 
 /* At less than 1024px wide, #main_grid needs all the space it can get */

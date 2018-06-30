@@ -247,9 +247,14 @@ function template_attachment_errors()
 			<div class="padding">
 				<div class="noticebox">',
 					$context['error_message'], '
-				</div>',
-				!empty($context['back_link']) ? ('<a class="button" href="' . $scripturl . $context['back_link'] . '">' . $txt['back'] . '</a>') : '',
-				'<span style="float: right; margin:.5em;"></span>
+				</div>';
+	
+	if (!empty($context['back_link'])) 
+		echo '
+				<a class="button" href="', $scripturl, $context['back_link'], '">', $txt['back'], '</a>';
+
+	echo '
+				<span style="float: right; margin:.5em;"></span>
 				<a class="button" href="', $scripturl, $context['redirect_link'], '">', $txt['continue'], '</a>
 			</div>
 		</div>
