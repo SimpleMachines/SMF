@@ -322,6 +322,12 @@ function template_show_backtrace()
 
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
+			//Check for existing
+			if (empty($value->file))
+				$value->file = $txt['unknown'];
+			if (empty($value->line))
+				$value->line = '-1';
+			
 				echo '
 					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
 		}
