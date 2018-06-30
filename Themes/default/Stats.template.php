@@ -103,18 +103,17 @@ function template_main()
 					<dt>
 						', $item['link'], '
 					</dt>
-					<dd class="statsbar">';
+					<dd class="statsbar generic_bar righttext">';
 
 			if (!empty($item['percent']))
 				echo '
-						<div class="bar" style="width: ', $item['percent'], '%;">
-							<span class="righttext">', $item['num'], '</span>
-						</div>';
+						<div class="bar" style="width: ', $item['percent'], '%;"></div>';
 			else
 				echo '
-						<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
+						<div class="bar empty"></div>';			
 
 			echo '
+						<span>', $item['num'], '</span>
 					</dd>';
 		}
 

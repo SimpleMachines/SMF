@@ -289,8 +289,8 @@ function template_create_index_progress()
 				<div>
 					<p>', $txt['search_create_index_not_ready'], '</p>
 					<div class="progress_bar">
-						<div class="full_bar">', $context['percentage'], '%</div>
-						<div class="green_percent" style="width: ', $context['percentage'], '%;"></div>
+						<span>', $context['percentage'], '%</span>
+						<div class="bar" style="width: ', $context['percentage'], '%;"></div>
 					</div>
 				</div>
 				<hr>
