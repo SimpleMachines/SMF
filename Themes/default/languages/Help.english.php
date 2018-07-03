@@ -590,6 +590,7 @@ $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or 
 		</ul>';
 
 $helptxt['custom_mask'] = 'The input mask is important for your forum\'s security. Validating the input from a user can help ensure that data is not used in a way you do not expect. We have provided some simple regular expressions as hints.<br><br>
+    Delimiters marking the beginning and end of the pattern are required! They are tildes (~) in the examples below.<br><br>
 	<div class="smalltext" style="margin: 0 2em">
 		&quot;~[A-Za-z]+~&quot; - Match all upper and lower case alphabet characters.<br>
 		&quot;~[0-9]+~&quot; - Match all numeric characters.<br>
