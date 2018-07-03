@@ -66,7 +66,7 @@ $helptxt['view_members'] = '
 			ability to delete them from the forum.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Approval</strong><br>
+			<strong>Awaiting approval</strong><br>
 			This page is only shown if you have enabled admin approval of all new registrations. Anyone who registers to join your
 			forum will only become a full member once they have been approved by an admin. The page lists all those members who
 			are still awaiting approval, along with their email and IP address. You can choose to either accept or reject (delete)
@@ -74,7 +74,7 @@ $helptxt['view_members'] = '
 			of the page. When rejecting a member you can choose to delete the member either with or without notifying them of your decision.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Activation</strong><br>
+			<strong>Awaiting activation</strong><br>
 			This page will only be visible if you have email activation of new member accounts enabled on the forum. This page will list all
 			members who have still not activated their new accounts. From this page you can choose to either accept, reject or remind
 			members with outstanding registrations. As above you can also choose to email the member to inform them of the
