@@ -141,18 +141,6 @@ function template_modify_subscription()
 				<div id="flexible_area" ', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
 					<fieldset>';
 
-	//!! Removed until implemented
-	if (!empty($sdflsdhglsdjgs))
-		echo '
-						<dl class="settings">
-							<dt>
-								<label for="allow_partial_check">', $txt['paid_mod_allow_partial'], '</label>:<br><span class="smalltext">', $txt['paid_mod_allow_partial_desc'], '</span>
-							</dt>
-							<dd>
-								<input type="checkbox" name="allow_partial" id="allow_partial_check"', empty($context['sub']['allow_partial']) ? '' : ' checked', '>
-							</dd>
-						</dl>';
-
 	echo '
 						<div class="information">
 							<strong>', $txt['paid_mod_price_breakdown'], '</strong><br>
