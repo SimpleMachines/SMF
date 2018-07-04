@@ -3518,6 +3518,11 @@ h3.catbg .generic_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
+.cat_bar + .windowbg2, .cat_bar + .windowbg, .cat_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
