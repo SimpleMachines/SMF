@@ -192,11 +192,6 @@ img#smflogo {
 	float: left;
 }
 
-/* the small stats */
-#index_common_stats {
-	text-align: left;
-}
-
 /* Poll results */
 #poll_options dl.options {
 	padding: 1em 2em 1em 2.5em;
