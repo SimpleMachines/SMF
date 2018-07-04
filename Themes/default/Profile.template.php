@@ -1326,7 +1326,7 @@ function template_statPanel()
 		// The labels.
 		foreach ($context['posts_by_time'] as $time_of_day)
 			echo '
-				<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
+				<li>
 					<div class="generic_bar vertical">
 						<div class="bar" style="height: ', (int) $time_of_day['relative_percent'], '%;">
 							<span>', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>

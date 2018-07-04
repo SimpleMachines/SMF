@@ -2475,10 +2475,6 @@ dl.stats dd {
 	float: left;
 	margin: 0 0 4px 2%;
 }
-#profileview dd, .nobb, .nobb dd {
-	background: none !important;
-	border: none !important;
-}
 dl.stats {
 	padding: 5px;
 }
