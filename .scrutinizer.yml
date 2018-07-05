@@ -102,7 +102,6 @@ checks:
         side_effects_or_types: false
         no_mixed_inline_html: false
         require_braces_around_control_structures: false
-        php5_style_constructor: false
         no_global_keyword: false
         avoid_usage_of_logical_operators: false
         psr2_class_declaration: false
