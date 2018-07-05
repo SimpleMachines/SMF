@@ -65,6 +65,7 @@ function activateAccount($memID)
 		require_once($sourcedir . '/Subs-Post.php');
 		loadLanguage('Login');
 
+		#
 		$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $language);
 		sendmail($user_profile[$memID]['email_address'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $memID, $emaildata['is_html'], 0);
 	}
