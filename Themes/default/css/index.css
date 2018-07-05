@@ -625,7 +625,7 @@ table.table_grid td {
 	width: 5%;
 }
 
-.title_bar th {
+.title_bar th, .windowbg th {
 	padding: 4px 8px;
 }
 .title_bar .sort_down, .title_bar .sort_up {

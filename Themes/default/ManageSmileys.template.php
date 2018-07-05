@@ -123,7 +123,7 @@ function template_modifysmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_modify_existing'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['smiley_preview'], ': </strong>
@@ -210,7 +210,7 @@ function template_addsmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smileys_add_method'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<ul>
 					<li>
 						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked> ', $txt['smileys_add_existing'], '</label>
@@ -294,7 +294,7 @@ function template_addsmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">
 					<dt>
 						<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
@@ -352,7 +352,7 @@ function template_setorder()
 			<div class="information noup">
 				', $location['description'], '
 			</div>
-			<div class="windowbg2 move_smileys">
+			<div class="windowbg2 noup move_smileys">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 
 		foreach ($location['rows'] as $row)
@@ -411,7 +411,7 @@ function template_editicon()
 					', $context['new_icon'] ? $txt['icons_new_icon'] : $txt['icons_edit_icon'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg2 noup">
 				<dl class="settings">';
 
 	if (!$context['new_icon'])
