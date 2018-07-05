@@ -1588,7 +1588,6 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
-		loadJavaScriptFile('sceditor.autoyoutube.js', array('minimize' => true), 'smf_sceditor_autoyoutube');
 		loadJavaScriptFile('sceditor.undo.js', array('minimize' => true), 'smf_sceditor_undo');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
