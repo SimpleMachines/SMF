@@ -66,7 +66,7 @@ function activateAccount($memID)
 		loadLanguage('Login');
 
 		$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $language);
-		sendmail($user_profile[$memID]['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($user_profile[$memID]['email_address'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $memID, $emaildata['is_html'], 0);
 	}
 
 	// Leave it be...
