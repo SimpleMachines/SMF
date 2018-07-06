@@ -218,10 +218,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
 
+	$user_old = $user_info;
 	// are we someone else?
-	if (empty($user_info) || $user_info['id'] !== $memID)
+	if (empty($user_info) || $user_info['id'] != $memID)
 	{
-		$user_old = !empty($user_info) ? $user_info : null;
 		if (empty($user_profile[$memID]))
 			loadMemberData($memID, false, 'profile');
 		$user_info = $user_profile[$memID];
@@ -384,7 +384,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		}
 	}
 
-	$user_info = !empty($user_old) ? $user_old : null;
+	$user_info = $user_old;
 
 	return $alerts;
 }
