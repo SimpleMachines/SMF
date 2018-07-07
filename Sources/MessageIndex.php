@@ -297,7 +297,7 @@ function MessageIndex()
 	$context['topics'] = array();
 
 	// Sequential pages are often not optimized, so we add an additional query.
-	$pre_query = $start > 0;
+	$pre_query = $start > 9000;
 	if ($pre_query && $context['maxindex'] > 0)
 	{
 		$message_pre_index_parameters = array(
@@ -404,8 +404,7 @@ function MessageIndex()
 			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
 				' . (!empty($message_index_wheres) ? 'AND ' . implode("\n\t\t\t\tAND ", $message_index_wheres) : '') . '
-			ORDER BY ' . ($pre_query ? $smcFunc['db_custom_order']('t.id_topic', $topic_ids) : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
-			LIMIT ' . ($pre_query ? '' : '{int:start}, ') . '{int:maxindex}',
+			ORDER BY ' . ($pre_query ? $smcFunc['db_custom_order']('t.id_topic', $topic_ids) : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) ,
 			$message_index_parameters
 		);
 
