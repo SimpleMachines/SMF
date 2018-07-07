@@ -364,7 +364,7 @@ function MessageIndex()
 					WHERE t.id_board = {int:current_board}
 					ORDER BY ' . ($pre_query ? $smcFunc['db_custom_order']('t.id_topic', $topic_ids) : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . ' 
 					LIMIT {int:maxindex}
-					' . ($pre_query ? '' : ', {int:start} ')
+					' . ($pre_query ? '' : 'OFFSET {int:start} ')
 						;
 		
 		$result = $smcFunc['db_query']('substring', '
