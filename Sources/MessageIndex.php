@@ -239,6 +239,19 @@ function MessageIndex()
 		'last_post' => 't.id_last_msg'
 	);
 
+	// Default sort methods tables.
+		$sort_methods_table = array(
+			'subject' => 'JOIN {db_prefix}messages mf ON ("mf"."id_msg" = "t"."id_first_msg")',
+			'starter' => 'JOIN {db_prefix}messages mf ON ("mf"."id_msg" = "t"."id_first_msg") 
+							LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
+			'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+							LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
+			'replies' => '',
+			'views' => '',
+			'first_post' => '',
+			'last_post' => ''
+		);
+
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
@@ -345,6 +358,22 @@ function MessageIndex()
 		else
 			$enableParticipation = false;
 
+		$sort_table = 'SELECT
+						"t"."id_topic",
+						"t"."id_first_msg",
+						"t"."id_last_msg"
+					FROM
+						{db_prefix}topics t
+						' . (empty($sort_methods_table[$context['sort_by']]) ? '' : $sort_methods_table[$context['sort_by']]) . '
+					WHERE
+						"t"."id_board" = {int:current_board}
+					ORDER BY
+						' . ($pre_query ? $smcFunc['db_custom_order']('t.id_topic', $topic_ids) : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . ' 
+					LIMIT
+						{int:maxindex}
+					' . ($pre_query ? '' : 'OFFSET {int:start} ')
+						;
+		
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
@@ -361,9 +390,10 @@ function MessageIndex()
 				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
 				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
 				' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
+			FROM (' . $sort_table . ') as st 
+				JOIN {db_prefix}topics AS t ON (st.id_topic = t.id_topic)
+				JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+				JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
