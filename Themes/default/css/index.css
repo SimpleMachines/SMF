@@ -3728,7 +3728,7 @@ h3.profile_hd {
 	font-weight: normal;
 	font-size: 26px;
 	margin-bottom: 0.25em;
-	overflow: hidden;
+	line-height: 1.05em;
 	overflow-wrap: break-word;
 }
 
