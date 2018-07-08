@@ -2388,6 +2388,9 @@ dl {
 	width: 100%;
 	float: left;
 }
+#pick_theme .selected {
+	background: #cddbe6;
+}
 
 /* Signature preview */
 

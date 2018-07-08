@@ -945,7 +945,7 @@ function template_bcd()
 	}
 	echo '
 			</tr>
-			<tr class="', $alt ? 'windowbg' : 'windowbg', '" style="border-top: 1px solid #ccc; text-align: center;">
+			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
 				<td colspan="6">
 					<a href="', $scripturl, '?action=clock;rb">Are you hardcore?</a>
 				</td>
@@ -1031,7 +1031,7 @@ function template_hms()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)
@@ -1045,7 +1045,7 @@ function template_hms()
 		$alt = !$alt;
 	}
 	echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg', '" style="border-top: 1px solid #ccc; text-align: center;">
+			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
 				<td>
 					<a href="', $scripturl, '?action=clock">Too tough for you?</a>
 				</td>
@@ -1124,7 +1124,7 @@ function template_omfg()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)
@@ -1215,7 +1215,7 @@ function template_thetime()
 	foreach ($context['clockicons'] as $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)
