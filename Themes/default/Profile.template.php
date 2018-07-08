@@ -554,7 +554,7 @@ function template_showPosts()
 	// No posts? Just end with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg">
 			', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
 		</div>';
 
@@ -673,7 +673,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="windowbg2 centertext">
+		<div class="windowbg centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -976,7 +976,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="windowbg2 noup">
+		<div id="tracking" class="windowbg noup">
 			<dl class="settings noborder">
 				<dt>
 					', $txt['most_recent_ip'], ':
@@ -1031,7 +1031,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1053,7 +1053,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 		</div>
-		<div class="windowbg2 noup">';
+		<div class="windowbg noup">';
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
@@ -1071,7 +1071,7 @@ function template_trackIP()
 
 	if (empty($context['ips']))
 		echo '
-		<p class="windowbg2 description">
+		<p class="windowbg description">
 			<em>', $txt['no_members_from_ip'], '</em>
 		</p>';
 
@@ -1207,7 +1207,7 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg2">', $txt['showPermissions_none_general'], '</p>';
+			<p class="windowbg">', $txt['showPermissions_none_general'], '</p>';
 
 		// Board permission section.
 		echo '
@@ -1272,7 +1272,7 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg2">', $txt['showPermissions_none_board'], '</p>';
+			<p class="windowbg">', $txt['showPermissions_none_board'], '</p>';
 	echo '
 		</div><!-- #permissions -->';
 	}
@@ -1862,7 +1862,7 @@ function template_alert_configuration()
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
@@ -1887,7 +1887,7 @@ function template_alert_configuration()
 
 	echo '
 				</dl>
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notify_what_how'], '
@@ -2203,7 +2203,7 @@ function template_ignoreboards()
 			</h3>
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<div class="flow_hidden">
 				<ul class="ignoreboards floatleft">';
 
@@ -2257,7 +2257,7 @@ function template_ignoreboards()
 
 	echo '
 			</div><!-- .flow_hidden -->
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</form>
 	<br>';
 }
@@ -2573,7 +2573,7 @@ function template_deleteAccount()
 			<p class="information">', $txt['deleteAccount_desc'], '</p>';
 
 	echo '
-			<div class="windowbg2">';
+			<div class="windowbg">';
 
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if ($context['needs_approval'])
@@ -2649,7 +2649,7 @@ function template_deleteAccount()
 				</div>';
 	}
 	echo '
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<br>
 		</form>';
 }

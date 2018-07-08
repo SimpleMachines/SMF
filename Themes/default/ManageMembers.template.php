@@ -27,7 +27,7 @@ function template_search_members()
 				</h3>
 			</div>
 			<input type="hidden" name="sa" value="query">
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<div class="flow_hidden">
 					<div class="msearch_details floatleft">
 						<dl class="settings right">
@@ -134,7 +134,7 @@ function template_search_members()
 						</fieldset>
 					</div>
 				</div><!-- .flow_hidden -->
-			</div><!-- ..windowbg2 -->
+			</div><!-- ..windowbg -->
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>

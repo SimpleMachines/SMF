@@ -24,7 +24,7 @@ function template_edit_holiday()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['holidays_title_label'], ':</strong>
@@ -79,7 +79,7 @@ function template_edit_holiday()
 				<input type="hidden" name="holiday" value="', $context['holiday']['id'], '">';
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }

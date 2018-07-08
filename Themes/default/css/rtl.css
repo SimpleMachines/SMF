@@ -552,10 +552,10 @@ dl.stats dd {
 	text-align: right;
 }
 
-tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
+tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
-#stats tr.windowbg2 th.lefttext, #stats tr.titlebg th.lefttext {
+#stats tr.windowbg th.lefttext, #stats tr.titlebg th.lefttext {
 	text-align: right;
 }
 

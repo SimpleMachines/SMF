@@ -1612,7 +1612,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
+tr.windowbg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2696,7 +2696,7 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-.generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2719,27 +2719,27 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
-.windowbg.locked, .windowbg2.locked {
+.windowbg.locked {
 	background: #e7eaef;
 }
 /* Sticky topics get a different background */
-.windowbg.sticky, .windowbg2.sticky {
+.windowbg.sticky {
 	background: #cfdce8;
 }
 /* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked, .windowbg2.sticky.locked {
+.windowbg.sticky.locked {
 	background: #e8d8cf;
 }
 /* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic, .windowbg2.approvetopic {
+.windowbg.approvetopic {
 	background: #e4a17c;
 }
 /* Unapproved posts in approved topics */
-.windowbg.approvepost, .windowbg2.approvepost {
+.windowbg.approvepost {
 	background: #ffcbcb;
 }
 .generic_list_wrapper .additional_row {
@@ -2757,10 +2757,10 @@ div#editlang_desc {
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
-.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol {
+.table_grid tr.windowbg td.centercol {
 	text-align: center;
 }
-tr.windowbg, tr.windowbg2 {
+tr.windowbg {
 	box-shadow: none;
 }
 #postmodify #message {
@@ -2797,7 +2797,7 @@ div#manage_boards dl dd textarea[name=desc] {
 .infolinks {
 	display: block;
 }
-#groups .windowbg, #groups .windowbg2 {
+#groups .windowbg {
 	box-shadow: none;
 	border-radius: 0;
 	border-top: 0;
@@ -3487,7 +3487,7 @@ h3.catbg .generic_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
-.cat_bar + .windowbg2, .cat_bar + .windowbg, .cat_bar + .roundframe {
+.cat_bar + .windowbg, .cat_bar + .roundframe {
 	margin-top: -1px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
@@ -3776,8 +3776,7 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
-#alerts tr.windowbg td,
-#alerts tr.windowbg2 td {
+#alerts tr.windowbg td {
 	border-right: 1px solid #ddd;
 }
 
@@ -3873,7 +3872,7 @@ input[name="attachBBC"] {
 	margin: 0 !important;
 	border-bottom: none;
 }
-.windowbg2.noup {
+.windowbg.noup {
 	box-shadow: none;
 }
 

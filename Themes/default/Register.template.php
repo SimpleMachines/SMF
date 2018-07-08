@@ -483,7 +483,7 @@ function template_admin_register()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
 				</div>
-				<div id="register_screen" class="windowbg2 noup">';
+				<div id="register_screen" class="windowbg noup">';
 
 	if (!empty($context['registration_done']))
 		echo '
@@ -603,7 +603,7 @@ function template_edit_agreement()
 			<p class="error">', $context['warning'], '</p>';
 
 	echo '
-			<div class="windowbg2 noup" id="registration_agreement">';
+			<div class="windowbg noup" id="registration_agreement">';
 
 	// Is there more than one language to choose from?
 	if (count($context['editable_agreements']) > 1)
@@ -668,7 +668,7 @@ function template_edit_reserved_words()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<h4>', $txt['admin_reserved_line'], '</h4>
 			<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
 			<dl class="settings">
@@ -703,7 +703,7 @@ function template_edit_reserved_words()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">
 			</div>
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</form>';
 }
 

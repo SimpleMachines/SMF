@@ -31,7 +31,7 @@ function template_modify_subscription()
 			</div>';
 
 	echo '
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						', $txt['paid_mod_name'], ':
@@ -195,7 +195,7 @@ function template_modify_subscription()
 				<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -599,7 +599,7 @@ function template_paid_done()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_done'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<p>', $txt['paid_done_desc'], '</p>
 			<br>
 			<a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=subscriptions">', $txt['paid_sub_return'], '</a>

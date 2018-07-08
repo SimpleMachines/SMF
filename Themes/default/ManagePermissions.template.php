@@ -117,7 +117,7 @@ function template_permission_index()
 					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
-			<div id="permissions_panel_advanced" class="windowbg2 noup">
+			<div id="permissions_panel_advanced" class="windowbg noup">
 				<fieldset>
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
@@ -294,7 +294,7 @@ function template_by_board()
 					echo '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">';
+			<div class="windowbg noup">';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -352,7 +352,7 @@ function template_by_board()
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -425,7 +425,7 @@ function template_edit_profiles()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_profile_new'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['permissions_profile_name'], ':</strong>
@@ -450,7 +450,7 @@ function template_edit_profiles()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '">
 				<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admin_form_wrapper -->';
 }
@@ -772,7 +772,7 @@ function template_postmod_permissions()
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
-							<div class="windowbg2 noup">
+							<div class="windowbg noup">
 								<dl class="settings">
 									<dt>', $txt['permissions_post_moderation_enable'], '</dt>
 									<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked' : '', '></dd>
