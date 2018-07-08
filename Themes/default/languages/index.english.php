@@ -586,6 +586,7 @@ $txt['etc'] = 'etc.';
 $txt['hostname'] = 'Hostname';
 $txt['you_are_post_banned'] = 'Sorry %1$s, you are banned from posting and sending personal messages on this forum.';
 $txt['ban_reason'] = 'Reason';
+$txt['select_item_check'] = 'Please select at least one item in the list';
 
 $txt['tables_optimized'] = 'Database tables optimized';
 

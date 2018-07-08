@@ -267,13 +267,24 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button you_sure">',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" class="button">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button you_sure">',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" class="button">',
 			),
 		),
+		'javascript' => '
+		var removeBans = $("input[name=\'removeBans\']");
+
+		removeBans.on( "click", function() {
+			var removeItems = $("input[name=\'remove[]\']:checked").length;
+			if (removeItems == 0)
+				return alert("'. $txt['select_item_check'] .'");
+
+			else
+				return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+		});',
 	);
 
 	require_once($sourcedir . '/Subs-List.php');
