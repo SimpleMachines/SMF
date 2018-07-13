@@ -386,13 +386,13 @@ function updateMemberData($members, $data)
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. count(fetch_alerts($v, false, 0, array(), false)) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, false) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
 			else
 			{
-				$blub = fetch_alerts($members, false, 0, array(), false);
+				$val = alert_count($members, false);
 				$val = count($blub);
 			}
 		}
