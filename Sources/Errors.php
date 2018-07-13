@@ -499,7 +499,7 @@ function set_fatal_error_headers()
 	header('cache-control: no-cache');
 
 	// Send the right error codes.
-	header($_SERVER['SERVER_PROTOCOL'] . ' 503 Service Temporarily Unavailable');
+	send_http_status(503, 'Service Temporarily Unavailable');
 	header('status: 503 Service Temporarily Unavailable');
 	header('retry-after: 3600');
 }
@@ -567,23 +567,27 @@ function log_error_online($error, $sprintf = array())
 /**
  * Sends an appropriate HTTP status header based on a given status code
  * @param int $code The status code
+ * @param string $status The string for the status. Set automatically if not provided.
  */
-function send_http_status($code)
+function send_http_status($code, $status = '')
 {
 	$statuses = array(
+		206 => 'Partial Content',
+		304 => 'Not Modified',
+		400 => 'Bad Request',
 		403 => 'Forbidden',
 		404 => 'Not Found',
 		410 => 'Gone',
 		500 => 'Internal Server Error',
-		503 => 'Service Unavailable'
+		503 => 'Service Unavailable',
 	);
+	
+	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
-	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-
-	if (!isset($statuses[$code]))
+	if (!isset($statuses[$code]) && empty($status))
 		header($protocol . ' 500 Internal Server Error');
 	else
-		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
+		header($protocol . ' ' . $code . ' ' . !empty($status) ? $status : $statuses[$code]);
 }
 
 ?>
