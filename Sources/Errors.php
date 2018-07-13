@@ -547,6 +547,9 @@ function log_error_online($error, $sprintf = array())
 		list ($url) = $smcFunc['db_fetch_row']($request);
 		$url = $smcFunc['json_decode']($url, true);
 		$url['error'] = $error;
+		// Url field got a max length of 1024 in db
+		if (strlen($url['error']) > 500)
+			$url['error'] = substr($url['error'],0,500);
 
 		if (!empty($sprintf))
 			$url['error_params'] = $sprintf;
