@@ -24,40 +24,49 @@ ul.normallist {
 	list-style-type: disc;
 	padding: 0 0 0 15px;
 }
-img {
-	max-width: 100%;
-}
 table {
 	empty-cells: show;
 }
 abbr {
 	border-bottom: 0.1em dotted;
 }
-input, button, select, textarea, textarea.editor {
+input, button, select, textarea {
 	color: #222;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
-	outline: none !important;
+	outline: none;
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
-	padding: 3px;
+	padding: 0.3em 0.4em;
 }
-/* Prevent inputs overflowing */
-input, select {
-	max-width: 100%;
+input, button, select {
+	padding: 0 0.4em;
+	height: 2em;
+	line-height: 2em;
+}
+select {
+	padding: 0.22em 0.2em; /* selects don't apply line-height */
+}
+input[type="file"] {
+	padding: 2px;
+	height: auto;
 }
 /* Remove default mozilla dotted borders */
 input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
+/* Prevent inputs and images overflowing */
+img, input, select {
+	max-width: 100%;
+}
 /* This is a specific issue on Ubuntu - Chrome */
 #chrome input {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
-/* The following is necessary. */
-textarea, textarea.editor {
+/* The following is necessary */
+textarea {
 	font-size: 1em;
 }
 .sceditor-container textarea, .sceditor-container textarea:focus  {
@@ -69,43 +78,26 @@ dd textarea {
 	width: 100%;
 	min-height: 100px;
 }
-/* Apply the font only to these elements. */
+/* Apply the font only to these elements */
 input, button, select {
 	font-size: 0.9em;
-}
-/* Height fixation */
-input, select, .button {
-	height: 25px;
-}
-/* Small fix for type="file" elements */
-input[type="file"] {
-	height: auto;
-}
-input[type="checkbox"] {
-	height: 13px;
-}
-select {
-	padding: 2px;
 }
 select option {
 	padding: 0 4px;
 }
-select[size], input[type="checkbox"], input[type="radio"] {
-	height: auto;
-}
 input:hover, textarea:hover, button:hover, select:hover {
-	outline: none !important;
+	outline: none;
 	border: 1px solid #999;
 }
-textarea:hover, textarea.editor:hover {
+textarea:hover {
 	background: #fbfbfb;
 }
-input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
-	outline:none !important;
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
 	border: 1px solid #999;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
-/* Fieldsets are used to group elements. */
+/* Fieldsets are used to group elements */
 fieldset {
 	padding: 18px;
 	margin: 0 0 6px 0;
@@ -121,7 +113,7 @@ fieldset legend {
 
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */
-/* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight. */
+/* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight */
 strong, .strong {
 	font-weight: bold;
 	color: #444;
@@ -132,12 +124,12 @@ strong, .strong {
 em {
 	font-style: italic;
 }
-/* Default <strong> color on these tags. */
+/* Default <strong> color on these tags */
 h1, h2, h3, h4, h5, h6 {
 	font-size: 1em;
 	color: #444;
 }
-/* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them */
 input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
@@ -147,16 +139,11 @@ input[type="checkbox"], input[type="radio"] {
 .moderationbuttons_mobile_check {
 	display: none;
 }
-/* Give disabled input elements a different background color. */
-input[type="text"][disabled], input[type="number"][disabled],
-input[type="search"][disabled], input[type="email"][disabled],
-input[type="date"][disabled] {
-	background: #eee;
-}
-select[disabled] {
+/* Give disabled input elements a different style */
+input[disabled], textarea[disabled], select[disabled] {
 	background: #eee;
 	color: #999;
-	opacity: 0.6;
+	opacity: 0.8;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -164,7 +151,6 @@ hr {
 	margin: 12px 0;
 	height: 2px;
 	background: #fff;
-	background-color: #fff;
 	box-shadow: 0 1px 0 #bbb inset;
 }
 /* This is about links */
@@ -312,15 +298,17 @@ blockquote {
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid #aaa;
+	border-bottom: 1px solid rgba(0,0,0,0.1);
 	font-size: 0.9em;
+	margin-bottom: 3px;
 }
 blockquote cite::before {
 	color: #aaa;
 	font-size: 22px;
 	font-style: normal;
 	content: '\275D';
-	margin-right: 5px;
+	margin-right: 3px;
+	vertical-align: middle;
 }
 .bbc_standard_quote {
 	background-color: #e0e6f6;
@@ -343,7 +331,6 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	/* Show a scrollbar after about 6 lines. */
 	resize: vertical;
 }
 /* The "Quote:" and "Code:" header parts... */
@@ -448,13 +435,9 @@ a img {
 /* Generally, those [?] icons. This makes your cursor a help icon. */
 .help {
 	cursor: help;
+	opacity: 0.9;
 }
-.help .icon {
-	margin: 0;
-	cursor: help;
-	opacity: 0.8;
-}
-.help .icon:hover {
+.help:hover {
 	opacity: 1;
 }
 
@@ -467,7 +450,6 @@ a img {
 
 /* the page navigation area */
 .pagesection {
-	font-size: 0.9em;
 	padding: 2px 0;
 	overflow: hidden;
 	clear: both;
@@ -476,14 +458,14 @@ a img {
 strong[id^='child_list_']::after {
 	content: ": ";
 }
-small .pages {
+.pages {
+	font-size: 0.9em;
 	margin-left: 7px;
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
 .pagelinks .button {
-	margin: 0 5px 0 0;
 	padding: 0 5px;
 }
 .navPages {
@@ -590,8 +572,6 @@ dl.settings dt.windowbg {
 dl.settings dd {
 	width: 42%;
 	float: right;
-/* Disabled this for testing can be reverted at later stages of RC.
-	overflow: auto;*/
 	margin: 0 0 3px 0;
 }
 dl.settings img {
@@ -698,7 +678,7 @@ img.sort, .sort {
 	border-radius: 8px;
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
-	background: none;
+	background: rgba(0,0,0,0.2);
 	color: inherit;
 }
 #top_info .top_menu.visible {
@@ -943,16 +923,17 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 0 8px;
-	margin: 0 0 0 5px;
+	padding: 0 0.7em;
 	overflow: visible;
 	color: #444;
-	font-size: 0.8em;
-	line-height: 25px;
+	font-size: 0.85em;
+	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	line-height: 2em;
 }
-/* Keep a consistent size when wrapped in pagesection. */
+.button:not(:first-child) {
+	margin-left: 4px;
+}
 .pagesection .button {
-	font-size: 0.889em;
 	color: #346;
 }
 .button:hover {
@@ -975,9 +956,6 @@ img.sort, .sort {
 	color: #ffc187;
 	background: #557ea0;
 }
-.button.last {
-	margin-top: 9px;
-}
 /* In a .buttonrow, the buttons are joined together */
 .buttonrow {
 	margin-left: 5px;
@@ -988,10 +966,13 @@ img.sort, .sort {
 .buttonrow .button:not(:first-child) {
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
+	border-left-color: #ccc;
 }
 .buttonrow .button:not(:last-child) {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
+	border-right: none;
+	box-shadow: -1px 0 0 rgba(255,255,255,0.7);
 }
 
 /* Styles for the general looks of the theme.
@@ -1038,12 +1019,6 @@ img.sort, .sort {
 	margin: 2px 5px 0 0;
 	float: left;
 }
-/*#top_section ul li {
-	margin-bottom: 2px;
-	margin-right: 7px;
-	display: inline;
-	font-size: 0.9em;
-}*/
 .notice {
 	font-weight: bold;
 }
@@ -1057,7 +1032,6 @@ img.sort, .sort {
 	min-width: 25em;
 }
 #search_form input[type="search"], #search_form select, #search_form .button {
-	padding: 2px;
 	margin: 2px;
 	background: #fff;
 	border: 1px solid #ddd;
@@ -1247,18 +1221,17 @@ ul li.greeting {
 	display: block;
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
-
 #footerfix {
 	flex: 1 0 auto;
 }
-/* the posting icons */
+
+/* The posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
 	padding: 0 0 0 6px;
 }
 .mark_read {
 	margin: -5px 0 16px 0;
-	padding: 0;
 	float: right;
 }
 .mark_read .buttonlist {
@@ -1280,16 +1253,15 @@ ul li.greeting {
 
 /* The quick buttons */
 .quickbuttons {
-	margin: 11px 0 0 0;
-	padding: 0 0 4px 0;
+	margin: 11px 0 4px 0;
 	clear: right;
 	float: right;
 	text-align: right;
+	font-size: 0.9em;
 }
 .quickbuttons li {
 	float: left;
 	display: inline;
-	font-size: 0.9em;
 	height: 23px;
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
@@ -1329,7 +1301,7 @@ ul li.greeting {
 /* Drop part of QuickButtons */
 .quickbuttons li ul {
 	position: absolute;
-	top: 1.9em;
+	top: 100%;
 	z-index: 90;
 	padding: 0.5em;
 	font-weight: normal;
@@ -1337,7 +1309,7 @@ ul li.greeting {
 	border: solid 1px #999;
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
-	border-radius: 4px 2px 4px 0;
+	border-radius: 0 0 4px 4px;
 	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
 }
 .quickbuttons li ul {
@@ -1364,6 +1336,7 @@ ul li.greeting {
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
+	padding: 0;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
 .quickbuttons li > ul > li {
@@ -1639,7 +1612,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
+tr.windowbg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2415,6 +2388,9 @@ dl {
 	width: 100%;
 	float: left;
 }
+#pick_theme .selected {
+	background: #cddbe6;
+}
 
 /* Signature preview */
 
@@ -2474,10 +2450,6 @@ dl.stats dd {
 	font-size: 1em;
 	float: left;
 	margin: 0 0 4px 2%;
-}
-#profileview dd, .nobb, .nobb dd {
-	background: none !important;
-	border: none !important;
 }
 dl.stats {
 	padding: 5px;
@@ -2727,7 +2699,7 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-.generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2750,27 +2722,27 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
-.windowbg.locked, .windowbg2.locked {
+.windowbg.locked {
 	background: #e7eaef;
 }
 /* Sticky topics get a different background */
-.windowbg.sticky, .windowbg2.sticky {
+.windowbg.sticky {
 	background: #cfdce8;
 }
 /* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked, .windowbg2.sticky.locked {
+.windowbg.sticky.locked {
 	background: #e8d8cf;
 }
 /* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic, .windowbg2.approvetopic {
+.windowbg.approvetopic {
 	background: #e4a17c;
 }
 /* Unapproved posts in approved topics */
-.windowbg.approvepost, .windowbg2.approvepost {
+.windowbg.approvepost {
 	background: #ffcbcb;
 }
 .generic_list_wrapper .additional_row {
@@ -2788,10 +2760,10 @@ div#editlang_desc {
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
-.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol {
+.table_grid tr.windowbg td.centercol {
 	text-align: center;
 }
-tr.windowbg, tr.windowbg2 {
+tr.windowbg {
 	box-shadow: none;
 }
 #postmodify #message {
@@ -2828,7 +2800,7 @@ div#manage_boards dl dd textarea[name=desc] {
 .infolinks {
 	display: block;
 }
-#groups .windowbg, #groups .windowbg2 {
+#groups .windowbg {
 	box-shadow: none;
 	border-radius: 0;
 	border-top: 0;
@@ -3086,10 +3058,6 @@ span.postby {
 /* Should lose this before RC1. It's a kludge. Can be fixed by new image */
 #topic_icons .floatleft img:first-child {
 	padding: 0 2px;
-}
-#message_index_jump_to_select {
-	font-size: 1em;
-	padding: 0;
 }
 
 /* Display */
@@ -3522,6 +3490,11 @@ h3.catbg .generic_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
+.cat_bar + .windowbg, .cat_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
@@ -3758,7 +3731,7 @@ h3.profile_hd {
 	font-weight: normal;
 	font-size: 26px;
 	margin-bottom: 0.25em;
-	overflow: hidden;
+	line-height: 1.05em;
 	overflow-wrap: break-word;
 }
 
@@ -3806,8 +3779,7 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
-#alerts tr.windowbg td,
-#alerts tr.windowbg2 td {
+#alerts tr.windowbg td {
 	border-right: 1px solid #ddd;
 }
 
@@ -3903,7 +3875,7 @@ input[name="attachBBC"] {
 	margin: 0 !important;
 	border-bottom: none;
 }
-.windowbg2.noup {
+.windowbg.noup {
 	box-shadow: none;
 }
 

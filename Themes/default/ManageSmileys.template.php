@@ -48,7 +48,7 @@ function template_modifyset()
 			</div>';
 
 	echo '
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
 						<strong><label for="smiley_sets_name">', $txt['smiley_sets_name'], '</label>: </strong>
@@ -102,7 +102,7 @@ function template_modifyset()
 	echo '
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mss_token_var'], '" value="', $context['admin-mss_token'], '">
 			<input type="hidden" name="set" value="', $context['current_set']['id'], '">
@@ -123,7 +123,7 @@ function template_modifysmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_modify_existing'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['smiley_preview'], ': </strong>
@@ -190,7 +190,7 @@ function template_modifysmiley()
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" data-confirm="', $txt['smileys_delete_confirm'], '" class="button you_sure">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '">
 		</form>
@@ -210,7 +210,7 @@ function template_addsmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smileys_add_method'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<ul>
 					<li>
 						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked> ', $txt['smileys_add_existing'], '</label>
@@ -290,11 +290,11 @@ function template_addsmiley()
 
 	echo '
 				</dl>
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
@@ -326,7 +326,7 @@ function template_addsmiley()
 					</dd>
 				</dl>
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div><!-- #admincenter -->';
@@ -352,7 +352,7 @@ function template_setorder()
 			<div class="information noup">
 				', $location['description'], '
 			</div>
-			<div class="windowbg2 move_smileys">
+			<div class="windowbg move_smileys">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 
 		foreach ($location['rows'] as $row)
@@ -379,7 +379,7 @@ function template_setorder()
 			echo '
 				<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $location['last_row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 		echo '
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<input type="hidden" name="reorder" value="1">
 		</form>';
 	}
@@ -411,7 +411,7 @@ function template_editicon()
 					', $context['new_icon'] ? $txt['icons_new_icon'] : $txt['icons_edit_icon'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	if (!$context['new_icon'])
@@ -484,7 +484,7 @@ function template_editicon()
 	echo '
 				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }

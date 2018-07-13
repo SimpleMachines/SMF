@@ -751,7 +751,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				array(
 					'position' => 'after_title',
 					'value' => '<span class="smalltext">' . $txt['package_restore_permissions_desc'] . '</span>',
-					'class' => 'windowbg2',
+					'class' => 'windowbg',
 				),
 			),
 		);

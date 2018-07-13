@@ -111,7 +111,7 @@ template_ssi_above();
 				<span class="botslice"><span></span></span>
 			</div>
 
-	<div id="preview" class="windowbg2">
+	<div id="preview" class="windowbg">
 		<span class="topslice"><span></span></span>
 		<div class="content">
 

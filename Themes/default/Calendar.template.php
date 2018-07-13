@@ -315,7 +315,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 		// This is where we add the actual week link, if enabled on this location.
 		if ($show_week_links === true)
 			echo '
-					<td class="windowbg2 weeks">
+					<td class="windowbg weeks">
 						<a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $week['days'][0]['day'], '" title="', $txt['calendar_view_week'], '">&#187;</a>
 					</td>';
 
@@ -925,7 +925,7 @@ function template_bcd()
 	echo '
 		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
 			<tr>
-				<th class="windowbg2" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;" colspan="6">BCD Clock</th>
+				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;" colspan="6">BCD Clock</th>
 			</tr>
 			<tr class="windowbg">';
 
@@ -945,7 +945,7 @@ function template_bcd()
 	}
 	echo '
 			</tr>
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '" style="border-top: 1px solid #ccc; text-align: center;">
+			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
 				<td colspan="6">
 					<a href="', $scripturl, '?action=clock;rb">Are you hardcore?</a>
 				</td>
@@ -1025,13 +1025,13 @@ function template_hms()
 	echo '
 		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
 			<tr>
-				<th class="windowbg2" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">Binary Clock</th>
+				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">Binary Clock</th>
 			</tr>';
 
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)
@@ -1045,7 +1045,7 @@ function template_hms()
 		$alt = !$alt;
 	}
 	echo '
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '" style="border-top: 1px solid #ccc; text-align: center;">
+			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
 				<td>
 					<a href="', $scripturl, '?action=clock">Too tough for you?</a>
 				</td>
@@ -1118,13 +1118,13 @@ function template_omfg()
 	echo '
 		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
 			<tr>
-				<th class="windowbg2" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">OMFG Binary Clock</th>
+				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">OMFG Binary Clock</th>
 			</tr>';
 
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)
@@ -1209,13 +1209,13 @@ function template_thetime()
 	echo '
 		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
 			<tr>
-				<th class="windowbg2" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">The time you requested</th>
+				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">The time you requested</th>
 			</tr>';
 
 	foreach ($context['clockicons'] as $v)
 	{
 		echo '
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>';
 
 		foreach ($v as $i)

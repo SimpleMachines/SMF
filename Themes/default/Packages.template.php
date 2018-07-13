@@ -58,7 +58,7 @@ function template_view_package()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_' . ($context['uninstalling'] ? 'un' : '') . 'install_readme'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			', $context['package_readme'], '
 			<span class="floatright">', $txt['package_available_readme_language'], '
 				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
@@ -81,7 +81,7 @@ function template_view_package()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_install_license'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			', $context['package_license'], '
 			<span class="floatright">', $txt['package_available_license_language'], '
 				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
@@ -109,7 +109,7 @@ function template_view_package()
 	{
 		// This is really a special case so we're adding style inline
 		echo '
-			<div class="windowbg2" style="margin: 0; border-radius: 0;">
+			<div class="windowbg" style="margin: 0; border-radius: 0;">
 				<label for="do_db_changes"><input type="checkbox" name="do_db_changes" id="do_db_changes">', $txt['package_db_uninstall'], '</label> [<a href="#" onclick="return swap_database_changes();">', $txt['package_db_uninstall_details'], '</a>]
 				<div id="db_changes_div">
 					', $txt['package_db_uninstall_actions'], ':
@@ -175,7 +175,7 @@ function template_view_package()
 			{
 				echo '
 					<tr id="operation_', $action_num, '">
-						<td colspan="5" class="windowbg2">
+						<td colspan="5" class="windowbg">
 							<table class="table_grid">';
 
 				// Show the operations.
@@ -268,7 +268,7 @@ function template_view_package()
 					{
 						echo '
 					<tr id="operation_', $action_num, '">
-						<td colspan="5" class="windowbg2">
+						<td colspan="5" class="windowbg">
 							<table width="100%">';
 
 						$operation_num = 1;
@@ -606,7 +606,7 @@ function template_browse()
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
-				<div id="advanced_panel_div" class="windowbg2 noup">
+				<div id="advanced_panel_div" class="windowbg noup">
 					<p>
 						', $txt['package_emulate_desc'], '
 					</p>
@@ -690,7 +690,7 @@ function template_servers()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_upload_title'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<form action="', $scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
@@ -761,7 +761,7 @@ function template_servers()
 	}
 
 	echo '
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<fieldset>
 					<legend>' . $txt['package_servers'] . '</legend>
 					<ul class="package_servers">';
@@ -820,7 +820,7 @@ function template_servers()
 						<input type="submit" value="', $txt['download'], '" class="button">
 					</form>
 				</fieldset>
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</div><!-- .new_package_content -->
 	</div><!-- #admin_form_wrapper -->';
 }
@@ -837,7 +837,7 @@ function template_package_confirm()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<p>', $context['confirm_message'], '</p>
 			<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
 		</div>
@@ -856,7 +856,7 @@ function template_package_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg2">';
+		<div class="windowbg">';
 
 	// No packages, as yet.
 	if (empty($context['package_list']))
@@ -973,7 +973,7 @@ function template_package_list()
 	}
 
 	echo '
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</div><!-- #admincenter -->';
 
 	// Now go through and turn off all the sections.
@@ -1040,7 +1040,7 @@ function template_downloaded()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<p>
 				', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '
 			</p>
@@ -1076,7 +1076,7 @@ function template_install_options()
 		<div class="information noup">
 			', $txt['package_install_options_ftp_why'], '
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<form action="', $scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1114,7 +1114,7 @@ function template_install_options()
 				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</div><!-- #admincenter -->';
 }
 
@@ -1159,7 +1159,7 @@ function template_control_chmod()
 
 	echo '
 				<div class="bordercolor" id="ftp_error_div" style="', (!empty($context['package_ftp']['error']) ? '' : 'display:none;'), 'padding: 1px; margin: 1ex;">
-					<div class="windowbg2" id="ftp_error_innerdiv" style="padding: 1ex;">
+					<div class="windowbg" id="ftp_error_innerdiv" style="padding: 1ex;">
 						<tt id="ftp_error_message">', !empty($context['package_ftp']['error']) ? $context['package_ftp']['error'] : '', '</tt>
 					</div>
 				</div>';
@@ -1614,7 +1614,7 @@ function template_file_permissions()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_file_perms_change'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<fieldset>
 				<dl>
 					<dt>
@@ -1652,7 +1652,7 @@ function template_file_permissions()
 			<span id="test_ftp_placeholder_full"></span>
 			<input type="hidden" name="action_changes" value="1">
 			<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button">
-		</div><!-- .windowbg2 -->';
+		</div><!-- .windowbg -->';
 
 	// Any looks fors we've already done?
 	foreach ($context['look_for'] as $path)
