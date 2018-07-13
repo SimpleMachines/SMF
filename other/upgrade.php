@@ -220,6 +220,10 @@ if (!isset($settings['default_theme_url']))
 if (!isset($settings['default_theme_dir']))
 	$settings['default_theme_dir'] = $modSettings['theme_dir'];
 
+// This is needed in case someone invokes the upgrader using https when upgrading an http forum
+if (httpsOn())
+	$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
+
 $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && !empty($modSettings['totalMessages']) && $modSettings['totalMessages'] > 75000;
 // Default title...
 $upcontext['page_title'] = $txt['updating_smf_installation'];
@@ -1465,7 +1469,7 @@ function DatabaseChanges()
 function DeleteUpgrade()
 {
 	global $command_line, $language, $upcontext, $sourcedir, $forum_version;
-	global $user_info, $maintenance, $smcFunc, $db_type, $txt;
+	global $user_info, $maintenance, $smcFunc, $db_type, $txt, $settings;
 
 	// Now it's nice to have some of the basic SMF source files.
 	if (!isset($_GET['ssi']) && !$command_line)
@@ -1514,6 +1518,9 @@ function DeleteUpgrade()
 		require_once($sourcedir . '/ScheduledTasks.php');
 		$forum_version = SMF_VERSION; // The variable is usually defined in index.php so lets just use the constant to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
+		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
+		if (httpsOn())
+			$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
 	}
 
 	// Log what we've done.

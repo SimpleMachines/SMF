@@ -48,7 +48,7 @@ function template_ban_edit()
 	}
 
 	echo '
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt id="ban_name_label">
 						<strong>', $txt['ban_name'], ':</strong>
@@ -179,7 +179,7 @@ function template_ban_edit()
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))

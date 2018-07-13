@@ -142,7 +142,7 @@ function template_credits()
 		</div>';
 
 		echo '
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<dl>';
 
 		foreach ($section['groups'] as $group)

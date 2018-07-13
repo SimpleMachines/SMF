@@ -31,7 +31,7 @@ function template_email_members()
 			<div class="information noup">
 				', $txt['admin_news_select_recipients'], '
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['admin_news_select_group'], ':</strong><br>
@@ -111,7 +111,7 @@ function template_email_members()
 				<br>
 				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 
