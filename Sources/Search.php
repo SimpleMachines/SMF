@@ -1007,7 +1007,7 @@ function PlushSearch2()
 				)
 			);
 
-			if ($smcFunc['db_affected_rows']($request) === 0)
+			if ($smcFunc['db_num_rows']($request) === 0)
 				$update_cache = true;	
 		}
 
