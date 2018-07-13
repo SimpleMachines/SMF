@@ -499,7 +499,7 @@ function set_fatal_error_headers()
 	header('cache-control: no-cache');
 
 	// Send the right error codes.
-	header('HTTP/1.1 503 Service Temporarily Unavailable');
+	header($_SERVER['SERVER_PROTOCOL'] . ' 503 Service Temporarily Unavailable');
 	header('status: 503 Service Temporarily Unavailable');
 	header('retry-after: 3600');
 }

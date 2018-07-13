@@ -208,7 +208,7 @@ function showAttachment()
 			ob_end_clean();
 
 			// Answer the question - no, it hasn't been modified ;).
-			header('HTTP/1.1 304 Not Modified');
+			header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
 			exit;
 		}
 	}
@@ -219,7 +219,7 @@ function showAttachment()
 	{
 		ob_end_clean();
 
-		header('HTTP/1.1 304 Not Modified');
+		header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
 		exit;
 	}
 
@@ -301,7 +301,7 @@ function showAttachment()
 	// Multipart and resuming support
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
-		header("HTTP/1.1 206 Partial Content");
+		header($_SERVER['SERVER_PROTOCOL'] . ' 206 Partial Content');
 		header("content-length: $new_length");
 		header("content-range: bytes $range-$range_end/$size");
 	}

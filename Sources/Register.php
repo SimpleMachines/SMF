@@ -830,7 +830,7 @@ function VerificationCode()
 		require_once($sourcedir . '/Subs-Graphics.php');
 
 		if (in_array('gd', get_loaded_extensions()) && !showCodeImage($code))
-			header('HTTP/1.1 400 Bad Request');
+			header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
 
 		// Otherwise just show a pre-defined letter.
 		elseif (isset($_REQUEST['letter']))
@@ -855,7 +855,7 @@ function VerificationCode()
 		require_once($sourcedir . '/Subs-Sound.php');
 
 		if (!createWaveFile($code))
-			header('HTTP/1.1 400 Bad Request');
+			header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
 	}
 
 	// We all die one day...

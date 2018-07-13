@@ -139,7 +139,7 @@ class ProxyServer
 		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
-			header('HTTP/1.1 304 Not Modified');
+			header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
 			exit;
 		}
 
