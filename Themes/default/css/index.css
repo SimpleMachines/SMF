@@ -605,7 +605,7 @@ table.table_grid td {
 	width: 5%;
 }
 
-.title_bar th {
+.title_bar th, .windowbg th {
 	padding: 4px 8px;
 }
 .title_bar .sort_down, .title_bar .sort_up {
@@ -1023,31 +1023,11 @@ img.sort, .sort {
 	font-weight: bold;
 }
 
+#languages_form, #search_form {
+	padding: 5px 0 0 0;
+}
 #languages_form {
-	padding: 4px 0 0 0;
-}
-#search_form {
-	padding: 3px 0 3px 0;
-	text-align: right;
-	min-width: 25em;
-}
-#search_form input[type="search"], #search_form select, #search_form .button {
-	margin: 2px;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -3px -3px 6px rgba(255,255,255,0.8) inset;
-}
-#search_form select, #language_select {
-	margin: 1px;
-}
-#search_form .button {
-	color: #333;
-}
-#search_form .button:hover {
-	color: #a85400;
-	text-decoration: none;
+	margin: 0 0 0 10px;
 }
 /* The logo and slogan. */
 #header {

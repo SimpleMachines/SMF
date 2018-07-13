@@ -789,13 +789,13 @@ function template_postmod_permissions()
 
 		echo '
 							<div class="padding">
-								<p class="smalltext floatleft">
-									<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br>
-									<span class="generic_icons post_moderation_allow"></span>', $txt['permissions_post_moderation_allow'], '<br>
-									<span class="generic_icons post_moderation_moderate"></span>', $txt['permissions_post_moderation_moderate'], '<br>
-									<span class="generic_icons post_moderation_deny"></span>', $txt['permissions_post_moderation_disallow'], '
-								</p>
-								<span class="righttext floatright">
+								<ul class="floatleft smalltext block">
+									<strong>', $txt['permissions_post_moderation_legend'], ':</strong>
+									<li><span class="generic_icons post_moderation_allow"></span>', $txt['permissions_post_moderation_allow'], '</li>
+									<li><span class="generic_icons post_moderation_moderate"></span>', $txt['permissions_post_moderation_moderate'], '</li>
+									<li><span class="generic_icons post_moderation_deny"></span>', $txt['permissions_post_moderation_disallow'], '</li>
+								</ul>
+								<p class="righttext floatright block">
 									<br><br><br>
 									', $txt['permissions_post_moderation_select'], ':
 									<select name="pid" onchange="document.forms.postmodForm.submit();">';
@@ -808,7 +808,7 @@ function template_postmod_permissions()
 		echo '
 									</select>
 									<input type="submit" value="', $txt['go'], '" class="button">
-								</span>
+								</p>
 							</div><!-- .padding -->
 							<table class="table_grid" id="postmod">
 								<thead>
@@ -930,10 +930,8 @@ function template_postmod_permissions()
 	}
 
 	echo '
-							<div class="righttext padding">
 								<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button">
 								<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '">
-							</div>
 						</form>
 					</div><!-- #admin_form_wrapper -->';
 }

@@ -164,7 +164,7 @@ function template_unread()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
+							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -315,7 +315,7 @@ function template_replies()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
+							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>

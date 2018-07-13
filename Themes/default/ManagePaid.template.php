@@ -26,7 +26,7 @@ function template_modify_subscription()
 
 	if (!empty($context['disable_groups']))
 		echo '
-			<div class="information">
+			<div class="information noup">
 				<span class="alert">', $txt['paid_mod_edit_note'], '</span>
 			</div>';
 
