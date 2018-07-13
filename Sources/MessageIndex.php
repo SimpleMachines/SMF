@@ -49,7 +49,7 @@ function MessageIndex()
 		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 		{
 			ob_end_clean();
-			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Prefetch Forbidden');
+			send_http_status(403, 'Prefetch Forbidden');
 			die;
 		}
 	}

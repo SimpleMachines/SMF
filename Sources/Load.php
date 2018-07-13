@@ -1029,7 +1029,7 @@ function loadBoard()
 		if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
 		{
 			ob_end_clean();
-			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
+			send_http_status(403);
 			die;
 		}
 		elseif ($board_info['error'] == 'post_in_redirect')

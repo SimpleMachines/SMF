@@ -116,7 +116,7 @@ class ProxyServer
 		if ($response === -1)
 		{
 			// Throw a 404
-			header('HTTP/1.0 404 Not Found');
+			header(send_http_status(404));
 			exit;
 		}
 		// Right, image not cached? Simply redirect, then.
@@ -139,7 +139,7 @@ class ProxyServer
 		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
-			header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
+			send_http_status(304);
 			exit;
 		}
 

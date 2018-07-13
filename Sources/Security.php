@@ -635,7 +635,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 	{
 		ob_end_clean();
-		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
+		send_http_status(403);
 		die;
 	}
 
@@ -693,7 +693,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		if (isset($_GET['xml']))
 		{
 			ob_end_clean();
-			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden - Session timeout');
+			send_http_status(403, 'Forbidden - Session timeout');
 			die;
 		}
 		else

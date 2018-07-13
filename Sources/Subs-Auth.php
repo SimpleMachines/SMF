@@ -238,7 +238,7 @@ function InMaintenance()
 	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
-	header($_SERVER['SERVER_PROTOCOL'] . ' 503 Service Temporarily Unavailable');
+	send_http_status(503, 'Service Temporarily Unavailable');
 
 	// Basic template stuff..
 	$context['sub_template'] = 'maintenance';

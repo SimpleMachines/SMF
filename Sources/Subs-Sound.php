@@ -33,7 +33,7 @@ function createWaveFile($word)
 
 	// Allow max 2 requests per 20 seconds.
 	if (($ip = cache_get_data('wave_file/' . $user_info['ip'], 20)) > 2 || ($ip2 = cache_get_data('wave_file/' . $user_info['ip2'], 20)) > 2)
-		die(header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request'));
+		die(send_http_status(400));
 	cache_put_data('wave_file/' . $user_info['ip'], $ip ? $ip + 1 : 1, 20);
 	cache_put_data('wave_file/' . $user_info['ip2'], $ip2 ? $ip2 + 1 : 1, 20);
 
