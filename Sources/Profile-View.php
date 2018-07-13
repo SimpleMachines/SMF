@@ -218,15 +218,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
 
-	// are we someone else?
-	if (empty($user_info) || $user_info['id'] !== $memID)
-	{
-		$user_old = !empty($user_info) ? $user_info : null;
-		if (empty($user_profile[$memID]))
-			loadMemberData($memID, false, 'profile');
-		$user_info = $user_profile[$memID];
-	}
-
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
@@ -375,16 +366,18 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			$extra = $alerts[$id_alert]['extra'];
 			$search = array('{member_link}', '{scripturl}');
 			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
-			foreach ($extra as $k => $v)
+
+			if (is_array($extra))
 			{
-				$search[] = '{' . $k . '}';
-				$repl[] = $v;
+				foreach ($extra as $k => $v)
+				{
+					$search[] = '{' . $k . '}';
+					$repl[] = $v;
+				}
 			}
 			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
 		}
 	}
-
-	$user_info = !empty($user_old) ? $user_old : null;
 
 	return $alerts;
 }

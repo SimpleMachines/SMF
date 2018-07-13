@@ -6260,7 +6260,8 @@ function build_query_board($userid)
 	$mod_cache;
 	$ignoreboards;
 
-	if ($user_info['id'] == $userid)
+	// If we come from cron, we can't have a $user_info.
+	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
 		$is_admin = $user_info['is_admin'];
