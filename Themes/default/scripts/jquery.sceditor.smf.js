@@ -543,9 +543,7 @@ sceditor.formats.bbcode.set(
 
 			// A mention?
 			else if (typeof element.attr('data-mention') !== "undefined")
-			{
 				return '[member='+ element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
-			}
 
 			// Is this an attachment?
 			else if (typeof element.attr('data-attachment') !== "undefined")
@@ -790,6 +788,8 @@ sceditor.formats.bbcode.set(
 				class: 'videocontainer'
 			}
 		},
+		isInline: false,
+		skipLastLineBreak: true,
 		format: function (element, content) {
 			youtube_id = $(element).find('iframe').data('youtube-id');
 
