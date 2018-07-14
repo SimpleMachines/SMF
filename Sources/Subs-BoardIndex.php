@@ -75,7 +75,7 @@ function getBoardIndex($boardIndexOptions)
 				(CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END) AS is_read, COALESCE(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 				c.can_collapse,' : '')) . '
 				COALESCE(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, COALESCE(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
-			FROM {db_prefix}boards_cte AS b' . ($boardIndexOptions['include_categories'] ? '
+			FROM boards_cte AS b' . ($boardIndexOptions['include_categories'] ? '
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
@@ -87,6 +87,7 @@ function getBoardIndex($boardIndexOptions)
 				'child_level' => $boardIndexOptions['base_level'],
 				'max_child_level' => $boardIndexOptions['base_level'] + $modSettings['boardindex_max_depth'],
 				'blank_string' => '',
+				'id_parent' => $boardIndexOptions['parent_id'],
 			)
 		);
 	else
