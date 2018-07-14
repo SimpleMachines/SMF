@@ -245,7 +245,7 @@ function template_summary()
 	if (!empty($context['can_have_buddy']) && !$context['user']['is_owner'])
 		echo '
 				<br>
-				<a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">[', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], ']</a>';
+				<a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], '</a>';
 
 	echo '
 			</span>';
@@ -554,7 +554,7 @@ function template_showPosts()
 	// No posts? Just end with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg">
 			', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
 		</div>';
 
@@ -673,7 +673,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="windowbg2 centertext">
+		<div class="windowbg centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -976,7 +976,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="windowbg2 noup">
+		<div id="tracking" class="windowbg noup">
 			<dl class="settings noborder">
 				<dt>
 					', $txt['most_recent_ip'], ':
@@ -1031,7 +1031,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg noup">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1053,7 +1053,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 		</div>
-		<div class="windowbg2 noup">';
+		<div class="windowbg noup">';
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
@@ -1071,7 +1071,7 @@ function template_trackIP()
 
 	if (empty($context['ips']))
 		echo '
-		<p class="windowbg2 description">
+		<p class="windowbg description">
 			<em>', $txt['no_members_from_ip'], '</em>
 		</p>';
 
@@ -1207,7 +1207,7 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg2">', $txt['showPermissions_none_general'], '</p>';
+			<p class="windowbg">', $txt['showPermissions_none_general'], '</p>';
 
 		// Board permission section.
 		echo '
@@ -1272,7 +1272,7 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg2">', $txt['showPermissions_none_board'], '</p>';
+			<p class="windowbg">', $txt['showPermissions_none_board'], '</p>';
 	echo '
 		</div><!-- #permissions -->';
 	}
@@ -1326,9 +1326,9 @@ function template_statPanel()
 		// The labels.
 		foreach ($context['posts_by_time'] as $time_of_day)
 			echo '
-				<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
-					<div class="bar" style="padding-top: ', ((int) (100 - $time_of_day['relative_percent'])), 'px;" title="', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '">
-						<div style="height: ', (int) $time_of_day['relative_percent'], 'px;">
+				<li>
+					<div class="generic_bar vertical">
+						<div class="bar" style="height: ', (int) $time_of_day['relative_percent'], '%;">
 							<span>', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
 						</div>
 					</div>
@@ -1856,13 +1856,13 @@ function template_alert_configuration()
 		<p class="information">
 			', (empty($context['description']) ? $txt['alert_prefs_desc'] : $context['description']), '
 		</p>
-		<form action="', $scripturl, '?', $context['action'], '" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
+		<form action="', $scripturl, '?', $context['action'], '" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
@@ -1887,7 +1887,7 @@ function template_alert_configuration()
 
 	echo '
 				</dl>
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['notify_what_how'], '
@@ -2203,7 +2203,7 @@ function template_ignoreboards()
 			</h3>
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<div class="flow_hidden">
 				<ul class="ignoreboards floatleft">';
 
@@ -2257,7 +2257,7 @@ function template_ignoreboards()
 
 	echo '
 			</div><!-- .flow_hidden -->
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</form>
 	<br>';
 }
@@ -2269,20 +2269,19 @@ function template_load_warning_variables()
 {
 	global $modSettings, $context;
 
-	$context['warningBarWidth'] = 200;
-	// Setup the colors - this is a little messy for theming.
-	$context['colors'] = array(
-		0 => 'green',
-		$modSettings['warning_watch'] => 'darkgreen',
-		$modSettings['warning_moderate'] => 'orange',
-		$modSettings['warning_mute'] => 'red',
+	// Setup the warning mode
+	$context['warning_mode'] = array(
+		0 => 'none',
+		$modSettings['warning_watch'] => 'watched',
+		$modSettings['warning_moderate'] => 'moderated',
+		$modSettings['warning_mute'] => 'muted',
 	);
 
-	// Work out the starting color.
-	$context['current_color'] = $context['colors'][0];
-	foreach ($context['colors'] as $limit => $color)
+	// Work out the starting warning.
+	$context['current_warning_mode'] = $context['warning_mode'][0];
+	foreach ($context['warning_mode'] as $limit => $warning)
 		if ($context['member']['warning'] >= $limit)
-			$context['current_color'] = $color;
+			$context['current_warning_mode'] = $warning;
 }
 
 // Show all warnings of a user?
@@ -2311,13 +2310,9 @@ function template_viewWarning()
 					<strong>', $txt['profile_warning_level'], ':</strong>
 				</dt>
 				<dd>
-					<div>
-						<div>
-							<div style="font-size: 8pt; height: 12pt; width: ', $context['warningBarWidth'], 'px; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-								<div id="warning_text" style="padding-top: 1pt; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['member']['warning'], '%</div>
-								<div id="warning_progress" style="width: ', $context['member']['warning'], '%; height: 12pt; z-index: 1; background-color: ', $context['current_color'], ';">&nbsp;</div>
-							</div>
-						</div>
+					<div class="generic_bar warning_level ', $context['current_warning_mode'], '">
+						<div class="bar" style="width: ', $context['member']['warning'], '%;"></div>
+						<span>', $context['member']['warning'], '%</span>
 					</div>
 				</dd>';
 
@@ -2578,7 +2573,7 @@ function template_deleteAccount()
 			<p class="information">', $txt['deleteAccount_desc'], '</p>';
 
 	echo '
-			<div class="windowbg2">';
+			<div class="windowbg">';
 
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if ($context['needs_approval'])
@@ -2654,7 +2649,7 @@ function template_deleteAccount()
 				</div>';
 	}
 	echo '
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<br>
 		</form>';
 }
@@ -2871,12 +2866,44 @@ function template_profile_avatar_select()
 	// Start with the upper menu
 	echo '
 							<dt>
-								<strong id="personal_picture"><label for="avatar_upload_box">', $txt['personal_picture'], '</label></strong>
-								', empty($modSettings['gravatarOverride']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '><label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['no_avatar'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_server_stored']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '><label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choose_avatar_gallery'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_external']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '><label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['my_own_pic'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_upload']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '><label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['avatar_will_upload'] . '</label><br>' : '', '
-								', !empty($context['member']['avatar']['allow_gravatar']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '><label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>' : '', '
+								<strong id="personal_picture">
+									<label for="avatar_upload_box">', $txt['personal_picture'], '</label>
+								</strong>';
+
+	if (empty($modSettings['gravatarOverride']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									' . $txt['no_avatar'] . '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_server_stored']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['choose_avatar_gallery'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_external']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['my_own_pic'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_upload']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
+									', $txt['avatar_will_upload'], '
+								</label><br>';
+
+	if (!empty($context['member']['avatar']['allow_gravatar']))
+		echo '
+								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
+								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>';
+
+	echo '
 							</dt>
 							<dd>';
 
@@ -3114,37 +3141,63 @@ function template_tfasetup()
 				<h3 class="catbg">', $txt['tfa_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>
-		', !empty($context['tfa_backup']) ? '
-					<div class="smalltext error">' . $txt['tfa_backup_used_desc'] . '</div>' :
-			($modSettings['tfa_mode'] == 2 ? '
-									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
-									<div class="smalltext">', $txt['tfa_desc'], '</div>
-									<div class="floatleft">
-										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-											<div class="title_top">
-												<strong>', $txt['tfa_step1'], '</strong><br>
-												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
-												<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
-											</div>
-											<div class="title_top">
-												<strong>', $txt['tfa_step2'], '</strong>
-												<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
-												<div class="tfacode">', $context['tfa_secret'], '</div>
-											</div>
-											<div class="title_top">
-												<strong>', $txt['tfa_step3'], '</strong><br>
-												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
-												<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
-												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
-											</div>
-											<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
-											<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-										</form>
-									</div>
-									<div class="floatright tfa_qrcode">
-										<img src="', $context['tfa_qr_url'], '" alt="">
-									</div>';
+				<div>';
+
+	if (!empty($context['tfa_backup']))
+		echo '
+					<div class="smalltext error">
+						', $txt['tfa_backup_used_desc'], '
+					</div>';
+
+	elseif ($modSettings['tfa_mode'] == 2)
+		echo '
+					<div class="smalltext">
+						<strong>', $txt['tfa_forced_desc'], '</strong>
+					</div>';
+
+	echo '
+					<div class="smalltext">
+						', $txt['tfa_desc'], '
+					</div>
+					<div class="floatleft">
+						<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
+							<div class="title_top">
+								<strong>', $txt['tfa_step1'], '</strong><br>';
+
+	if (!empty($context['tfa_pass_error']))
+		echo '
+								<div class="error smalltext">
+									', $txt['tfa_pass_invalid'], '
+								</div>';
+
+	echo '
+								<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
+							</div>
+							<div class="title_top">
+								<strong>', $txt['tfa_step2'], '</strong>
+								<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
+								<div class="tfacode">', $context['tfa_secret'], '</div>
+							</div>
+							<div class="title_top">
+								<strong>', $txt['tfa_step3'], '</strong><br>';
+
+	if (!empty($context['tfa_error']))
+		echo '
+								<div class="error smalltext">
+									', $txt['tfa_code_invalid'], '
+								</div>';
+
+	echo '
+								<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
+								<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
+							</div>
+							<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						</form>
+					</div>
+					<div class="floatright tfa_qrcode">
+						<img src="', $context['tfa_qr_url'], '" alt="">
+					</div>';
 
 	if (!empty($context['from_ajax']))
 		echo '

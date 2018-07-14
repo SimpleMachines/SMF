@@ -931,7 +931,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			member_name, real_name, id_member, email_address, lngfile
+			member_name, real_name, id_member, email_address, lngfile,
 			instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
 			(pm_receive_from = {int:admins_only}' . (empty($modSettings['enable_buddylist']) ? '' : ' OR
 			(pm_receive_from = {int:buddies_only} AND FIND_IN_SET({string:from_id}, buddy_list) = 0) OR

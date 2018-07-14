@@ -775,7 +775,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 2);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);
@@ -1143,12 +1143,12 @@ if (!empty($select_columns))
 ---#
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
-	DROP icq,
-	DROP aim,
-	DROP yim,
-	DROP msn,
-	DROP location,
-	DROP gender;
+	DROP IF EXISTS icq,
+	DROP IF EXISTS aim,
+	DROP IF EXISTS yim,
+	DROP IF EXISTS msn,
+	DROP IF EXISTS location,
+	DROP IF EXISTS gender;
 ---#
 
 ---# Create the displayFields setting
@@ -1959,12 +1959,12 @@ ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 
 ---# Dropping the "hide_email" column from the members table
 ALTER TABLE {$db_prefix}members
-DROP hide_email;
+DROP IF EXISTS hide_email;
 ---#
 
 ---# Dropping the "email_address" column from log_reported_comments
 ALTER TABLE {$db_prefix}log_reported_comments
-DROP email_address;
+DROP IF EXISTS email_address;
 ---#
 
 /******************************************************************************/
@@ -1986,7 +1986,7 @@ WHERE variable = 'autoOptMaxOnline';
 /******************************************************************************/
 ---# Removing the openid_uri column in the members table
 ALTER TABLE {$db_prefix}members
-DROP openid_uri;
+DROP IF EXISTS openid_uri;
 ---#
 
 ---# Dropping the openid_assoc table

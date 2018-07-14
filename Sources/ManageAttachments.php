@@ -2408,7 +2408,7 @@ function ManageAttachmentPaths()
 					'position' => 'top_of_list',
 					'value' => $txt['attach_dir_base_desc'],
 					'style' => 'padding: 5px 10px;',
-					'class' => 'windowbg2 smalltext'
+					'class' => 'windowbg smalltext'
 				) : array(
 					'position' => 'top_of_list',
 					'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
@@ -2790,8 +2790,8 @@ function TransferAttachments()
 				$percent_done = min(round($current_progress / $total_progress * 100, 0), 100);
 				$prog_bar = '
 					<div class="progress_bar">
-						<div class="full_bar">' . $percent_done . '%</div>
-						<div class="green_percent" style="width: ' . $percent_done . '%;">&nbsp;</div>
+						<div class="bar" style="width: ' . $percent_done . '%;"></div>
+						<span>' . $percent_done . '%</span>
 					</div>';
 				// Write it to a file so it can be displayed
 				$fp = fopen($boarddir . '/progress.php', "w");

@@ -255,7 +255,7 @@ function template_modify_language_entries()
 	if (!empty($context['file_entries']))
 	{
 		echo '
-			<div class="windowbg2">';
+			<div class="windowbg">';
 
 		$entry_num = 0;
 		foreach ($context['file_entries'] as $group => $entries)
@@ -324,7 +324,7 @@ function template_modify_language_entries()
 
 		echo '
 				<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button">
-			</div><!-- .windowbg2 -->';
+			</div><!-- .windowbg -->';
 	}
 
 	echo '
@@ -348,7 +348,7 @@ function template_add_language()
 					', $txt['add_language'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<fieldset>
 					<legend>', $txt['add_language_smf'], '</legend>
 					<label class="smalltext">', $txt['add_language_smf_browse'], '</label>
@@ -367,7 +367,7 @@ function template_add_language()
 				', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
 				<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button">
 				<br>
-			</div><!-- .windowbg2 -->';
+			</div><!-- .windowbg -->';
 
 	// Had some results?
 	if (!empty($context['smf_languages']['rows']))

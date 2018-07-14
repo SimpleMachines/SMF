@@ -26,12 +26,12 @@ function template_modify_subscription()
 
 	if (!empty($context['disable_groups']))
 		echo '
-			<div class="information">
+			<div class="information noup">
 				<span class="alert">', $txt['paid_mod_edit_note'], '</span>
 			</div>';
 
 	echo '
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						', $txt['paid_mod_name'], ':
@@ -118,7 +118,7 @@ function template_modify_subscription()
 								', $txt['paid_cost'], ' (', str_replace('%1.2f', '', $modSettings['paid_currency_symbol']), '):
 							</dt>
 							<dd>
-								<input type="number" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '0' : $context['sub']['cost']['fixed'], '" size="4">
+								<input type="number" step="0.01" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '' : $context['sub']['cost']['fixed'], '" placeholder="0.00" size="4">
 							</dd>
 							<dt>
 								', $txt['paid_mod_span'], ':
@@ -141,18 +141,6 @@ function template_modify_subscription()
 				<div id="flexible_area" ', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
 					<fieldset>';
 
-	//!! Removed until implemented
-	if (!empty($sdflsdhglsdjgs))
-		echo '
-						<dl class="settings">
-							<dt>
-								<label for="allow_partial_check">', $txt['paid_mod_allow_partial'], '</label>:<br><span class="smalltext">', $txt['paid_mod_allow_partial_desc'], '</span>
-							</dt>
-							<dd>
-								<input type="checkbox" name="allow_partial" id="allow_partial_check"', empty($context['sub']['allow_partial']) ? '' : ' checked', '>
-							</dd>
-						</dl>';
-
 	echo '
 						<div class="information">
 							<strong>', $txt['paid_mod_price_breakdown'], '</strong><br>
@@ -169,25 +157,25 @@ function template_modify_subscription()
 								', $txt['paid_per_day'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5">
+								<input type="number" step="0.01" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_week'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5">
+								<input type="number" step="0.01" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_month'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5">
+								<input type="number" step="0.01" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5">
 							</dd>
 							<dt>
 								', $txt['paid_per_year'], ':
 							</dt>
 							<dd>
-								<input type="number" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5">
+								<input type="number" step="0.01" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5">
 							</dd>
 						</dl>
 					</fieldset>
@@ -195,7 +183,7 @@ function template_modify_subscription()
 				<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -599,7 +587,7 @@ function template_paid_done()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_done'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<p>', $txt['paid_done_desc'], '</p>
 			<br>
 			<a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=subscriptions">', $txt['paid_sub_return'], '</a>

@@ -89,13 +89,13 @@ function template_main()
 			if (!isset($context['disabled_fields']['posts']))
 			{
 				echo '
-						<td class="centertext" style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
-						<td class="centertext statsbar" style="width: 120px">';
+						<td class="centertext post_count">', $member['posts'], '</td>
+						<td class="statsbar">';
 
 				if (!empty($member['post_percent']))
 					echo '
-							<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">
-								<div style="width: ', $member['post_percent'], 'px;"></div>
+							<div class="generic_bar">
+								<div class="bar" style="width: ', $member['post_percent'], '%;"></div>
 							</div>';
 
 				echo '

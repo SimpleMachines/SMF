@@ -25,8 +25,7 @@
 	margin-bottom: 0;
 }
 a.help span {
-	margin: -4px 0 0 0;
-	padding: 0 4px 0 0;
+	margin-right: 2px;
 }
 .table_caption, tr.table_caption td {
 	color: #000;
@@ -185,7 +184,7 @@ fieldset.admin_group .inactive {
 	width: 32px;
 	height: 32px;
 }
-.large_admin_menu_icon {
+.large_admin_menu_icon::before {
 	background: url(../images/icons/admin_sprite.png) no-repeat  -5px -47px;
 	margin: 0 auto;
 	display: block;
@@ -193,97 +192,97 @@ fieldset.admin_group .inactive {
 	width: 32px;
 	height: 32px;
 }
-.large_admin_menu_icon.attachment {
+.large_admin_menu_icon.attachment::before {
 	background-position: -5px -5px;
 }
-.large_admin_menu_icon.ban {
+.large_admin_menu_icon.ban::before {
 	background-position: -47px -5px;
 }
-.large_admin_menu_icon.boards {
+.large_admin_menu_icon.boards::before {
 	background-position: -89px -5px;
 }
-.large_admin_menu_icon.calendar {
+.large_admin_menu_icon.calendar::before {
 	background-position: -131px -5px;
 }
-.large_admin_menu_icon.current_theme {
+.large_admin_menu_icon.current_theme::before {
 	background-position: -173px -5px;
 }
-.large_admin_menu_icon.default {
+.large_admin_menu_icon.default::before {
 	background-position: -5px -47px;
 }
-.large_admin_menu_icon.engines {
+.large_admin_menu_icon.engines::before {
 	background-position: -47px -47px;
 }
-.large_admin_menu_icon.exit {
+.large_admin_menu_icon.exit::before {
 	background-position: -89px -47px;
 }
-.large_admin_menu_icon.features {
+.large_admin_menu_icon.features::before {
 	background-position: -131px -47px;
 }
-.large_admin_menu_icon.languages {
+.large_admin_menu_icon.languages::before {
 	background-position: -173px -47px;
 }
-.large_admin_menu_icon.logs {
+.large_admin_menu_icon.logs::before {
 	background-position: -5px -89px;
 }
-.large_admin_menu_icon.mail {
+.large_admin_menu_icon.mail::before {
 	background-position: -47px -89px;
 }
-.large_admin_menu_icon.maintain {
+.large_admin_menu_icon.maintain::before {
 	background-position: -89px -89px;
 }
-.large_admin_menu_icon.membergroups {
+.large_admin_menu_icon.membergroups::before {
 	background-position: -131px -89px;
 }
-.large_admin_menu_icon.members {
+.large_admin_menu_icon.members::before {
 	background-position: -173px -89px;
 }
-.large_admin_menu_icon.modifications {
+.large_admin_menu_icon.modifications::before {
 	background-position: -5px -131px;
 }
-.large_admin_menu_icon.news {
+.large_admin_menu_icon.news::before {
 	background-position: -47px -131px;
 }
-.large_admin_menu_icon.packages {
+.large_admin_menu_icon.packages::before {
 	background-position: -89px -131px;
 }
-.large_admin_menu_icon.paid {
+.large_admin_menu_icon.paid::before {
 	background-position: -131px -131px;
 }
-.large_admin_menu_icon.permissions {
+.large_admin_menu_icon.permissions::before {
 	background-position: -173px -131px;
 }
-.large_admin_menu_icon.posts {
+.large_admin_menu_icon.posts::before {
 	background-position: -5px -173px;
 }
-.large_admin_menu_icon.regcenter {
+.large_admin_menu_icon.regcenter::before {
 	background-position: -47px -173px;
 }
-.large_admin_menu_icon.reports {
+.large_admin_menu_icon.reports::before {
 	background-position: -89px -173px;
 }
-.large_admin_menu_icon.scheduled {
+.large_admin_menu_icon.scheduled::before {
 	background-position: -131px -173px;
 }
-.large_admin_menu_icon.search {
+.large_admin_menu_icon.search::before {
 	background-position: -173px -173px;
 }
-.large_admin_menu_icon.security {
+.large_admin_menu_icon.security::before {
 	background-position: -215px -5px;
 }
-.large_admin_menu_icon.server {
+.large_admin_menu_icon.server::before {
 	background-position: -215px -47px;
 }
-.large_admin_menu_icon.smiley {
+.large_admin_menu_icon.smiley::before {
 	background-position: -215px -89px;
 }
-.large_admin_menu_icon.support {
+.large_admin_menu_icon.support::before {
 	background-position: -215px -131px;
 }
-.large_admin_menu_icon.themes {
+.large_admin_menu_icon.themes::before {
 	background-position: -215px -173px;
 }
-.large_admin_menu_icon.warning {
+.large_admin_menu_icon.warning::before {
 	background-position: -5px -215px;
 }
 
@@ -351,7 +350,7 @@ tr[id^="operation_"] tr.windowbg {
 	border: 0;
 	border-radius: 0;
 }
-tr[id^="operation_"] .windowbg2 {
+tr[id^="operation_"] .windowbg {
 	padding: 0;
 	background: none !important;
 }
@@ -392,16 +391,6 @@ tr[id^="operation_"] .table_grid {
 	width: 8%;
 }
 
-.generic_icons.select_above {
-	background-position: -161px -5px;
-}
-.generic_icons.select_here {
-	background-position: -187px -5px;
-}
-.generic_icons.select_below {
-	background-position: -213px -5px;
-}
-
 /* Styles for the BBC permissions */
 .list_bbc {
 	width: 33%;
@@ -411,25 +400,25 @@ tr[id^="operation_"] .table_grid {
 #manage_boards {
 	overflow: auto;
 }
-.roundframe .windowbg, .roundframe .windowbg2 {
+.roundframe .windowbg {
 	border: 0;
 	padding: 0;
 	background: none;
 }
-#manage_boards li.windowbg, #manage_boards li.windowbg2 {
+#manage_boards li.windowbg {
 	padding: 8px 0;
 	margin: 0;
 	border-radius: 0;
 	border: 1px solid #ddd;
 	border-bottom: none;
 }
-#manage_boards li.windowbg:first-child, #manage_boards li.windowbg2:first-child {
+#manage_boards li.windowbg:first-child {
 	border-top: none;
 }
-#manage_boards li.windowbg:last-child, #manage_boards li.windowbg2:last-child {
+#manage_boards li.windowbg:last-child {
 	border-bottom: 1px solid #ddd;
 }
-#manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
+#manage_boards li.windowbg:hover {
 	background: #d0e7f8;
 }
 #manage_boards li .floatleft {
@@ -567,10 +556,14 @@ dl.themes_list {
 }
 dl.themes_list dt {
 	margin-bottom: 3px;
+	width: 40%;
 }
 dl.themes_list dd {
+	width: 59%;
 	font-style: italic;
 	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 /* Generic boxes/textboxes requires to be full-width */
@@ -609,7 +602,7 @@ h3.grid_header {
 	width: 100%;
 	margin: 4px 0;
 }
-#error_log tr.windowbg td, #error_log tr.windowbg2 td {
+#error_log tr.windowbg td {
 	padding: 8px;
 	line-height: 160%;
 }
@@ -622,7 +615,7 @@ h3.grid_header {
 	vertical-align: middle;
 	margin: 0 8px 0 0;
 }
-#error_log .generic_icons {
+#error_log .generic_icons::before {
 	margin: 0 5px 0 0;
 }
 #error_log .error_info {
@@ -677,8 +670,7 @@ h3.config_hd {
 	padding-left: 20px;
 }
 
-.windowbg.highlight2,
-.windowbg2.highlight2 {
+.windowbg.highlight2 {
 	background: #d0e7f8;
 }
 
@@ -704,4 +696,11 @@ h3.config_hd {
 
 .move_smileys .selected_item {
 	border-color: #FFB42D;
+}
+
+/* Progress bars */
+
+.progress_bar {
+	margin: 20px auto;
+	max-width: 750px;
 }
