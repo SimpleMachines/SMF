@@ -280,13 +280,14 @@ function BanList()
 		removeBans.on( "click", function(e) {
 			var removeItems = $("input[name=\'remove[]\']:checked").length;
 
-			e.preventDefault();
-
 			if (removeItems == 0)
+			{
+				e.preventDefault();
 				return alert("'. $txt['select_item_check'] .'");
+			}
 
-			else
-				return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+
+			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
 		});',
 	);
 
