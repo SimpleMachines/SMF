@@ -1035,7 +1035,7 @@ function smf_db_cte_support()
 	global $smcFunc;
 	static $return;
 
-	if (!empty($return))
+	if (isset($return))
 		return $return;
 
 	db_extend('extra');
