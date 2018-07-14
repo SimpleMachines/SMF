@@ -277,8 +277,11 @@ function BanList()
 		'javascript' => '
 		var removeBans = $("input[name=\'removeBans\']");
 
-		removeBans.on( "click", function() {
+		removeBans.on( "click", function(e) {
 			var removeItems = $("input[name=\'remove[]\']:checked").length;
+
+			e.preventDefault();
+
 			if (removeItems == 0)
 				return alert("'. $txt['select_item_check'] .'");
 
