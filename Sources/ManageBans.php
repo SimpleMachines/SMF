@@ -641,7 +641,7 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 				'name' => $row['name'],
 				'expiration' => array(
 					'status' => empty($row['expire_time']) ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
-					'days' => $row['expire_time'] > time() ? ($row['expire_time'] - time() < 86400 ? 1 : floor(($row['expire_time'] - time()) / 86400)) : 0
+					'days' => $row['expire_time'] > time() ? ($row['expire_time'] - time() < 86400 ? 1 : ceil(($row['expire_time'] - time()) / 86400)) : 0
 				),
 				'reason' => $row['reason'],
 				'notes' => $row['notes'],
