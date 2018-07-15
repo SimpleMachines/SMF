@@ -251,8 +251,21 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 			if (@rename($file, $file . '.zip'))
 				$file = $file . '.zip';
 
-		$archive = @new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
-		$iterator = @new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
+		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
+		set_error_handler(function($errno, $errstr, $errfile, $errline)
+			{
+				// error was suppressed with the @-operator
+				if (0 === error_reporting()) {
+					return false;
+				}
+				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
+					log_error($errstr, 'general', $errfile, $errline);
+			}
+		);
+		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
+		restore_error_handler();
+
+		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
 
 		// go though each file in the archive
 		foreach ($iterator as $file_info)
