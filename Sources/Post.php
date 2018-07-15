@@ -1364,7 +1364,7 @@ function Post($post_errors = array())
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
 		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
-		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="' . (!empty($topic) ? 84 : 80) . '" required>',
 	);
 
 	// Icons are fun.
