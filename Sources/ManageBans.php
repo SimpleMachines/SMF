@@ -486,7 +486,9 @@ function BanEdit()
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" 
+						href="' .
+							$scripturl	. '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
@@ -497,6 +499,21 @@ function BanEdit()
 						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '">',
 					),
 				),
+				'javascript' => '
+		var removeBans = $("input[name=\'remove_selection\']");
+
+		removeBans.on( "click", function(e) {
+			var removeItems = $("input[name=\'ban_items[]\']:checked").length;
+
+			if (removeItems == 0)
+			{
+				e.preventDefault();
+				return alert("'. $txt['select_item_check'] .'");
+			}
+
+
+			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+		});',
 			);
 			createList($listOptions);
 		}
