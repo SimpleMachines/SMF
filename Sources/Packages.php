@@ -2650,6 +2650,8 @@ function PackagePermissionsAction()
 			if ($dont_chmod)
 			{
 				$context['total_files'] = $file_count;
+				$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));
+				$context['special_files_encode'] = base64_encode($smcFunc['json_encode']($context['special_files']));
 				return false;
 			}
 
