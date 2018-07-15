@@ -251,8 +251,8 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 			if (@rename($file, $file . '.zip'))
 				$file = $file . '.zip';
 
-		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
-		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
+		$archive = @new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
+		$iterator = @new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
 
 		// go though each file in the archive
 		foreach ($iterator as $file_info)
