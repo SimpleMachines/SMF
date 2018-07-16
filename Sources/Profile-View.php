@@ -250,7 +250,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	if($withSender)
+	if ($withSender)
 	{
 		$senders = loadMemberData($senders);
 		foreach ($senders as $member)
