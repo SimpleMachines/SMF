@@ -6,12 +6,12 @@ $txt['lang_character_set'] = 'UTF-8';
 $txt['lang_rtl'] = false;
 
 $txt['install_step_welcome'] = 'Welcome';
-$txt['install_step_writable'] = 'Writable Check';
+$txt['install_step_writable'] = 'Writable check';
 $txt['install_step_forum'] = 'Forum Settings';
 $txt['install_step_databaseset'] = 'Database Settings';
 $txt['install_step_databasechange'] = 'Database Population';
-$txt['install_step_admin'] = 'Admin Account';
-$txt['install_step_delete'] = 'Finalize Install';
+$txt['install_step_admin'] = 'Admin account';
+$txt['install_step_delete'] = 'Finalize install';
 
 $txt['smf_installer'] = 'SMF Installer';
 $txt['installer_language'] = 'Language';
@@ -109,8 +109,8 @@ $txt['install_settings_dbsession_info2'] = 'This feature is generally a good ide
 $txt['install_settings_utf8'] = 'UTF-8 Character Set';
 $txt['install_settings_utf8_title'] = 'Use UTF-8 as default character set';
 $txt['install_settings_utf8_info'] = 'This feature lets both the database and the forum use an international character set, UTF-8. This can be useful when working with multiple languages that use different character sets.';
-$txt['install_settings_stats'] = 'Allow Stat Collection';
-$txt['install_settings_stats_title'] = 'Allow Simple Machines to Collect Basic Stats Monthly';
+$txt['install_settings_stats'] = 'Allow stat Collection';
+$txt['install_settings_stats_title'] = 'Allow Simple Machines to collect basic stats monthly';
 $txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimize the software for. For more information please visit our <a href="https://www.simplemachines.org/about/stats.php" target="_blank" rel="noopener">info page</a>.';
 $txt['install_settings_proceed'] = 'Proceed';
 
@@ -141,7 +141,7 @@ $txt['db_populate_tables'] = 'Created %1$d tables.';
 $txt['db_populate_insert_dups'] = 'Ignored %1$d duplicated inserts.';
 $txt['db_populate_table_dups'] = 'Ignored %1$d duplicated tables.';
 
-$txt['user_settings'] = 'Create Your Account';
+$txt['user_settings'] = 'Create your Account';
 $txt['user_settings_info'] = 'The installer will now create a new administrator account for you.';
 $txt['user_settings_username'] = 'Your username';
 $txt['user_settings_username_info'] = 'Choose the name you want to login with.<br>This can be changed later.';
@@ -149,9 +149,9 @@ $txt['user_settings_password'] = 'Password';
 $txt['user_settings_password_info'] = 'Fill in your preferred password here, and remember it well!';
 $txt['user_settings_again'] = 'Password';
 $txt['user_settings_again_info'] = '(just for verification.)';
-$txt['user_settings_admin_email'] = 'Administrator Email Address';
+$txt['user_settings_admin_email'] = 'Administrator email address';
 $txt['user_settings_admin_email_info'] = 'Provide your email address. This must be a valid email address!';
-$txt['user_settings_server_email'] = 'Webmaster Email Address';
+$txt['user_settings_server_email'] = 'Webmaster email address';
 $txt['user_settings_server_email_info'] = 'Provide <strong>the email address that SMF will use to send emails</strong>. This must be a valid email address!';
 $txt['user_settings_database'] = 'Database Password';
 $txt['user_settings_database_info'] = 'The installer requires that you supply the database password to create an administrator account, for security reasons.';
@@ -283,7 +283,7 @@ $txt['upgrade_customize'] = 'Customize';
 $txt['upgrade_debug_info'] = 'Output extra debugging information';
 $txt['upgrade_empty_errlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
-$txt['upgrade_stats_collection'] = 'Allow Simple Machines to Collect Basic Stats Monthly.';
+$txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';

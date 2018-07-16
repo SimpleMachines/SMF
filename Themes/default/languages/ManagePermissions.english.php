@@ -51,7 +51,7 @@ $txt['permissionname_profile_blurb'] = 'Edit personal text';
 $txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
 $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
-$txt['permissions_profile_copy_from'] = 'Copy Permissions From';
+$txt['permissions_profile_copy_from'] = 'Copy Permissions from';
 
 $txt['permissions_includes_inherited'] = 'Inherited Groups';
 
