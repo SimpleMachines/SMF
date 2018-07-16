@@ -4950,13 +4950,13 @@ function migrateSettingsFile($changes)
 		'webmaster_email' => 'string',
 		'cookiename' => 'string',
 		'db_type' => 'string',
-		'db_server' => 'string',
-		'db_name' => 'string',
-		'db_user' => 'string',
-		'db_passwd' => 'string',
+		'db_server' => 'string_fatal',
+		'db_name' => 'string_fatal',
+		'db_user' => 'string_fatal',
+		'db_passwd' => 'string_fatal',
 		'ssi_db_user' => 'string',
 		'ssi_db_user' => 'string',
-		'db_prefix' => 'string',
+		'db_prefix' => 'string_fatal',
 		'db_persist' => 'int',
 		'db_error_send' => 'int',
 		'db_mb4' => 'null',
@@ -5198,7 +5198,7 @@ function migrateSettingsFile($changes)
 
 		// Find the setting.
 		if ($setType == 'string' || $setType == 'string_fatal')
-			$original[$setVar] = isset($$setVar) ? '\'' . $$setVar . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
+			$original[$setVar] = isset($$setVar) ? '\'' . addslashes($$setVar) . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
 		elseif ($setType == 'int' || $setType == 'int_fatal')
 			$original[$setVar] = isset($$setVar) ? (int) $$setVar : (strpos('fatal', $setType) ? null : 0);
 		elseif ($setType == 'bool' || $setType == 'bool_fatal')
