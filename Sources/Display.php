@@ -359,6 +359,17 @@ function Display()
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 
+	// Prevent signature images from going outside the box.
+	if ($context['signature_enabled'])
+	{
+		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		$sig_limits = explode(',', $sig_limits);
+
+		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
+			addInlineCss('
+	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+	}
+
 	// Censor the title...
 	censorText($context['topicinfo']['subject']);
 	$context['page_title'] = $context['topicinfo']['subject'];

@@ -127,6 +127,17 @@ function summary($memID)
 	// Is the signature even enabled on this forum?
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
 
+	// Prevent signature images from going outside the box.
+	if ($context['signature_enabled'])
+	{
+		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		$sig_limits = explode(',', $sig_limits);
+
+		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
+			addInlineCss('
+	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+	}
+
 	// How about, are they banned?
 	$context['member']['bans'] = array();
 	if (allowedTo('moderate_forum'))
