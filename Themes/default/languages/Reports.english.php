@@ -3,7 +3,7 @@
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
-$txt['generate_reports_type'] = 'Select Type of Report';
+$txt['generate_reports_type'] = 'Select type of Report';
 $txt['gr_type_boards'] = 'Boards';
 $txt['gr_type_desc_boards'] = 'Reports showing the current settings and access levels for each of boards on your forum.';
 $txt['gr_type_board_perms'] = 'Board Permissions';
@@ -36,8 +36,8 @@ $txt['board_perms_name_moderate_board'] = 'Moderate the board';
 $txt['board_perms_name_modify_any'] = 'Modify any post';
 $txt['board_perms_name_modify_own'] = 'Modify own posts';
 $txt['board_perms_name_modify_replies'] = 'Modify replies to own topics';
-$txt['board_perms_name_move_any'] = 'Move Any Topic';
-$txt['board_perms_name_move_own'] = 'Move Own Topics';
+$txt['board_perms_name_move_any'] = 'Move any Topic';
+$txt['board_perms_name_move_own'] = 'Move own Topics';
 $txt['board_perms_name_poll_add_any'] = 'Add poll to any topics';
 $txt['board_perms_name_poll_add_own'] = 'Add poll to own topics';
 $txt['board_perms_name_poll_edit_any'] = 'Edit any poll';
