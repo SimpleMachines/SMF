@@ -1397,7 +1397,7 @@ function template_callback_question_answer_list()
 									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="verification_answer">';
 
 				echo '
-									<div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
+									<div class="qa_add_answer"><a href="javascript:void(0);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
 								</dd>';
 			}
 

@@ -662,15 +662,14 @@ function ModifyAntispamSettings($return_config = false)
 	});
 	$(".qa_add_question a").click(function() {
 		var id = $(this).closest("fieldset").attr("id").substring(6);
-		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
+		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
-	function addAnswer(obj)
-	{
-		var attr = $(obj).closest("dd").find(".verification_answer:last").attr("name");
-		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(obj).closest("div"));
+	$(".qa_add_answer a").click(function() {
+		var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
+		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
-	}
+	});
 	$("#qa_dt_' . strtr($language, array('-utf8' => '')) . ' a").click();', true);
 
 	// Will need the utility functions from here.
