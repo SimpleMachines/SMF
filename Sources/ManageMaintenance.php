@@ -487,7 +487,7 @@ function ConvertEntities()
 	isAllowedTo('admin_forum');
 
 	// Check to see if UTF-8 is currently the default character set.
-	if ($modSettings['global_character_set'] !== 'UTF-8' || !isset($db_character_set) || $db_character_set !== 'utf8')
+	if ($modSettings['global_character_set'] !== 'UTF-8')
 		fatal_lang_error('entity_convert_only_utf8');
 
 	// Some starting values.
