@@ -161,7 +161,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'TOPICSUBJECT' => $msgOptions['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => $msgOptions['body'],
+					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($msgOptions['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']'))))),
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 
