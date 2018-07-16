@@ -3563,43 +3563,40 @@ function template_upgrade_above()
 	echo '
 					</ul>
 				</div><!-- #main_steps -->
-
-				<div id="progress_bar">
-					<div id="overall_text">', $upcontext['overall_percent'], '%</div>
-					<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%;">
-						<span>', $txt['upgrade_overall_progress'], '</span>
-					</div>
-				</div>';
+				
+				<div id="install_progress">
+					<div id="progress_bar" class="progress_bar progress_green">
+						<h3>', $txt['upgrade_overall_progress'], '</h3>
+						<div id="overall_progress" class="bar" style="width: ', $upcontext['overall_percent'], '%;"></div>
+						<span id="overall_text">', $upcontext['overall_percent'], '%</span>
+					</div>';
 
 	if (isset($upcontext['step_progress']))
 		echo '
-				<br>
-				<br>
-				<div id="progress_bar_step">
-					<div id="step_text">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">
-						<span>', $txt['upgrade_step_progress'], '</span>
-					</div>
-				</div>';
+					<div id="progress_bar_step" class="progress_bar progress_yellow">
+						<h3>', $txt['upgrade_step_progress'], '</h3>
+						<div id="step_progress" class="bar" style="width: ', $upcontext['step_progress'], '%;"></div>
+						<span id="step_text">', $upcontext['step_progress'], '%</span>
+					</div>';
 
 	echo '
-				<div id="substep_bar_div" class="smalltext" style="float: left;width: 50%;margin-top: 0.6em;display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
-				<div id="substep_bar_div2" style="float: left;font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 33%; margin: 0.6em auto 0 6em; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
-					<div id="substep_text" style="color: #000; position: absolute; margin-left: -5em;">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</div>
-					<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
-				</div>';
+					<h3>', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', '</h3>
+					<div id="substep_bar_div" class="progress_bar" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
+						<div id="substep_progress" class="bar" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%;"></div>
+						<span>', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</span>
+					</div>';
 
 	// How long have we been running this?
 	$elapsed = time() - $upcontext['started'];
 	$mins = (int) ($elapsed / 60);
 	$seconds = $elapsed - $mins * 60;
 	echo '
-				<br> <br> <br> <br> <br>
-				<div class="smalltext" style="padding: 5px; text-align: center;">
-					<br>', $txt['upgrade_time_elapsed'], ':
-					<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
-				</div>';
+					<div class="smalltext time_elapsed">
+						', $txt['upgrade_time_elapsed'], ':
+						<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
+					</div>';
 	echo '
+				</div><!-- #install_progress -->
 			</div><!-- #main_content_section -->
 		</div><!-- #content_section -->
 		<div id="main_screen" class="clear">
@@ -4285,7 +4282,6 @@ function template_database_changes()
 							if (iSubStepProgress != -1)
 							{
 								document.getElementById("substep_bar_div").style.display = "";
-								document.getElementById("substep_bar_div2").style.display = "";
 								document.getElementById("substep_progress").style.width = iSubStepProgress + "%";
 								setInnerHTML(document.getElementById("substep_text"), iSubStepProgress + "%");
 								setInnerHTML(document.getElementById("substep_bar_div"), sDebugName.replace(/\./g, "") + ":");
@@ -4293,7 +4289,6 @@ function template_database_changes()
 							else
 							{
 								document.getElementById("substep_bar_div").style.display = "none";
-								document.getElementById("substep_bar_div2").style.display = "none";
 							}
 
 							// Move onto the next item?

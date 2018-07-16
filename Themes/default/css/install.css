@@ -17,10 +17,13 @@ h1.forumtitle {
 	max-width: 100%;
 	float: left;
 }
+#main_content_section {
+	display: flex;
+	flex-wrap: wrap;
+}
 #main_steps {
-	float: right;
-	width: 50%;
-	padding: 0 0 1em 0;
+	order: 0;
+	width: 49%;
 }
 #main_steps h2 {
 	font-size: 1.2em;
@@ -42,45 +45,33 @@ h1.forumtitle {
 #main_steps ul li.stepwaiting {
 	color: #666;
 }
-#progress_bar, #progress_bar_step {
-	position: relative;
-	font-size: 1.2em;
-	height: 2.3em;
-	border: 1px solid #000;
-	border-radius: 2px;
-	background: #fff;
-	float: left;
-	margin: 0.6em 0 0 4em;
-	width: 33%;
+#install_progress {
+	order: -1;
+	margin-right: 2%;
+	width: 49%;
 }
-#overall_text, #step_text {
-	z-index: 2;
-	color: #111;
-	font-weight: bold;
+.progress_bar {
+	line-height: 2em;
+}
+.progress_bar + h3, .progress_bar + .progress_bar {
+	margin-top: 1.5em;
+}
+.progress_bar h3 {
 	position: absolute;
-	top: 0.5em;
-	left: -3.3em;
+	font-weight: normal;
+	font-size: 1.1em;
+	left: 0.5em;
+	z-index: 3;
+	text-shadow: 1px 1px rgba(255,255,255,.4);
 }
-#overall_progress, #step_progress {
-	height: 100%;
-	z-index: 1;
-	background-color: #6bb247;
-	margin: 0px 3px 0px 0px;
-}
-#overall_progress span, #step_progress span {
-	width: 100%;
-	min-width: 150px;
-	display: inline-block;
-	padding: 7px;
-}
-
-#step_progress {
-	background: #ffd000;
+#substep_bar_div {
+	line-height: 1.6em;
 }
 #substep_progress {
-	height: 2.3em;
-	z-index: 1;
-	background: #eebaf4;
+	background-color: #eebaf4;
+}
+.time_elapsed {
+	margin-top: 3em;
 }
 #main_screen {
 	padding: 1em 1em 0.5em 1em;

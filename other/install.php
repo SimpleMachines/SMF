@@ -1957,10 +1957,11 @@ function template_install_above()
 	echo '
 					</ul>
 				</div>
-				<div id="progress_bar">
-					<div id="overall_text">', $incontext['overall_percent'], '%</div>
-					<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">
-						<span>'. $txt['upgrade_overall_progress'], '</span>
+				<div id="install_progress">
+					<div id="progress_bar" class="progress_bar progress_green">
+						<h3>'. $txt['upgrade_overall_progress'], '</h3>
+						<span id="overall_text">', $incontext['overall_percent'], '%</span>
+						<div id="overall_progress" class="bar" style="width: ', $incontext['overall_percent'], '%;"></div>
 					</div>
 				</div>
 				<div id="main_screen" class="clear">
