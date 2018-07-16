@@ -263,7 +263,7 @@ function is_not_banned($forceCheck = false)
 		foreach ($bans as $key => $value)
 			$bans[$key] = (int) $value;
 		$request = $smcFunc['db_query']('', '
-			SELECT bi.id_ban, bg.reason
+			SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 			WHERE bi.id_ban IN ({array_int:ban_list})
@@ -281,6 +281,7 @@ function is_not_banned($forceCheck = false)
 		{
 			$_SESSION['ban']['cannot_access']['ids'][] = $row['id_ban'];
 			$_SESSION['ban']['cannot_access']['reason'] = $row['reason'];
+			$_SESSION['ban']['expire_time'] = $row['expire_time'];
 		}
 		$smcFunc['db_free_result']($request);
 

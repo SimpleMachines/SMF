@@ -3,8 +3,7 @@
 #calendar {
 	overflow: hidden;
 }
-#calendar .windowbg,
-#calendar .windowbg2 {
+#calendar .windowbg {
 	box-shadow: none;
 	border-radius: 0;
 	box-sizing: content-box;

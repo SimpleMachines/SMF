@@ -350,7 +350,7 @@ tr[id^="operation_"] tr.windowbg {
 	border: 0;
 	border-radius: 0;
 }
-tr[id^="operation_"] .windowbg2 {
+tr[id^="operation_"] .windowbg {
 	padding: 0;
 	background: none !important;
 }
@@ -400,25 +400,25 @@ tr[id^="operation_"] .table_grid {
 #manage_boards {
 	overflow: auto;
 }
-.roundframe .windowbg, .roundframe .windowbg2 {
+.roundframe .windowbg {
 	border: 0;
 	padding: 0;
 	background: none;
 }
-#manage_boards li.windowbg, #manage_boards li.windowbg2 {
+#manage_boards li.windowbg {
 	padding: 8px 0;
 	margin: 0;
 	border-radius: 0;
 	border: 1px solid #ddd;
 	border-bottom: none;
 }
-#manage_boards li.windowbg:first-child, #manage_boards li.windowbg2:first-child {
+#manage_boards li.windowbg:first-child {
 	border-top: none;
 }
-#manage_boards li.windowbg:last-child, #manage_boards li.windowbg2:last-child {
+#manage_boards li.windowbg:last-child {
 	border-bottom: 1px solid #ddd;
 }
-#manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
+#manage_boards li.windowbg:hover {
 	background: #d0e7f8;
 }
 #manage_boards li .floatleft {
@@ -602,7 +602,7 @@ h3.grid_header {
 	width: 100%;
 	margin: 4px 0;
 }
-#error_log tr.windowbg td, #error_log tr.windowbg2 td {
+#error_log tr.windowbg td {
 	padding: 8px;
 	line-height: 160%;
 }
@@ -670,8 +670,7 @@ h3.config_hd {
 	padding-left: 20px;
 }
 
-.windowbg.highlight2,
-.windowbg2.highlight2 {
+.windowbg.highlight2 {
 	background: #d0e7f8;
 }
 

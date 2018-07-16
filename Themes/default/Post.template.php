@@ -1055,7 +1055,7 @@ function template_announce()
 			<div class="information">
 				', $txt['announce_desc'], '
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<p>
 					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
 				</p>
@@ -1081,7 +1081,7 @@ function template_announce()
 					<input type="hidden" name="goback" value="', $context['go_back'], '">
 				</div>
 				<br class="clear_right">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
 	<br>';
@@ -1097,7 +1097,7 @@ function template_announcement_send()
 	echo '
 	<div id="announcement">
 		<form action="', $scripturl, '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
-			<div class="windowbg2">
+			<div class="windowbg">
 				<p>
 					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" rel="noopener">', $context['topic_subject'], '</a>
 				</p>
@@ -1116,7 +1116,7 @@ function template_announcement_send()
 					<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
 				</div>
 				<br class="clear_right">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
 	<br>

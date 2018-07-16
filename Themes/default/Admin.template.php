@@ -589,7 +589,7 @@ function template_edit_censored()
 									', $txt['admin_censored_words'], '
 								</h3>
 							</div>
-							<div class="windowbg2 noup">
+							<div class="windowbg noup">
 								<p>', $txt['admin_censored_where'], '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
@@ -633,7 +633,7 @@ function template_edit_censored()
 									</dd>
 								</dl>
 								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button">
-							</div><!-- .windowbg2 -->';
+							</div><!-- .windowbg -->';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
 	echo '
@@ -642,7 +642,7 @@ function template_edit_censored()
 									', $txt['censor_test'], '
 								</h3>
 							</div>
-							<div class="windowbg2 noup">
+							<div class="windowbg noup">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '">
 									<input type="submit" value="', $txt['censor_test_save'], '" class="button">
@@ -669,7 +669,7 @@ function template_not_done()
 								', $txt['not_done_title'], '
 							</h3>
 						</div>
-						<div class="windowbg2 noup">
+						<div class="windowbg noup">
 							', $txt['not_done_reason'];
 
 	if (!empty($context['continue_percent']))
@@ -691,7 +691,7 @@ function template_not_done()
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
 								', $context['continue_post_data'], '
 							</form>
-						</div><!-- .windowbg2 -->
+						</div><!-- .windowbg -->
 					</div><!-- #admincenter -->
 					<script>
 						var countdown = ', $context['continue_countdown'], ';
@@ -793,7 +793,7 @@ function template_show_settings()
 		{
 			$is_open = true;
 			echo '
-							<div class="windowbg2 noup">
+							<div class="windowbg noup">
 								<dl class="settings">';
 		}
 
@@ -978,7 +978,7 @@ function template_show_settings()
 
 	if ($is_open)
 		echo '
-							</div><!-- .windowbg2 -->';
+							</div><!-- .windowbg -->';
 
 
 	// At least one token has to be used!
@@ -1078,7 +1078,7 @@ function template_edit_profile_field()
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
 							</div>
-							<div class="windowbg2 noup">
+							<div class="windowbg noup">
 								<fieldset>
 									<legend>', $txt['custom_edit_general'], '</legend>
 
@@ -1267,7 +1267,7 @@ function template_edit_profile_field()
 								<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button you_sure">';
 
 	echo '
-							</div><!-- .windowbg2 -->
+							</div><!-- .windowbg -->
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
 						</form>
@@ -1303,7 +1303,7 @@ function template_admin_search_results()
 								</h3>
 							</form>
 						</div><!-- #section_header -->
-						<div class="windowbg2 generic_list_wrapper">';
+						<div class="windowbg generic_list_wrapper">';
 
 	if (empty($context['search_results']))
 	{
@@ -1397,7 +1397,7 @@ function template_callback_question_answer_list()
 									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="verification_answer">';
 
 				echo '
-									<div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
+									<div class="qa_add_answer"><a href="javascript:void(0);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
 								</dd>';
 			}
 
@@ -1604,7 +1604,7 @@ function template_clean_cache_button_below()
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 					</div>
-					<div class="windowbg2 noup">
+					<div class="windowbg noup">
 						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
 							<p>', $txt['maintain_cache_info'], '</p>
 							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button"></span>

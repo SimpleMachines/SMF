@@ -90,7 +90,7 @@ function template_reported_posts()
 	// Were none found?
 	if (empty($context['reports']))
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg">
 			<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
 		</div>';
 
@@ -221,7 +221,7 @@ function template_viewmodreport()
 					</span>
 				</h3>
 			</div><!-- .title_bar -->
-			<div class="windowbg2">
+			<div class="windowbg">
 				', $context['report']['body'], '
 			</div>
 			<br>
@@ -261,7 +261,7 @@ function template_viewmodreport()
 				</div>';
 
 		echo '
-				<div class="windowbg2">
+				<div class="windowbg">
 					<p>', $comment['message'], '</p>
 				</div>';
 	}
@@ -304,7 +304,7 @@ function template_edit_comment()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'], '</textarea>
 				<div>
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button">
@@ -459,7 +459,7 @@ function template_reported_members()
 	// Were none found?
 	if (empty($context['reports']))
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg">
 			<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
 		</div>';
 
@@ -549,7 +549,7 @@ function template_viewmemberreport()
 				</div>';
 
 		echo '
-				<div class="windowbg2">
+				<div class="windowbg">
 					<p>', $comment['message'], '</p>
 				</div>';
 	}

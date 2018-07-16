@@ -1299,7 +1299,7 @@ function template_send()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['subject'], ': ', $context['quoted_message']['subject'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<div class="clear">
 				<span class="smalltext floatright">', $txt['on'], ': ', $context['quoted_message']['time'], '</span>
 				<strong>', $txt['from'], ': ', $context['quoted_message']['member']['name'], '</strong>
@@ -1960,7 +1960,7 @@ function template_showPMDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="windowbg2 centertext">
+		<div class="windowbg centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
