@@ -1426,10 +1426,10 @@ function Display()
 		$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'image' => 'admin_rem.png', 'custom' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=removetopic2;topic=' . $context['current_topic'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_lock'])
-		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'image' => 'admin_lock.png', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'image' => 'admin_lock.png', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_locked'] ? 'unlock' : 'lock') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_sticky'])
-		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'image' => 'admin_sticky.png', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'image' => 'admin_sticky.png', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_sticky'] ? 'nonsticky' : 'sticky') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_merge'])
 		$context['mod_buttons']['merge'] = array('text' => 'merge', 'image' => 'merge.png', 'url' => $scripturl . '?action=mergetopics;board=' . $context['current_board'] . '.0;from=' . $context['current_topic']);
