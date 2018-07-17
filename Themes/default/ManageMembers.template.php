@@ -20,13 +20,13 @@ function template_search_members()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" id="admin_form_wrapper">
+			<input type="hidden" name="sa" value="query">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">', $txt['search_for'], '</span>
 					<span class="smalltext floatright">', $txt['wild_cards_allowed'], '</span>
 				</h3>
 			</div>
-			<input type="hidden" name="sa" value="query">
 			<div class="windowbg">
 				<div class="flow_hidden">
 					<div class="msearch_details floatleft">

@@ -1038,14 +1038,12 @@ function template_send()
 
 	// Main message editing box.
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="generic_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
-			</h3>
-		</div>';
-
-	echo '
 		<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<span class="generic_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
+				</h3>
+			</div>
 			<div class="roundframe">';
 
 	// If there were errors for sending the PM, show them.
