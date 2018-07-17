@@ -21,7 +21,7 @@ function template_modify_subscription()
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', $context['sub_id'], '" method="post">';
 
-		if (!empty($context['disable_groups']))
+	if (!empty($context['disable_groups']))
 		echo '
 			<div class="noticebox">', $txt['paid_mod_edit_note'], '</div>';
 
