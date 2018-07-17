@@ -589,7 +589,7 @@ function template_edit_censored()
 									', $txt['admin_censored_words'], '
 								</h3>
 							</div>
-							<div class="windowbg noup">
+							<div class="windowbg">
 								<p>', $txt['admin_censored_where'], '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
@@ -642,7 +642,7 @@ function template_edit_censored()
 									', $txt['censor_test'], '
 								</h3>
 							</div>
-							<div class="windowbg noup">
+							<div class="windowbg">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '">
 									<input type="submit" value="', $txt['censor_test_save'], '" class="button">
@@ -669,7 +669,7 @@ function template_not_done()
 								', $txt['not_done_title'], '
 							</h3>
 						</div>
-						<div class="windowbg noup">
+						<div class="windowbg">
 							', $txt['not_done_reason'];
 
 	if (!empty($context['continue_percent']))
@@ -1078,7 +1078,7 @@ function template_edit_profile_field()
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
 							</div>
-							<div class="windowbg noup">
+							<div class="windowbg">
 								<fieldset>
 									<legend>', $txt['custom_edit_general'], '</legend>
 
@@ -1604,7 +1604,7 @@ function template_clean_cache_button_below()
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 					</div>
-					<div class="windowbg noup">
+					<div class="windowbg">
 						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
 							<p>', $txt['maintain_cache_info'], '</p>
 							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button"></span>

@@ -51,7 +51,7 @@ function template_group_requests_block()
 				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg noup" id="group_requests_panel">
+		<div class="windowbg" id="group_requests_panel">
 			<ul>';
 
 	foreach ($context['group_requests'] as $request)
@@ -118,7 +118,7 @@ function template_watched_users()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg noup" id="watched_users_panel">
+		<div class="windowbg" id="watched_users_panel">
 			<ul>';
 
 	foreach ($context['watched_users'] as $user)
@@ -185,7 +185,7 @@ function template_reported_posts_block()
 				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg noup" id="reported_posts_panel">
+		<div class="windowbg" id="reported_posts_panel">
 			<ul>';
 
 	foreach ($context['reported_posts'] as $post)
@@ -252,7 +252,7 @@ function template_reported_users_block()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg noup" id="reported_users_panel">
+		<div class="windowbg" id="reported_users_panel">
 			<ul>';
 
 	foreach ($context['reported_users'] as $user)
@@ -325,7 +325,7 @@ function template_notes()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['mc_notes'], '</h3>
 				</div>
-				<div class="windowbg noup">';
+				<div class="windowbg">';
 
 	if (!empty($context['notes']))
 	{

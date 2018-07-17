@@ -43,7 +43,7 @@ function template_modifyset()
 	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
 	if (!empty($context['current_set']['can_import']))
 		echo '
-			<div class="information">
+			<div class="information noup">
 				', $context['current_set']['can_import'] == 1 ? sprintf($txt['smiley_set_import_single'], $context['current_set']['import_url']) : sprintf($txt['smiley_set_import_multiple'], $context['current_set']['can_import'], $context['current_set']['import_url']), '
 			</div>';
 
@@ -352,7 +352,7 @@ function template_setorder()
 			<div class="information noup">
 				', $location['description'], '
 			</div>
-			<div class="windowbg move_smileys">
+			<div class="move_smileys windowbg noup">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 
 		foreach ($location['rows'] as $row)

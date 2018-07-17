@@ -23,7 +23,7 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['boardsEdit'], '</h3>
 		</div>
-		<div class="windowbg noup">';
+		<div class="windowbg">';
 
 	if (!empty($context['move_board']))
 		echo '
@@ -118,7 +118,7 @@ function template_modify_category()
 					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	// If this isn't the only category, let the user choose where this category should be positioned down the board index.
@@ -274,7 +274,7 @@ function template_modify_board()
 					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boardsEdit'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	// Option for choosing the category the board lives in.

@@ -606,7 +606,7 @@ function template_browse()
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
-				<div id="advanced_panel_div" class="windowbg noup">
+				<div id="advanced_panel_div" class="windowbg">
 					<p>
 						', $txt['package_emulate_desc'], '
 					</p>
@@ -690,7 +690,7 @@ function template_servers()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_upload_title'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<form action="', $scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
@@ -761,7 +761,7 @@ function template_servers()
 	}
 
 	echo '
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<fieldset>
 					<legend>' . $txt['package_servers'] . '</legend>
 					<ul class="package_servers">';
@@ -837,7 +837,7 @@ function template_package_confirm()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<p>', $context['confirm_message'], '</p>
 			<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
 		</div>
@@ -1040,7 +1040,7 @@ function template_downloaded()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<p>
 				', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '
 			</p>
@@ -1614,7 +1614,7 @@ function template_file_permissions()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_file_perms_change'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<fieldset>
 				<dl>
 					<dt>

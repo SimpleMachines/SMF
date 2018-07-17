@@ -250,7 +250,7 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<div class="roundframe noup">';
+		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
 		if (isset($context['did_you_mean']))

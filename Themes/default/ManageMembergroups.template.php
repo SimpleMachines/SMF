@@ -35,7 +35,7 @@ function template_new_group()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="group_name_input"><strong>', $txt['membergroups_group_name'], ':</strong></label>

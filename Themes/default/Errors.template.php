@@ -40,7 +40,7 @@ function template_fatal_error()
 				', $context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<div ', $context['error_code'], 'class="padding">
 				', $context['error_message'], '
 			</div>
@@ -285,7 +285,7 @@ function template_show_backtrace()
 					', $txt['error'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		if (!empty($context['error_info']['error_type']))
@@ -322,7 +322,7 @@ function template_show_backtrace()
 					', $txt['backtrace_title'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		foreach ($context['error_info']['backtrace'] as $key => $value)
