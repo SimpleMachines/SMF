@@ -517,6 +517,7 @@ function ConvertEntities()
 	checkSession('request');
 	validateToken('admin-maint');
 	createToken('admin-maint');
+	$context['not_done_token'] = 'admin-maint';
 
 	// A list of tables ready for conversion.
 	$tables = array(
