@@ -697,7 +697,7 @@ function ConvertEntities()
 	$context['continue_percent'] = 100;
 	$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;done=convertentities';
 	$context['last_step'] = true;
-	$context['continue_countdown'] = -1;
+	$context['continue_countdown'] = 3;
 }
 
 /**
