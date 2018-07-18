@@ -64,7 +64,7 @@ function LockTopic()
 	if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0')
 		fatal_lang_error('error_topic_locked_already', false);
 	elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2'))
-		fatal_lang_error('error_topic_locked_already', false);
+		fatal_lang_error('error_topic_unlocked_already', false);
 
 	// Locking with high privileges.
 	if ($locked == '0' && !$user_lock)
