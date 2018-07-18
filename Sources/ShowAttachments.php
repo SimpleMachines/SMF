@@ -120,7 +120,7 @@ function showAttachment()
 		}
 
 		// Previews doesn't have this info.
-		if (empty($preview))
+		if (empty($preview) && is_resource($attachRequest))
 		{
 			$request2 = $smcFunc['db_query']('', '
 				SELECT a.id_msg
