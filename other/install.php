@@ -295,17 +295,29 @@ function load_lang_file()
 <html>
 	<head>
 		<title>SMF Installer: Error!</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				max-width: 700px; }
+		
+			h1 {
+				font-size: 14pt; }
+
+			.directory {
+				margin: 0.3em;
+				font-family: monospace;
+				font-weight: bold; }
+		</style>
 	</head>
-	<body style="font-family: sans-serif;"><div style="width: 600px;">
-		<h1 style="font-size: 14pt;">A critical error has occurred.</h1>
+	<body>
+		<h1>A critical error has occurred.</h1>
 
-		<p>This installer was unable to find the installer\'s language file or files.  They should be found under:</p>
+		<p>This installer was unable to find the installer\'s language file or files. They should be found under:</p>
 
-		<div style="margin: 1ex; font-family: monospace; font-weight: bold;">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
 
-		<p>In some cases, FTP clients do not properly upload files with this many folders.  Please double check to make sure you <span style="font-weight: 600;">have uploaded all the files in the distribution</span>.</p>
+		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
 		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
-
 		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
 	</div></body>
 </html>';
@@ -596,7 +608,7 @@ function CheckFilesWritable()
 	if ($failure && substr(__FILE__, 1, 2) == ':\\')
 	{
 		$incontext['error'] = $txt['error_windows_chmod'] . '
-					<ul style="margin: 2.5ex; font-family: monospace;">
+					<ul class="error_content">
 						<li>' . implode('</li>
 						<li>', $failed_files) . '</li>
 					</ul>';
@@ -859,7 +871,7 @@ function DatabaseSettings()
 		// Still no connection?  Big fat error message :P.
 		if (!$db_connection)
 		{
-			$incontext['error'] = $txt['error_db_connect'] . '<div style="margin: 2.5ex; font-family: monospace;"><strong>' . $db_error . '</strong></div>';
+			$incontext['error'] = $txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
 			return false;
 		}
 
@@ -2087,7 +2099,7 @@ function template_chmod_files()
 
 	echo '
 		<p>', $txt['ftp_setup_why_info'], '</p>
-		<ul style="margin: 2.5ex; font-family: monospace;">
+		<ul class="error_content">
 			<li>', implode('</li>
 			<li>', $incontext['failed_files']), '</li>
 		</ul>';
@@ -2374,7 +2386,7 @@ function template_populate_database()
 	if (!empty($incontext['failures']))
 	{
 		echo '
-		<div style="color: red;">', $txt['error_db_queries'], '</div>
+		<div class="red">', $txt['error_db_queries'], '</div>
 		<ul>';
 
 		foreach ($incontext['failures'] as $line => $fail)

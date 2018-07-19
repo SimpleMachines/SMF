@@ -450,19 +450,31 @@ function load_lang_file()
 <html>
 	<head>
 		<title>SMF Upgrader: Error!</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				max-width: 700px; }
+		
+			h1 {
+				font-size: 14pt; }
+
+			.directory {
+				margin: 0.3em;
+				font-family: monospace;
+				font-weight: bold; }
+		</style>
 	</head>
-	<body style="font-family: sans-serif;"><div style="width: 600px;">
-		<h1 style="font-size: 14pt;">A critical error has occurred.</h1>
+	<body>
+		<h1>A critical error has occurred.</h1>
 
 		<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
 
-		<div style="margin: 1ex; font-family: monospace; font-weight: bold;">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
 
-		<p>In some cases, FTP clients do not properly upload files with this many folders.  Please double check to make sure you <span style="font-weight: 600;">have uploaded all the files in the distribution</span>.</p>
+		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
 		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
-
 		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
-	</div></body>
+	</body>
 </html>';
 		die;
 	}
@@ -3410,7 +3422,7 @@ function template_chmod()
 		echo '
 			<div class="error_message red">
 				The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:<br>
-				<ul style="margin: 2.5ex; font-family: monospace;">
+				<ul class="error_content">
 					<li>' . implode('</li>
 					<li>', $upcontext['chmod']['files']) . '</li>
 				</ul>
@@ -3974,7 +3986,7 @@ function template_backup_database()
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
 					<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
-					<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
+					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
 
@@ -3987,7 +3999,7 @@ function template_backup_database()
 	echo '
 					<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
 					<br>
-					<span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
+					<span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4063,7 +4075,7 @@ function template_database_changes()
 
 	echo '
 				<h3>', $txt['upgrade_db_changes'], '</h3>
-				<h4 style="font-style: italic;">', $txt['upgrade_db_patient'], '</h4>';
+				<h4><em>', $txt['upgrade_db_patient'], '</em></h4>';
 
 	echo '
 				<form action="', $upcontext['form_url'], '&amp;filecount=', $upcontext['file_count'], '" name="upform" id="upform" method="post">
@@ -4102,7 +4114,7 @@ function template_database_changes()
 				echo ' Successful!<br><br>';
 
 			echo '
-					<span id="commess" style="font-weight: bold;">', $txt['upgrade_db_complete'], '</span><br>';
+					<span id="commess">', $txt['upgrade_db_complete'], '</span><br>';
 		}
 	}
 	else
@@ -4115,7 +4127,7 @@ function template_database_changes()
 		echo '
 					<h3 id="info2"><strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span></h3>
 					<br>
-					<span id="commess" style="font-weight: bold; display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</span>';
+					<span id="commess" style="display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</span>';
 
 		if ($is_debug)
 		{
@@ -4144,7 +4156,7 @@ function template_database_changes()
 
 			echo '
 					</span>
-					<div id="debug_section" style="height: 59px; overflow: auto;">
+					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
 		}
@@ -4221,7 +4233,7 @@ function template_database_changes()
 
 	if ($is_debug)
 		echo '
-									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span style="color: red;">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
+									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span class="red">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
 
 	echo '
 								}
@@ -4244,7 +4256,7 @@ function template_database_changes()
 
 	if ($is_debug)
 		echo '
-									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span style="color: red;">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
+									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span class="red">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
 
 	echo '
 								}
@@ -4475,7 +4487,7 @@ function template_convert_utf8()
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="utf8_done" id="utf8_done" value="0">
 					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
-					<div id="debug_section" style="height: ', ($is_debug ? '97' : '12') , 'px; overflow: auto;">
+					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
 
@@ -4495,7 +4507,7 @@ function template_convert_utf8()
 
 	// Completion notification
 	echo '
-					<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</span>';
+					<br><span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</span>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4574,7 +4586,7 @@ function template_serialize_json()
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="json_done" id="json_done" value="0">
 					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
-					<div id="debug_section" style="height: ', ($is_debug ? '115' : '12') , 'px; overflow: auto;">
+					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
 
@@ -4586,7 +4598,7 @@ function template_serialize_json()
 
 	echo '
 					<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-					<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</span>';
+					<br><span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</span>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])

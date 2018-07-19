@@ -103,6 +103,18 @@ h1.forumtitle {
 	padding: 1em 0 0 0;
 	overflow: auto;
 }
+#commess {
+	font-weight: bold;
+}
+.error_content {
+	margin: 2.5ex;
+	font-family: monospace;
+}
+#debug_section {
+	overflow: auto;
+	max-height: 8.4em; /* 6 lines of text */
+	line-height: 1.4em;
+}
 /* [WIP] Warning: this next bit may cause trouble. */
 /* It's just to hide an empty div when the submits are not shown. */
 .panel .clear:nth-child(3) {
