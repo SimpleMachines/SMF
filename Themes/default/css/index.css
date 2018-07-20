@@ -2771,11 +2771,6 @@ div#manage_boards dl dd textarea[name=desc] {
 	font-weight: bold;
 }
 
-/* Can i haz this? I think we need Illori here to say "nope" */
-.title_top {
-	margin-top: 10px !important;
-}
-
 /* Profile > This needed for responsive (get rid of <br>) */
 .infolinks {
 	display: block;

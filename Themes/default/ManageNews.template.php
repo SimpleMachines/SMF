@@ -186,7 +186,7 @@ function template_email_members_compose()
 				<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 			</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<div class="post" id="preview_body">
 				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 			</div>

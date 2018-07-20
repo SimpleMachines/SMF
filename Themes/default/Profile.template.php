@@ -151,7 +151,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto noup">
+	<div id="profileview" class="roundframe flow_auto">
 		<div id="basicinfo">';
 
 	// Are there any custom profile fields for above the name?
@@ -976,7 +976,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="windowbg noup">
+		<div id="tracking" class="windowbg">
 			<dl class="settings noborder">
 				<dt>
 					', $txt['most_recent_ip'], ':
@@ -1031,7 +1031,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1053,7 +1053,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 		</div>
-		<div class="windowbg noup">';
+		<div class="windowbg">';
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
@@ -1862,7 +1862,7 @@ function template_alert_configuration()
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
@@ -3161,7 +3161,7 @@ function template_tfasetup()
 					</div>
 					<div class="floatleft">
 						<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step1'], '</strong><br>';
 
 	if (!empty($context['tfa_pass_error']))
@@ -3173,12 +3173,12 @@ function template_tfasetup()
 	echo '
 								<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
 							</div>
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step2'], '</strong>
 								<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
 								<div class="tfacode">', $context['tfa_secret'], '</div>
 							</div>
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step3'], '</strong><br>';
 
 	if (!empty($context['tfa_error']))

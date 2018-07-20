@@ -160,7 +160,7 @@ function template_search()
 					<span class="generic_icons filter"></span>', $txt['mlist_search'], '
 				</h3>
 			</div>
-			<div id="advanced_search" class="roundframe noup">
+			<div id="advanced_search" class="roundframe">
 				<dl id="mlist_search" class="settings">
 					<dt>
 						<label><strong>', $txt['search_for'], ':</strong></label>

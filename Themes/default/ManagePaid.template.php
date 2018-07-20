@@ -19,18 +19,16 @@ function template_modify_subscription()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', $context['sub_id'], '" method="post">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['paid_' . $context['action_type'] . '_subscription'], '</h3>
-			</div>';
+		<form action="', $scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', $context['sub_id'], '" method="post">';
 
 	if (!empty($context['disable_groups']))
 		echo '
-			<div class="information noup">
-				<span class="alert">', $txt['paid_mod_edit_note'], '</span>
-			</div>';
+			<div class="noticebox">', $txt['paid_mod_edit_note'], '</div>';
 
-	echo '
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['paid_' . $context['action_type'] . '_subscription'], '</h3>
+			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>

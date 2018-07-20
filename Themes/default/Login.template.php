@@ -24,7 +24,7 @@ function template_login()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">
+			<div class="roundframe">
 				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
@@ -146,7 +146,7 @@ function template_login_tfa()
 					', $txt['tfa_profile_label'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">';
+			<div class="roundframe">';
 
 	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
 		echo '
@@ -243,7 +243,7 @@ function template_kick_guest()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">
+			<div class="roundframe">
 				<dl>
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20"></dd>
@@ -332,7 +332,7 @@ function template_admin_login()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe centertext noup">';
+			<div class="roundframe centertext">';
 
 	if (!empty($context['incorrect_password']))
 		echo '
