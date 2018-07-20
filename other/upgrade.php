@@ -3470,45 +3470,51 @@ function template_chmod()
 			<form action="', $upcontext['form_url'], '" method="post">';
 
 	echo '
-		<table width="520" border="0" align="center" style="margin-bottom: 1ex;">
-			<tr>
-				<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
-				<td>
-					<div style="float: right; margin-right: 1px;">
-						<label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($upcontext['chmod']['port']) ? $upcontext['chmod']['port'] : '21', '">
-					</div>
-					<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($upcontext['chmod']['server']) ? $upcontext['chmod']['server'] : 'localhost', '" style="width: 70%;">
-					<div class="smalltext block">', $txt['ftp_server_info'], '</div>
-				</td>
-			</tr><tr>
-				<td width="26%" valign="top" class="textbox"><label for="ftp_username">', $txt['ftp_username'], ':</label></td>
-				<td>
-					<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset($upcontext['chmod']['username']) ? $upcontext['chmod']['username'] : '', '" style="width: 99%;">
-					<div class="smalltext block">', $txt['ftp_username_info'], '</div>
-				</td>
-			</tr><tr>
-				<td width="26%" valign="top" class="textbox"><label for="ftp_password">', $txt['ftp_password'], ':</label></td>
-				<td>
-					<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;">
-					<div class="smalltext block">', $txt['ftp_password_info'], '</div>
-				</td>
-			</tr><tr>
-				<td width="26%" valign="top" class="textbox"><label for="ftp_path">', $txt['ftp_path'], ':</label></td>
-				<td style="padding-bottom: 1ex;">
-					<input type="text" size="50" name="ftp_path" id="ftp_path" value="', isset($upcontext['chmod']['path']) ? $upcontext['chmod']['path'] : '', '" style="width: 99%;">
-					<div class="smalltext block">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
-				</td>
-			</tr>
-		</table>
+				<dl class="settings">
+					<dt>
+						<label for="ftp_server">', $txt['ftp_server'], ':</label>
+					</dt>
+					<dd>
+						<div class="floatright">
+							<label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':</strong></label>
+							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($upcontext['chmod']['port']) ? $upcontext['chmod']['port'] : '21', '">
+						</div>
+						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($upcontext['chmod']['server']) ? $upcontext['chmod']['server'] : 'localhost', '">
+						<div class="smalltext">', $txt['ftp_server_info'], '</div>
+					</dd>
+					<dt>
+						<label for="ftp_username">', $txt['ftp_username'], ':</label>
+					</dt>
+					<dd>
+						<input type="text" size="30" name="ftp_username" id="ftp_username" value="', isset($upcontext['chmod']['username']) ? $upcontext['chmod']['username'] : '', '">
+						<div class="smalltext">', $txt['ftp_username_info'], '</div>
+					</dd>
+					<dt>
+						<label for="ftp_password">', $txt['ftp_password'], ':</label>
+					</dt>
+					<dd>
+						<input type="password" size="30" name="ftp_password" id="ftp_password">
+						<div class="smalltext">', $txt['ftp_password_info'], '</div>
+					</dd>
+					<dt>
+						<label for="ftp_path">', $txt['ftp_path'], ':</label>
+					</dt>
+					<dd>
+						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', isset($upcontext['chmod']['path']) ? $upcontext['chmod']['path'] : '', '">
+						<div class="smalltext">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
+					</dd>
+				</dl>
 
-		<div class="righttext" style="margin: 1ex;">
-			<input type="submit" value="', $txt['ftp_connect'], '" class="button">
-		</div>
-	</div>';
+				<div class="righttext buttons">
+					<input type="submit" value="', $txt['ftp_connect'], '" class="button">
+				</div>';
 
 	if (empty($upcontext['chmod_in_form']))
 		echo '
 			</form>';
+
+	echo '
+		</div><!-- .panel -->';
 }
 
 function template_upgrade_above()
@@ -3804,47 +3810,44 @@ function template_welcome_message()
 	echo '
 					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
 					<h3>', $txt['upgrade_sec_login'], '</h3>
-					<table>
-						<tr valign="top">
-							<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_username'], '</strong></td>
-							<td>
-								<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '"', $disable_security ? ' disabled' : '', '>';
+					<dl class="settings">
+						<dt>
+							<label for="user"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_username'], '</label>
+						</dt>
+						<dd>
+							<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '"', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['username_incorrect']))
 		echo '
-								<div class="smalltext" style="color: red;">', $txt['upgrade_wrong_username'], '</div>';
+							<div class="smalltext red">', $txt['upgrade_wrong_username'], '</div>';
 
 	echo '
-							</td>
-						</tr>
-						<tr valign="top">
-							<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>', $txt['upgrade_password'], '</strong></td>
-							<td>
-								<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
-								<input type="hidden" name="hash_passwrd" value="">';
+						</dd>
+						<dt>
+							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_password'], '</label>
+						</dt>
+						<dd>
+							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
+							<input type="hidden" name="hash_passwrd" value="">';
 
 	if (!empty($upcontext['password_failed']))
 		echo '
-								<div class="smalltext" style="color: red;">', $txt['upgrade_wrong_password'], '</div>';
+							<div class="smalltext red">', $txt['upgrade_wrong_password'], '</div>';
 
 	echo '
-							</td>
-						</tr>';
+						</dd>';
 
 	// Can they continue?
 	if (!empty($upcontext['user']['id']) && time() - $upcontext['user']['updated'] >= $upcontext['inactive_timeout'] && $upcontext['user']['step'] > 1)
 	{
 		echo '
-						<tr>
-							<td colspan="2">
-								<label for="cont"><input type="checkbox" id="cont" name="cont" checked>', $txt['upgrade_continue_step'], '</label>
-							</td>
-						</tr>';
+						<dd>
+							<label for="cont"><input type="checkbox" id="cont" name="cont" checked>', $txt['upgrade_continue_step'], '</label>
+						</dd>';
 	}
 
 	echo '
-					</table>
-					<br>
+					</dl>
 					<span class="smalltext">
 						', $txt['upgrade_bypass'], '
 					</span>
@@ -3905,70 +3908,48 @@ function template_upgrade_options()
 				</div>';
 
 	echo '
-				<table>
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1">
-						</td>
-						<td width="100%">
-							<label for="backup">', $txt['upgrade_backup_table'], ' &quot;backup_' . $db_prefix . '&quot;.</label> (', $txt['upgrade_recommended'], ')
-						</td>
-					</tr>
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="maint" id="maint" value="1" checked>
-						</td>
-						<td width="100%">
-							<label for="maint">', $txt['upgrade_maintenace'], '</label> <span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">', $txt['upgrade_customize'], '</a>)</span>
-							<div id="mainmess" style="display: none;">
-								<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
-								<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
-								<strong class="smalltext">', $txt['upgrade_maintenace_message'], ' </strong><br>
-								<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
-							</div>
-						</td>
-					</tr>
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="debug" id="debug" value="1">
-						</td>
-						<td width="100%">
-							<label for="debug">'.$txt['upgrade_debug_info'], '</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="empty_error" id="empty_error" value="1">
-						</td>
-						<td width="100%">
-							<label for="empty_error">', $txt['upgrade_empty_errlog'], '</label>
-						</td>
-					</tr>';
+				<ul class="upgrade_settings">
+					<li>
+						<input type="checkbox" name="backup" id="backup" value="1">
+						<label for="backup">', $txt['upgrade_backup_table'], ' &quot;backup_' . $db_prefix . '&quot;.</label>
+						(', $txt['upgrade_recommended'], ')
+					</li>
+					<li>
+						<input type="checkbox" name="maint" id="maint" value="1" checked>
+						<label for="maint">', $txt['upgrade_maintenace'], '</label>
+						<span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">', $txt['upgrade_customize'], '</a>)</span>
+						<div id="mainmess" style="display: none;">
+							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
+							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
+							<strong class="smalltext">', $txt['upgrade_maintenace_message'], ' </strong><br>
+							<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
+						</div>
+					</li>
+					<li>
+						<input type="checkbox" name="debug" id="debug" value="1">
+						<label for="debug">'.$txt['upgrade_debug_info'], '</label>
+					</li>
+					<li>
+						<input type="checkbox" name="empty_error" id="empty_error" value="1">
+						<label for="empty_error">', $txt['upgrade_empty_errlog'], '</label>
+					</li>';
 
 	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))
 		echo '
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
-						</td>
-						<td width="100%">
-							<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
-						</td>
-					</tr>';
+					<li>
+						<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
+						<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
+					</li>';
 
 	echo '
-					<tr valign="top">
-						<td width="2%">
-							<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
-						</td>
-						<td width="100%">
-							<label for="stat">
-								', $txt['upgrade_stats_collection'], '<br>
-								<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
-							</label>
-						</td>
-					</tr>
-				</table>
+					<li>
+						<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
+						<label for="stat">
+							', $txt['upgrade_stats_collection'], '<br>
+							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+						</label>
+					</li>
+				</ul>
 				<input type="hidden" name="upcont" value="1">';
 
 	// We need a normal continue button here!
