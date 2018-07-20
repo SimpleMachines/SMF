@@ -1949,7 +1949,7 @@ function template_install_above()
 							<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button"></noscript>
 						</form>
 					</div><!-- .news -->
-					<hr class="clear" />';
+					<hr class="clear">';
 	}
 
 	echo '
@@ -2123,8 +2123,7 @@ function template_chmod_files()
 		<div class="error_message">
 			', $txt['error_ftp_no_connect'], '<br><br>
 			<code>', implode('<br>', $incontext['ftp_errors']), '</code>
-		</div>
-		<br>';
+		</div>';
 
 	echo '
 		<form action="', $incontext['form_url'], '" method="post">
@@ -2475,14 +2474,15 @@ function template_delete_install()
 	// Install directory still writable?
 	if ($incontext['dir_still_writable'])
 		echo '
-		<em>', $txt['still_writable'], '</em><br>
-		<br>';
+		<p><em>', $txt['still_writable'], '</em></p>';
 
 	// Don't show the box if it's like 99% sure it won't work :P.
 	if ($incontext['probably_delete_install'])
 		echo '
 		<div style="margin: 1ex; font-weight: bold;">
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete();"> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</label>
+			<label>
+				<input type="checkbox" id="delete_self" onclick="doTheDelete();"> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '
+			</label>
 		</div>
 		<script>
 			function doTheDelete()
@@ -2494,11 +2494,10 @@ function template_delete_install()
 				tempImage.width = 0;
 				theCheck.disabled = true;
 			}
-		</script>
-		<br>';
+		</script>';
 
 	echo '
-		', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '<br>
+		<p>', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '</p>
 		<br>
 		', $txt['good_luck'];
 }

@@ -3420,13 +3420,13 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']) && $upcontext['chmod']['ftp_error'] == 'total_mess')
 	{
 		echo '
-			<div class="error_message red">
-				The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:<br>
-				<ul class="error_content">
-					<li>' . implode('</li>
-					<li>', $upcontext['chmod']['files']) . '</li>
-				</ul>
-			</div>';
+		<div class="error">
+			<p>The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:</p>
+			<ul class="error_content">
+				<li>' . implode('</li>
+				<li>', $upcontext['chmod']['files']) . '</li>
+			</ul>
+		</div>';
 
 		return false;
 	}
@@ -3461,14 +3461,13 @@ function template_chmod()
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
 			<div class="error_message red">
-				', $txt['upgrade_ftp_error'], '<br><br>
+				<p>', $txt['upgrade_ftp_error'], '<p>
 				<code>', $upcontext['chmod']['ftp_error'], '</code>
-			</div>
-			<br>';
+			</div>';
 
 	if (empty($upcontext['chmod_in_form']))
 		echo '
-	<form action="', $upcontext['form_url'], '" method="post">';
+			<form action="', $upcontext['form_url'], '" method="post">';
 
 	echo '
 		<table width="520" border="0" align="center" style="margin-bottom: 1ex;">
@@ -3502,12 +3501,14 @@ function template_chmod()
 			</tr>
 		</table>
 
-		<div class="righttext" style="margin: 1ex;"><input type="submit" value="', $txt['ftp_connect'], '" class="button"></div>
+		<div class="righttext" style="margin: 1ex;">
+			<input type="submit" value="', $txt['ftp_connect'], '" class="button">
+		</div>
 	</div>';
 
 	if (empty($upcontext['chmod_in_form']))
 		echo '
-	</form>';
+			</form>';
 }
 
 function template_upgrade_above()
@@ -3622,12 +3623,12 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['pause']))
 		echo '
-						<em>', $txt['upgrade_incomplete'], '.</em><br>
+					<em>', $txt['upgrade_incomplete'], '.</em><br>
 
-						<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
-						<h3>
-							', $txt['upgrade_paused_overload'], '
-						</h3>';
+					<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
+					<h3>
+						', $txt['upgrade_paused_overload'], '
+					</h3>';
 
 	if (!empty($upcontext['custom_warning']))
 		echo '
@@ -3637,7 +3638,7 @@ function template_upgrade_below()
 					</div>';
 
 	echo '
-						<div class="righttext" style="margin: 1ex;">';
+					<div class="righttext" style="margin: 1ex;">';
 
 	if (!empty($upcontext['continue']))
 		echo '
@@ -3997,9 +3998,10 @@ function template_backup_database()
 					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
-					<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-					<br>
-					<span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
+					<h3 id="current_tab">
+						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+					</h3>
+					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4044,7 +4046,7 @@ function template_backup_database()
 							if (iTableNum == ', $upcontext['table_count'], ')
 							{
 								document.getElementById(\'commess\').style.display = "";
-								document.getElementById(\'current_tab_div\').style.display = "none";
+								document.getElementById(\'current_tab\').style.display = "none";
 								document.getElementById(\'contbutt\').disabled = 0;
 								document.getElementById(\'backup_done\').value = 1;
 							}
@@ -4109,12 +4111,12 @@ function template_database_changes()
 			}
 
 			if ($is_debug && !empty($totalTime))
-				echo ' Successful! Completed in ', $totalTime, '<br><br>';
+				echo ' Successful! Completed in ', $totalTime, '<br>';
 			else
-				echo ' Successful!<br><br>';
+				echo ' Successful!<br>';
 
 			echo '
-					<span id="commess">', $txt['upgrade_db_complete'], '</span><br>';
+					<p id="commess">', $txt['upgrade_db_complete'], '</p>';
 		}
 	}
 	else
@@ -4125,9 +4127,10 @@ function template_database_changes()
 					<strong id="info1">', $txt['upgrade_script'], ' <span id="file_done">', $upcontext['cur_file_num'], '</span> of ', $upcontext['file_count'], '.</strong>';
 
 		echo '
-					<h3 id="info2"><strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span></h3>
-					<br>
-					<span id="commess" style="display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</span>';
+					<h3 id="info2">
+						<strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span>
+					</h3>
+					<p id="commess" style="display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</p>';
 
 		if ($is_debug)
 		{
@@ -4148,14 +4151,13 @@ function template_database_changes()
 			}
 
 			echo '
-					<br>
-					<span id="upgradeCompleted">';
+					<p id="upgradeCompleted">';
 
 			if (!empty($totalTime))
-				echo 'Completed in ', $totalTime, '<br>';
+				echo 'Completed in ', $totalTime, '';
 
 			echo '
-					</span>
+					</p>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4498,16 +4500,18 @@ function template_convert_utf8()
 					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
-					<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
+					<h3 id="current_tab">
+						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+					</h3>';
 
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-					<br><span id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_fulltext'], '</span>';
+					<p id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_fulltext'], '</p>';
 
 	// Completion notification
 	echo '
-					<br><span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</span>';
+					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4555,7 +4559,7 @@ function template_convert_utf8()
 							if (document.getElementById(\'indexmsg\') != null) {
 								document.getElementById(\'indexmsg\').style.display = "";
 							}
-							document.getElementById(\'current_tab_div\').style.display = "none";
+							document.getElementById(\'current_tab\').style.display = "none";
 							document.getElementById(\'contbutt\').disabled = 0;
 							document.getElementById(\'utf8_done\').value = 1;
 						}
@@ -4597,8 +4601,10 @@ function template_serialize_json()
 					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
-					<h3 id="current_tab_div">', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-					<br><span id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</span>';
+					<h3 id="current_tab">
+						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+					</h3>
+					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</p>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
@@ -4648,7 +4654,7 @@ function template_serialize_json()
 							if (iTableNum == ', $upcontext['table_count'], ')
 							{
 								document.getElementById(\'commess\').style.display = "";
-								document.getElementById(\'current_tab_div\').style.display = "none";
+								document.getElementById(\'current_tab\').style.display = "none";
 								document.getElementById(\'contbutt\').disabled = 0;
 								document.getElementById(\'json_done\').value = 1;
 							}
@@ -4679,7 +4685,10 @@ function template_upgrade_complete()
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-					<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '</label> <em>', $txt['upgrade_delete_server'], '</em>
+					<label>
+						<input type="checkbox" id="delete_self" onclick="doTheDelete(this);"> ', $txt['upgrade_delete_now'], '
+					</label>
+					<em>', $txt['upgrade_delete_server'], '</em>
 					<script>
 						function doTheDelete(theCheck)
 						{
@@ -4708,13 +4717,15 @@ function template_upgrade_complete()
 
 	if ($is_debug && !empty($totalTime))
 		echo '
-					<br> ', $txt['upgrade_completed_time'], ' ', $totalTime, '<br><br>';
+					<p> ', $txt['upgrade_completed_time'], ' ', $totalTime, '</p>';
 
-	echo '<br>
-					', sprintf($txt['upgrade_problems'], 'http://simplemachines.org'), '<br>
-					<br>
-					', $txt['upgrade_luck'], '<br>
-					Simple Machines';
+	echo '
+					<p>
+						', sprintf($txt['upgrade_problems'], 'http://simplemachines.org'), '
+						<br>
+						', $txt['upgrade_luck'], '<br>
+						Simple Machines
+					</p>';
 }
 
 /**
