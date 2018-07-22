@@ -331,7 +331,7 @@ $txt['total_members'] = 'Total Members';
 $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
-$txt['mins_logged_in'] = 'Minutes to stay logged in';
+$txt['time_logged_in'] = 'Time to stay logged in';
 
 $txt['preview'] = 'Preview';
 $txt['always_logged_in'] = 'Always stay logged in';
@@ -410,6 +410,7 @@ $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
 $txt['poll_edit'] = 'Edit Poll';
 $txt['poll'] = 'Poll';
+$txt['one_hour'] = '1 Hour';
 $txt['one_day'] = '1 Day';
 $txt['one_week'] = '1 Week';
 $txt['two_weeks'] = '2 Weeks';
@@ -417,7 +418,6 @@ $txt['one_month'] = '1 Month';
 $txt['two_months'] = '2 Months';
 $txt['forever'] = 'Forever';
 $txt['quick_login_dec'] = 'Login with username, password and session length';
-$txt['one_hour'] = '1 Hour';
 $txt['moved'] = 'MOVED';
 $txt['move_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
 $txt['board'] = 'Board';

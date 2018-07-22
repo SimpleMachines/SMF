@@ -51,13 +51,15 @@ function template_login()
 						</dd>
 					</dl>
 					<dl>
-						<dt>', $txt['mins_logged_in'], ':</dt>
+						<dt>', $txt['time_logged_in'], ':</dt>
 						<dd>
-							<input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' min="1">
-						</dd>
-						<dt>', $txt['always_logged_in'], ':</dt>
-						<dd>
-							<input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' onclick="this.form.cookielength.disabled = this.checked;">
+							<select name="cookielength" id="cookielength">
+								<option value="60"', $context['never_expire'] ? '' : ' selected', '>', $txt['one_hour'], '</option>
+								<option value="1440">', $txt['one_day'], '</option>
+								<option value="10080">', $txt['one_week'], '</option>
+								<option value="43200">', $txt['one_month'], '</option>
+								<option value="3153600"', $context['never_expire'] ? ' selected' : '', '>', $txt['always_logged_in'], '</option>
+							</select>
 						</dd>';
 
 	// If they have deleted their account, give them a chance to change their mind.
@@ -249,10 +251,16 @@ function template_kick_guest()
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', $txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
-					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp" onclick="this.form.cookielength.disabled = this.checked;"></dd>
+					<dt>', $txt['time_logged_in'], ':</dt>
+					<dd>
+						<select name="cookielength" id="cookielength">
+							<option value="60" selected>', $txt['one_hour'], '</option>
+							<option value="1440">', $txt['one_day'], '</option>
+							<option value="10080">', $txt['one_week'], '</option>
+							<option value="43200">', $txt['one_month'], '</option>
+							<option value="3153600">', $txt['always_logged_in'], '</option>
+						</select>
+					</dd>
 				</dl>
 				<p class="centertext">
 					<input type="submit" value="', $txt['login'], '" class="button">
@@ -301,10 +309,16 @@ function template_maintenance()
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', $txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
-					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp"></dd>
+					<dt>', $txt['time_logged_in'], ':</dt>
+					<dd>
+						<select name="cookielength" id="cookielength">
+							<option value="60" selected>', $txt['one_hour'], '</option>
+							<option value="1440">', $txt['one_day'], '</option>
+							<option value="10080">', $txt['one_week'], '</option>
+							<option value="43200">', $txt['one_month'], '</option>
+							<option value="3153600">', $txt['always_logged_in'], '</option>
+						</select>
+					</dd>
 				</dl>
 				<input type="submit" value="', $txt['login'], '" class="button">
 				<br class="clear">
