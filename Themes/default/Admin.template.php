@@ -606,7 +606,7 @@ function template_edit_censored()
 								</div>
 								<div id="moreCensoredWords"></div>
 								<div class="block" style="display: none;" id="moreCensoredWords_link">
-									<a class="button" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
+									<a class="button" href="#" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
 								<script>
 									document.getElementById("moreCensoredWords_link").style.display = "";

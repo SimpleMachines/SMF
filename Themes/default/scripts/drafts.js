@@ -8,7 +8,7 @@ function smf_DraftAutoSave(oOptions)
 	this.interval_id = null;
 	this.oDraftHandle = window;
 	this.sLastSaved = '';
-	this.bPM = this.opt.bPM ? true : false;
+	this.bPM = !!this.opt.bPM;
 	this.sCheckDraft = '';
 
 	// slight delay on autosave init to allow sceditor to create the iframe
@@ -58,7 +58,6 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 			window.clearInterval(this.interval_id);
 		this.interval_id = "";
 	}
-	return;
 }
 
 // Since you're back we resume the autosave timer
@@ -70,7 +69,6 @@ smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 		if (this.interval_id == "")
 			this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
 	}
-	return;
 }
 
 // Make the call to save this draft in the background

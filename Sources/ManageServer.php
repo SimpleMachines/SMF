@@ -250,7 +250,7 @@ $(function()
  */
 function AlignURLsWithSSLSetting($new_force_ssl = 0)
 {
-	global $boardurl, $modSettings, $sourcedir, $db_prefix, $smcFunc;
+	global $boardurl, $modSettings, $sourcedir, $smcFunc;
 	require_once($sourcedir . '/Subs-Admin.php');
 
 	// Check $boardurl

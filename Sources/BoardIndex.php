@@ -87,7 +87,7 @@ function BoardIndex()
 		// This is used to show the "how-do-I-edit" help.
 		$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
 
-		if ($context['show_calendar'])
+		if (!empty($context['show_calendar']))
 			$context['info_center'][] = array(
 				'tpl' => 'calendar',
 				'txt' => $context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming',

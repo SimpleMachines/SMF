@@ -438,7 +438,7 @@ function ViewFile()
  */
 function ViewBacktrace()
 {
-	global $context, $boarddir, $sourcedir, $cachedir, $smcFunc, $scripturl;
+	global $context, $smcFunc, $scripturl;
 
 	// Check for the administrative permission to do this.
 	isAllowedTo('admin_forum');
