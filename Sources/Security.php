@@ -1052,8 +1052,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	global $user_info, $smcFunc;
 
 	// Arrays are nice, most of the time.
-	if (!is_array($permissions))
-		$permissions = array($permissions);
+	$permissions = (array) $permissions;
 
 	/*
 	 * Set $simple to true to use this function as it were in SMF 2.0.x.

@@ -490,7 +490,7 @@ function ConvertMsgBody()
  */
 function ConvertEntities()
 {
-	global $db_character_set, $modSettings, $context, $sourcedir, $smcFunc, $db_type, $db_prefix;
+	global $db_character_set, $modSettings, $context, $smcFunc, $db_type, $db_prefix;
 
 	isAllowedTo('admin_forum');
 

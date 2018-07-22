@@ -266,7 +266,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext, $user_info;
+	global $incontext, $user_info;
 
 	$incontext['detected_languages'] = array();
 
@@ -931,7 +931,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type, $db_connection;
+	global $txt, $incontext, $databases, $db_type;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -1428,7 +1428,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set, $boardurl, $cachedir;
+	global $txt, $db_type, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1610,7 +1610,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl, $cachedir, $cookiename;
+	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -2108,7 +2108,7 @@ function template_chmod_files()
 		echo '
 		<hr>
 		<p>', $txt['chmod_linux_info'], '</p>
-		<tt># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</tt>';
+		<samp># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</samp>';
 
 	// This is serious!
 	if (!template_warning_divs())

@@ -1151,7 +1151,7 @@ function template_control_chmod()
 			echo '
 					<hr>
 					', $txt['package_chmod_linux'], '<br>
-					<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
+					<samp># chmod a+w ', implode(' ', $context['notwritable_files']), '</samp>';
 
 		echo '
 				</div><!-- #need_writable_list -->';
@@ -1160,7 +1160,7 @@ function template_control_chmod()
 	echo '
 				<div class="bordercolor" id="ftp_error_div" style="', (!empty($context['package_ftp']['error']) ? '' : 'display:none;'), 'padding: 1px; margin: 1ex;">
 					<div class="windowbg" id="ftp_error_innerdiv" style="padding: 1ex;">
-						<tt id="ftp_error_message">', !empty($context['package_ftp']['error']) ? $context['package_ftp']['error'] : '', '</tt>
+						<samp id="ftp_error_message">', !empty($context['package_ftp']['error']) ? $context['package_ftp']['error'] : '', '</samp>
 					</div>
 				</div>';
 
