@@ -67,7 +67,7 @@ function Login()
 
 	// Login Cookie times. Format: time => txt
 	$context['login_cookie_times'] = array(
-		60 => 'one_day',
+		60 => 'one_hour',
 		1440 => 'one_day',
 		10080 => 'one_week',
 		43200 => 'one_month',
@@ -195,7 +195,7 @@ function Login2()
 
 	// Login Cookie times. Format: time => txt
 	$context['login_cookie_times'] = array(
-		60 => 'one_day',
+		60 => 'one_hour',
 		1440 => 'one_day',
 		10080 => 'one_week',
 		43200 => 'one_month',
