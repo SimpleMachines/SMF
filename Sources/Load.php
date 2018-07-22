@@ -1275,7 +1275,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
-			$row['primary_group'] = $row['member_group'];
+			$row['primary_group'] = !empty($row['member_group']) ? $row['member_group'] : '';
 
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
