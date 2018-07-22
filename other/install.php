@@ -2248,13 +2248,6 @@ function template_database_settings()
 					<span id="db_name_info_warning">', $txt['db_settings_database_info_note'], '</span>
 				</div>
 			</dd>
-			<dt style="display: none;">
-				<label for="db_filename_input">', $txt['db_settings_database_file'], ':</label>
-			</dt>
-			<dd style="display: none;">
-				<input type="text" name="db_filename" id="db_filename_input" value="', empty($incontext['db']['name']) ? dirname(__FILE__) . '/smf_' . substr(md5(microtime()), 0, 10) : stripslashes($incontext['db']['name']), '" size="30">
-				<div class="smalltext">', $txt['db_settings_database_file_info'], '</div>
-			</dd>
 			<dt>
 				<label for="db_prefix_input">', $txt['db_settings_prefix'], ':</label>
 			</dt>
