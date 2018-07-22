@@ -64,6 +64,15 @@ function Login()
 
 	// Create a one time token.
 	createToken('login');
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		60 => 'one_day',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+		3153600 => 'always_logged_in',
+	);
 }
 
 /**
@@ -181,8 +190,17 @@ function Login2()
 	// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
 	if (isset($_POST['cookieneverexp']) || (!empty($_POST['cookielength']) && $_POST['cookielength'] == -1))
 		$modSettings['cookieTime'] = 3153600;
-	elseif (!empty($_POST['cookielength']) && ($_POST['cookielength'] >= 1 && $_POST['cookielength'] <= 525600))
+	elseif (!empty($_POST['cookielength']) && ($_POST['cookielength'] >= 1 && $_POST['cookielength'] <= 3153600))
 		$modSettings['cookieTime'] = (int) $_POST['cookielength'];
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		60 => 'one_day',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+		3153600 => 'always_logged_in',
+	);
 
 	loadLanguage('Login');
 	// Load the template stuff.
@@ -192,7 +210,7 @@ function Login2()
 	// Set up the default/fallback stuff.
 	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';
 	$context['default_password'] = '';
-	$context['never_expire'] = $modSettings['cookieTime'] == 525600 || $modSettings['cookieTime'] == 3153600;
+	$context['never_expire'] = $modSettings['cookieTime'] <= 525600;
 	$context['login_errors'] = array($txt['error_occured']);
 	$context['page_title'] = $txt['login'];
 
