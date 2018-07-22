@@ -129,8 +129,6 @@ $txt['db_settings_database_info'] = 'Fill in the name of the database you want t
 $txt['db_settings_database_info_note'] = 'If this database does not exist, this installer will try to create it.';
 $txt['db_settings_port'] = 'Database port';
 $txt['db_settings_port_info'] = 'Leave blank to use the default';
-$txt['db_settings_database_file'] = 'Database filename';
-$txt['db_settings_database_file_info'] = 'This is the name of the file in which to store the SMF data. We recommend you use the randomly generated name for this and set the path of this file to be outside of the public area of your webserver.';
 $txt['db_settings_prefix'] = 'Table prefix';
 $txt['db_settings_prefix_info'] = 'The prefix for every table in the database. <strong>Do not install two forums with the same prefix!</strong><br>This value allows for multiple installations in one database.';
 $txt['db_populate'] = 'Populated Database';
@@ -211,7 +209,6 @@ $txt['error_db_prefix_numeric'] = 'The selected database type does not support t
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 $txt['error_username_too_long'] = 'Username must be less than 25 characters long.';
 $txt['error_username_left_empty'] = 'Username field was left empty.';
-$txt['error_db_filename_exists'] = 'The database that you are trying to create exists. Please delete the current database file or enter another name.';
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
 $txt['error_utf8_support'] = 'The database you are trying to use is not using UTF8 charset';
 
