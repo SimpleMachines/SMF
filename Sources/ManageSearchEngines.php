@@ -245,8 +245,8 @@ function ViewSpiders()
 					},
 				),
 				'sort' => array(
-					'default' => 'spider_name',
-					'reverse' => 'spider_name DESC',
+					'default' => 'spider_name DESC',
+					'reverse' => 'spider_name',
 				),
 			),
 			'last_seen' => array(
