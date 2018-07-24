@@ -118,7 +118,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 
 	// leave out the call to log_error
-	array_shift($backtrace);
+	array_splice($backtrace, 0, 1);
 	$backtrace = !empty($smcFunc['json_encode']) ? $smcFunc['json_encode']($backtrace) : json_encode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...

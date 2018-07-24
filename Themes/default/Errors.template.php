@@ -328,9 +328,9 @@ function template_show_backtrace()
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
 			//Check for existing
-			if (property_exists($value,'file') || empty($value->file))
+			if (!property_exists($value,'file') || empty($value->file))
 				$value->file = $txt['unknown'];
-			if (property_exists($value, 'line') || empty($value->line))
+			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 
 				echo '
