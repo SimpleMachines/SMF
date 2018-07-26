@@ -3085,6 +3085,79 @@ function ConvertUtf8()
 	return false;
 }
 
+function ConvertBBCode()
+{
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt, $db_connection, $db_prefix;
+
+	$upcontext['page_title'] = 'BBCode convert';
+	$upcontext['sub_template'] = 'bbcode';
+	$upcontext['step_progress'] = '';
+	$upcontext['cur_table_num'] = $_GET['substep'];
+
+	// Done it already - js wise?
+	if (!empty($_POST['bbcode_done']))
+		return true;
+
+	$search_replace = array(
+		'%[br]%' => 'REPLACE(body, \'[br]\', \'<br>\')',
+		'%[acronym=%' => 'REPLACE(REPLACE(body, \'[acronym=\', \'[abbr=\'), \'[/acronym]\', \'[/abbr]\')',
+		'%[tt]%' => 'REPLACE(REPLACE(body, \'[tt]\', \'[font=monospace]\'), \'[/tt]\', \'[/font]\')',
+		'%[bdo=ltr]%' => 'REPLACE(REPLACE(body, \'[bdo=ltr]\', \'[ltr]\'), \'[/bdo]\', \'[/ltr]\')',
+		'%[bdo=rtl]%' => 'REPLACE(REPLACE(body, \'[bdo=rtl]\', \'[rtl]\'), \'[/bdo]\', \'[/rtl]\')',
+		'%[black]%' => 'REPLACE(REPLACE(body, \'[black]\', \'[color=black]\'), \'[/black]\', \'[/color]\')',
+		'%[white]%' => 'REPLACE(REPLACE(body, \'[white]\', \'[color=white]\'), \'[/white]\', \'[/color]\')',
+		'%[red]%' => 'REPLACE(REPLACE(body, \'[red]\', \'[color=red]\'), \'[/red]\', \'[/color]\')',
+		'%[green]%' => 'REPLACE(REPLACE(body, \'[green]\', \'[color=green]\'), \'[/green]\', \'[/color]\')',
+		'%[blue]%' => 'REPLACE(REPLACE(body, \'[blue]\', \'[color=blue]\'), \'[/blue]\', \'[/color]\')',
+	);
+
+	$is_done = false;
+	
+	pg_prepare($db_connection, 'pg_message', 'WITH cte AS (
+		SELECT id_msg id        
+			FROM   ' . $db_prefix . 'messages
+			WHERE  id_msg > $1
+			LIMIT  100                  
+			)
+		UPDATE ' . $db_prefix . 'messages m
+		SET    body = $2
+		FROM   cte
+		WHERE  m.id_msg = cte.id AND
+				m.body LIKE $3
+		RETURNING m.id_msg'
+	);
+
+	while($is_done)
+	{
+		nextSubstep($substep);
+		$result = pg_execute($db_connection, 'pg_message', array($substep, $search_replace[0], key($search_replace[0])));
+		$res = pg_fetch_assoc($result);
+		$db_return = pg_fetch_all($result);
+		$substep = count($db_return);
+		$substep = $db_return[$substep]['id'];
+	}
+	
+
+/*	pg_prepare($db_connection, 'pg_pmessage', 'WITH cte AS (
+		SELECT id_pm id        
+			FROM   ' . $db_prefix . 'personal_messages
+			WHERE  id_pm > $1
+			LIMIT  100                  
+			)
+		UPDATE ' . $db_prefix . 'personal_messages m
+		SET    body = $2
+		FROM   cte
+		WHERE  m.id_pm = cte.id AND
+				m.body LIKE $3
+		RETURNING m.id_pm'
+	);
+
+	$result = pg_execute($db_connection, 'pg_pmessage', array($key, $ttl));
+*/
+
+
+
+}
 function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt;
@@ -4568,6 +4641,93 @@ function template_serialize_json()
 
 	echo '
 				<h3>', $txt['upgrade_convert_datajson'], '</h3>
+				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+					<input type="hidden" name="json_done" id="json_done" value="0">
+					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
+					<div id="debug_section">
+						<span id="debuginfo"></span>
+					</div>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+
+	echo '
+					<h3 id="current_tab">
+						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
+					</h3>
+					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</p>';
+
+	// Try to make sure substep was reset.
+	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
+		echo '
+					<input type="hidden" name="substep" id="substep" value="0">';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+					<script>
+						var lastTable = ', $upcontext['cur_table_num'], ';
+						function getNextTables()
+						{
+							getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+						}
+
+						// Got an update!
+						function onBackupUpdate(oXMLDoc)
+						{
+							var sCurrentTableName = "";
+							var iTableNum = 0;
+							var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+							for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+								sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+							iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+							// Update the page.
+							setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+							setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+							lastTable = iTableNum;
+							updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+							if (document.getElementById(\'debug_section\').scrollHeight)
+								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
+
+		echo '
+							// Get the next update...
+							if (iTableNum == ', $upcontext['table_count'], ')
+							{
+								document.getElementById(\'commess\').style.display = "";
+								document.getElementById(\'current_tab\').style.display = "none";
+								document.getElementById(\'contbutt\').disabled = 0;
+								document.getElementById(\'json_done\').value = 1;
+							}
+							else
+								getNextTables();
+						}
+						getNextTables();
+					//# sourceURL=dynamicScript-json.js
+					</script>';
+	}
+}
+
+// Template for the BBCode
+function template_bbcode()
+{
+	global $upcontext, $support_js, $is_debug, $txt;
+
+	echo '
+				<h3> BB Code </h3>
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="json_done" id="json_done" value="0">
 					<strong>', $txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_table_num'], '</span> ', $txt['upgrade_outof'], ' ', $upcontext['table_count'], ' ', $txt['upgrade_tables'], '</strong>
