@@ -449,7 +449,7 @@ function load_lang_file()
 		echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF Upgrader: Error!</title>
+		<title>', $txt['upgrader_error'] ,' </title>
 		<style>
 			body {
 				font-family: sans-serif;
@@ -465,15 +465,12 @@ function load_lang_file()
 		</style>
 	</head>
 	<body>
-		<h1>A critical error has occurred.</h1>
-
-		<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
-
+		<h1>', $txt['upgrade_criterr'] ,'</h1>
+		<p>', $txt['upgrade_nofiles'] ,'</p>
 		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
-
-		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
-		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
-		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
+		<p>', $txt['upgrade_check_files'] ,'</p>
+		<p>', $txt['upgrade_check_files2'] ,'</p>
+		<p>', $txt['upgrade_support'] ,'</p>
 	</body>
 </html>';
 		die;
@@ -837,13 +834,13 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			It looks as if your board directory settings <em>might</em> be incorrect. Your board directory is currently set to &quot;' . $boarddir . '&quot; but should probably be &quot;' . dirname(__FILE__) . '&quot;. Settings.php currently lists your paths as:<br>
+			'. sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) .'<br>
 			<ul>
-				<li>Board Directory: ' . $boarddir . '</li>
-				<li>Source Directory: ' . $boarddir . '</li>
-				<li>Cache Directory: ' . $cachedir_temp . '</li>
+				<li>'. $txt['upgrade_boarddir'] .'  ' . $boarddir . '</li>
+				<li>'. $txt['upgrade_sourcedir'] .'  ' . $boarddir . '</li>
+				<li>'. $txt['upgrade_cachedir'] .'  ' . $cachedir_temp . '</li>
 			</ul>
-			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
+			'. $txt['upgrade_incorrect_settings'] .'';
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
@@ -3077,7 +3074,7 @@ function ConvertUtf8()
 
 		if ($upcontext['dropping_index'] && $command_line)
 		{
-			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
+			echo "\n" . '', $txt['upgrade_fulltext_error'] ,'';
 			flush();
 		}
 	}
@@ -3421,7 +3418,7 @@ function template_chmod()
 	{
 		echo '
 		<div class="error">
-			<p>The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:</p>
+			<p>', $txt['upgrade_writable_files'] ,'</p>
 			<ul class="error_content">
 				<li>' . implode('</li>
 				<li>', $upcontext['chmod']['files']) . '</li>
@@ -3790,8 +3787,7 @@ function template_welcome_message()
 		echo '
 					<div class="errorbox">
 						<h3>', $txt['upgrade_warning'], '</h3>
-						<p>&quot;', $upcontext['user']['name'], '&quot; has been running the upgrade script for the last ', $ago, ' - and was last active ', $updated, ' ago.</p>';
-
+						<p>', sprintf($txt['upgrade_time'], $upcontext['user']['name'], $ago, $updated), '</p>';
 		if ($active < 600)
 			echo '
 						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '</p>';
