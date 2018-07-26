@@ -3134,7 +3134,7 @@ function ConvertBBCode()
 		$res = pg_fetch_assoc($result);
 		$db_return = pg_fetch_all($result);
 		$substep = count($db_return);
-		$substep = $db_return[$substep]['id'];
+		$substep = $db_return[$substep]['id_msg'];
 	}
 	
 
