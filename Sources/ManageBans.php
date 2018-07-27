@@ -1616,9 +1616,7 @@ function BanEditTrigger()
 	elseif (isset($_POST['edit_trigger']) && !empty($_POST['ban_suggestions']))
 	{
 		// The first replaces the old one, the others are added new (simplification, otherwise it would require another query and some work...)
-		saveTriggers(array_shift($_POST['ban_suggestions']), $ban_group, 0, $ban_id);
-		if (!empty($_POST['ban_suggestions']))
-			saveTriggers($_POST['ban_suggestions'], $ban_group);
+		saveTriggers($_POST['ban_suggestions'], $ban_group, 0, $ban_id);
 
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
