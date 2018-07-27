@@ -344,6 +344,16 @@ $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settin
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
 $txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
 $txt['upgrade_time'] = '&quot; %1$s &quot; has been running the upgrade script for the last %1$d, - and was last active %2$d, ago.';
+$txt['upgrade_unsuccessful'] = 'Unsuccessful!';
+$txt['upgrade_thisquery'] = 'This query:';
+$txt['upgrade_causerror'] = 'Caused the error:';
+$txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">%1$d</span> out of %2$d tables.';
+$txt['upgrade_success_time'] = 'Successful! Completed in %1$d.';
+$txt['upgrade_success'] = 'Successful!';
+$txt['upgrade_completed_time2'] = 'Completed in %1$d';
+$txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: ';
+$txt['upgrade_repondtime'] = 'Server has not responded for %1$d seconds. It may be worth waiting a little longer before trying again.';
+$txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';
 
 // Page titles
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';

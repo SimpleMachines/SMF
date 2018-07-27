@@ -2102,13 +2102,13 @@ function upgrade_query($string, $unbuffered = false)
 
 	// Otherwise we have to display this somewhere appropriate if possible.
 	$upcontext['forced_error_message'] = '
-			<strong>Unsuccessful!</strong><br>
+			<strong>'. $txt['upgrade_unsuccessful'] .'</strong><br>
 
 			<div style="margin: 2ex;">
-				This query:
+				'. $txt['upgrade_thisquery'] .'
 				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
-				Caused the error:
+				'. $txt['upgrade_causerror'] .'
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
 			</div>
 
@@ -3899,7 +3899,7 @@ function template_upgrade_options()
 	if (!empty($upcontext['upgrade_options_warning']))
 		echo '
 				<div class="errorbox">
-					<h3>Warning!</h3>
+					<h3>', $txt['upgrade_warning'] ,'</h3>
 					', $upcontext['upgrade_options_warning'], '
 				</div>';
 
@@ -3963,7 +3963,7 @@ function template_backup_database()
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+					<strong>', sprintf($txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']) ,'</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4088,9 +4088,9 @@ function template_database_changes()
 			}
 
 			if ($is_debug && !empty($totalTime))
-				echo ' Successful! Completed in ', $totalTime, '<br>';
+				echo '', sprintf($txt['upgrade_success_time'], $totalTime), '<br>';
 			else
-				echo ' Successful!<br>';
+				echo '', $txt['upgrade_success'], '<br>';
 
 			echo '
 					<p id="commess">', $txt['upgrade_db_complete'], '</p>';
@@ -4131,7 +4131,7 @@ function template_database_changes()
 					<p id="upgradeCompleted">';
 
 			if (!empty($totalTime))
-				echo 'Completed in ', $totalTime, '';
+				echo '', sprintf($txt['upgrade_completed_time2'], $totalTime), '';
 
 			echo '
 					</p>
@@ -4231,7 +4231,7 @@ function template_database_changes()
 								if (retryCount > 10)
 								{
 									document.getElementById("error_block").style.display = "";
-									setInnerHTML(document.getElementById("error_message"), "Upgrade script appears to be going into a loop - step: " + sDebugName);';
+									setInnerHTML(document.getElementById("error_message"), ', $txt['upgrade_loop'], ' + sDebugName);';
 
 	if ($is_debug)
 		echo '
@@ -4413,7 +4413,7 @@ function template_database_changes()
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").style.display = "";
-								setInnerHTML(document.getElementById("error_message"), "Server has not responded for ', ($timeLimitThreshold * 10), ' seconds. It may be worth waiting a little longer or otherwise please click <a href=\"#\" onclick=\"retTimeout(true); return false;\">here<" + "/a> to try this step again");
+								setInnerHTML(document.getElementById("error_message"), ', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '<a href="#" onclick="retTimeout(true); return false;">', $txt['upgrade_respondtime_clickhere'], '</a>';');
 							}
 							else
 							{
