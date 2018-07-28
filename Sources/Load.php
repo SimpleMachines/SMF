@@ -343,7 +343,7 @@ function reloadSettings()
 	);
 
 	// These are the only valid image types for SMF, by default anyway.
-	$context['validImageTypes'] = array(
+	$context['valid_image_types'] = array(
 		1 => 'gif',
 		2 => 'jpeg',
 		3 => 'png',
