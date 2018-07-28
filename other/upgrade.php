@@ -447,19 +447,32 @@ function load_lang_file()
 		header('Cache-Control: no-cache');
 
 		echo '<!DOCTYPE html>
-		<html>
-			<head>
-				<title>SMF Upgrader: Error!</title>
-			</head>
-			<body style="font-family: sans-serif;"><div style="width: 600px;">
-				<h1 style="font-size: 14pt;">A critical error has occurred.</h1>
-				<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
-				<div style="margin: 1ex; font-family: monospace; font-weight: bold;">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
-				<p>In some cases, FTP clients do not properly upload files with this many folders.  Please double check to make sure you <span style="font-weight: 600;">have uploaded all the files in the distribution</span>.</p>
-				<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
-				<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
-			</div></body>
-		</html>';
+			<html>
+				<head>
+					<title>SMF Upgrader: Error!</title>
+						<style>
+							body {
+								font-family: sans-serif;
+								max-width: 700px; }
+
+								h1 {
+									font-size: 14pt; }
+
+								.directory {
+									margin: 0.3em;
+									font-family: monospace;
+									font-weight: bold; }
+						</style>
+				</head>
+				<body>
+					<h1>A critical error has occurred.</h1>
+						<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
+						<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+						<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
+						<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
+						<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
+				</body>
+			</html>';
 		die;
 	}
 
