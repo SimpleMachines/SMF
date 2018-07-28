@@ -4218,7 +4218,7 @@ function template_database_changes()
 								if (retryCount > 10)
 								{
 									document.getElementById("error_block").style.display = "";
-									setInnerHTML(document.getElementById("error_message"), ', $txt['upgrade_loop'], ' + sDebugName);';
+									setInnerHTML(document.getElementById("error_message"), "', $txt['upgrade_loop'], '" + sDebugName);';
 
 	if ($is_debug)
 		echo '
@@ -4400,7 +4400,7 @@ function template_database_changes()
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").style.display = "";
-								setInnerHTML(document.getElementById("error_message"), ', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '<a href="#" onclick="retTimeout(true); return false;">', $txt['upgrade_respondtime_clickhere'], '</a>';');
+								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '"<a href="#" onclick="retTimeout(true); return false;">"', $txt['upgrade_respondtime_clickhere'], '"</a>';');
 							}
 							else
 							{
