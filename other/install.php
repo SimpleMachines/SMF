@@ -266,7 +266,7 @@ function initialize_inputs()
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $incontext, $user_info;
+	global $incontext, $user_info, $txt;
 
 	$incontext['detected_languages'] = array();
 
@@ -931,7 +931,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type;
+	global $txt, $incontext, $databases, $db_type, $db_connection;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -1610,7 +1610,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type;
+	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
