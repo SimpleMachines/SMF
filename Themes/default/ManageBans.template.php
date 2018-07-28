@@ -260,7 +260,7 @@ function template_ban_edit_trigger()
 			<div class="windowbg">
 				<fieldset>
 					<legend>
-						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');"> ', $txt['ban_triggers'], '
+						<input type="checkbox" onclick="',$context['ban_trigger']['is_new'] ? '' : 'this.checked = false;','invertAll(this, this.form, \'ban_suggestion\');" id="triggers_check"> ', $txt['ban_triggers'], '
 					</legend>
 					<dl class="settings">
 						<dt>
@@ -268,7 +268,7 @@ function template_ban_edit_trigger()
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;">
+							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="$(\'#main_ip_check\').prop(\'checked\', true);$(\'#main_ip_check\').trigger(\'change\');">
 						</dd>';
 
 	if (empty($modSettings['disableHostnameLookup']))
@@ -278,7 +278,7 @@ function template_ban_edit_trigger()
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;">
+							<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="$(\'#hostname_check\').prop(\'checked\', true);$(\'#hostname_check\').trigger(\'change\');">
 						</dd>';
 
 	echo '
@@ -287,14 +287,14 @@ function template_ban_edit_trigger()
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="$(\'#email_check\').prop(\'checked\', true);$(\'#email_check\').trigger(\'change\');">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
-							<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;">
+							<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44" >
 						</dd>
 					</dl>
 				</fieldset>
@@ -320,11 +320,29 @@ function template_ban_edit_trigger()
 
 		function onUpdateName(oAutoSuggest)
 		{
-			document.getElementById(\'user_check\').checked = true;
+			$(\'#user_check\').prop(\'checked\', true);
+			$(\'#user_check\').trigger(\'change\');
 			return true;
 		}
-		oAddMemberSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateName\');
-	</script>';
+		oAddMemberSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateName\');';
+		if (!$context['ban_trigger']['is_new'])
+			echo '
+		function uncheckothers(ele)
+		{
+			id = (ele.checked === true ? ele.id : \'\');
+			$(\'#email_check\').prop(\'checked\', (id == \'email_check\' ? true : false));
+			$(\'#user_check\').prop(\'checked\', (id == \'user_check\' ? true : false));
+			$(\'#hostname_check\').prop(\'checked\', (id == \'hostname_check\' ? true : false));
+			$(\'#main_ip_check\').prop(\'checked\', (id == \'main_ip_check\' ? true : false));
+			$(\'#triggers_check\').prop(\'checked\', false);
+		}
+		
+		$(\'#email_check\').change(function () {uncheckothers(this)});
+		$(\'#user_check\').change(function () {uncheckothers(this)});
+		$(\'#hostname_check\').change(function () {uncheckothers(this)});
+		$(\'#main_ip_check\').change(function () {uncheckothers(this)});
+		';
+	echo '</script>';
 }
 
 ?>
