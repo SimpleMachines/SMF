@@ -369,6 +369,12 @@ function reloadSettings()
 		'red',
 		'green',
 		'blue',
+		'acronym',
+		'font',
+		'ftp',
+		'glow',
+		'move',
+		'shadow',
 	);
 
 	// Call pre load integration functions.
