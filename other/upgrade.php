@@ -447,35 +447,32 @@ function load_lang_file()
 		header('Cache-Control: no-cache');
 
 		echo '<!DOCTYPE html>
-<html>
-	<head>
-		<title>SMF Upgrader: Error!</title>
-		<style>
-			body {
-				font-family: sans-serif;
-				max-width: 700px; }
-		
-			h1 {
-				font-size: 14pt; }
+			<html>
+				<head>
+					<title>SMF Upgrader: Error!</title>
+						<style>
+							body {
+								font-family: sans-serif;
+								max-width: 700px; }
 
-			.directory {
-				margin: 0.3em;
-				font-family: monospace;
-				font-weight: bold; }
-		</style>
-	</head>
-	<body>
-		<h1>A critical error has occurred.</h1>
+								h1 {
+									font-size: 14pt; }
 
-		<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
-
-		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
-
-		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
-		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
-		<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
-	</body>
-</html>';
+								.directory {
+									margin: 0.3em;
+									font-family: monospace;
+									font-weight: bold; }
+						</style>
+				</head>
+				<body>
+					<h1>A critical error has occurred.</h1>
+						<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
+						<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+						<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
+						<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
+						<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
+				</body>
+			</html>';
 		die;
 	}
 
@@ -837,13 +834,13 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			It looks as if your board directory settings <em>might</em> be incorrect. Your board directory is currently set to &quot;' . $boarddir . '&quot; but should probably be &quot;' . dirname(__FILE__) . '&quot;. Settings.php currently lists your paths as:<br>
+			'. sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) .'<br>
 			<ul>
-				<li>Board Directory: ' . $boarddir . '</li>
-				<li>Source Directory: ' . $boarddir . '</li>
-				<li>Cache Directory: ' . $cachedir_temp . '</li>
+				<li>'. $txt['upgrade_boarddir'] .'  ' . $boarddir . '</li>
+				<li>'. $txt['upgrade_sourcedir'] .'  ' . $boarddir . '</li>
+				<li>'. $txt['upgrade_cachedir'] .'  ' . $cachedir_temp . '</li>
 			</ul>
-			If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
+			'. $txt['upgrade_incorrect_settings'] .'';
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
@@ -2105,13 +2102,13 @@ function upgrade_query($string, $unbuffered = false)
 
 	// Otherwise we have to display this somewhere appropriate if possible.
 	$upcontext['forced_error_message'] = '
-			<strong>Unsuccessful!</strong><br>
+			<strong>'. $txt['upgrade_unsuccessful'] .'</strong><br>
 
 			<div style="margin: 2ex;">
-				This query:
+				'. $txt['upgrade_thisquery'] .'
 				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
-				Caused the error:
+				'. $txt['upgrade_causerror'] .'
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
 			</div>
 
@@ -3077,7 +3074,7 @@ function ConvertUtf8()
 
 		if ($upcontext['dropping_index'] && $command_line)
 		{
-			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
+			echo "\n" . '', $txt['upgrade_fulltext_error'] ,'';
 			flush();
 		}
 	}
@@ -3421,7 +3418,7 @@ function template_chmod()
 	{
 		echo '
 		<div class="error">
-			<p>The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:</p>
+			<p>', $txt['upgrade_writable_files'] ,'</p>
 			<ul class="error_content">
 				<li>' . implode('</li>
 				<li>', $upcontext['chmod']['files']) . '</li>
@@ -3790,8 +3787,7 @@ function template_welcome_message()
 		echo '
 					<div class="errorbox">
 						<h3>', $txt['upgrade_warning'], '</h3>
-						<p>&quot;', $upcontext['user']['name'], '&quot; has been running the upgrade script for the last ', $ago, ' - and was last active ', $updated, ' ago.</p>';
-
+						<p>', sprintf($txt['upgrade_time'], $upcontext['user']['name'], $ago, $updated), '</p>';
 		if ($active < 600)
 			echo '
 						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '</p>';
@@ -3903,7 +3899,7 @@ function template_upgrade_options()
 	if (!empty($upcontext['upgrade_options_warning']))
 		echo '
 				<div class="errorbox">
-					<h3>Warning!</h3>
+					<h3>', $txt['upgrade_warning'] ,'</h3>
 					', $upcontext['upgrade_options_warning'], '
 				</div>';
 
@@ -3967,7 +3963,7 @@ function template_backup_database()
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+					<strong>', sprintf($txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']) ,'</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4092,9 +4088,9 @@ function template_database_changes()
 			}
 
 			if ($is_debug && !empty($totalTime))
-				echo ' Successful! Completed in ', $totalTime, '<br>';
+				echo '', sprintf($txt['upgrade_success_time'], $totalTime), '<br>';
 			else
-				echo ' Successful!<br>';
+				echo '', $txt['upgrade_success'], '<br>';
 
 			echo '
 					<p id="commess">', $txt['upgrade_db_complete'], '</p>';
@@ -4135,7 +4131,7 @@ function template_database_changes()
 					<p id="upgradeCompleted">';
 
 			if (!empty($totalTime))
-				echo 'Completed in ', $totalTime, '';
+				echo '', sprintf($txt['upgrade_completed_time2'], $totalTime), '';
 
 			echo '
 					</p>
@@ -4235,7 +4231,7 @@ function template_database_changes()
 								if (retryCount > 10)
 								{
 									document.getElementById("error_block").style.display = "";
-									setInnerHTML(document.getElementById("error_message"), "Upgrade script appears to be going into a loop - step: " + sDebugName);';
+									setInnerHTML(document.getElementById("error_message"), "', $txt['upgrade_loop'], '" + sDebugName);';
 
 	if ($is_debug)
 		echo '
@@ -4417,7 +4413,7 @@ function template_database_changes()
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").style.display = "";
-								setInnerHTML(document.getElementById("error_message"), "Server has not responded for ', ($timeLimitThreshold * 10), ' seconds. It may be worth waiting a little longer or otherwise please click <a href=\"#\" onclick=\"retTimeout(true); return false;\">here<" + "/a> to try this step again");
+								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
