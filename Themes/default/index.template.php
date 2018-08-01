@@ -339,21 +339,19 @@ function template_body_above()
 					<hr class="clear">
 				</div>';
 
+	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	// Load mobile menu here
 	echo '
 				<a class="menu_icon mobile_user_menu"></a>
-				<div id="mobile_user_menu" class="popup_container">
-					<div class="popup_window description">
-						<div class="popup_heading">', $txt['mobile_user_menu'], '
-						<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-						', template_menu(), '
+				<div id="mobile_user_menu" class="popup_container menu_popup_container">
+					<div class="popup_window menu_popup_window description">
+						<div class="popup_heading menu_popup_heading">', $txt['mobile_user_menu'], '
+							<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+						</div>
+						<div id="main_menu">
+							', template_menu(), '
+						</div>
 					</div>
-				</div>';
-
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	echo '
-				<div id="main_menu">
-					', template_menu(), '
 				</div>';
 
 	theme_linktree();
