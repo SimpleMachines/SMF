@@ -6,6 +6,29 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	/* This is general */
+	.menu_popup_container {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(40,64,80,0.5);
+		z-index: 5;
+	}
+	.menu_popup_window {
+		position: relative;
+		z-index: 99;
+		padding: 0 6px 6px 6px;
+		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+		border: 1px solid #777;
+		border-radius: 7px 7px 3px 3px;
+		overflow: visible !important;
+		background: #fff !important; /* fallback for some browsers */
+		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%) !important;
+		top: 15%;
+		margin: 0 auto;
+	}
 	.popup_window {
 		width: 90%;
 		min-height: 285px !important;
@@ -15,6 +38,12 @@
 		-webkit-overflow-scrolling: touch;
 		padding: 0;
 		margin: 0 auto;
+	}
+	.menu_popup_heading {
+		display: block;
+	}
+	#main_menu {
+		margin: 0;
 	}
 	h1.forumtitle a, h1.forumtitle {
 		padding: 5px 0 0 4px !important;
@@ -40,7 +69,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	#main_menu, .generic_menu {
+	.generic_menu {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -645,5 +674,11 @@
 	div.lastpost {
 		width: 20% !important;
 		margin: 3px 0 0 5px;
+	}
+}
+/* Tricky menu */
+@media (min-width: 481px) {
+	div#mobile_user_menu, .menu_popup_container {
+		display: block !important;
 	}
 }
