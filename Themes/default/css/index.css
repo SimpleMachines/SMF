@@ -49,6 +49,10 @@ input, button, select {
 select {
 	padding: 0.22em 0.2em; /* selects don't apply line-height */
 }
+/* Selects with more than one line */
+select[size] {
+	height: auto;
+}
 input[type="file"] {
 	padding: 2px;
 	height: auto;
