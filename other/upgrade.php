@@ -3703,12 +3703,6 @@ function template_upgrade_above()
 		<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
 	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap">
-				</div>
-			</div>
-		</div>
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">

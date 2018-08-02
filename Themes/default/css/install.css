@@ -21,6 +21,13 @@ h1.forumtitle {
 	display: flex;
 	flex-wrap: wrap;
 }
+/* Add the gradient here if there is no upper_section */
+#main_content_section:first-child {
+	margin: 2px;
+	padding-top: 1em;
+	border-radius: 6px;
+	background: linear-gradient(to bottom, #e2e9f3 0%, #fff 90px);
+}
 #main_steps {
 	order: 0;
 	width: 49%;

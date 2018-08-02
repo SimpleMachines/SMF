@@ -1974,15 +1974,15 @@ function template_install_above()
 		<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 		<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
-	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap">';
+	<div id="wrapper">';
 
 	// Have we got a language drop down - if so do it on the first step only.
 	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0)
 	{
 		echo '
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap">
 					<div class="news">
 						<form action="', $installurl, '" method="get">
 							<label for="installer_language">', $txt['installer_language'], ':</label>
@@ -1997,13 +1997,13 @@ function template_install_above()
 							<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button"></noscript>
 						</form>
 					</div><!-- .news -->
-					<hr class="clear">';
+					<hr class="clear">
+				</div><!-- #inner_wrap -->
+			</div><!-- #inner_section -->
+		</div><!-- #upper_section -->';
 	}
 
 	echo '
-				</div><!-- #inner_wrap -->
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">
