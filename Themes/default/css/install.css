@@ -140,16 +140,4 @@ dl.settings.adminlogin dd {
 	display: none;
 }
 /* End [WIP] */
-#time_elapsed {
-	clear: both;
-	padding: 1em 1em 0 1em;
-	border: 1px solid green;
-	/* [WIP] */
-	background: /*#f0f4f7*/ #fcfcfc;
-	margin: 1em 0.9em 0 0.9em;
-	padding: 6px 8px 8px 8px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
-	/* End [WIP] */
 }
