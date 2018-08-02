@@ -256,9 +256,10 @@ function template_kick_guest()
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
-	foreach ($context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-								<option value="', $cookie_time, '"', $modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+	if(!empty($context['login_cookie_times']))
+		foreach ($context['login_cookie_times'] as $cookie_time => $cookie_txt)
+			echo '
+									<option value="', $cookie_time, '"', $modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
 
 	echo '
 							</select>
