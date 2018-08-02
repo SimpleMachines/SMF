@@ -343,12 +343,12 @@ function template_body_above()
 	// Load mobile menu here
 	echo '
 				<a class="menu_icon mobile_user_menu"></a>
-				<div id="mobile_user_menu" class="popup_container menu_popup_container">
-					<div class="popup_window menu_popup_window description">
-						<div class="popup_heading menu_popup_heading">', $txt['mobile_user_menu'], '
-							<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
-						</div>
-						<div id="main_menu">
+				<div id="main_menu">
+					<div id="mobile_user_menu" class="popup_container">
+						<div class="popup_window description">
+							<div class="popup_heading">', $txt['mobile_user_menu'], '
+								<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+							</div>
 							', template_menu(), '
 						</div>
 					</div>
