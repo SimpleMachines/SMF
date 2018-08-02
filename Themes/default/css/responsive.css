@@ -6,7 +6,7 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	/* This is general */
-	.menu_popup_container {
+	#main_menu .popup_container {
 		display: none;
 		position: fixed;
 		top: 0;
@@ -16,7 +16,7 @@
 		background: rgba(40,64,80,0.5);
 		z-index: 5;
 	}
-	.menu_popup_window {
+	#main_menu .popup_window {
 		position: relative;
 		z-index: 99;
 		padding: 0 6px 6px 6px;
@@ -24,10 +24,16 @@
 		border: 1px solid #777;
 		border-radius: 7px 7px 3px 3px;
 		overflow: visible !important;
-		background: #fff !important; /* fallback for some browsers */
-		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%) !important;
+		background: #fff; /* fallback for some browsers */
+		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 		top: 15%;
 		margin: 0 auto;
+	}
+	#main_menu .popup_heading {
+		display: block;
+	}
+	#main_menu {
+		margin: 0;
 	}
 	.popup_window {
 		width: 90%;
@@ -38,12 +44,6 @@
 		-webkit-overflow-scrolling: touch;
 		padding: 0;
 		margin: 0 auto;
-	}
-	.menu_popup_heading {
-		display: block;
-	}
-	#main_menu {
-		margin: 0;
 	}
 	h1.forumtitle a, h1.forumtitle {
 		padding: 5px 0 0 4px !important;
