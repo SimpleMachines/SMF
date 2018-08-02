@@ -1768,8 +1768,8 @@ function createSalvageArea()
 	{
 		$salvageCatID = $smcFunc['db_insert']('',
 			'{db_prefix}categories',
-			array('name' => 'string-255', 'cat_order' => 'int'),
-			array($txt['salvaged_category_name'], -1),
+			array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
+			array($txt['salvaged_category_name'], -1, $txt['salvaged_category_description']),
 			array('id_cat'),
 			1
 		);
