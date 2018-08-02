@@ -47,7 +47,7 @@ h1.forumtitle {
 }
 #install_progress {
 	order: -1;
-	margin-right: 2%;
+	margin: 0.32em 2% 0 0;
 	width: 49%;
 }
 .progress_bar {
