@@ -631,6 +631,9 @@ $txt['notification_disable_topic'] = 'Are you sure you wish to disable notificat
 // Mentions
 $txt['mentions'] = 'Mentions';
 
+// Privacy
+$txt['privacy'] = 'Privacy';
+
 // Likes
 $txt['likes'] = 'Likes';
 $txt['like'] = 'Like';

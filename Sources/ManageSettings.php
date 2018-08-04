@@ -65,6 +65,7 @@ function ModifyFeatureSettings()
 		'likes' => 'ModifyLikesSettings',
 		'mentions' => 'ModifyMentionsSettings',
 		'alerts' => 'ModifyAlertsSettings',
+		'privacy' => 'ModifyPrivacySettings',
 	);
 
 	loadGeneralSettingParameters($subActions, 'basic');
@@ -94,6 +95,9 @@ function ModifyFeatureSettings()
 			),
 			'alerts' => array(
 				'description' => $txt['notifications_desc'],
+			),
+			'privacy' => array(
+				'label' => $txt['privacy'],
 			),
 		),
 	);
@@ -2273,6 +2277,46 @@ function ModifyAlertsSettings()
 	// Override the description
 	$context['description'] = $txt['notifications_desc'];
 	$context['sub_template'] = 'alert_configuration';
+}
+
+/**
+ * Config array for changing privacy settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=privacy;
+ *
+ * @param bool $return_config Whether or not to return the config_vars array
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
+ */
+function ModifyPrivacySettings($return_config = false)
+{
+	global $txt, $scripturl, $context;
+
+	$config_vars = array(
+		array('check', 'enable_privacy_userexport'),
+		array('permissions', 'privacy_userexport_own'),
+		array('permissions', 'privacy_userexport_others'),
+	);
+
+	call_integration_hook('integrate_privacy_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		call_integration_hook('integrate_save_privacy_settings');
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=privacy');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=privacy';
+	$context['settings_title'] = $txt['privacy'];
+
+	prepareDBSettingContext($config_vars);
 }
 
 ?>
