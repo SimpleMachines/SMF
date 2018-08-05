@@ -419,6 +419,19 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				'getprofiledata' => array(
+					'label' => $txt['getProfileData'],
+					'file' => 'Profile-Actions.php',
+					'function' => 'getProfileData',
+					'icon' => 'settings',
+					'sc' => 'post',
+					'token' => 'profile-da%u',
+					'password' => true,
+					'permission' => array(
+						'own' => array('privacy_userexport_own'),
+						'any' => array('privacy_userexport_others'),
+					),
+				),
 			),
 		),
 	);

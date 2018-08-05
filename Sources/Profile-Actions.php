@@ -969,4 +969,120 @@ function subscriptions($memID)
 		$context['sub_template'] = 'user_subscription';
 }
 
+/**
+ * Function to allow the user to todo Privacy stuff
+ *
+ * @param int $memID The ID of the member
+ */
+function getProfileData($memID)
+{
+	global $txt, $user_profile, $context, $smcFunc;
+
+	$profileData = array();
+	$mode = 'messages';
+	if ($mode == 'profile') // profile
+	{
+		loadMemberData($memID, false, 'profile');
+		$profile = $user_profile[$memID];
+		$removeFields = array('secret_question','tfa_secret','password_salt');
+		foreach ($removeFields as $value)
+		{
+			unset($profile[$value]);
+		}
+		foreach($profile as $key => &$value)
+		{
+			if (is_array($value))
+				$value = $smcFunc['json_encode']($value);
+		}
+		$profileData[0] = array_keys($profile);
+		$profileData[1] = $profile;
+		call_integration_hook('integrate_getProfile_profile', array(&$profileData));
+	}
+	elseif ($mode == 'messages') // messages
+	{
+		
+		$request = $smcFunc['db_query']('','
+			SELECT id_msg, id_topic, poster_time, subject, modified_time, modified_name, modified_reason, body, likes, poster_ip
+			FROM {db_prefix}messages 
+			WHERE id_member = {int:memID}',
+			array(
+				'memID' => $memID,
+			)
+		);
+		$profileData = $smcFunc['db_fetch_all']($request);
+		array_unshift($profileData, array_keys($profileData[0]));
+		$smcFunc['db_free_result']($request);
+
+		call_integration_hook('integrate_getProfile_messages', array(&$profileData));
+	}
+	else
+	{
+		$profileData = $smcFunc['db_query']('','
+			SELECT pm.msgtime, pm.subject, pm.body
+			FROM {db_prefix}personal_messages pm
+			LEFT JOIN {db_prefix}pm_recipients pmr on (pm.id_pm = pmr.id_pm and pmr.id_member = {int:memID})
+			WHERE pm.id_member_from = {int:memID} or pmr.id_member = {int:memID}',
+			array(
+				'memID' => $memID,
+			)
+		);
+		$profileData = $smcFunc['db_fetch_all']($request);
+		array_unshift($profileData, array_keys($profileData[0]));
+		$smcFunc['db_free_result']($request);
+		call_integration_hook('integrate_getProfile_pmessages', array(&$profileData));
+	}
+	$count = count($profileData);
+	$csv_data = '';
+	for($i = 0; $i < $count; $i++)
+	{
+		$csv_data .= arrayToCsv($profileData[$i]) . "\r\n";
+	}
+
+
+	header("Pragma: no-cache");
+	header('Content-Disposition: attachment; filename="privacySMF'.$mode.'.csv";');
+	header("Content-Length: " . strlen($csv_data));
+	header("Content-Transfer-Encoding: binary");
+	header("Content-Type: application/force-download");
+	echo $csv_data;
+
+	exit;
+}
+
+/**
+  * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
+  * from https://stackoverflow.com/questions/3933668/convert-array-into-csv
+ * 
+ * @param array $fields a line of the array
+ * @param string @delimiter the delimiter char
+ * @param string @enclosure the enclosure char
+ * @param boolean $encloseAll enclose all
+ * @param boolean $nullToMysqlNull
+  */
+function arrayToCsv( array $fields, $delimiter = ';', $enclosure = '"', $encloseAll = false, $nullToMysqlNull = false ) {
+    $delimiter_esc = preg_quote($delimiter, '/');
+    $enclosure_esc = preg_quote($enclosure, '/');
+
+    $output = array();
+    foreach ( $fields as $field )
+	{
+        if ($field === null && $nullToMysqlNull)
+		{
+            $output[] = 'NULL';
+            continue;
+        }
+
+        // Enclose fields containing $delimiter, $enclosure or whitespace
+        if ( $encloseAll || preg_match( "/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field ) )
+		{
+            $output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
+        }
+        else
+		{
+            $output[] = $field;
+        }
+    }
+
+    return implode( $delimiter, $output );
+}
 ?>

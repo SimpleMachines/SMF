@@ -244,6 +244,8 @@ $txt['deleteAccount'] = 'Delete this account';
 $txt['profileSendIm'] = 'Send personal message';
 $txt['profile_sendpm_short'] = 'Send PM';
 
+$txt['getProfileData'] = 'Download Profile';
+
 $txt['profileBanUser'] = 'Ban this user';
 
 $txt['display_name'] = 'Display name';
