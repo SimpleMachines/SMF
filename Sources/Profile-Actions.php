@@ -1060,29 +1060,29 @@ function getProfileData($memID)
  * @param boolean $nullToMysqlNull
   */
 function arrayToCsv( array $fields, $delimiter = ';', $enclosure = '"', $encloseAll = false, $nullToMysqlNull = false ) {
-    $delimiter_esc = preg_quote($delimiter, '/');
-    $enclosure_esc = preg_quote($enclosure, '/');
+	$delimiter_esc = preg_quote($delimiter, '/');
+	$enclosure_esc = preg_quote($enclosure, '/');
 
-    $output = array();
-    foreach ( $fields as $field )
+	$output = array();
+	foreach ( $fields as $field )
 	{
-        if ($field === null && $nullToMysqlNull)
+		if ($field === null && $nullToMysqlNull)
 		{
-            $output[] = 'NULL';
-            continue;
-        }
+			$output[] = 'NULL';
+			continue;
+		}
 
-        // Enclose fields containing $delimiter, $enclosure or whitespace
-        if ( $encloseAll || preg_match( "/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field ) )
+		// Enclose fields containing $delimiter, $enclosure or whitespace
+		if ( $encloseAll || preg_match( "/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field ) )
 		{
-            $output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
-        }
-        else
+			$output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
+		}
+		else
 		{
-            $output[] = $field;
-        }
-    }
+			$output[] = $field;
+		}
+	}
 
-    return implode( $delimiter, $output );
+	return implode( $delimiter, $output );
 }
 ?>
