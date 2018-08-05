@@ -979,7 +979,7 @@ function getProfileData($memID)
 	global $txt, $user_profile, $context, $smcFunc;
 
 	$profileData = array();
-	$mode = 'messages';
+	$mode = 'pmessages';
 	if ($mode == 'profile') // profile
 	{
 		loadMemberData($memID, false, 'profile');
@@ -1017,7 +1017,7 @@ function getProfileData($memID)
 	}
 	else
 	{
-		$profileData = $smcFunc['db_query']('','
+		$request = $smcFunc['db_query']('','
 			SELECT pm.msgtime, pm.subject, pm.body
 			FROM {db_prefix}personal_messages pm
 			LEFT JOIN {db_prefix}pm_recipients pmr on (pm.id_pm = pmr.id_pm and pmr.id_member = {int:memID})
@@ -1085,4 +1085,5 @@ function arrayToCsv( array $fields, $delimiter = ';', $enclosure = '"', $enclose
 
 	return implode( $delimiter, $output );
 }
+
 ?>
