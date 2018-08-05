@@ -62,8 +62,7 @@ function template_main()
 			echo '
 			</div><!-- .info -->
 			<div class="board_stats centertext">
-				<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
-				', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+				<p>', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ': ', comma_format($board['posts']), '<br>', $board['is_redirect'] ? '' : $txt['board_topics'] . ': ' . comma_format($board['topics']), '
 				</p>
 			</div>
 			<div class="lastpost lpr_border">';
@@ -270,7 +269,7 @@ function template_main()
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
 					<div class="board_stats centertext">
-						<p>', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</p>
+						<p>', $txt['replies'], ': ', $topic['replies'], '<br>', $txt['views'], ': ', $topic['views'], '</p>
 					</div>
 					<div class="lastpost">
 						<p>', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '</p>

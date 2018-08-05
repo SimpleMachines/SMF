@@ -54,7 +54,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.member_groups,
+			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, mem.lngfile, b.member_groups,
 				mem.id_group, mem.id_post_group, mem.additional_groups, t.id_member_started, mem.pm_ignore_list,
 				t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
