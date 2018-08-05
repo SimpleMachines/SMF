@@ -73,6 +73,7 @@ $txt['repair_operation_group_request_missing_group'] = 'Group requests for a non
 
 $txt['salvaged_category_name'] = 'Salvage Area';
 $txt['salvaged_category_error'] = 'Unable to create Salvage Area category!';
+$txt['salvaged_category_description'] = 'Boards created for the salvaged messages';
 $txt['salvaged_board_name'] = 'Salvaged Topics';
 $txt['salvaged_board_description'] = 'Topics created for messages with non-existent topics';
 $txt['salvaged_board_error'] = 'Unable to create Salvaged Topics board!';
