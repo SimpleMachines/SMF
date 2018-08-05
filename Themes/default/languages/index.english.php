@@ -52,7 +52,7 @@ $txt['moderate'] = 'Moderate';
 
 $txt['save'] = 'Save';
 $txt['upload'] = 'Upload';
-$txt['upload_all'] = 'Upload All';
+$txt['upload_all'] = 'Upload all';
 $txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
@@ -63,7 +63,7 @@ $txt['posts'] = 'Posts';
 
 $txt['member_postcount'] = 'Posts';
 $txt['no_subject'] = '(No subject)';
-$txt['view_profile'] = 'View Profile';
+$txt['view_profile'] = 'View profile';
 $txt['guest_title'] = 'Guest';
 $txt['author'] = 'Author';
 $txt['on'] = 'on';
@@ -79,16 +79,16 @@ $txt['username_no_exist'] = 'That username does not exist.';
 $txt['no_user_with_email'] = 'There are no usernames associated with that email.';
 
 $txt['board_moderator'] = 'Board Moderator';
-$txt['remove_topic'] = 'Remove Topic';
+$txt['remove_topic'] = 'Remove topic';
 $txt['topics'] = 'Topics';
 $txt['modify_msg'] = 'Modify message';
 $txt['name'] = 'Name';
 $txt['email'] = 'Email';
-$txt['user_email_address'] = 'Email Address';
+$txt['user_email_address'] = 'Email address';
 $txt['subject'] = 'Subject';
 $txt['message'] = 'Message';
 $txt['redirects'] = 'Redirects';
-$txt['quick_modify'] = 'Modify Inline';
+$txt['quick_modify'] = 'Modify inline';
 $txt['quick_modify_message'] = 'You have successfully modified this message.';
 $txt['reason_for_edit'] = 'Reason for editing';
 
@@ -102,7 +102,7 @@ $txt['profile_of'] = 'View the profile of';
 $txt['total'] = 'Total';
 $txt['website'] = 'Website';
 $txt['register'] = 'Sign Up';
-$txt['warning_status'] = 'Warning Status';
+$txt['warning_status'] = 'Warning status';
 $txt['user_warn_watch'] = 'User is on moderator watch list';
 $txt['user_warn_moderate'] = 'User posts join approval queue';
 $txt['user_warn_mute'] = 'User is banned from posting';
@@ -114,12 +114,12 @@ $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
 $txt['page'] = 'Page';
-$txt['prev'] = 'previous page';
-$txt['next'] = 'next page';
+$txt['prev'] = 'Previous page';
+$txt['next'] = 'Next page';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
-$txt['error_occured'] = 'An Error Has Occurred';
+$txt['error_occured'] = 'An error has occurred';
 $txt['at'] = 'at';
 $txt['by'] = 'by';
 $txt['logout'] = 'Logout';
@@ -142,9 +142,9 @@ $txt['topic'] = 'Topic';
 $txt['help'] = 'Help';
 $txt['terms_and_rules'] = 'Terms and Rules';
 $txt['watch_board'] = 'Watch this Board';
-$txt['unwatch_board'] = 'Stop Watching Board';
+$txt['unwatch_board'] = 'Stop watching Board';
 $txt['watch_topic'] = 'Watch this Topic';
-$txt['unwatch_topic'] = 'Stop Watching Topic';
+$txt['unwatch_topic'] = 'Stop watching Topic';
 $txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
@@ -165,7 +165,7 @@ $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
 $txt['issue_warning'] = 'Issue Warning';
-$txt['awaiting_approval'] = 'Awaiting Approval';
+$txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attach_awaiting_approve'] = 'Attachments awaiting approval';
 $txt['post_awaiting_approval'] = 'Note: This message is awaiting approval by a moderator.';
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
@@ -176,7 +176,7 @@ $txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
 $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
 $txt['msg_alert_one_new'] = '1 is new';
 $txt['msg_alert_many_new'] = '%1$d are new';
-$txt['new_alert'] = 'New Alert';
+$txt['new_alert'] = 'New alert';
 $txt['remove_message'] = 'Remove this post';
 $txt['remove_message_question'] = 'Remove this post?';
 
@@ -196,7 +196,7 @@ $txt['search_on'] = 'on';
 
 $txt['search'] = 'Search';
 $txt['all'] = 'All';
-$txt['search_entireforum'] = 'Entire Forum';
+$txt['search_entireforum'] = 'Entire forum';
 $txt['search_thisbrd'] = 'This board';
 $txt['search_thistopic'] = 'This topic';
 $txt['search_members'] = 'Members';
@@ -214,12 +214,12 @@ $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
-$txt['recent_posts'] = 'Recent Posts';
+$txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
 $txt['gender'] = 'Gender';
-$txt['personal_text'] = 'Personal Text';
-$txt['date_registered'] = 'Date Registered';
+$txt['personal_text'] = 'Personal text';
+$txt['date_registered'] = 'Date registered';
 
 $txt['recent_view'] = 'View the most recent posts on the forum.';
 $txt['recent_updated'] = 'is the most recently updated topic';
@@ -275,7 +275,7 @@ $txt['mark_board_read'] = 'Mark Topics as Read for this Board';
 $txt['views'] = 'Views';
 $txt['new'] = 'New';
 
-$txt['view_all_members'] = 'View All Members';
+$txt['view_all_members'] = 'View all Members';
 $txt['view'] = 'View';
 
 $txt['viewing_members'] = 'Viewing Members %1$s to %2$s';
@@ -323,7 +323,7 @@ $txt['go_caps'] = 'GO';
 
 $txt['print'] = 'Print';
 $txt['profile'] = 'Profile';
-$txt['topic_summary'] = 'Topic Summary';
+$txt['topic_summary'] = 'Topic summary';
 $txt['not_applicable'] = 'N/A';
 $txt['name_in_use'] = 'This name is already in use by another member.';
 
@@ -563,9 +563,9 @@ $txt['smtp_bad_response'] = 'Couldn\'t get mail server response codes';
 $txt['smtp_error'] = 'Ran into problems sending Mail. Error: ';
 $txt['mail_send_unable'] = 'Unable to send mail to the email address \'%1$s\'';
 
-$txt['mlist_search'] = 'Search For Members';
+$txt['mlist_search'] = 'Search for Members';
 $txt['mlist_search_again'] = 'Search again';
-$txt['mlist_search_filter'] = 'Search Options';
+$txt['mlist_search_filter'] = 'Search options';
 $txt['mlist_search_email'] = 'Search by email address';
 $txt['mlist_search_messenger'] = 'Search by messenger nickname';
 $txt['mlist_search_group'] = 'Search by position';
@@ -738,18 +738,18 @@ $txt['find_close'] = 'Close';
 $txt['unread_since_visit'] = 'Show unread posts since last visit.';
 $txt['show_unread_replies'] = 'Show new replies to your posts.';
 
-$txt['change_color'] = 'Change Color';
+$txt['change_color'] = 'Change color';
 
-$txt['quickmod_delete_selected'] = 'Remove Selected';
-$txt['quickmod_split_selected'] = 'Split Selected';
+$txt['quickmod_delete_selected'] = 'Remove selected';
+$txt['quickmod_split_selected'] = 'Split selected';
 
 $txt['show_personal_messages_heading'] = 'New messages';
 $txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal messages in your inbox.<br><br><a href="%2$s">Go to your inbox</a>';
 
 $txt['help_popup'] = 'A little lost? Let me explain:';
 
-$txt['previous_next_back'] = 'previous topic';
-$txt['previous_next_forward'] = 'next topic';
+$txt['previous_next_back'] = 'Previous topic';
+$txt['previous_next_forward'] = 'Next topic';
 
 $txt['mark_unread'] = 'Mark unread';
 

@@ -99,10 +99,10 @@ $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 $txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.
-$txt['enable_likes'] = 'Enable likes';
+$txt['enable_likes'] = 'Enable Likes';
 
 // Mention settings.
-$txt['enable_mentions'] = 'Enable mentions';
+$txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
@@ -174,7 +174,7 @@ $txt['setting_guests_require_captcha'] = 'Guests must pass verification when mak
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
 $txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language (%1$s) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
-$txt['configure_verification_means'] = 'Configure Verification Methods';
+$txt['configure_verification_means'] = 'Configure Verification methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
 $txt['setting_qa_verification_number_desc'] = '(0 to disable; questions are set below)';
 $txt['configure_verification_means_desc'] = '<span class="smalltext">Below you can set which anti-spam features you wish to have enabled whenever a user needs to verify they are a human. Note that the user will have to pass <em>all</em> verification so if you enable both a verification image and a question/answer test they need to complete both to proceed.</span>';
@@ -212,7 +212,7 @@ $txt['setup_verification_add_more'] = 'Add another question';
 $txt['setup_verification_add_answer'] = 'Add another answer';
 
 $txt['moderation_settings'] = 'Moderation Settings';
-$txt['setting_warning_enable'] = 'Enable User Warning System';
+$txt['setting_warning_enable'] = 'Enable User Warning system';
 $txt['setting_warning_watch'] = 'Warning level for user watch';
 $txt['setting_warning_watch_note'] = 'The user warning level after which a user watch is put in place.';
 $txt['setting_warning_moderate'] = 'Warning level for post moderation';
@@ -257,8 +257,8 @@ $txt['custom_profile_type_select'] = 'Select Box';
 $txt['custom_profile_type_radio'] = 'Radio Button';
 $txt['custom_profile_type_check'] = 'Checkbox';
 
-$txt['custom_add_title'] = 'Add Profile Field';
-$txt['custom_edit_title'] = 'Edit Profile Field';
+$txt['custom_add_title'] = 'Add Profile field';
+$txt['custom_edit_title'] = 'Edit Profile field';
 $txt['custom_edit_general'] = 'Display Settings';
 $txt['custom_edit_input'] = 'Input Settings';
 $txt['custom_edit_advanced'] = 'Advanced Settings';
