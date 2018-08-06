@@ -15,15 +15,35 @@
  */
 function template_generic_menu_dropdown_above()
 {
-	global $context;
+	global $context, $txt;
 
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
 
 	// Load the menu
-	template_generic_menu($menu_context);
-	template_generic_menu_mobile($menu_context);
+	// Add mobile menu as well
+	echo '
+	<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
+	<div id="genericmenu">
+		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
+			<div class="popup_window description">
+				<div class="popup_heading">
+					', $txt['mobile_user_menu'], '
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+				</div>
+				', template_generic_menu($menu_context), '
+				</div>
+		</div>
+	</div>
+	<script>
+		$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
+			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
+			});
+		$( ".hide_popup" ).click(function() {
+			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
+		});
+	</script>';
 
 	// This is the main table - we need it so we can keep the content to the right of it.
 	echo '
@@ -41,32 +61,6 @@ function template_generic_menu_dropdown_below()
 {
 	echo '
 				</div><!-- #admin_content -->';
-}
-
-function template_generic_menu_mobile(&$menu_context)
-{
-	global $context, $txt;
-
-	// Load mobile menu here
-	echo '
-		<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
-		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
-			<div class="popup_window description">
-				<div class="popup_heading">
-					', $txt['mobile_user_menu'], '
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
-				</div>
-				', template_generic_menu($menu_context), '
-			</div>
-		</div>
-		<script>
-			$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
-				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
-				});
-			$( ".hide_popup" ).click(function() {
-				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
-			});
-		</script>';
 }
 
 function template_generic_menu(&$menu_context)
