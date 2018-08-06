@@ -245,6 +245,14 @@ $txt['profileSendIm'] = 'Send personal message';
 $txt['profile_sendpm_short'] = 'Send PM';
 
 $txt['getProfileData'] = 'Download Profile';
+$txt['profileDataCenter'] = 'Profile Download Center';
+$txt['profileDownloadProfile_own'] = 'Download the profile data of your account';
+$txt['profileDownloadProfile_any'] = 'Download the profile data of %1$s account';
+$txt['profileDownloadMessages_own'] = 'Download the posts of your account';
+$txt['profileDownloadMessages_any'] = 'Download the posts data of %1$s account';
+$txt['profileDownloadPMessages_own'] = 'Download the personal messages data of your account';
+$txt['profileDownloadPMessages_any'] = 'Download the personal messages data of %1$s account';
+$txt['profileDownload'] = 'Download';
 
 $txt['profileBanUser'] = 'Ban this user';
 

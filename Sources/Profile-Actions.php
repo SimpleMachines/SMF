@@ -976,10 +976,18 @@ function subscriptions($memID)
  */
 function getProfileData($memID)
 {
-	global $txt, $user_profile, $context, $smcFunc;
+	global $txt, $user_profile, $context, $smcFunc, $user_info;
+
+	if ($memID == $user_info['id'])
+		$context['pdc']['own'] = true;
+	else
+		$context['pdc']['name'] = $context['member']['name'];
+	if (empty($_REQUEST['activity']))
+		return;
+	
+	$mode = $_REQUEST['activity'];
 
 	$profileData = array();
-	$mode = 'pmessages';
 	if ($mode == 'profile') // profile
 	{
 		loadMemberData($memID, false, 'profile');
@@ -1010,12 +1018,14 @@ function getProfileData($memID)
 			)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
+		if (!is_array($profileData))
+			exit;
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
 
 		call_integration_hook('integrate_getProfile_messages', array(&$profileData));
 	}
-	else
+	elseif ($mode == 'pmessages')
 	{
 		$request = $smcFunc['db_query']('','
 			SELECT pm.msgtime, pm.subject, pm.body
@@ -1027,6 +1037,8 @@ function getProfileData($memID)
 			)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
+		if (!is_array($profileData))
+			exit;
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
 		call_integration_hook('integrate_getProfile_pmessages', array(&$profileData));

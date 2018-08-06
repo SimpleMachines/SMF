@@ -3259,7 +3259,7 @@ function template_profile_tfa()
 }
 
 /**
- * Template to show for deleting a user's account - now with added delete post capability!
+ * Template to download user data
  */
 function template_getProfileData()
 {
@@ -3267,98 +3267,43 @@ function template_getProfileData()
 
 	// The main containing header.
 	echo '
-		<form action="', $scripturl, '?action=profile;area=getprofiledata;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
-			<div class="cat_bar">
-				<h3 class="catbg profile_hd">
-					', $txt['deleteAccount'], '
-				</h3>
-			</div>';
-
-	// If deleting another account give them a lovely info box.
-	if (!$context['user']['is_owner'])
-		echo '
-			<p class="information">', $txt['deleteAccount_desc'], '</p>';
-
-	echo '
-			<div class="windowbg">';
-
-	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
-	if ($context['needs_approval'])
-		echo '
-				<div class="errorbox">', $txt['deleteAccount_approval'], '</div>';
-
-	// If the user is deleting their own account warn them first - and require a password!
-	if ($context['user']['is_owner'])
-	{
-		echo '
-				<div class="alert">', $txt['own_profile_confirm'], '</div>
-				<div>
-					<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong>
-					<input type="password" name="oldpasswrd" size="20">
-					<input type="submit" value="', $txt['yes'], '" class="button">';
-
-		if (!empty($context['token_check']))
-			echo '
-					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
-
-		echo '
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="u" value="', $context['id_member'], '">
-					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
-				</div>';
-	}
-	// Otherwise an admin doesn't need to enter a password - but they still get a warning - plus the option to delete lovely posts!
-	else
-	{
-		echo '
-				<div class="alert">', $txt['deleteAccount_warning'], '</div>';
-
-		// Only actually give these options if they are kind of important.
-		if ($context['can_delete_posts'])
-		{
-			echo '
-				<div>
-					<label for="deleteVotes">
-						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', $txt['deleteAccount_votes'], ':
-					</label><br>
-					<label for="deletePosts">
-						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', $txt['deleteAccount_posts'], ':
-					</label>
-					<select name="remove_type">
-						<option value="posts">', $txt['deleteAccount_all_posts'], '</option>
-						<option value="topics">', $txt['deleteAccount_topics'], '</option>
-					</select>';
-
-			if ($context['show_perma_delete'])
-				echo '
-					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], ':</label>';
-
-			echo '
-				</div>';
-		}
-
-		echo '
-				<div>
-					<label for="deleteAccount"><input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', $txt['deleteAccount_confirm'], '\');"> ', $txt['deleteAccount_member'], '.</label>
-				</div>
-				<div>
-					<input type="submit" value="', $txt['delete'], '" class="button">';
-
-		if (!empty($context['token_check']))
-			echo '
-				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
-
-		echo '
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="u" value="', $context['id_member'], '">
-					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
-				</div>';
-	}
-	echo '
-			</div><!-- .windowbg -->
-			<br>
-		</form>';
+		
+		<div class="cat_bar">
+			<h3 class="catbg profile_hd">
+				', $txt['profileDataCenter'], '
+			</h3>
+		</div>
+		<div class="windowbg">
+		<div>
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;activity=profile" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
+				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadProfile_own'] : sprintf($txt['profileDownloadProfile_any'], $context['pdc']['name'])), ': </p>
+				<input type="submit" value="', $txt['profileDownload'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="u" value="', $context['id_member'], '">
+				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
+			</form>
+		</div>
+		<div>
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;activity=messages" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
+				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadMessages_own'] : sprintf($txt['profileDownloadPMessages_any'], $context['pdc']['name'])), ': </p>
+				<input type="submit" value="', $txt['profileDownload'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="u" value="', $context['id_member'], '">
+				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
+			</form>
+		</div>
+		<div>
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;activity=pmessages" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
+				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadPMessages_own'] : sprintf($txt['profileDownloadPMessages_any'], $context['pdc']['name'])), ': </p>
+				<input type="submit" value="', $txt['profileDownload'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="u" value="', $context['id_member'], '">
+				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
+			</form>
+		</div>
+		</div><!-- .windowbg -->
+		<br>
+';
 }
 
 ?>
