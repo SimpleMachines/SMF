@@ -2330,7 +2330,7 @@ function ModifyPrivacySettings($return_config = false)
  */
 function ModifyPolicySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sourcedir;
+	global $txt, $scripturl, $context, $sourcedir, $modSettings;
 	
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -2339,17 +2339,19 @@ function ModifyPolicySettings($return_config = false)
 
 	$config_vars = array(
 		array('check', 'enable_policy_function'),
-		array('richedit', 'policy_text'),
+		array('text', 'policy_text'),
 	);
+	
+	$currentVersion = !empty($modSettings['policy_version']) ? substr($modSettings['policy_version'], 11) : 0;
 
 	// Now create the editor.
 	$editorOptions = array(
 		'id' => 'policy_text',
-		'value' => 'asdf',
+		'value' => !empty($modSettings['policy_text'.$currentVersion]) ? $modSettings['policy_text'.$currentVersion] : '',
 		'height' => '250px',
 		'width' => '100%',
 		'labels' => array(
-			'post_button' => 'go!!',
+			'post_button' => $txt['policy_save'],
 		),
 		'preview_type' => 2,
 		'required' => true,
@@ -2374,6 +2376,23 @@ function ModifyPolicySettings($return_config = false)
 
 		call_integration_hook('integrate_save_policy_settings');
 
+		if (!empty($_REQUEST['save_new_policy']))
+		{
+			$currentVersion++;
+			$config_vars[] = array('text', 'policy_text'.$currentVersion);
+			$_POST['policy_text'.$currentVersion] = $_REQUEST['policy_text'];
+			$config_vars[] = array('text', 'policy_version');
+			$_POST['policy_version'] = 'policy_text'.$currentVersion;
+			unset($config_vars[1]);
+		}
+		elseif (!empty($_REQUEST['update_policy']))
+		{
+			$config_vars[] = array('text', 'policy_text'.$currentVersion);
+			$_POST['policy_text'.$currentVersion] = $_REQUEST['policy_text'];
+			$config_vars[] = array('text', 'policy_version');
+			$_POST['policy_version'] = 'policy_text'.$currentVersion;
+			unset($config_vars[1]);
+		}
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=policy');

@@ -1649,7 +1649,7 @@ function template_edit_policy()
 	// First section is for adding/removing words from the censored list.
 	echo '
 					<div id="admincenter">
-						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=policy" method="post" accept-charset="', $context['character_set'], '">
+						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=featuresettings;sa=policy;save" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
 									', $txt['policy_management'], '
@@ -1660,10 +1660,10 @@ function template_edit_policy()
 		echo '
 								<dl class="settings">
 									<dt>
-										<label for="policy_enable">', $txt['policy_enable'], ':</label>
+										<label for="enable_policy_function">', $txt['policy_enable'], ':</label>
 									</dt>
 									<dd>
-										<input type="checkbox" name="policy_enable" value="1" id="policy_enable"', empty($modSettings['allow_no_censored']) ? '' : ' checked', '>
+										<input type="checkbox" name="enable_policy_function" value="1" id="enable_policy_function"', empty($modSettings['enable_policy_function']) ? '' : ' checked', '>
 									</dd>
 								</dl>
 								<input type="submit" name="save_setting" value="', $txt['save'], '" class="button">
