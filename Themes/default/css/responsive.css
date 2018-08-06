@@ -6,7 +6,7 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	/* This is general */
-	#main_menu .popup_container {
+	#main_menu .popup_container, #genericmenu .popup_container {
 		display: none;
 		position: fixed;
 		top: 0;
@@ -16,7 +16,7 @@
 		background: rgba(40,64,80,0.5);
 		z-index: 5;
 	}
-	#main_menu .popup_window {
+	#main_menu .popup_window, #genericmenu .popup_window {
 		position: relative;
 		z-index: 99;
 		padding: 0 6px 6px 6px;
@@ -29,7 +29,7 @@
 		top: 15%;
 		margin: 0 auto;
 	}
-	#main_menu .popup_heading {
+	#main_menu .popup_heading, #genericmenu .popup_heading {
 		display: block;
 	}
 	#main_menu {
@@ -678,7 +678,10 @@
 }
 /* Tricky menu */
 @media (min-width: 481px) {
-	div#mobile_user_menu, .menu_popup_container {
+	#mobile_user_menu.popup_container {
+		display: block !important;
+	}
+	div[id^="mobile_generic_menu_"].popup_container {
 		display: block !important;
 	}
 }

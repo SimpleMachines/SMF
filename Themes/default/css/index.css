@@ -49,6 +49,10 @@ input, button, select {
 select {
 	padding: 0.22em 0.2em; /* selects don't apply line-height */
 }
+/* Selects with more than one line */
+select[size] {
+	height: auto;
+}
 input[type="file"] {
 	padding: 2px;
 	height: auto;
@@ -2671,16 +2675,16 @@ dl.addrules dt.floatleft {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 }
-#main_menu .popup_heading {
+#main_menu .popup_heading, #genericmenu .popup_heading {
 	display: none;
 }
-#main_menu .popup_container {
+#main_menu .popup_container, #genericmenu > .popup_container {
 	display: block;
 	position: relative;
 	background: none;
 	margin: 0;
 }
-#main_menu .popup_window {
+#main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
 	width: auto;
 	box-shadow: none;
