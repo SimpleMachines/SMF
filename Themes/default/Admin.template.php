@@ -897,6 +897,8 @@ function template_show_settings()
 				elseif ($config_var['type'] == 'large_text')
 					echo '
 										<textarea rows="', (!empty($config_var['size']) ? $config_var['size'] : (!empty($config_var['rows']) ? $config_var['rows'] : 4)), '" cols="', (!empty($config_var['cols']) ? $config_var['cols'] : 30), '" ', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '">', $config_var['value'], '</textarea>';
+				elseif ($config_var['type'] == 'richedit')
+					echo template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 				// Permission group?
 				elseif ($config_var['type'] == 'permissions')
 					theme_inline_permissions($config_var['name']);
