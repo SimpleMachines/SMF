@@ -419,7 +419,12 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
-				'getprofiledata' => array(
+			),
+		),
+	);
+	
+	if (!empty($modSettings['enable_privacy_userexport']))
+		$profile_areas['profile_action']['areas']['getprofiledata'] = array(
 					'label' => $txt['getProfileData'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'getProfileData',
@@ -431,10 +436,7 @@ function ModifyProfile($post_errors = array())
 						'own' => array('privacy_userexport_own'),
 						'any' => array('privacy_userexport_others'),
 					),
-				),
-			),
-		),
-	);
+				);
 
 	// Let them modify profile areas easily.
 	call_integration_hook('integrate_pre_profile_areas', array(&$profile_areas));

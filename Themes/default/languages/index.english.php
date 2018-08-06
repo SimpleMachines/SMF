@@ -634,6 +634,9 @@ $txt['mentions'] = 'Mentions';
 // Privacy
 $txt['privacy'] = 'Privacy';
 
+// Policy
+$txt['policy'] = 'Policy';
+
 // Likes
 $txt['likes'] = 'Likes';
 $txt['like'] = 'Like';

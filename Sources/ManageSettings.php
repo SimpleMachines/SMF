@@ -66,6 +66,7 @@ function ModifyFeatureSettings()
 		'mentions' => 'ModifyMentionsSettings',
 		'alerts' => 'ModifyAlertsSettings',
 		'privacy' => 'ModifyPrivacySettings',
+		'policy' => 'ModifyPolicySettings',
 	);
 
 	loadGeneralSettingParameters($subActions, 'basic');
@@ -97,7 +98,8 @@ function ModifyFeatureSettings()
 				'description' => $txt['notifications_desc'],
 			),
 			'privacy' => array(
-				'label' => $txt['privacy'],
+			),
+			'policy' => array(
 			),
 		),
 	);
@@ -2314,6 +2316,64 @@ function ModifyPrivacySettings($return_config = false)
 	}
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=privacy';
+	$context['settings_title'] = $txt['privacy'];
+
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Config array for changing policy settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=policy;
+ *
+ * @param bool $return_config Whether or not to return the config_vars array
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
+ */
+function ModifyPolicySettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $sourcedir;
+	
+	// Needed for the WYSIWYG editor.
+	require_once($sourcedir . '/Subs-Editor.php');
+
+	$config_vars = array(
+		array('check', 'enable_policy_function'),
+		array('richedit', 'policy_text'),
+	);
+
+	// Now create the editor.
+	$editorOptions = array(
+		'id' => 'policy_text',
+		'value' => 'asdf',
+		'height' => '250px',
+		'width' => '100%',
+		'labels' => array(
+			'post_button' => 'go!!',
+		),
+		'preview_type' => 2,
+		'required' => true,
+	);
+	create_control_richedit($editorOptions);
+	// Store the ID for old compatibility.
+	$context['post_box_name'] = $editorOptions['id'];
+	
+	call_integration_hook('integrate_policy_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		call_integration_hook('integrate_save_policy_settings');
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=policy');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=policy';
 	$context['settings_title'] = $txt['privacy'];
 
 	prepareDBSettingContext($config_vars);
