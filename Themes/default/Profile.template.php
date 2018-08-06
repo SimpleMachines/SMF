@@ -3273,7 +3273,7 @@ function template_getProfileData()
 				', $txt['profileDataCenter'], '
 			</h3>
 		</div>
-		<div class="windowbg">
+		',( !empty($context['pdc']['nofound']) ? '<p class="information">' . $txt['profileDataNotFound'] . '</p>' : ''),'<div class="windowbg">
 		<div>
 			<form action="', $scripturl, '?action=profile;area=getprofiledata;activity=profile" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadProfile_own'] : sprintf($txt['profileDownloadProfile_any'], $context['pdc']['name'])), ': </p>

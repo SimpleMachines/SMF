@@ -253,6 +253,7 @@ $txt['profileDownloadMessages_any'] = 'Download the posts data of %1$s account';
 $txt['profileDownloadPMessages_own'] = 'Download the personal messages data of your account';
 $txt['profileDownloadPMessages_any'] = 'Download the personal messages data of %1$s account';
 $txt['profileDownload'] = 'Download';
+$txt['profileDataNotFound'] = 'Selection return null datasets';
 
 $txt['profileBanUser'] = 'Ban this user';
 

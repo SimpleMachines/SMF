@@ -982,6 +982,10 @@ function getProfileData($memID)
 		$context['pdc']['own'] = true;
 	else
 		$context['pdc']['name'] = $context['member']['name'];
+	
+	if (!empty($_REQUEST['nofound']))
+		$context['pdc']['nofound'] = true;
+	
 	if (empty($_REQUEST['activity']))
 		return;
 	
@@ -1019,7 +1023,7 @@ function getProfileData($memID)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
 		if (!is_array($profileData))
-			exit;
+			redirectexit('action=profile;area=getprofiledata;u=' . $memID . ';nofound=1');
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
 
@@ -1038,7 +1042,7 @@ function getProfileData($memID)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
 		if (!is_array($profileData))
-			exit;
+			redirectexit('action=profile;area=getprofiledata;u=' . $memID . ';nofound=1');
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
 		call_integration_hook('integrate_getProfile_pmessages', array(&$profileData));
