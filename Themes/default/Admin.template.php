@@ -687,7 +687,14 @@ function template_not_done()
 							</div>';
 
 	echo '
-							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
+							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">';
+
+	// Do we have a token?
+	if (isset($context['not_done_token']) && isset($context[$context['not_done_token'] . '_token'], $context[$context['not_done_token'] . '_token_var']))
+		echo '
+							<input type="hidden" name="', $context[$context['not_done_token'] . '_token_var'], '" value="', $context[$context['not_done_token'] . '_token'], '">';
+
+	echo '
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
 								', $context['continue_post_data'], '
 							</form>

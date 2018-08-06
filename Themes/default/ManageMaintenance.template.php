@@ -54,22 +54,6 @@ function template_maintain_database()
 			</form>
 		</div>';
 
-	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
-	if ($context['convert_utf8'])
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['utf8_title'], '</h3>
-		</div>
-		<div class="windowbg noup">
-			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['utf8_introduction'], '</p>
-				', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<div class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</div>' : '', '
-				<input type="submit" value="', $txt['maintain_run_now'], '" class="button" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '><br class="clear_right">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
-			</form>
-		</div>';
-
 	// We might want to convert entities if we're on UTF-8.
 	if ($context['convert_entities'])
 		echo '

@@ -62,7 +62,6 @@ function ManageMaintenance()
 			'activities' => array(
 				'optimize' => 'OptimizeTables',
 				'convertentities' => 'ConvertEntities',
-				'convertutf8' => 'ConvertUtf8',
 				'convertmsgbody' => 'ConvertMsgBody',
 			),
 		),
@@ -117,10 +116,6 @@ function ManageMaintenance()
 	if (isset($activity))
 		call_helper($subActions[$subAction]['activities'][$activity]);
 
-	//converted to UTF-8? show a small maintenance info
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
-
 	// Create a maintenance token.  Kinda hard to do it any other way.
 	createToken('admin-maint');
 }
@@ -133,8 +128,7 @@ function MaintainDatabase()
 	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
-	$context['convert_utf8'] = ($db_type == 'mysql') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
-	$context['convert_entities'] = isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
+	$context['convert_entities'] = isset($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8';
 
 	if ($db_type == 'mysql')
 	{
@@ -149,8 +143,6 @@ function MaintainDatabase()
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
 	}
 
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
 	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
 		$context['maintenance_finished'] = $txt['entity_convert_title'];
 }
@@ -495,7 +487,7 @@ function ConvertEntities()
 	isAllowedTo('admin_forum');
 
 	// Check to see if UTF-8 is currently the default character set.
-	if ($modSettings['global_character_set'] !== 'UTF-8' || !isset($db_character_set) || $db_character_set !== 'utf8')
+	if ($modSettings['global_character_set'] !== 'UTF-8')
 		fatal_lang_error('entity_convert_only_utf8');
 
 	// Some starting values.
@@ -525,6 +517,7 @@ function ConvertEntities()
 	checkSession('request');
 	validateToken('admin-maint');
 	createToken('admin-maint');
+	$context['not_done_token'] = 'admin-maint';
 
 	// A list of tables ready for conversion.
 	$tables = array(
@@ -704,7 +697,7 @@ function ConvertEntities()
 	$context['continue_percent'] = 100;
 	$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;done=convertentities';
 	$context['last_step'] = true;
-	$context['continue_countdown'] = -1;
+	$context['continue_countdown'] = 3;
 }
 
 /**
