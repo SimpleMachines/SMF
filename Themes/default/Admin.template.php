@@ -1635,4 +1635,84 @@ function template_admin_quick_search()
 								</span>';
 }
 
+/**
+ * Form for stopping people using naughty words, etc.
+ */
+function template_edit_policy()
+{
+	global $context, $scripturl, $txt, $modSettings;
+
+	if (!empty($context['saved_successful']))
+		echo '
+					<div class="infobox">', $txt['settings_saved'], '</div>';
+
+	// First section is for adding/removing words from the censored list.
+	echo '
+					<div id="admincenter">
+						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=policy" method="post" accept-charset="', $context['character_set'], '">
+							<div id="section_header" class="cat_bar">
+								<h3 class="catbg">
+									', $txt['policy_management'], '
+								</h3>
+							</div>
+							<div class="windowbg">';
+
+		echo '
+								<dl class="settings">
+									<dt>
+										<label for="policy_enable">', $txt['policy_enable'], ':</label>
+									</dt>
+									<dd>
+										<input type="checkbox" name="policy_enable" value="1" id="policy_enable"', empty($modSettings['allow_no_censored']) ? '' : ' checked', '>
+									</dd>
+								</dl>
+								<input type="submit" name="save_setting" value="', $txt['save'], '" class="button">
+								<div class="block">
+									',template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message') ,'
+								</div>
+								<input type="submit" name="save_new_policy" value="', $txt['policy_save'], '" class="button">
+								<input type="submit" name="update_policy" value="', $txt['policy_update'], '" class="button">';
+
+	// Now provide a way to censor more words.
+	echo '
+								
+							</div><!-- .windowbg -->';
+
+	// This table lets you test out your filters by typing in rude words and seeing what comes out.
+	echo '
+							<div class="cat_bar">
+								<h3 class="catbg">
+									', $txt['policy_overview'], '
+								</h3>
+							</div>
+							<div class="windowbg">
+								<dl class="settings">
+									<dt>
+										<label for="policy_not_approvals">',$txt['policy_not_approvals'], ':<label>
+									</dt>
+									<dd>
+										<input name="policy_not_approvals" id="policy_not_approvals" readonly value="', $context['policy']['not'], '">
+									</dd>
+									<dt>
+										<label for="policy_old_approvals">',$txt['policy_old_approvals'], ':<label>
+									</dt>
+									<dd>
+										<input name="policy_old_approvals" id="policy_old_approvals" readonly value="', $context['policy']['old'], '">
+									</dd>
+									<dt>
+										<label for="policy_fresh_approvals">',$txt['policy_fresh_approvals'], ':<label>
+									</dt>
+									<dd>
+										<input name="policy_fresh_approvals" id="policy_fresh_approvals" readonly value="', $context['policy']['fresh'], '">
+									</dd>
+								</dl>
+								<input type="submit" name="enforce_new" value="', $txt['policy_remove_old'], '" class="button">
+							</div>
+
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '">
+						</form>
+					</div><!-- #admincenter -->';
+}
+
 ?>

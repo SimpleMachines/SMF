@@ -106,6 +106,17 @@ $txt['enable_privacy_userexport'] = 'Enable Userdata Export by the User';
 $txt['privacy_userexport_own'] = 'Allow to Download ther own Data';
 $txt['privacy_userexport_others'] = 'Allow to Download for others';
 
+// Policy
+$txt['policy_management'] = 'Policy Management';
+$txt['policy_enable'] = 'Enable policy';
+$txt['policy_update'] = 'Update policy';
+$txt['policy_save'] = 'Create new version';
+$txt['policy_overview'] = 'Policy overview';
+$txt['policy_not_approvals'] = 'Amount of non approvals';
+$txt['policy_old_approvals'] = 'Amount of old approvals';
+$txt['policy_fresh_approvals'] = 'Amount of fresh approvals';
+$txt['policy_remove_old'] = 'Enforce old to new version';
+
 // Mention settings.
 $txt['enable_mentions'] = 'Enable mentions';
 

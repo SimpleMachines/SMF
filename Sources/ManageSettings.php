@@ -2334,6 +2334,8 @@ function ModifyPolicySettings($return_config = false)
 	
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
+	$context['sub_template'] = 'edit_policy';
+	$context['page_title'] = $txt['policy_management'];
 
 	$config_vars = array(
 		array('check', 'enable_policy_function'),
@@ -2357,6 +2359,10 @@ function ModifyPolicySettings($return_config = false)
 	$context['post_box_name'] = $editorOptions['id'];
 	
 	call_integration_hook('integrate_policy_settings', array(&$config_vars));
+	
+	$context['policy']['old'] = 100;
+	$context['policy']['not'] = 50;
+	$context['policy']['fresh'] = 10000;
 
 	if ($return_config)
 		return $config_vars;
