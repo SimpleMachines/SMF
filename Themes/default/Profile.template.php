@@ -3285,7 +3285,7 @@ function template_getProfileData()
 		</div>
 		<div>
 			<form action="', $scripturl, '?action=profile;area=getprofiledata;activity=messages" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
-				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadMessages_own'] : sprintf($txt['profileDownloadPMessages_any'], $context['pdc']['name'])), ': </p>
+				<p',  '', '>', (!empty($context['pdc']['own']) ? $txt['profileDownloadMessages_own'] : sprintf($txt['profileDownloadMessages_any'], $context['pdc']['name'])), ': </p>
 				<input type="submit" value="', $txt['profileDownload'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="u" value="', $context['id_member'], '">
