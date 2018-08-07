@@ -16,15 +16,19 @@
 		background: rgba(40,64,80,0.5);
 		z-index: 5;
 	}
-	#main_menu .popup_window, #genericmenu .popup_window {
+	#main_menu .popup_heading, #genericmenu .popup_heading {
+		display: block;
+	}
+	#main_menu {
+		margin: 0;
+	}
+	.popup_window, #main_menu .popup_window, #genericmenu .popup_window {
 		position: relative;
 		z-index: 99;
-		padding: 0;
+		width: 90%;
 		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
 		border: 1px solid #777;
 		border-radius: 7px 7px 3px 3px;
-		overflow: visible !important;
-		width: 90%;
 		min-height: 285px !important;
 		max-height: 5em;
 		overflow-x: hidden !important;
@@ -33,21 +37,6 @@
 		background: #fff; /* fallback for some browsers */
 		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 		top: 15%;
-		margin: 0 auto;
-	}
-	#main_menu .popup_heading, #genericmenu .popup_heading {
-		display: block;
-	}
-	#main_menu {
-		margin: 0;
-	}
-	.popup_window {
-		width: 90%;
-		min-height: 285px !important;
-		max-height: 5em;
-		overflow-x: hidden !important;
-		overflow-y: scroll !important;
-		-webkit-overflow-scrolling: touch;
 		padding: 0;
 		margin: 0 auto;
 	}
