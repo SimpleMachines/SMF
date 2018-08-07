@@ -2330,7 +2330,7 @@ function ModifyPrivacySettings($return_config = false)
  */
 function ModifyPolicySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sourcedir, $modSettings;
+	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
 	
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -2347,7 +2347,7 @@ function ModifyPolicySettings($return_config = false)
 	// Now create the editor.
 	$editorOptions = array(
 		'id' => 'policy_text',
-		'value' => !empty($modSettings['policy_text'.$currentVersion]) ? $modSettings['policy_text'.$currentVersion] : '',
+		'value' => !empty($modSettings['policy_text' . $currentVersion]) ? $modSettings['policy_text' . $currentVersion] : '',
 		'height' => '250px',
 		'width' => '100%',
 		'labels' => array(
@@ -2362,9 +2362,20 @@ function ModifyPolicySettings($return_config = false)
 	
 	call_integration_hook('integrate_policy_settings', array(&$config_vars));
 	
-	$context['policy']['old'] = 100;
-	$context['policy']['not'] = 50;
-	$context['policy']['fresh'] = 10000;
+	$request = $smcFunc['db_query']('', '
+		SELECT count( case when th.value is null then 1 end) "not",
+			count( case when th.value is not null and th.value != {string:policy_version} then 1 end) "old",
+			count( case when th.value = {string:policy_version} then 1 end) "fresh"
+		FROM smf_members mem
+		LEFT JOIN smf_themes th ON (mem.id_member = th.id_member AND th.id_theme = 1 AND th.variable = {string:policy_approved})',
+		array(
+			'policy_version' => 'policy_text' . $currentVersion,
+			'policy_approved' => 'policy_approved',
+		)
+	);
+	
+	list ($context['policy']['not'], $context['policy']['old'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	if ($return_config)
 		return $config_vars;
