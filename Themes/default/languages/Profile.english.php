@@ -255,6 +255,13 @@ $txt['profileDownloadPMessages_any'] = 'Download the personal messages data of %
 $txt['profileDownload'] = 'Download';
 $txt['profileDataNotFound'] = 'Selection return null datasets';
 
+$txt['getPolicyData'] = 'View policy';
+$txt['policyOvervie'] = 'Policy overview';
+$txt['policy_approved'] = 'Approved policy';
+$txt['policy_new'] = 'New policy';
+$txt['policyAccept'] = 'Accept policy';
+$txt['policyNoApprved'] = 'No approved policy';
+
 $txt['profileBanUser'] = 'Ban this user';
 
 $txt['display_name'] = 'Display name';

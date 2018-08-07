@@ -3267,7 +3267,6 @@ function template_getProfileData()
 
 	// The main containing header.
 	echo '
-		
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
 				', $txt['profileDataCenter'], '
@@ -3301,6 +3300,60 @@ function template_getProfileData()
 				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
 			</form>
 		</div>
+		<br>
+';
+}
+
+/**
+ * Template to view policy data
+ */
+function template_getPolicyData()
+{
+	global $context, $scripturl, $txt;
+
+	// The main containing header.
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg profile_hd">
+				', $txt['policyOvervie'], '
+			</h3>
+		</div>
+		<div class="windowbg">';
+	if (empty($context['poc']['approved_text']) && empty($context['poc']['newVersionText']))
+		echo '
+			</div>
+				<p class="information">', $txt['policyNoApprved'], '</p><div class="windowbg">
+			<div>';
+	
+	if (!empty($context['poc']['approved_text']))
+		echo '
+			<div>
+				<div class="title_bar">
+					<h3 class="titlebg">', $txt['policy_approved'], '</h3>
+				</div>
+				<p>' ,$context['poc']['approved_text'] , '</p>
+			</div>';
+	if (!empty($context['poc']['newVersionText']))
+		echo '
+			<div>
+				<div class="title_bar">
+					<h3 class="titlebg">', $txt['policy_new'], '</h3>
+				</div>
+				<p>' ,$context['poc']['newVersionText'] , '</p>
+			</div>';
+	
+	if (!empty($context['poc']['own']) && !empty($context['poc']['newVersionText']))
+		echo '
+			<div>
+				<form action="', $scripturl, '?action=profile;area=getpolicydata;activity=save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
+					<input type="submit" value="', $txt['policyAccept'], '" class="button">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="u" value="', $context['id_member'], '">
+					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
+				</form>
+			</div>';
+
+	echo '
 		</div><!-- .windowbg -->
 		<br>
 ';

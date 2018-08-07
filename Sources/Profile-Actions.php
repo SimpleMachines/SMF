@@ -1066,6 +1066,64 @@ function getProfileData($memID)
 }
 
 /**
+ * Function to allow the user to todo Policy stuff
+ *
+ * @param int $memID The ID of the member
+ */
+function getPolicyData($memID)
+{
+	global $txt, $user_profile, $context, $smcFunc, $user_info, $modSettings;
+
+	$context['poc']['own'] = false;
+
+	if ($memID == $user_info['id'])
+		$context['poc']['own'] = true;
+	
+
+	if (!empty($user_profile[$memID]['options']['policy_approved']) &&
+			!empty($modSettings[$user_profile[$memID]['options']['policy_approved']]))
+	{
+		$context['poc']['approved_text'] = $modSettings[$user_profile[$memID]['options']['policy_approved']];
+	}
+	
+	if (!empty($user_profile[$memID]['options']['policy_approved']) &&
+			!empty($modSettings[$user_profile[$memID]['options']['policy_approved']]) &&
+			!empty($modSettings['policy_version']) &&
+			!empty($modSettings[$modSettings['policy_version']]) &&
+			$modSettings[$user_profile[$memID]['options']['policy_approved']] != $modSettings['policy_version'])
+	{
+		$context['poc']['newVersionText'] = $modSettings[$modSettings['policy_version']];
+	}
+	
+	if (empty($_REQUEST['activity']))
+		return;
+	
+	$mode = $_REQUEST['activity'];
+
+	$profileData = array();
+	if ($mode == 'save') // profile
+	{
+		if (!$context['poc']['own']) //only for yourself
+			exit;
+		loadMemberData($memID, false, 'profile');
+		$profile = $user_profile[$memID];
+		$removeFields = array('secret_question','tfa_secret','password_salt');
+		foreach ($removeFields as $value)
+		{
+			unset($profile[$value]);
+		}
+		foreach($profile as $key => &$value)
+		{
+			if (is_array($value))
+				$value = $smcFunc['json_encode']($value);
+		}
+		$profileData[0] = array_keys($profile);
+		$profileData[1] = $profile;
+		call_integration_hook('integrate_getProfile_profile', array(&$profileData));
+	}
+}
+
+/**
   * Formats a line (passed as a fields  array) as CSV and returns the CSV as a string.
   * from https://stackoverflow.com/questions/3933668/convert-array-into-csv
  * 

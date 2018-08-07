@@ -2300,6 +2300,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Call load theme integration functions.
 	call_integration_hook('integrate_load_theme');
 
+	// Privacy logic
+	
 	// We are ready to go.
 	$context['theme_loaded'] = true;
 }

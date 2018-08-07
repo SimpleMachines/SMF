@@ -438,6 +438,21 @@ function ModifyProfile($post_errors = array())
 					),
 				);
 
+	if (!empty($modSettings['enable_policy_function']))
+		$profile_areas['profile_action']['areas']['getpolicydata'] = array(
+					'label' => $txt['getPolicyData'],
+					'file' => 'Profile-Actions.php',
+					'function' => 'getPolicyData',
+					'icon' => 'settings',
+					'sc' => 'post',
+					'token' => 'profile-da%u',
+					'password' => true,
+					'permission' => array(
+						'own' => array(''),
+						'any' => array('moderate_forum'),
+					),
+				);
+
 	// Let them modify profile areas easily.
 	call_integration_hook('integrate_pre_profile_areas', array(&$profile_areas));
 
