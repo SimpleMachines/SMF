@@ -19,11 +19,17 @@
 	#main_menu .popup_window, #genericmenu .popup_window {
 		position: relative;
 		z-index: 99;
-		padding: 0 6px 6px 6px;
+		padding: 0;
 		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
 		border: 1px solid #777;
 		border-radius: 7px 7px 3px 3px;
 		overflow: visible !important;
+		width: 90%;
+		min-height: 285px !important;
+		max-height: 5em;
+		overflow-x: hidden !important;
+		overflow-y: scroll !important;
+		-webkit-overflow-scrolling: touch;
 		background: #fff; /* fallback for some browsers */
 		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 		top: 15%;
