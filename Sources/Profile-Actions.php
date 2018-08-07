@@ -1078,26 +1078,29 @@ function getPolicyData($memID)
 
 	if ($memID == $user_info['id'])
 		$context['poc']['own'] = true;
-	
 
 	if (!empty($user_profile[$memID]['options']['policy_approved']) &&
 			!empty($modSettings[$user_profile[$memID]['options']['policy_approved']]))
 	{
 		$context['poc']['approved_text'] = $modSettings[$user_profile[$memID]['options']['policy_approved']];
 	}
-	
-	if (!empty($user_profile[$memID]['options']['policy_approved']) &&
+
+	if (((!empty($user_profile[$memID]['options']['policy_approved']) &&
 			!empty($modSettings[$user_profile[$memID]['options']['policy_approved']]) &&
 			!empty($modSettings['policy_version']) &&
 			!empty($modSettings[$modSettings['policy_version']]) &&
-			$modSettings[$user_profile[$memID]['options']['policy_approved']] != $modSettings['policy_version'])
+			$user_profile[$memID]['options']['policy_approved'] != $modSettings['policy_version'])) || 
+		empty($user_profile[$memID]['options']['policy_approved']))
 	{
 		$context['poc']['newVersionText'] = $modSettings[$modSettings['policy_version']];
 	}
-	
+
+	if (!empty($context['poc']['own']) && (!empty($context['poc']['newVersionText']) || empty($user_profile[$memID]['options']['policy_isvalid'])))
+		$context['poc']['showAccept'] = true;
+
 	if (empty($_REQUEST['activity']))
 		return;
-	
+
 	$mode = $_REQUEST['activity'];
 
 	$profileData = array();
@@ -1105,21 +1108,19 @@ function getPolicyData($memID)
 	{
 		if (!$context['poc']['own']) //only for yourself
 			exit;
-		loadMemberData($memID, false, 'profile');
-		$profile = $user_profile[$memID];
-		$removeFields = array('secret_question','tfa_secret','password_salt');
-		foreach ($removeFields as $value)
-		{
-			unset($profile[$value]);
-		}
-		foreach($profile as $key => &$value)
-		{
-			if (is_array($value))
-				$value = $smcFunc['json_encode']($value);
-		}
-		$profileData[0] = array_keys($profile);
-		$profileData[1] = $profile;
-		call_integration_hook('integrate_getProfile_profile', array(&$profileData));
+
+		$data = array(
+			array($memID, 1, 'policy_approved', $modSettings['policy_version']),
+			array($memID, 1, 'policy_isvalid', 1)
+		);
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$data,
+			array('id_member', 'id_theme', 'variable')
+		);
+		
+		redirectexit('action=profile;area=getpolicydata;u=' . $memID);
 	}
 }
 

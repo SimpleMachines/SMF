@@ -3342,7 +3342,7 @@ function template_getPolicyData()
 				<p>' ,$context['poc']['newVersionText'] , '</p>
 			</div>';
 	
-	if (!empty($context['poc']['own']) && !empty($context['poc']['newVersionText']))
+	if (!empty($context['poc']['showAccept']))
 		echo '
 			<div>
 				<form action="', $scripturl, '?action=profile;area=getpolicydata;activity=save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">

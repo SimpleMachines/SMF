@@ -2387,24 +2387,42 @@ function ModifyPolicySettings($return_config = false)
 
 		call_integration_hook('integrate_save_policy_settings');
 
-		if (!empty($_REQUEST['save_new_policy']))
+		if (!empty($_REQUEST['enforce_new']))
 		{
-			$currentVersion++;
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}themes c
+				SET "value" = {string:value}
+				WHERE EXISTS (
+					SELECT a.id_member
+					FROM {db_prefix}themes a
+					LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+					WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+						AND ( b.value != {string:bval}  or b.value is null)
+						AND a.id_member = c.id_member
+				)
+				AND c."variable" = {string:avar}',
+				array(
+					'value' => '0',
+					'bvar' => 'policy_approved',
+					'avar' => 'policy_isvalid',
+					'aval' => '1',
+					'bval' => 'policy_text' . $currentVersion,
+				)
+			);
+		}
+		elseif (!empty($_REQUEST['save_new_policy']) || !empty($_REQUEST['update_policy']))
+		{
+			if (!empty($_REQUEST['save_new_policy']))
+				$currentVersion++;
+			
 			$config_vars[] = array('text', 'policy_text'.$currentVersion);
 			$_POST['policy_text'.$currentVersion] = $_REQUEST['policy_text'];
 			$config_vars[] = array('text', 'policy_version');
 			$_POST['policy_version'] = 'policy_text'.$currentVersion;
 			unset($config_vars[1]);
+			saveDBSettings($config_vars);
 		}
-		elseif (!empty($_REQUEST['update_policy']))
-		{
-			$config_vars[] = array('text', 'policy_text'.$currentVersion);
-			$_POST['policy_text'.$currentVersion] = $_REQUEST['policy_text'];
-			$config_vars[] = array('text', 'policy_version');
-			$_POST['policy_version'] = 'policy_text'.$currentVersion;
-			unset($config_vars[1]);
-		}
-		saveDBSettings($config_vars);
+
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=policy');
 	}

@@ -103,7 +103,7 @@ $txt['enable_likes'] = 'Enable likes';
 
 // Privacy settings.
 $txt['enable_privacy_userexport'] = 'Enable Userdata Export by the User';
-$txt['privacy_userexport_own'] = 'Allow to Download ther own Data';
+$txt['privacy_userexport_own'] = 'Allow to Download their own Data';
 $txt['privacy_userexport_others'] = 'Allow to Download for others';
 
 // Policy
