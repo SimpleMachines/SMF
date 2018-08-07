@@ -2302,7 +2302,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Privacy logic only when enabled, got no valid version, try not to call the policy data
 	if (!empty($modSettings['enable_policy_function']) && empty($options['policy_isvalid']) &&
-			( empty($_REQUEST['area']) || (!empty($_REQUEST['area']) && $_REQUEST['area'] != 'getpolicydata')))
+			( empty($_REQUEST['area']) || (!empty($_REQUEST['area']) && $_REQUEST['area'] != 'getpolicydata')) &&
+			!$user_info['is_guest'])
 		redirectexit('action=profile;area=getpolicydata;u=1');
 	// We are ready to go.
 	$context['theme_loaded'] = true;

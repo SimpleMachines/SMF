@@ -35,13 +35,43 @@ function template_registration_agreement()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="accept_agreement" value="', $txt['agreement_agree'], '" class="button">';
+				<input type="submit" name="accept_agreement" value="', $txt['policy_agree'], '" class="button">';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
 			</div><!-- .confirm_buttons -->
 			<input type="hidden" name="step" value="1">
+		</form>';
+
+}
+
+/**
+ * Before showing users a registration form, show them the registration policy.
+ */
+function template_registration_policy()
+{
+	global $context, $scripturl, $txt;
+
+	echo '
+		<form action="', $scripturl, '?action=signup" method="post" accept-charset="', $context['character_set'], '" id="registration">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['registration_policy'], '</h3>
+			</div>
+			<div class="roundframe">
+				<p>', $context['policy'], '</p>
+			</div>
+			<div id="confirm_buttons">';
+
+
+	echo '
+				<input type="submit" name="accept_policy" value="', $txt['policy_agree'], '" class="button">';
+
+	echo '
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
+			</div><!-- .confirm_buttons -->
+			<input type="hidden" name="step" value="2">
 		</form>';
 
 }
@@ -306,7 +336,7 @@ function template_registration_form()
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
-			<input type="hidden" name="step" value="2">
+			<input type="hidden" name="step" value="3">
 		</form>
 		<script>
 			var regTextStrings = {

@@ -718,6 +718,13 @@ function registerMember(&$regOptions, $return_errors = false)
 	else
 		updateStats('member');
 
+	// If policy require and the user came so far he agreed to this
+	if (!empty($modSettings['enable_policy_function']))
+	{
+		$theme_vars['policy_isvalid'] = '1';
+		$theme_vars['policy_approved'] = $modSettings['policy_version'];
+	}
+
 	// Theme variables too?
 	if (!empty($theme_vars))
 	{

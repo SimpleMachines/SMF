@@ -50,6 +50,10 @@ function Register($reg_errors = array())
 	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
+	
+	// Do we nee them to agree to the policy agreement, secondly?
+	$context['require_policy'] = !empty($modSettings['enable_policy_function']);
+	$context['registration_passed_policy'] = !empty($_SESSION['policy_agreed']);
 
 	// Under age restrictions?
 	if ($context['show_coppa'])
@@ -81,13 +85,37 @@ function Register($reg_errors = array())
 			}
 		}
 	}
+	
+		// Does this user agree to the registation agreement?
+	if ($current_step == 2 && (isset($_POST['accept_policy'])))
+	{
+		$context['registration_passed_policy'] = $_SESSION['policy_agreed'] = true;
+		$current_step = 3;
+	}
+
 	// Make sure they don't squeeze through without agreeing.
 	elseif ($current_step > 1 && $context['require_agreement'] && !$context['registration_passed_agreement'])
 		$current_step = 1;
+	// Make sure they don't squeeze through without agreeing.
+	elseif ($current_step > 2 && $context['require_policy'] && !$context['registration_passed_policy'])
+		$current_step = 2;
 
 	// Show the user the right form.
-	$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-	$context['page_title'] = $current_step == 1 ? $txt['registration_agreement'] : $txt['registration_form'];
+	if ($current_step == 1)
+	{
+		$context['sub_template'] = 'registration_agreement';
+		$context['page_title'] = $txt['registration_agreement'];
+	}
+	elseif ($current_step == 2)
+	{
+		$context['sub_template'] = 'registration_policy';
+		$context['page_title'] = $txt['registration_policy'];
+	}
+	else
+	{
+		$context['sub_template'] = 'registration_form';
+		$context['page_title'] = $txt['registration_form'];
+	}
 
 	// Kinda need this.
 	if ($context['sub_template'] == 'registration_form')
@@ -124,6 +152,24 @@ function Register($reg_errors = array())
 		{
 			// No file found or a blank file, log the error so the admin knows there is a problem!
 			log_error($txt['registration_agreement_missing'], 'critical');
+			fatal_lang_error('registration_disabled', false);
+		}
+	}
+	
+		// If you have to agree to the agreement, it needs to be fetched from the file.
+	if ($context['require_policy'])
+	{
+		// Have we got a localized one?
+		if (!empty($modSettings[$modSettings['policy_version']]))
+			$context['policy'] = $modSettings[$modSettings['policy_version']];
+		else
+			$context['policy'] = '';
+
+		// Nothing to show, lets disable registration and inform the admin of this error
+		if (empty($context['policy']))
+		{
+			// No file found or a blank file, log the error so the admin knows there is a problem!
+			log_error($txt['registration_policy_missing'], 'critical');
 			fatal_lang_error('registration_disabled', false);
 		}
 	}
@@ -238,6 +284,10 @@ function Register2()
 
 	// Well, if you don't agree, you can't register.
 	if (!empty($modSettings['requireAgreement']) && empty($_SESSION['registration_agreed']))
+		redirectexit();
+	
+	// Well, if you don't agree to policy, you can't register.
+	if (!empty($modSettings['enable_policy_function']) && empty($_SESSION['policy_agreed']))
 		redirectexit();
 
 	// Make sure they came from *somewhere*, have a session.

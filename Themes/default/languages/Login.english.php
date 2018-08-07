@@ -11,6 +11,10 @@ $txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and I
 $txt['agree_coppa_above'] = 'I am at least %1$d years old.';
 $txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
+// Registration policy page.
+$txt['registration_policy'] = 'Registration Policy';
+$txt['policy_agree'] = 'I accept the terms of the policy.';
+
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
 $txt['need_username'] = 'You need to fill in a username.';
