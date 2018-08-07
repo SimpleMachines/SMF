@@ -2376,7 +2376,30 @@ function ModifyPolicySettings($return_config = false)
 	
 	list ($context['policy']['not'], $context['policy']['old'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
-
+	
+	$request = $smcFunc['db_query']('', '
+		SELECT a.variable, count(b."value") "amount"
+		FROM {db_prefix}settings a
+		LEFT JOIN {db_prefix}themes b ON (a.variable = b.value and b.variable = {string:policy_approved})
+		WHERE a.variable like {string:avar}
+		GROUP BY a.variable
+		ORDER BY a.variable desc',
+		array(
+			'policy_approved' => 'policy_approved',
+			'avar' => 'policy_text%',
+		)
+	);
+	
+	$context['poc']['policy_management'] = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$context['poc']['policy_management'][] = array(
+			'name' => $row['variable'],
+			'amount' => $row['amount'],
+			'new' => ($row['variable'] == 'policy_text' . $currentVersion ? true : false),
+		);
+	}
+	$smcFunc['db_free_result']($request);
 	if ($return_config)
 		return $config_vars;
 
@@ -2423,6 +2446,68 @@ function ModifyPolicySettings($return_config = false)
 			saveDBSettings($config_vars);
 		}
 
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=policy');
+	}
+	elseif (isset($_GET['manage']))
+	{
+		checkSession();
+		
+		call_integration_hook('integrate_manage_policy_settings');
+		
+		// set user with the policy unvalid
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}themes c
+			SET "value" = {string:value}
+			WHERE EXISTS (
+				SELECT a.id_member
+				FROM {db_prefix}themes a
+				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+				WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+					AND b.value = {string:bval}
+					AND a.id_member = c.id_member
+			)
+			AND c."variable" = {string:avar}',
+			array(
+				'value' => '0',
+				'bvar' => 'policy_approved',
+				'avar' => 'policy_isvalid',
+				'aval' => '1',
+				'bval' => $_REQUEST['delete_policy'],
+			)
+		);
+		
+		// empty users 
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}themes c
+			SET "value" = {string:value}
+			WHERE EXISTS (
+				SELECT a.id_member
+				FROM {db_prefix}themes a
+				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+				WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+					AND b.value = {string:bval}
+					AND a.id_member = c.id_member
+			)
+			AND c."variable" = {string:bvar}',
+			array(
+				'value' => '',
+				'bvar' => 'policy_approved',
+				'avar' => 'policy_isvalid',
+				'aval' => '0',
+				'bval' => $_REQUEST['delete_policy'],
+			)
+		);
+		
+		$smcFunc['db_query']('','
+			DELETE FROM {db_prefix}settings
+			WHERE variable = {string:policy_text}',
+			array(
+				'policy_text' => $_REQUEST['delete_policy'],
+			)
+		);
+		
+		
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=policy');
 	}

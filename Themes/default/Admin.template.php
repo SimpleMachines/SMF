@@ -1654,9 +1654,7 @@ function template_edit_policy()
 									', $txt['policy_management'], '
 								</h3>
 							</div>
-							<div class="windowbg">';
-
-		echo '
+							<div class="windowbg">
 								<dl class="settings">
 									<dt>
 										<label for="enable_policy_function">', $txt['policy_enable'], ':</label>
@@ -1670,13 +1668,8 @@ function template_edit_policy()
 									',template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message') ,'
 								</div>
 								<input type="submit" name="save_new_policy" value="', $txt['policy_save'], '" class="button">
-								<input type="submit" name="update_policy" value="', $txt['policy_update'], '" class="button">';
-
-	echo '
-								
-							</div><!-- .windowbg -->';
-
-	echo '
+								<input type="submit" name="update_policy" value="', $txt['policy_update'], '" class="button">								
+							</div><!-- .windowbg -->
 							<div class="cat_bar">
 								<h3 class="catbg">
 									', $txt['policy_overview'], '
@@ -1708,6 +1701,26 @@ function template_edit_policy()
 
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '">
+						</form>
+						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=featuresettings;sa=policy;manage" method="post" accept-charset="', $context['character_set'], '">
+							<div id="section_header" class="cat_bar">
+								<h3 class="catbg">
+									', $txt['policy_management'], '
+								</h3>
+							</div>
+							<div class="windowbg">
+								<dl class="settings">';
+	$count = ( is_array($context['poc']['policy_management']) ? count($context['poc']['policy_management']) : 0);
+	foreach ($context['poc']['policy_management'] as $row)
+	{
+		echo '
+									<dt>', ($row['new'] ? 'current' : '<input type="submit" name="delete_policy" value="' . $row['name'] . '" class="button">') , '</dt><dd>', $row['amount'], '</dd>';
+	}
+	echo '
+								</dl>
+							</div>
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '">
 						</form>
 					</div><!-- #admincenter -->';
 }
