@@ -2419,7 +2419,7 @@ function ModifyPolicySettings($return_config = false)
 					SELECT a.id_member
 					FROM {db_prefix}themes a
 					LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-					WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+					WHERE a.variable = {string:avar} and a.value = {string:aval} 
 						AND ( b.value != {string:bval}  or b.value is null)
 						AND a.id_member = c.id_member
 				)
@@ -2463,7 +2463,7 @@ function ModifyPolicySettings($return_config = false)
 				SELECT a.id_member
 				FROM {db_prefix}themes a
 				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-				WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+				WHERE a.variable = {string:avar} and a.value = {string:aval} 
 					AND b.value = {string:bval}
 					AND a.id_member = c.id_member
 			)
@@ -2485,7 +2485,7 @@ function ModifyPolicySettings($return_config = false)
 				SELECT a.id_member
 				FROM {db_prefix}themes a
 				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-				WHERE a.variable = {string:avar} and a."value" = {string:aval} 
+				WHERE a.variable = {string:avar} and a.value = {string:aval} 
 					AND b.value = {string:bval}
 					AND a.id_member = c.id_member
 			)
