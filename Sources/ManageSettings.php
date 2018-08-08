@@ -2415,7 +2415,7 @@ function ModifyPolicySettings($return_config = false)
 			if ($smcFunc['db_title'] == 'PostgreSQL')
 				$select = '
 					UPDATE {db_prefix}themes c
-					SET value = {string:value}
+					SET c.value = {string:value}
 					WHERE EXISTS (
 						SELECT a.id_member
 						FROM {db_prefix}themes a
@@ -2435,8 +2435,8 @@ function ModifyPolicySettings($return_config = false)
 						WHERE a.variable = {string:avar} and a.value = {string:aval} 
 							AND ( b.value != {string:bval}  or b.value is null)
 					) d ON (d.id_member = c.id_member)
-					SET value = {string:value}
-					AND c.variable = {string:avar}';
+					SET c.value = {string:value}
+					WHERE c.variable = {string:avar}';
 			
 			$smcFunc['db_query']('',
 				$select,
@@ -2474,17 +2474,17 @@ function ModifyPolicySettings($return_config = false)
 		// set user with the policy unvalid
 			if ($smcFunc['db_title'] == 'PostgreSQL')
 				$select = '
-				UPDATE {db_prefix}themes c
-				SET value = {string:value}
-				WHERE EXISTS (
-					SELECT a.id_member
-					FROM {db_prefix}themes a
-					LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-					WHERE a.variable = {string:avar} and a.value = {string:aval} 
-						AND b.value = {string:bval}
-						AND a.id_member = c.id_member
-				)
-				AND c.variable = {string:avar}';
+					UPDATE {db_prefix}themes c
+					SET c.value = {string:value}
+					WHERE EXISTS (
+						SELECT a.id_member
+						FROM {db_prefix}themes a
+						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+						WHERE a.variable = {string:avar} and a.value = {string:aval} 
+							AND b.value = {string:bval}
+							AND a.id_member = c.id_member
+					)
+					AND c.variable = {string:avar}';
 			else
 				$select = '
 					UPDATE {db_prefix}themes c
@@ -2496,7 +2496,7 @@ function ModifyPolicySettings($return_config = false)
 							AND b.value = {string:bval}
 					) d ON (d.id_member = c.id_member)
 					SET value = {string:value}
-					AND c.variable = {string:avar}';
+					WHERE c.variable = {string:avar}';
 
 		$smcFunc['db_query']('',
 				$select,
@@ -2512,17 +2512,17 @@ function ModifyPolicySettings($return_config = false)
 		// empty users
 			if ($smcFunc['db_title'] == 'PostgreSQL')
 				$select = '
-			UPDATE {db_prefix}themes c
-			SET value = {string:value}
-			WHERE EXISTS (
-				SELECT a.id_member
-				FROM {db_prefix}themes a
-				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-				WHERE a.variable = {string:avar} and a.value = {string:aval} 
-					AND b.value = {string:bval}
-					AND a.id_member = c.id_member
-			)
-			AND c.variable = {string:bvar}';
+					UPDATE {db_prefix}themes c
+					SET c.value = {string:value}
+					WHERE EXISTS (
+						SELECT a.id_member
+						FROM {db_prefix}themes a
+						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+						WHERE a.variable = {string:avar} and a.value = {string:aval} 
+							AND b.value = {string:bval}
+							AND a.id_member = c.id_member
+					)
+					and c.variable = {string:bvar}';
 			else
 				$select = '
 					UPDATE {db_prefix}themes c
@@ -2530,11 +2530,11 @@ function ModifyPolicySettings($return_config = false)
 						SELECT a.id_member
 						FROM {db_prefix}themes a
 						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-						WHERE a.variable = {string:avar} and a.value = {string:aval} 
+						WHERE a.variable = {string:avar} and a.value = {int:aval} 
 							AND b.value = {string:bval}
 					) d ON (d.id_member = c.id_member)
-					SET value = {string:value}
-					AND c.variable = {string:avar}';
+					SET c.value = {string:value}
+					WHERE c.variable = {string:avar}';
 		$smcFunc['db_query']('',
 			$select,
 			array(
