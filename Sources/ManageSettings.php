@@ -2363,9 +2363,9 @@ function ModifyPolicySettings($return_config = false)
 	call_integration_hook('integrate_policy_settings', array(&$config_vars));
 	
 	$request = $smcFunc['db_query']('', '
-		SELECT count( case when th.value is null then 1 end) "not",
-			count( case when th.value is not null and th.value != {string:policy_version} then 1 end) "old",
-			count( case when th.value = {string:policy_version} then 1 end) "fresh"
+		SELECT count( case when th.value is null then 1 end) novalid,
+			count( case when th.value is not null and th.value != {string:policy_version} then 1 end) outdated,
+			count( case when th.value = {string:policy_version} then 1 end) fresh
 		FROM smf_members mem
 		LEFT JOIN smf_themes th ON (mem.id_member = th.id_member AND th.id_theme = 1 AND th.variable = {string:policy_approved})',
 		array(
@@ -2374,11 +2374,11 @@ function ModifyPolicySettings($return_config = false)
 		)
 	);
 	
-	list ($context['policy']['not'], $context['policy']['old'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
+	list ($context['policy']['novalid'], $context['policy']['outdated'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', '
-		SELECT a.variable, count(b."value") "amount"
+		SELECT a.variable, count(b.value) amount
 		FROM {db_prefix}settings a
 		LEFT JOIN {db_prefix}themes b ON (a.variable = b.value and b.variable = {string:policy_approved})
 		WHERE a.variable like {string:avar}
@@ -2414,7 +2414,7 @@ function ModifyPolicySettings($return_config = false)
 		{
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}themes c
-				SET "value" = {string:value}
+				SET value = {string:value}
 				WHERE EXISTS (
 					SELECT a.id_member
 					FROM {db_prefix}themes a
@@ -2423,7 +2423,7 @@ function ModifyPolicySettings($return_config = false)
 						AND ( b.value != {string:bval}  or b.value is null)
 						AND a.id_member = c.id_member
 				)
-				AND c."variable" = {string:avar}',
+				AND c.variable = {string:avar}',
 				array(
 					'value' => '0',
 					'bvar' => 'policy_approved',
@@ -2458,7 +2458,7 @@ function ModifyPolicySettings($return_config = false)
 		// set user with the policy unvalid
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}themes c
-			SET "value" = {string:value}
+			SET value = {string:value}
 			WHERE EXISTS (
 				SELECT a.id_member
 				FROM {db_prefix}themes a
@@ -2467,7 +2467,7 @@ function ModifyPolicySettings($return_config = false)
 					AND b.value = {string:bval}
 					AND a.id_member = c.id_member
 			)
-			AND c."variable" = {string:avar}',
+			AND c.variable = {string:avar}',
 			array(
 				'value' => '0',
 				'bvar' => 'policy_approved',
@@ -2480,7 +2480,7 @@ function ModifyPolicySettings($return_config = false)
 		// empty users 
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}themes c
-			SET "value" = {string:value}
+			SET value = {string:value}
 			WHERE EXISTS (
 				SELECT a.id_member
 				FROM {db_prefix}themes a

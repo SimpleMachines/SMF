@@ -1681,13 +1681,13 @@ function template_edit_policy()
 										<label for="policy_not_approvals">',$txt['policy_not_approvals'], ':<label>
 									</dt>
 									<dd>
-										<input name="policy_not_approvals" id="policy_not_approvals" readonly value="', $context['policy']['not'], '">
+										<input name="policy_not_approvals" id="policy_not_approvals" readonly value="', $context['policy']['novalid'], '">
 									</dd>
 									<dt>
 										<label for="policy_old_approvals">',$txt['policy_old_approvals'], ':<label>
 									</dt>
 									<dd>
-										<input name="policy_old_approvals" id="policy_old_approvals" readonly value="', $context['policy']['old'], '">
+										<input name="policy_old_approvals" id="policy_old_approvals" readonly value="', $context['policy']['outdated'], '">
 									</dd>
 									<dt>
 										<label for="policy_fresh_approvals">',$txt['policy_fresh_approvals'], ':<label>
