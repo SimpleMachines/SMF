@@ -2659,14 +2659,6 @@ if ($modSettings['smiley_sets_default'] == 'default' || !array_key_exists($modSe
 ---}
 ---#
 
----# Deleting the old default smiley directory
----{
-// Delete the old default directory, no longer used...
-array_map('unlink', glob($modSettings['smileys_dir'] . '/default/*.*'));
-@rmdir($modSettings['smileys_dir'] . '/default');
----}
----#
-
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
