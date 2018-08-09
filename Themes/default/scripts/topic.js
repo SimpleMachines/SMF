@@ -572,7 +572,7 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 
 		// Add the 'remove selected items' button.
 		if (this.opt.bCanRemove)
-			smf_addButton(this.opt.sButtonStrip, this.opt.bUseImageButton, {
+			smf_addButton(this.opt.sButtonStripDisplay, this.opt.bUseImageButton, {
 				sId: this.opt.sSelf + '_remove_button',
 				sText: this.opt.sRemoveButtonLabel,
 				sImage: this.opt.sRemoveButtonImage,
@@ -582,7 +582,7 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 
 		// Add the 'restore selected items' button.
 		if (this.opt.bCanRestore)
-			smf_addButton(this.opt.sButtonStrip, this.opt.bUseImageButton, {
+			smf_addButton(this.opt.sButtonStripDisplay, this.opt.bUseImageButton, {
 				sId: this.opt.sSelf + '_restore_button',
 				sText: this.opt.sRestoreButtonLabel,
 				sImage: this.opt.sRestoreButtonImage,
@@ -592,7 +592,7 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 
 		// Add the 'split selected items' button.
 		if (this.opt.bCanSplit)
-			smf_addButton(this.opt.sButtonStrip, this.opt.bUseImageButton, {
+			smf_addButton(this.opt.sButtonStripDisplay, this.opt.bUseImageButton, {
 				sId: this.opt.sSelf + '_split_button',
 				sText: this.opt.sSplitButtonLabel,
 				sImage: this.opt.sSplitButtonImage,

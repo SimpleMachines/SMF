@@ -22,6 +22,7 @@ if (!defined('SMF'))
  * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
  * Convert only the BBC that can be edited in HTML mode for the editor.
  *
+ * @deprecated since version 2.1
  * @param string $text The text with bbcode in it
  * @param boolean $compat_mode Whether to actually convert the text
  * @return string The text
@@ -92,6 +93,7 @@ function bbc_to_html($text, $compat_mode = false)
  *
  * The harder one - wysiwyg to BBC!
  *
+ * @deprecated since version 2.1
  * @param string $text Text containing HTML
  * @return string The text with html converted to bbc
  */
@@ -978,6 +980,7 @@ function html_to_bbc($text)
  *
  * Returns an array of attributes associated with a tag.
  *
+ * @deprecated since version 2.1
  * @param string $text A tag
  * @return array An array of attributes
  */
@@ -1037,6 +1040,8 @@ function fetchTagAttributes($text)
 /**
  * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
+ * 
+ * @deprecated since version 2.1
  * @param string $text Text
  * @return string Cleaned up text
  */
@@ -1413,6 +1418,8 @@ function legalise_bbc($text)
 /**
  * !!!Compatibility!!!
  * A help function for legalise_bbc for sorting arrays based on length.
+ * 
+ * @deprecated since version 2.1
  * @param string $a A string
  * @param string $b Another string
  * @return int 1 if $a is shorter than $b, -1 otherwise
@@ -1545,6 +1552,7 @@ function getMessageIcons($board_id)
 /**
  * Compatibility function - used in 1.1 for showing a post box.
  *
+ * @deprecated since version 2.1
  * @param string $msg The message
  * @return string The HTML for an editor
  */
@@ -1588,7 +1596,6 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
-		loadJavaScriptFile('sceditor.autoyoutube.js', array('minimize' => true), 'smf_sceditor_autoyoutube');
 		loadJavaScriptFile('sceditor.undo.js', array('minimize' => true), 'smf_sceditor_undo');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
@@ -2025,7 +2032,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
-		'plugins' => 'undo' . (empty($modSettings['disabledBBC']) || strpos($modSettings['disabledBBC'], 'youtube') === false ? ',autoyoutube' : ''),
+		'plugins' => 'undo',
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))

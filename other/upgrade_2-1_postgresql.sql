@@ -634,6 +634,16 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Adding setting for max depth of sub-boards to check for new posts, etc.
+/******************************************************************************/
+---# Adding the boardindex_max_depth setting.
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('boardindex_max_depth', '1');
+---#
+
+/******************************************************************************/
 --- Updating board access rules
 /******************************************************************************/
 ---# Updating board access rules
@@ -765,7 +775,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 2);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);
@@ -1133,12 +1143,12 @@ if (!empty($select_columns))
 ---#
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
-	DROP icq,
-	DROP aim,
-	DROP yim,
-	DROP msn,
-	DROP location,
-	DROP gender;
+	DROP IF EXISTS icq,
+	DROP IF EXISTS aim,
+	DROP IF EXISTS yim,
+	DROP IF EXISTS msn,
+	DROP IF EXISTS location,
+	DROP IF EXISTS gender;
 ---#
 
 ---# Create the displayFields setting
@@ -1949,12 +1959,12 @@ ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 
 ---# Dropping the "hide_email" column from the members table
 ALTER TABLE {$db_prefix}members
-DROP hide_email;
+DROP IF EXISTS hide_email;
 ---#
 
 ---# Dropping the "email_address" column from log_reported_comments
 ALTER TABLE {$db_prefix}log_reported_comments
-DROP email_address;
+DROP IF EXISTS email_address;
 ---#
 
 /******************************************************************************/
@@ -1976,7 +1986,7 @@ WHERE variable = 'autoOptMaxOnline';
 /******************************************************************************/
 ---# Removing the openid_uri column in the members table
 ALTER TABLE {$db_prefix}members
-DROP openid_uri;
+DROP IF EXISTS openid_uri;
 ---#
 
 ---# Dropping the openid_assoc table
@@ -2427,48 +2437,66 @@ CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 --- Update smileys
 /******************************************************************************/
 ---# Transform default from gif to png
-UPDATE {$db_prefix}smileys 
+UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.gif', '.png')
-WHERE 
+WHERE
 	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
 ---#
 
----# Update Settings sets_known
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, ',alienine')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',aaron', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',akyhne', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',fugue', '')
-WHERE variable = 'smiley_sets_known';
+---# Cleaning up unused smiley sets and adding the lovely new ones
+---{
+// Start with the prior values...
+$dirs = explode(',', $modSettings['smiley_sets_known']);
+$setnames = explode("\n", $modSettings['smiley_sets_names']);
+$combined = array();
+
+// Confirm they exist in the filesystem; bypass default which is getting removed...
+foreach ($dirs AS $ix => $dir)
+	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/') && !empty($setnames[$ix]) && $dir != 'default')
+		$combined[$dir] = $setnames[$ix];
+
+// Add our lovely new smiley sets if not already there...
+if (!array_key_exists('fugue', $combined))
+	$combined['fugue'] = $txt['default_fugue_smileyset_name'];
+if (!array_key_exists('alienine', $combined))
+	$combined['alienine'] = $txt['default_alienine_smileyset_name'];
+
+// Update the Settings Table...
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($combined))) . "'
+	WHERE variable = 'smiley_sets_known'");
+
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_values($combined))) . "'
+	WHERE variable = 'smiley_sets_names'");
+
+// Update default to fugue if necessary...
+if ($modSettings['smiley_sets_default'] == 'default' || !array_key_exists($modSettings['smiley_sets_default'], $combined))
+{
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = 'fugue'
+		WHERE variable = 'smiley_sets_default'");
+}
+---}
 ---#
 
----#  Update Settings sets_names
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, '\n{$default_alienine_smileyset_name}')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_akyhne_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
-WHERE variable = 'smiley_sets_names';
+---# Deleting the old default smiley directory
+---{
+// Delete the old default directory, no longer used...
+array_map('unlink', glob($modSettings['smileys_dir'] . '/default/*.*'));
+@rmdir($modSettings['smileys_dir'] . '/default');
+---}
 ---#
 
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
 ---# add backtrace column
-ALTER TABLE {$db_prefix}log_error
+ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace text NOT NULL default '';
 ---#
 

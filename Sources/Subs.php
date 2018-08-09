@@ -739,6 +739,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
+	$unsupportedFormatsWindows = array('z','Z');
+
+	// Ensure required values are set
+	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
+	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
+
 	// Offset the time.
 	if (!$offset_type)
 		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
@@ -819,6 +826,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		{
 			foreach($strftimeFormatSubstitutions as $format => $substitution)
 			{
+				// Avoid a crashing bug with PHP 7 on certain versions of Windows
+				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
+				{
+					$unsupportedFormats[] = $format;
+					continue;
+				}
+
 				$value = @strftime('%' . $format);
 
 				// Windows will return false for unsupported formats
@@ -1755,6 +1769,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
+				'block_level' => true,
 			),
 		);
 
@@ -2761,6 +2776,9 @@ function parsesmileys(&$message)
 	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
 		return;
 
+	// Maybe a mod wants to implement an alternative method (e.g. emojis instead of images)
+	call_integration_hook('integrate_smileys', array(&$smileyPregSearch, &$smileyPregReplacements));
+
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
@@ -2807,23 +2825,44 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = $smcFunc['htmlspecialchars']($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
+		$smileys_dir = $modSettings['smileys_dir'] . '/' . $user_info['smiley_set'] . '/';
 
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
+			// If the image file is missing, see if there is an alternative available
+			if (!file_exists($smileys_dir . $smileysto[$i]))
+			{
+				$exts = array('svg', 'png', 'gif', 'jpg');
+				$fname = pathinfo($smileysto[$i], PATHINFO_FILENAME);
+				$alt_images = glob($smileys_dir . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
+				if (!empty($alt_images))
+				{
+					foreach ($exts as $ext)
+						if (in_array($smileys_dir . $fname . '.' . $ext, $alt_images))
+						{
+							$smileysto[$i] = $fname . '.' . $ext;
+							break;
+						}
+				}
+				// If we have no image, just leave the text version in place
+				else
+					continue;
+			}
+
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
 			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
-			$searchParts[] = preg_quote($smileysfrom[$i], '~');
+			$searchParts[] = $smileysfrom[$i];
 			if ($smileysfrom[$i] != $specialChars)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
-				$searchParts[] = preg_quote($specialChars, '~');
+				$searchParts[] = $specialChars;
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!

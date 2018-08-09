@@ -649,8 +649,8 @@ function clock()
 {
 	global $smcFunc, $settings, $context, $scripturl;
 
-	$context['onimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
-	$context['offimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
+	$context['onimg'] = $settings['images_url'] . '/bbc/bbc_hoverbg.png';
+	$context['offimg'] = $settings['images_url'] . '/bbc/bbc_bg.png';
 
 	$context['page_title'] = 'Anyone know what time it is?';
 	$context['linktree'][] = array(

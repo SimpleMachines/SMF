@@ -250,7 +250,7 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<div class="roundframe noup">';
+		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
 		if (isset($context['did_you_mean']))
@@ -461,23 +461,6 @@ function template_results()
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
-			if ($topic['can_reply'])
-				echo '
-		<ul class="quickbuttons">';
-
-			// If they *can* reply?
-			if ($topic['can_reply'])
-				echo '
-			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
-
-			// If they *can* quote?
-			if ($topic['can_quote'])
-				echo '
-			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
-
-			if ($topic['can_reply'])
-				echo '
-		</ul>';
 			echo '
 		<br class="clear">
 	</div><!-- $topic[css_class] -->';

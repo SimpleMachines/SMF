@@ -1028,7 +1028,7 @@ function template_send()
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<div class="post" id="preview_body">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
@@ -1038,15 +1038,13 @@ function template_send()
 
 	// Main message editing box.
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="generic_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
-			</h3>
-		</div>';
-
-	echo '
 		<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
-			<div class="roundframe noup">';
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<span class="generic_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
+				</h3>
+			</div>
+			<div class="roundframe">';
 
 	// If there were errors for sending the PM, show them.
 	echo '
@@ -1122,9 +1120,9 @@ function template_send()
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-				<div id="postDraftOptionsHeader" class="title_bar title_top">
+				<div id="postDraftOptionsHeader" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 					</h4>
 				</div>
 				<div id="postDraftOptions">
@@ -1284,7 +1282,7 @@ function template_send()
 					{
 						sId: \'postDraftExpandLink\',
 						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+						msgCollapsed: ', JavaScriptEscape($txt['drafts_show']), '
 					}
 				]
 			});';
@@ -1299,7 +1297,7 @@ function template_send()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['subject'], ': ', $context['quoted_message']['subject'], '</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<div class="clear">
 				<span class="smalltext floatright">', $txt['on'], ': ', $context['quoted_message']['time'], '</span>
 				<strong>', $txt['from'], ': ', $context['quoted_message']['member']['name'], '</strong>
@@ -1960,7 +1958,7 @@ function template_showPMDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="windowbg2 centertext">
+		<div class="windowbg centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else

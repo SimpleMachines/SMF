@@ -154,7 +154,7 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 			}
 		}
 
-		var isValid = stringIndex == '' ? true : false;
+		var isValid = stringIndex == '';
 		if (stringIndex == '')
 			stringIndex = 'password_valid';
 

@@ -642,8 +642,8 @@ function DisplayStats()
 				'year' => $row_months['stats_year']
 			),
 			'href' => $scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
-			'link' => '<a href="' . $scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . $txt['months'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
-			'month' => $txt['months'][(int) $row_months['stats_month']],
+			'link' => '<a href="' . $scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . $txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
+			'month' => $txt['months_titles'][(int) $row_months['stats_month']],
 			'year' => $row_months['stats_year'],
 			'new_topics' => comma_format($row_months['topics']),
 			'new_posts' => comma_format($row_months['posts']),
@@ -683,6 +683,9 @@ function DisplayStats()
 			$context['collapsed_years'][] = $year;
 	}
 
+	// Custom stats (just add a template_layer to add it to the template!)
+	call_integration_hook('integrate_forum_stats');
+
 	if (empty($_SESSION['expanded_stats']))
 		return;
 
@@ -701,9 +704,6 @@ function DisplayStats()
 		return;
 
 	getDailyStats(implode(' OR ', $condition_text), $condition_params);
-
-	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_forum_stats');
 }
 
 /**

@@ -73,6 +73,7 @@ $txt['repair_operation_group_request_missing_group'] = 'Group requests for a non
 
 $txt['salvaged_category_name'] = 'Salvage Area';
 $txt['salvaged_category_error'] = 'Unable to create Salvage Area category!';
+$txt['salvaged_category_description'] = 'Boards created for the salvaged messages';
 $txt['salvaged_board_name'] = 'Salvaged Topics';
 $txt['salvaged_board_description'] = 'Topics created for messages with non-existent topics';
 $txt['salvaged_board_error'] = 'Unable to create Salvaged Topics board!';
@@ -103,7 +104,7 @@ $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
 $txt['clear_filter'] = 'Clear filter';
-$txt['remove_selection'] = 'Remove Selection';
+$txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
 $txt['sure_about_errorlog_remove'] = 'Are you sure you want to completely clear the error log?';
 $txt['remove_selection_confirm'] = 'Are you sure you want to delete the selected entries?';
@@ -162,7 +163,7 @@ $txt['maintain_backup_data'] = 'Save the table data (the important stuff).';
 $txt['maintain_backup_gz'] = 'Compress the file with gzip.';
 $txt['maintain_backup_save'] = 'Download';
 
-$txt['maintain_old'] = 'Remove Old Posts';
+$txt['maintain_old'] = 'Remove old posts';
 $txt['maintain_old_since_days1'] = 'Remove all topics not posted in for ';
 $txt['maintain_old_since_days2'] = ' days, which are:';
 $txt['maintain_old_nothing_else'] = 'Any sort of topic.';

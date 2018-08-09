@@ -250,7 +250,7 @@ $(function()
  */
 function AlignURLsWithSSLSetting($new_force_ssl = 0)
 {
-	global $boardurl, $modSettings, $sourcedir, $db_prefix, $smcFunc;
+	global $boardurl, $modSettings, $sourcedir, $smcFunc;
 	require_once($sourcedir . '/Subs-Admin.php');
 
 	// Check $boardurl
@@ -755,7 +755,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		else
 			unset($modSettings['load_average']);
 
-		if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
+		if (!empty($modSettings['load_average']) || (isset($modSettings['load_average']) && $modSettings['load_average'] === 0.0))
 		{
 			$context['settings_message'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
 			$disabled = false;

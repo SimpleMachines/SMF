@@ -24,40 +24,53 @@ ul.normallist {
 	list-style-type: disc;
 	padding: 0 0 0 15px;
 }
-img {
-	max-width: 100%;
-}
 table {
 	empty-cells: show;
 }
 abbr {
 	border-bottom: 0.1em dotted;
 }
-input, button, select, textarea, textarea.editor {
+input, button, select, textarea {
 	color: #222;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
-	outline: none !important;
+	outline: none;
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
-	padding: 3px;
+	padding: 0.3em 0.4em;
 }
-/* Prevent inputs overflowing */
-input, select {
-	max-width: 100%;
+input, button, select {
+	padding: 0 0.4em;
+	height: 2em;
+	line-height: 2em;
+}
+select {
+	padding: 0.22em 0.2em; /* selects don't apply line-height */
+}
+/* Selects with more than one line */
+select[size] {
+	height: auto;
+}
+input[type="file"] {
+	padding: 2px;
+	height: auto;
 }
 /* Remove default mozilla dotted borders */
 input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
+/* Prevent inputs and images overflowing */
+img, input, select {
+	max-width: 100%;
+}
 /* This is a specific issue on Ubuntu - Chrome */
 #chrome input {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
-/* The following is necessary. */
-textarea, textarea.editor {
+/* The following is necessary */
+textarea {
 	font-size: 1em;
 }
 .sceditor-container textarea, .sceditor-container textarea:focus  {
@@ -69,39 +82,26 @@ dd textarea {
 	width: 100%;
 	min-height: 100px;
 }
-/* Apply the font only to these elements. */
+/* Apply the font only to these elements */
 input, button, select {
 	font-size: 0.9em;
-}
-/* Height fixation */
-input, select, .button {
-	height: 25px;
-}
-input[type="checkbox"] {
-	height: 13px;
-}
-select {
-	padding: 2px;
 }
 select option {
 	padding: 0 4px;
 }
-select[size], input[type="checkbox"], input[type="radio"] {
-	height: auto;
-}
 input:hover, textarea:hover, button:hover, select:hover {
-	outline: none !important;
+	outline: none;
 	border: 1px solid #999;
 }
-textarea:hover, textarea.editor:hover {
+textarea:hover {
 	background: #fbfbfb;
 }
-input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
-	outline:none !important;
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
 	border: 1px solid #999;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
-/* Fieldsets are used to group elements. */
+/* Fieldsets are used to group elements */
 fieldset {
 	padding: 18px;
 	margin: 0 0 6px 0;
@@ -117,7 +117,7 @@ fieldset legend {
 
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */
-/* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight. */
+/* This gives a better effect for those areas, and will default to bold for fonts which do not support numerical font-weight */
 strong, .strong {
 	font-weight: bold;
 	color: #444;
@@ -128,12 +128,12 @@ strong, .strong {
 em {
 	font-style: italic;
 }
-/* Default <strong> color on these tags. */
+/* Default <strong> color on these tags */
 h1, h2, h3, h4, h5, h6 {
 	font-size: 1em;
 	color: #444;
 }
-/* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them */
 input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
@@ -143,16 +143,11 @@ input[type="checkbox"], input[type="radio"] {
 .moderationbuttons_mobile_check {
 	display: none;
 }
-/* Give disabled input elements a different background color. */
-input[type="text"][disabled], input[type="number"][disabled],
-input[type="search"][disabled], input[type="email"][disabled],
-input[type="date"][disabled] {
-	background: #eee;
-}
-select[disabled] {
+/* Give disabled input elements a different style */
+input[disabled], textarea[disabled], select[disabled] {
 	background: #eee;
 	color: #999;
-	opacity: 0.6;
+	opacity: 0.8;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -160,7 +155,6 @@ hr {
 	margin: 12px 0;
 	height: 2px;
 	background: #fff;
-	background-color: #fff;
 	box-shadow: 0 1px 0 #bbb inset;
 }
 /* This is about links */
@@ -197,7 +191,7 @@ body#help_popup {
 	font-size: 0.9em;
 }
 
-/* the new "button" */
+/* The "new" button */
 .new_posts {
 	color: #fff;
 	font-weight: bold;
@@ -208,13 +202,14 @@ body#help_popup {
 	margin: 0 2px;
 	padding: 2px 4px;
 	font-size: 9px;
-	font-family: verdana, sans-serif; /* @todo Might add extra fallbacks. Possibly monospace. */
+	font-family: verdana, sans-serif;
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
 	opacity: 0.7;
-	transition: 0.5s all;
+	transition: 0.3s all;
 }
 .new_posts:hover {
-	text-decoration: underline;
+	text-decoration: none;
+	color: #444;
 	opacity: 1;
 }
 
@@ -307,15 +302,17 @@ blockquote {
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid #aaa;
+	border-bottom: 1px solid rgba(0,0,0,0.1);
 	font-size: 0.9em;
+	margin-bottom: 3px;
 }
 blockquote cite::before {
 	color: #aaa;
 	font-size: 22px;
 	font-style: normal;
 	content: '\275D';
-	margin-right: 5px;
+	margin-right: 3px;
+	vertical-align: middle;
 }
 .bbc_standard_quote {
 	background-color: #e0e6f6;
@@ -338,7 +335,6 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	/* Show a scrollbar after about 6 lines. */
 	resize: vertical;
 }
 /* The "Quote:" and "Code:" header parts... */
@@ -443,13 +439,9 @@ a img {
 /* Generally, those [?] icons. This makes your cursor a help icon. */
 .help {
 	cursor: help;
+	opacity: 0.9;
 }
-.help .icon {
-	margin: 0;
-	cursor: help;
-	opacity: 0.8;
-}
-.help .icon:hover {
+.help:hover {
 	opacity: 1;
 }
 
@@ -462,7 +454,6 @@ a img {
 
 /* the page navigation area */
 .pagesection {
-	font-size: 0.9em;
 	padding: 2px 0;
 	overflow: hidden;
 	clear: both;
@@ -471,14 +462,14 @@ a img {
 strong[id^='child_list_']::after {
 	content: ": ";
 }
-small .pages {
+.pages {
+	font-size: 0.9em;
 	margin-left: 7px;
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
 .pagelinks .button {
-	margin: 0 5px 0 0;
 	padding: 0 5px;
 }
 .navPages {
@@ -585,17 +576,11 @@ dl.settings dt.windowbg {
 dl.settings dd {
 	width: 42%;
 	float: right;
-/* Disabled this for testing can be reverted at later stages of RC.
-	overflow: auto;*/
 	margin: 0 0 3px 0;
 }
 dl.settings img {
 	margin: 0 10px 0 0;
 	vertical-align: middle;
-}
-/* help icons */
-dl.settings dt a span {
-	vertical-align: top;
 }
 
 /* a general table class */
@@ -624,7 +609,7 @@ table.table_grid td {
 	width: 5%;
 }
 
-.title_bar th {
+.title_bar th, .windowbg th {
 	padding: 4px 8px;
 }
 .title_bar .sort_down, .title_bar .sort_up {
@@ -678,7 +663,7 @@ img.sort, .sort {
 	position: relative;
 }
 /* Level 1 button background. */
-.dropmenu li, #top_info > li {
+.dropmenu > li, #top_info > li {
 	display: inline-block;
 	margin: 0 2px 0 1px;
 	font-size: 0.9em;
@@ -697,7 +682,7 @@ img.sort, .sort {
 	border-radius: 8px;
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
-	background: none;
+	background: rgba(0,0,0,0.2);
 	color: inherit;
 }
 #top_info .top_menu.visible {
@@ -761,15 +746,16 @@ img.sort, .sort {
 }
 .profile_user_links ol {
 	margin: 0 10px;
-	font-size: 0; /* fix for extra space between inline-blocks */
 	clear: both;
+	column-count: 2;
 }
 .profile_user_links li {
-	display: inline-block;
 	font-size: .8rem;
-	min-width: 18ex;
-	width: 50%;
-	margin-bottom: 4px;
+	line-height: 2em;
+	padding-left: 24px;
+	text-indent: -24px;
+	-webkit-hyphens: auto;
+	hyphens: auto;
 }
 /* Fixes bug with border-box on scrollable js */
 .scrollable, .scrollable * {
@@ -798,8 +784,10 @@ img.sort, .sort {
 .top_menu.scrollable .avatar {
 	width: 40px;
 	height: 40px;
+	object-fit: scale-down;
 	margin: 4px;
 	display: inline-block;
+	color: transparent; /* For broken images */
 }
 .top_menu.scrollable .details {
 	max-width: 80%;
@@ -814,7 +802,7 @@ img.sort, .sort {
 	z-index: 90;
 	position: absolute;
 	display: none;
-	width: 18.2em;
+	min-width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
 	border: solid 1px #999;
@@ -846,7 +834,7 @@ img.sort, .sort {
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
 .top_menu {
-	width: 25em;
+	min-width: 25em;
 }
 .top_menu .login {
 	width: 100%;
@@ -939,16 +927,17 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 0 8px;
-	margin: 0 0 0 5px;
+	padding: 0 0.7em;
 	overflow: visible;
 	color: #444;
-	font-size: 0.8em;
-	line-height: 25px;
+	font-size: 0.85em;
+	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	line-height: 2em;
 }
-/* Keep a consistent size when wrapped in pagesection. */
+.button:not(:first-child) {
+	margin-left: 4px;
+}
 .pagesection .button {
-	font-size: 0.889em;
 	color: #346;
 }
 .button:hover {
@@ -971,9 +960,6 @@ img.sort, .sort {
 	color: #ffc187;
 	background: #557ea0;
 }
-.button.last {
-	margin-top: 9px;
-}
 /* In a .buttonrow, the buttons are joined together */
 .buttonrow {
 	margin-left: 5px;
@@ -984,10 +970,13 @@ img.sort, .sort {
 .buttonrow .button:not(:first-child) {
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
+	border-left-color: #ccc;
 }
 .buttonrow .button:not(:last-child) {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
+	border-right: none;
+	box-shadow: -1px 0 0 rgba(255,255,255,0.7);
 }
 
 /* Styles for the general looks of the theme.
@@ -1034,42 +1023,15 @@ img.sort, .sort {
 	margin: 2px 5px 0 0;
 	float: left;
 }
-/*#top_section ul li {
-	margin-bottom: 2px;
-	margin-right: 7px;
-	display: inline;
-	font-size: 0.9em;
-}*/
 .notice {
 	font-weight: bold;
 }
 
+#languages_form, #search_form {
+	padding: 5px 0 0 0;
+}
 #languages_form {
-	padding: 4px 0 0 0;
-}
-#search_form {
-	padding: 3px 0 3px 0;
-	text-align: right;
-	min-width: 25em;
-}
-#search_form input[type="search"], #search_form select, #search_form .button {
-	padding: 2px;
-	margin: 2px;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -3px -3px 6px rgba(255,255,255,0.8) inset;
-}
-#search_form select, #language_select {
-	margin: 1px;
-}
-#search_form .button {
-	color: #333;
-}
-#search_form .button:hover {
-	color: #a85400;
-	text-decoration: none;
+	margin: 0 0 0 10px;
 }
 /* The logo and slogan. */
 #header {
@@ -1243,18 +1205,17 @@ ul li.greeting {
 	display: block;
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
-
 #footerfix {
 	flex: 1 0 auto;
 }
-/* the posting icons */
+
+/* The posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
 	padding: 0 0 0 6px;
 }
 .mark_read {
 	margin: -5px 0 16px 0;
-	padding: 0;
 	float: right;
 }
 .mark_read .buttonlist {
@@ -1276,16 +1237,15 @@ ul li.greeting {
 
 /* The quick buttons */
 .quickbuttons {
-	margin: 11px 0 0 0;
-	padding: 0 0 4px 0;
+	margin: 11px 0 4px 0;
 	clear: right;
 	float: right;
 	text-align: right;
+	font-size: 0.9em;
 }
 .quickbuttons li {
 	float: left;
 	display: inline;
-	font-size: 0.9em;
 	height: 23px;
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
@@ -1325,7 +1285,7 @@ ul li.greeting {
 /* Drop part of QuickButtons */
 .quickbuttons li ul {
 	position: absolute;
-	top: 1.9em;
+	top: 100%;
 	z-index: 90;
 	padding: 0.5em;
 	font-weight: normal;
@@ -1333,7 +1293,7 @@ ul li.greeting {
 	border: solid 1px #999;
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
-	border-radius: 4px 2px 4px 0;
+	border-radius: 0 0 4px 4px;
 	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
 }
 .quickbuttons li ul {
@@ -1360,6 +1320,7 @@ ul li.greeting {
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
+	padding: 0;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
 .quickbuttons li > ul > li {
@@ -1635,7 +1596,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
+tr.windowbg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -1663,7 +1624,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* Some lovely generic icons.
 ------------------------------------------------- */
-.generic_icons {
+.generic_icons::before {
+	content: '';
 	width: 16px;
 	height: 16px;
 	display: inline-block;
@@ -1672,7 +1634,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* Load better icons for higher resolution screens */
 @media screen and (min-resolution: 160dpi) {
-	.generic_icons {
+	.generic_icons::before {
 		background-image: url(../images/icons/generic_icons_sprite_hd.png);
 	}
 }
@@ -1686,323 +1648,337 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: -8px 3px 0 0;
 }
 
+.generic_icons.gender_None::before {
+	background: none;
+}
+
+.generic_icons.gender_0::before {
+	display: none;
+}
+
 /* This is a small fix for dropmenu icons */
-.dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
+.dropmenu .generic_icons::before, #profile_menu .generic_icons::before, .dropmenu img {
 	margin: -3px 8px 0 0;
 	vertical-align: middle;
 }
 
-.generic_icons.gender_0 {
-	background: none;
-}
-
 /* Top row */
-.generic_icons.help {
+.generic_icons.help::before {
 	background-position: -5px -5px;
 }
-.generic_icons.search, .generic_icons.engines {
+.generic_icons.search::before, .generic_icons.engines::before {
 	background-position: -31px -5px;
 }
-.generic_icons.quick_edit_button, .generic_icons.modify_button {
+.generic_icons.quick_edit_button::before, .generic_icons.modify_button::before {
 	background-position: -57px -5px;
 }
-.generic_icons.check {
+.generic_icons.check::before {
 	background-position: -83px -5px;
 }
-.generic_icons.invalid {
+.generic_icons.invalid::before {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_2 {
+.generic_icons.gender_2::before {
 	background-position: -135px -5px;
 }
-.generic_icons.watch {
+.generic_icons.watch::before {
 	background-position: -239px -5px;
 }
 /* 2nd row */
-.generic_icons.move, .generic_icons.next_page {
+.generic_icons.move::before, .generic_icons.next_page::before {
 	background-position: -5px -31px;
 }
-.generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
+.generic_icons.general::before, .generic_icons.boards::before, .generic_icons.topics_views::before {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_1 {
+.generic_icons.gender_1::before {
 	background-position: -57px -31px;
 }
-.generic_icons.features {
+.generic_icons.features::before {
 	background-position: -83px -31px;
 }
-.generic_icons.posters {
+.generic_icons.posters::before {
 	background-position: -109px -31px;
 }
-.generic_icons.replies, .generic_icons.topics_replies {
+.generic_icons.replies::before, .generic_icons.topics_replies::before {
 	background-position: -135px -31px;
 }
-.generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
+.generic_icons.history::before, .generic_icons.time_online::before, .generic_icons.scheduled::before {
 	background-position: -161px -31px;
 }
-.generic_icons.views {
+.generic_icons.views::before {
 	background-position: -187px -31px;
 }
-.generic_icons.last_post {
+.generic_icons.last_post::before {
 	background-position: -213px -31px;
 }
-.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups, .generic_icons.mlist {
+.generic_icons.starters::before, .generic_icons.people::before, .generic_icons.membergroups::before, .generic_icons.mlist::before {
 	background-position: -239px -31px;
 }
 /* 3rd Street Saints */
-.generic_icons.poll {
+.generic_icons.poll::before {
 	background-position: -5px -57px;
 }
-.generic_icons.previous_page {
+.generic_icons.previous_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.inbox {
+.generic_icons.inbox::before {
 	background-position: -57px -57px;
 }
-.generic_icons.www {
+.generic_icons.www::before {
 	background-position: -83px -57px;
 }
-.generic_icons.exit, .generic_icons.logout {
+.generic_icons.exit::before, .generic_icons.logout::before {
 	background-position: -109px -57px;
 }
-.generic_icons.switch {
+.generic_icons.switch::before {
 	background-position: -135px -57px;
 }
-.generic_icons.replied, .generic_icons.send {
+.generic_icons.replied::before, .generic_icons.send::before {
 	background-position: -161px -57px;
 }
-.generic_icons.im_on {
+.generic_icons.im_on::before {
 	background-position: -187px -57px;
 }
-.generic_icons.im_off {
+.generic_icons.im_off::before {
 	background-position: -213px -57px;
 }
-.generic_icons.split_desel {
+.generic_icons.split_desel::before {
 	background-position: -239px -57px;
 }
 /* 4th Row */
-.generic_icons.split_sel {
+.generic_icons.split_sel::before {
 	background-position: -5px -83px;
 }
-.generic_icons.mail {
+.generic_icons.mail::before {
 	background-position: -31px -83px;
 }
-.generic_icons.warning_mute {
+.generic_icons.warning_mute::before {
 	background-position: -57px -83px;
 }
-.generic_icons.alerts, .generic_icons.warn_button,
-.generic_icons.warning_moderate {
+.generic_icons.alerts::before, .generic_icons.warn_button::before,
+.generic_icons.warning_moderate::before {
 	background-position: -83px -83px;
 }
-.generic_icons.mail_new {
+.generic_icons.mail_new::before {
 	background-position: -109px -83px;
 }
-.generic_icons.drafts,
-.generic_icons.reply_button,
-.generic_icons.reply_all_button {
+.generic_icons.drafts::before,
+.generic_icons.reply_button::before,
+.generic_icons.reply_all_button::before{
 	background-position: -135px -83px;
 }
-.generic_icons.warning_watch {
+.generic_icons.warning_watch::before {
 	background-position: -161px -83px;
 }
-.generic_icons.calendar_export {
+.generic_icons.calendar_export::before {
 	background-position: -187px -83px;
 }
-.generic_icons.calendar {
+.generic_icons.calendar::before {
 	background-position: -213px -83px;
 }
-.generic_icons.calendar_modify {
+.generic_icons.calendar_modify::before {
 	background-position: -239px -83px;
 }
 /* 5th Row */
-.generic_icons.plus {
+.generic_icons.plus::before {
 	background-position: -5px -109px;
 }
-.generic_icons.warning, .generic_icons.moderate {
+.generic_icons.warning::before, .generic_icons.moderate::before {
 	background-position: -31px -109px;
 }
-.generic_icons.themes {
+.generic_icons.themes::before {
 	background-position: -57px -109px;
 }
-.generic_icons.support {
+.generic_icons.support::before {
 	background-position: -83px -109px;
 }
-.generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
+.generic_icons.liked_users::before, .generic_icons.liked_messages::before, .generic_icons.like::before {
 	background-position: -109px -109px;
 }
-.generic_icons.unlike {
+.generic_icons.unlike::before {
 	background-position: -135px -109px;
 }
-.generic_icons.current_theme {
+.generic_icons.current_theme::before {
 	background-position: -161px -109px;
 }
-.generic_icons.stats {
+.generic_icons.stats::before {
 	background-position: -187px -109px;
 }
-.generic_icons.right_arrow {
+.generic_icons.right_arrow::before {
 	background-position: -213px -109px;
 }
-.generic_icons.left_arrow {
+.generic_icons.left_arrow::before {
 	background-position: -239px -109px;
 }
 /* 6th Row */
-.generic_icons.smiley {
+.generic_icons.smiley::before {
 	background-position: -5px -135px;
 }
-.generic_icons.server {
+.generic_icons.server::before {
 	background-position: -31px -135px;
 }
-.generic_icons.ban, .generic_icons.ignore {
+.generic_icons.ban::before, .generic_icons.ignore::before {
 	background-position: -57px -135px;
 }
-.generic_icons.boards  {
+.generic_icons.boards::before  {
 	background-position: -83px -135px;
 }
-.generic_icons.regcenter {
+.generic_icons.regcenter::before {
 	background-position: -109px -135px;
 }
-.generic_icons.posts {
+.generic_icons.posts::before {
 	background-position: -135px -135px;
 }
-.generic_icons.sort_down {
+.generic_icons.sort_down::before {
 	background-position: -161px -135px;
 }
-.generic_icons.change_menu2, .generic_icons.sent {
+.generic_icons.change_menu2::before, .generic_icons.sent::before {
 	background-position: -187px -135px;
 }
-.generic_icons.post_moderation_moderate {
+.generic_icons.post_moderation_moderate::before {
 	background-position: -213px -135px;
 }
-.generic_icons.sort_up {
+.generic_icons.sort_up::before {
 	background-position: -239px -135px;
 }
 /* 7th Row */
-.generic_icons.post_moderation_deny {
+.generic_icons.post_moderation_deny::before {
 	background-position: -5px -161px;
 }
-.generic_icons.post_moderation_attach {
+.generic_icons.post_moderation_attach::before {
 	background-position: -31px -161px;
 }
-.generic_icons.post_moderation_allow {
+.generic_icons.post_moderation_allow::before {
 	background-position: -57px -161px;
 }
-.generic_icons.personal_message {
+.generic_icons.personal_message::before {
 	background-position: -83px -161px;
 }
-.generic_icons.permissions, .generic_icons.signup {
+.generic_icons.permissions::before, .generic_icons.signup::before {
 	background-position: -109px -161px;
 }
-.generic_icons.paid {
+.generic_icons.paid::before {
 	background-position: -135px -161px;
 }
-.generic_icons.packages {
+.generic_icons.packages::before {
 	background-position: -161px -161px;
 }
-.generic_icons.filter {
+.generic_icons.filter::before {
 	background-position: -187px -161px;
 	margin: 0 5px 0 0;
 }
-.generic_icons.change_menu {
+.generic_icons.change_menu::before {
 	background-position: -213px -161px;
 }
-.generic_icons.package_ops {
+.generic_icons.package_ops::before {
 	background-position: -239px -161px;
 }
 /* 8th Row */
-.generic_icons.reports {
+.generic_icons.reports::before {
 	background-position: -5px -187px;
 }
-.generic_icons.news {
+.generic_icons.news::before {
 	background-position: -31px -187px;
 }
-.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune, .generic_icons.remove_button {
+.generic_icons.delete::before, .generic_icons.hide_popup::before, .generic_icons.prune::before, .generic_icons.remove_button::before {
 	background-position: -57px -187px;
 }
-.generic_icons.modifications {
+.generic_icons.modifications::before {
 	background-position: -83px -187px;
 }
-.generic_icons.maintain, .generic_icons.admin {
+.generic_icons.maintain::before, .generic_icons.admin::before {
 	background-position: -109px -187px;
 }
-.generic_icons.administration, .generic_icons.home {
+.generic_icons.administration::before, .generic_icons.home::before {
 	background-position: -135px -187px;
 }
-.generic_icons.frenemy {
+.generic_icons.frenemy::before {
 	background-position: -161px -187px;
 }
-.generic_icons.attachment {
+.generic_icons.attachment::before {
 	background-position: -187px -187px;
 }
-.generic_icons.lock, .generic_icons.security {
+.generic_icons.lock::before, .generic_icons.security::before {
 	background-position: -213px -187px;
 }
-.generic_icons.error, .generic_icons.disable {
+.generic_icons.error::before, .generic_icons.disable::before {
 	background-position: -239px -187px;
 }
 /* 9th Row */
-.generic_icons.languages {
+.generic_icons.languages::before {
 	background-position: -5px -213px;
 }
-.generic_icons.members_request {
+.generic_icons.members_request::before {
 	background-position: -31px -213px;
 }
-.generic_icons.members_delete {
+.generic_icons.members_delete::before {
 	background-position: -57px -213px;
 }
-.generic_icons.members {
+.generic_icons.members::before {
 	background-position: -83px -213px;
 }
-.generic_icons.members_watched {
+.generic_icons.members_watched::before {
 	background-position: -109px -213px;
 }
-.generic_icons.sticky {
+.generic_icons.sticky::before {
 	background-position: -135px -213px;
 }
-.generic_icons.corefeatures, .generic_icons.settings, .generic_icons.manrules, .generic_icons.manlabels {
+.generic_icons.corefeatures::before, .generic_icons.settings::before, .generic_icons.manrules::before, .generic_icons.manlabels::before {
 	background-position: -161px -213px;
 }
-.generic_icons.calendar {
+.generic_icons.calendar::before {
 	background-position: -187px -213px;
 }
-.generic_icons.logs {
+.generic_icons.logs::before {
 	background-position: -213px -213px;
 }
-.generic_icons.valid {
+.generic_icons.valid::before {
 	background-position: -239px -213px;
 }
 /* 10th Row */
-.generic_icons.approve, .generic_icons.enable,
-.generic_icons.approve_button,
-.generic_icons.read_button {
+.generic_icons.approve::before, .generic_icons.enable::before,
+.generic_icons.approve_button::before,
+.generic_icons.read_button::before {
 	background-position: -5px -239px;
 }
-.generic_icons.close {
+.generic_icons.close::before {
 	background-position: -31px -239px;
 }
-.generic_icons.details {
+.generic_icons.details::before {
 	background-position: -57px -239px;
 }
-.generic_icons.merge {
+.generic_icons.merge::before {
 	background-position: -83px -239px;
 }
-.generic_icons.folder {
+.generic_icons.folder::before {
 	background-position: -109px -239px;
 }
-.generic_icons.restore_button {
+.generic_icons.restore_button::before {
 	background-position: -135px -239px;
 }
-.generic_icons.split_button {
+.generic_icons.split_button::before {
 	background-position: -161px -239px;
 }
-.generic_icons.unapprove_button,
-.generic_icons.unread_button {
+.generic_icons.unapprove_button::before,
+.generic_icons.unread_button::before {
 	background-position: -187px -239px;
 }
-.generic_icons.quote, .generic_icons.quote_selected {
+.generic_icons.quote::before, .generic_icons.quote_selected::before {
 	background-position: -213px -239px;
 }
-.generic_icons.notify_button {
+.generic_icons.notify_button::before {
 	background-position: -239px -239px;
+}
+
+.generic_icons.select_above::before {
+	background-position: -161px -5px;
+}
+.generic_icons.select_here::before {
+	background-position: -187px -5px;
+}
+.generic_icons.select_below::before {
+	background-position: -213px -5px;
 }
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
@@ -2078,6 +2054,79 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 6px 0;
 }
 
+/* Styles for stats bars and progress bars.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.generic_bar, .progress_bar {
+	border: 1px solid #cecaca;
+	background: #fff;
+	min-height: 16px;
+	line-height: 1.4em;
+	border-radius: 2px;
+	position: relative;
+	overflow: hidden;
+	color: rgba(0,0,0,0.6);
+}
+.generic_bar span, .progress_bar span {
+	position: relative;
+	z-index: 2;
+	text-shadow: 1px 1px rgba(255,255,255,.4);
+	display: inline-block;
+	padding: 0 5px;
+}
+.generic_bar .bar, .progress_bar .bar {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	background: orange;
+	transition: width .3s;
+	border-radius: 1px;
+	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset,
+		4px 4px 8px rgba(255,255,255,0.3) inset;
+	display: block;
+}
+.generic_bar.vertical {
+	width: 15px;
+}
+.generic_bar.vertical .bar {
+	right: 0;
+	top: auto;
+	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset,
+		4px 4px 4px rgba(255,255,255,0.3) inset;
+}
+
+.progress_bar {
+	border-radius: 4px;
+	text-align: center;
+	font-weight: bold;
+	color: rgba(0,0,0,0.8);
+}
+.progress_bar .bar {
+	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.25) inset,
+		1px -1px 0 rgba(0,0,0,0.1) inset;
+	background-color: #75da41;
+	background-size: 30px 30px;
+	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+}
+.progress_yellow .bar {
+	background-color: #f6c51c;
+}
+
+.progress_green .bar {
+	background-color: #75da41;
+}
+
+.progress_red .bar {
+	background-color: #f45d4c;
+}
+
+.progress_blue .bar {
+	background-color: #34c2e3;
+}
+
+
 /* Styles for the profile section.
 ------------------------------------------------- */
 
@@ -2100,6 +2149,11 @@ dl {
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
@@ -2173,6 +2227,7 @@ dl {
 .activity_stats li {
 	width: 4.16%;
 	float: left;
+	text-align: center;
 }
 .activity_stats li span {
 	display: block;
@@ -2180,23 +2235,18 @@ dl {
 	border-left: none;
 	border-right: none;
 	background: #eee;
-	text-align: center;
 }
 .activity_stats li.last span {
 	border-right: none;
 }
-.activity_stats li div.bar {
-	margin: 0 auto;
-	width: 15px;
-	border: 1px solid #cacaca;
+.activity_stats li .generic_bar {
+	height: 100px;
 	border-bottom: none;
-	background: #fff;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	margin: 0 auto;
 }
-.activity_stats li div.bar div {
-	background: orange;
-	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset, 4px 4px 4px rgba(255,255,255,0.3) inset;
-}
-.activity_stats li div.bar span {
+.activity_stats li .generic_bar span {
 	position: absolute;
 	top: -1000em;
 	left: -1000em;
@@ -2232,8 +2282,9 @@ dl {
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
 	clear: both;
-	word-break: hyphenate;
-	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
 }
 .topic h4 {
 	margin: 3px 0;
@@ -2321,6 +2372,17 @@ dl {
 	width: 100%;
 	float: left;
 }
+#pick_theme .selected {
+	background: #cddbe6;
+}
+
+/* Signature preview */
+
+#preview_signature, #preview_signature_display {
+	width: 100%;
+	overflow: hidden;
+}
+
 /* Issue a warning */
 #warn_body {
 	width: 100%;
@@ -2328,6 +2390,25 @@ dl {
 }
 #warn_temp {
 	font-size: smaller;
+}
+
+/* Warning level bar */
+.warning_level {
+	text-align: center;
+	font-weight: bold;
+	max-width: 250px;
+}
+.warning_level.none .bar {
+	background-color: #75da41;
+}
+.warning_level.watched .bar {
+	background-color: #ffd800;
+}
+.warning_level.moderated .bar {
+	background-color: orange;
+}
+.warning_level.muted .bar {
+	background-color: #f45d4c;
 }
 
 /* Styles for the statistics center.
@@ -2344,46 +2425,18 @@ dl.stats dt {
 	line-height: 1.5em;
 	clear: both;
 	font-size: 1em;
+	overflow: hidden;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 dl.stats dd {
-	width: 50%;
+	width: 48%;
 	font-size: 1em;
 	float: left;
-	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #cecaca;
-	border-radius: 2px;
-	position: relative;
-}
-.statsbar div.bar {
-	float: left;
-	background: orange;
-	border-radius: 1px;
-	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
-	display: block;
-	margin: 0 4px 0 0;
-	height: 1.4em;
-	text-shadow: 1px 1px rgba(255,255,255,0.4);
-}
-.statsbar div.bar.empty {
-	width: 0;
-}
-#profileview dd, .nobb, .nobb dd {
-	background: none !important;
-	border: none !important;
+	margin: 0 0 4px 2%;
 }
 dl.stats {
 	padding: 5px;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-dl.stats dd span {
-	padding: 0 5px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 2;
 }
 
 /* Forum history table. */
@@ -2491,6 +2544,10 @@ dl.addrules dt.floatleft {
 #mlist .posts {
 	width: 115px;
 }
+#mlist .post_count {
+	width: 15px;
+}
+
 /* Styles for the search section.
 ------------------------------------------------- */
 #searchform fieldset {
@@ -2568,7 +2625,8 @@ dl.addrules dt.floatleft {
 	position: absolute;
 	z-index: 999;
 	left: -9999px;
-	word-wrap: break-word;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 	max-width: 350px;
 	padding: 6px 9px;
 	color: #333;
@@ -2625,43 +2683,7 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-/* Styles for the progress bar */
-.progress_bar {
-	height: 15pt;
-	border: 1px solid #ddd;
-	background-color: #fff;
-	width: 80%;
-	margin: 20px auto 0 auto; /* Top padding should get rid of the <br /> tags in admin for these bars. */
-	position: relative;
-	border-radius: 2px;
-	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-}
-.progress_bar .full_bar {
-	padding-top: 1pt;
-	width: 100%;
-	color: #222;
-	position: absolute;
-	text-align: center;
-	font-weight: bold;
-	border-radius: 2px;
-	z-index: 2;
-}
-.progress_bar .green_percent {
-	height: 15pt;
-	background-color: #c1ffc1;
-	background-image: linear-gradient(to bottom, #c1ffc1, green);
-	border-radius: 2px;
-	z-index: 1;
-}
-.progress_bar .blue_percent {
-	height: 15pt;
-	background-color: #98b8f4;
-	background-image: linear-gradient(to bottom, #98b8f4, blue);
-	border-radius: 2px;
-	z-index: 1;
-}
-
-.generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2684,27 +2706,27 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
-.windowbg.locked, .windowbg2.locked {
+.windowbg.locked {
 	background: #e7eaef;
 }
 /* Sticky topics get a different background */
-.windowbg.sticky, .windowbg2.sticky {
+.windowbg.sticky {
 	background: #cfdce8;
 }
 /* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked, .windowbg2.sticky.locked {
+.windowbg.sticky.locked {
 	background: #e8d8cf;
 }
 /* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic, .windowbg2.approvetopic {
+.windowbg.approvetopic {
 	background: #e4a17c;
 }
 /* Unapproved posts in approved topics */
-.windowbg.approvepost, .windowbg2.approvepost {
+.windowbg.approvepost {
 	background: #ffcbcb;
 }
 .generic_list_wrapper .additional_row {
@@ -2722,10 +2744,10 @@ div#editlang_desc {
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
-.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol {
+.table_grid tr.windowbg td.centercol {
 	text-align: center;
 }
-tr.windowbg, tr.windowbg2 {
+tr.windowbg {
 	box-shadow: none;
 }
 #postmodify #message {
@@ -2753,16 +2775,11 @@ div#manage_boards dl dd textarea[name=desc] {
 	font-weight: bold;
 }
 
-/* Can i haz this? I think we need Illori here to say "nope" */
-.title_top {
-	margin-top: 10px !important;
-}
-
 /* Profile > This needed for responsive (get rid of <br>) */
 .infolinks {
 	display: block;
 }
-#groups .windowbg, #groups .windowbg2 {
+#groups .windowbg {
 	box-shadow: none;
 	border-radius: 0;
 	border-top: 0;
@@ -2779,7 +2796,7 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* BoardIndex */
-/* This place covers board places (boardindex-messageindex) */
+/* This place covers board places (boardindex/messageindex/recent) */
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
@@ -2800,14 +2817,29 @@ h3 .collapse {
 	background-position: -45px -45px;
 }
 .board_icon {
-	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
-	min-width: 60px;
+	width: 60px;
+	flex-shrink: 0;
+}
+.boardindex_table .board_icon {
+	width: 80px;
+}
+.boardindex_table .info {
+	width: calc(55% - 80px);
+}
+.boardindex_table .board_stats {
+	padding: 13px 10px 10px;
+}
+.boardindex_table .board_stats p {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
 }
 .info {
-	width: 50%;
-	margin: 10px 0 5px 0;
+	overflow: hidden;
+	overflow-wrap: break-word;
+	padding: 5px 5px 5px 0;
+	flex-grow: 1;
 }
 .info .subject {
 	font-weight: 600;
@@ -2815,26 +2847,19 @@ h3 .collapse {
 	color: #a85400;
 }
 .board_stats {
-	width: 14%;
-	padding: 10px;
+	width: 15%;
 	font-size: 0.9em;
-}
-.board_stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	margin: 0 0 0 auto;
 	text-align: center;
-	margin: 3px 0 0;
 }
 .lastpost {
-	width: 25%;
+	width: 30%;
 	font-size: 0.9em;
-}
-.lastpost p {
-	margin: 3px 0 0 0;
+	padding-top: 3px;
 }
 .board_icon, .info, .board_stats, .lastpost {
 	display: inline-block;
-	vertical-align: middle;
+	align-self: center;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -2842,13 +2867,15 @@ h3 .collapse {
 .up_contain {
 	overflow: hidden;
 	border: 1px solid #ddd;
-	margin-bottom: 3px;
-	margin-top: -1px;
+	margin: -1px 0 3px 0;
+	display: flex;
+	flex-wrap: wrap;
 }
 /* Child boards */
 .children {
 	border-top: 1px solid #ddd;
 	padding: 5px;
+	width: 100%;
 }
 .children p {
 	font-size: 0.9em;
@@ -2948,6 +2975,7 @@ span.postby {
 #topic_header {
 	margin: 0;
 	border-radius: 0;
+	display: flex;
 }
 #topic_header div {
 	font-weight: bold;
@@ -2957,30 +2985,31 @@ span.postby {
 #topic_header input {
 	margin-top: 5px !important;
 }
-#topic_container .windowbg, #topic_container .windowbg2 {
+#topic_container .windowbg {
 	border: 1px solid #ddd;
 	border-top: none;
-}
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2,
-#topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
+	display: flex;
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
 }
+#topic_container .lastpost, #topic_header .lastpost {
+	width: 28ex;
+}
+#topic_container .lastpost, #topic_container .board_stats {
+	flex-shrink: 0;
+}
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
-	border: none;
-}
 .moderation {
 	display: inline-block;
-	min-width: 35px;
-	width: 3%;
+	width: 35px;
+	flex-shrink: 0;
 	vertical-align: middle;
-	text-align: right;
+	text-align: center;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
@@ -3008,10 +3037,6 @@ span.postby {
 /* Should lose this before RC1. It's a kludge. Can be fixed by new image */
 #topic_icons .floatleft img:first-child {
 	padding: 0 2px;
-}
-#message_index_jump_to_select {
-	font-size: 1em;
-	padding: 0;
 }
 
 /* Display */
@@ -3045,22 +3070,7 @@ span.postby {
 	max-width: 45em;
 	float: left;
 	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #cecaca;
-	border-radius: 2px;
-	position: relative;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-#poll_options dl.options .percentage {
-	display: block;
-	padding: 0 4px;
-	position: absolute;
-	right: 0;
-	top: -1px;
-	z-index: 2;
-	text-shadow: 1px 1px rgba(255,255,255,0.4);
+	text-align: right;
 }
 
 /* Poll notices */
@@ -3119,10 +3129,12 @@ div#pollmoderation {
 .poster {
 	float: left;
 	/* Don't set this in em.It will eat too much space if people need to set large text sizes. */
-	/* Better to just break the few words here, and leave more space for actual topic content. */
 	width: 160px;
-	word-break: hyphenate;
-	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 .poster h4 {
 	font-size: 1.2em;
@@ -3225,8 +3237,8 @@ div#pollmoderation {
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
-	word-break: hyphenate;
-	word-wrap: break-word;
+	word-wrap: break-word; /* IE fallback */
+	overflow-wrap: break-word;
 }
 img.smiley {
 	vertical-align: bottom;
@@ -3310,6 +3322,9 @@ ul.post_options li {
 }
 #postAdditionalOptions {
 	overflow: hidden;
+}
+#postAdditionalOptions .progress_bar {
+	height: 22px;
 }
 #postMoreOptions, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
@@ -3450,9 +3465,14 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .generic_icons, h3.catbg .icon {
+h3.catbg .generic_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
+}
+.cat_bar + .windowbg, .cat_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 /* Roundframe */
 .roundframe {
@@ -3690,6 +3710,8 @@ h3.profile_hd {
 	font-weight: normal;
 	font-size: 26px;
 	margin-bottom: 0.25em;
+	line-height: 1.05em;
+	overflow-wrap: break-word;
 }
 
 #reported_posts .generic_icons,
@@ -3736,8 +3758,7 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
-#alerts tr.windowbg td,
-#alerts tr.windowbg2 td {
+#alerts tr.windowbg td {
 	border-right: 1px solid #ddd;
 }
 
@@ -3773,8 +3794,11 @@ input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attach-info .progressBar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
+.attach-info .progress_bar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
 	display: none;
+}
+.attach-info .progress_bar {
+	margin: 6px 0;
 }
 .attached_BBC_width_height label {
 	min-width: 100px;
@@ -3794,46 +3818,8 @@ input[name="attachBBC"] {
 	width:50%;
 	display:none;
 }
-
-.progressBar {
-	height: 20px;
-	margin: 1px;
-	background: #f8f8f8;
-	border: 1px solid #c5c5c5;
-	border-radius: 7px;
-	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
-	vertical-align: middle;
-}
-
-.progressBar span {
-	display: block;
-	height: 100%;
-	border-radius: 3px;
-	box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
-	transition: width .4s ease-in-out;
-	background-color: #34c2e3;
-	background-size: 30px 30px;
-	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-	width: 0px;
-}
-
 #maxFiles_progress, #maxFiles_progress_text {
 	display: none;
-}
-.progress_yellow span {
-	background-color: #fecf23;
-}
-
-.progress_green span {
-	background-color: #a5df41;
-}
-
-.progress_red span {
-	background-color: #f45d4c;
-}
-
-.progress_blue span {
-	background-color: #34c2e3;
 }
 
 /* Hide this from desktop users sshh... our little sekrit */
@@ -3868,7 +3854,7 @@ input[name="attachBBC"] {
 	margin: 0 !important;
 	border-bottom: none;
 }
-.windowbg2.noup {
+.windowbg.noup {
 	box-shadow: none;
 }
 

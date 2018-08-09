@@ -931,7 +931,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			member_name, real_name, id_member, email_address, lngfile
+			member_name, real_name, id_member, email_address, lngfile,
 			instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
 			(pm_receive_from = {int:admins_only}' . (empty($modSettings['enable_buddylist']) ? '' : ' OR
 			(pm_receive_from = {int:buddies_only} AND FIND_IN_SET({string:from_id}, buddy_list) = 0) OR
@@ -2070,6 +2070,12 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
+
+	// Update search api
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if ($searchAPI->supportsMethod('postRemoved'))
+		$searchAPI->postRemoved($msgOptions['id']);
 
 	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{

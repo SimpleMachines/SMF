@@ -46,6 +46,8 @@ function Post($post_errors = array())
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
 
+	call_integration_hook('integrate_post_start');
+
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
 	// use $temp to get around "Only variables should be passed by reference"
@@ -1015,7 +1017,7 @@ function Post($post_errors = array())
 					break;
 				}
 
-				// Show any errors which might have occured.
+				// Show any errors which might have occurred.
 				if (!empty($attachment['errors']))
 				{
 					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
@@ -1362,7 +1364,7 @@ function Post($post_errors = array())
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
 		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
-		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>',
+		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="' . (!empty($topic) ? 84 : 80) . '" required>',
 	);
 
 	// Icons are fun.
@@ -1438,6 +1440,8 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	call_integration_hook('integrate_post2_start');
 
 	// Drafts enabled and needed?
 	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
@@ -1767,6 +1771,13 @@ function Post2()
 			$_POST['guestname'] = $row['poster_name'];
 			$_POST['email'] = $row['poster_email'];
 		}
+
+		// Update search api
+		require_once($sourcedir . '/Search.php');
+		$searchAPI = findSearchAPI();
+		if ($searchAPI->supportsMethod('postRemoved'))
+			$searchAPI->postRemoved($_REQUEST['msg']);
+
 	}
 
 	// In case we have approval permissions and want to override.
@@ -1832,15 +1843,10 @@ function Post2()
 			$user_info['name'] = $_POST['guestname'];
 		preparsecode($_POST['message']);
 
-		// Youtube BBC would be stripped out in the next check without this
-		$context['allowed_html_tags'][] = '<iframe>';
-
 		// Let's see if there's still some content left without the tags.
 		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('admin_forum') || strpos($_POST['message'], '[html]') === false))
 			$post_errors[] = 'no_message';
 
-		// Remove iframe from the list
-		array_pop($context['allowed_html_tags']);
 	}
 	if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && $smcFunc['htmltrim']($_POST['evtitle']) === '')
 		$post_errors[] = 'no_event';

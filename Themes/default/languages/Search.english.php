@@ -107,7 +107,7 @@ $txt['search_did_you_mean'] = 'You may have meant to search for';
 $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
-$txt['spider_mode'] = 'Search Engine Tracking Level';
+$txt['spider_mode'] = 'Search Engine Tracking level';
 $txt['spider_mode_note'] = 'Note that logging of every spider action only occurs if tracking is set to either "moderate" or "aggressive". Detail of every spider\'s action is only logged if tracking is set to "aggressive".';
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
@@ -130,9 +130,9 @@ $txt['spider_last_seen'] = 'Last Seen';
 $txt['spider_last_never'] = 'Never';
 $txt['spider_agent'] = 'User Agent';
 $txt['spider_ip_info'] = 'IP Addresses';
-$txt['spiders_add'] = 'Add New Spider';
+$txt['spiders_add'] = 'Add new Spider';
 $txt['spiders_edit'] = 'Edit Spider';
-$txt['spiders_remove_selected'] = 'Remove Selected';
+$txt['spiders_remove_selected'] = 'Remove selected';
 $txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?-n-All associated statistics will also be deleted!';
 $txt['spiders_no_entries'] = 'There are currently no spiders configured.';
 
@@ -160,7 +160,7 @@ $txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders n
 // Don't use entities in the below string.
 $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log entries?';
 
-$txt['spider_stats_select_month'] = 'Jump To Month';
+$txt['spider_stats_select_month'] = 'Jump to Month';
 $txt['spider_stats_page_hits'] = 'Page Hits';
 $txt['spider_stats_no_entries'] = 'There are currently no spider statistics available.';
 

@@ -306,7 +306,7 @@ $txt['at_least_one_admin'] = 'There must be at least one administrator on a foru
 $txt['error_functionality_not_windows'] = 'Sorry, this functionality is currently not available for servers running Windows.';
 
 // Don't use entities in the below string.
-$txt['attachment_not_found'] = 'Attachment Not Found';
+$txt['attachment_not_found'] = 'Attachment not found';
 
 $txt['error_no_boards_selected'] = 'No valid boards were selected.';
 $txt['error_no_boards_available'] = 'Sorry, there are no boards available to you at this time.';

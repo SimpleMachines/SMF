@@ -33,7 +33,7 @@ class fulltext_search extends search_api
 	/**
 	 * @var array Which databases support this method?
 	 */
-	protected $supported_databases = array('mysql');
+	protected $supported_databases = array('mysql','postgresql');
 
 	/**
 	 * The constructor function
@@ -58,19 +58,27 @@ class fulltext_search extends search_api
 	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
+		$return = false;
 		switch ($methodName)
 		{
 			case 'searchSort':
 			case 'prepareIndexes':
 			case 'indexedWordQuery':
-				return true;
+			case 'postRemoved':
+				$return = true;
 			break;
 
 			// All other methods, too bad dunno you.
 			default:
-				return false;
+				$return = false;
 			break;
 		}
+
+		// Maybe parent got support
+		if (!$return)
+			$return = parent::supportsMethod($methodName, $query_params);
+
+		return $return;
 	}
 
 	/**
@@ -82,8 +90,10 @@ class fulltext_search extends search_api
 	 */
 	protected function _getMinWordLength()
 	{
-		global $smcFunc;
+		global $smcFunc, $db_type;
 
+		if ($db_type == 'postgresql')
+			return 0;
 		// Try to determine the minimum number of letters for a fulltext search.
 		$request = $smcFunc['db_search_query']('max_fulltext_length', '
 			SHOW VARIABLES

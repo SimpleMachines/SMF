@@ -38,7 +38,8 @@ if (!('getElementsByClassName' in document))
 function getServerResponse(sUrl, funcCallback, sType, sDataType)
 {
 	var oCaller = this;
-	var oMyDoc = $.ajax({
+
+	return oMyDoc = $.ajax({
 		type: sType,
 		url: sUrl,
 		cache: false,
@@ -50,15 +51,14 @@ function getServerResponse(sUrl, funcCallback, sType, sDataType)
 			}
 		},
 	});
-
-	return oMyDoc;
 }
 
 // Load an XML document.
 function getXMLDocument(sUrl, funcCallback)
 {
 	var oCaller = this;
-	var oMyDoc = $.ajax({
+
+	return $.ajax({
 		type: 'GET',
 		url: sUrl,
 		cache: false,
@@ -70,8 +70,6 @@ function getXMLDocument(sUrl, funcCallback)
 			}
 		},
 	});
-
-	return oMyDoc;
 }
 
 // Send a post form to the server.
@@ -568,10 +566,7 @@ function isEmptyText(theField)
 	while (theValue.length > 0 && (theValue.charAt(theValue.length - 1) == ' ' || theValue.charAt(theValue.length - 1) == '\t'))
 		theValue = theValue.substring(0, theValue.length - 1);
 
-	if (theValue == '')
-		return true;
-	else
-		return false;
+    return theValue == '';
 }
 
 // Only allow form submission ONCE.
@@ -873,7 +868,7 @@ smc_Toggle.prototype.init = function ()
 smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 {
 	// Default bInit to false.
-	bInit = typeof(bInit) == 'undefined' ? false : true;
+	bInit = typeof(bInit) !== 'undefined';
 
 	// Handle custom function hook before collapse.
 	if (!bInit && bCollapse && 'funcOnBeforeCollapse' in this.opt)

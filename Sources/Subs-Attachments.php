@@ -1192,6 +1192,7 @@ function loadAttachmentContext($id_msg, $attachments)
 
 						$thumb_filename = $attachment['filename'] . '_thumb';
 						$thumb_hash = getAttachmentFilename($thumb_filename, false, null, true);
+						$old_id_thumb = $attachment['id_thumb'];
 
 						// Add this beauty to the database.
 						$attachment['id_thumb'] = $smcFunc['db_insert']('',
@@ -1201,7 +1202,7 @@ function loadAttachmentContext($id_msg, $attachments)
 							array('id_attach'),
 							1
 						);
-						$old_id_thumb = $attachment['id_thumb'];
+
 						if (!empty($attachment['id_thumb']))
 						{
 							$smcFunc['db_query']('', '

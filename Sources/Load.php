@@ -376,7 +376,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $boardurl;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -613,8 +613,7 @@ function loadUserSettings()
 			);
 
 		// Because history has proven that it is possible for groups to go bad - clean up in case.
-		foreach ($user_info['groups'] as $k => $v)
-			$user_info['groups'][$k] = (int) $v;
+		$user_info['groups'] = array_map('intval', $user_info['groups']);
 
 		// This is a logged in user, so definitely not a spider.
 		$user_info['possibly_robot'] = false;
@@ -1185,7 +1184,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $boardurl, $user_info;
+	global $image_proxy_enabled, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1276,7 +1275,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
-			$row['primary_group'] = $row['member_group'];
+			$row['primary_group'] = !empty($row['member_group']) ? $row['member_group'] : '';
 
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
@@ -3035,8 +3034,8 @@ function censorText(&$text, $force = false)
  */
 function template_include($filename, $once = false)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
-	global $boardurl, $boarddir, $sourcedir;
+	global $context, $txt, $scripturl, $modSettings;
+	global $boardurl, $boarddir;
 	global $maintenance, $mtitle, $mmessage;
 	static $templates = array();
 
@@ -3223,7 +3222,7 @@ function template_include($filename, $once = false)
 function loadDatabase()
 {
 	global $db_persist, $db_connection, $db_server, $db_user, $db_passwd;
-	global $db_type, $db_name, $ssi_db_user, $ssi_db_passwd, $sourcedir, $db_prefix, $db_port;
+	global $db_type, $db_name, $ssi_db_user, $ssi_db_passwd, $sourcedir, $db_prefix, $db_port, $db_mb4;
 
 	// Figure out what type of database we are using.
 	if (empty($db_type) || !file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
@@ -3237,6 +3236,9 @@ function loadDatabase()
 	// Add in the port if needed
 	if (!empty($db_port))
 		$db_options['port'] = $db_port;
+
+	if (!empty($db_mb4))
+		$db_options['db_mb4'] = $db_mb4;
 
 	// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
 	if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
@@ -3495,7 +3497,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $user_info;
+	global $modSettings, $smcFunc, $image_proxy_enabled, $user_info;
 
 	// Come on!
 	if (empty($data))

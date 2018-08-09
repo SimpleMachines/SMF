@@ -51,7 +51,7 @@ $txt['permissionname_profile_blurb'] = 'Edit personal text';
 $txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
 $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
-$txt['permissions_profile_copy_from'] = 'Copy Permissions From';
+$txt['permissions_profile_copy_from'] = 'Copy Permissions from';
 
 $txt['permissions_includes_inherited'] = 'Inherited Groups';
 
@@ -206,7 +206,8 @@ $txt['permissionhelp_move'] = 'Move a topic from one board to the other. Users c
 $txt['permissionname_move_own'] = 'Own topic';
 $txt['permissionname_move_any'] = 'Any topic';
 $txt['permissionname_lock'] = 'Lock topics';
-$txt['permissionhelp_lock'] = 'This permission allows a user to lock a topic. This can be done in order to make sure no one can reply to a topic. Only uses with a \'Moderate board\' permission can still post in locked topics.';
+$txt['permissionhelp_lock'] = 'This permission allows a
+user to lock a topic. This can be done in order to make sure no one can reply to a topic. Only users with a \'Moderate board\' permission can still post in locked topics.';
 $txt['permissionname_lock_own'] = 'Own topic';
 $txt['permissionname_lock_any'] = 'Any topic';
 $txt['permissionname_remove'] = 'Remove topics';
@@ -238,7 +239,7 @@ $txt['permissionhelp_report_any'] = 'This permission adds a link to each message
 
 $txt['permissiongroup_likes'] = 'Likes';
 $txt['permissionname_likes_like'] = 'Can like any content';
-$txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
+$txt['permissionhelp_likes_like'] = 'This permission allows a user to like any content. Users aren\'t allowed to like their own content.';
 
 $txt['permissiongroup_mentions'] = 'Mentions';
 $txt['permissionname_mention'] = 'Mention others via @name';

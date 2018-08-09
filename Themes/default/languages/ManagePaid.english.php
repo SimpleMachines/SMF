@@ -31,7 +31,7 @@ $txt['paid_subs_view_desc'] = 'From this section you can view all the subscripti
 // Setting type strings.
 $txt['paid_enabled'] = 'Enable Paid Subscriptions';
 $txt['paid_enabled_desc'] = 'This must be checked for the paid subscriptions to be used on the forum.';
-$txt['paid_email'] = 'Send Notification Emails';
+$txt['paid_email'] = 'Send Notification emails';
 $txt['paid_email_desc'] = 'Inform the admin when a subscription automatically changes.';
 $txt['paid_email_to'] = 'Email for Correspondence';
 $txt['paid_email_to_desc'] = 'Comma-separated list of addresses to email to send notifications to.';
@@ -52,7 +52,7 @@ $txt['paypal_email'] = 'PayPal email address';
 $txt['paypal_email_desc'] = 'Leave blank if you do not wish to use PayPal.';
 $txt['paypal_additional_emails'] = 'Primary PayPal email address';
 $txt['paypal_additional_emails_desc'] = 'If different (for business account)';
-$txt['paypal_sandbox_email'] = 'Paypal sandbox email address';
+$txt['paypal_sandbox_email'] = 'PayPal sandbox email address';
 $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled or not using PayPal.';
 
 $txt['paid_note'] = '<strong class="alert">Note:</strong><br>
@@ -89,7 +89,7 @@ $txt['paid_delete_subscription'] = 'Delete Subscription';
 
 $txt['paid_mod_name'] = 'Subscription Name';
 $txt['paid_mod_desc'] = 'Description';
-$txt['paid_mod_reminder'] = 'Send Reminder Email';
+$txt['paid_mod_reminder'] = 'Send Reminder email';
 $txt['paid_mod_reminder_desc'] = 'Days before subscription is due to expire to send reminder.';
 $txt['paid_mod_email'] = 'Email to Send upon Completion';
 $txt['paid_mod_email_desc'] = 'Where {NAME} is members name; {FORUM} is community name. Email subject should be on first line. Blank for no email notification.';
@@ -114,18 +114,16 @@ $txt['paid_mod_no_group'] = 'Don\'t Change';
 $txt['paid_mod_edit_note'] = 'Note that as this group has existing subscribers the group settings cannot be changed!';
 $txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br><br>If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br>';
 $txt['paid_mod_repeatable'] = 'Allow user to auto-renew this subscription';
-$txt['paid_mod_allow_partial'] = 'Allow partial subscription';
-$txt['paid_mod_allow_partial_desc'] = 'If this option is enabled, in the case where the user pays less than required they will be granted a subscription for the percentage of the duration they have paid for.';
 $txt['paid_mod_fixed_price'] = 'Subscription for fixed price and period';
 $txt['paid_mod_flexible_price'] = 'Subscription price varies on duration ordered';
 $txt['paid_mod_price_breakdown'] = 'Flexible Price Breakdown';
 $txt['paid_mod_price_breakdown_desc'] = 'Define here how much the subscription should cost dependent on the period they subscribe for. For example, it could cost 12USD to subscribe for a month, but only 100USD for a year. If you don\'t want to define a price for a particular period of time leave it blank.';
 $txt['flexible'] = 'Flexible';
 
-$txt['paid_per_day'] = 'Price Per Day';
-$txt['paid_per_week'] = 'Price Per Week';
-$txt['paid_per_month'] = 'Price Per Month';
-$txt['paid_per_year'] = 'Price Per Year';
+$txt['paid_per_day'] = 'Price per Day';
+$txt['paid_per_week'] = 'Price per Week';
+$txt['paid_per_month'] = 'Price per Month';
+$txt['paid_per_year'] = 'Price per Year';
 $txt['day'] = 'Day';
 $txt['week'] = 'Week';
 $txt['month'] = 'Month';
@@ -135,10 +133,10 @@ $txt['year'] = 'Year';
 $txt['viewing_users_subscribed'] = 'Viewing Users';
 $txt['view_users_subscribed'] = 'Viewing users subscribed to: &quot;%1$s&quot;';
 $txt['no_subscribers'] = 'There are currently no subscribers to this subscription.';
-$txt['add_subscriber'] = 'Add New Subscriber';
+$txt['add_subscriber'] = 'Add new Subscriber';
 $txt['edit_subscriber'] = 'Edit Subscriber';
 $txt['delete_selected'] = 'Delete Selected';
-$txt['complete_selected'] = 'Complete Selected';
+$txt['complete_selected'] = 'Complete selected';
 
 // @todo These strings are used in conjunction with JavaScript. Use numeric entities.
 $txt['delete_are_sure'] = 'Are you sure you want to delete all records of the selected subscriptions?';

@@ -234,7 +234,7 @@ function template_merge()
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
-				<div class="windowbg2">
+				<div class="windowbg">
 					<ul class="merge_topics">';
 
 		$merge_button = create_button('merge', 'merge', '');
@@ -257,7 +257,7 @@ function template_merge()
 	// Just a nice "There aren't any topics" message
 	else
 		echo '
-				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
+				<div class="windowbg">', $txt['topic_alert_none'], '</div>';
 
 	echo '
 				<br>

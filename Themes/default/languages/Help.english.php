@@ -66,7 +66,7 @@ $helptxt['view_members'] = '
 			ability to delete them from the forum.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Approval</strong><br>
+			<strong>Awaiting approval</strong><br>
 			This page is only shown if you have enabled admin approval of all new registrations. Anyone who registers to join your
 			forum will only become a full member once they have been approved by an admin. The page lists all those members who
 			are still awaiting approval, along with their email and IP address. You can choose to either accept or reject (delete)
@@ -74,7 +74,7 @@ $helptxt['view_members'] = '
 			of the page. When rejecting a member you can choose to delete the member either with or without notifying them of your decision.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Activation</strong><br>
+			<strong>Awaiting activation</strong><br>
 			This page will only be visible if you have email activation of new member accounts enabled on the forum. This page will list all
 			members who have still not activated their new accounts. From this page you can choose to either accept, reject or remind
 			members with outstanding registrations. As above you can also choose to email the member to inform them of the
@@ -414,7 +414,8 @@ $helptxt['ssi_db_user'] = 'Optional setting to use a different database user and
 
 $helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better. They will look like index.php/topic,1.0.html.<br><br>This feature will ' . (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : 'not') . ' work on your server.';
 $helptxt['minimize_files'] = 'This option will minimize the CSS and JavaScript files used by your forum, reducing the request calls to your server and speeding up load times for your users.<br><br>You should normally leave this option enabled. The only time you might want to disable it temporarily is while you are in the process of altering the CSS or JavaScript files used on your site (for example, when editing your theme files or developing a modification).';
-$helptxt['countChildPosts'] = 'Checking this setting means that posts and topics in a board\'s sub-board will count toward its totals on the index page.<br><br>This will make things notably slower, but means that a parent with no posts in it won\'t show \'0\'.';
+$helptxt['boardindex_max_depth'] = 'This setting controls how many sub-board levels SMF will check when looking for new posts in sub-boards. It also affects which boards are included when the "Count sub-board\'s posts in parent\'s totals" option is enabled.<br><br>For example, if this is set to 1, a sub-board will only be marked "new" on the index page if the sub-board itself contains a new post. If it is set to 2, the sub-board will be marked "new" if there is a new post in the sub-board or in a sub-sub-board. If it is set to 10, the sub-board will be marked "new" if there is a new post in the sub-board, a sub-sub-board, a sub-sub-sub-board, etc., up to 10 levels deep.<br><br>Large, active forums may want to set this value to a low number in order to conserve server resources.';
+$helptxt['countChildPosts'] = 'Checking this setting means that posts and topics in a board\'s sub-board will count toward its totals on the index page.<br><br>This means that a parent board with no posts in it won\'t show \'0\' if there are any posts in its sub-boards.';
 $helptxt['allow_ignore_boards'] = 'Checking this setting will allow users to select boards they wish to ignore.';
 $helptxt['deny_boards_access'] = 'Checking this setting will allow you to deny access to certain boards based on membergroup access';
 
@@ -589,6 +590,7 @@ $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or 
 		</ul>';
 
 $helptxt['custom_mask'] = 'The input mask is important for your forum\'s security. Validating the input from a user can help ensure that data is not used in a way you do not expect. We have provided some simple regular expressions as hints.<br><br>
+    Delimiters marking the beginning and end of the pattern are required! They are tildes (~) in the examples below.<br><br>
 	<div class="smalltext" style="margin: 0 2em">
 		&quot;~[A-Za-z]+~&quot; - Match all upper and lower case alphabet characters.<br>
 		&quot;~[0-9]+~&quot; - Match all numeric characters.<br>

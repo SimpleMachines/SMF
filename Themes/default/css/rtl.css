@@ -40,10 +40,10 @@
 }
 
 /* the page navigation area */
-.generic_icons.move, .generic_icons.next_page {
+.generic_icons.move::before, .generic_icons.next_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.previous_page {
+.generic_icons.previous_page::before {
 	background-position: -5px -31px;
 }
 
@@ -190,11 +190,6 @@ img#smflogo {
 
 .mark_read {
 	float: left;
-}
-
-/* the small stats */
-#index_common_stats {
-	text-align: left;
 }
 
 /* Poll results */
@@ -557,10 +552,10 @@ dl.stats dd {
 	text-align: right;
 }
 
-tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
+tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
-#stats tr.windowbg2 th.lefttext, #stats tr.titlebg th.lefttext {
+#stats tr.windowbg th.lefttext, #stats tr.titlebg th.lefttext {
 	text-align: right;
 }
 

@@ -35,7 +35,7 @@ function template_new_group()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="group_name_input"><strong>', $txt['membergroups_group_name'], ':</strong></label>
@@ -137,7 +137,7 @@ function template_new_group()
 					</dd>
 				</dl>
 				<input type="submit" value="', $txt['membergroups_add_group'], '" class="button">
-			</div><!-- .windowbg2 -->';
+			</div><!-- .windowbg -->';
 
 	if ($context['undefined_group'])
 		echo '
@@ -172,7 +172,7 @@ function template_edit_group()
 				<h3 class="catbg">', $txt['membergroups_edit_group'], ' - ', $context['group']['name'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="group_name_input"><strong>', $txt['membergroups_edit_name'], ':</strong></label>
@@ -355,7 +355,7 @@ function template_edit_group()
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
 				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
@@ -547,7 +547,7 @@ function template_group_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['name'], ':</strong>
@@ -592,7 +592,7 @@ function template_group_members()
 
 	echo '
 				</dl>
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
@@ -676,7 +676,7 @@ function template_group_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong><label for="toAdd">', $txt['membergroups_members_add_desc'], ':</label></strong>

@@ -994,6 +994,23 @@ function PlushSearch2()
 	else
 	{
 		$update_cache = empty($_SESSION['search_cache']) || ($_SESSION['search_cache']['params'] != $context['params']);
+		// Are the result fresh?
+		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
+		{
+			$request = $smcFunc['db_query']('','
+				SELECT id_search 
+				FROM {db_prefix}log_search_results
+				WHERE id_search = {int:search_id}
+				LIMIT 1',
+				array(
+					'search_id' => $_SESSION['search_cache']['id_search'],
+				)
+			);
+
+			if ($smcFunc['db_num_rows']($request) === 0)
+				$update_cache = true;	
+		}
+
 		if ($update_cache)
 		{
 			// Increase the pointer...

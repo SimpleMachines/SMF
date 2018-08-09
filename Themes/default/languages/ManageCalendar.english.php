@@ -5,7 +5,7 @@ $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';
 
 // Calendar Settings
 $txt['calendar_settings_desc'] = 'Here you can enable the calendar, and determine the settings that it should use.';
-$txt['save_settings'] = 'Save Settings';
+$txt['save_settings'] = 'Save settings';
 $txt['groups_calendar_view'] = 'Membergroups allowed to view the calendar';
 $txt['groups_calendar_post'] = 'Membergroups allowed to create events';
 $txt['groups_calendar_edit_own'] = 'Membergroups allowed to edit their own events';
@@ -32,25 +32,25 @@ $txt['setting_cal_viewlist'] = 'List view';
 $txt['setting_cal_viewmonth'] = 'Month view';
 $txt['setting_cal_viewweek'] = 'Week view';
 
-$txt['setting_cal_display_type'] = 'Cell Display Type';
+$txt['setting_cal_display_type'] = 'Cell Display type';
 $txt['setting_cal_display_comfortable'] = 'Comfortable';
 $txt['setting_cal_display_compact'] = 'Compact';
 
-$txt['setting_cal_disable_prev_next'] = 'Disable Three Month Blocks';
+$txt['setting_cal_disable_prev_next'] = 'Disable three Month Blocks';
 
 $txt['setting_cal_highlight_events'] = 'Highlight Events';
 $txt['setting_cal_highlight_holidays'] = 'Highlight Holidays';
 $txt['setting_cal_highlight_birthdays'] = 'Highlight Birthdays';
 
 $txt['setting_cal_highlight_none'] = 'Nowhere';
-$txt['setting_cal_highlight_mini'] = 'Mini Calendars Only';
-$txt['setting_cal_highlight_main'] = 'Main Calendar Only';
+$txt['setting_cal_highlight_mini'] = 'Mini Calendars only';
+$txt['setting_cal_highlight_main'] = 'Main Calendar only';
 $txt['setting_cal_highlight_both'] = 'Mini &amp; Main Calendars';
 
-$txt['setting_cal_week_links'] = 'Show Week Links';
+$txt['setting_cal_week_links'] = 'Show Week links';
 $txt['setting_cal_week_links_none'] = 'Nowhere';
-$txt['setting_cal_week_links_mini'] = 'Mini Calendars Only';
-$txt['setting_cal_week_links_main'] = 'Main Calendar Only';
+$txt['setting_cal_week_links_mini'] = 'Mini Calendars only';
+$txt['setting_cal_week_links_main'] = 'Main Calendar only';
 $txt['setting_cal_week_links_both'] = 'Mini &amp; Main Calendars';
 $txt['setting_cal_prev_next_links'] = 'Show <em>Previous / Next</em> Month Links';
 

@@ -23,7 +23,7 @@ function template_modify_weights()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_weights'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a><label for="weight1_val">
@@ -98,7 +98,7 @@ function template_modify_weights()
 				<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -124,7 +124,7 @@ function template_select_search_method()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	if (!empty($context['table_info']))
@@ -233,7 +233,7 @@ function template_select_search_method()
 				<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -289,8 +289,8 @@ function template_create_index_progress()
 				<div>
 					<p>', $txt['search_create_index_not_ready'], '</p>
 					<div class="progress_bar">
-						<div class="full_bar">', $context['percentage'], '%</div>
-						<div class="green_percent" style="width: ', $context['percentage'], '%;"></div>
+						<span>', $context['percentage'], '%</span>
+						<div class="bar" style="width: ', $context['percentage'], '%;"></div>
 					</div>
 				</div>
 				<hr>
@@ -359,7 +359,7 @@ function template_spider_edit()
 			<div class="information noup">
 				', $txt['add_spider_desc'], '
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
 						<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br>
@@ -387,7 +387,7 @@ function template_spider_edit()
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }
@@ -410,7 +410,7 @@ function template_show_spider_logs()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<p>
 					', $txt['spider_logs_delete_older'], '
 					<input type="text" name="older" id="older" value="7" size="3">
@@ -442,7 +442,7 @@ function template_show_spider_stats()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<p>
 					', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3">'), '
 				</p>

@@ -19,16 +19,7 @@ function template_ban_edit()
 
 	echo '
 	<div id="manage_bans">
-		<form id="admin_form_wrapper" action="', $context['form_url'], '" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirmBan(this);">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $context['ban']['is_new'] ? $txt['ban_add_new'] : $txt['ban_edit'] . ' \'' . $context['ban']['name'] . '\'', '
-				</h3>
-			</div>';
-
-	if ($context['ban']['is_new'])
-		echo '
-			<div class="information noup">', $txt['ban_add_notes'], '</div>';
+		<form id="admin_form_wrapper" action="', $context['form_url'], '" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirmBan(this);">';
 
 	// If there were errors creating the ban, show them.
 	if (!empty($context['error_messages']))
@@ -48,7 +39,18 @@ function template_ban_edit()
 	}
 
 	echo '
-			<div class="windowbg2 noup">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $context['ban']['is_new'] ? $txt['ban_add_new'] : $txt['ban_edit'] . ' \'' . $context['ban']['name'] . '\'', '
+				</h3>
+			</div>';
+
+	if ($context['ban']['is_new'])
+		echo '
+			<div class="information noup">', $txt['ban_add_notes'], '</div>';
+
+	echo '
+			<div class="windowbg noup">
 				<dl class="settings">
 					<dt id="ban_name_label">
 						<strong>', $txt['ban_name'], ':</strong>
@@ -179,7 +181,7 @@ function template_ban_edit()
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))

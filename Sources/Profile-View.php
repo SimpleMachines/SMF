@@ -127,6 +127,17 @@ function summary($memID)
 	// Is the signature even enabled on this forum?
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
 
+	// Prevent signature images from going outside the box.
+	if ($context['signature_enabled'])
+	{
+		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		$sig_limits = explode(',', $sig_limits);
+
+		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
+			addInlineCss('
+	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+	}
+
 	// How about, are they banned?
 	$context['member']['bans'] = array();
 	if (allowedTo('moderate_forum'))
@@ -213,10 +224,19 @@ function summary($memID)
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
 {
-	global $smcFunc, $txt, $scripturl, $memberContext;
+	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
+
+	$user_old = $user_info;
+	// are we someone else?
+	if (empty($user_info) || $user_info['id'] != $memID)
+	{
+		if (empty($user_profile[$memID]))
+			loadMemberData($memID, false, 'profile');
+		$user_info = $user_profile[$memID];
+	}
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -374,6 +394,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
 		}
 	}
+
+	$user_info = $user_old;
 
 	return $alerts;
 }

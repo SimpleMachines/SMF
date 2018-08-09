@@ -46,7 +46,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_stats'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			<dl class="settings">
 				<dt><strong>', $txt['attachment_total'], ':</strong></dt>
 				<dd>', $context['num_attachments'], '</dd>
@@ -69,7 +69,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
 				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button">
@@ -78,7 +78,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', $txt['attachment_remove_old'], '</dt>
@@ -113,20 +113,18 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="byAge">
 				</dl>
 			</form>
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</div><!-- #manage_attachments -->';
-
-	echo '
-	<div id="transfer" class="cat_bar">
-		<h3 class="catbg">', $txt['attachment_transfer'], '</h3>
-	</div>';
 
 	if (!empty($context['results']))
 		echo '
 	<div class="noticebox">', $context['results'], '</div>';
 
 	echo '
-	<div class="windowbg2 noup">
+	<div id="transfer" class="cat_bar">
+		<h3 class="catbg">', $txt['attachment_transfer'], '</h3>
+	</div>
+	<div class="windowbg">
 		<form action="', $scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', $context['character_set'], '">
 			<p>', $txt['attachment_transfer_desc'], '</p>
 			<dl class="settings">
@@ -200,7 +198,7 @@ function template_maintenance()
 			}
 
 		</script>
-	</div><!-- .windowbg2 -->';
+	</div><!-- .windowbg -->';
 }
 
 /**
@@ -217,7 +215,7 @@ function template_attachment_repair()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['repair_attachments_complete'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			', $txt['repair_attachments_complete_desc'], '
 		</div>
 	</div>';
@@ -229,7 +227,7 @@ function template_attachment_repair()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['repair_attachments_complete'], '</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			', $txt['repair_attachments_no_errors'], '
 		</div>
 	</div>';
@@ -243,7 +241,7 @@ function template_attachment_repair()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['repair_attachments'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<p>', $txt['repair_attachments_error_desc'], '</p>';
 
 		// Loop through each error reporting the status

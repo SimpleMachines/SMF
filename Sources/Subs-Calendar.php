@@ -749,9 +749,9 @@ function cache_getOffsetIndependentEvents($eventOptions)
 
 	return array(
 		'data' => array(
-			'holidays' => ($eventOptions['include_holidays'] ? getHolidayRange($low_date, $high_date) : array()),
-			'birthdays' => ($eventOptions['include_birthdays'] ? getBirthdayRange($low_date, $high_date) : array()),
-			'events' => ($eventOptions['include_events'] ? getEventRange($low_date, $high_date, false) : array()),
+			'holidays' => (!empty($eventOptions['include_holidays']) ? getHolidayRange($low_date, $high_date) : array()),
+			'birthdays' => (!empty($eventOptions['include_birthdays']) ? getBirthdayRange($low_date, $high_date) : array()),
+			'events' => (!empty($eventOptions['include_events']) ? getEventRange($low_date, $high_date, false) : array()),
 		),
 		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
@@ -785,7 +785,7 @@ function cache_getRecentEvents($eventOptions)
 	// Get the current member time/date.
 	$now = forum_time();
 
-	if ($eventOptions['include_holidays'])
+	if (!empty($eventOptions['include_holidays']))
 	{
 		// Holidays between now and now + days.
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
@@ -795,7 +795,7 @@ function cache_getRecentEvents($eventOptions)
 		}
 	}
 
-	if ($eventOptions['include_birthdays'])
+	if (!empty($eventOptions['include_birthdays']))
 	{
 		// Happy Birthday, guys and gals!
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
@@ -810,7 +810,7 @@ function cache_getRecentEvents($eventOptions)
 		}
 	}
 
-	if ($eventOptions['include_events'])
+	if (!empty($eventOptions['include_events']))
 	{
 		$duplicates = array();
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
@@ -1649,7 +1649,7 @@ function getUserTimezone($id_member = null)
 	}
 
 	//maybe the current user is the one
-	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member)
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
 	{
 		$member_cache[$id_member] = $user_settings['timezone'];
 		return $user_settings['timezone'];

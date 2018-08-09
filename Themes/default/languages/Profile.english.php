@@ -19,12 +19,12 @@ $txt['current_signature'] = 'Current signature';
 $txt['signature_preview'] = 'Signature preview';
 $txt['delete_user'] = 'Delete user';
 $txt['current_status'] = 'Current Status:';
-$txt['personal_picture'] = 'Personalized Picture';
+$txt['personal_picture'] = 'Personalized picture';
 $txt['no_avatar'] = 'No avatar';
 $txt['choose_avatar_gallery'] = 'Choose avatar from gallery';
 $txt['picture_text'] = 'Picture/Text';
 $txt['reset_form'] = 'Reset Form';
-$txt['preferred_language'] = 'Preferred Language';
+$txt['preferred_language'] = 'Preferred language';
 $txt['age'] = 'Age';
 $txt['no_pic'] = '(no pic)';
 $txt['latest_posts'] = 'Latest posts of: ';
@@ -54,7 +54,7 @@ $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
 
-$txt['skype_username'] = 'Your Skype Username.';
+$txt['skype_username'] = 'Your Skype username';
 
 $txt['language'] = 'Language';
 $txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
@@ -92,9 +92,9 @@ $txt['theme_forum_default_desc'] = 'This is the default theme, which means your 
 
 $txt['profileConfirm'] = 'Do you really want to delete this member?';
 
-$txt['custom_title'] = 'Custom Title';
+$txt['custom_title'] = 'Custom title';
 
-$txt['lastLoggedIn'] = 'Last Active';
+$txt['lastLoggedIn'] = 'Last active';
 
 $txt['alert_prefs'] = 'Notification Preferences';
 $txt['alert_prefs_desc'] = 'This page will allow you to configure when and how you get notified about new content.';
@@ -178,22 +178,22 @@ $txt['notifications_boards_howto'] = 'To request notifications from a specific b
 $txt['notifications_update'] = 'Unnotify';
 
 $txt['statPanel_showStats'] = 'User statistics for: ';
-$txt['statPanel_users_votes'] = 'Number of Votes Cast';
-$txt['statPanel_users_polls'] = 'Number of Polls Created';
-$txt['statPanel_total_time_online'] = 'Total Time Spent Online';
+$txt['statPanel_users_votes'] = 'Number of Votes cast';
+$txt['statPanel_users_polls'] = 'Number of Polls created';
+$txt['statPanel_total_time_online'] = 'Total time spent Online';
 $txt['statPanel_noPosts'] = 'No posts to speak of!';
 $txt['statPanel_generalStats'] = 'General Statistics';
 $txt['statPanel_posts'] = 'posts';
 $txt['statPanel_topics'] = 'topics';
 $txt['statPanel_total_posts'] = 'Total Posts';
-$txt['statPanel_total_topics'] = 'Total Topics Started';
+$txt['statPanel_total_topics'] = 'Total Topics started';
 $txt['statPanel_votes'] = 'votes';
 $txt['statPanel_polls'] = 'polls';
-$txt['statPanel_topBoards'] = 'Most Popular Boards By Posts';
+$txt['statPanel_topBoards'] = 'Most popular Boards by Posts';
 $txt['statPanel_topBoards_posts'] = '%1$d posts of the board\'s %2$d posts (%3$01.2f%%)';
 $txt['statPanel_topBoards_memberposts'] = '%1$d posts of the member\'s %2$d posts (%3$01.2f%%)';
-$txt['statPanel_topBoardsActivity'] = 'Most Popular Boards By Activity';
-$txt['statPanel_activityTime'] = 'Posting Activity By Time';
+$txt['statPanel_topBoardsActivity'] = 'Most popular Boards by Activity';
+$txt['statPanel_activityTime'] = 'Posting activity by Time';
 $txt['statPanel_activityTime_posts'] = '%1$d posts (%2$d%%)';
 $txt['statPanel_timeOfDay'] = 'Time of Day';
 
@@ -210,14 +210,14 @@ $txt['deleteAccount_permanent'] = 'Permanently delete topics/posts instead of re
 
 $txt['profile_of_username'] = 'Profile of %1$s';
 $txt['profileInfo'] = 'Profile Info';
-$txt['showPosts'] = 'Show Posts';
+$txt['showPosts'] = 'Show posts';
 $txt['showPosts_help'] = 'This section allows you to view all posts made by this member. Note that you can only see posts made in areas you currently have access to.';
 $txt['showMessages'] = 'Messages';
 $txt['showTopics'] = 'Topics';
 $txt['showUnwatched'] = 'Unwatched topics';
 $txt['showAttachments'] = 'Attachments';
 $txt['viewWarning_help'] = 'This section allows you to view all warnings issued to this member.';
-$txt['statPanel'] = 'Show Stats';
+$txt['statPanel'] = 'Show stats';
 $txt['editBuddyIgnoreLists'] = 'Buddies/Ignore List';
 $txt['could_not_add_person'] = 'You could not add that person to your list';
 $txt['could_not_remove_person'] = 'You could not remove that person from your list';
@@ -358,9 +358,9 @@ $txt['moderator_why_missing'] = 'why isn\'t moderator here?';
 $txt['username_change'] = 'change';
 $txt['username_warning'] = 'To change this member\'s username, the forum must also reset their password, which will be emailed to the member with their new username.';
 
-$txt['show_member_posts'] = 'View Member Posts';
-$txt['show_member_topics'] = 'View Member Topics';
-$txt['show_member_attachments'] = 'View Member Attachments';
+$txt['show_member_posts'] = 'View member Posts';
+$txt['show_member_topics'] = 'View member Topics';
+$txt['show_member_attachments'] = 'View member Attachments';
 $txt['show_posts_none'] = 'No posts have been posted yet.';
 $txt['show_topics_none'] = 'No topics have been posted yet.';
 $txt['unwatched_topics_none'] = 'You don\'t have any topic in the unwatched list.';
@@ -389,13 +389,13 @@ $txt['posts_per_day'] = 'per day';
 
 $txt['buddy_ignore_desc'] = 'This area allows you to maintain your buddy and ignore lists for this forum. Adding members to these lists will, amongst other things, help control mail and PM traffic, depending on your preferences.';
 
-$txt['buddy_add'] = 'Add To Buddy List';
-$txt['buddy_remove'] = 'Remove From Buddy List';
+$txt['buddy_add'] = 'Add to buddy list';
+$txt['buddy_remove'] = 'Remove from buddy list';
 $txt['buddy_add_button'] = 'Add';
 $txt['no_buddies'] = 'Your buddy list is currently empty';
 
-$txt['ignore_add'] = 'Add To Ignore List';
-$txt['ignore_remove'] = 'Remove From Ignore List';
+$txt['ignore_add'] = 'Add to ignore list';
+$txt['ignore_remove'] = 'Remove from ignore list';
 $txt['ignore_add_button'] = 'Add';
 $txt['no_ignore'] = 'Your ignore list is currently empty';
 
@@ -517,9 +517,9 @@ $txt['trackEdit_after'] = 'Value After';
 $txt['trackEdit_applicator'] = 'Changed By';
 
 $txt['trackEdit_action_real_name'] = 'Member Name';
-$txt['trackEdit_action_usertitle'] = 'Custom Title';
+$txt['trackEdit_action_usertitle'] = 'Custom title';
 $txt['trackEdit_action_member_name'] = 'Username';
-$txt['trackEdit_action_email_address'] = 'Email Address';
+$txt['trackEdit_action_email_address'] = 'Email address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 
@@ -535,7 +535,7 @@ $txt['outcome_approved'] = 'Approved by %1$s on %2$s';
 $txt['outcome_refused'] = 'Refused by %1$s on %2$s';
 $txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
 
-$txt['report_profile'] = 'Report This Member';
+$txt['report_profile'] = 'Report this member';
 $txt['notification_remove_pref'] = 'Use default preference';
 
 $txt['tfa_profile_label'] = 'Two-Factor Authentication';
@@ -564,7 +564,7 @@ $txt['tfa_backup_desc'] = 'If you have lost your device or authentication app, y
 $txt['tfa_wait'] = 'Please wait for about 2 minutes before attempting to log in via two-factor authentication again.';
 
 $txt['theme_opt_calendar'] = 'Calendar';
-$txt['theme_opt_display'] = 'Board and topic display';
+$txt['theme_opt_display'] = 'Board and Topic display';
 $txt['theme_opt_posting'] = 'Posting';
 $txt['theme_opt_moderation'] = 'Moderation';
 $txt['theme_opt_personal_messages'] = 'Personal Messages';

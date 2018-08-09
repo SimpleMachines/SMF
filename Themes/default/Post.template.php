@@ -77,7 +77,7 @@ function template_main()
 						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
-				<div id="preview_body" class="windowbg noup">
+				<div id="preview_body" class="windowbg">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div>
@@ -93,7 +93,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe noup">', isset($context['current_topic']) ? '
+				<div class="roundframe">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
@@ -415,7 +415,9 @@ function template_main()
 											</div>
 										</div>
 									</div><!-- .attached_BBC -->
-									<div class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+										<div class="bar"></div>
+									</div>
 									<div class="attach-ui">
 										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
 										<a class="button upload">', $txt['upload'] ,'</a>
@@ -423,7 +425,9 @@ function template_main()
 								</div><!-- .attach-info -->
 							</div><!-- #au-template -->
 						</div><!-- #au-previews -->
-						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
+						<div id ="maxFiles_progress" class="maxFiles_progress progress_bar">
+							<div class="bar"></div>
+						</div>
 						<div id ="maxFiles_progress_text"></div>';
 
 		echo '
@@ -437,10 +441,15 @@ function template_main()
 									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
 									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
 									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
-									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+										<div class="bar"></div>
+									</div>
 									<div class="fallback">
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
-								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">');
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+
+		if (!empty($modSettings['attachmentSizeLimit']))
+			echo '
+										<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
 
 		// Show more boxes if they aren't approaching that limit.
 		if ($context['num_allowed_attachments'] > 1)
@@ -503,9 +512,9 @@ function template_main()
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-					<div id="postDraftOptionsHeader" class="title_bar title_top">
+					<div id="postDraftOptionsHeader" class="title_bar">
 						<h4 class="titlebg">
-							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 						</h4>
 					</div>
 					<div id="postDraftOptions">
@@ -790,7 +799,7 @@ function template_main()
 					{
 						sId: \'postDraftExpandLink\',
 						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+						msgCollapsed: ', JavaScriptEscape($txt['drafts_show']), '
 					}
 				]
 			});';
@@ -1046,7 +1055,7 @@ function template_announce()
 			<div class="information">
 				', $txt['announce_desc'], '
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<p>
 					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
 				</p>
@@ -1072,7 +1081,7 @@ function template_announce()
 					<input type="hidden" name="goback" value="', $context['go_back'], '">
 				</div>
 				<br class="clear_right">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
 	<br>';
@@ -1088,13 +1097,13 @@ function template_announcement_send()
 	echo '
 	<div id="announcement">
 		<form action="', $scripturl, '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
-			<div class="windowbg2">
+			<div class="windowbg">
 				<p>
 					', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" rel="noopener">', $context['topic_subject'], '</a>
 				</p>
 				<div class="progress_bar">
-					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-					<div class="green_percent" style="width: ', $context['percentage_done'], '%;"></div>
+					<span>', $context['percentage_done'], '% ', $txt['announce_done'], '</span>
+					<div class="bar" style="width: ', $context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<div id="confirm_buttons">
@@ -1107,7 +1116,7 @@ function template_announcement_send()
 					<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
 				</div>
 				<br class="clear_right">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
 	<br>

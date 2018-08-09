@@ -223,7 +223,7 @@
 	}
 	/* Memberlist */
 	th.website_url,
-	td.website_url, td.reg_group, td.reg_date, td.post_num, td.statsbar {
+	td.website_url, td.reg_group, td.reg_date, td.post_num {
 		display: none;
 	}
 	#mlist .posts {
@@ -493,6 +493,9 @@
 	/* BoardIndex */
 	.board_stats {
 		display: none;
+	}
+	.info {
+		width: calc(100% - 65px);
 	}
 	div.lastpost {
 		width: 100%;

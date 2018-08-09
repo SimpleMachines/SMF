@@ -2821,7 +2821,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 ---# Installing new smiley sets...
 ---{
 // Don't do this twice!
-if (empty($modSettings['installed_new_smiley_sets_20']))
+if (empty($modSettings['dont_repeat_smileys_20']) && empty($modSettings['installed_new_smiley_sets_20']))
 {
 	// First, the entries.
 	upgrade_query("

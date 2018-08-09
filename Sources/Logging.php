@@ -548,9 +548,14 @@ function logActions($logs)
 			$memID = $log['extra']['member_affected'];
 		else
 			$memID = $user_info['id'];
+		
+		if (isset($user_info['ip']))
+			$memIP = $user_info['ip'];
+		else
+			$memIP = 'null';
 
 		$inserts[] = array(
-			time(), $log_types[$log['log_type']], $memID, $user_info['ip'], $log['action'],
+			time(), $log_types[$log['log_type']], $memID, $memIP, $log['action'],
 			$board_id, $topic_id, $msg_id, $smcFunc['json_encode']($log['extra']),
 		);
 	}

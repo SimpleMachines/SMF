@@ -40,7 +40,7 @@ function template_fatal_error()
 				', $context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<div ', $context['error_code'], 'class="padding">
 				', $context['error_message'], '
 			</div>
@@ -247,9 +247,14 @@ function template_attachment_errors()
 			<div class="padding">
 				<div class="noticebox">',
 					$context['error_message'], '
-				</div>',
-				!empty($context['back_link']) ? ('<a class="button" href="' . $scripturl . $context['back_link'] . '">' . $txt['back'] . '</a>') : '',
-				'<span style="float: right; margin:.5em;"></span>
+				</div>';
+	
+	if (!empty($context['back_link'])) 
+		echo '
+				<a class="button" href="', $scripturl, $context['back_link'], '">', $txt['back'], '</a>';
+
+	echo '
+				<span style="float: right; margin:.5em;"></span>
 				<a class="button" href="', $scripturl, $context['redirect_link'], '">', $txt['continue'], '</a>
 			</div>
 		</div>
@@ -280,7 +285,7 @@ function template_show_backtrace()
 					', $txt['error'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		if (!empty($context['error_info']['error_type']))
@@ -317,11 +322,17 @@ function template_show_backtrace()
 					', $txt['backtrace_title'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
+			//Check for existing
+			if (!property_exists($value,'file') || empty($value->file))
+				$value->file = $txt['unknown'];
+			if (!property_exists($value, 'line') || empty($value->line))
+				$value->line = -1;
+
 				echo '
 					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
 		}

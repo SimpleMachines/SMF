@@ -54,7 +54,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.member_groups,
+			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, mem.lngfile, b.member_groups,
 				mem.id_group, mem.id_post_group, mem.additional_groups, t.id_member_started, mem.pm_ignore_list,
 				t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
@@ -98,10 +98,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Notify members which might've been quoted
 		self::handleQuoteNotifications($msgOptions, $posterOptions, $quotedMembers, $prefs, $done_members, $alert_rows);
 
+		// Save ourselves a bit of work in the big loop below
+		foreach ($done_members as $done_member)
+			unset($watched[$done_member]);
+
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
-			$frequency = !empty($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 1;
+			$frequency = isset($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 0;
 			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 			// Don't send a notification if the watching member ignored the member who made the action.
@@ -116,7 +120,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			elseif ($notify_types == 4)
 				continue;
 
-			if ($frequency > 2 || (!empty($frequency) && $data['sent']) || in_array($member, $done_members)
+			if (empty($frequency) || $frequency > 2 || $data['sent']
 				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
 				continue;
 
@@ -157,7 +161,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'TOPICSUBJECT' => $msgOptions['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => $msgOptions['body'],
+					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($msgOptions['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']'))))),
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 

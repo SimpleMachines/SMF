@@ -217,7 +217,11 @@ sceditor.command.set(
 						'<a target="_blank" rel="noopener" href="' + url + '">' + text + '</a>'
 					);
 				} else {
-					editor.execCommand('createlink', url);
+					// Can't just use `editor.execCommand('createlink', url)`
+					// because we need to set the target attribute.
+					editor.wysiwygEditorInsertHtml(
+						'<a target="_blank" rel="noopener" href="' + url + '">', '</a>'
+					);
 				}
 			});
 		}
@@ -539,9 +543,7 @@ sceditor.formats.bbcode.set(
 
 			// A mention?
 			else if (typeof element.attr('data-mention') !== "undefined")
-			{
 				return '[member='+ element.attr('data-mention') +']'+ content.replace('@','') +'[/member]';
-			}
 
 			// Is this an attachment?
 			else if (typeof element.attr('data-attachment') !== "undefined")
@@ -786,6 +788,8 @@ sceditor.formats.bbcode.set(
 				class: 'videocontainer'
 			}
 		},
+		isInline: false,
+		skipLastLineBreak: true,
 		format: function (element, content) {
 			youtube_id = $(element).find('iframe').data('youtube-id');
 

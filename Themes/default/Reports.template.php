@@ -23,7 +23,7 @@ function template_report_type()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	// Go through each type of report they can run.
@@ -43,7 +43,7 @@ function template_report_type()
 				</dl>
 				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admincenter -->';
 }

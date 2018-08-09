@@ -62,7 +62,6 @@ function ManageMaintenance()
 			'activities' => array(
 				'optimize' => 'OptimizeTables',
 				'convertentities' => 'ConvertEntities',
-				'convertutf8' => 'ConvertUtf8',
 				'convertmsgbody' => 'ConvertMsgBody',
 			),
 		),
@@ -117,10 +116,6 @@ function ManageMaintenance()
 	if (isset($activity))
 		call_helper($subActions[$subAction]['activities'][$activity]);
 
-	//converted to UTF-8? show a small maintenance info
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
-
 	// Create a maintenance token.  Kinda hard to do it any other way.
 	createToken('admin-maint');
 }
@@ -133,8 +128,7 @@ function MaintainDatabase()
 	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
-	$context['convert_utf8'] = ($db_type == 'mysql') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
-	$context['convert_entities'] = ($db_type == 'mysql') && isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
+	$context['convert_entities'] = isset($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8';
 
 	if ($db_type == 'mysql')
 	{
@@ -149,8 +143,6 @@ function MaintainDatabase()
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
 	}
 
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
 	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
 		$context['maintenance_finished'] = $txt['entity_convert_title'];
 }
@@ -490,12 +482,12 @@ function ConvertMsgBody()
  */
 function ConvertEntities()
 {
-	global $db_character_set, $modSettings, $context, $sourcedir, $smcFunc;
+	global $db_character_set, $modSettings, $context, $smcFunc, $db_type, $db_prefix;
 
 	isAllowedTo('admin_forum');
 
 	// Check to see if UTF-8 is currently the default character set.
-	if ($modSettings['global_character_set'] !== 'UTF-8' || !isset($db_character_set) || $db_character_set !== 'utf8')
+	if ($modSettings['global_character_set'] !== 'UTF-8')
 		fatal_lang_error('entity_convert_only_utf8');
 
 	// Some starting values.
@@ -525,6 +517,7 @@ function ConvertEntities()
 	checkSession('request');
 	validateToken('admin-maint');
 	createToken('admin-maint');
+	$context['not_done_token'] = 'admin-maint';
 
 	// A list of tables ready for conversion.
 	$tables = array(
@@ -563,30 +556,54 @@ function ConvertEntities()
 
 		// Get a list of text columns.
 		$columns = array();
-		$request = $smcFunc['db_query']('', '
-			SHOW FULL COLUMNS
-			FROM {db_prefix}{raw:cur_table}',
-			array(
-				'cur_table' => $cur_table,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$request = $smcFunc['db_query']('', '
+				SELECT column_name "Field", data_type "Type"
+				FROM information_schema.columns 
+				WHERE table_name = {string:cur_table}
+				AND (data_type = \'character varying\' or data_type = \'text\')',
+				array(
+					'cur_table' => $db_prefix.$cur_table,
+				)
+			);
+		else
+			$request = $smcFunc['db_query']('', '
+				SHOW FULL COLUMNS
+				FROM {db_prefix}{raw:cur_table}',
+				array(
+					'cur_table' => $cur_table,
+				)
+			);
 		while ($column_info = $smcFunc['db_fetch_assoc']($request))
 			if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false)
 				$columns[] = strtolower($column_info['Field']);
 
 		// Get the column with the (first) primary key.
-		$request = $smcFunc['db_query']('', '
-			SHOW KEYS
-			FROM {db_prefix}{raw:cur_table}',
-			array(
-				'cur_table' => $cur_table,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$request = $smcFunc['db_query']('', '
+				SELECT a.attname "Column_name", \'PRIMARY\' "Key_name", attnum "Seq_in_index"
+				FROM   pg_index i
+				JOIN   pg_attribute a ON a.attrelid = i.indrelid
+									 AND a.attnum = ANY(i.indkey)
+				WHERE  i.indrelid = {string:cur_table}::regclass
+				AND    i.indisprimary',
+				array(
+					'cur_table' => $db_prefix.$cur_table,
+				)
+			);
+		else
+			$request = $smcFunc['db_query']('', '
+				SHOW KEYS
+				FROM {db_prefix}{raw:cur_table}',
+				array(
+					'cur_table' => $cur_table,
+				)
+			);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($row['Key_name'] === 'PRIMARY')
 			{
-				if (empty($primary_key) || ($row['Seq_in_index'] == 1 && !in_array(strtolower($row['Column_name']), $columns)))
+				if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !in_array(strtolower($row['Column_name']), $columns))
 					$primary_key = $row['Column_name'];
 
 				$primary_keys[] = $row['Column_name'];
@@ -680,7 +697,7 @@ function ConvertEntities()
 	$context['continue_percent'] = 100;
 	$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;done=convertentities';
 	$context['last_step'] = true;
-	$context['continue_countdown'] = -1;
+	$context['continue_countdown'] = 3;
 }
 
 /**
@@ -2283,7 +2300,7 @@ function get_hook_info_from_raw($rawData)
 
 /**
  * Converts html entities to utf8 equivalents
- * special db wrapper for mysql based on the limitation of mysql
+ * special db wrapper for mysql based on the limitation of mysql/mb3
  *
  * Callback function for preg_replace_callback
  * Uses capture group 1 in the supplied array
@@ -2294,16 +2311,17 @@ function get_hook_info_from_raw($rawData)
  */
 function fixchardb__callback($matches)
 {
+	global $smcFunc;
 	if (!isset($matches[1]))
 		return '';
 
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
 	
-	// it's to big for mysql?
-	if ($num > 0xFFFF)
+	// it's to big for mb3?
+	if ($num > 0xFFFF && !$smcFunc['db_mb4'])
 		return $matches[0];
 	else
-		return fixchar__callback ($matches);
+		return fixchar__callback($matches);
 }
 
 ?>

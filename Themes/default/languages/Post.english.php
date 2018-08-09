@@ -11,7 +11,7 @@ $txt['message_body_not_filled'] = 'The message body was not filled out. It is re
 $txt['add_bbc'] = 'Add BBC tags';
 
 $txt['disable_smileys'] = 'Disable smileys';
-$txt['dont_use_smileys'] = 'Don\'t use smileys.';
+$txt['dont_use_smileys'] = 'Don\'t use smileys';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['posted_on'] = 'Posted on';
 $txt['standard'] = 'Standard';
@@ -22,7 +22,7 @@ $txt['question_mark'] = 'Question mark';
 $txt['icon_poll'] = 'Poll';
 $txt['lamp'] = 'Lamp';
 $txt['add_smileys'] = 'Add smileys';
-$txt['topic_notify_no'] = 'There are no topics with notification.';
+$txt['topic_notify_no'] = 'There are no topics with notification';
 // post_too_long seems unused (duplicate in Errors: error_post_too_long
 $txt['post_too_long'] = 'Your message is too long. Please go back and shorten it, then try again.';
 
@@ -30,12 +30,12 @@ $txt['post_too_long'] = 'Your message is too long. Please go back and shorten it
 $txt['notifyUnsubscribe'] = 'Unsubscribe to this topic by clicking here';
 
 $txt['lock_after_post'] = 'Lock after Post';
-$txt['notify_replies'] = 'Notify me of replies.';
-$txt['lock_topic'] = 'Lock this topic.';
-$txt['shortcuts'] = 'Shortcuts: alt+s save/post or alt+p preview';
-$txt['shortcuts_drafts'] = 'Shortcuts: alt+s save/post, alt+p preview, alt+d save draft';
-$txt['shortcuts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview';
-$txt['shortcuts_drafts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview, shift+alt+d save draft';
+$txt['notify_replies'] = 'Notify me of replies';
+$txt['lock_topic'] = 'Lock this topic';
+$txt['shortcuts'] = 'Shortcuts: ALT+S save/post or ALT+P preview';
+$txt['shortcuts_drafts'] = 'Shortcuts: ALT+S save/post, ALT+P preview, ALT+D save draft';
+$txt['shortcuts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview';
+$txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview, SHIFT+ALT+D save draft';
 $txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post or ⌃⌥P preview';
 $txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview, ⌃⌥D save draft';
 $txt['option'] = 'Option';
@@ -172,7 +172,7 @@ $txt['attach_folder_warning'] = 'The attachments directory can not be located. P
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
-$txt['attach_remaining'] = '%1$d attachments remaining';
+$txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachments remaining';
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';

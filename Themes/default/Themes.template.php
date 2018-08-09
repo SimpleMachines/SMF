@@ -39,7 +39,7 @@ function template_main()
 					$txt['settings'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="options-theme_allow"> ', $txt['theme_allow'], '</label>
@@ -102,7 +102,7 @@ function template_main()
 				<input type="submit" name="save" value="' . $txt['save'] . '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>';
 
 	// Link to simplemachines.org for latest themes and info!
@@ -112,7 +112,7 @@ function template_main()
 				', $txt['theme_adding_title'], '
 			</h3>
 		</div>
-		<div class="windowbg2 noup">
+		<div class="windowbg">
 			', $txt['theme_adding'], '
 		</div>';
 
@@ -124,7 +124,7 @@ function template_main()
 					', $txt['theme_install'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">';
+			<div class="windowbg">';
 
 	if ($context['can_create_new'])
 	{
@@ -166,7 +166,7 @@ function template_main()
 				</fieldset>';
 
 	echo '
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</div><!-- #admin_form_wrapper -->
 	</div><!-- #admincenter -->';
 
@@ -238,7 +238,7 @@ function template_list_themes()
 		echo '
 				</h3>
 			</div><!-- .cat_bar -->
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings themes_list">
 					<dt>', $txt['themeadmin_list_theme_dir'], ':</dt>
 					<dd', $theme['valid_path'] ? '' : ' class="error"', '>', $theme['theme_dir'], $theme['valid_path'] ? '' : ' ' . $txt['themeadmin_list_invalid'], '</dd>
@@ -254,7 +254,7 @@ function template_list_themes()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['themeadmin_list_reset'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="reset_dir">', $txt['themeadmin_list_reset_dir'], '</label>:
@@ -302,7 +302,7 @@ function template_reset_list()
 			<div class="cat_bar">
 				<h3 class="catbg">', $theme['name'], '</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<ul>
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
@@ -341,7 +341,7 @@ function template_set_options()
 			<div class="information noup">
 				', $context['theme_options_reset'] ? $txt['themeadmin_reset_options_info'] : $txt['theme_options_defaults'], '
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg noup">
 				<dl class="settings">';
 
 	$skeys = array_keys($context['options']);
@@ -486,7 +486,7 @@ function template_set_settings()
 					', $txt['theme_edit'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<ul>
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;filename=index.template.php">', $txt['theme_edit_index'], '</a>
@@ -503,7 +503,7 @@ function template_set_settings()
 					', $txt['theme_url_config'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="theme_name">', $txt['actual_theme_name'], '</label>
@@ -541,7 +541,7 @@ function template_set_settings()
 					', $txt['theme_variants'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<label for="variant">', $txt['theme_variants_default'], '</label>:
@@ -574,7 +574,7 @@ function template_set_settings()
 					', $txt['theme_options'], '
 				</h3>
 			</div>
-			<div class="windowbg2 noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	$skeys = array_keys($context['settings']);
@@ -682,7 +682,7 @@ function template_set_settings()
 				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '">
-			</div><!-- .windowbg2 -->
+			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admin_form_wrapper -->';
 
@@ -727,7 +727,7 @@ function template_pick()
 					<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '">', $theme['name'], '</a>
 				</h3>
 			</div>
-			<div class="', $theme['selected'] ? 'windowbg' : 'windowbg2', ' noup">
+			<div class="windowbg', $theme['selected'] ? ' selected' : '', '">
 				<div class="flow_hidden">
 					<div class="floatright">
 						<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', $txt['theme_preview'], '">
@@ -855,7 +855,7 @@ function template_edit_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_edit_title'], '</h3>
 		</div>
-		<div class="windowbg2 noup">';
+		<div class="windowbg">';
 
 	foreach ($context['themes'] as $theme)
 	{
@@ -874,7 +874,7 @@ function template_edit_list()
 	}
 
 	echo '
-		</div><!-- .windowbg2 -->
+		</div><!-- .windowbg -->
 	</div><!-- #admin_form_wrapper -->';
 }
 

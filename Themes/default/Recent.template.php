@@ -158,13 +158,13 @@ function template_unread()
 
 			echo '
 							<div class="recent_title">
-								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
+								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . $txt['new'] . '</a>
 								', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
+							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -309,13 +309,13 @@ function template_replies()
 
 			echo '
 							<div class="recent_title">
-								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
+								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . $txt['new'] . '</a>
 								', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
+							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -354,7 +354,7 @@ function template_replies()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext">
-					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['unread_topics_visit_none'], '
+					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
 				</h3>
 			</div>';
 
