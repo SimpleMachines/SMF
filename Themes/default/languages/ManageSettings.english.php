@@ -116,6 +116,7 @@ $txt['policy_not_approvals'] = 'Amount of non approvals';
 $txt['policy_old_approvals'] = 'Amount of old approvals';
 $txt['policy_fresh_approvals'] = 'Amount of fresh approvals';
 $txt['policy_remove_old'] = 'Enforce old to new version';
+$txt['policy_current'] = 'current';
 
 // Mention settings.
 $txt['enable_mentions'] = 'Enable mentions';

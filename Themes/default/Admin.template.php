@@ -1714,7 +1714,7 @@ function template_edit_policy()
 	foreach ($context['poc']['policy_management'] as $row)
 	{
 		echo '
-									<dt>', ($row['new'] ? 'current' : '<input type="submit" name="delete_policy" value="' . $row['name'] . '" class="button">') , '</dt><dd>', $row['amount'], '</dd>';
+									<dt>', ($row['new'] ? $txt['policy_current'] : '<input type="submit" name="delete_policy" value="' . $row['name'] . '" class="button">') , '</dt><dd>', $row['amount'], '</dd>';
 	}
 	echo '
 								</dl>
