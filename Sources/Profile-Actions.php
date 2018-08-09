@@ -1022,7 +1022,7 @@ function getProfileData($memID)
 			)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
-		if (!is_array($profileData))
+		if (!is_array($profileData) || empty($profileData))
 			redirectexit('action=profile;area=getprofiledata;u=' . $memID . ';nofound=1');
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
@@ -1041,7 +1041,7 @@ function getProfileData($memID)
 			)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
-		if (!is_array($profileData))
+		if (!is_array($profileData) || empty($profileData))
 			redirectexit('action=profile;area=getprofiledata;u=' . $memID . ';nofound=1');
 		array_unshift($profileData, array_keys($profileData[0]));
 		$smcFunc['db_free_result']($request);
