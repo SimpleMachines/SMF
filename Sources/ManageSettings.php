@@ -2295,7 +2295,7 @@ function ModifyPrivacySettings($return_config = false)
 	$config_vars = array(
 		array('check', 'enable_privacy_userexport'),
 		array('permissions', 'privacy_userexport_own'),
-		array('permissions', 'privacy_userexport_others'),
+		array('permissions', 'privacy_userexport_any'),
 	);
 
 	call_integration_hook('integrate_privacy_settings', array(&$config_vars));

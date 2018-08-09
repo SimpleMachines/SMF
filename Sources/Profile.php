@@ -433,8 +433,8 @@ function ModifyProfile($post_errors = array())
 					'token' => 'profile-da%u',
 					'password' => true,
 					'permission' => array(
-						'own' => array('privacy_userexport_own'),
-						'any' => array('privacy_userexport_others'),
+						'own' => array('privacy_userexport_any', 'privacy_userexport_own'),
+						'any' => array('privacy_userexport_any'),
 					),
 				);
 
