@@ -578,7 +578,7 @@ function loadEssentialData()
 		if (empty($db_connection))
 		{
 			$options = array('non_fatal' => true);
-				// Add in the port if needed
+			// Add in the port if needed
 			if (!empty($db_port))
 				$options['port'] = $db_port;
 			
