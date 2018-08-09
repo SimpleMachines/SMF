@@ -2449,38 +2449,54 @@ WHERE
 // Start with the prior values...
 $dirs = explode(',', $modSettings['smiley_sets_known']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
-$combined = array();
 
-// Confirm they exist in the filesystem; bypass default which is getting removed...
+// Build combined pairs of folders and names; bypass default which is not used anymore
+$combined = array();
 foreach ($dirs AS $ix => $dir)
-	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/') && !empty($setnames[$ix]) && $dir != 'default')
+	if (!empty($setnames[$ix]) && $dir != 'default')
 		$combined[$dir] = $setnames[$ix];
 
-// Add our lovely new smiley sets if not already there...
-if (!array_key_exists('fugue', $combined))
-	$combined['fugue'] = $txt['default_fugue_smileyset_name'];
-if (!array_key_exists('alienine', $combined))
-	$combined['alienine'] = $txt['default_alienine_smileyset_name'];
+// Add our lovely new 2.1 smiley sets if not already there
+$combined['fugue'] = $txt['default_fugue_smileyset_name'];
+$combined['alienine'] = $txt['default_alienine_smileyset_name'];
+
+// Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['aaron'] = $txt['default_aaron_smileyset_name'];
+$combined['akyhne'] = $txt['default_akyhne_smileyset_name'];
+
+// Confirm they exist in the filesystem
+$filtered = array();
+foreach ($combined AS $dir => $name)
+	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
+		$filtered[$dir] = $name;
 
 // Update the Settings Table...
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($combined))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($filtered))) . "'
 	WHERE variable = 'smiley_sets_known'");
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_values($combined))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_values($filtered))) . "'
 	WHERE variable = 'smiley_sets_names'");
 
-// Update default to fugue if necessary...
-if ($modSettings['smiley_sets_default'] == 'default' || !array_key_exists($modSettings['smiley_sets_default'], $combined))
+// Set new default if the old one doesnt exist
+// If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
+if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 {
+	if (array_key_exists('fugue', $filtered))
+		$newdefault = 'fugue';
+	elseif (!empty($filtered))
+		$newdefault = array_keys($filtered)[0];
+	else
+		$newdefault = '';
 	upgrade_query("
 		UPDATE {$db_prefix}settings
-		SET value = 'fugue'
+		SET value = '" . $newdefault . "'
 		WHERE variable = 'smiley_sets_default'");
 }
+
 ---}
 ---#
 
