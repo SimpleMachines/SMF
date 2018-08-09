@@ -212,6 +212,15 @@ function smf_main()
 	// Make sure that our scheduled tasks have been running as intended
 	check_cron();
 
+	// Privacy logic only when enabled, got no valid version, try not to call the policy data
+	if (!empty($modSettings['enable_policy_function']) && !$user_info['is_guest'])
+	{
+		global $options;
+		if (empty($options['policy_isvalid']) && 
+				(empty($_REQUEST['area']) || (!empty($_REQUEST['area']) && $_REQUEST['area'] != 'getpolicydata')) )
+			$show_privacy = true;
+	}
+
 	// Is the forum in maintenance mode? (doesn't apply to administrators.)
 	if (!empty($maintenance) && !allowedTo('admin_forum'))
 	{
@@ -228,6 +237,8 @@ function smf_main()
 	// If guest access is off, a guest can only do one of the very few following actions.
 	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
 		return 'KickGuest';
+	elseif (!empty($show_privacy))
+		redirectexit('action=profile;area=getpolicydata;u=' . $user_info['id']);
 	elseif (empty($_REQUEST['action']))
 	{
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.

@@ -448,7 +448,7 @@ function ModifyProfile($post_errors = array())
 					'token' => 'profile-da%u',
 					'password' => true,
 					'permission' => array(
-						'own' => array(''),
+						'own' => 'is_not_guest',
 						'any' => array('moderate_forum'),
 					),
 				);
