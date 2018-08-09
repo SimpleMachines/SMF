@@ -2426,7 +2426,7 @@ function ModifyPolicySettings($return_config = false)
 					WHERE c.variable = {string:avar}';
 			else
 				$select = '
-					UPDATE {db_prefix}themes c
+					UPDATE {db_prefix}themes
 					SET value = {string:value}
 					WHERE EXISTS (
 						SELECT a.id_member
@@ -2486,7 +2486,7 @@ function ModifyPolicySettings($return_config = false)
 					WHERE c.variable = {string:avar}';
 			else
 				$select = '
-					UPDATE {db_prefix}themes c
+					UPDATE {db_prefix}themes
 					SET value = {string:value}
 					WHERE EXISTS (
 						SELECT a.id_member
@@ -2524,7 +2524,7 @@ function ModifyPolicySettings($return_config = false)
 					WHERE c.variable = {string:avar}';
 			else
 				$select = '
-					UPDATE {db_prefix}themes c
+					UPDATE {db_prefix}themes
 					SET value = {string:value}
 					WHERE EXISTS (
 						SELECT a.id_member
