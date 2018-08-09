@@ -374,8 +374,8 @@ function issueWarning($memID)
 			SELECT subject
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				{query_see_board_join}
 			WHERE id_msg = {int:message}
+				AND {query_see_board}
 			LIMIT 1',
 			array(
 				'message' => (int) $_REQUEST['msg'],

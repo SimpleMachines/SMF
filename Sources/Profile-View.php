@@ -215,8 +215,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
-	$query_see_board_join = build_query_board($memID);
-	$query_see_board_join = $query_see_board_join['query_see_board_join'];
+	$query_see_board = build_query_board($memID);
+	$query_see_board = $query_see_board['query_see_board'];
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -283,8 +283,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board, name
 			FROM {db_prefix}boards AS b
-			' . $query_see_board_join . '
-			WHERE id_board IN ({array_int:boards})',
+			WHERE ' . $query_see_board . '
+				AND id_board IN ({array_int:boards})',
 			array(
 				'boards' => array_keys($boards),
 			)
@@ -299,8 +299,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-				' . $query_see_board_join . '
-			WHERE t.id_topic IN ({array_int:topics})',
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => array_keys($topics),
 			)
@@ -315,8 +315,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-				' . $query_see_board_join . '
-			WHERE m.id_msg IN ({array_int:msgs})',
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
 			array(
 				'msgs' => array_keys($msgs),
 			)
@@ -566,8 +566,7 @@ function showPosts($memID)
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}topics AS t' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-				{query_see_board_join}') . '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})') . '
 			WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
 				AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND t.approved = {int:is_approved}'),
@@ -581,8 +580,7 @@ function showPosts($memID)
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				{query_see_board_join}') . '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
 			WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND m.approved = {int:is_approved}'),
@@ -660,11 +658,10 @@ function showPosts($memID)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-					{query_see_board_join}
 				WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
-					' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+					AND {query_see_board}' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 				LIMIT {int:start}, {int:max}',
@@ -688,11 +685,10 @@ function showPosts($memID)
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-					{query_see_board_join}
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND b.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
 					AND ' . $range_limit) . '
-					' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+					AND {query_see_board}' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
 				LIMIT {int:start}, {int:max}',
@@ -966,8 +962,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			m.id_board, m.poster_time, m.subject, b.name
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
@@ -1024,8 +1019,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
@@ -1190,9 +1184,9 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
-			{query_see_board_join}
 		WHERE lt.id_member = {int:current_member}
 			AND unwatched = 1
+			AND {query_see_board}
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
@@ -1249,9 +1243,9 @@ function list_getNumUnwatched($memID)
 		FROM {db_prefix}log_topics as lt
 		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
 		LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
-		{query_see_board_join}
 		WHERE id_member = {int:current_member}
-			AND unwatched = 1',
+			AND unwatched = 1
+			AND {query_see_board}',
 		array(
 			'current_member' => $memID,
 		)
@@ -1326,9 +1320,9 @@ function statPanel($memID)
 			b.id_board, MAX(b.name) AS name, MAX(b.num_posts) AS num_posts, COUNT(*) AS message_count
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
 		WHERE m.id_member = {int:current_member}
 			AND b.count_posts = {int:count_enabled}
+			AND {query_see_board}
 		GROUP BY b.id_board
 		ORDER BY message_count DESC
 		LIMIT 10',
@@ -1359,8 +1353,8 @@ function statPanel($memID)
 			CASE WHEN COUNT(*) > MAX(b.num_posts) THEN 1 ELSE COUNT(*) / MAX(b.num_posts) END * 100 AS percentage
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
 		WHERE m.id_member = {int:current_member}
+			AND {query_see_board}
 		GROUP BY b.id_board, b.num_posts
 		ORDER BY percentage DESC
 		LIMIT 10',
@@ -1810,8 +1804,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 		SELECT COUNT(*) AS message_count
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
-		WHERE  ' . $where,
+		WHERE {query_see_board} AND ' . $where,
 		$where_vars
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
@@ -1843,8 +1836,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			{query_see_board_join}
-		WHERE ' . $where . '
+		WHERE {query_see_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
@@ -2712,7 +2704,7 @@ function showPermissions($memID)
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:current_groups}))
-			{query_see_board_join}',
+		WHERE {query_see_board}',
 		array(
 			'current_member' => $memID,
 			'current_groups' => $curGroups,

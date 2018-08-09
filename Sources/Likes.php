@@ -201,9 +201,8 @@ class Likes
 				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-					{query_see_board_join}
-				WHERE 
-					m.id_msg = {int:msg}',
+				WHERE {query_see_board}
+					AND m.id_msg = {int:msg}',
 				array(
 					'msg' => $this->_content,
 				)

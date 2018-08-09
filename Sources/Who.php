@@ -381,9 +381,8 @@ function determineActions($urls, $preferred_prefix = false)
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic' . ($modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
-							{query_see_board_join}
 					WHERE m.id_msg = {int:id_msg}
-						' . ($modSettings['postmod_active'] ? '
+						AND {query_see_board}' . ($modSettings['postmod_active'] ? '
 						AND m.approved = {int:is_approved}' : '') . '
 					LIMIT 1',
 					array(
@@ -460,8 +459,8 @@ function determineActions($urls, $preferred_prefix = false)
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-				{query_see_board_join}
-			WHERE t.id_topic IN ({array_int:topic_list})' . ($modSettings['postmod_active'] ? '
+			WHERE {query_see_board}
+				AND t.id_topic IN ({array_int:topic_list})' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			LIMIT {int:limit}',
 			array(
@@ -485,8 +484,8 @@ function determineActions($urls, $preferred_prefix = false)
 		$result = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.name
 			FROM {db_prefix}boards AS b
-			{query_see_board_join}
-			WHERE b.id_board IN ({array_int:board_list})
+			WHERE {query_see_board}
+				AND b.id_board IN ({array_int:board_list})
 			LIMIT {int:limit}',
 			array(
 				'board_list' => array_keys($board_ids),

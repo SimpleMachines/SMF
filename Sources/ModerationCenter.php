@@ -1236,8 +1236,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_member, MAX(m.id_msg) AS last_post_id
 			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				{query_see_board_join}') . '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
 			WHERE m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
@@ -1273,8 +1272,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				{query_see_board_join}') . '
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
 			WHERE m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
@@ -1309,8 +1307,8 @@ function list_getWatchedUserPostsCount($approve_query)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				{query_see_board_join}
 			WHERE mem.warning >= {int:warning_watch}
+				AND {query_see_board}
 				' . $approve_query,
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
@@ -1342,8 +1340,8 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			{query_see_board_join}
 		WHERE mem.warning >= {int:warning_watch}
+			AND {query_see_board}
 			' . $approve_query . '
 		ORDER BY m.id_msg DESC
 		LIMIT {int:start}, {int:max}',

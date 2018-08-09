@@ -152,7 +152,7 @@ function MarkRead()
 		$result = $smcFunc['db_query']('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
-			{query_see_board_join}',
+			WHERE {query_see_board}',
 			array(
 			)
 		);
@@ -314,8 +314,8 @@ function MarkRead()
 			$request = $smcFunc['db_query']('', '
 				SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
-				{query_see_board_join}
-				WHERE b.child_level > {int:no_parents}
+				WHERE {query_see_board}
+					AND b.child_level > {int:no_parents}
 					AND b.id_board NOT IN ({array_int:board_list})
 				ORDER BY child_level ASC
 				',
@@ -349,8 +349,8 @@ function MarkRead()
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
-			{query_see_board_join}
-			WHERE b.' . implode(' OR b.', $clauses),
+			WHERE {query_see_board}
+				AND b.' . implode(' OR b.', $clauses),
 			array_merge($clauseParameters, array(
 			))
 		);
@@ -376,7 +376,8 @@ function MarkRead()
 			$result = $smcFunc['db_query']('', '
 				SELECT b.id_board
 				FROM {db_prefix}boards AS b
-				WHERE b.id_parent IN ({array_int:parent_list})',
+				WHERE b.id_parent IN ({array_int:parent_list})
+					AND {query_see_board}',
 				array(
 					'parent_list' => $boards,
 				)
@@ -1392,7 +1393,7 @@ function getBoardTree()
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-			{query_see_board_join}
+		WHERE {query_see_board}
 		ORDER BY c.cat_order, b.child_level, b.board_order',
 		$boardParameters
 	);
