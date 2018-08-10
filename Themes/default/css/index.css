@@ -2675,6 +2675,30 @@ dl.addrules dt.floatleft {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 }
+#main_menu .popup_heading, #genericmenu .popup_heading {
+	display: none;
+}
+#genericmenu > .popup_container {
+	z-index: 1;
+}
+#main_menu .popup_container, #genericmenu > .popup_container {
+	display: block;
+	position: relative;
+	background: none;
+	margin: 0;
+}
+#main_menu .popup_window, #genericmenu .popup_window {
+	position: relative;
+	width: auto;
+	box-shadow: none;
+	border: none;
+	border-radius: 0;
+	background: none;
+	background-image: none;
+	margin: 0;
+	top: 0;
+	padding: 0;
+}
 .generic_icons.hide_popup {
 	float: right;
 }
