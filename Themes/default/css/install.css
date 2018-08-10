@@ -82,7 +82,7 @@ h1.forumtitle {
 }
 #main_screen {
 	width: 100%;
-	padding: 1em 1em 0.5em 1em;
+	margin-top: 2em;
 }
 #main_screen h2 {
 	font-size: 1.2em;
