@@ -361,8 +361,8 @@ function reloadSettings()
 	// Define a list of old BBC tags no longer parsed
 	$context['legacy_bbc'] = array(
 		'br',
-		'acronym',
 		'tt',
+		'flash',
 		'bdo',
 		'black',
 		'white',
@@ -370,7 +370,6 @@ function reloadSettings()
 		'green',
 		'blue',
 		'acronym',
-		'font',
 		'ftp',
 		'glow',
 		'move',
