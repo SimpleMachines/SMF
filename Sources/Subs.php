@@ -191,6 +191,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		case 'topic':
 			if ($parameter1 === true)
 				updateSettings(array('totalTopics' => true), true);
+
 			else
 			{
 				// Get the number of topics - a SUM is better for InnoDB tables.
@@ -230,6 +231,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				$postgroups = array();
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$postgroups[$row['id_group']] = $row['min_posts'];
+
 				$smcFunc['db_free_result']($request);
 
 				// Sort them this way because if it's done with MySQL it causes a filesort :(.
@@ -249,6 +251,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				$conditions .= '
 					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
+
 				$lastMin = $min_posts;
 			}
 
@@ -299,8 +302,10 @@ function updateMemberData($members, $data)
 		$condition = 'id_member IN ({array_int:members})';
 		$parameters['members'] = $members;
 	}
+
 	elseif ($members === null)
 		$condition = '1=1';
+
 	else
 	{
 		$condition = 'id_member = {int:member}';
@@ -1425,21 +1430,24 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'ftp',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br />\' => \'\'));
-					if (strpos($data, \'ftp://\') !== 0 && strpos($data, \'ftps://\') !== 0)
-						$data = \'ftp://\' . $data;
-				'),
+				'validate' => function(&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br />' => ''));
+
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
 			),
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_equals',
 				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
 				'after' => '</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					if (strpos($data, \'ftp://\') !== 0 && strpos($data, \'ftps://\') !== 0)
-						$data = \'ftp://\' . $data;
-				'),
+				'validate' => function(&$tag, &$data, $disabled)
+				{
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
@@ -1745,27 +1753,45 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
 				'before' => $context['browser']['is_ie'] ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
-				'validate' => $context['browser']['is_ie'] ? create_function('&$tag, &$data, $disabled', '
-					if ($data[1] == \'left\')
-						$data[1] = 270;
-					elseif ($data[1] == \'right\')
-						$data[1] = 90;
-					elseif ($data[1] == \'top\')
-						$data[1] = 0;
-					elseif ($data[1] == \'bottom\')
-						$data[1] = 180;
-					else
-						$data[1] = (int) $data[1];') : create_function('&$tag, &$data, $disabled', '
-					if ($data[1] == \'top\' || (is_numeric($data[1]) && $data[1] < 50))
-						$data[1] = \'0 -2px 1px\';
-					elseif ($data[1] == \'right\' || (is_numeric($data[1]) && $data[1] < 100))
-						$data[1] = \'2px 0 1px\';
-					elseif ($data[1] == \'bottom\' || (is_numeric($data[1]) && $data[1] < 190))
-						$data[1] = \'0 2px 1px\';
-					elseif ($data[1] == \'left\' || (is_numeric($data[1]) && $data[1] < 280))
-						$data[1] = \'-2px 0 1px\';
-					else
-						$data[1] = \'1px 1px 1px\';'),
+				'validate' => $context['browser']['is_ie'] ? function(&$tag, &$data, $disabled)
+				{
+					switch ($data[1])
+					{
+						case 'left':
+							$data[1] = 270;
+							break;
+						case 'right':
+							$data[1] = 90;
+							break;
+						case 'top':
+							$data[1] = 0;
+							break;
+						case 'bottom':
+							$data[1] = 180;
+							break;
+						default:
+							$data[1] = (int) $data[1];
+					}
+				}
+
+					: function(&$tag, &$data, $disabled)
+					{
+
+						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
+							$data[1] = '0 -2px 1px';
+
+						elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
+							$data[1] = '2px 0 1px';
+
+						elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
+							$data[1] = '0 2px 1px';
+
+						elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
+							$data[1] = '-2px 0 1px';
+
+						else
+							$data[1] = '1px 1px 1px';
+					},
 			),
 			array(
 				'tag' => 'size',
@@ -1887,6 +1913,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'iurl',
 			'email',
 		);
+
+		// Handle legacy bbc codes.
+		foreach ($context['legacy_bbc'] as $bbc)
+			$codes[] = array(
+				'tag' => $bbc,
+				'before' => '',
+				'after' => '',
+			);
 
 		// Let mods add new BBC without hassle.
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
