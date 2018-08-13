@@ -513,7 +513,7 @@ function attachmentChecks($attachID)
 
 	// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
 	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
-	if (isset($context['validImageTypes'][$size[2]]))
+	if (isset($context['valid_image_types'][$size[2]]))
 	{
 		require_once($sourcedir . '/Subs-Graphics.php');
 		if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty($modSettings['attachment_image_paranoid'])))
@@ -531,8 +531,8 @@ function attachmentChecks($attachID)
 			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
 			{
-				if (isset($context['validImageTypes'][$size[2]]))
-					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['validImageTypes'][$size[2]];
+				if (isset($context['valid_image_types'][$size[2]]))
+					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
 			}
 		}
 	}
@@ -672,8 +672,8 @@ function createAttachment(&$attachmentOptions)
 			$attachmentOptions['mime_type'] = $size['mime'];
 
 		// Otherwise a valid one?
-		elseif (isset($context['validImageTypes'][$size[2]]))
-			$attachmentOptions['mime_type'] = 'image/' . $context['validImageTypes'][$size[2]];
+		elseif (isset($context['valid_image_types'][$size[2]]))
+			$attachmentOptions['mime_type'] = 'image/' . $context['valid_image_types'][$size[2]];
 	}
 
 	// It is possible we might have a MIME type that isn't actually an image but still have a size.
@@ -760,8 +760,8 @@ function createAttachment(&$attachmentOptions)
 
 			if (!empty($size['mime']))
 				$thumb_mime = $size['mime'];
-			elseif (isset($context['validImageTypes'][$size[2]]))
-				$thumb_mime = 'image/' . $context['validImageTypes'][$size[2]];
+			elseif (isset($context['valid_image_types'][$size[2]]))
+				$thumb_mime = 'image/' . $context['valid_image_types'][$size[2]];
 			// Lord only knows how this happened...
 			else
 				$thumb_mime = '';
@@ -1182,7 +1182,7 @@ function loadAttachmentContext($id_msg, $attachments)
 						$thumb_size = filesize($filename . '_thumb');
 
 						// What about the extension?
-						$thumb_ext = isset($context['validImageTypes'][$size[2]]) ? $context['validImageTypes'][$size[2]] : '';
+						$thumb_ext = isset($context['valid_image_types'][$size[2]]) ? $context['valid_image_types'][$size[2]] : '';
 
 						// Figure out the mime type.
 						if (!empty($size['mime']))

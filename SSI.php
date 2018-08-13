@@ -481,7 +481,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 	}
 	$smcFunc['db_free_result']($request);
 
-	// If mods want to do somthing with this list of posts, let them do that now.
+	// If mods want to do something with this list of posts, let them do that now.
 	call_integration_hook('integrate_ssi_queryPosts', array(&$posts));
 
 	// Just return it.

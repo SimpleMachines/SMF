@@ -62,7 +62,7 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
-		// We excpiclity do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
+		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 
@@ -343,7 +343,7 @@ function reloadSettings()
 	);
 
 	// These are the only valid image types for SMF, by default anyway.
-	$context['validImageTypes'] = array(
+	$context['valid_image_types'] = array(
 		1 => 'gif',
 		2 => 'jpeg',
 		3 => 'png',
@@ -357,6 +357,24 @@ function reloadSettings()
 
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+
+	// Define a list of old BBC tags no longer parsed
+	$context['legacy_bbc'] = array(
+		'br',
+		'tt',
+		'flash',
+		'bdo',
+		'black',
+		'white',
+		'red',
+		'green',
+		'blue',
+		'acronym',
+		'ftp',
+		'glow',
+		'move',
+		'shadow',
+	);
 
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
