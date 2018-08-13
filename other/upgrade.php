@@ -536,8 +536,8 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type;
-	global $modSettings, $sourcedir, $smcFunc;
+	global $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type, $db_port;
+	global $db_mb4, $modSettings, $sourcedir, $smcFunc;
 
 	error_reporting(E_ALL);
 	define('SMF', 1);
@@ -576,7 +576,17 @@ function loadEssentialData()
 
 		// Make the connection...
 		if (empty($db_connection))
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true));
+		{
+			$options = array('non_fatal' => true);
+			// Add in the port if needed
+			if (!empty($db_port))
+				$options['port'] = $db_port;
+			
+			if (!empty($db_mb4))
+				$options['db_mb4'] = $db_mb4;
+			
+			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+		}
 		else
 			// If we've returned here, ping/reconnect to be safe
 			$smcFunc['db_ping']($db_connection);
