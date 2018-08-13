@@ -2192,10 +2192,10 @@ function template_groupMembership()
  */
 function template_ignoreboards()
 {
-	global $context, $txt, $scripturl;
+    global $context, $txt, $scripturl;
 
-	// The main containing header.
-	echo '
+    // The main containing header.
+    echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
@@ -2205,57 +2205,39 @@ function template_ignoreboards()
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg">
 			<div class="flow_hidden">
-				<ul class="ignoreboards floatleft">';
+				<ul class="ignoreboards">';
 
-	$i = 0;
-	$limit = ceil($context['num_boards'] / 2);
-	foreach ($context['categories'] as $category)
-	{
-		if ($i == $limit)
-		{
-			echo '
-				</ul>
-				<ul class="ignoreboards floatright">';
-
-			$i++;
-		}
-
-		echo '
+    $i = 0;
+    //$limit = ceil($context['num_boards'] / 2);
+    foreach ($context['categories'] as $category)
+    {
+        echo '
 					<li class="category">
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
 						<ul>';
 
-		foreach ($category['boards'] as $board)
-		{
-			if ($i == $limit)
-				echo '
-						</ul>
-					</li>
-				</ul>
-				<ul class="ignoreboards floatright">
-					<li class="category">
-						<ul>';
-
-			echo '
+        foreach ($category['boards'] as $board)
+        {
+            echo '
 							<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
 							</li>';
 
-			$i++;
-		}
+            $i++;
+        }
 
-		echo '
+        echo '
 						</ul>
 					</li>';
-	}
+    }
 
-	echo '
+    echo '
 				</ul>';
 
-	// Show the standard "Save Settings" profile button.
-	template_profile_save();
+    // Show the standard "Save Settings" profile button.
+    template_profile_save();
 
-	echo '
+    echo '
 			</div><!-- .flow_hidden -->
 		</div><!-- .windowbg -->
 	</form>
