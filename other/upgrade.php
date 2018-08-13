@@ -3596,10 +3596,10 @@ function template_upgrade_above()
 					</div>';
 
 	echo '
-					<h3>', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', '</h3>
 					<div id="substep_bar_div" class="progress_bar" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
+						<h3 id="substep_name">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', '</h3>
 						<div id="substep_progress" class="bar" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%;"></div>
-						<span>', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</span>
+						<span id="substep_text">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%</span>
 					</div>';
 
 	// How long have we been running this?
@@ -4275,7 +4275,7 @@ function template_database_changes()
 								document.getElementById("substep_bar_div").style.display = "";
 								document.getElementById("substep_progress").style.width = iSubStepProgress + "%";
 								setInnerHTML(document.getElementById("substep_text"), iSubStepProgress + "%");
-								setInnerHTML(document.getElementById("substep_bar_div"), sDebugName.replace(/\./g, "") + ":");
+								setInnerHTML(document.getElementById("substep_name"), sDebugName.replace(/\./g, ""));
 							}
 							else
 							{
