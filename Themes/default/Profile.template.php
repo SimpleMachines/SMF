@@ -934,7 +934,8 @@ function template_editIgnoreList()
 					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
 				</dt>
 				<dd>
-					<input type="text" name="new_ignore" id="new_ignore" size="25">
+					<input type="text" name="new_ignore" id="new_ignore" size="30">
+                    <input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 				</dd>
 			</dl>
 		</div>';
@@ -945,7 +946,6 @@ function template_editIgnoreList()
 
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		<input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 	</form>
 	<script>
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
