@@ -748,7 +748,7 @@ function template_editBuddies()
 					<th scope="col" class="quarter_table">', $txt['name'], '</th>
 					<th scope="col">', $txt['status'], '</th>';
 
-	if (allowedTo('moderate_forum'))
+	if ($context['can_moderate_forum'])
 		echo '
 					<th scope="col">', $txt['email'], '</th>';
 
@@ -767,7 +767,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', allowedTo('moderate_forum') ? '10' : '9', '">
+					<td colspan="', $context['can_moderate_forum'] ? '10' : '9', '">
 						<strong>', $txt['no_buddies'], '</strong>
 					</td>
 				</tr>';
