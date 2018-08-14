@@ -282,3 +282,27 @@ function readfromUpload(input) {
 		reader.readAsDataURL(input.files[0]);
 	}
 }
+
+// The smiley set selector code
+$(document).on('change', '#smiley_set', function () {
+    let value = this.value;
+
+    let baseurl;
+    if (value === "none") {
+        baseurl = smf_images_url + "/blank.";
+    } else {
+        baseurl = smf_smileys_url + "/" + value + "/smiley.";
+    }
+    trySmileySetPreview(baseurl);
+});
+
+function trySmileySetPreview(baseurl, i = 0) {
+    let extensions = ["png", "gif", "jpg", "jpeg"];
+    $.ajax(baseurl + extensions[i])
+        .done(function () {
+            $("#smileypr").attr("src", baseurl + extensions[i]);
+        })
+        .fail(function () {
+            trySmileySetPreview(baseurl, ++i);
+        });
+}
