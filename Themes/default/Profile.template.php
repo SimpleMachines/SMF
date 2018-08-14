@@ -1746,7 +1746,7 @@ function template_profile_theme_settings()
             continue;
 
 		// Some of these may not be set...  Set to defaults here
-		$opts = array('topics_per_page', 'messages_per_page', 'display_quick_mod');
+		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
 		if (in_array($setting['id'], $opts) && !isset($context['member']['options'][$setting['id']]))
 			$context['member']['options'][$setting['id']] = 0;
 
