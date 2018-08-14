@@ -2315,9 +2315,6 @@ dl {
 	height: 16px;
 }
 
-.boardslist {
-	columns: 2;
-}
 .boardslist a {
 	font-weight: bold;
 	border-bottom: 1px solid #c4c4c4;
