@@ -682,4 +682,8 @@
 	.boardslist {
 		columns: 2;
 	}
+
+	.boardslist ul {
+		page-break-inside: avoid;
+	}
 }

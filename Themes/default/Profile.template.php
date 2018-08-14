@@ -2204,35 +2204,37 @@ function template_ignoreboards()
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg">
-			<div class="flow_hidden">
-				<ul class="boardslist">';
+			<div class="flow_hidden boardslist">
+				<ul>';
 
     foreach ($context['categories'] as $category)
     {
         echo '
 					<li>
-						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>';
+						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
+            			<ul>';
 
         foreach ($category['boards'] as $board)
         {
             echo '
-                        <li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-                            <label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
-                        </li>';
+							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
+							</li>';
         }
 
         echo '
+						</ul>
 					</li>';
     }
 
     echo '
-				</ul>';
+				</ul>
+    		</div><!-- .flow_hidden boardslist -->';
 
     // Show the standard "Save Settings" profile button.
     template_profile_save();
 
     echo '
-			</div><!-- .flow_hidden -->
 		</div><!-- .windowbg -->
 	</form>
 	<br>';
