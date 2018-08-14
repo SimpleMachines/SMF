@@ -145,40 +145,25 @@ function template_main()
 					</h4>
 				</div>
 				<div class="flow_auto" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
-					<ul class="ignoreboards floatleft">';
+					<ul class="boardslist">';
 
-		$i = 0;
-		$limit = ceil($context['num_boards'] / 2);
 		foreach ($context['categories'] as $category)
 		{
 			echo '
-						<li class="category">
-							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
-							<ul>';
+						<li>
+							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>';
 
 			foreach ($category['boards'] as $board)
 			{
-				if ($i == $limit)
-					echo '
-							</ul>
-						</li>
-					</ul>
-					<ul class="ignoreboards floatright">
-						<li class="category">
-							<ul>';
-
 				echo '
-								<li class="board">
-									<label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '
-									</label>
-								</li>';
-
-				$i++;
+                            <li>
+                                <label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+                                    <input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '
+                                </label>
+                            </li>';
 			}
 
 			echo '
-							</ul>
 						</li>';
 		}
 
