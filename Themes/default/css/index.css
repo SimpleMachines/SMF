@@ -2315,23 +2315,16 @@ dl {
 	height: 16px;
 }
 
-.ignoreboards {
-	margin: 0 2%;
-	padding: 0;
+.boardslist {
+	columns: 2;
 }
-.ignoreboards a {
+.boardslist a {
 	font-weight: bold;
 	border-bottom: 1px solid #c4c4c4;
 }
-.ignoreboards a:hover {
+.boardslist a:hover {
 	text-decoration: none;
 	border-bottom: 1px solid #334466;
-}
-.ignoreboards li.category {
-	margin: 8px 0 0 0;
-}
-.ignoreboards li ul {
-	margin: 2px 0 0 0;
 }
 
 #theme_settings {
