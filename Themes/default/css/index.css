@@ -3477,10 +3477,6 @@ h3.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	line-height: 1.5em;
-	padding: 8px;
-	background: none;
 }
 h3.catbg, h3.catbg a, h3.catbg a:hover {
 	color: #fff;
