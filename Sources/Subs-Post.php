@@ -2820,7 +2820,7 @@ function spell_init()
 		}
 
 		// Success
-		if ($enchant_link)
+		if (!empty($enchant_link))
 		{
 			$context['provider'] = 'enchant';
 			return $enchant_link;
