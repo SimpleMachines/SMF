@@ -2449,6 +2449,11 @@ function ModifyPolicySettings($return_config = false)
 				)
 			);
 		}
+		elseif (!empty($_REQUEST['save_setting']))
+		{
+			unset($config_vars[1]);
+			saveDBSettings($config_vars);
+		}
 		elseif (!empty($_REQUEST['save_new_policy']) || !empty($_REQUEST['update_policy']))
 		{
 			if (!empty($_REQUEST['save_new_policy']))
