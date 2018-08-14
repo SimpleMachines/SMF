@@ -1742,26 +1742,8 @@ function template_profile_theme_settings()
 		}
 
 		// Is this disabled?
-		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
-			continue;
-
-		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
-			continue;
-
-		elseif ($setting['id'] == 'show_no_censored' && empty($modSettings['allow_no_censored']))
-			continue;
-
-		elseif ($setting['id'] == 'posts_apply_ignore_list' && empty($modSettings['enable_buddylist']))
-			continue;
-
-		elseif ($setting['id'] == 'wysiwyg_default' && !empty($modSettings['disable_wysiwyg']))
-			continue;
-
-		elseif ($setting['id'] == 'drafts_autosave_enabled' && (empty($modSettings['drafts_autosave_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
-			continue;
-
-		elseif ($setting['id'] == 'drafts_show_saved_enabled' && (empty($modSettings['drafts_show_saved_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
-			continue;
+        if (isset($setting['enabled']) && $setting['enabled'] === false)
+            continue;
 
 		// Some of these may not be set...  Set to defaults here
 		$opts = array('topics_per_page', 'messages_per_page', 'display_quick_mod');
