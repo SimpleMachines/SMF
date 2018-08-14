@@ -1079,9 +1079,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$disabled[trim($tag)] = true;
 		}
 
-		if (empty($modSettings['enableEmbeddedFlash']))
-			$disabled['flash'] = true;
-
 		/* The following bbc are formatted as an array, with keys as follows:
 
 			tag: the tag's name - should be lowercase!
@@ -1354,21 +1351,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// @todo Should this respect guest_hideContacts?
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
-			),
-			array(
-				'tag' => 'flash',
-				'type' => 'unparsed_commas_content',
-				'test' => '\d+,\d+\]',
-				'content' => '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never">',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					if (isset($disabled['url']))
-						$tag['content'] = '$1';
-					$scheme = parse_url($data[0], PHP_URL_SCHEME);
-					if (empty($scheme))
-						$data[0] = '//' . ltrim($data[0], ':/');
-				},
-				'disabled_content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 			),
 			array(
 				'tag' => 'float',
