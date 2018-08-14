@@ -876,7 +876,7 @@ function template_editIgnoreList()
 					<th scope="col" class="quarter_table">', $txt['name'], '</th>
 					<th scope="col">', $txt['status'], '</th>';
 
-	if (allowedTo('moderate_forum'))
+	if ($context['can_moderate_forum'])
 		echo '
 					<th scope="col">', $txt['email'], '</th>';
 
@@ -890,7 +890,7 @@ function template_editIgnoreList()
 	if (empty($context['ignore_list']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', allowedTo('moderate_forum') ? '4' : '3', '">
+					<td colspan="', $context['can_moderate_forum'] ? '4' : '3', '">
 						<strong>', $txt['no_ignore'], '</strong>
 					</td>
 				</tr>';
