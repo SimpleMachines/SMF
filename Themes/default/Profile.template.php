@@ -1742,8 +1742,8 @@ function template_profile_theme_settings()
 		}
 
 		// Is this disabled?
-        if (isset($setting['enabled']) && $setting['enabled'] === false)
-            continue;
+		if (isset($setting['enabled']) && $setting['enabled'] === false)
+			continue;
 
 		// Some of these may not be set...  Set to defaults here
 		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
