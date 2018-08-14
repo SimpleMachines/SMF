@@ -905,7 +905,7 @@ function template_editIgnoreList()
 						<a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a>
 					</td>';
 
-		if ($member['show_email'])
+		if ($context['can_moderate_forum'])
 			echo '
 					<td>
 						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>
