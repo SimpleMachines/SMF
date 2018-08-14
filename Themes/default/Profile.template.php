@@ -3117,7 +3117,7 @@ function template_profile_smiley_pick()
 								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
 							</dt>
 							<dd>
-								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.png\';">';
+								<select name="smiley_set" id="smiley_set">';
 
 	foreach ($context['smiley_sets'] as $set)
 		echo '

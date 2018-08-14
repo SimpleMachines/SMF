@@ -461,7 +461,7 @@ function loadProfileFields($force_reload = false)
 			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
-				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
+				$context['smiley_sets'] = explode(',', 'none,' . $modSettings['smiley_sets_default'] . ',' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
