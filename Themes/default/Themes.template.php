@@ -465,34 +465,33 @@ function template_set_settings()
 					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>
-			<br>';
+			<div class="windowbg">';
 
 	// @todo Why can't I edit the default theme popup.
 	if ($context['theme_settings']['theme_id'] != 1)
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg config_hd">
-					', $txt['theme_edit'], '
-				</h3>
-			</div>
-			<div class="windowbg">
-				<ul>
-					<li>
-						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;filename=index.template.php">', $txt['theme_edit_index'], '</a>
-					</li>
-					<li>
-						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;directory=css">', $txt['theme_edit_style'], '</a>
-					</li>
-				</ul>
-			</div>';
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', $txt['theme_edit'], '
+					</h3>
+				</div>
+				<div class="windowbg">
+					<ul>
+						<li>
+							<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;filename=index.template.php">', $txt['theme_edit_index'], '</a>
+						</li>
+						<li>
+							<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;directory=css">', $txt['theme_edit_style'], '</a>
+						</li>
+					</ul>
+				</div>';
 
 	echo '
-			<div class="cat_bar">
-				<h3 class="catbg config_hd">
-					', $txt['theme_url_config'], '
-				</h3>
-			</div>
-			<div class="windowbg">
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', $txt['theme_url_config'], '
+					</h3>
+				</div>
 				<dl class="settings">
 					<dt>
 						<label for="theme_name">', $txt['actual_theme_name'], '</label>
@@ -518,19 +517,17 @@ function template_set_settings()
 					<dd>
 						<input type="text" id="theme_dir" name="options[theme_dir]" value="', $context['theme_settings']['actual_theme_dir'], '" size="50">
 					</dd>
-				</dl>
-			</div>';
+				</dl>';
 
 	// Do we allow theme variants?
 	if (!empty($context['theme_variants']))
 	{
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg config_hd">
-					', $txt['theme_variants'], '
-				</h3>
-			</div>
-			<div class="windowbg">
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', $txt['theme_variants'], '
+					</h3>
+				</div>
 				<dl class="settings">
 					<dt>
 						<label for="variant">', $txt['theme_variants_default'], '</label>:
@@ -553,17 +550,15 @@ function template_set_settings()
 						<input type="checkbox" name="options[disable_user_variant]" id="disable_user_variant"', !empty($context['theme_settings']['disable_user_variant']) ? ' checked' : '', ' value="1">
 					</dd>
 				</dl>
-				<img src="', $context['theme_variants'][$context['default_variant']]['thumbnail'], '" id="variant_preview" alt="">
-			</div>';
+				<img src="', $context['theme_variants'][$context['default_variant']]['thumbnail'], '" id="variant_preview" alt="">';
 	}
 
 	echo '
-			<div class="cat_bar">
-				<h3 class="catbg config_hd">
-					', $txt['theme_options'], '
-				</h3>
-			</div>
-			<div class="windowbg">
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', $txt['theme_options'], '
+					</h3>
+				</div>
 				<dl class="settings">';
 
 	$skeys = array_keys($context['settings']);
