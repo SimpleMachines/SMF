@@ -163,95 +163,92 @@ function template_credits()
 
 	// Show the user version information from their server.
 	echo '
-
-					<div id="admincenter">
-						<div id="support_credits" class="roundframe">
-							<div class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
-								</h3>
-							</div>
-							<div class="padding">
-								<strong>', $txt['support_versions'], ':</strong><br>
-									', $txt['support_versions_forum'], ':
-								<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
-									', $txt['support_versions_current'], ':
-								<em id="smfVersion">??</em><br>';
+					<div id="support_credits" class="roundframe">
+						<div class="sub_bar">
+							<h3 class="subbg">
+								', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
+							</h3>
+						</div>
+						<div class="padding">
+							<strong>', $txt['support_versions'], ':</strong><br>
+								', $txt['support_versions_forum'], ':
+							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+								', $txt['support_versions_current'], ':
+							<em id="smfVersion">??</em><br>';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
 	{
 		echo '
-									', $version['title'], ':
-								<em>', $version['version'], '</em>';
+								', $version['title'], ':
+							<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
 			echo
-								' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+							' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-								<br>';
+							<br>';
 	}
 
 	echo '
-							</div><!-- .padding -->';
+						</div><!-- .padding -->';
 
 	// Point the admin to common support resources.
 	echo '
-							<div id="support_resources" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_resources'], '
-								</h3>
-							</div>
-							<div class="padding">
-								<p>', $txt['support_resources_p1'], '</p>
-								<p>', $txt['support_resources_p2'], '</p>
-							</div>';
+						<div id="support_resources" class="sub_bar">
+							<h3 class="subbg">
+								', $txt['support_resources'], '
+							</h3>
+						</div>
+						<div class="padding">
+							<p>', $txt['support_resources_p1'], '</p>
+							<p>', $txt['support_resources_p2'], '</p>
+						</div>';
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['admin_credits'], '
-								</h3>
-							</div>
-							<div class="padding">';
+						<div id="credits_sections" class="sub_bar">
+							<h3 class="subbg">
+								', $txt['admin_credits'], '
+							</h3>
+						</div>
+						<div class="padding">';
 
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
-								<p>', $section['pretext'], '</p>
-								<hr>';
+							<p>', $section['pretext'], '</p>
+							<hr>';
 
 		echo '
-								<dl>';
+							<dl>';
 
 		foreach ($section['groups'] as $group)
 		{
 			if (isset($group['title']))
 				echo '
-									<dt>
-										<strong>', $group['title'], ':</strong>
-									</dt>';
+								<dt>
+									<strong>', $group['title'], ':</strong>
+								</dt>';
 
 			echo '
-									<dd>', implode(', ', $group['members']), '</dd>';
+								<dd>', implode(', ', $group['members']), '</dd>';
 		}
 
 		echo '
-								</dl>';
+							</dl>';
 
 		if (isset($section['posttext']))
 			echo '
-								<hr>
-								<p>', $section['posttext'], '</p>';
+							<hr>
+							<p>', $section['posttext'], '</p>';
 	}
 
 	echo '
-							</div><!-- .padding -->
-						</div><!-- #support_credits -->
-					</div><!-- #admincenter -->';
+						</div><!-- .padding -->
+					</div><!-- #support_credits -->';
 
 	// This makes all the support information available to the support script...
 	echo '
