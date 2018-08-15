@@ -415,9 +415,6 @@ function template_show_spider_stats()
 {
 	global $context, $txt, $scripturl;
 
-	echo '
-	<div id="admincenter">';
-
 	// Standard fields.
 	template_show_list('spider_stat_list');
 
@@ -435,8 +432,7 @@ function template_show_spider_stats()
 				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
 				<br>
 			</div>
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 ?>
