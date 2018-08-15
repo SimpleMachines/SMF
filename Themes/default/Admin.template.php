@@ -164,12 +164,13 @@ function template_credits()
 	// Show the user version information from their server.
 	echo '
 					<div id="support_credits" class="roundframe">
-						<div class="sub_bar">
-							<h3 class="subbg">
-								', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
+						<div class="title_bar">
+							<h3 class="titlebg">
+								', $txt['support_title'], '
 							</h3>
 						</div>
 						<div class="padding">
+							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
 							<strong>', $txt['support_versions'], ':</strong><br>
 								', $txt['support_versions_forum'], ':
 							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
@@ -196,8 +197,8 @@ function template_credits()
 
 	// Point the admin to common support resources.
 	echo '
-						<div id="support_resources" class="sub_bar">
-							<h3 class="subbg">
+						<div id="support_resources" class="title_bar">
+							<h3 class="titlebg">
 								', $txt['support_resources'], '
 							</h3>
 						</div>
@@ -208,8 +209,8 @@ function template_credits()
 
 	// The most important part - the credits :P.
 	echo '
-						<div id="credits_sections" class="sub_bar">
-							<h3 class="subbg">
+						<div id="credits_sections" class="title_bar">
+							<h3 class="titlebg">
 								', $txt['admin_credits'], '
 							</h3>
 						</div>
