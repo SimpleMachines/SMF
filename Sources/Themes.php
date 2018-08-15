@@ -600,12 +600,7 @@ function SetThemeOptions()
 			continue;
 
 		// Is this disabled?
-		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
-		{
-			unset($context['options'][$i]);
-			continue;
-		}
-		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
+		if (isset($setting['enabled']) && $setting['enabled'] === false)
 		{
 			unset($context['options'][$i]);
 			continue;

@@ -15,7 +15,7 @@
  */
 function template_options()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
 	$context['theme_options'] = array(
 		$txt['theme_opt_calendar'],
@@ -28,6 +28,7 @@ function template_options()
 				6 => $txt['days'][6],
 			),
 			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
 		),
 		$txt['theme_opt_display'],
 		array(
@@ -46,6 +47,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
+			'enabled' => empty($modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'messages_per_page',
@@ -58,6 +60,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
+			'enabled' => empty($modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'view_newest_first',
@@ -78,6 +81,7 @@ function template_options()
 			'id' => 'posts_apply_ignore_list',
 			'label' => $txt['posts_apply_ignore_list'],
 			'default' => false,
+			'enabled' => !empty($modSettings['enable_buddylist'])
 		),
 		$txt['theme_opt_posting'],
 		array(
@@ -94,6 +98,7 @@ function template_options()
 			'id' => 'wysiwyg_default',
 			'label' => $txt['wysiwyg_default'],
 			'default' => false,
+			'enabled' => empty($modSettings['disable_wysiwyg']),
 		),
 		array(
 			'id' => 'use_editor_quick_reply',
@@ -104,11 +109,13 @@ function template_options()
 			'id' => 'drafts_autosave_enabled',
 			'label' => $txt['drafts_autosave_enabled'],
 			'default' => true,
+			'enabled' => !empty($modSettings['drafts_autosave_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
 		),
 		array(
 			'id' => 'drafts_show_saved_enabled',
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
+			'enabled' => !empty($modSettings['drafts_show_saved_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
 		),
 		$txt['theme_opt_moderation'],
 		array(
