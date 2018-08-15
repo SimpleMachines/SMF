@@ -25,7 +25,6 @@ function template_view_package()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'un' : '') . 'install_mod'], '</h3>
 		</div>
@@ -327,8 +326,7 @@ function template_view_package()
 
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">', (isset($context['form_sequence_number']) && !$context['ftp_needed']) ? '
 			<input type="hidden" name="seqnum" value="' . $context['form_sequence_number'] . '">' : '', '
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 
 	// Toggle options.
 	echo '
@@ -405,9 +403,6 @@ function template_extract_package()
 		}
 	</script>';
 
-	echo '
-	<div id="admincenter">';
-
 	if (empty($context['redirect_url']))
 		echo '
 		<div class="cat_bar">
@@ -460,9 +455,6 @@ function template_extract_package()
 		echo '<br>';
 		template_show_list('restore_file_permissions');
 	}
-
-	echo '
-	</div><!-- #admincenter -->';
 }
 
 /**
@@ -473,7 +465,6 @@ function template_list()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['list_file'], '</h3>
 		</div>
@@ -491,8 +482,7 @@ function template_list()
 			</ol>
 			<br>
 			<a href="', $scripturl, '?action=admin;area=packages">[ ', $txt['back'], ' ]</a>
-		</div>
-	</div><!-- #admincenter -->';
+		</div>';
 }
 
 /**
@@ -503,7 +493,6 @@ function template_examine()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
@@ -513,8 +502,7 @@ function template_examine()
 		<div class="windowbg">
 			<pre class="file_content">', $context['filedata'], '</pre>
 			<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $context['package'], '">[ ', $txt['list_files'], ' ]</a>
-		</div>
-	</div><!-- #admincenter -->';
+		</div>';
 }
 
 /**
@@ -525,7 +513,6 @@ function template_browse()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<div id="admincenter">
 		<div id="update_section"></div>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
@@ -638,7 +625,6 @@ function template_browse()
 			<input type="hidden" name="area" value="packages">
 			<input type="hidden" name="sa" value="browse">
 		</form>
-	</div><!-- #admincenter -->
 	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -833,15 +819,13 @@ function template_package_confirm()
 	global $context, $txt;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
 		<div class="windowbg">
 			<p>', $context['confirm_message'], '</p>
 			<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
-		</div>
-	</div>';
+		</div>';
 }
 
 /**
@@ -852,7 +836,6 @@ function template_package_list()
 	global $context, $txt, $smcFunc;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
@@ -973,8 +956,7 @@ function template_package_list()
 	}
 
 	echo '
-		</div><!-- .windowbg -->
-	</div><!-- #admincenter -->';
+		</div><!-- .windowbg -->';
 
 	// Now go through and turn off all the sections.
 	if (!empty($context['package_list']))
@@ -1036,7 +1018,6 @@ function template_downloaded()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
@@ -1053,8 +1034,7 @@ function template_downloaded()
 			</ul>
 			<br><br>
 			<p><a href="', $scripturl, '?action=admin;area=packages;get', (isset($context['package_server']) ? ';sa=browse;server=' . $context['package_server'] : ''), '">[ ', $txt['back'], ' ]</a></p>
-		</div>
-	</div><!-- #admincenter -->';
+		</div>';
 }
 
 /**
@@ -1069,7 +1049,6 @@ function template_install_options()
 	<div class="infobox">', $txt['settings_saved'], '</div>';
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_install_options'], '</h3>
 		</div>
@@ -1114,8 +1093,7 @@ function template_install_options()
 				<input type="submit" name="save" value="', $txt['save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>
-		</div><!-- .windowbg -->
-	</div><!-- #admincenter -->';
+		</div><!-- .windowbg -->';
 }
 
 /**
@@ -1760,7 +1738,6 @@ function template_action_permissions()
 	$countDown = 3;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=packages;sa=perms;', $context['session_var'], '=', $context['session_id'], '" id="perm_submit" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['package_file_perms_applying'], '</h3>
@@ -1838,8 +1815,7 @@ function template_action_permissions()
 					<input type="submit" name="go" id="cont" value="', $txt['not_done_continue'], '" class="button">
 				</div>
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 
 	// Just the countdown stuff
 	echo '
