@@ -17,9 +17,6 @@ function template_main()
 {
 	global $context, $scripturl, $txt, $modSettings;
 
-	echo '
-	<div id="admincenter">';
-
 	// Theme install info.
 	echo '
 		<div class="cat_bar">
@@ -167,8 +164,7 @@ function template_main()
 
 	echo '
 			</div><!-- .windowbg -->
-		</div><!-- #admin_form_wrapper -->
-	</div><!-- #admincenter -->';
+		</div><!-- #admin_form_wrapper -->';
 
 	echo '
 	<script>
@@ -194,7 +190,6 @@ function template_list_themes()
 	</div>';
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_list_heading'], '</h3>
 		</div>
@@ -273,9 +268,7 @@ function template_list_themes()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-tl_token_var'], '" value="', $context['admin-tl_token'], '">
 			</div>
-
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -286,7 +279,6 @@ function template_reset_list()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_reset_title'], '</h3>
 		</div>
@@ -318,8 +310,7 @@ function template_reset_list()
 	}
 
 	echo '
-		</div><!-- #admin_form_wrapper -->
-	</div><!-- #admincenter -->';
+		</div><!-- #admin_form_wrapper -->';
 }
 
 /**
@@ -330,7 +321,6 @@ function template_set_options()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';sa=reset" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="who" value="', $context['theme_options_reset'] ? 1 : 0, '">
 			<div class="cat_bar">
@@ -457,8 +447,7 @@ function template_set_options()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-sto_token_var'], '" value="', $context['admin-sto_token'], '">
 			</div>
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -815,7 +804,6 @@ function template_installed()
 
 	// The aftermath.
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
@@ -839,8 +827,7 @@ function template_installed()
 			</p>';
 
 	echo '
-		</div><!-- .windowbg -->
-	</div><!-- #admincenter -->';
+		</div><!-- .windowbg -->';
 }
 
 /**
@@ -886,7 +873,6 @@ function template_copy_template()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_edit_filename'], '</h3>
 		</div>
@@ -916,8 +902,7 @@ function template_copy_template()
 
 	echo '
 			</ul>
-		</div><!-- .windowbg -->
-	</div><!-- #admincenter -->';
+		</div><!-- .windowbg -->';
 }
 
 /**
@@ -926,9 +911,6 @@ function template_copy_template()
 function template_edit_browse()
 {
 	global $context, $txt;
-
-	echo '
-	<div id="admincenter">';
 
 	if (!empty($context['browse_title']))
 		echo '
@@ -973,8 +955,7 @@ function template_edit_browse()
 
 	echo '
 			</tbody>
-		</table>
-	</div><!-- #admincenter -->';
+		</table>';
 }
 
 /**
@@ -992,7 +973,6 @@ function template_edit_style()
 
 	// From now on no one can complain that editing css is difficult. If you disagree, go to www.w3schools.com.
 	echo '
-	<div id="admincenter">
 		<script>
 			var previewData = "";
 			var previewTimeout;
@@ -1135,8 +1115,7 @@ function template_edit_style()
 			<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '">';
 
 	echo '
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -1161,7 +1140,6 @@ function template_edit_template()
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=theme;th=', $context['theme_id'], ';sa=edit" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_edit'], ' - ', $context['edit_filename'], '</h3>
@@ -1193,8 +1171,7 @@ function template_edit_template()
 	echo '
 				</div><!-- .righttext -->
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -1219,7 +1196,6 @@ function template_edit_file()
 
 	// Just show a big box.... gray out the Save button if it's not saveable... (ie. not 777.)
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=theme;th=', $context['theme_id'], ';sa=edit" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_edit'], ' - ', $context['edit_filename'], '</h3>
@@ -1237,8 +1213,7 @@ function template_edit_file()
 
 	echo '
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 ?>
