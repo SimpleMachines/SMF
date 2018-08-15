@@ -22,7 +22,6 @@ function template_download_language()
 	if (!empty($context['install_complete']))
 	{
 		echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $txt['languages_download_complete'], '
@@ -30,8 +29,7 @@ function template_download_language()
 		</div>
 		<div class="windowbg">
 			', $context['install_complete'], '
-		</div>
-	</div>';
+		</div>';
 		return;
 	}
 
@@ -44,7 +42,6 @@ function template_download_language()
 
 	// Provide something of an introduction...
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=languages;sa=downloadlang;did=', $context['download_id'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -126,8 +123,7 @@ function template_download_language()
 				<input type="hidden" name="', $context['admin-dlang_token_var'], '" value="', $context['admin-dlang_token'], '">
 				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button">
 			</div>
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -138,7 +134,6 @@ function template_modify_language_entries()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -328,8 +323,7 @@ function template_modify_language_entries()
 	}
 
 	echo '
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -341,7 +335,6 @@ function template_add_language()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<form id="admin_form_wrapper"action="', $scripturl, '?action=admin;area=languages;sa=add;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -382,8 +375,7 @@ function template_add_language()
 	}
 
 	echo '
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 ?>
