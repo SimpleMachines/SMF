@@ -163,7 +163,7 @@ function template_credits()
 
 	// Show the user version information from their server.
 	echo '
-					<div id="support_credits" class="roundframe">
+					<div class="roundframe noup">
 						<div class="title_bar">
 							<h3 class="titlebg">
 								', $txt['support_title'], '
@@ -214,7 +214,7 @@ function template_credits()
 								', $txt['admin_credits'], '
 							</h3>
 						</div>
-						<div class="padding">';
+						<div id="support_credits_list" class="padding">';
 
 	foreach ($context['credits'] as $section)
 	{
