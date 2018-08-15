@@ -1456,8 +1456,38 @@ function statPanel($memID)
 	// Put it in the right order.
 	ksort($context['posts_by_time']);
 
+	/**
+	 * Adding new entries:
+	 * 'key' => array(
+	 * 		'text' => string, // The text that will be shown next to the entry.
+	 * 		'url' => string, // OPTIONAL: The entry will be a url
+	 * ),
+	 *
+	 * 'key' will be used to look up the language string as $txt['statPanel_' . $key].
+	 * Make sure to add a new entry when writing your mod!
+	 */
+	$context['text_stats'] = array(
+		'total_time_online' => array(
+			'text' => $context['time_logged_in'],
+		),
+		'total_posts' => array(
+			'text' => $context['num_posts'] . ' ' . $txt['statPanel_posts'],
+			'url' => $scripturl . '?action=profile;area=showposts;sa=messages;u=' . $memID
+		),
+		'total_topics' => array(
+			'text' => $context['num_topics'] . ' ' . $txt['statPanel_topics'],
+			'url' => $scripturl . '?action=profile;area=showposts;sa=topics;u=' . $memID
+		),
+		'users_polls' => array(
+			'text' => $context['num_polls'] . ' ' . $txt['statPanel_polls'],
+		),
+		'users_votes' => array(
+			'text' => $context['num_votes'] . ' ' . $txt['statPanel_votes']
+		)
+	);
+
 	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_profile_stats', array($memID));
+ 	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
 }
 
 /**

@@ -1289,17 +1289,22 @@ function template_statPanel()
 	echo '
 	<div id="profileview" class="roundframe noup">
 		<div id="generalstats">
-			<dl class="stats">
-				<dt>', $txt['statPanel_total_time_online'], ':</dt>
-				<dd>', $context['time_logged_in'], '</dd>
-				<dt>', $txt['statPanel_total_posts'], ':</dt>
-				<dd>', $context['num_posts'], ' ', $txt['statPanel_posts'], '</dd>
-				<dt>', $txt['statPanel_total_topics'], ':</dt>
-				<dd>', $context['num_topics'], ' ', $txt['statPanel_topics'], '</dd>
-				<dt>', $txt['statPanel_users_polls'], ':</dt>
-				<dd>', $context['num_polls'], ' ', $txt['statPanel_polls'], '</dd>
-				<dt>', $txt['statPanel_users_votes'], ':</dt>
-				<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
+			<dl class="stats">';
+
+	foreach ($context['text_stats'] as $key => $stat)
+	{
+		echo '
+				<dt>', $txt['statPanel_' . $key], '</dt>';
+
+		if (!empty($stat['url']))
+			echo '
+				<dd><a href="', $stat['url'], '">', $stat['text'], '</a></dd>';
+		else
+			echo '
+				<dd>', $stat['text'], '</dd>';
+	}
+
+	echo '
 			</dl>
 		</div>';
 
