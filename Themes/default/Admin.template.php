@@ -17,10 +17,6 @@ function template_admin()
 {
 	global $context, $scripturl, $txt, $modSettings;
 
-	// Welcome message for the admin.
-	echo '
-					<div id="admincenter">';
-
 	// Is there an update available?
 	echo '
 						<div id="update_section"></div>';
@@ -100,9 +96,6 @@ function template_admin()
 		echo '
 						</fieldset>';
 	}
-
-	echo '
-					</div><!-- #admincenter -->';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty($modSettings['disable_smf_js']))
@@ -300,7 +293,6 @@ function template_view_versions()
 	global $context, $scripturl, $txt;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['admin_version_check'], '
@@ -540,8 +532,7 @@ function template_view_versions()
 	}
 
 	echo '
-						</div><!-- #versions -->
-					</div><!-- #admincenter -->';
+						</div><!-- #versions -->';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
 	   held at simplemachines.org and works out if they are up to date. If they aren't it colors that files number
@@ -580,7 +571,6 @@ function template_edit_censored()
 
 	// First section is for adding/removing words from the censored list.
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
@@ -649,8 +639,7 @@ function template_edit_censored()
 
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 }
 
 /**
@@ -661,7 +650,6 @@ function template_not_done()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['not_done_title'], '
@@ -697,7 +685,6 @@ function template_not_done()
 								', $context['continue_post_data'], '
 							</form>
 						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->
 					<script>
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
@@ -739,7 +726,6 @@ function template_show_settings()
 		echo $context['settings_insert_above'];
 
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
@@ -1001,8 +987,7 @@ function template_show_settings()
 
 	echo '
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
@@ -1078,7 +1063,6 @@ function template_edit_profile_field()
 	}
 
 	echo '
-					<div id="admincenter">
 						<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
@@ -1275,8 +1259,7 @@ function template_edit_profile_field()
 							</div><!-- .windowbg -->
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	// Get the javascript bits right!
 	echo '
@@ -1421,7 +1404,6 @@ function template_repair_boards()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">',
 								$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'], '
@@ -1484,8 +1466,7 @@ function template_repair_boards()
 	}
 
 	echo '
-						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->';
+						</div><!-- .windowbg -->';
 
 	if (!empty($context['redirect_to_recount']))
 	{
