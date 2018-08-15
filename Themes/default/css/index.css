@@ -2314,37 +2314,14 @@ dl {
 	width: 16px;
 	height: 16px;
 }
-.ignoreboards {
-	margin: 0 2%;
-	padding: 0;
-	width: 45%;
-}
-.ignoreboards a {
+
+.boardslist a {
 	font-weight: bold;
 	border-bottom: 1px solid #c4c4c4;
-	padding: 1px 0;
 }
-.ignoreboards a:hover {
+.boardslist a:hover {
 	text-decoration: none;
 	border-bottom: 1px solid #334466;
-}
-.ignoreboards ul {
-	margin: 0;
-	padding: 0;
-}
-.ignoreboards li {
-	float: left;
-	clear: both;
-}
-.ignoreboards li.category {
-	margin: 8px 0 0 0;
-	width: 100%;
-}
-.ignoreboards li ul {
-	margin: 2px 0 0 0;
-}
-.ignoreboards li.category ul li.board {
-	width: 93%;
 }
 
 #theme_settings {

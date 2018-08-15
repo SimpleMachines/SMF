@@ -2192,10 +2192,10 @@ function template_groupMembership()
  */
 function template_ignoreboards()
 {
-	global $context, $txt, $scripturl;
+    global $context, $txt, $scripturl;
 
-	// The main containing header.
-	echo '
+    // The main containing header.
+    echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
@@ -2204,59 +2204,37 @@ function template_ignoreboards()
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg">
-			<div class="flow_hidden">
-				<ul class="ignoreboards floatleft">';
+			<div class="flow_hidden boardslist">
+				<ul>';
 
-	$i = 0;
-	$limit = ceil($context['num_boards'] / 2);
-	foreach ($context['categories'] as $category)
-	{
-		if ($i == $limit)
-		{
-			echo '
-				</ul>
-				<ul class="ignoreboards floatright">';
-
-			$i++;
-		}
-
-		echo '
-					<li class="category">
+    foreach ($context['categories'] as $category)
+    {
+        echo '
+					<li>
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
-						<ul>';
+            			<ul>';
 
-		foreach ($category['boards'] as $board)
-		{
-			if ($i == $limit)
-				echo '
-						</ul>
-					</li>
-				</ul>
-				<ul class="ignoreboards floatright">
-					<li class="category">
-						<ul>';
-
-			echo '
-							<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+        foreach ($category['boards'] as $board)
+        {
+            echo '
+							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
 							</li>';
+        }
 
-			$i++;
-		}
-
-		echo '
+        echo '
 						</ul>
 					</li>';
-	}
+    }
 
-	echo '
-				</ul>';
+    echo '
+				</ul>
+    		</div><!-- .flow_hidden boardslist -->';
 
-	// Show the standard "Save Settings" profile button.
-	template_profile_save();
+    // Show the standard "Save Settings" profile button.
+    template_profile_save();
 
-	echo '
-			</div><!-- .flow_hidden -->
+    echo '
 		</div><!-- .windowbg -->
 	</form>
 	<br>';
