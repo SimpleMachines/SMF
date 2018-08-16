@@ -316,7 +316,6 @@ $txt['upgrade_done3'] = 'Hope you like it!';
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '(doesn\'t work on all servers).';
-$txt['upgrade_completed_time'] = 'Upgrade completed in';
 $txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please don\'t hesitate to <a href="%1$s">look to us for assistance</a>..';
 $txt['upgrade_luck'] = 'Best of luck,';
 
@@ -340,14 +339,25 @@ $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settin
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
 $txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
-$txt['upgrade_time'] = '&quot; %1$s &quot; has been running the upgrade script for the last %1$d, - and was last active %2$d, ago.';
+$txt['upgrade_time_user'] = '&quot; %1$s &quot; is running the upgrade script.';
+
+// We represent the time here in backwards variables, as it makes the code easier.
+$txt['upgrade_time_ago_hms'] = 'The upgrade script has been running for the last %3$d hours, %2$d minutes and %1$d seconds ago.';
+$txt['upgrade_time_ago_ms'] = 'The upgrade script has been running for the last %2$d minutes and %1$d ago.';
+$txt['upgrade_time_ago_s'] = 'The upgrade script has been running for the last %1$d seconds ago.';
+$txt['upgrade_time_updated_hms'] = 'The upgrade script was last updated %3$d hours, %2$d minutes and %1$d seconds ago.';
+$txt['upgrade_time_updated_hm'] = 'The upgrade script was last updated %2$d minutes and %1$d seconds ago.';
+$txt['upgrade_time_updated_s'] = 'The upgrade script was last updated %1$d seconds ago.';
+$txt['upgrade_completed_time_hms'] = 'Upgrade completed in %3$d hours, %2$s minutes and %1$s seconds';
+$txt['upgrade_completed_time_ms'] = 'Upgrade completed in %2$s minutes and %1$s seconds';
+$txt['upgrade_completed_time_s'] = 'Upgrade completed in %1$s seconds';
+$txt['upgrade_success_time_db'] = 'Successful! Database upgrades completed in %3$d hours, %2$d minutes and %1$d seconds.';
+
 $txt['upgrade_unsuccessful'] = 'Unsuccessful!';
 $txt['upgrade_thisquery'] = 'This query:';
 $txt['upgrade_causerror'] = 'Caused the error:';
 $txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">%1$d</span> out of %2$d tables.';
-$txt['upgrade_success_time'] = 'Successful! Completed in %1$d.';
 $txt['upgrade_success'] = 'Successful!';
-$txt['upgrade_completed_time2'] = 'Completed in %1$d';
 $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: ';
 $txt['upgrade_repondtime'] = 'Server has not responded for %1$d seconds. It may be worth waiting a little longer before trying again.';
 $txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';

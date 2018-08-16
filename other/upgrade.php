@@ -394,7 +394,7 @@ function upgradeExit($fallThrough = false)
 			template_xml_below();
 	}
 
-
+	// Show the upgrade time for CLI when we are completely done, if in debug mode.
 	if (!empty($command_line) && $is_debug)
 	{
 		$active = time() - $upcontext['started'];
@@ -404,14 +404,11 @@ function upgradeExit($fallThrough = false)
 
 		$totalTime = '';
 		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
-		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
-		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
-
-		if (!empty($totalTime))
-			echo "\n" . '', $txt['upgrade_completed_time'], ' ' . $totalTime . "\n";
+			echo "\n" . '', sprintf($txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
+		elseif ($minutes > 0)
+			echo "\n" . '', sprintf($txt['upgrade_completed_time_ms'], $minutes, $seconds), '' . "\n";
+		elseif ($seconds > 0)
+			echo "\n" . '', sprintf($txt['upgrade_completed_time_s'], $seconds), '' . "\n";
 	}
 
 	// Bang - gone!
@@ -3779,30 +3776,29 @@ function template_welcome_message()
 	if (!empty($upcontext['user']['id']) && (time() - $upcontext['started'] < 72600 || time() - $upcontext['updated'] < 3600))
 	{
 		$ago = time() - $upcontext['started'];
-		if ($ago < 60)
-			$ago = $ago . ' seconds';
-		elseif ($ago < 3600)
-			$ago = (int) ($ago / 60) . ' minutes';
-		else
-			$ago = (int) ($ago / 3600) . ' hours';
+		$ago_hours = floor($ago / 3600);
+		$ago_minutes = intval(($ago / 60) % 60);
+		$ago_seconds = intval($ago % 60);
+		$agoTxt = $ago < 60 ? 'upgrade_time_ago_s' : ($ago < 3600 ? 'upgrade_time_ago_ms' : 'upgrade_time_ago_hms');
 
-		$active = time() - $upcontext['updated'];
-		if ($active < 60)
-			$updated = $active . ' seconds';
-		elseif ($active < 3600)
-			$updated = (int) ($active / 60) . ' minutes';
-		else
-			$updated = (int) ($active / 3600) . ' hours';
+		$updated = time() - $upcontext['updated'];
+		$updated_hours = floor($updated / 3600);
+		$updated_minutes = intval(($updated / 60) % 60);
+		$updated_seconds = intval($updated % 60);
+		$updatedTxt = $updated < 60 ? 'upgrade_time_updated_s' : ($updated < 3600 ? 'upgrade_time_updated_hm' : 'upgrade_time_updated_hms');
 
 		echo '
 					<div class="errorbox">
 						<h3>', $txt['upgrade_warning'], '</h3>
-						<p>', sprintf($txt['upgrade_time'], $upcontext['user']['name'], $ago, $updated), '</p>';
-		if ($active < 600)
+						<p>', sprintf($txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
+						<p>', sprintf($txt[$agoTxt],  $ago_seconds, $ago_minutes, $ago_hours), '</p>
+						<p>', sprintf($txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
+
+		if ($updated < 600)
 			echo '
 						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '</p>';
 
-		if ($active > $upcontext['inactive_timeout'])
+		if ($updated > $upcontext['inactive_timeout'])
 			echo '
 						<p>',$txt['upgrade_run'], '</p>';
 		else
@@ -4079,6 +4075,8 @@ function template_database_changes()
 				echo ' Successful!';
 			echo '<br>' . $item;
 		}
+
+		// Only tell deubbers how much time they wasted waiting for the upgrade because they don't have javascript.
 		if (!empty($upcontext['changes_complete']))
 		{
 			if ($is_debug)
@@ -4088,17 +4086,8 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				$totalTime = '';
-				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
-				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
-				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
+				echo '', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
 			}
-
-			if ($is_debug && !empty($totalTime))
-				echo '', sprintf($txt['upgrade_success_time'], $totalTime), '<br>';
 			else
 				echo '', $txt['upgrade_success'], '<br>';
 
@@ -4121,6 +4110,7 @@ function template_database_changes()
 
 		if ($is_debug)
 		{
+			// Let our debuggers know how much time was spent, but not wasted since JS handled refreshing the page!
 			if ($upcontext['current_debug_item_num'] == $upcontext['debug_items'])
 			{
 				$active = time() - $upcontext['started'];
@@ -4128,23 +4118,14 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				$totalTime = '';
-				if ($hours > 0)
-					$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
-				if ($minutes > 0)
-					$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
-				if ($seconds > 0)
-					$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
+				echo '
+					<p id="upgradeCompleted">', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '</p>';
 			}
+			else
+				echo '
+					<p id="upgradeCompleted"></p>';
 
 			echo '
-					<p id="upgradeCompleted">';
-
-			if (!empty($totalTime))
-				echo '', sprintf($txt['upgrade_completed_time2'], $totalTime), '';
-
-			echo '
-					</p>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4302,6 +4283,7 @@ function template_database_changes()
 							if (bIsComplete && iDebugNum == -1 && curFile >= ', $upcontext['file_count'], ')
 							{';
 
+		// Database Changes, tell us how much time we spen to do this.  If this gets updated via JS.
 		if ($is_debug)
 			echo '
 								document.getElementById(\'debug_section\').style.display = "none";
@@ -4312,15 +4294,12 @@ function template_database_changes()
 								var diffMinutes = parseInt((diffTime / 60) % 60);
 								var diffSeconds = parseInt(diffTime % 60);
 
-								var totalTime = "";
-								if (diffHours > 0)
-									totalTime = totalTime + diffHours + " hour" + (diffHours > 1 ? "s" : "") + " ";
-								if (diffMinutes > 0)
-									totalTime = totalTime + diffMinutes + " minute" + (diffMinutes > 1 ? "s" : "") + " ";
-								if (diffSeconds > 0)
-									totalTime = totalTime + diffSeconds + " second" + (diffSeconds > 1 ? "s" : "");
+								var completedTxt = "', $txt['upgrade_success_time_db'], '";
+console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes, diffSeconds);
 
-								setInnerHTML(document.getElementById("upgradeCompleted"), "Completed in " + totalTime);';
+								completedTxt = completedTxt.replace("%1$d", diffSeconds).replace("%2$d", diffMinutes).replace("%3$d", diffHours);
+console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes, diffSeconds);
+								setInnerHTML(document.getElementById("upgradeCompleted"), completedTxt);';
 
 		echo '
 
@@ -4686,25 +4665,21 @@ function template_upgrade_complete()
 					</script>
 					<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
-	$active = time() - $upcontext['started'];
-	$hours = floor($active / 3600);
-	$minutes = intval(($active / 60) % 60);
-	$seconds = intval($active % 60);
-
+	// Show Upgrade time in debug mode when we completed the upgrade process totatly
 	if ($is_debug)
 	{
-		$totalTime = '';
-		if ($hours > 0)
-			$totalTime .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ';
-		if ($minutes > 0)
-			$totalTime .= $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ';
-		if ($seconds > 0)
-			$totalTime .= $seconds . ' second' . ($seconds > 1 ? 's' : '') . ' ';
-	}
+		$active = time() - $upcontext['started'];
+		$hours = floor($active / 3600);
+		$minutes = intval(($active / 60) % 60);
+		$seconds = intval($active % 60);
 
-	if ($is_debug && !empty($totalTime))
-		echo '
-					<p> ', $txt['upgrade_completed_time'], ' ', $totalTime, '</p>';
+		if ($hours > 0)
+			echo '', sprintf($txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
+		elseif ($minutes > 0)
+			echo '', sprintf($txt['upgrade_completed_time_ms'], $seconds, $minutes), '';
+		elseif ($seconds > 0)
+			echo '', sprintf($txt['upgrade_completed_time_s'], $seconds), '';
+	}
 
 	echo '
 					<p>
