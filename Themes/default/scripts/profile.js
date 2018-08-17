@@ -286,6 +286,22 @@ function readfromUpload(input) {
 // The smiley set selector code
 $(document).on('change', '#smiley_set', function () {
     let value = this.value;
+    if (value == "")
+        value = smf_smiley_sets_default;
+
+    let baseurl;
+    if (value === "none") {
+        baseurl = smf_images_url + "/blank.";
+    } else {
+        baseurl = smf_smileys_url + "/" + value + "/smiley.";
+    }
+    trySmileySetPreview(baseurl);
+});
+
+$(window).on('load', function () {
+    let value = $("#smiley_set").val();
+    if (value == "")
+        value = smf_smiley_sets_default;
 
     let baseurl;
     if (value === "none") {
@@ -303,6 +319,7 @@ function trySmileySetPreview(baseurl, i = 0) {
             $("#smileypr").attr("src", baseurl + extensions[i]);
         })
         .fail(function () {
-            trySmileySetPreview(baseurl, ++i);
+            if (i < extensions.length)
+                trySmileySetPreview(baseurl, ++i);
         });
 }
