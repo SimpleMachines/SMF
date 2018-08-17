@@ -558,7 +558,7 @@ $txt['sub_boards'] = 'Sub-Boards';
 $txt['restricted_board'] = 'Restricted Board';
 
 $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
-$txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers.';
+$txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers. Hostname may need ssl:// prefix.';
 $txt['smtp_bad_response'] = 'Couldn\'t get mail server response codes';
 $txt['smtp_error'] = 'Ran into problems sending Mail. Error: ';
 $txt['mail_send_unable'] = 'Unable to send mail to the email address \'%1$s\'';

@@ -47,4 +47,8 @@ $txt['birthday_email'] = 'Birthday message to use';
 $txt['birthday_body'] = 'Email body';
 $txt['birthday_subject'] = 'Email subject';
 
+$txt['mailtest_header'] = 'Email Test';
+$txt['mailtest_result_success'] = 'Successfully sent a test message';
+$txt['mailtest_result_failure'] = 'Unable to send a test message, check the <a href="%1$s">error log</a> for more information.';
+
 ?>

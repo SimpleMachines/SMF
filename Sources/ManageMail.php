@@ -41,6 +41,7 @@ function ManageMail()
 		'browse' => 'BrowseMailQueue',
 		'clear' => 'ClearMailQueue',
 		'settings' => 'ModifyMailSettings',
+		'test' => 'TestMailSend',
 	);
 
 	// By default we want to browse
@@ -447,6 +448,40 @@ function pauseMailQueueClear()
 	$context['continue_percent'] = min($context['continue_percent'], 100);
 
 	obExit();
+}
+
+/**
+ * Test mail sending ability.
+ *
+ */
+function TestMailSend()
+{
+	global $scripturl, $context, $sourcedir, $user_info, $smcFunc;
+
+	loadLanguage('ManageMail');
+	loadTemplate('ManageMail');
+	$context['sub_template'] = 'mailtest';
+	$context['base_url'] = $scripturl . '?action=admin;area=mailqueue;sa=test';
+	$context['post_url'] = $context['base_url'] . ';save';
+
+	// Sending the test message now.
+	if (isset($_GET['save']))
+	{
+		require_once($sourcedir . '/Subs-Post.php');
+
+		// Send to the current user, no options.
+		$to = $user_info['email'];
+		$subject = $smcFunc['htmlspecialchars']($_POST['subject']);
+		$message = $smcFunc['htmlspecialchars']($_POST['message']);
+
+		//function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
+		$result = sendmail($to, $subject, $message, null, null, false, 0);
+		redirectexit($context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
+	}
+
+	// The result.
+	if (isset($_GET['result']))
+		$context['result'] = ($_GET['result'] == 'success' ? 'success' : 'failure');
 }
 
 /**
