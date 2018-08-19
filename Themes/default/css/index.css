@@ -3736,6 +3736,14 @@ h3.profile_hd {
 .green {
 	color: green;
 }
+
+/* Adding some classes for generic usage and JS rules */
+.hidden {
+	display: none;
+}
+.inline_block {
+	display: inline-block;
+}
 .block {
 	display: block;
 	margin: 0 0 5px 0;
