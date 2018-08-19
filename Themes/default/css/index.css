@@ -740,9 +740,6 @@ img.sort, .sort {
 	margin: 0 9px;
 	vertical-align: middle;
 }
-.profile_user_avatar img.avatar {
-    max-width: 100px;
-}
 .profile_username {
 	font-size: 150%;
 	display: block;
@@ -3179,9 +3176,6 @@ div#pollmoderation {
 }
 .poster img {
 	vertical-align: middle;
-}
-.poster img.avatar {
-    max-width: 100%;
 }
 .postarea, .moderatorbar {
 	margin: 0 0 0 175px;
