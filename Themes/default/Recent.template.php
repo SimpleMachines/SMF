@@ -370,4 +370,3 @@ function template_replies()
 }
 
 ?>
-
