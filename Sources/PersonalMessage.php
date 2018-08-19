@@ -235,7 +235,7 @@ function messageIndexBar($area)
 			'areas' => array(
 				'send' => array(
 					'label' => $txt['new_message'],
-					'custom_url' => $scripturl . '?action=pm',
+					'custom_url' => $scripturl . '?action=pm;sa=send',
 					'permission' => 'pm_send',
 				),
 				'inbox' => array(
