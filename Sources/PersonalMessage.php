@@ -233,14 +233,14 @@ function messageIndexBar($area)
 		'folders' => array(
 			'title' => $txt['pm_messages'],
 			'areas' => array(
+				'send' => array(
+					'label' => $txt['new_message'],
+					'custom_url' => $scripturl . '?action=pm',
+					'permission' => 'pm_send',
+				),
 				'inbox' => array(
 					'label' => $txt['inbox'],
 					'custom_url' => $scripturl . '?action=pm',
-				),
-				'send' => array(
-					'label' => $txt['new_message'],
-					'custom_url' => $scripturl . '?action=pm;sa=send',
-					'permission' => 'pm_send',
 				),
 				'sent' => array(
 					'label' => $txt['sent_items'],
