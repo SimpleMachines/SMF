@@ -42,7 +42,7 @@ function template_main()
 	echo '
 		<div id="advanced_search" class="roundframe">
 			<dl class="settings" id="search_options">
-				<dt class="righttext">
+				<dt>
 					<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 				</dt>
 				<dd>
@@ -55,7 +55,7 @@ function template_main()
 	echo '
 				</dd>
 
-				<dt class="righttext">
+				<dt>
 					<label for="searchtype">', $txt['search_match'], ':</label>
 				</dt>
 				<dd>
@@ -64,13 +64,13 @@ function template_main()
 						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
 					</select>
 				</dd>
-				<dt class="righttext">
+				<dt>
 					<label for="userspec">', $txt['by_user'], ':</label>
 				</dt>
 				<dd>
 					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
 				</dd>
-				<dt class="righttext">
+				<dt>
 					<label for="sort">', $txt['search_order'], ':</label>
 				</dt>
 				<dd>
@@ -97,7 +97,7 @@ function template_main()
 						</li>
 					</ul>
 				</dd>
-				<dt class="righttext between">',
+				<dt class="between">',
 					$txt['search_post_age'], ':
 				</dt>
 				<dd>

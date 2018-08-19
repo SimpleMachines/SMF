@@ -1028,7 +1028,7 @@ img.sort, .sort {
 }
 
 #languages_form, #search_form {
-	padding: 5px 0 0 0;
+	padding: 5px 0;
 }
 #languages_form {
 	margin: 0 0 0 10px;
