@@ -3001,6 +3001,14 @@ function parsesmileys(&$message)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
 				$searchParts[] = $specialChars;
+				
+				// Some 2.0 hex htmlchars are in there as 3 digits; allow for finding leading 0 or not
+				$specialChars2 = preg_replace('/&#(\d{2});/', '&#0$1;', $specialChars);
+				if ($specialChars2 != $specialChars)
+				{
+					$smileyPregReplacements[$specialChars2] = $smileyCode;
+					$searchParts[] = $specialChars2;
+				}
 			}
 		}
 
