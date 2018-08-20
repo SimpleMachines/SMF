@@ -744,73 +744,84 @@ function template_search()
 {
 	global $context, $scripturl, $txt;
 
-	echo '
-	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_search_title'], '</h3>
-		</div>';
-
 	if (!empty($context['search_errors']))
 		echo '
 		<div class="errorbox">
 			', implode('<br>', $context['search_errors']['messages']), '
 		</div>';
 
-
 	echo '
-		<fieldset id="advanced_search">
-			<div class="roundframe">
-				<input type="hidden" name="advanced" value="1">
-				<span class="enhanced">
-					<strong>', $txt['pm_search_text'], ':</strong>
+	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['pm_search_title'], '</h3>
+		</div>
+		<div id="advanced_search" class="roundframe">
+			<input type="hidden" name="advanced" value="1">
+			<dl id="search_options" class="settings">
+				<dt>
+					<strong><label for="searchfor">', $txt['pm_search_text'], ':</label></strong>
+				</dt>
+				<dd>
 					<input type="search" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40">
 					<script>
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
 					</script>
+				</dd>
+				<dt>
+					<label for="searchtype">', $txt['search_match'], ':</label>
+				</dt>
+				<dd>
 					<select name="searchtype">
 						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_all'], '</option>
 						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_any'], '</option>
 					</select>
-				</span>
-				<dl id="search_options">
-					<dt>', $txt['pm_search_user'], ':</dt>
-					<dd><input type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40"></dd>
-					<dt>', $txt['pm_search_order'], ':</dt>
-					<dd>
-						<select name="sort">
-							<option value="relevance|desc">', $txt['pm_search_orderby_relevant_first'], '</option>
-							<option value="id_pm|desc">', $txt['pm_search_orderby_recent_first'], '</option>
-							<option value="id_pm|asc">', $txt['pm_search_orderby_old_first'], '</option>
-						</select>
-					</dd>
-					<dt class="options">', $txt['pm_search_options'], ':</dt>
-					<dd class="options">
-						<label for="show_complete">
-							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '
-						</label><br>
-						<label for="subject_only">
-							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '
-						</label>
-					</dd>
-					<dt class="between">', $txt['pm_search_post_age'], ':</dt>
-					<dd>
-						', $txt['pm_search_between'], '
-						<input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">
-						', $txt['pm_search_between_and'], '
-						<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999">
-						', $txt['pm_search_between_days'], '
-					</dd>
-				</dl>';
+				</dd>
+				<dt>
+					<label for="userspec">', $txt['pm_search_user'], ':</label>
+				</dt>
+				<dd>
+					<input type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
+				</dd>
+				<dt>
+					<label for="sort">', $txt['pm_search_order'], ':</label>
+				</dt>
+				<dd>
+					<select name="sort">
+						<option value="relevance|desc">', $txt['pm_search_orderby_relevant_first'], '</option>
+						<option value="id_pm|desc">', $txt['pm_search_orderby_recent_first'], '</option>
+						<option value="id_pm|asc">', $txt['pm_search_orderby_old_first'], '</option>
+					</select>
+				</dd>
+				<dt class="options">
+					', $txt['pm_search_options'], ':
+				</dt>
+				<dd class="options">
+					<label for="show_complete">
+						<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '
+					</label><br>
+					<label for="subject_only">
+						<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '
+					</label>
+				</dd>
+				<dt class="between">
+					', $txt['pm_search_post_age'], ':
+				</dt>
+				<dd>
+					', $txt['pm_search_between'], '
+					<input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">
+					', $txt['pm_search_between_and'], '
+					<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999">
+					', $txt['pm_search_between_days'], '
+				</dd>
+			</dl>';
 
 	if (!$context['currently_using_labels'])
 		echo '
-				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button">';
+				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button floatright">';
 
 	echo '
-				<br class="clear_right">
-			</div><!-- .roundframe -->
-		</fieldset>';
+		</div><!-- .roundframe -->';
 
 	// Do we have some labels setup? If so offer to search by them!
 	if ($context['currently_using_labels'])
@@ -1458,7 +1469,7 @@ function template_labels()
 
 	if (!count($context['labels']) < 2)
 		echo '
-		<div class="padding">
+		<div class="block righttext">
 			<input type="submit" name="save" value="', $txt['save'], '" class="button">
 			<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" data-confirm="', $txt['pm_labels_delete'] ,'" class="button you_sure">
 		</div>';
@@ -1466,7 +1477,6 @@ function template_labels()
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
-	<br class="clear">
 	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
@@ -1480,7 +1490,7 @@ function template_labels()
 					<input type="text" id="add_label" name="label" value="" size="30" maxlength="30">
 				</dd>
 			</dl>
-			<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button">
+			<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button floatright">
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
@@ -1497,11 +1507,11 @@ function template_report_message()
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=report;l=', $context['current_label_id'], '" method="post" accept-charset="', $context['character_set'], '">
 		<input type="hidden" name="pmsg" value="', $context['pm_id'], '">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
-		</div>
 		<div class="information">
 			', $txt['pm_report_desc'], '
+		</div>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">';
