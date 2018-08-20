@@ -178,6 +178,9 @@
 	.subject_title input {
 		width: 90%;
 	}
+	#quickReplyOptions .roundframe {
+		padding: 8px 10px 12px 10px;
+	}
 
 	/* Post Section */
 	#post_header dd {
@@ -198,9 +201,14 @@
 	}
 	#poll_options dl.options dt,
 	#poll_options dl.options dd,
-	dl.settings dt, dl.settings dd	{
+	dl.settings dt, dl.settings dd,
+	#creator .settings dt, #creator .settings dd,
+	div#report_form dl.settings dd, div#report_form dl.settings dt {
 		width: 100%;
 		float: none;
+	}
+	dl.settings dd textarea, #report_comment {
+		width: 100%;
 	}
 	.move_topic {
 		width: 100%;
@@ -371,7 +379,8 @@
 		max-width: 250px;
 		max-height: 300px;
 	}
-	img.icon, #forumposts .catbg img {
+	img.icon, #forumposts .catbg img,
+	.moderation .generic_icons {
 		display:none;
 	}
 	.keyinfo h5 .modified {
@@ -551,6 +560,10 @@
 	.moderation a {
 		padding: 3px;
 	}
+	/* Unread */
+	#unread .board_icon, #unread .lastpost {
+		display: none;
+	}
 
 	/* Display (Topics) */
 	.user_info li {
@@ -609,7 +622,7 @@
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, td.reg_group, td.reg_date,
-	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
+	td.id_group, td.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, .pagesection.top, .time, .hidden,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
