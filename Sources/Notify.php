@@ -107,9 +107,6 @@ function TopicNotify()
 			$mode = (int) $_GET['mode'];
 			$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-			if (empty($mode))
-				$mode = 1;
-
 			$request = $smcFunc['db_query']('', '
 				SELECT id_member, id_topic, id_msg, unwatched
 				FROM {db_prefix}log_topics
