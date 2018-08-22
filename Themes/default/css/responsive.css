@@ -79,7 +79,7 @@
 	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
 	.dropmenu li ul {
 		width: 100%;
 		padding: 0;
@@ -203,7 +203,9 @@
 	#poll_options dl.options dd,
 	dl.settings dt, dl.settings dd,
 	#creator .settings dt, #creator .settings dd,
-	div#report_form dl.settings dd, div#report_form dl.settings dt {
+	div#report_form dl.settings dd, div#report_form dl.settings dt,
+	#tracking dt, #tracking dd,
+	#detailedinfo dt, #detailedinfo dd {
 		width: 100%;
 		float: none;
 	}
@@ -218,6 +220,14 @@
 		margin-left: 0.5em !important;
 		margin-right: 0.5em !important;
 	}
+	/* PersonalMessages + Alerts pages */
+	#personal_messages td span.mobile_display, #alerts td span.mobile_display, #alerts td.mobile_block {
+		display: block;
+	}
+	#personal_messages div.labels {
+		clear: both;
+	}
+
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -306,7 +316,7 @@
 		width: 90%;
 	}
 
-	.error_info {
+	.error_info, #fatal_error {
 		width: 100% !important;
 		padding: 0 !important;
 		float: none;
@@ -338,7 +348,7 @@
 	tr[id^="list_mail_queue_"] td:nth-child(odd),
 	#header_member_list_user_name, #header_member_list_ip,
 	#header_member_list_last_active, #header_member_list_posts,
-	.hidden {
+	.hidden, .mobile_hidden {
 		display: none;
 	}
 	tr[id^="list_mail_queue_"] td:first-of-type,
@@ -357,6 +367,11 @@
 	}
 	.msearch_details input[type="checkbox"] {
 		width: 5%;
+	}
+	/* Generic Lists */
+	#request_list .time_applied,
+	#track_user_list .date, #track_user_list .date2 {
+		display: none;
 	}
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
@@ -601,6 +616,10 @@
 	#basicinfo {
 		margin: 0 0 5px 0; /* For UX */
 	}
+	/* Alerts Page */
+	#alerts td span.mobile_display {
+		display: block;
+	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
 		padding: 5px !important;
@@ -627,6 +646,11 @@
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
 		display: none !important;
+	}
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied {
+		display: none;
 	}
 
 	/* Admin */

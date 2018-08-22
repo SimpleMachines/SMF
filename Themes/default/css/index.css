@@ -2165,6 +2165,7 @@ dl {
 }
 #basicinfo img.avatar {
 	display: block;
+	max-width: 160px;
 }
 #basicinfo ul {
 	list-style-type: none;
