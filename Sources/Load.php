@@ -1967,8 +1967,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$context['user']['name'] = $txt['guest_title'];
 
 		// Determine the current smiley set.
-		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], explode(',', $modSettings['smiley_sets_known'])) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
+		$smiley_sets_known = explode(',', $modSettings['smiley_sets_known']);
+		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], $smiley_sets_known) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
 		$context['user']['smiley_set'] = $user_info['smiley_set'];
+
+		// Determine current smiley set extension
+		$smiley_sets_exts = explode(',', $modSettings['smiley_sets_exts']);
+		$user_info['smiley_set_ext'] = $smiley_sets_exts[array_search($user_info['smiley_set'], $smiley_sets_known)];
+		$context['user']['smiley_set_ext'] = $user_info['smiley_set_ext'];
+
+		// Determine global default smiley set extension
+		$context['user']['smiley_set_default_ext'] = $smiley_sets_exts[array_search($modSettings['smiley_sets_default'], $smiley_sets_known)];
 	}
 	else
 	{
