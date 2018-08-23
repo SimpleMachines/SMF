@@ -2917,7 +2917,7 @@ function parsesmileys(&$message)
 		if (empty($modSettings['smiley_enable']))
 		{
 			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
-			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'laugh.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
+			$smileysto = array('evil', 'cheesy', 'rolleyes', 'angry', 'laugh', 'smiley', 'wink', 'grin', 'sad', 'shocked', 'cool', 'tongue', 'huh', 'embarrassed', 'lipsrsealed', 'kiss', 'cry', 'undecided', 'azn', 'afro', 'police', 'angel');
 			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
 		}
 		else
@@ -2949,6 +2949,14 @@ function parsesmileys(&$message)
 				list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 		}
 
+		// Set proper extensions; do this post caching so cache doesn't become extension-specific
+		foreach($smileysto AS $ix=>$file)
+			// Need to use the default if user selection is disabled
+			if (empty($modSettings['smiley_sets_enable']))
+				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
+			else
+				$smileysto[$ix] = $file . $user_info['smiley_set_ext'];
+
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
@@ -2956,30 +2964,9 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = $smcFunc['htmlspecialchars']($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
-		$smileys_dir = $modSettings['smileys_dir'] . '/' . $user_info['smiley_set'] . '/';
 
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
-			// If the image file is missing, see if there is an alternative available
-			if (!file_exists($smileys_dir . $smileysto[$i]))
-			{
-				$exts = array('svg', 'png', 'gif', 'jpg');
-				$fname = pathinfo($smileysto[$i], PATHINFO_FILENAME);
-				$alt_images = glob($smileys_dir . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
-				if (!empty($alt_images))
-				{
-					foreach ($exts as $ext)
-						if (in_array($smileys_dir . $fname . '.' . $ext, $alt_images))
-						{
-							$smileysto[$i] = $fname . '.' . $ext;
-							break;
-						}
-				}
-				// If we have no image, just leave the text version in place
-				else
-					continue;
-			}
-
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
 			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
