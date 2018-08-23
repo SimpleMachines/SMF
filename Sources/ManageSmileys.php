@@ -1348,7 +1348,7 @@ function EditSmileyOrder()
 		$context['smileys'][$location]['rows'][$row['smiley_row']][] = array(
 			'id' => $row['id_smiley'],
 			'code' => $smcFunc['htmlspecialchars']($row['code']),
-			'filename' => $smcFunc['htmlspecialchars']($row['filename']),
+			'filename' => $smcFunc['htmlspecialchars']($row['filename'] . $context['user']['smiley_set_default_ext']),
 			'description' => $smcFunc['htmlspecialchars']($row['description']),
 			'row' => $row['smiley_row'],
 			'order' => $row['smiley_order'],
