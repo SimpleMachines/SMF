@@ -2219,6 +2219,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
+		'smf_smiley_sets_exts' => '"' . $modSettings['smiley_sets_exts'] . '"',
+		'smf_smiley_sets_default_ext' => '"' . $context['user']['smiley_set_default_ext'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',

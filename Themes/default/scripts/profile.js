@@ -285,41 +285,21 @@ function readfromUpload(input) {
 
 // The smiley set selector code
 $(document).on('change', '#smiley_set', function () {
-    let value = this.value;
-    if (value == "")
-        value = smf_smiley_sets_default;
+	let value = this.value;
+	let index = this.selectedIndex;
+	let filename;
+	let extsarr = smf_smiley_sets_exts.split(",");
 
-    let baseurl;
-    if (value === "none") {
-        baseurl = smf_images_url + "/blank.";
-    } else {
-        baseurl = smf_smileys_url + "/" + value + "/smiley.";
-    }
-    trySmileySetPreview(baseurl);
+	if (index == 0) {
+		// None selected
+		filename = smf_images_url + "/blank.png";
+	} else if (index == 1) {
+		// Default selected
+		filename = smf_smileys_url + "/" + smf_smiley_sets_default + "/smiley" + smf_smiley_sets_default_ext;
+	} else {
+		// One of the sets selected
+		filename = smf_smileys_url + "/" + value + "/smiley" + extsarr[index - 2];
+	}
+
+	$("#smileypr").attr("src", filename);
 });
-
-$(window).on('load', function () {
-    let value = $("#smiley_set").val();
-    if (value == "")
-        value = smf_smiley_sets_default;
-
-    let baseurl;
-    if (value === "none") {
-        baseurl = smf_images_url + "/blank.";
-    } else {
-        baseurl = smf_smileys_url + "/" + value + "/smiley.";
-    }
-    trySmileySetPreview(baseurl);
-});
-
-function trySmileySetPreview(baseurl, i = 0) {
-    let extensions = ["png", "gif", "jpg", "jpeg"];
-    $.ajax(baseurl + extensions[i])
-        .done(function () {
-            $("#smileypr").attr("src", baseurl + extensions[i]);
-        })
-        .fail(function () {
-            if (i < extensions.length)
-                trySmileySetPreview(baseurl, ++i);
-        });
-}
