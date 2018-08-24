@@ -23,7 +23,6 @@ function template_email_members()
 	<div class="infobox">', $txt['admin_news_newsletter_' . $context['newsletter_sent']], '</div>';
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
@@ -112,8 +111,7 @@ function template_email_members()
 				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
@@ -195,7 +193,6 @@ function template_email_members_compose()
 	<br>';
 
 	echo '
-	<div id="admincenter">
 		<form name="newsmodify" action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -372,8 +369,7 @@ function template_email_members_compose()
 					}
 				}
 			</script>
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -384,7 +380,6 @@ function template_email_members_send()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -416,7 +411,6 @@ function template_email_members_send()
 	echo '
 			</div><!-- .windowbg -->
 		</form>
-	</div><!-- #admincenter -->
 
 	<script>
 		var countdown = 2;

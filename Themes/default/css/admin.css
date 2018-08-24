@@ -291,29 +291,15 @@ fieldset.admin_group .inactive {
 /* Only a couple of trivial markup hacks that wont break any mods or themes.
 /* The older I get, the more devious I get. :D
 /* Nobody ever themes admin anyway. That's why it looked like crap. */
-#support_credits {
-	position: relative;
-	margin: -4px 0 0 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
-#credits_logo {
-	position: absolute;
-	right: 10px;
-	top: 9px;
-}
-#latestSupport {
-	padding: 0 25px 15px 25px;
-}
-#support_credits dl {
+#support_credits_list dl {
 	padding: 0 6px;
 }
-#support_credits dt {
+#support_credits_list dt {
 	float: left;
 	padding: 6px 0.8em 0 0;
 	text-indent: -4px;
 }
-#support_credits dd {
+#support_credits_list dd {
 	padding: 6px 0;
 }
 
@@ -652,7 +638,7 @@ h3.grid_header {
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
 }
-#taskpad .button, #admincenter, #admin_form_wrapper {
+#taskpad .button, #admin_form_wrapper {
 	margin: 5px 0 5px 0;
 }
 h3.config_hd {

@@ -17,10 +17,6 @@ function template_admin()
 {
 	global $context, $scripturl, $txt, $modSettings;
 
-	// Welcome message for the admin.
-	echo '
-					<div id="admincenter">';
-
 	// Is there an update available?
 	echo '
 						<div id="update_section"></div>';
@@ -101,9 +97,6 @@ function template_admin()
 						</fieldset>';
 	}
 
-	echo '
-					</div><!-- #admincenter -->';
-
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty($modSettings['disable_smf_js']))
 		echo '
@@ -163,95 +156,93 @@ function template_credits()
 
 	// Show the user version information from their server.
 	echo '
-
-					<div id="admincenter">
-						<div id="support_credits" class="roundframe">
-							<div class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
-								</h3>
-							</div>
-							<div class="padding">
-								<strong>', $txt['support_versions'], ':</strong><br>
-									', $txt['support_versions_forum'], ':
-								<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
-									', $txt['support_versions_current'], ':
-								<em id="smfVersion">??</em><br>';
+					<div class="roundframe noup">
+						<div class="title_bar">
+							<h3 class="titlebg">
+								', $txt['support_title'], '
+							</h3>
+						</div>
+						<div class="padding">
+							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
+							<strong>', $txt['support_versions'], ':</strong><br>
+								', $txt['support_versions_forum'], ':
+							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+								', $txt['support_versions_current'], ':
+							<em id="smfVersion">??</em><br>';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
 	{
 		echo '
-									', $version['title'], ':
-								<em>', $version['version'], '</em>';
+								', $version['title'], ':
+							<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
 			echo
-								' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+							' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-								<br>';
+							<br>';
 	}
 
 	echo '
-							</div><!-- .padding -->';
+						</div><!-- .padding -->';
 
 	// Point the admin to common support resources.
 	echo '
-							<div id="support_resources" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_resources'], '
-								</h3>
-							</div>
-							<div class="padding">
-								<p>', $txt['support_resources_p1'], '</p>
-								<p>', $txt['support_resources_p2'], '</p>
-							</div>';
+						<div id="support_resources" class="title_bar">
+							<h3 class="titlebg">
+								', $txt['support_resources'], '
+							</h3>
+						</div>
+						<div class="padding">
+							<p>', $txt['support_resources_p1'], '</p>
+							<p>', $txt['support_resources_p2'], '</p>
+						</div>';
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['admin_credits'], '
-								</h3>
-							</div>
-							<div class="padding">';
+						<div id="credits_sections" class="title_bar">
+							<h3 class="titlebg">
+								', $txt['admin_credits'], '
+							</h3>
+						</div>
+						<div id="support_credits_list" class="padding">';
 
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
-								<p>', $section['pretext'], '</p>
-								<hr>';
+							<p>', $section['pretext'], '</p>
+							<hr>';
 
 		echo '
-								<dl>';
+							<dl>';
 
 		foreach ($section['groups'] as $group)
 		{
 			if (isset($group['title']))
 				echo '
-									<dt>
-										<strong>', $group['title'], ':</strong>
-									</dt>';
+								<dt>
+									<strong>', $group['title'], ':</strong>
+								</dt>';
 
 			echo '
-									<dd>', implode(', ', $group['members']), '</dd>';
+								<dd>', implode(', ', $group['members']), '</dd>';
 		}
 
 		echo '
-								</dl>';
+							</dl>';
 
 		if (isset($section['posttext']))
 			echo '
-								<hr>
-								<p>', $section['posttext'], '</p>';
+							<hr>
+							<p>', $section['posttext'], '</p>';
 	}
 
 	echo '
-							</div><!-- .padding -->
-						</div><!-- #support_credits -->
-					</div><!-- #admincenter -->';
+						</div><!-- .padding -->
+					</div><!-- #support_credits -->';
 
 	// This makes all the support information available to the support script...
 	echo '
@@ -302,7 +293,6 @@ function template_view_versions()
 	global $context, $scripturl, $txt;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['admin_version_check'], '
@@ -542,8 +532,7 @@ function template_view_versions()
 	}
 
 	echo '
-						</div><!-- #versions -->
-					</div><!-- #admincenter -->';
+						</div><!-- #versions -->';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
 	   held at simplemachines.org and works out if they are up to date. If they aren't it colors that files number
@@ -582,7 +571,6 @@ function template_edit_censored()
 
 	// First section is for adding/removing words from the censored list.
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
@@ -651,8 +639,7 @@ function template_edit_censored()
 
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 }
 
 /**
@@ -663,7 +650,6 @@ function template_not_done()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['not_done_title'], '
@@ -699,7 +685,6 @@ function template_not_done()
 								', $context['continue_post_data'], '
 							</form>
 						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->
 					<script>
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
@@ -741,7 +726,6 @@ function template_show_settings()
 		echo $context['settings_insert_above'];
 
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
@@ -1003,8 +987,7 @@ function template_show_settings()
 
 	echo '
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
@@ -1080,7 +1063,6 @@ function template_edit_profile_field()
 	}
 
 	echo '
-					<div id="admincenter">
 						<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
@@ -1277,8 +1259,7 @@ function template_edit_profile_field()
 							</div><!-- .windowbg -->
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	// Get the javascript bits right!
 	echo '
@@ -1423,7 +1404,6 @@ function template_repair_boards()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">',
 								$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'], '
@@ -1486,8 +1466,7 @@ function template_repair_boards()
 	}
 
 	echo '
-						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->';
+						</div><!-- .windowbg -->';
 
 	if (!empty($context['redirect_to_recount']))
 	{

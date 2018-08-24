@@ -30,7 +30,6 @@ function template_new_group()
 	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
-	<div id="admincenter">
 		<form id="new_group" action="', $scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
@@ -154,8 +153,7 @@ function template_new_group()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -166,7 +164,6 @@ function template_edit_group()
 	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=membergroups;sa=edit;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" name="groupForm" id="groupForm">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_edit_group'], ' - ', $context['group']['name'], '
@@ -359,7 +356,6 @@ function template_edit_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
-	</div><!-- #admincenter -->
 	<script>
 		var oModeratorSuggest = new smc_AutoSuggest({
 			sSelf: \'oModeratorSuggest\',
@@ -542,7 +538,6 @@ function template_group_members()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" id="view_group">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
@@ -692,8 +687,7 @@ function template_group_members()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-mgm_token_var'], '" value="', $context['mod-mgm_token'], '">
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 
 	if (!empty($context['group']['assignable']))
 		echo '

@@ -301,8 +301,8 @@
 	.action_admin .navigate_section {
 		display: none;
 	}
-	#admincenter input[type="text"], #quick_search input[type="search"],
-	#admincenter select, #quick_search select {
+	#quick_search input[type="search"],
+	#quick_search select {
 		width: 90%;
 	}
 
