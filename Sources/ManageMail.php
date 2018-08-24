@@ -474,7 +474,6 @@ function TestMailSend()
 		$subject = $smcFunc['htmlspecialchars']($_POST['subject']);
 		$message = $smcFunc['htmlspecialchars']($_POST['message']);
 
-		//function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 		$result = sendmail($to, $subject, $message, null, null, false, 0);
 		redirectexit($context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
 	}
