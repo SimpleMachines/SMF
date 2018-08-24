@@ -628,19 +628,19 @@ function template_subject_list()
 	<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
-				<th class="centercol table_icon mobile_hidden">
+				<th class="centercol table_icon pm_icon">
 					<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"> <span class="generic_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 				</th>
-				<th class="lefttext quarter_table mobile_hidden">
+				<th class="lefttext quarter_table pm_time">
 					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=date', $context['sort_by'] == 'date' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['date'], $context['sort_by'] == 'date' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
-				<th class="lefttext half_table">
+				<th class="lefttext half_table pm_subject">
 					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
-				<th class="lefttext mobile_hidden">
+				<th class="lefttext pm_from_to">
 					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
-				<th class="centercol table_icon">
+				<th class="centercol table_icon pm_moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form);">
 				</th>
 			</tr>
@@ -657,7 +657,7 @@ function template_subject_list()
 	{
 		echo '
 			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '','">
-				<td class="table_icon mobile_hidden">
+				<td class="table_icon pm_icon">
 					<script>
 						currentLabels[', $message['id'], '] = {';
 
@@ -677,15 +677,15 @@ function template_subject_list()
 					</script>
 					', $message['is_replied_to'] ? '<span class="generic_icons replied" title="' . $txt['pm_replied'] . '"></span>' : '<span class="generic_icons im_off" title="' . $txt['pm_read'] . '"></span>', '
 				</td>
-				<td class="mobile_hidden">', $message['time'], '</td>
-				<td>
+				<td class="pm_time">', $message['time'], '</td>
+				<td class="pm_subject">
 					', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a>
-					<span class="mobile_display"><span class="generic_icons ', ($context['from_or_to']=='to' && count($message['recipients']['to'])>1) ? 'people' : 'members', '"></span> ', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="generic_icons time_online"></span> ', $message['time'], '</span>
+					<span class="pm_inline_time"><span class="generic_icons ', ($context['from_or_to']=='to' && count($message['recipients']['to'])>1) ? 'people' : 'members', '"></span> ', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="generic_icons time_online"></span> ', $message['time'], '</span>
 				</td>
-				<td class="mobile_hidden">
+				<td class="pm_from_to">
 					', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '
 				</td>
-				<td class="centercol table_icon">
+				<td class="centercol table_icon pm_moderation">
 					<input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;">
 				</td>
 			</tr>';

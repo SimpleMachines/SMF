@@ -2480,6 +2480,9 @@ dl.stats {
 #personal_messages .reportlinks {
 	padding: 6px 1.3em;
 }
+#personal_messages .pm_inline_time {
+	display: none;
+}
 #searchLabelsExpand li {
 	padding: 4px 6px;
 }
@@ -2500,6 +2503,11 @@ dl.addrules dt.floatleft {
 }
 .unread_pm {
 	background: #cfc;
+}
+/* Styles for the show alerts section.
+------------------------------------------------- */
+#alerts .alert_inline_time {
+	display: none;
 }
 
 /* Styles for the memberlist section.

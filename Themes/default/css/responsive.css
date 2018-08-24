@@ -220,14 +220,21 @@
 		margin-left: 0.5em !important;
 		margin-right: 0.5em !important;
 	}
-	/* PersonalMessages + Alerts pages */
-	#personal_messages td span.mobile_display, #alerts td span.mobile_display, #alerts td.mobile_block {
-		display: block;
+	/* PersonalMessages */
+	#personal_messages .pm_icon {
+		display: none;
 	}
 	#personal_messages div.labels {
 		clear: both;
 	}
-
+	/* Alerts Page */
+	#alerts .alert_buttons, #alerts .alert_text {
+		display: block;
+	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_email {
+		display: none;
+	}
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -348,7 +355,7 @@
 	tr[id^="list_mail_queue_"] td:nth-child(odd),
 	#header_member_list_user_name, #header_member_list_ip,
 	#header_member_list_last_active, #header_member_list_posts,
-	.hidden, .mobile_hidden {
+	.hidden {
 		display: none;
 	}
 	tr[id^="list_mail_queue_"] td:first-of-type,
@@ -616,9 +623,23 @@
 	#basicinfo {
 		margin: 0 0 5px 0; /* For UX */
 	}
-	/* Alerts Page */
-	#alerts td span.mobile_display {
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_custom_fields {
+		display: none;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_time, #personal_messages .pm_from_to {
+		display: none;
+	} 
+	#personal_messages .pm_inline_time {
 		display: block;
+	}
+	/* Alerts Page */
+	#alerts .alert_inline_time {
+		display: block;
+	} 
+	#alerts .alert_time {
+		display: none;
 	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
