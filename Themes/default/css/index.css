@@ -2163,9 +2163,10 @@ dl {
 	font-weight: 100;
 	display: block;
 }
-#basicinfo img.avatar {
+#basicinfo img.avatar, dl.settings img.avatar {
 	display: block;
 	max-width: 160px;
+	height: auto !important;
 }
 #basicinfo ul {
 	list-style-type: none;
