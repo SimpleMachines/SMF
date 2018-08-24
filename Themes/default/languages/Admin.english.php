@@ -631,6 +631,7 @@ $txt['admin_news_cannot_pm_emails_js'] = 'You cannot send a personal message to 
 
 $txt['mailqueue_browse'] = 'Browse Queue';
 $txt['mailqueue_settings'] = 'Settings';
+$txt['mailqueue_test'] = 'Send Test';
 
 $txt['admin_search'] = 'Quick Search';
 $txt['admin_search_type_internal'] = 'Task/Setting';

@@ -1290,6 +1290,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		// Maybe we can still save this?  The port might be wrong.
 		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
 		{
+			// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
+			if (substr($modSettings['smtp_host'], 0, 6) != 'ssl://')
+				$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', $modSettings['smtp_host']);
+
 			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
 		}
