@@ -1432,7 +1432,7 @@ function template_repair_boards()
 								', $txt['errors_fix'], '
 							</p>
 							<p class="padding">
-								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
+								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-repairboards_token_var'], '=', $context['admin-repairboards_token'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
 							</p>';
 		}
 		else
@@ -1451,6 +1451,7 @@ function template_repair_boards()
 								', $txt['errors_do_recount'], '
 							</p>
 							<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
+								<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 								<input type="submit" name="recount" id="recount_now" value="', $txt['errors_recount_now'], '">
 							</form>';
