@@ -64,7 +64,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu {
+	.generic_menu, #topic_container .moderation .generic_icons {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -79,7 +79,7 @@
 	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
 	.dropmenu li ul {
 		width: 100%;
 		padding: 0;
@@ -203,7 +203,9 @@
 	#poll_options dl.options dd,
 	dl.settings dt, dl.settings dd,
 	#creator .settings dt, #creator .settings dd,
-	div#report_form dl.settings dd, div#report_form dl.settings dt {
+	div#report_form dl.settings dd, div#report_form dl.settings dt,
+	#tracking dt, #tracking dd,
+	#detailedinfo dt, #detailedinfo dd {
 		width: 100%;
 		float: none;
 	}
@@ -217,6 +219,21 @@
 		max-width: 100% !important;
 		margin-left: 0.5em !important;
 		margin-right: 0.5em !important;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_icon {
+		display: none;
+	}
+	#personal_messages div.labels {
+		clear: both;
+	}
+	/* Alerts Page */
+	#alerts .alert_buttons, #alerts .alert_text {
+		display: block;
+	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_email {
+		display: none;
 	}
 	/* Stats Center */
 	.half_content {
@@ -306,7 +323,7 @@
 		width: 90%;
 	}
 
-	.error_info {
+	.error_info, #fatal_error {
 		width: 100% !important;
 		padding: 0 !important;
 		float: none;
@@ -358,6 +375,11 @@
 	.msearch_details input[type="checkbox"] {
 		width: 5%;
 	}
+	/* Generic Lists */
+	#request_list .time_applied,
+	#track_user_list .date, #track_user_list .date2 {
+		display: none;
+	}
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
 		margin: 0 !important;
@@ -380,7 +402,7 @@
 		max-height: 300px;
 	}
 	img.icon, #forumposts .catbg img,
-	.moderation .generic_icons {
+	#topic_container .moderation .generic_icons {
 		display:none;
 	}
 	.keyinfo h5 .modified {
@@ -601,6 +623,24 @@
 	#basicinfo {
 		margin: 0 0 5px 0; /* For UX */
 	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_custom_fields {
+		display: none;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_time, #personal_messages .pm_from_to {
+		display: none;
+	} 
+	#personal_messages .pm_inline_time {
+		display: block;
+	}
+	/* Alerts Page */
+	#alerts .alert_inline_time {
+		display: block;
+	} 
+	#alerts .alert_time {
+		display: none;
+	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
 		padding: 5px !important;
@@ -627,6 +667,11 @@
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
 		display: none !important;
+	}
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied {
+		display: none;
 	}
 
 	/* Admin */

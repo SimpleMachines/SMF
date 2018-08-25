@@ -607,9 +607,12 @@ function template_showAlerts()
 		{
 			echo '
 				<tr class="windowbg">
-					<td>', $alert['text'], '</td>
-					<td>', $alert['time'], '</td>
-					<td>
+					<td class="alert_text">
+						', $alert['text'], '
+						<span class="alert_inline_time"><span class="generic_icons time_online"></span> ', $alert['time'], '</span>
+					</td>
+					<td class="alert_time">', $alert['time'], '</td>
+					<td class="alert_buttons">
 						<ul class="quickbuttons">
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'], '</a></li>
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>';
@@ -745,20 +748,20 @@ function template_editBuddies()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th scope="col" class="quarter_table">', $txt['name'], '</th>
-					<th scope="col">', $txt['status'], '</th>';
+					<th scope="col" class="quarter_table buddy_link">', $txt['name'], '</th>
+					<th scope="col" class="buddy_status">', $txt['status'], '</th>';
 
 	if ($context['can_moderate_forum'])
 		echo '
-					<th scope="col">', $txt['email'], '</th>';
+					<th scope="col" class="buddy_email">', $txt['email'], '</th>';
 
 	if (!empty($context['custom_pf']))
 		foreach ($context['custom_pf'] as $column)
 				echo '
-					<th scope="col">', $column['label'], '</th>';
+					<th scope="col" class="buddy_custom_fields">', $column['label'], '</th>';
 
 	echo '
-					<th scope="col">', $txt['remove'], '</th>
+					<th scope="col" class="buddy_remove">', $txt['remove'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -779,14 +782,14 @@ function template_editBuddies()
 		{
 			echo '
 				<tr class="windowbg">
-					<td>', $buddy['link'], '</td>
-					<td>
+					<td class="buddy_link">', $buddy['link'], '</td>
+					<td class="centertext buddy_status">
 						<a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a>
 					</td>';
 
 			if ($buddy['show_email'])
 				echo '
-					<td>
+					<td class="buddy_email centertext">
 						<a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>
 					</td>';
 
@@ -794,10 +797,10 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext">', $buddy['options'][$key], '</td>';
+					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
-					<td>
+					<td class="centertext buddy_remove">
 						<a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a>
 					</td>
 				</tr>';
@@ -873,15 +876,15 @@ function template_editIgnoreList()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th scope="col" class="quarter_table">', $txt['name'], '</th>
-					<th scope="col">', $txt['status'], '</th>';
+					<th scope="col" class="quarter_table buddy_link">', $txt['name'], '</th>
+					<th scope="col" class="buddy_status">', $txt['status'], '</th>';
 
 	if ($context['can_moderate_forum'])
 		echo '
-					<th scope="col">', $txt['email'], '</th>';
+					<th scope="col" class="buddy_email">', $txt['email'], '</th>';
 
 	echo '
-					<th scope="col">', $txt['ignore_remove'], '</th>
+					<th scope="col" class="buddy_remove">', $txt['ignore_remove'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -900,18 +903,18 @@ function template_editIgnoreList()
 	{
 		echo '
 				<tr class="windowbg">
-					<td>', $member['link'], '</td>
-					<td>
+					<td class="buddy_link">', $member['link'], '</td>
+					<td class="centertext buddy_status">
 						<a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a>
 					</td>';
 
 		if ($context['can_moderate_forum'])
 			echo '
-					<td>
+					<td class="centertext buddy_email">
 						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>
 					</td>';
 		echo '
-					<td>
+					<td class="centertext buddy_remove">
 						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a>
 					</td>
 				</tr>';
