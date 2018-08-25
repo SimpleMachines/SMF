@@ -50,14 +50,24 @@ function template_modifyset()
 					<input type="text" name="smiley_sets_name" id="smiley_sets_name" value="', $context['current_set']['name'], '">
 				</dd>
 				<dt>
+					<strong><label for="smiley_sets_ext">', $txt['smiley_sets_ext'], '</label>: </strong>
+				</dt>
+				<dd>
+					<select name="smiley_sets_ext" id="smiley_sets_ext">
+						<option value=".png"', $context['current_set']['ext'] == '.png' ? 'selected' : '', '>.png</option>
+						<option value=".gif"', $context['current_set']['ext'] == '.gif' ? 'selected' : '', '>.gif</option>
+						<option value=".jpg"', $context['current_set']['ext'] == '.jpg' ? 'selected' : '', '>.jpg</option>
+						<option value=".jpeg"', $context['current_set']['ext'] == '.jpeg' ? 'selected' : '', '>.jpeg</option>
+						<option value=".svg"', $context['current_set']['ext'] == '.svg' ? 'selected' : '', '>.svg</option>
+					</select>
+				</dd>
+				<dt>
 					<strong><label for="smiley_sets_path">', $txt['smiley_sets_url'], '</label>: </strong>
 				</dt>
 				<dd>
 					', $modSettings['smileys_url'], '/';
-	if ($context['current_set']['id'] == 'default')
-		echo '<strong>default</strong><input type="hidden" name="smiley_sets_path" id="smiley_sets_path" value="default">';
 
-	elseif (empty($context['smiley_set_dirs']))
+	if (empty($context['smiley_set_dirs']))
 		echo '
 					<input type="text" name="smiley_sets_path" id="smiley_sets_path" value="', $context['current_set']['path'], '"> ';
 	else
@@ -119,7 +129,7 @@ function template_modifysmiley()
 					<strong>', $txt['smiley_preview'], ': </strong>
 				</dt>
 				<dd>
-					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'], '" id="preview" alt=""> ', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();">';
+					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'] . $context['user']['smiley_set_default_ext'], '" id="preview" alt=""> ', $txt['smiley_preview_using'], ': <select id="set" onchange="updatePreview();">';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
@@ -211,10 +221,10 @@ function template_addsmiley()
 			<fieldset id="ex_settings">
 				<dl class="settings">
 					<dt>
-						<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['filenames'][0]['id'], '" id="preview" alt="">
+						<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['filenames'][0]['id'] . $context['user']['smiley_set_default_ext'], '" id="preview" alt="">
 					</dt>
 					<dd>
-						', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();selectMethod(\'existing\');">';
+						', $txt['smiley_preview_using'], ': <select id="set" onchange="updatePreview();selectMethod(\'existing\');">';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
@@ -248,24 +258,8 @@ function template_addsmiley()
 				</dl>
 			</fieldset>
 			<fieldset id="ul_settings" style="display: none;">
-				<dl class="settings">
-					<dt>
-						<strong>', $txt['smileys_add_upload_choose'], ':</strong><br>
-						<span class="smalltext">', $txt['smileys_add_upload_choose_desc'], '</span>
-					</dt>
-					<dd>
-						<input type="file" name="uploadSmiley" id="uploadSmiley" onchange="selectMethod(\'upload\');">
-					</dd>
-					<dt>
-						<strong><label for="sameall">', $txt['smileys_add_upload_all'], ':</label></strong>
-					</dt>
-					<dd>
-						<input type="checkbox" name="sameall" id="sameall" checked onclick="swapUploads(); selectMethod(\'upload\');">
-					</dd>
-				</dl>
-			</fieldset>
 
-			<dl id="uploadMore" style="display: none;" class="settings">';
+			<dl id="uploadMore" class="settings">';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
@@ -278,6 +272,7 @@ function template_addsmiley()
 
 	echo '
 			</dl>
+			</fieldset>
 		</div><!-- .windowbg -->
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['smiley_new'], '</h3>

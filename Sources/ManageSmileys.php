@@ -163,7 +163,7 @@ function EditSmileySettings($return_config = false)
 		checkSession();
 
 		// Validate the smiley set name.
-		$_POST['smiley_sets_default'] = empty($smiley_context[$_POST['smiley_sets_default']]) ? 'default' : $_POST['smiley_sets_default'];
+		$_POST['smiley_sets_default'] = empty($smiley_context[$_POST['smiley_sets_default']]) ? $modSettings['smiley_sets_default'] : $_POST['smiley_sets_default'];
 
 		call_integration_hook('integrate_save_smiley_settings');
 
@@ -203,20 +203,23 @@ function EditSmileySets()
 		if (!empty($_POST['delete']) && !empty($_POST['smiley_set']))
 		{
 			$set_paths = explode(',', $modSettings['smiley_sets_known']);
+			$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
 			{
 				// If this is the set you've marked as default, or the only one remaining, you can't delete it
 				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
-					unset($set_paths[$id], $set_names[$id]);
+					unset($set_paths[$id], $set_names[$id], $set_exts[$id]);
 			}
 
 			// Shortcut... array_merge() on a single array resets the numeric keys
 			$set_paths = array_merge($set_paths);
+			$set_exts = array_merge($set_exts);
 			$set_names = array_merge($set_names);
 
 			updateSettings(array(
 				'smiley_sets_known' => implode(',', $set_paths),
+				'smiley_sets_exts' => implode(',', $set_exts),
 				'smiley_sets_names' => implode("\n", $set_names),
 				'smiley_sets_default' => in_array($modSettings['smiley_sets_default'], $set_paths) ? $modSettings['smiley_sets_default'] : $set_paths[0],
 			));
@@ -228,6 +231,7 @@ function EditSmileySets()
 		elseif (isset($_POST['set']))
 		{
 			$set_paths = explode(',', $modSettings['smiley_sets_known']);
+			$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 
 			// Create a new smiley set.
@@ -238,6 +242,7 @@ function EditSmileySets()
 
 				updateSettings(array(
 					'smiley_sets_known' => $modSettings['smiley_sets_known'] . ',' . $_POST['smiley_sets_path'],
+					'smiley_sets_exts' => $modSettings['smiley_sets_exts'] . ',' . $_POST['smiley_sets_ext'],
 					'smiley_sets_names' => $modSettings['smiley_sets_names'] . "\n" . $_POST['smiley_sets_name'],
 					'smiley_sets_default' => empty($_POST['smiley_sets_default']) ? $modSettings['smiley_sets_default'] : $_POST['smiley_sets_path'],
 				));
@@ -254,9 +259,11 @@ function EditSmileySets()
 					fatal_lang_error('smiley_set_path_already_used');
 
 				$set_paths[$_POST['set']] = $_POST['smiley_sets_path'];
+				$set_exts[$_POST['set']] = $_POST['smiley_sets_ext'];
 				$set_names[$_POST['set']] = $_POST['smiley_sets_name'];
 				updateSettings(array(
 					'smiley_sets_known' => implode(',', $set_paths),
+					'smiley_sets_exts' => implode(',', $set_exts),
 					'smiley_sets_names' => implode("\n", $set_names),
 					'smiley_sets_default' => empty($_POST['smiley_sets_default']) ? $modSettings['smiley_sets_default'] : $_POST['smiley_sets_path']
 				));
@@ -272,11 +279,13 @@ function EditSmileySets()
 
 	// Load all available smileysets...
 	$context['smiley_sets'] = explode(',', $modSettings['smiley_sets_known']);
+	$set_exts = explode(",", $modSettings['smiley_sets_exts']);
 	$set_names = explode("\n", $modSettings['smiley_sets_names']);
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
 			'path' => $smcFunc['htmlspecialchars']($set),
+			'ext' => $smcFunc['htmlspecialchars']($set_exts[$i]),
 			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
@@ -305,6 +314,7 @@ function EditSmileySets()
 			$context['current_set'] = array(
 				'id' => '-1',
 				'path' => '',
+				'ext' => '',
 				'name' => '',
 				'selected' => false,
 				'is_new' => true,
@@ -321,8 +331,10 @@ function EditSmileySets()
 				$dir = dir($modSettings['smileys_dir'] . '/' . $context['current_set']['path']);
 				while ($entry = $dir->read())
 				{
+					// strip extension before comparison
+					$filename = pathinfo($entry, PATHINFO_FILENAME);
 					if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
-						$smileys[strtolower($entry)] = $entry;
+						$smileys[strtolower($filename)] = $filename;
 				}
 				$dir->close();
 
@@ -415,6 +427,18 @@ function EditSmileySets()
 					'reverse' => 'name DESC',
 				),
 			),
+			'ext' => array(
+				'header' => array(
+					'value' => $txt['smiley_sets_ext'],
+				),
+				'data' => array(
+					'db_htmlsafe' => 'ext',
+				),
+				'sort' => array(
+					'default' => 'ext',
+					'reverse' => 'ext DESC',
+				),
+			),
 			'url' => array(
 				'header' => array(
 					'value' => $txt['smiley_sets_url'],
@@ -495,12 +519,14 @@ function list_getSmileySets($start, $items_per_page, $sort)
 	global $modSettings;
 
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
+	$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 	$set_names = explode("\n", $modSettings['smiley_sets_names']);
 	$cols = array(
 		'id' => array(),
 		'selected' => array(),
 		'path' => array(),
 		'name' => array(),
+		'ext' => array(),
 	);
 	foreach ($known_sets as $i => $set)
 	{
@@ -508,14 +534,17 @@ function list_getSmileySets($start, $items_per_page, $sort)
 		$cols['selected'][] = $i;
 		$cols['path'][] = $set;
 		$cols['name'][] = $set_names[$i];
+		$cols['ext'][] = $set_exts[$i];
 	}
 	$sort_flag = strpos($sort, 'DESC') === false ? SORT_ASC : SORT_DESC;
 	if (substr($sort, 0, 4) === 'name')
-		array_multisort($cols['name'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['selected'], $cols['id']);
+		array_multisort($cols['name'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['selected'], $cols['id'], $cols['ext']);
+	elseif (substr($sort, 0, 3) === 'ext')
+		array_multisort($cols['ext'], $sort_flag, SORT_REGULAR, $cols['name'], $cols['selected'], $cols['id'], $cols['path']);
 	elseif (substr($sort, 0, 4) === 'path')
-		array_multisort($cols['path'], $sort_flag, SORT_REGULAR, $cols['name'], $cols['selected'], $cols['id']);
+		array_multisort($cols['path'], $sort_flag, SORT_REGULAR, $cols['name'], $cols['selected'], $cols['id'], $cols['ext']);
 	else
-		array_multisort($cols['selected'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['name'], $cols['id']);
+		array_multisort($cols['selected'], $sort_flag, SORT_REGULAR, $cols['path'], $cols['name'], $cols['id'], $cols['ext']);
 
 	$smiley_sets = array();
 	foreach ($cols['id'] as $i => $id)
@@ -523,6 +552,7 @@ function list_getSmileySets($start, $items_per_page, $sort)
 			'id' => $id,
 			'path' => $cols['path'][$i],
 			'name' => $cols['name'][$i],
+			'ext' => $cols['ext'][$i],
 			'selected' => $cols['path'][$i] == $modSettings['smiley_sets_default']
 		);
 
@@ -552,12 +582,14 @@ function AddSmiley()
 	$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
 	$context['smileys_dir_found'] = is_dir($context['smileys_dir']);
 	$context['smiley_sets'] = explode(',', $modSettings['smiley_sets_known']);
+	$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 	$set_names = explode("\n", $modSettings['smiley_sets_names']);
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
 			'path' => $smcFunc['htmlspecialchars']($set),
 			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
+			'ext' => $smcFunc['htmlspecialchars']($set_exts[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -767,9 +799,11 @@ function AddSmiley()
 			$dir = dir($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path']));
 			while ($entry = $dir->read())
 			{
-				if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
-					$context['filenames'][strtolower($entry)] = array(
-						'id' => $smcFunc['htmlspecialchars']($entry),
+				// Strip extension
+				$filename = pathinfo($entry, PATHINFO_FILENAME);
+				if (!in_array($filename, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
+					$context['filenames'][strtolower($filename)] = array(
+						'id' => $smcFunc['htmlspecialchars']($filename),
 						'selected' => false,
 					);
 			}
@@ -912,12 +946,14 @@ function EditSmileys()
 
 	// Load all known smiley sets.
 	$context['smiley_sets'] = explode(',', $modSettings['smiley_sets_known']);
+	$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 	$set_names = explode("\n", $modSettings['smiley_sets_names']);
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
 			'path' => $smcFunc['htmlspecialchars']($set),
 			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
+			'ext' => $smcFunc['htmlspecialchars']($set_exts[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -958,7 +994,7 @@ function EditSmileys()
 				'picture' => array(
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="' . $scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d"><img src="' . $modSettings['smileys_url'] . '/' . $modSettings['smiley_sets_default'] . '/%2$s" alt="%3$s" style="padding: 2px;" id="smiley%1$d"><input type="hidden" name="smileys[%1$d][filename]" value="%2$s"></a>',
+							'format' => '<a href="' . $scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d"><img src="' . $modSettings['smileys_url'] . '/' . $modSettings['smiley_sets_default'] . '/%2$s' . $context['user']['smiley_set_default_ext'] . '" alt="%3$s" style="padding: 2px;" id="smiley%1$d"><input type="hidden" name="smileys[%1$d][filename]" value="%2$s"></a>',
 							'params' => array(
 								'id_smiley' => false,
 								'filename' => true,
@@ -1116,6 +1152,8 @@ function EditSmileys()
 				function changeSet(newSet)
 				{
 					var currentImage, i, knownSmileys = [];
+					let extsarr = smf_smiley_sets_exts.split(",");
+					let index = document.getElementsByName("set")[0].selectedIndex;
 
 					if (knownSmileys.length == 0)
 					{
@@ -1127,7 +1165,7 @@ function EditSmileys()
 					for (i = 0; i < knownSmileys.length; i++)
 					{
 						currentImage = document.getElementById("smiley" + knownSmileys[i]);
-						currentImage.src = "' . $modSettings['smileys_url'] . '/" + newSet + "/" + document.forms.smileyForm["smileys[" + knownSmileys[i] + "][filename]"].value;
+						currentImage.src = "' . $modSettings['smileys_url'] . '/" + newSet + "/" + document.forms.smileyForm["smileys[" + knownSmileys[i] + "][filename]"].value + extsarr[index];
 					}
 				}',
 		);
@@ -1146,12 +1184,14 @@ function EditSmileys()
 		$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
 		$context['smileys_dir_found'] = is_dir($context['smileys_dir']);
 		$context['smiley_sets'] = explode(',', $modSettings['smiley_sets_known']);
+		$set_exts = explode(',', $modSettings['smiley_sets_exts']);
 		$set_names = explode("\n", $modSettings['smiley_sets_names']);
 		foreach ($context['smiley_sets'] as $i => $set)
 			$context['smiley_sets'][$i] = array(
 				'id' => $i,
 				'path' => $smcFunc['htmlspecialchars']($set),
 				'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
+				'ext' => $smcFunc['htmlspecialchars']($set_exts[$i]),
 				'selected' => $set == $modSettings['smiley_sets_default']
 			);
 
@@ -1169,9 +1209,11 @@ function EditSmileys()
 				$dir = dir($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path']));
 				while ($entry = $dir->read())
 				{
-					if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
-						$context['filenames'][strtolower($entry)] = array(
-							'id' => $smcFunc['htmlspecialchars']($entry),
+					// Strip extension
+					$filename = pathinfo($entry, PATHINFO_FILENAME);
+					if (!in_array($filename, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
+						$context['filenames'][strtolower($filename)] = array(
+							'id' => $smcFunc['htmlspecialchars']($filename),
 							'selected' => false,
 						);
 				}
@@ -1653,8 +1695,9 @@ function ImportSmileys($smileyPath)
 	$dir = dir($modSettings['smileys_dir'] . '/' . $smileyPath);
 	while ($entry = $dir->read())
 	{
+		$filename = pathinfo($entry, PATHINFO_FILENAME);
 		if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
-			$smileys[strtolower($entry)] = $entry;
+			$smileys[strtolower($filename)] = $filename;
 	}
 	$dir->close();
 
