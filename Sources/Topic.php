@@ -60,6 +60,12 @@ function LockTopic()
 	else
 		isAllowedTo('lock_any');
 
+	// Another moderator got the job done first?
+	if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0')
+		fatal_lang_error('error_topic_locked_already', false);
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2'))
+		fatal_lang_error('error_topic_unlocked_already', false);
+
 	// Locking with high privileges.
 	if ($locked == '0' && !$user_lock)
 		$locked = '1';
@@ -132,6 +138,12 @@ function Sticky()
 	);
 	list ($is_sticky) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
+
+	// Another moderator got the job done first?
+	if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0')
+		fatal_lang_error('error_topic_nonsticky_already', false);
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1')
+		fatal_lang_error('error_topic_sticky_already', false);
 
 	// Toggle the sticky value.... pretty simple ;).
 	$smcFunc['db_query']('', '
