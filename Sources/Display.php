@@ -648,7 +648,13 @@ function Display()
 		);
 		$pollinfo = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
+	}
 
+	// Create the poll info if it exists and is valid.
+	if ($context['is_poll'] && empty($pollinfo))
+		$context['is_poll'] = false;
+	elseif ($context['is_poll'])
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(DISTINCT id_member) AS total
 			FROM {db_prefix}log_polls
