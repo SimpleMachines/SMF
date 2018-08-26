@@ -46,9 +46,6 @@ $txt['default_alienine_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
 $txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve2';
-$txt['default_core_theme_name'] = 'Core Theme';
-$txt['default_classic_theme_name'] = 'Classic YaBB SE Theme';
-$txt['default_babylon_theme_name'] = 'Babylon Theme';
 
 $txt['default_administrator_group'] = 'Administrator';
 $txt['default_global_moderator_group'] = 'Global Moderator';
@@ -343,7 +340,7 @@ $txt['upgrade_time_user'] = '&quot; %1$s &quot; is running the upgrade script.';
 
 // We represent the time here in backwards variables, as it makes the code easier.
 $txt['upgrade_time_ago_hms'] = 'The upgrade script has been running for the last %3$d hours, %2$d minutes and %1$d seconds ago.';
-$txt['upgrade_time_ago_ms'] = 'The upgrade script has been running for the last %2$d minutes and %1$d ago.';
+$txt['upgrade_time_ago_ms'] = 'The upgrade script has been running for the last %2$d minutes and %1$d seconds ago.';
 $txt['upgrade_time_ago_s'] = 'The upgrade script has been running for the last %1$d seconds ago.';
 $txt['upgrade_time_updated_hms'] = 'The upgrade script was last updated %3$d hours, %2$d minutes and %1$d seconds ago.';
 $txt['upgrade_time_updated_hm'] = 'The upgrade script was last updated %2$d minutes and %1$d seconds ago.';

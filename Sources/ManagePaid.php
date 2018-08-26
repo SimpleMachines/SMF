@@ -1129,14 +1129,15 @@ function ModifyUserSubscription()
 					'{db_prefix}log_subscribed',
 					array(
 						'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-						'end_time' => 'int', 'status' => 'int',
+						'end_time' => 'int', 'status' => 'int','pending_details' => 'string-65534'
 					),
 					array(
 						$context['sub_id'], $id_member, $id_group, $starttime,
-						$endtime, $status,
+						$endtime, $status, $smcFunc['json_encode'](array())
 					),
 					array('id_sublog')
 				);
+
 			}
 		}
 		// Updating.
