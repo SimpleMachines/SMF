@@ -1335,7 +1335,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 				if (!server_parse('STARTTLS', $socket, '220'))
 					return false;
 				// Enable the encryption
-				if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT))
+				// php 5.6+ fix
+				$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+
+				if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT'))
+				{
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+				}
+
+				if (!@stream_socket_enable_crypto($socket, true, $crypto_method))
 					return false;
 				// Send the EHLO command again
 				if (!server_parse('EHLO ' . $helo, $socket, null) == '250')
