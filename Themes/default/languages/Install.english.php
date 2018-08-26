@@ -46,9 +46,6 @@ $txt['default_alienine_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
 $txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve2';
-$txt['default_core_theme_name'] = 'Core Theme';
-$txt['default_classic_theme_name'] = 'Classic YaBB SE Theme';
-$txt['default_babylon_theme_name'] = 'Babylon Theme';
 
 $txt['default_administrator_group'] = 'Administrator';
 $txt['default_global_moderator_group'] = 'Global Moderator';
