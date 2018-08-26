@@ -116,7 +116,7 @@ class ProxyServer
 		if ($response === -1)
 		{
 			// Throw a 404
-			header(send_http_status(404));
+			send_http_status(404);
 			exit;
 		}
 		// Right, image not cached? Simply redirect, then.
