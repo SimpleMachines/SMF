@@ -321,7 +321,7 @@ function EditSmileySets()
 				$dir = dir($modSettings['smileys_dir'] . '/' . $context['current_set']['path']);
 				while ($entry = $dir->read())
 				{
-					if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
+					if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
 						$smileys[strtolower($entry)] = $entry;
 				}
 				$dir->close();
@@ -767,7 +767,7 @@ function AddSmiley()
 			$dir = dir($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path']));
 			while ($entry = $dir->read())
 			{
-				if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
+				if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
 					$context['filenames'][strtolower($entry)] = array(
 						'id' => $smcFunc['htmlspecialchars']($entry),
 						'selected' => false,
@@ -1169,7 +1169,7 @@ function EditSmileys()
 				$dir = dir($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path']));
 				while ($entry = $dir->read())
 				{
-					if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
+					if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
 						$context['filenames'][strtolower($entry)] = array(
 							'id' => $smcFunc['htmlspecialchars']($entry),
 							'selected' => false,
@@ -1653,7 +1653,7 @@ function ImportSmileys($smileyPath)
 	$dir = dir($modSettings['smileys_dir'] . '/' . $smileyPath);
 	while ($entry = $dir->read())
 	{
-		if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
+		if (in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png', '.svg')))
 			$smileys[strtolower($entry)] = $entry;
 	}
 	$dir->close();
