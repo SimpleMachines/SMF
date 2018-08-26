@@ -1071,8 +1071,7 @@ img#smflogo {
 }
 /* Even guests need to be aligned */
 .welcome {
-	padding-left: 10px;
-	padding-top: 5px;
+	padding: 7px 0 8px 10px;
 }
 /*
 /* The user info, news, etc.*/
@@ -1499,6 +1498,7 @@ fieldset.merge_options {
 ------------------------------------------------------- */
 .login {
 	width: 540px;
+	max-width: 100%;
 	margin: 0 auto;
 }
 .popup_content .login {

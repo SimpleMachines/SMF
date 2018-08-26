@@ -4635,6 +4635,7 @@ function setupMenuContext()
 	}
 
 	$total_mod_reports = 0;
+	$total_admin_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
@@ -4660,7 +4661,7 @@ function setupMenuContext()
 
 		if (!empty($context['num_errors']))
 		{
-			$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$total_admin_reports += $context['num_errors'];
 			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		}
 	}
@@ -4675,7 +4676,8 @@ function setupMenuContext()
 	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
+		$total_admin_reports += $context['unapproved_members'];
+		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
 	}
 
 	// Do we have any open reports?
