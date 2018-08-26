@@ -65,7 +65,7 @@ function template_main()
 				<p>', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ': ', comma_format($board['posts']), '<br>', $board['is_redirect'] ? '' : $txt['board_topics'] . ': ' . comma_format($board['topics']), '
 				</p>
 			</div>
-			<div class="lastpost lpr_border">';
+			<div class="lastpost ', !empty($board['last_post']['id']) ? 'lpr_border' : 'hidden', '">';
 
 			if (!empty($board['last_post']['id']))
 				echo '
