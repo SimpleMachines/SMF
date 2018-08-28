@@ -97,9 +97,8 @@ function Memberlist()
 				'up' => 'mem.date_registered ASC'
 			),
 		),
-		'posts' => array(
+		'post_count' => array(
 			'label' => $txt['posts'],
-			'colspan' => 2,
 			'default_sort_rev' => true,
 			'sort' => array(
 				'down' => 'mem.posts DESC',

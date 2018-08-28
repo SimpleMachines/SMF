@@ -2531,11 +2531,8 @@ dl.addrules dt.floatleft {
 #mlist .icq, #mlist .aim, #mlist .yim, #mlist .skype {
 	width: 30px;
 }
-#mlist .posts {
-	width: 115px;
-}
 #mlist .post_count {
-	width: 15px;
+	width: 115px;
 }
 
 /* Styles for the search section.
