@@ -357,6 +357,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['report_profile'],
 					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
 					'icon' => 'warning',
+					'enabled' => allowedTo('profile_view'),
 					'permission' => array(
 						'own' => array(),
 						'any' => array('report_user'),
@@ -378,6 +379,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['profileBanUser'],
 					'custom_url' => $scripturl . '?action=admin;area=ban;sa=add',
 					'icon' => 'ban',
+					'enabled' => allowedTo('profile_view'),
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
 					'permission' => array(
 						'own' => array(),
