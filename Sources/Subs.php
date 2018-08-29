@@ -1887,6 +1887,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="color: white;" class="bbc_color">',
 				'after' => '</span>',
 			),
+			array(
+				'tag' => 'youtube',
+				'type' => 'unparsed_content',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
+				'block_level' => true,
+			),
 		);
 
 		// Inside these tags autolink is not recommendable.
@@ -2983,7 +2990,7 @@ function parsesmileys(&$message)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
 				$searchParts[] = $specialChars;
-				
+
 				// Some 2.0 hex htmlchars are in there as 3 digits; allow for finding leading 0 or not
 				$specialChars2 = preg_replace('/&#(\d{2});/', '&#0$1;', $specialChars);
 				if ($specialChars2 != $specialChars)
@@ -6670,7 +6677,7 @@ function send_http_status($code, $status = '')
 		500 => 'Internal Server Error',
 		503 => 'Service Unavailable',
 	);
-	
+
 	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	if (!isset($statuses[$code]) && empty($status))
