@@ -379,7 +379,6 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['profileBanUser'],
 					'custom_url' => $scripturl . '?action=admin;area=ban;sa=add',
 					'icon' => 'ban',
-					'enabled' => allowedTo('profile_view'),
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
 					'permission' => array(
 						'own' => array(),
