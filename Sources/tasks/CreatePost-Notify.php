@@ -29,7 +29,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;
 	const NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING = 2;
 	const NOTIFY_TYPE_ONLY_REPLIES = 3;
-	const NOTIFY_TYPE_NOTHING = 3;
+	const NOTIFY_TYPE_NOTHING = 4;
 
 	/**
 	 * Constants for frequencies.
