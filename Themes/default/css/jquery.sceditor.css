@@ -15,6 +15,9 @@ div.sceditor-grip,
   width: 16px;
   height: 16px;
 }
+.sceditor-button-flash div {
+    background-position: 0px -712px;
+}
 .sceditor-button-youtube div {
   background-position: 0px 0px;
 }
