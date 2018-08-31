@@ -143,8 +143,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			elseif ($notify_types == self::NOTIFY_TYPE_NOTHING)
 				continue;
 
-			if (empty($frequency) || $frequency > self::FREQUENCY_FIRST_UNREAD_MSG || $data['sent']
-				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
+			// Don't send a notification if they don't want any...
+			if (in_array($frequency, array(self::FREQUENCY_NOTHING, self::FREQUENCY_DAILY_DIGEST, self::FREQUENCY_WEEKLY_DIGEST)))
+				continue;
+			// ... or if we already sent one and they don't want more...
+			elseif ($frequency === self::FREQUENCY_FIRST_UNREAD_MSG && $data['sent'])
+				continue;
+			// ... or if they aren't on the bouncer's list.
+			elseif (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only']))
 				continue;
 
 			// Watched topic?
