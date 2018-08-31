@@ -43,6 +43,7 @@ $editortxt['URL:'] = 'URL:';
 $editortxt['Insert a link'] = 'Insert a link';
 $editortxt['Unlink'] = 'Unlink';
 $editortxt['More'] = 'More';
+$editortxt['Close'] = 'Close';
 $editortxt['Insert an emoticon'] = 'Insert a smiley';
 $editortxt['Video URL:'] = 'Video URL:';
 $editortxt['Insert'] = 'Insert';
