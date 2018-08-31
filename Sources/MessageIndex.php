@@ -239,6 +239,19 @@ function MessageIndex()
 		'last_post' => 't.id_last_msg'
 	);
 
+	// Default sort methods tables.
+		$sort_methods_table = array(
+			'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
+			'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg) 
+							LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
+			'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+							LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
+			'replies' => '',
+			'views' => '',
+			'first_post' => '',
+			'last_post' => ''
+		);
+
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
@@ -283,281 +296,249 @@ function MessageIndex()
 	$topic_ids = array();
 	$context['topics'] = array();
 
-	// Sequential pages are often not optimized, so we add an additional query.
-	$pre_query = $start > 0;
-	if ($pre_query && $context['maxindex'] > 0)
-	{
-		$message_pre_index_parameters = array(
-			'current_board' => $board,
-			'current_member' => $user_info['id'],
-			'is_approved' => 1,
-			'id_member_guest' => 0,
-			'start' => $start,
-			'maxindex' => $context['maxindex'],
-			'sort' => $_REQUEST['sort'],
-		);
-		$message_pre_index_tables = array();
-		$message_pre_index_wheres = array();
-		call_integration_hook('integrate_message_pre_index', array(&$message_pre_index_tables, &$message_pre_index_parameters, &$message_pre_index_wheres));
-
-		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic
-			FROM {db_prefix}topics AS t' . ($context['sort_by'] === 'last_poster' ? '
-				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)' : (in_array($context['sort_by'], array('starter', 'subject')) ? '
-				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)' : '')) . ($context['sort_by'] === 'starter' ? '
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' : '') . ($context['sort_by'] === 'last_poster' ? '
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
-				' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
-			WHERE t.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-				' . (!empty($message_pre_index_wheres) ? 'AND ' . implode("\n\t\t\t\tAND ", $message_pre_index_wheres) : '') . '
-			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {raw:sort}' . ($ascending ? '' : ' DESC') . '
-			LIMIT {int:start}, {int:maxindex}',
-			$message_pre_index_parameters
-		);
-		$topic_ids = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$topic_ids[] = $row['id_topic'];
-	}
-
 	// Grab the appropriate topic information...
-	if (!$pre_query || !empty($topic_ids))
+	// For search engine effectiveness we'll link guests differently.
+	$context['pageindex_multiplier'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+
+	$message_index_parameters = array(
+		'current_board' => $board,
+		'current_member' => $user_info['id'],
+		'topic_list' => $topic_ids,
+		'is_approved' => 1,
+		'find_set_topics' => implode(',', $topic_ids),
+		'start' => $start,
+		'maxindex' => $context['maxindex'],
+	);
+	$message_index_selects = array();
+	$message_index_tables = array();
+	$message_index_wheres = array();
+	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
+
+	if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
+		$enableParticipation = true;
+	else
+		$enableParticipation = false;
+
+	$sort_table = 'SELECT t.id_topic, t.id_first_msg, t.id_last_msg
+				FROM {db_prefix}topics t
+				' . (empty($sort_methods_table[$context['sort_by']]) ? '' : $sort_methods_table[$context['sort_by']]) . '
+				WHERE t.id_board = {int:current_board} '
+				. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
+					AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') .'
+				ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . ' 
+				LIMIT {int:maxindex}
+					OFFSET {int:start} ';
+	
+	$result = $smcFunc['db_query']('substring', '
+		SELECT
+			t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
+			' . ($user_info['is_guest'] ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
+			' . ( $enableParticipation ? ' COALESCE(( SELECT 1 FROM {db_prefix}messages AS parti WHERE t.id_topic = parti.id_topic and parti.id_member = {int:current_member} LIMIT 1) , 0) as is_posted_in,
+			'	: '') . '
+			t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
+			ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
+			ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, COALESCE(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, COALESCE(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
+			COALESCE(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
+			mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
+			mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
+			COALESCE(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
+			SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
+			SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
+			' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
+		FROM (' . $sort_table . ') as st 
+			JOIN {db_prefix}topics AS t ON (st.id_topic = t.id_topic)
+			JOIN {db_prefix}messages AS ml ON (ml.id_msg = st.id_last_msg)
+			JOIN {db_prefix}messages AS mf ON (mf.id_msg = st.id_first_msg)
+			LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
+			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+			LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
+			LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
+			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
+			' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
+			' . (!empty($message_index_wheres) ? ' WHERE ' . implode("\n\t\t\t\tAND ", $message_index_wheres) : '') . '
+		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') ,
+		$message_index_parameters
+	);
+
+	// Begin 'printing' the message index for current board.
+	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		// For search engine effectiveness we'll link guests differently.
-		$context['pageindex_multiplier'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+		if ($row['id_poll'] > 0 && $modSettings['pollMode'] == '0')
+			continue;
 
-		$message_index_parameters = array(
-			'current_board' => $board,
-			'current_member' => $user_info['id'],
-			'topic_list' => $topic_ids,
-			'is_approved' => 1,
-			'find_set_topics' => implode(',', $topic_ids),
-			'start' => $start,
-			'maxindex' => $context['maxindex'],
-		);
-		$message_index_selects = array();
-		$message_index_tables = array();
-		$message_index_wheres = array();
-		call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
+		$topic_ids[] = $row['id_topic'];
 
-		if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
-			$enableParticipation = true;
-		else
-			$enableParticipation = false;
+		// Reference the main color class.
+		$colorClass = 'windowbg';
 
-		$result = $smcFunc['db_query']('substring', '
-			SELECT
-				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
-				' . ($user_info['is_guest'] ? '0' : 'COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1') . ' AS new_from,
-				' . ( $enableParticipation ? ' COALESCE(( SELECT 1 FROM {db_prefix}messages AS parti WHERE t.id_topic = parti.id_topic and parti.id_member = {int:current_member} LIMIT 1) , 0) as is_posted_in,
-				'	: '') . '
-				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
-				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, COALESCE(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, COALESCE(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
-				COALESCE(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
-				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
-				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
-				COALESCE(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
-				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
-				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
-				' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
-				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
-				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = memf.id_member)
-				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
-				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
-				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
-				' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
-			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-				' . (!empty($message_index_wheres) ? 'AND ' . implode("\n\t\t\t\tAND ", $message_index_wheres) : '') . '
-			ORDER BY ' . ($pre_query ? $smcFunc['db_custom_order']('t.id_topic', $topic_ids) : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
-			LIMIT ' . ($pre_query ? '' : '{int:start}, ') . '{int:maxindex}',
-			$message_index_parameters
-		);
-
-		// Begin 'printing' the message index for current board.
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		// Does the theme support message previews?
+		if (!empty($modSettings['preview_characters']))
 		{
-			if ($row['id_poll'] > 0 && $modSettings['pollMode'] == '0')
-				continue;
+			// Limit them to $modSettings['preview_characters'] characters
+			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
+			if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
+				$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
 
-			if (!$pre_query)
-				$topic_ids[] = $row['id_topic'];
+			// Censor the subject and message preview.
+			censorText($row['first_subject']);
+			censorText($row['first_body']);
 
-			// Reference the main color class.
-			$colorClass = 'windowbg';
-
-			// Does the theme support message previews?
-			if (!empty($modSettings['preview_characters']))
+			// Don't censor them twice!
+			if ($row['id_first_msg'] == $row['id_last_msg'])
 			{
-				// Limit them to $modSettings['preview_characters'] characters
-				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
-				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
-					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
-
-				// Censor the subject and message preview.
-				censorText($row['first_subject']);
-				censorText($row['first_body']);
-
-				// Don't censor them twice!
-				if ($row['id_first_msg'] == $row['id_last_msg'])
-				{
-					$row['last_subject'] = $row['first_subject'];
-					$row['last_body'] = $row['first_body'];
-				}
-				else
-				{
-					$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
-					if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
-						$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
-
-					censorText($row['last_subject']);
-					censorText($row['last_body']);
-				}
+				$row['last_subject'] = $row['first_subject'];
+				$row['last_body'] = $row['first_body'];
 			}
 			else
 			{
-				$row['first_body'] = '';
-				$row['last_body'] = '';
-				censorText($row['first_subject']);
+				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
+				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
+					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
 
-				if ($row['id_first_msg'] == $row['id_last_msg'])
-					$row['last_subject'] = $row['first_subject'];
-				else
-					censorText($row['last_subject']);
-			}
-
-			// Decide how many pages the topic should have.
-			if ($row['num_replies'] + 1 > $context['messages_per_page'])
-			{
-				// We can't pass start by reference.
-				$start = -1;
-				$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, $context['messages_per_page'], true, false);
-
-				// If we can use all, show all.
-				if (!empty($modSettings['enableAllMessages']) && $row['num_replies'] + 1 < $modSettings['enableAllMessages'])
-					$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
-			}
-			else
-				$pages = '';
-
-			// We need to check the topic icons exist...
-			if (!empty($modSettings['messageIconChecks_enable']))
-			{
-				if (!isset($context['icon_sources'][$row['first_icon']]))
-					$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
-				if (!isset($context['icon_sources'][$row['last_icon']]))
-					$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
-			}
-			else
-			{
-				if (!isset($context['icon_sources'][$row['first_icon']]))
-					$context['icon_sources'][$row['first_icon']] = 'images_url';
-				if (!isset($context['icon_sources'][$row['last_icon']]))
-					$context['icon_sources'][$row['last_icon']] = 'images_url';
-			}
-
-			if (!empty($board_info['recycle']))
-				$row['first_icon'] = 'recycled';
-
-			// Is this topic pending approval, or does it have any posts pending approval?
-			if ($context['can_approve_posts'] && $row['unapproved_posts'])
-				$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
-
-			// Sticky topics should get a different color, too.
-			if ($row['is_sticky'])
-				$colorClass .= ' sticky';
-
-			// Locked topics get special treatment as well.
-			if ($row['locked'])
-				$colorClass .= ' locked';
-
-			// 'Print' the topic info.
-			$context['topics'][$row['id_topic']] = array_merge($row, array(
-				'id' => $row['id_topic'],
-				'first_post' => array(
-					'id' => $row['id_first_msg'],
-					'member' => array(
-						'username' => $row['first_member_name'],
-						'name' => $row['first_display_name'],
-						'id' => $row['first_id_member'],
-						'href' => !empty($row['first_id_member']) ? $scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-						'link' => !empty($row['first_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_display_name'] . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
-					),
-					'time' => timeformat($row['first_poster_time']),
-					'timestamp' => forum_time(true, $row['first_poster_time']),
-					'subject' => $row['first_subject'],
-					'preview' => $row['first_body'],
-					'icon' => $row['first_icon'],
-					'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
-				),
-				'last_post' => array(
-					'id' => $row['id_last_msg'],
-					'member' => array(
-						'username' => $row['last_member_name'],
-						'name' => $row['last_display_name'],
-						'id' => $row['last_id_member'],
-						'href' => !empty($row['last_id_member']) ? $scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
-						'link' => !empty($row['last_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
-					),
-					'time' => timeformat($row['last_poster_time']),
-					'timestamp' => forum_time(true, $row['last_poster_time']),
-					'subject' => $row['last_subject'],
-					'preview' => $row['last_body'],
-					'icon' => $row['last_icon'],
-					'icon_url' => $settings[$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
-					'href' => $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
-				),
-				'is_sticky' => !empty($row['is_sticky']),
-				'is_locked' => !empty($row['locked']),
-				'is_redirect' => !empty($row['id_redirect_topic']),
-				'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-				'is_posted_in' => ($enableParticipation ? $row['is_posted_in'] : false),
-				'is_watched' => false,
-				'icon' => $row['first_icon'],
-				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-				'subject' => $row['first_subject'],
-				'new' => $row['new_from'] <= $row['id_msg_modified'],
-				'new_from' => $row['new_from'],
-				'newtime' => $row['new_from'],
-				'new_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
-				'pages' => $pages,
-				'replies' => comma_format($row['num_replies']),
-				'views' => comma_format($row['num_views']),
-				'approved' => $row['approved'],
-				'unapproved_posts' => $row['unapproved_posts'],
-				'css_class' => $colorClass,
-			));
-			if (!empty($settings['avatars_on_indexes']))
-			{
-				// Last post member avatar
-				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
-					'avatar' => $row['avatar'],
-					'email' => $row['email_address'],
-					'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
-				));
-
-				// First post member avatar
-				$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
-					'avatar' => $row['first_member_avatar'],
-					'email' => $row['first_member_mail'],
-					'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
-				));
+				censorText($row['last_subject']);
+				censorText($row['last_body']);
 			}
 		}
-		$smcFunc['db_free_result']($result);
+		else
+		{
+			$row['first_body'] = '';
+			$row['last_body'] = '';
+			censorText($row['first_subject']);
 
-		// Fix the sequence of topics if they were retrieved in the wrong order. (for speed reasons...)
-		if ($fake_ascending)
-			$context['topics'] = array_reverse($context['topics'], true);
+			if ($row['id_first_msg'] == $row['id_last_msg'])
+				$row['last_subject'] = $row['first_subject'];
+			else
+				censorText($row['last_subject']);
+		}
+
+		// Decide how many pages the topic should have.
+		if ($row['num_replies'] + 1 > $context['messages_per_page'])
+		{
+			// We can't pass start by reference.
+			$start = -1;
+			$pages = constructPageIndex($scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, $context['messages_per_page'], true, false);
+
+			// If we can use all, show all.
+			if (!empty($modSettings['enableAllMessages']) && $row['num_replies'] + 1 < $modSettings['enableAllMessages'])
+				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
+		}
+		else
+			$pages = '';
+
+		// We need to check the topic icons exist...
+		if (!empty($modSettings['messageIconChecks_enable']))
+		{
+			if (!isset($context['icon_sources'][$row['first_icon']]))
+				$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.png') ? 'images_url' : 'default_images_url';
+			if (!isset($context['icon_sources'][$row['last_icon']]))
+				$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+		}
+		else
+		{
+			if (!isset($context['icon_sources'][$row['first_icon']]))
+				$context['icon_sources'][$row['first_icon']] = 'images_url';
+			if (!isset($context['icon_sources'][$row['last_icon']]))
+				$context['icon_sources'][$row['last_icon']] = 'images_url';
+		}
+
+		if (!empty($board_info['recycle']))
+			$row['first_icon'] = 'recycled';
+
+		// Is this topic pending approval, or does it have any posts pending approval?
+		if ($context['can_approve_posts'] && $row['unapproved_posts'])
+			$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
+
+		// Sticky topics should get a different color, too.
+		if ($row['is_sticky'])
+			$colorClass .= ' sticky';
+
+		// Locked topics get special treatment as well.
+		if ($row['locked'])
+			$colorClass .= ' locked';
+
+		// 'Print' the topic info.
+		$context['topics'][$row['id_topic']] = array_merge($row, array(
+			'id' => $row['id_topic'],
+			'first_post' => array(
+				'id' => $row['id_first_msg'],
+				'member' => array(
+					'username' => $row['first_member_name'],
+					'name' => $row['first_display_name'],
+					'id' => $row['first_id_member'],
+					'href' => !empty($row['first_id_member']) ? $scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
+					'link' => !empty($row['first_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_display_name'] . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name']
+				),
+				'time' => timeformat($row['first_poster_time']),
+				'timestamp' => forum_time(true, $row['first_poster_time']),
+				'subject' => $row['first_subject'],
+				'preview' => $row['first_body'],
+				'icon' => $row['first_icon'],
+				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
+			),
+			'last_post' => array(
+				'id' => $row['id_last_msg'],
+				'member' => array(
+					'username' => $row['last_member_name'],
+					'name' => $row['last_display_name'],
+					'id' => $row['last_id_member'],
+					'href' => !empty($row['last_id_member']) ? $scripturl . '?action=profile;u=' . $row['last_id_member'] : '',
+					'link' => !empty($row['last_id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['last_id_member'] . '">' . $row['last_display_name'] . '</a>' : $row['last_display_name']
+				),
+				'time' => timeformat($row['last_poster_time']),
+				'timestamp' => forum_time(true, $row['last_poster_time']),
+				'subject' => $row['last_subject'],
+				'preview' => $row['last_body'],
+				'icon' => $row['last_icon'],
+				'icon_url' => $settings[$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
+				'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
+			),
+			'is_sticky' => !empty($row['is_sticky']),
+			'is_locked' => !empty($row['locked']),
+			'is_redirect' => !empty($row['id_redirect_topic']),
+			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
+			'is_posted_in' => ($enableParticipation ? $row['is_posted_in'] : false),
+			'is_watched' => false,
+			'icon' => $row['first_icon'],
+			'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
+			'subject' => $row['first_subject'],
+			'new' => $row['new_from'] <= $row['id_msg_modified'],
+			'new_from' => $row['new_from'],
+			'newtime' => $row['new_from'],
+			'new_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
+			'pages' => $pages,
+			'replies' => comma_format($row['num_replies']),
+			'views' => comma_format($row['num_views']),
+			'approved' => $row['approved'],
+			'unapproved_posts' => $row['unapproved_posts'],
+			'css_class' => $colorClass,
+		));
+		if (!empty($settings['avatars_on_indexes']))
+		{
+			// Last post member avatar
+			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['avatar'],
+				'email' => $row['email_address'],
+				'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
+			));
+
+			// First post member avatar
+			$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['first_member_avatar'],
+				'email' => $row['first_member_mail'],
+				'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
+			));
+		}
 	}
+	$smcFunc['db_free_result']($result);
+
+	// Fix the sequence of topics if they were retrieved in the wrong order. (for speed reasons...)
+	if ($fake_ascending)
+		$context['topics'] = array_reverse($context['topics'], true);
+
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
