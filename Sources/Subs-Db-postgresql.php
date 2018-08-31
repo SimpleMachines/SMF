@@ -64,6 +64,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_error_insert'			=> 'smf_db_error_insert',
 			'db_custom_order'			=> 'smf_db_custom_order',
 			'db_native_replace'			=> 'smf_db_native_replace',
+			'db_cte_support'			=> 'smf_db_cte_support',
 		);
 
 	// We are not going to make it very far without these.
@@ -1036,6 +1037,16 @@ function smf_db_native_replace()
 	}
 
 	return $replace_support;
+}
+
+/**
+ * Function which return the information if the database supports cte with recursive
+ *
+ * @return boolean true or false
+ */
+function smf_db_cte_support()
+{
+	return true;
 }
 
 ?>
