@@ -347,6 +347,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['profileSendIm'],
 					'custom_url' => $scripturl . '?action=pm;sa=send',
 					'icon' => 'personal_message',
+					'enabled' => allowedTo('profile_view'),
 					'permission' => array(
 						'own' => array(),
 						'any' => array('pm_send'),
@@ -356,6 +357,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['report_profile'],
 					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
 					'icon' => 'warning',
+					'enabled' => allowedTo('profile_view'),
 					'permission' => array(
 						'own' => array(),
 						'any' => array('report_user'),
