@@ -1298,6 +1298,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$row['member_ip'] = inet_dtop($row['member_ip']);
 			if (isset($row['member_ip2']))
 				$row['member_ip2'] = inet_dtop($row['member_ip2']);
+			$row['id_member'] = (int) $row['id_member'];
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();

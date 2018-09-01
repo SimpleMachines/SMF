@@ -55,6 +55,7 @@ function ModifyProfile($post_errors = array())
 
 	// If all went well, we have a valid member ID!
 	list ($memID) = $memberResult;
+	$memID = (int) $memID;
 	$context['id_member'] = $memID;
 	$cur_profile = $user_profile[$memID];
 
