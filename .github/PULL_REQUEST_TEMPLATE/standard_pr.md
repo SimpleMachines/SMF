@@ -1,6 +1,6 @@
 ---
 name: Pull Request
-about: Standard SMF Pull Reqest
+about: Standard SMF Pull Request
 
 ---
 
