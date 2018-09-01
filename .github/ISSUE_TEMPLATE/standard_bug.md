@@ -15,6 +15,7 @@ about: Standard SMF Bug report
 - Version/Git revision:
 - Database Type:
 - Database Version:
+- PHP Version:
 
 
 ### Additional information/references
