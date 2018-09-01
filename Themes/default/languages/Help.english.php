@@ -52,7 +52,7 @@ $helptxt['edit_news'] = '
 		</li>
 		<li>
 			<strong>Settings</strong><br>
-				This page contains a few settings that relate to news and newsletters, including selecting which groups can edit forum news or send newsletters. There is also a setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each news post from a news feed.
+				This page contains a few settings that relate to news and newsletters, including selecting which groups can edit forum news or send newsletters. There is also a setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each new post that shows in the feed.
 		</li>
 	</ul>';
 
@@ -311,19 +311,13 @@ $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'As with the maximum width, this setting indicates the maximum height a posted image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this setting will enable very strict security checks on avatars. <strong>Warning!</strong> These extensive checks can fail on valid images too. It is strongly recommended to only use this setting together with avatar re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
 $helptxt['avatar_reencode'] = 'Selecting this setting will enable trying to re-encode the uploaded avatars. Image re-encoding offers better security. Note, however, that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
-$helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or for showing important events happening in your community.<br><br>
-		<strong>Show days as link to \'Post Event\'</strong>:<br>This will allow members to post events for that day, when they click on that date<br>
-		<strong>Max days in advance on board index</strong>:<br>If this is set to 7, the next week\'s worth of events will be shown.<br>
-		<strong>Show holidays on board index</strong>:<br>Show today\'s holidays in a calendar bar on the board index.<br>
-		<strong>Show birthdays on board index</strong>:<br>Show today\'s birthdays in a calendar bar on the board index.<br>
-		<strong>Show events on board index</strong>:<br>Show today\'s events in a calendar bar on the board index.<br>
-		<strong>Default Board to Post In</strong>:<br>What\'s the default board to post events in?<br>
-		<strong>Allow events not linked to posts</strong>:<br>Allow members to post events without requiring them to be linked with a post in a board.<br>
-		<strong>Minimum year</strong>:<br>Select the &quot;first&quot; year on the calendar list.<br>
-		<strong>Maximum year</strong>:<br>Select the &quot;last&quot; year on the calendar list<br>
-		<strong>Allow events to span multiple days</strong>:<br>Select this to allow events to span multiple days.<br>
-		<strong>Max number of days an event can span</strong>:<br>Select the maximum number of days that an event can span.<br><br>
-		Remember that usage of the calendar (posting events, viewing events, etc.) is controlled by permissions set on the permissions page.';
+$helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or for showing important events happening in your community. This setting enables the calendar and all its features.';
+$helptxt['cal_link_postevent'] = 'This will allow members to post events for that day, when they click on that date';
+$helptxt['cal_maxdays_advance'] = 'If this is set to 7, the next week\'s worth of events will be shown';
+$helptxt['cal_allow_unlinkedevents'] = 'Allow members to post events without requiring them to be linked with a post in a board';
+$helptxt['cal_min_year'] = 'Select the &quot;first&quot; year on the calendar list';
+$helptxt['cal_max_year'] = 'Select the &quot;last&quot; year on the calendar list';
+$helptxt['cal_maxevent_span'] = 'Select the maximum number of days that an event can span';
 $helptxt['localCookies'] = 'SMF uses cookies to store login information on the client computer.
 	Cookies can be stored globally (myserver.com) or locally (myserver.com/path/to/forum).<br><br>
 	Try this setting if you\'re experiencing problems with users getting logged out automatically.<hr>
