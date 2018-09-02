@@ -1417,8 +1417,7 @@ function smfSelectText(oCurElement, bActOnElement)
 		// Safari is special!
 		if (oCurSelection.setBaseAndExtent)
 		{
-			var oLastChild = oCodeArea.lastChild;
-			oCurSelection.setBaseAndExtent(oCodeArea, 0, oLastChild, 'innerText' in oLastChild ? oLastChild.innerText.length : oLastChild.textContent.length);
+			oCurSelection.setBaseAndExtent(oCodeArea, 0, oCodeArea, oCodeArea.childNodes.length);
 		}
 		else
 		{

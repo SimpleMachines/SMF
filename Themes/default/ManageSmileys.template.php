@@ -119,14 +119,14 @@ function template_modifysmiley()
 					<strong>', $txt['smiley_preview'], ': </strong>
 				</dt>
 				<dd>
-					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'], '" id="preview" alt=""> (', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();">';
+					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'], '" id="preview" alt=""> ', $txt['smiley_preview_using'], ': <select name="set" onchange="updatePreview();">';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
 					<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
 
 	echo '
-					</select>)
+					</select>
 				</dd>
 				<dt>
 					<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
