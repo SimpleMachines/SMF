@@ -371,8 +371,6 @@ function load_database()
 	if (!$db_connection)
 	{
 		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
-		if (version_compare(PHP_VERSION, '5', '<'))
-			require_once($sourcedir . '/Subs-Compat.php');
 
 		$options = array('persist' => $db_persist);
 
@@ -833,11 +831,7 @@ function DatabaseSettings()
 		if (empty($smcFunc))
 			$smcFunc = array();
 
-			require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
-
-		// What - running PHP4? The shame!
-		if (version_compare(PHP_VERSION, '5', '<'))
-			require_once($sourcedir . '/Subs-Compat.php');
+		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
 
 		// Attempt a connection.
 		$needsDB = !empty($databases[$db_type]['always_has_db']);
