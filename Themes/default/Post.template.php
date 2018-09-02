@@ -132,25 +132,7 @@ function template_main()
 					</div>';
 
 	// The post header... important stuff
-	echo '
-					<dl id="post_header">';
-
-	// All the posting fields (subject, message icon, guest name & email, etc.)
-	// Mod & theme authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php)
-	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
-	{
-		foreach ($context['posting_fields'] as $pfid => $pf)
-			echo '
-						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
-							', $pf['dt'], '
-						</dt>
-						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
-							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
-						</dd>';
-	}
-
-	echo '
-					</dl>';
+	template_post_header();
 
 	// Are you posting a calendar event?
 	if ($context['make_event'])
@@ -1137,6 +1119,269 @@ function template_announcement_send()
 			setTimeout("doAutoSubmit();", 1000);
 		}
 	</script>';
+}
+
+/**
+ * Prints the input fields in the form's header (subject, message icon, guest name & email, etc.)
+ *
+ * Mod authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php).
+ *
+ * Theme authors can customize the output in a couple different ways:
+ * 1. Change specific values in the $context['posting_fields'] array.
+ * 2. Add an 'html' element to the 'label' and/or 'input' elements of the field they want to
+ *    change. This should contain the literal HTML string to be printed.
+ */
+function template_post_header()
+{
+	global $context, $txt;
+
+	// Sanity check: submitting the form won't work without at least a subject field
+	if (empty($context['posting_fields']['subject']) || !is_array($context['posting_fields']['subject']))
+	{
+		$context['posting_fields']['subject'] = array(
+				'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
+				'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+			);
+	}
+
+
+	// THEME AUTHORS: Above this line is a great place to make customizations to the posting_fields array
+
+	// Start printing the header
+	echo '
+					<dl id="post_header">';
+
+	foreach ($context['posting_fields'] as $pfid => $pf)
+	{
+		// We need both a label and an input
+		if (empty($pf['label']) || empty($pf['input']))
+			continue;
+
+		// The labels are pretty simple...
+		echo '
+						<dt class="clear pf_', $pfid, '">';
+
+		// Any leading HTML before the label
+		if (!empty($pf['label']['before']))
+			echo '
+							', $pf['label']['before'];
+
+		if (!empty($pf['label']['html']))
+			echo $pf['label']['html'];
+		else
+			echo '
+							<label for="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '" id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+
+		// Any trailing HTML after the label
+		if (!empty($pf['label']['after']))
+			echo '
+							', $pf['label']['after'];
+
+		echo '
+						</dt>';
+
+		// Here's where the fun begins...
+		echo '
+						<dd class="pf_', $pfid, '">';
+
+		// Any leading HTML before the main input
+		if (!empty($pf['input']['before']))
+			echo '
+							', $pf['input']['before'];
+
+		// If there is a literal HTML string already defined, just print it.
+		if (!empty($pf['input']['html']))
+		{
+			echo $pf['input']['html'];
+		}
+		// Simple text inputs and checkboxes
+		elseif (in_array($pf['input']['type'], array('text', 'password', 'color', 'date', 'datetime-local', 'email', 'month', 'number', 'range', 'tel', 'time', 'url', 'week', 'checkbox')))
+		{
+			echo '
+							<input type="', $pf['input']['type'], '"';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">';
+		}
+		// textarea
+		elseif ($pf['input']['type'] === 'textarea')
+		{
+			echo '
+							<textarea';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if ($attribute === 'value')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
+		}
+		// Select menus are more complicated
+		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options']))
+		{
+			// The select element itself
+			echo '
+							<select';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">';
+
+			// The options
+			foreach ($pf['input']['options'] as $optlabel => $option)
+			{
+				// An option containing options is an optgroup
+				if (!empty($option['options']) && is_array($option['options']))
+				{
+					echo '
+								<optgroup';
+
+					if (empty($option['attributes']['label']))
+						echo ' label="', $optlabel, '"';
+
+					if (!empty($option['attributes']) && is_array($option['attributes']))
+					{
+						foreach ($option['attributes'] as $attribute => $value)
+						{
+							if (is_bool($value))
+								echo $value ? ' ' . $attribute : '';
+							else
+								echo ' ', $attribute, '="', $value, '"';
+						}
+					}
+
+					echo '">';
+
+					foreach ($option['options'] as $grouped_optlabel => $grouped_option)
+					{
+						echo '
+									<option';
+
+						foreach ($grouped_option['attributes'] as $attribute => $value)
+						{
+							if (is_bool($value))
+								echo $value ? ' ' . $attribute : '';
+							else
+								echo ' ', $attribute, '="', $value, '"';
+						}
+
+						echo '>', $grouped_optlabel, '</option>';
+
+					}
+
+					echo '
+								</optgroup>';
+				}
+				// Simple option
+				else
+				{
+					echo '
+								<option';
+
+					foreach ($option['attributes'] as $attribute => $value)
+					{
+						if (is_bool($value))
+							echo $value ? ' ' . $attribute : '';
+						else
+							echo ' ', $attribute, '="', $value, '"';
+					}
+
+					echo '>', $optlabel, '</option>';
+				}
+			}
+
+			// Close the select element
+			echo '
+							</select>';
+		}
+		// Radio_select makes a div with some radio buttons in it
+		elseif ($pf['input']['type'] === 'radio_select' && is_array($pf['input']['options']))
+		{
+			echo '
+							<div';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if ($attribute === 'name')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo '>';
+
+			foreach ($pf['input']['options'] as $optlabel => $option)
+			{
+				echo '
+							<input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
+
+				foreach ($option['attributes'] as $attribute => $value)
+				{
+					if (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+
+				echo ' tabindex="', $context['tabindex']++, '">', $optlabel, '</input>';
+			}
+
+			echo '
+							</div>';
+		}
+
+		// Any trailing HTML after the main input
+		if (!empty($pf['input']['after']))
+			echo '
+							', $pf['input']['after'];
+
+		echo '
+						</dd>';
+	}
+
+	echo '
+					</dl>';
 }
 
 ?>

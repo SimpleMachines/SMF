@@ -1325,15 +1325,35 @@ function Post($post_errors = array())
 	if (isset($context['name']) && isset($context['email']))
 	{
 		$context['posting_fields']['guestname'] = array(
-			'dt' => '<span id="caption_guestname"' .  (isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? ' class="error"' : '') . '>' . $txt['name'] . '</span>',
-			'dd' => '<input type="text" name="guestname" size="25" value="' . $context['name'] . '" required>',
+			'label' => array(
+				'text' => $txt['name'],
+				'class' => isset($context['post_error']['long_name']) || isset($context['post_error']['no_name']) || isset($context['post_error']['bad_name']) ? 'error' : '',
+			),
+			'input' => array(
+				'type' => 'text',
+				'attributes' => array(
+					'size' => 25,
+					'value' => $context['name'],
+					'required' => true,
+				),
+			),
 		);
 
 		if (empty($modSettings['guest_post_no_email']))
 		{
 			$context['posting_fields']['email'] = array(
-				'dt' => '<span id="caption_email"' .  (isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? ' class="error"' : '') . '>' . $txt['email'] . '</span>',
-				'dd' => '<input type="email" name="email" size="25" value="' . $context['email'] . '" required>',
+				'label' => array(
+					'text' => $txt['email'],
+					'class' => isset($context['post_error']['no_email']) || isset($context['post_error']['bad_email']) ? 'error' : '',
+				),
+				'input' => array(
+					'type' => 'email',
+					'attributes' => array(
+						'size' => 25,
+						'value' => $context['email'],
+						'required' => true,
+					),
+				),
 			);
 		}
 	}
@@ -1342,44 +1362,66 @@ function Post($post_errors = array())
 	if (empty($board) && !$context['make_event'])
 	{
 		$context['posting_fields']['board'] = array(
-			'dt' => '<span id="caption_board">' . $txt['calendar_post_in'] . '</span>',
-			'dd' => '<select name="board">',
+			'label' => array(
+				'text' => $txt['calendar_post_in'],
+			),
+			'input' => array(
+				'type' => 'select',
+				'options' => array(),
+			),
 		);
 		foreach ($board_list as $category)
 		{
-			$context['posting_fields']['board']['dd'] .= '
-							<optgroup label="' . $category['name'] . '">';
+			$context['posting_fields']['board']['input']['options'][$category['name']] = array('options' => array());
 
 			foreach ($category['boards'] as $brd)
-				$context['posting_fields']['board']['dd'] .= '
-								<option value="' . $brd['id'] . '"' . ($brd['selected'] ? ' selected' : '') . '>' . ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'] . '</option>';
-
-			$context['posting_fields']['board']['dd'] .= '
-							</optgroup>';
+				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']]['attributes'] = array(
+					'value' => $brd['id'],
+					'selected' => (bool) $brd['selected'],
+					'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
+				);
 		}
-		$context['posting_fields']['board']['dd'] .= '
-						</select>';
 	}
 
 	// Gotta have a subject.
 	$context['posting_fields']['subject'] = array(
-		'dt' => '<span id="caption_subject"' . (isset($context['post_error']['no_subject']) ? ' class="error"' : '') . '>' . $txt['subject'] . '</span>',
-		'dd' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="' . (!empty($topic) ? 84 : 80) . '" required>',
+		'label' => array(
+			'text' => $txt['subject'],
+			'class' => isset($context['post_error']['no_subject']) ? 'error' : '',
+		),
+		'input' => array(
+			'type' => 'text',
+			'attributes' => array(
+				'size' => 80,
+				'maxlength' => !empty($topic) ? 84 : 80,
+				'value' => $context['subject'],
+				'required' => true,
+			),
+		),
 	);
 
 	// Icons are fun.
 	$context['posting_fields']['icon'] = array(
-		'dt' => $txt['message_icon'],
-		'dd' => '<select name="icon" id="icon" onchange="showimage()">',
+		'label' => array(
+			'text' => $txt['message_icon'],
+		),
+		'input' => array(
+			'type' => 'select',
+			'attributes' => array(
+				'id' => 'icon',
+				'onchange' => 'showimage();',
+			),
+			'options' => array(),
+			'after' => ' <img id="icons" src="' . $context['icon_url'] . '">',
+		),
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['dd'] .= '
-							<option value="' . $icon['value'] . '"' . ($icon['value'] == $context['icon'] ? ' selected' : '') . '>' . $icon['name'] . '</option>';
+		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+			'value' => $icon['value'],
+			'selected' => $icon['value'] == $context['icon'],
+		);
 	}
-	$context['posting_fields']['icon']['dd'] .= '
-						</select>
-						<img id="icons" src="' . $context['icon_url'] . '">';
 
 
 	// Finally, load the template.
