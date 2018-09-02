@@ -1172,7 +1172,7 @@ function template_post_header()
 			echo '
 							<label for="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '" id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
-		// Any tailing HTML after the label
+		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
 			echo '
 							', $pf['label']['after'];
@@ -1217,7 +1217,7 @@ function template_post_header()
 			echo ' tabindex="', $context['tabindex']++, '">';
 		}
 		// textarea
-		elseif ($pf['input']['type'] === 'textarea' && is_array($pf['input']['options']))
+		elseif ($pf['input']['type'] === 'textarea')
 		{
 			echo '
 							<textarea';
