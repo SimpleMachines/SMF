@@ -721,7 +721,7 @@ function CheckFilesWritable()
 function DatabaseSettings()
 {
 	global $txt, $databases, $incontext, $smcFunc, $sourcedir;
-	global $db_server, $db_name, $db_user, $db_passwd;
+	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4;
 
 	$incontext['sub_template'] = 'database_settings';
 	$incontext['page_title'] = $txt['db_settings'];
@@ -853,14 +853,23 @@ function DatabaseSettings()
 
 		// Attempt a connection.
 		$needsDB = !empty($databases[$db_type]['always_has_db']);
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true, 'dont_select_db' => !$needsDB));
+
+		$options = array('non_fatal' => true, 'dont_select_db' => !$needsDB);
+		// Add in the port if needed
+		if (!empty($db_port))
+			$options['port'] = $db_port;
+		
+		if (!empty($db_mb4))
+			$options['db_mb4'] = $db_mb4;
+
+		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 
 		// No dice?  Let's try adding the prefix they specified, just in case they misread the instructions ;)
 		if ($db_connection == null)
 		{
 			$db_error = @$smcFunc['db_error']();
 
-			$db_connection = smf_db_initiate($db_server, $db_name, $_POST['db_prefix'] . $db_user, $db_passwd, $db_prefix, array('non_fatal' => true, 'dont_select_db' => !$needsDB));
+			$db_connection = smf_db_initiate($db_server, $db_name, $_POST['db_prefix'] . $db_user, $db_passwd, $db_prefix, $options);
 			if ($db_connection != null)
 			{
 				$db_user = $_POST['db_prefix'] . $db_user;
