@@ -64,15 +64,6 @@ function Login()
 
 	// Create a one time token.
 	createToken('login');
-
-	// Login Cookie times. Format: time => txt
-	$context['login_cookie_times'] = array(
-		60 => 'one_hour',
-		1440 => 'one_day',
-		10080 => 'one_week',
-		43200 => 'one_month',
-		3153600 => 'always_logged_in',
-	);
 }
 
 /**
@@ -192,15 +183,6 @@ function Login2()
 		$modSettings['cookieTime'] = 3153600;
 	elseif (!empty($_POST['cookielength']) && ($_POST['cookielength'] >= 1 && $_POST['cookielength'] <= 3153600))
 		$modSettings['cookieTime'] = (int) $_POST['cookielength'];
-
-	// Login Cookie times. Format: time => txt
-	$context['login_cookie_times'] = array(
-		60 => 'one_hour',
-		1440 => 'one_day',
-		10080 => 'one_week',
-		43200 => 'one_month',
-		3153600 => 'always_logged_in',
-	);
 
 	loadLanguage('Login');
 	// Load the template stuff.
