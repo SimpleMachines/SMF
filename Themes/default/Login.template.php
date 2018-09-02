@@ -24,7 +24,7 @@ function template_login()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">
+			<div class="roundframe">
 				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
@@ -51,13 +51,16 @@ function template_login()
 						</dd>
 					</dl>
 					<dl>
-						<dt>', $txt['mins_logged_in'], ':</dt>
+						<dt>', $txt['time_logged_in'], ':</dt>
 						<dd>
-							<input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' min="1">
-						</dd>
-						<dt>', $txt['always_logged_in'], ':</dt>
-						<dd>
-							<input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' onclick="this.form.cookielength.disabled = this.checked;">
+							<select name="cookielength" id="cookielength">';
+
+	foreach ($context['login_cookie_times'] as $cookie_time => $cookie_txt)
+		echo '
+								<option value="', $cookie_time, '"', $modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+
+	echo '
+							</select>
 						</dd>';
 
 	// If they have deleted their account, give them a chance to change their mind.
@@ -146,7 +149,7 @@ function template_login_tfa()
 					', $txt['tfa_profile_label'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">';
+			<div class="roundframe">';
 
 	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
 		echo '
@@ -243,16 +246,23 @@ function template_kick_guest()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe noup">
+			<div class="roundframe">
 				<dl>
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', $txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
-					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp" onclick="this.form.cookielength.disabled = this.checked;"></dd>
+					<dt>', $txt['time_logged_in'], ':</dt>
+					<dd>
+							<select name="cookielength" id="cookielength">';
+
+	foreach ($context['login_cookie_times'] as $cookie_time => $cookie_txt)
+		echo '
+								<option value="', $cookie_time, '"', $modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+
+	echo '
+							</select>
+					</dd>
 				</dl>
 				<p class="centertext">
 					<input type="submit" value="', $txt['login'], '" class="button">
@@ -301,10 +311,17 @@ function template_maintenance()
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', $txt['password'], ':</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"></dd>
-					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp"></dd>
+					<dt>', $txt['time_logged_in'], ':</dt>
+					<dd>
+							<select name="cookielength" id="cookielength">';
+
+	foreach ($context['login_cookie_times'] as $cookie_time => $cookie_txt)
+		echo '
+								<option value="', $cookie_time, '"', $modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', $txt[$cookie_txt], '</option>';
+
+	echo '
+							</select>
+					</dd>
 				</dl>
 				<input type="submit" value="', $txt['login'], '" class="button">
 				<br class="clear">
@@ -332,7 +349,7 @@ function template_admin_login()
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe centertext noup">';
+			<div class="roundframe centertext">';
 
 	if (!empty($context['incorrect_password']))
 		echo '

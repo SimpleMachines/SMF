@@ -22,6 +22,7 @@ if (!defined('SMF'))
  * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
  * Convert only the BBC that can be edited in HTML mode for the editor.
  *
+ * @deprecated since version 2.1
  * @param string $text The text with bbcode in it
  * @param boolean $compat_mode Whether to actually convert the text
  * @return string The text
@@ -92,6 +93,7 @@ function bbc_to_html($text, $compat_mode = false)
  *
  * The harder one - wysiwyg to BBC!
  *
+ * @deprecated since version 2.1
  * @param string $text Text containing HTML
  * @return string The text with html converted to bbc
  */
@@ -978,6 +980,7 @@ function html_to_bbc($text)
  *
  * Returns an array of attributes associated with a tag.
  *
+ * @deprecated since version 2.1
  * @param string $text A tag
  * @return array An array of attributes
  */
@@ -1037,6 +1040,8 @@ function fetchTagAttributes($text)
 /**
  * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
+ * 
+ * @deprecated since version 2.1
  * @param string $text Text
  * @return string Cleaned up text
  */
@@ -1050,10 +1055,6 @@ function legalise_bbc($text)
 
 	// A list of tags that's disabled by the admin.
 	$disabled = empty($modSettings['disabledBBC']) ? array() : array_flip(explode(',', strtolower($modSettings['disabledBBC'])));
-
-	// Add flash if it's disabled as embedded tag.
-	if (empty($modSettings['enableEmbeddedFlash']))
-		$disabled['flash'] = true;
 
 	// Get a list of all the tags that are not disabled.
 	$all_tags = parse_bbc(false);
@@ -1413,6 +1414,8 @@ function legalise_bbc($text)
 /**
  * !!!Compatibility!!!
  * A help function for legalise_bbc for sorting arrays based on length.
+ * 
+ * @deprecated since version 2.1
  * @param string $a A string
  * @param string $b Another string
  * @return int 1 if $a is shorter than $b, -1 otherwise
@@ -1545,6 +1548,7 @@ function getMessageIcons($board_id)
 /**
  * Compatibility function - used in 1.1 for showing a post box.
  *
+ * @deprecated since version 2.1
  * @param string $msg The message
  * @return string The HTML for an editor
  */
@@ -1599,7 +1603,7 @@ function create_control_richedit($editorOptions)
 			loadJavaScriptFile($scripturl . '?action=loadeditorlocale', array('external' => true), 'sceditor_language');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
-		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
+		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
 		if ($context['show_spellchecking'])
 		{
 			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
@@ -1803,8 +1807,6 @@ function create_control_richedit($editorOptions)
 		$disabled_tags = array();
 		if (!empty($modSettings['disabledBBC']))
 			$disabled_tags = explode(',', $modSettings['disabledBBC']);
-		if (empty($modSettings['enableEmbeddedFlash']))
-			$disabled_tags[] = 'flash';
 
 		foreach ($disabled_tags as $tag)
 		{

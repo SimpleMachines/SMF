@@ -127,6 +127,17 @@ function summary($memID)
 	// Is the signature even enabled on this forum?
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
 
+	// Prevent signature images from going outside the box.
+	if ($context['signature_enabled'])
+	{
+		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		$sig_limits = explode(',', $sig_limits);
+
+		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
+			addInlineCss('
+	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+	}
+
 	// How about, are they banned?
 	$context['member']['bans'] = array();
 	if (allowedTo('moderate_forum'))
@@ -1445,8 +1456,38 @@ function statPanel($memID)
 	// Put it in the right order.
 	ksort($context['posts_by_time']);
 
+	/**
+	 * Adding new entries:
+	 * 'key' => array(
+	 * 		'text' => string, // The text that will be shown next to the entry.
+	 * 		'url' => string, // OPTIONAL: The entry will be a url
+	 * ),
+	 *
+	 * 'key' will be used to look up the language string as $txt['statPanel_' . $key].
+	 * Make sure to add a new entry when writing your mod!
+	 */
+	$context['text_stats'] = array(
+		'total_time_online' => array(
+			'text' => $context['time_logged_in'],
+		),
+		'total_posts' => array(
+			'text' => $context['num_posts'] . ' ' . $txt['statPanel_posts'],
+			'url' => $scripturl . '?action=profile;area=showposts;sa=messages;u=' . $memID
+		),
+		'total_topics' => array(
+			'text' => $context['num_topics'] . ' ' . $txt['statPanel_topics'],
+			'url' => $scripturl . '?action=profile;area=showposts;sa=topics;u=' . $memID
+		),
+		'users_polls' => array(
+			'text' => $context['num_polls'] . ' ' . $txt['statPanel_polls'],
+		),
+		'users_votes' => array(
+			'text' => $context['num_votes'] . ' ' . $txt['statPanel_votes']
+		)
+	);
+
 	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_profile_stats', array($memID));
+ 	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
 }
 
 /**

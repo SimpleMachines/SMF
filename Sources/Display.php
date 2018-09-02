@@ -44,7 +44,7 @@ function Display()
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 	{
 		ob_end_clean();
-		header('HTTP/1.1 403 Prefetch Forbidden');
+		send_http_status(403, 'Prefetch Forbidden');
 		die;
 	}
 
@@ -341,7 +341,7 @@ function Display()
 	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
 
 	// Check if spellchecking is both enabled and actually working. (for quick reply.)
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
 
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
@@ -358,6 +358,17 @@ function Display()
 	// Are we showing signatures - or disabled fields?
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
+
+	// Prevent signature images from going outside the box.
+	if ($context['signature_enabled'])
+	{
+		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		$sig_limits = explode(',', $sig_limits);
+
+		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
+			addInlineCss('
+	.signature img { ' . (!empty($sig_limits[5]) ? 'max-width: ' . (int) $sig_limits[5] . 'px; ' : '') . (!empty($sig_limits[6]) ? 'max-height: ' . (int) $sig_limits[6] . 'px; ' : '') . '}');
+	}
 
 	// Censor the title...
 	censorText($context['topicinfo']['subject']);
@@ -637,7 +648,13 @@ function Display()
 		);
 		$pollinfo = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
+	}
 
+	// Create the poll info if it exists and is valid.
+	if ($context['is_poll'] && empty($pollinfo))
+		$context['is_poll'] = false;
+	elseif ($context['is_poll'])
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(DISTINCT id_member) AS total
 			FROM {db_prefix}log_polls
@@ -1426,10 +1443,10 @@ function Display()
 		$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'image' => 'admin_rem.png', 'custom' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=removetopic2;topic=' . $context['current_topic'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_lock'])
-		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'image' => 'admin_lock.png', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'image' => 'admin_lock.png', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_locked'] ? 'unlock' : 'lock') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_sticky'])
-		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'image' => 'admin_sticky.png', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'image' => 'admin_sticky.png', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_sticky'] ? 'nonsticky' : 'sticky') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_merge'])
 		$context['mod_buttons']['merge'] = array('text' => 'merge', 'image' => 'merge.png', 'url' => $scripturl . '?action=mergetopics;board=' . $context['current_board'] . '.0;from=' . $context['current_topic']);

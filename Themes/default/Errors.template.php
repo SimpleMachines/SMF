@@ -40,7 +40,7 @@ function template_fatal_error()
 				', $context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<div ', $context['error_code'], 'class="padding">
 				', $context['error_message'], '
 			</div>
@@ -285,7 +285,7 @@ function template_show_backtrace()
 					', $txt['error'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		if (!empty($context['error_info']['error_type']))
@@ -322,15 +322,15 @@ function template_show_backtrace()
 					', $txt['backtrace_title'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<ul class="padding">';
 
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
 			//Check for existing
-			if (property_exists($value,'file') || empty($value->file))
+			if (!property_exists($value,'file') || empty($value->file))
 				$value->file = $txt['unknown'];
-			if (property_exists($value, 'line') || empty($value->line))
+			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 
 				echo '

@@ -197,8 +197,7 @@ function template_bi_board_stats($board)
 
 	echo '
 						<p>
-							', comma_format($board['posts']), ' ', $txt['posts'], '
-							', '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+							', $txt['posts'], ': ', comma_format($board['posts']), '<br>', $txt['board_topics'], ': ', comma_format($board['topics']), '
 						</p>';
 }
 
@@ -213,7 +212,7 @@ function template_bi_redirect_stats($board)
 
 	echo '
 						<p>
-							', comma_format($board['posts']), ' ', $txt['redirects'], '
+							', $txt['redirects'], ': ', comma_format($board['posts']), '
 						</p>';
 }
 

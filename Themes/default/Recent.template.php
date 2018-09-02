@@ -164,7 +164,7 @@ function template_unread()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
+							', !empty($topic['pages']) ? '<span id="pages'.$topic['first_post']['id'].'" class="topic_pages">'.$topic['pages'].'</span>' : '', '
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -315,7 +315,7 @@ function template_replies()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							<span id="pages', $topic['first_post']['id'], '" class="topic_pages">', $topic['pages'], '</span>
+							', !empty($topic['pages']) ? '<span id="pages'.$topic['first_post']['id'].'" class="topic_pages">'.$topic['pages'].'</span>' : '', '
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -354,7 +354,7 @@ function template_replies()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext">
-					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['unread_topics_visit_none'], '
+					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
 				</h3>
 			</div>';
 

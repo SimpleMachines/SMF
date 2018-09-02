@@ -266,7 +266,7 @@ function PlushSearch2()
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 	{
 		ob_end_clean();
-		header('HTTP/1.1 403 Forbidden');
+		send_http_status(403);
 		die;
 	}
 
@@ -800,7 +800,7 @@ function PlushSearch2()
 	}
 
 	// *** Spell checking
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
 	if ($context['show_spellchecking'])
 	{
 		require_once($sourcedir . '/Subs-Post.php');

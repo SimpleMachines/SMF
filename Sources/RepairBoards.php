@@ -72,9 +72,17 @@ function RepairBoards()
 			if (empty($context['repair_errors']))
 				$context['repair_errors'][] = '???';
 		}
+
+		// Need a token here.
+		createToken('admin-repairboards', 'request');
 	}
 	else
 	{
+		// Validate the token, create a new one and tell the not done template.
+		validateToken('admin-repairboards', 'request');
+		createToken('admin-repairboards', 'request');
+		$context['not_done_token'] = 'admin-repairboards';
+
 		$context['error_search'] = false;
 		$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
 
@@ -93,13 +101,19 @@ function RepairBoards()
 			'calendar_updated' => time(),
 		));
 
-		if (!empty($salvageBoardID))
+		// If we created a salvage area, we may need to recount stats properly.
+		if (!empty($salvageBoardID) || !empty($_SESSION['salvageBoardID']))
 		{
+			unset($_SESSION['salvageBoardID']);
 			$context['redirect_to_recount'] = true;
+			createToken('admin-maint');
 		}
 
 		$_SESSION['repairboards_to_fix'] = null;
 		$_SESSION['repairboards_to_fix2'] = null;
+
+		// We are done at this point, dump the token,
+		validateToken('admin-repairboards', 'request', false);
 	}
 }
 
@@ -240,7 +254,7 @@ function loadForumTests()
 				if ($row['id_board'] == 0)
 				{
 					createSalvageArea();
-					$row['id_board'] = (int) $salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
 				}
 
 				// Make sure that no topics claim the first/last message as theirs.
@@ -366,7 +380,7 @@ function loadForumTests()
 				{
 					// Only if we don't have a reasonable idea of where to put it.
 					createSalvageArea();
-					$row['id_board'] = (int)$salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
 				}
 
 				if (empty($row['id_topic']))
@@ -500,7 +514,7 @@ function loadForumTests()
 				if ($row['id_board'] == 0)
 				{
 					createSalvageArea();
-					$row['id_board'] = (int) $salvageBoardID;
+					$row['id_board'] = $_SESSION['salvageBoardID'] = (int) $salvageBoardID;
 				}
 
 				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
@@ -869,7 +883,10 @@ function loadForumTests()
 				'process' => function ($parents)
 				{
 					global $smcFunc, $salvageBoardID, $salvageCatID;
+
 					createSalvageArea();
+					$_SESSION['salvageBoardID'] = (int) $salvageBoardID;
+
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}boards
 						SET id_parent = {int:salvageBoardID}, id_cat = {int:salvageCatID}, child_level = 1
@@ -1768,8 +1785,8 @@ function createSalvageArea()
 	{
 		$salvageCatID = $smcFunc['db_insert']('',
 			'{db_prefix}categories',
-			array('name' => 'string-255', 'cat_order' => 'int'),
-			array($txt['salvaged_category_name'], -1),
+			array('name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'),
+			array($txt['salvaged_category_name'], -1, $txt['salvaged_category_description']),
 			array('id_cat'),
 			1
 		);

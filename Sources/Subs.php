@@ -191,6 +191,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		case 'topic':
 			if ($parameter1 === true)
 				updateSettings(array('totalTopics' => true), true);
+
 			else
 			{
 				// Get the number of topics - a SUM is better for InnoDB tables.
@@ -230,6 +231,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				$postgroups = array();
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$postgroups[$row['id_group']] = $row['min_posts'];
+
 				$smcFunc['db_free_result']($request);
 
 				// Sort them this way because if it's done with MySQL it causes a filesort :(.
@@ -249,6 +251,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				$conditions .= '
 					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
+
 				$lastMin = $min_posts;
 			}
 
@@ -299,8 +302,10 @@ function updateMemberData($members, $data)
 		$condition = 'id_member IN ({array_int:members})';
 		$parameters['members'] = $members;
 	}
+
 	elseif ($members === null)
 		$condition = '1=1';
+
 	else
 	{
 		$condition = 'id_member = {int:member}';
@@ -1079,9 +1084,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$disabled[trim($tag)] = true;
 		}
 
-		if (empty($modSettings['enableEmbeddedFlash']))
-			$disabled['flash'] = true;
-
 		/* The following bbc are formatted as an array, with keys as follows:
 
 			tag: the tag's name - should be lowercase!
@@ -1178,6 +1180,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
+				'tag' => 'acronym',
+				'type' => 'unparsed_equals',
+				'before' => '<acronym title="$1">',
+				'after' => '</acronym>',
+				'quoted' => 'optional',
+				'disabled_after' => ' ($1)',
+			),
+			array(
 				'tag' => 'anchor',
 				'type' => 'unparsed_equals',
 				'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
@@ -1212,7 +1222,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$currentAttachment = parseAttachBBC($attachID);
 
-					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
+					// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
@@ -1248,6 +1258,29 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'b',
 				'before' => '<b>',
 				'after' => '</b>',
+			),
+			array(
+				'tag' => 'bdo',
+				'type' => 'unparsed_equals',
+				'before' => '<bdo dir="$1">',
+				'after' => '</bdo>',
+				'test' => '(rtl|ltr)\]',
+				'block_level' => true,
+			),
+			array(
+				'tag' => 'black',
+				'before' => '<span style="color: black;" class="bbc_color">',
+				'after' => '</span>',
+			),
+			array(
+				'tag' => 'blue',
+				'before' => '<span style="color: blue;" class="bbc_color">',
+				'after' => '</span>',
+			),
+			array(
+				'tag' => 'br',
+				'type' => 'closed',
+				'content' => '<br />',
 			),
 			array(
 				'tag' => 'center',
@@ -1356,21 +1389,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
-				'tag' => 'flash',
-				'type' => 'unparsed_commas_content',
-				'test' => '\d+,\d+\]',
-				'content' => '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never">',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					if (isset($disabled['url']))
-						$tag['content'] = '$1';
-					$scheme = parse_url($data[0], PHP_URL_SCHEME);
-					if (empty($scheme))
-						$data[0] = '//' . ltrim($data[0], ':/');
-				},
-				'disabled_content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
-			),
-			array(
 				'tag' => 'float',
 				'type' => 'unparsed_equals',
 				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
@@ -1391,10 +1409,47 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'block_level' => true,
 			),
 			array(
+				'tag' => 'ftp',
+				'type' => 'unparsed_content',
+				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
+				'validate' => function(&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br />' => ''));
+
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
+			),
+			array(
+				'tag' => 'ftp',
+				'type' => 'unparsed_equals',
+				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
+				'after' => '</a>',
+				'validate' => function(&$tag, &$data, $disabled)
+				{
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
+				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
+				'disabled_after' => ' ($1)',
+			),
+			array(
 				'tag' => 'font',
 				'type' => 'unparsed_equals',
 				'test' => '[A-Za-z0-9_,\-\s]+?\]',
 				'before' => '<span style="font-family: $1;" class="bbc_font">',
+				'after' => '</span>',
+			),
+			array(
+				'tag' => 'glow',
+				'type' => 'unparsed_commas',
+				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
+				'before' => $context['browser']['is_ie'] ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
+				'after' => $context['browser']['is_ie'] ? '</td></tr></table> ' : '</span>',
+			),
+			array(
+				'tag' => 'green',
+				'before' => '<span style="color: green;" class="bbc_color">',
 				'after' => '</span>',
 			),
 			array(
@@ -1569,6 +1624,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 			),
 			array(
+				'tag' => 'move',
+				'before' => '<marquee>',
+				'after' => '</marquee>',
+				'block_level' => true,
+				'disallow_children' => array('move'),
+			),
+			array(
 				'tag' => 'nobbc',
 				'type' => 'unparsed_content',
 				'content' => '$1',
@@ -1646,6 +1708,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'block_level' => true,
 			),
 			array(
+				'tag' => 'red',
+				'before' => '<span style="color: red;" class="bbc_color">',
+				'after' => '</span>',
+			),
+			array(
 				'tag' => 'right',
 				'before' => '<div style="text-align: right;">',
 				'after' => '</div>',
@@ -1661,6 +1728,52 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 's',
 				'before' => '<s>',
 				'after' => '</s>',
+			),
+			array(
+				'tag' => 'shadow',
+				'type' => 'unparsed_commas',
+				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
+				'before' => $context['browser']['is_ie'] ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
+				'after' => '</span>',
+				'validate' => $context['browser']['is_ie'] ? function(&$tag, &$data, $disabled)
+				{
+					switch ($data[1])
+					{
+						case 'left':
+							$data[1] = 270;
+							break;
+						case 'right':
+							$data[1] = 90;
+							break;
+						case 'top':
+							$data[1] = 0;
+							break;
+						case 'bottom':
+							$data[1] = 180;
+							break;
+						default:
+							$data[1] = (int) $data[1];
+					}
+				}
+
+					: function(&$tag, &$data, $disabled)
+					{
+
+						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
+							$data[1] = '0 -2px 1px';
+
+						elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
+							$data[1] = '2px 0 1px';
+
+						elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
+							$data[1] = '0 2px 1px';
+
+						elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
+							$data[1] = '-2px 0 1px';
+
+						else
+							$data[1] = '1px 1px 1px';
+					},
 			),
 			array(
 				'tag' => 'size',
@@ -1733,6 +1846,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => '',
 			),
 			array(
+				'tag' => 'tt',
+				'before' => '<tt class="bbc_tt">',
+				'after' => '</tt>',
+			),
+			array(
 				'tag' => 'u',
 				'before' => '<u>',
 				'after' => '</u>',
@@ -1765,6 +1883,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
+				'tag' => 'white',
+				'before' => '<span style="color: white;" class="bbc_color">',
+				'after' => '</span>',
+			),
+			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
 				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
@@ -1779,6 +1902,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'iurl',
 			'email',
 		);
+
+		// Handle legacy bbc codes.
+		foreach ($context['legacy_bbc'] as $bbc)
+			$codes[] = array(
+				'tag' => $bbc,
+				'before' => '',
+				'after' => '',
+			);
 
 		// Let mods add new BBC without hassle.
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
@@ -2785,7 +2916,7 @@ function parsesmileys(&$message)
 		// Use the default smileys if it is disabled. (better for "portability" of smileys.)
 		if (empty($modSettings['smiley_enable']))
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
+			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
 			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'laugh.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
 			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
 		}
@@ -2859,6 +2990,14 @@ function parsesmileys(&$message)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
 				$searchParts[] = $specialChars;
+
+				// Some 2.0 hex htmlchars are in there as 3 digits; allow for finding leading 0 or not
+				$specialChars2 = preg_replace('/&#(\d{2});/', '&#0$1;', $specialChars);
+				if ($specialChars2 != $specialChars)
+				{
+					$smileyPregReplacements[$specialChars2] = $smileyCode;
+					$searchParts[] = $specialChars2;
+				}
 			}
 		}
 
@@ -4503,6 +4642,7 @@ function setupMenuContext()
 	}
 
 	$total_mod_reports = 0;
+	$total_admin_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
@@ -4528,7 +4668,7 @@ function setupMenuContext()
 
 		if (!empty($context['num_errors']))
 		{
-			$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$total_admin_reports += $context['num_errors'];
 			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		}
 	}
@@ -4543,7 +4683,8 @@ function setupMenuContext()
 	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
+		$total_admin_reports += $context['unapproved_members'];
+		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
 	}
 
 	// Do we have any open reports?
@@ -6517,6 +6658,32 @@ function check_cron()
 		else
 			updateSettings(array('cron_last_checked' => time()));
 	}
+}
+
+/**
+ * Sends an appropriate HTTP status header based on a given status code
+ * @param int $code The status code
+ * @param string $status The string for the status. Set automatically if not provided.
+ */
+function send_http_status($code, $status = '')
+{
+	$statuses = array(
+		206 => 'Partial Content',
+		304 => 'Not Modified',
+		400 => 'Bad Request',
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		410 => 'Gone',
+		500 => 'Internal Server Error',
+		503 => 'Service Unavailable',
+	);
+
+	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+
+	if (!isset($statuses[$code]) && empty($status))
+		header($protocol . ' 500 Internal Server Error');
+	else
+		header($protocol . ' ' . $code . ' ' . !empty($status) ? $status : $statuses[$code]);
 }
 
 ?>

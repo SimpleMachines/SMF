@@ -63,6 +63,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_error_insert'			=> 'smf_db_error_insert',
 			'db_custom_order'			=> 'smf_db_custom_order',
 			'db_native_replace'			=> 'smf_db_native_replace',
+			'db_cte_support'			=> 'smf_db_cte_support',
 		);
 
 	if (!empty($db_options['persist']))
@@ -1025,6 +1026,31 @@ function smf_db_custom_order($field, $array_values, $desc = false)
 function smf_db_native_replace()
 {
 	return true;
+}
+
+/**
+ * Function which return the information if the database supports cte with recursive
+ *
+ * @return boolean true or false
+ */
+function smf_db_cte_support()
+{
+	global $smcFunc;
+	static $return;
+
+	if (isset($return))
+		return $return;
+
+	db_extend('extra');
+
+	$version = $smcFunc['db_get_version']();
+
+	if (strpos(strtolower($version), 'mariadb') !== false)
+		$return = version_compare($version, '10.2.2', '>=');
+	else //mysql
+		$return = version_compare($version, '8.0.1', '>=');
+
+	return $return;
 }
 
 ?>

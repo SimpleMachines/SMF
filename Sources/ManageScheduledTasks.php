@@ -636,7 +636,7 @@ function list_getNumTaskLogEntries()
 
 function TaskSettings($return_config = false)
 {
-	global $sourcedir, $txt, $context, $modSettings, $scripturl;
+	global $sourcedir, $txt, $context, $scripturl;
 
 	// We will need the utility functions from here.
 	require_once($sourcedir . '/ManageServer.php');

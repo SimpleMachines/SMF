@@ -49,6 +49,10 @@ input, button, select {
 select {
 	padding: 0.22em 0.2em; /* selects don't apply line-height */
 }
+/* Selects with more than one line */
+select[size] {
+	height: auto;
+}
 input[type="file"] {
 	padding: 2px;
 	height: auto;
@@ -736,6 +740,9 @@ img.sort, .sort {
 	margin: 0 9px;
 	vertical-align: middle;
 }
+.profile_user_avatar img.avatar {
+    max-width: 100px;
+}
 .profile_username {
 	font-size: 150%;
 	display: block;
@@ -1024,7 +1031,7 @@ img.sort, .sort {
 }
 
 #languages_form, #search_form {
-	padding: 5px 0 0 0;
+	padding: 5px 0;
 }
 #languages_form {
 	margin: 0 0 0 10px;
@@ -1064,8 +1071,7 @@ img#smflogo {
 }
 /* Even guests need to be aligned */
 .welcome {
-	padding-left: 10px;
-	padding-top: 5px;
+	padding: 7px 0 8px 10px;
 }
 /*
 /* The user info, news, etc.*/
@@ -1492,6 +1498,7 @@ fieldset.merge_options {
 ------------------------------------------------------- */
 .login {
 	width: 540px;
+	max-width: 100%;
 	margin: 0 auto;
 }
 .popup_content .login {
@@ -2156,8 +2163,10 @@ dl {
 	font-weight: 100;
 	display: block;
 }
-#basicinfo img.avatar {
+#basicinfo img.avatar, dl.settings img.avatar {
 	display: block;
+	max-width: 160px;
+	height: auto !important;
 }
 #basicinfo ul {
 	list-style-type: none;
@@ -2310,37 +2319,14 @@ dl {
 	width: 16px;
 	height: 16px;
 }
-.ignoreboards {
-	margin: 0 2%;
-	padding: 0;
-	width: 45%;
-}
-.ignoreboards a {
+
+.boardslist a {
 	font-weight: bold;
 	border-bottom: 1px solid #c4c4c4;
-	padding: 1px 0;
 }
-.ignoreboards a:hover {
+.boardslist a:hover {
 	text-decoration: none;
 	border-bottom: 1px solid #334466;
-}
-.ignoreboards ul {
-	margin: 0;
-	padding: 0;
-}
-.ignoreboards li {
-	float: left;
-	clear: both;
-}
-.ignoreboards li.category {
-	margin: 8px 0 0 0;
-	width: 100%;
-}
-.ignoreboards li ul {
-	margin: 2px 0 0 0;
-}
-.ignoreboards li.category ul li.board {
-	width: 93%;
 }
 
 #theme_settings {
@@ -2494,6 +2480,9 @@ dl.stats {
 #personal_messages .reportlinks {
 	padding: 6px 1.3em;
 }
+#personal_messages .pm_inline_time {
+	display: none;
+}
 #searchLabelsExpand li {
 	padding: 4px 6px;
 }
@@ -2514,6 +2503,11 @@ dl.addrules dt.floatleft {
 }
 .unread_pm {
 	background: #cfc;
+}
+/* Styles for the show alerts section.
+------------------------------------------------- */
+#alerts .alert_inline_time {
+	display: none;
 }
 
 /* Styles for the memberlist section.
@@ -2537,11 +2531,8 @@ dl.addrules dt.floatleft {
 #mlist .icq, #mlist .aim, #mlist .yim, #mlist .skype {
 	width: 30px;
 }
-#mlist .posts {
-	width: 115px;
-}
 #mlist .post_count {
-	width: 15px;
+	width: 115px;
 }
 
 /* Styles for the search section.
@@ -2671,6 +2662,30 @@ dl.addrules dt.floatleft {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 }
+#main_menu .popup_heading, #genericmenu .popup_heading {
+	display: none;
+}
+#genericmenu > .popup_container {
+	z-index: 1;
+}
+#main_menu .popup_container, #genericmenu > .popup_container {
+	display: block;
+	position: relative;
+	background: none;
+	margin: 0;
+}
+#main_menu .popup_window, #genericmenu .popup_window {
+	position: relative;
+	width: auto;
+	box-shadow: none;
+	border: none;
+	border-radius: 0;
+	background: none;
+	background-image: none;
+	margin: 0;
+	top: 0;
+	padding: 0;
+}
 .generic_icons.hide_popup {
 	float: right;
 }
@@ -2769,11 +2784,6 @@ div#manage_boards dl dd textarea[name=desc] {
 
 .bold_text {
 	font-weight: bold;
-}
-
-/* Can i haz this? I think we need Illori here to say "nope" */
-.title_top {
-	margin-top: 10px !important;
 }
 
 /* Profile > This needed for responsive (get rid of <br>) */
@@ -3177,6 +3187,9 @@ div#pollmoderation {
 .poster img {
 	vertical-align: middle;
 }
+.poster img.avatar {
+    max-width: 100%;
+}
 .postarea, .moderatorbar {
 	margin: 0 0 0 175px;
 }
@@ -3454,10 +3467,6 @@ h3.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	line-height: 1.5em;
-	padding: 8px;
-	background: none;
 }
 h3.catbg, h3.catbg a, h3.catbg a:hover {
 	color: #fff;

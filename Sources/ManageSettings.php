@@ -30,9 +30,6 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
 
-	loadLanguage('Help');
-	loadLanguage('ManageSettings');
-
 	// Will need the utility functions from here.
 	require_once($sourcedir . '/ManageServer.php');
 
@@ -53,6 +50,9 @@ function ModifyFeatureSettings()
 {
 	global $context, $txt, $settings;
 
+	loadLanguage('Help');
+	loadLanguage('ManageSettings');
+
 	$context['page_title'] = $txt['modSettings_title'];
 
 	$subActions = array(
@@ -66,8 +66,6 @@ function ModifyFeatureSettings()
 		'mentions' => 'ModifyMentionsSettings',
 		'alerts' => 'ModifyAlertsSettings',
 	);
-
-	loadGeneralSettingParameters($subActions, 'basic');
 
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -100,6 +98,8 @@ function ModifyFeatureSettings()
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
 
+	loadGeneralSettingParameters($subActions, 'basic');
+
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
 }
@@ -111,17 +111,15 @@ function ModifyModSettings()
 {
 	global $context, $txt;
 
+	loadLanguage('Help');
+	loadLanguage('ManageSettings');
+
 	$context['page_title'] = $txt['admin_modifications'];
 
 	$subActions = array(
 		'general' => 'ModifyGeneralModSettings',
 		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.
 	);
-
-	// Make it easier for mods to add new areas.
-	call_integration_hook('integrate_modify_modifications', array(&$subActions));
-
-	loadGeneralSettingParameters($subActions, 'general');
 
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -133,6 +131,11 @@ function ModifyModSettings()
 			),
 		),
 	);
+
+	// Make it easier for mods to add new areas.
+	call_integration_hook('integrate_modify_modifications', array(&$subActions));
+
+	loadGeneralSettingParameters($subActions, 'general');
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);

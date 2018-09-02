@@ -63,6 +63,13 @@
 					})
 				);
 		},
+		storeLastState: function (){
+			this.wasSource = this.inSourceMode();
+		},
+		setTextMode: function () {
+			if (!this.inSourceMode())
+				this.toggleSourceMode();
+		},
 		createPermanentDropDown: function () {
 			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
@@ -709,6 +716,13 @@ sceditor.formats.bbcode.set(
 				author = bbc_quote;
 			else if (author == '' && sDate != '')
 				author += ' ' + bbc_search_on;
+
+			/*
+			 * This fixes GH Bug #2845
+			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]". 
+			*/
+			if (attr_author == '' && attrs.defaultattr != '')
+				attr_author = attrs.defaultattr;
 
 			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
 

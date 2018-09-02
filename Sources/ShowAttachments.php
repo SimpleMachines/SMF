@@ -59,7 +59,7 @@ function showAttachment()
 	// We need a valid ID.
 	if (empty($attachId))
 	{
-		header('HTTP/1.0 404 File Not Found');
+		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
 	}
 
@@ -71,7 +71,7 @@ function showAttachment()
 	// No access in strict maintenance mode or you don't have permission to see attachments.
 	if ((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
 	{
-		header('HTTP/1.0 404 File Not Found');
+		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
 	}
 
@@ -105,7 +105,7 @@ function showAttachment()
 		// No attachment has been found.
 		if ($smcFunc['db_num_rows']($request) == 0)
 		{
-			header('HTTP/1.0 404 File Not Found');
+			send_http_status(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -115,12 +115,12 @@ function showAttachment()
 		// If theres a message ID stored, we NEED a topic ID.
 		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
 		{
-			header('HTTP/1.0 404 File Not Found');
+			send_http_status(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
 		// Previews doesn't have this info.
-		if (empty($preview))
+		if (empty($preview) && is_resource($attachRequest))
 		{
 			$request2 = $smcFunc['db_query']('', '
 				SELECT a.id_msg
@@ -138,7 +138,7 @@ function showAttachment()
 			// The provided topic must match the one stored in the DB for this particular attachment, also.
 			if ($smcFunc['db_num_rows']($request2) == 0)
 			{
-				header('HTTP/1.0 404 File Not Found');
+				send_http_status(404, 'File Not Found');
 				die('404 File Not Found');
 			}
 
@@ -192,7 +192,7 @@ function showAttachment()
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($file['filePath']))
 	{
-		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
+		send_http_status(404);
 		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
@@ -208,7 +208,7 @@ function showAttachment()
 			ob_end_clean();
 
 			// Answer the question - no, it hasn't been modified ;).
-			header('HTTP/1.1 304 Not Modified');
+			send_http_status(304);
 			exit;
 		}
 	}
@@ -219,7 +219,7 @@ function showAttachment()
 	{
 		ob_end_clean();
 
-		header('HTTP/1.1 304 Not Modified');
+		send_http_status(304);
 		exit;
 	}
 
@@ -301,7 +301,7 @@ function showAttachment()
 	// Multipart and resuming support
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
-		header("HTTP/1.1 206 Partial Content");
+		send_http_status(206);
 		header("content-length: $new_length");
 		header("content-range: bytes $range-$range_end/$size");
 	}

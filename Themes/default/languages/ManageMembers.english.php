@@ -30,10 +30,10 @@ $txt['membergroups_cannot_delete_paid'] = 'This group cannot be deleted, it is c
 
 $txt['membergroups_edit_group'] = 'Edit Membergroup';
 $txt['membergroups_edit_name'] = 'Group name';
-$txt['membergroups_edit_inherit_permissions'] = 'Inherit Permissions';
+$txt['membergroups_edit_inherit_permissions'] = 'Inherit permissions';
 $txt['membergroups_edit_inherit_permissions_desc'] = 'Select &quot;No&quot; to enable group to have own permission set.';
-$txt['membergroups_edit_inherit_permissions_no'] = 'No - Use Unique Permissions';
-$txt['membergroups_edit_inherit_permissions_from'] = 'Inherit From';
+$txt['membergroups_edit_inherit_permissions_no'] = 'No - Use unique permissions';
+$txt['membergroups_edit_inherit_permissions_from'] = 'Inherit from';
 $txt['membergroups_edit_hidden'] = 'Visibility';
 $txt['membergroups_edit_hidden_no'] = 'Visible';
 $txt['membergroups_edit_hidden_boardindex'] = 'Visible - Apart from in group key';
@@ -100,7 +100,7 @@ $txt['admin_browse_email'] = 'Email Address';
 $txt['admin_browse_ip'] = 'IP Address';
 $txt['admin_browse_registered'] = 'Registered';
 $txt['admin_browse_id'] = 'ID';
-$txt['admin_browse_with_selected'] = 'With Selected';
+$txt['admin_browse_with_selected'] = 'With selected';
 $txt['admin_browse_no_members_approval'] = 'No members currently await approval.';
 $txt['admin_browse_no_members_activate'] = 'No members currently have not activated their accounts.';
 

@@ -35,7 +35,7 @@ $txt['admin_config'] = 'Configuration';
 $txt['admin_version_check'] = 'Detailed version check';
 $txt['admin_smffile'] = 'SMF File';
 $txt['admin_smfpackage'] = 'SMF Package';
-$txt['admin_logoff'] = 'End Admin Session';
+$txt['admin_logoff'] = 'End admin Session';
 $txt['admin_maintenance'] = 'Maintenance';
 $txt['admin_credits'] = 'Credits';
 $txt['admin_agreement'] = 'Show and require agreement letter when registering';
@@ -91,12 +91,12 @@ $txt['attachment_log'] = 'Attachment Log';
 $txt['attachment_remove_old'] = 'Remove attachments older than';
 $txt['attachment_remove_size'] = 'Remove attachments larger than';
 $txt['attachment_name'] = 'Attachment name';
-$txt['attachment_file_size'] = 'File Size';
+$txt['attachment_file_size'] = 'File size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
 $txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
 $txt['live'] = 'Live from Simple Machines...';
-$txt['remove_all'] = 'Clear Log';
+$txt['remove_all'] = 'Clear log';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
 
 $txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>.';
@@ -117,7 +117,7 @@ $txt['viewmembers_day_ago'] = 'day ago';
 $txt['viewmembers_days_ago'] = 'days ago';
 
 $txt['display_name'] = 'Display name';
-$txt['email_address'] = 'Email Address';
+$txt['email_address'] = 'Email address';
 $txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
 
@@ -135,7 +135,7 @@ $txt['email_done'] = 'done.';
 $txt['warnings'] = 'Warnings';
 $txt['warnings_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
 
-$txt['ban_title'] = 'Ban List';
+$txt['ban_title'] = 'Ban list';
 
 $txt['ban_errors_detected'] = 'The following error or errors occurred while saving or editing the ban';
 $txt['ban_description'] = 'Here you can ban troublesome people either by IP, hostname, username, or email.';
@@ -153,8 +153,8 @@ $txt['ban_cannot_post'] = 'Cannot post';
 $txt['ban_cannot_register'] = 'Cannot register';
 $txt['ban_cannot_login'] = 'Cannot login';
 $txt['ban_add'] = 'Add';
-$txt['ban_edit_list'] = 'Ban List';
-$txt['ban_type'] = 'Ban Type';
+$txt['ban_edit_list'] = 'Ban list';
+$txt['ban_type'] = 'Ban type';
 $txt['ban_days'] = 'day(s)';
 $txt['ban_will_expire_within'] = 'Ban will expire after';
 $txt['ban_added'] = 'Added';
@@ -197,7 +197,7 @@ $txt['ban_log_ip'] = 'IP';
 $txt['ban_log_email'] = 'Email address';
 $txt['ban_log_member'] = 'Member';
 $txt['ban_log_date'] = 'Date';
-$txt['ban_log_remove_all'] = 'Clear Log';
+$txt['ban_log_remove_all'] = 'Clear log';
 $txt['ban_log_remove_all_confirm'] = 'Are you sure you want to delete all ban log entries?';
 $txt['ban_log_remove_selected'] = 'Remove selected';
 $txt['ban_log_remove_selected_confirm'] = 'Are you sure you want to delete all selected ban log entries?';
@@ -249,8 +249,8 @@ $txt['errlog_no_entries'] = 'There are currently no error log entries.';
 $txt['theme_settings'] = 'Theme Settings';
 $txt['theme_current_settings'] = 'Current Theme';
 
-$txt['dvc_your'] = 'Your Version';
-$txt['dvc_current'] = 'Current Version';
+$txt['dvc_your'] = 'Your version';
+$txt['dvc_current'] = 'Current version';
 $txt['dvc_sources'] = 'Sources';
 $txt['dvc_default'] = 'Default Templates';
 $txt['dvc_templates'] = 'Current Templates';
@@ -309,12 +309,12 @@ $txt['permitgroups_inherit'] = 'Inherit';
 
 $txt['confirm_delete_attachments_all'] = 'Are you sure you want to delete all attachments?';
 $txt['confirm_delete_attachments'] = 'Are you sure you want to delete the selected attachments?';
-$txt['attachment_manager_browse_files'] = 'Browse Files';
+$txt['attachment_manager_browse_files'] = 'Browse files';
 $txt['attachment_manager_repair'] = 'Maintain';
 $txt['attachment_manager_avatars'] = 'Avatars';
 $txt['attachment_manager_attachments'] = 'Attachments';
 $txt['attachment_manager_thumbs'] = 'Thumbnails';
-$txt['attachment_manager_last_active'] = 'Last Active';
+$txt['attachment_manager_last_active'] = 'Last active';
 $txt['attachment_manager_member'] = 'Member';
 $txt['attachment_manager_avatars_older'] = 'Remove avatars from members not active for more than';
 $txt['attachment_manager_total_avatars'] = 'Total avatars';
@@ -356,8 +356,8 @@ $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 $txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
 $txt['attachment_security_settings'] = 'Attachment security settings';
 
-$txt['attach_dir_does_not_exist'] = 'Does Not Exist';
-$txt['attach_dir_not_writable'] = 'Not Writable';
+$txt['attach_dir_does_not_exist'] = 'Does not exist';
+$txt['attach_dir_not_writable'] = 'Not writable';
 $txt['attach_dir_files_missing'] = 'Files Missing (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_empty'] = 'Empty';
@@ -483,7 +483,7 @@ $txt['gravatar_retro'] = 'Awesome generated, 8-bit arcade-style pixelated faces'
 $txt['gravatar_blank'] = 'A transparent PNG image';
 
 $txt['repair_attachments'] = 'Maintain Attachments';
-$txt['repair_attachments_complete'] = 'Maintenance Complete';
+$txt['repair_attachments_complete'] = 'Maintenance complete';
 $txt['repair_attachments_complete_desc'] = 'All selected errors have now been corrected';
 $txt['repair_attachments_no_errors'] = 'No errors were found';
 $txt['repair_attachments_error_desc'] = 'The following errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
@@ -519,7 +519,7 @@ $txt['layout_controls'] = 'Forum';
 $txt['logs'] = 'Logs';
 $txt['generate_reports'] = 'Reports';
 
-$txt['update_available'] = 'Update Available';
+$txt['update_available'] = 'Update available';
 $txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
 	It is recommended that you <a href="#" id="update-link">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
@@ -549,8 +549,6 @@ $txt['managedrafts_settings_description'] = 'Here you can set all settings invol
 $txt['manage_drafts'] = 'Drafts';
 
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
-$txt['enableEmbeddedFlash'] = 'Embed flash into posts';
-$txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
 $txt['enableSpellChecking'] = 'Enable spell checking';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
@@ -633,6 +631,7 @@ $txt['admin_news_cannot_pm_emails_js'] = 'You cannot send a personal message to 
 
 $txt['mailqueue_browse'] = 'Browse Queue';
 $txt['mailqueue_settings'] = 'Settings';
+$txt['mailqueue_test'] = 'Send Test';
 
 $txt['admin_search'] = 'Quick Search';
 $txt['admin_search_type_internal'] = 'Task/Setting';
@@ -667,17 +666,17 @@ $txt['search_weights'] = 'Weights';
 $txt['search_method'] = 'Search Method';
 
 $txt['smiley_sets'] = 'Smiley Sets';
-$txt['smileys_add'] = 'Add Smiley';
-$txt['smileys_edit'] = 'Edit Smileys';
-$txt['smileys_set_order'] = 'Set Smiley order';
+$txt['smileys_add'] = 'Add smiley';
+$txt['smileys_edit'] = 'Edit smileys';
+$txt['smileys_set_order'] = 'Set smiley order';
 $txt['icons_edit_message_icons'] = 'Message Icons';
 
-$txt['membergroups_new_group'] = 'Add Membergroup';
-$txt['membergroups_edit_groups'] = 'Edit Membergroups';
-$txt['permissions_groups'] = 'General Permissions';
-$txt['permissions_boards'] = 'Board Permissions';
-$txt['permissions_profiles'] = 'Edit Profiles';
-$txt['permissions_post_moderation'] = 'Post Moderation';
+$txt['membergroups_new_group'] = 'Add membergroup';
+$txt['membergroups_edit_groups'] = 'Edit membergroups';
+$txt['permissions_groups'] = 'General permissions';
+$txt['permissions_boards'] = 'Board permissions';
+$txt['permissions_profiles'] = 'Edit profiles';
+$txt['permissions_post_moderation'] = 'Post moderation';
 
 $txt['browse_packages'] = 'Browse Packages';
 $txt['download_packages'] = 'Add Packages';

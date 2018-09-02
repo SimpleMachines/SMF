@@ -6,13 +6,37 @@
 /* Entry level phones */
 @media (max-width: 480px) {
 	/* This is general */
-	.popup_window {
+	#main_menu .popup_container, #genericmenu .popup_container {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(40,64,80,0.5);
+		z-index: 5;
+	}
+	#main_menu .popup_heading, #genericmenu .popup_heading {
+		display: block;
+	}
+	#main_menu {
+		margin: 0;
+	}
+	.popup_window, #main_menu .popup_window, #genericmenu .popup_window {
+		position: relative;
+		z-index: 99;
 		width: 90%;
+		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+		border: 1px solid #777;
+		border-radius: 7px 7px 3px 3px;
 		min-height: 285px !important;
 		max-height: 5em;
 		overflow-x: hidden !important;
 		overflow-y: scroll !important;
 		-webkit-overflow-scrolling: touch;
+		background: #fff; /* fallback for some browsers */
+		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
+		top: 15%;
 		padding: 0;
 		margin: 0 auto;
 	}
@@ -40,7 +64,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	#main_menu, .generic_menu {
+	.generic_menu, #topic_container .moderation .generic_icons {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -55,7 +79,7 @@
 	}
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
+	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
 	.dropmenu li ul {
 		width: 100%;
 		padding: 0;
@@ -118,17 +142,30 @@
 	.board_description {
 		display: none;
 	}
+	fieldset {
+		max-width: 100%;
+		min-width: unset;
+	}
 	/* Register Page */
 	#registration .button {
 		font-size: 0.67em;
 	}
 	dl.register_form {
 		float: none !important;
-		max-width: 350px !important;
+		width: 100% !important;
 	}
 	dl.register_form dt, dl.register_form dd {
 		float: none !important;
-		min-width: 250px !important;
+		width: 100% !important;
+	}
+	/* Login Page */
+	.login dt, .login dd {
+		float: none !important;
+		width: 100% !important;
+		text-align: left;
+	}
+	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
+		width: 100%;
 	}
 
 	/* Display (Topic View) */
@@ -154,6 +191,9 @@
 	.subject_title input {
 		width: 90%;
 	}
+	#quickReplyOptions .roundframe {
+		padding: 8px 10px 12px 10px;
+	}
 
 	/* Post Section */
 	#post_header dd {
@@ -174,9 +214,17 @@
 	}
 	#poll_options dl.options dt,
 	#poll_options dl.options dd,
-	dl.settings dt, dl.settings dd	{
+	dl.settings dt, dl.settings dd,
+	#creator .settings dt, #creator .settings dd,
+	div#report_form dl.settings dd, div#report_form dl.settings dt,
+	#tracking dt, #tracking dd,
+	#detailedinfo dt, #detailedinfo dd,
+	#advanced_search dt, #advanced_search dd {
 		width: 100%;
 		float: none;
+	}
+	dl.settings dd textarea, #report_comment {
+		width: 100%;
 	}
 	.move_topic {
 		width: 100%;
@@ -185,6 +233,21 @@
 		max-width: 100% !important;
 		margin-left: 0.5em !important;
 		margin-right: 0.5em !important;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_icon {
+		display: none;
+	}
+	#personal_messages div.labels {
+		clear: both;
+	}
+	/* Alerts Page */
+	#alerts .alert_buttons, #alerts .alert_text {
+		display: block;
+	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_email {
+		display: none;
 	}
 	/* Stats Center */
 	.half_content {
@@ -226,8 +289,17 @@
 	td.website_url, td.reg_group, td.reg_date, td.post_num {
 		display: none;
 	}
-	#mlist .posts {
+	#mlist .post_count {
 		width: 50px;
+	}
+	#mlist .post_count .generic_bar {
+		border: 0;
+		background: transparent;
+		color: inherit;
+	}
+	#mlist .post_count .generic_bar .bar {
+		background: transparent;
+		box-shadow: none;
 	}
 	#mlist_search dt {
 		width: 100%;
@@ -249,6 +321,10 @@
 	.modbox .floatleft {
 		float: none;
 	}
+	#warning_list .reason, #moderation_log_list .position, #moderation_log_list .ip,
+	#group_request_list .date, #group_lists .icons, #regular_membergroups_list .icons, #post_count_membergroups_list .icons, #watch_user_list .last_login {
+		display: none;
+	}
 	/* Admin */
 	#live_news, #supportVersionsTable {
 		width: 100% !important;
@@ -269,12 +345,12 @@
 	.action_admin .navigate_section {
 		display: none;
 	}
-	#admincenter input[type="text"], #quick_search input[type="search"],
-	#admincenter select, #quick_search select {
+	#quick_search input[type="search"],
+	#quick_search select {
 		width: 90%;
 	}
 
-	.error_info {
+	.error_info, #fatal_error {
 		width: 100% !important;
 		padding: 0 !important;
 		float: none;
@@ -326,6 +402,11 @@
 	.msearch_details input[type="checkbox"] {
 		width: 5%;
 	}
+	/* Generic Lists */
+	#request_list .time_applied,
+	#track_user_list .date, #track_user_list .date2 {
+		display: none;
+	}
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
 		margin: 0 !important;
@@ -347,7 +428,8 @@
 		max-width: 250px;
 		max-height: 300px;
 	}
-	img.icon, #forumposts .catbg img {
+	img.icon, #forumposts .catbg img,
+	#topic_container .moderation .generic_icons {
 		display:none;
 	}
 	.keyinfo h5 .modified {
@@ -527,6 +609,10 @@
 	.moderation a {
 		padding: 3px;
 	}
+	/* Unread */
+	#unread .board_icon, #unread .lastpost {
+		display: none;
+	}
 
 	/* Display (Topics) */
 	.user_info li {
@@ -564,6 +650,24 @@
 	#basicinfo {
 		margin: 0 0 5px 0; /* For UX */
 	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_custom_fields {
+		display: none;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_time, #personal_messages .pm_from_to {
+		display: none;
+	} 
+	#personal_messages .pm_inline_time {
+		display: block;
+	}
+	/* Alerts Page */
+	#alerts .alert_inline_time {
+		display: block;
+	} 
+	#alerts .alert_time {
+		display: none;
+	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
 		padding: 5px !important;
@@ -584,12 +688,19 @@
 	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, td.reg_group, td.reg_date,
-	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
+	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
+	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
+	#member_list .ip, #member_list .last_active, #member_list .user_name,
+	#approve_list .ip, #approve_list .date_registered,
 	#main_content_section .navigate_section, .pagesection.top, .time, .hidden,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement {
 		display: none !important;
+	}
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied {
+		display: none;
 	}
 
 	/* Admin */
@@ -645,5 +756,21 @@
 	div.lastpost {
 		width: 20% !important;
 		margin: 3px 0 0 5px;
+	}
+}
+/* Tricky menu */
+@media (min-width: 481px) {
+	#mobile_user_menu.popup_container {
+		display: block !important;
+	}
+	div[id^="mobile_generic_menu_"].popup_container {
+		display: block !important;
+	}
+	.boardslist {
+		columns: 2;
+	}
+
+	.boardslist ul {
+		page-break-inside: avoid;
 	}
 }

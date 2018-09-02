@@ -72,30 +72,30 @@ function template_main()
 		{
 			echo '
 					<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
-						<td class="centertext">
+						<td class="is_online centertext">
 							', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 						</td>
-						<td class="lefttext">', $member['link'], '</td>';
+						<td class="real_name lefttext">', $member['link'], '</td>';
 
 			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+						<td class="website_url centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 			// Group and date.
 			echo '
-						<td class="centertext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
-						<td class="centertext reg_date">', $member['registered_date'], '</td>';
+						<td class="id_group centertext">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
+						<td class="registered centertext">', $member['registered_date'], '</td>';
 
 			if (!isset($context['disabled_fields']['posts']))
 			{
 				echo '
-						<td class="centertext post_count">', $member['posts'], '</td>
-						<td class="statsbar">';
+						<td class="post_count centertext">';
 
 				if (!empty($member['post_percent']))
 					echo '
 							<div class="generic_bar">
 								<div class="bar" style="width: ', $member['post_percent'], '%;"></div>
+								<span>', $member['posts'], '</span>
 							</div>';
 
 				echo '
@@ -106,7 +106,7 @@ function template_main()
 			if (!empty($context['custom_profile_fields']['columns']))
 				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
-						<td class="centertext">', $member['options'][$key], '</td>';
+						<td class="' , $key , ' centertext">', $member['options'][$key], '</td>';
 
 			echo '
 					</tr>';
@@ -160,7 +160,7 @@ function template_search()
 					<span class="generic_icons filter"></span>', $txt['mlist_search'], '
 				</h3>
 			</div>
-			<div id="advanced_search" class="roundframe noup">
+			<div id="advanced_search" class="roundframe">
 				<dl id="mlist_search" class="settings">
 					<dt>
 						<label><strong>', $txt['search_for'], ':</strong></label>

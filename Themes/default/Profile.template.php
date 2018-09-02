@@ -151,7 +151,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto noup">
+	<div id="profileview" class="roundframe flow_auto">
 		<div id="basicinfo">';
 
 	// Are there any custom profile fields for above the name?
@@ -607,9 +607,12 @@ function template_showAlerts()
 		{
 			echo '
 				<tr class="windowbg">
-					<td>', $alert['text'], '</td>
-					<td>', $alert['time'], '</td>
-					<td>
+					<td class="alert_text">
+						', $alert['text'], '
+						<span class="alert_inline_time"><span class="generic_icons time_online"></span> ', $alert['time'], '</span>
+					</td>
+					<td class="alert_time">', $alert['time'], '</td>
+					<td class="alert_buttons">
 						<ul class="quickbuttons">
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'], '</a></li>
 							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>';
@@ -745,20 +748,20 @@ function template_editBuddies()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th scope="col" class="quarter_table">', $txt['name'], '</th>
-					<th scope="col">', $txt['status'], '</th>';
+					<th scope="col" class="quarter_table buddy_link">', $txt['name'], '</th>
+					<th scope="col" class="buddy_status">', $txt['status'], '</th>';
 
-	if (allowedTo('moderate_forum'))
+	if ($context['can_moderate_forum'])
 		echo '
-					<th scope="col">', $txt['email'], '</th>';
+					<th scope="col" class="buddy_email">', $txt['email'], '</th>';
 
 	if (!empty($context['custom_pf']))
 		foreach ($context['custom_pf'] as $column)
 				echo '
-					<th scope="col">', $column['label'], '</th>';
+					<th scope="col" class="buddy_custom_fields">', $column['label'], '</th>';
 
 	echo '
-					<th scope="col">', $txt['remove'], '</th>
+					<th scope="col" class="buddy_remove">', $txt['remove'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -767,7 +770,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', allowedTo('moderate_forum') ? '10' : '9', '">
+					<td colspan="', $context['can_moderate_forum'] ? '10' : '9', '">
 						<strong>', $txt['no_buddies'], '</strong>
 					</td>
 				</tr>';
@@ -779,14 +782,14 @@ function template_editBuddies()
 		{
 			echo '
 				<tr class="windowbg">
-					<td>', $buddy['link'], '</td>
-					<td>
+					<td class="buddy_link">', $buddy['link'], '</td>
+					<td class="centertext buddy_status">
 						<a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a>
 					</td>';
 
 			if ($buddy['show_email'])
 				echo '
-					<td>
+					<td class="buddy_email centertext">
 						<a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>
 					</td>';
 
@@ -794,10 +797,10 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext">', $buddy['options'][$key], '</td>';
+					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
-					<td>
+					<td class="centertext buddy_remove">
 						<a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a>
 					</td>
 				</tr>';
@@ -873,15 +876,15 @@ function template_editIgnoreList()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th scope="col" class="quarter_table">', $txt['name'], '</th>
-					<th scope="col">', $txt['status'], '</th>';
+					<th scope="col" class="quarter_table buddy_link">', $txt['name'], '</th>
+					<th scope="col" class="buddy_status">', $txt['status'], '</th>';
 
-	if (allowedTo('moderate_forum'))
+	if ($context['can_moderate_forum'])
 		echo '
-					<th scope="col">', $txt['email'], '</th>';
+					<th scope="col" class="buddy_email">', $txt['email'], '</th>';
 
 	echo '
-					<th scope="col">', $txt['ignore_remove'], '</th>
+					<th scope="col" class="buddy_remove">', $txt['ignore_remove'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -890,7 +893,7 @@ function template_editIgnoreList()
 	if (empty($context['ignore_list']))
 		echo '
 				<tr class="windowbg">
-					<td colspan="', allowedTo('moderate_forum') ? '4' : '3', '">
+					<td colspan="', $context['can_moderate_forum'] ? '4' : '3', '">
 						<strong>', $txt['no_ignore'], '</strong>
 					</td>
 				</tr>';
@@ -900,18 +903,18 @@ function template_editIgnoreList()
 	{
 		echo '
 				<tr class="windowbg">
-					<td>', $member['link'], '</td>
-					<td>
+					<td class="buddy_link">', $member['link'], '</td>
+					<td class="centertext buddy_status">
 						<a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a>
 					</td>';
 
-		if ($member['show_email'])
+		if ($context['can_moderate_forum'])
 			echo '
-					<td>
+					<td class="centertext buddy_email">
 						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>
 					</td>';
 		echo '
-					<td>
+					<td class="centertext buddy_remove">
 						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a>
 					</td>
 				</tr>';
@@ -934,7 +937,8 @@ function template_editIgnoreList()
 					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
 				</dt>
 				<dd>
-					<input type="text" name="new_ignore" id="new_ignore" size="25">
+					<input type="text" name="new_ignore" id="new_ignore" size="30">
+                    <input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 				</dd>
 			</dl>
 		</div>';
@@ -945,7 +949,6 @@ function template_editIgnoreList()
 
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		<input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 	</form>
 	<script>
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
@@ -976,7 +979,7 @@ function template_trackActivity()
 
 	// The last IP the user used.
 	echo '
-		<div id="tracking" class="windowbg noup">
+		<div id="tracking" class="windowbg">
 			<dl class="settings noborder">
 				<dt>
 					', $txt['most_recent_ip'], ':
@@ -1031,7 +1034,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -1053,7 +1056,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 		</div>
-		<div class="windowbg noup">';
+		<div class="windowbg">';
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
@@ -1287,19 +1290,24 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
-	<div id="profileview" class="roundframe">
+	<div id="profileview" class="roundframe noup">
 		<div id="generalstats">
-			<dl class="stats">
-				<dt>', $txt['statPanel_total_time_online'], ':</dt>
-				<dd>', $context['time_logged_in'], '</dd>
-				<dt>', $txt['statPanel_total_posts'], ':</dt>
-				<dd>', $context['num_posts'], ' ', $txt['statPanel_posts'], '</dd>
-				<dt>', $txt['statPanel_total_topics'], ':</dt>
-				<dd>', $context['num_topics'], ' ', $txt['statPanel_topics'], '</dd>
-				<dt>', $txt['statPanel_users_polls'], ':</dt>
-				<dd>', $context['num_polls'], ' ', $txt['statPanel_polls'], '</dd>
-				<dt>', $txt['statPanel_users_votes'], ':</dt>
-				<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
+			<dl class="stats">';
+
+	foreach ($context['text_stats'] as $key => $stat)
+	{
+		echo '
+				<dt>', $txt['statPanel_' . $key], '</dt>';
+
+		if (!empty($stat['url']))
+			echo '
+				<dd><a href="', $stat['url'], '">', $stat['text'], '</a></dd>';
+		else
+			echo '
+				<dd>', $stat['text'], '</dd>';
+	}
+
+	echo '
 			</dl>
 		</div>';
 
@@ -1742,29 +1750,11 @@ function template_profile_theme_settings()
 		}
 
 		// Is this disabled?
-		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
-			continue;
-
-		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
-			continue;
-
-		elseif ($setting['id'] == 'show_no_censored' && empty($modSettings['allow_no_censored']))
-			continue;
-
-		elseif ($setting['id'] == 'posts_apply_ignore_list' && empty($modSettings['enable_buddylist']))
-			continue;
-
-		elseif ($setting['id'] == 'wysiwyg_default' && !empty($modSettings['disable_wysiwyg']))
-			continue;
-
-		elseif ($setting['id'] == 'drafts_autosave_enabled' && (empty($modSettings['drafts_autosave_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
-			continue;
-
-		elseif ($setting['id'] == 'drafts_show_saved_enabled' && (empty($modSettings['drafts_show_saved_enabled']) || (empty($modSettings['drafts_post_enabled']) && empty($modSettings['drafts_pm_enabled']))))
+		if (isset($setting['enabled']) && $setting['enabled'] === false)
 			continue;
 
 		// Some of these may not be set...  Set to defaults here
-		$opts = array('topics_per_page', 'messages_per_page', 'display_quick_mod');
+		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
 		if (in_array($setting['id'], $opts) && !isset($context['member']['options'][$setting['id']]))
 			$context['member']['options'][$setting['id']] = 0;
 
@@ -1862,7 +1852,7 @@ function template_alert_configuration()
 					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
@@ -2192,10 +2182,10 @@ function template_groupMembership()
  */
 function template_ignoreboards()
 {
-	global $context, $txt, $scripturl;
+    global $context, $txt, $scripturl;
 
-	// The main containing header.
-	echo '
+    // The main containing header.
+    echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
@@ -2204,59 +2194,37 @@ function template_ignoreboards()
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg">
-			<div class="flow_hidden">
-				<ul class="ignoreboards floatleft">';
+			<div class="flow_hidden boardslist">
+				<ul>';
 
-	$i = 0;
-	$limit = ceil($context['num_boards'] / 2);
-	foreach ($context['categories'] as $category)
-	{
-		if ($i == $limit)
-		{
-			echo '
-				</ul>
-				<ul class="ignoreboards floatright">';
-
-			$i++;
-		}
-
-		echo '
-					<li class="category">
+    foreach ($context['categories'] as $category)
+    {
+        echo '
+					<li>
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
-						<ul>';
+            			<ul>';
 
-		foreach ($category['boards'] as $board)
-		{
-			if ($i == $limit)
-				echo '
-						</ul>
-					</li>
-				</ul>
-				<ul class="ignoreboards floatright">
-					<li class="category">
-						<ul>';
-
-			echo '
-							<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+        foreach ($category['boards'] as $board)
+        {
+            echo '
+							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
 							</li>';
+        }
 
-			$i++;
-		}
-
-		echo '
+        echo '
 						</ul>
 					</li>';
-	}
+    }
 
-	echo '
-				</ul>';
+    echo '
+				</ul>
+    		</div><!-- .flow_hidden boardslist -->';
 
-	// Show the standard "Save Settings" profile button.
-	template_profile_save();
+    // Show the standard "Save Settings" profile button.
+    template_profile_save();
 
-	echo '
-			</div><!-- .flow_hidden -->
+    echo '
 		</div><!-- .windowbg -->
 	</form>
 	<br>';
@@ -3117,7 +3085,7 @@ function template_profile_smiley_pick()
 								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
 							</dt>
 							<dd>
-								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.png\';">';
+								<select name="smiley_set" id="smiley_set">';
 
 	foreach ($context['smiley_sets'] as $set)
 		echo '
@@ -3161,7 +3129,7 @@ function template_tfasetup()
 					</div>
 					<div class="floatleft">
 						<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step1'], '</strong><br>';
 
 	if (!empty($context['tfa_pass_error']))
@@ -3173,12 +3141,12 @@ function template_tfasetup()
 	echo '
 								<input type="password" name="passwd" size="25"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '', '>
 							</div>
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step2'], '</strong>
 								<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
 								<div class="tfacode">', $context['tfa_secret'], '</div>
 							</div>
-							<div class="title_top">
+							<div class="block">
 								<strong>', $txt['tfa_step3'], '</strong><br>';
 
 	if (!empty($context['tfa_error']))

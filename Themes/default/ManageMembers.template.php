@@ -18,16 +18,15 @@ function template_search_members()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" id="admin_form_wrapper">
+			<input type="hidden" name="sa" value="query">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">', $txt['search_for'], '</span>
 					<span class="smalltext floatright">', $txt['wild_cards_allowed'], '</span>
 				</h3>
 			</div>
-			<input type="hidden" name="sa" value="query">
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<div class="flow_hidden">
 					<div class="msearch_details floatleft">
 						<dl class="settings right">
@@ -209,8 +208,7 @@ function template_search_members()
 			</table>
 			<br>
 			<input type="submit" value="', $txt['search'], '" class="button">
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -219,9 +217,6 @@ function template_search_members()
 function template_admin_browse()
 {
 	global $context, $scripturl, $txt;
-
-	echo '
-	<div id="admincenter">';
 
 	template_show_list('approve_list');
 
@@ -293,9 +288,6 @@ function template_admin_browse()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>';
 	}
-
-	echo '
-	</div><!-- #admincenter -->';
 }
 
 ?>

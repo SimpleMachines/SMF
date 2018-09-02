@@ -75,7 +75,7 @@ function template_main()
 					<span class="generic_icons poll"></span>', $context['poll']['is_locked'] ? '<span class="generic_icons lock"></span>' : '', ' ', $context['poll']['question'], '
 				</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<div id="poll_options">';
 
 		// Are they not allowed to vote but allowed to view the options?

@@ -118,7 +118,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 
 	// leave out the call to log_error
-	array_shift($backtrace);
+	array_splice($backtrace, 0, 1);
 	$backtrace = !empty($smcFunc['json_encode']) ? $smcFunc['json_encode']($backtrace) : json_encode($backtrace);
 
 	// Don't log the same error countless times, as we can get in a cycle of depression...
@@ -499,7 +499,7 @@ function set_fatal_error_headers()
 	header('cache-control: no-cache');
 
 	// Send the right error codes.
-	header('HTTP/1.1 503 Service Temporarily Unavailable');
+	send_http_status(503, 'Service Temporarily Unavailable');
 	header('status: 503 Service Temporarily Unavailable');
 	header('retry-after: 3600');
 }
@@ -565,28 +565,6 @@ function log_error_online($error, $sprintf = array())
 		);
 	}
 	$smcFunc['db_free_result']($request);
-}
-
-/**
- * Sends an appropriate HTTP status header based on a given status code
- * @param int $code The status code
- */
-function send_http_status($code)
-{
-	$statuses = array(
-		403 => 'Forbidden',
-		404 => 'Not Found',
-		410 => 'Gone',
-		500 => 'Internal Server Error',
-		503 => 'Service Unavailable'
-	);
-
-	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-
-	if (!isset($statuses[$code]))
-		header($protocol . ' 500 Internal Server Error');
-	else
-		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
 
 ?>

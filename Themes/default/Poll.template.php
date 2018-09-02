@@ -38,14 +38,6 @@ function template_main()
 		}
 	</script>';
 
-	// Start the main poll form.
-	echo '
-	<div id="edit_poll">
-		<form action="' . $scripturl . '?action=editpoll2', $context['is_edit'] ? '' : ';add', ';topic=' . $context['current_topic'] . '.' . $context['start'] . '" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
-			<div class="cat_bar">
-				<h3 class="catbg">', $context['page_title'], '</h3>
-			</div>';
-
 	if (!empty($context['poll_error']['messages']))
 		echo '
 			<div class="errorbox">
@@ -57,6 +49,14 @@ function template_main()
 						', empty($context['poll_error']['messages']) ? '' : implode('<br>', $context['poll_error']['messages']), '
 					</dt>
 				</dl>
+			</div>';
+
+	// Start the main poll form.
+	echo '
+	<div id="edit_poll">
+		<form action="' . $scripturl . '?action=editpoll2', $context['is_edit'] ? '' : ';add', ';topic=' . $context['current_topic'] . '.' . $context['start'] . '" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
+			<div class="cat_bar">
+				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>';
 
 	echo '

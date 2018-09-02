@@ -1152,6 +1152,7 @@ function ViewWatchedUsers()
 					{
 						return template_user_watch_post_callback($post);
 					},
+					'class' => 'unique'
 				),
 			),
 		);

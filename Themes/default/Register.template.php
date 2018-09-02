@@ -22,7 +22,7 @@ function template_registration_agreement()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
 			</div>
-			<div class="roundframe noup">
+			<div class="roundframe">
 				<p>', $context['agreement'], '</p>
 			</div>
 			<div id="confirm_buttons">';
@@ -92,7 +92,7 @@ function template_registration_form()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_form'], '</h3>
 			</div>
-			<div class="title_bar title_top">
+			<div class="title_bar">
 				<h3 class="titlebg">', $txt['required_info'], '</h3>
 			</div>
 			<div class="roundframe noup">
@@ -169,7 +169,7 @@ function template_registration_form()
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
 		echo '
-			<div class="title_bar title_top">
+			<div class="title_bar">
 				<h3 class="titlebg">', $txt['additional_information'], '</h3>
 			</div>
 			<div class="roundframe noup">
@@ -280,7 +280,7 @@ function template_registration_form()
 
 	if ($context['visual_verification'])
 		echo '
-			<div class="title_bar title_top">
+			<div class="title_bar">
 				<h3 class="titlebg">', $txt['verification'], '</h3>
 			</div>
 			<div class="roundframe noup">
@@ -336,7 +336,7 @@ function template_after()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['title'], '</h3>
 			</div>
-			<div class="windowbg noup">
+			<div class="windowbg">
 				<p>', $context['description'], '</p>
 			</div>
 		</div>';
@@ -351,7 +351,7 @@ function template_coppa()
 
 	// Formulate a nice complicated message!
 	echo '
-			<div class="title_bar title_top">
+			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
 			<div id="coppa" class="roundframe noup">
@@ -477,13 +477,12 @@ function template_admin_register()
 	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
-	<div id="admincenter">
 		<div id="admin_form_wrapper">
 			<form id="postForm" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
 				</div>
-				<div id="register_screen" class="windowbg noup">';
+				<div id="register_screen" class="windowbg">';
 
 	if (!empty($context['registration_done']))
 		echo '
@@ -571,7 +570,6 @@ function template_admin_register()
 				</div><!-- #register_screen -->
 			</form>
 		</div><!-- #admin_form_wrapper -->
-	</div><!-- #admincenter -->
 	<br class="clear">';
 }
 
@@ -590,20 +588,18 @@ function template_edit_agreement()
 		echo '
 		<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';
 
+	// Warning for if the file isn't writable.
+	if (!empty($context['warning']))
+		echo '
+		<div class="errorbox">', $context['warning'], '</div>';
+
 	// Just a big box to edit the text file ;)
 	echo '
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
-			</div>';
-
-	// Warning for if the file isn't writable.
-	if (!empty($context['warning']))
-		echo '
-			<p class="error">', $context['warning'], '</p>';
-
-	echo '
-			<div class="windowbg noup" id="registration_agreement">';
+			</div>
+			<div class="windowbg" id="registration_agreement">';
 
 	// Is there more than one language to choose from?
 	if (count($context['editable_agreements']) > 1)
@@ -668,7 +664,7 @@ function template_edit_reserved_words()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 			<h4>', $txt['admin_reserved_line'], '</h4>
 			<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
 			<dl class="settings">

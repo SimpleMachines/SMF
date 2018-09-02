@@ -1866,7 +1866,6 @@ VALUES
 	('theme_allow', '1'),
 	('theme_default', '1'),
 	('theme_guests', '1'),
-	('enableEmbeddedFlash', '0'),
 	('xmlnews_enable', '1'),
 	('xmlnews_maxlen', '255'),
 	('hotTopicPosts', '15'),

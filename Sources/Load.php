@@ -62,7 +62,7 @@ function reloadSettings()
 		if (empty($modSettings['defaultMaxListItems']) || $modSettings['defaultMaxListItems'] <= 0 || $modSettings['defaultMaxListItems'] > 999)
 			$modSettings['defaultMaxListItems'] = 15;
 
-		// We excpiclity do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
+		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
 
@@ -343,7 +343,7 @@ function reloadSettings()
 	);
 
 	// These are the only valid image types for SMF, by default anyway.
-	$context['validImageTypes'] = array(
+	$context['valid_image_types'] = array(
 		1 => 'gif',
 		2 => 'jpeg',
 		3 => 'png',
@@ -357,6 +357,24 @@ function reloadSettings()
 
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+
+	// Define a list of old BBC tags no longer parsed
+	$context['legacy_bbc'] = array(
+		'br',
+		'tt',
+		'flash',
+		'bdo',
+		'black',
+		'white',
+		'red',
+		'green',
+		'blue',
+		'acronym',
+		'ftp',
+		'glow',
+		'move',
+		'shadow',
+	);
 
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
@@ -376,7 +394,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $boardurl;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -613,8 +631,7 @@ function loadUserSettings()
 			);
 
 		// Because history has proven that it is possible for groups to go bad - clean up in case.
-		foreach ($user_info['groups'] as $k => $v)
-			$user_info['groups'][$k] = (int) $v;
+		$user_info['groups'] = array_map('intval', $user_info['groups']);
 
 		// This is a logged in user, so definitely not a spider.
 		$user_info['possibly_robot'] = false;
@@ -1029,7 +1046,7 @@ function loadBoard()
 		if ((isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch') || (!empty($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach'))
 		{
 			ob_end_clean();
-			header('HTTP/1.1 403 Forbidden');
+			send_http_status(403);
 			die;
 		}
 		elseif ($board_info['error'] == 'post_in_redirect')
@@ -1184,7 +1201,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $boardurl, $user_info;
+	global $image_proxy_enabled, $user_info;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1275,12 +1292,13 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
-			$row['primary_group'] = $row['member_group'];
+			$row['primary_group'] = !empty($row['member_group']) ? $row['member_group'] : '';
 
 			if (isset($row['member_ip']))
 				$row['member_ip'] = inet_dtop($row['member_ip']);
 			if (isset($row['member_ip2']))
 				$row['member_ip2'] = inet_dtop($row['member_ip2']);
+			$row['id_member'] = (int) $row['id_member'];
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
@@ -2191,6 +2209,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
+		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',
@@ -3034,8 +3053,8 @@ function censorText(&$text, $force = false)
  */
 function template_include($filename, $once = false)
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
-	global $boardurl, $boarddir, $sourcedir;
+	global $context, $txt, $scripturl, $modSettings;
+	global $boardurl, $boarddir;
 	global $maintenance, $mtitle, $mmessage;
 	static $templates = array();
 
@@ -3497,7 +3516,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $user_info;
+	global $modSettings, $smcFunc, $image_proxy_enabled, $user_info;
 
 	// Come on!
 	if (empty($data))

@@ -42,7 +42,7 @@ function template_main()
 	echo '
 		<div id="advanced_search" class="roundframe">
 			<dl class="settings" id="search_options">
-				<dt class="righttext">
+				<dt>
 					<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 				</dt>
 				<dd>
@@ -55,7 +55,7 @@ function template_main()
 	echo '
 				</dd>
 
-				<dt class="righttext">
+				<dt>
 					<label for="searchtype">', $txt['search_match'], ':</label>
 				</dt>
 				<dd>
@@ -64,13 +64,13 @@ function template_main()
 						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
 					</select>
 				</dd>
-				<dt class="righttext">
+				<dt>
 					<label for="userspec">', $txt['by_user'], ':</label>
 				</dt>
 				<dd>
 					<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40">
 				</dd>
-				<dt class="righttext">
+				<dt>
 					<label for="sort">', $txt['search_order'], ':</label>
 				</dt>
 				<dd>
@@ -97,7 +97,7 @@ function template_main()
 						</li>
 					</ul>
 				</dd>
-				<dt class="righttext between">',
+				<dt class="between">',
 					$txt['search_post_age'], ':
 				</dt>
 				<dd>
@@ -144,37 +144,24 @@ function template_main()
 						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>
 				</div>
-				<div class="flow_auto" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
-					<ul class="ignoreboards floatleft">';
+				<div class="flow_auto boardslist" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
+					<ul>';
 
-		$i = 0;
-		$limit = ceil($context['num_boards'] / 2);
 		foreach ($context['categories'] as $category)
 		{
 			echo '
-						<li class="category">
+						<li>
 							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
 			foreach ($category['boards'] as $board)
 			{
-				if ($i == $limit)
-					echo '
-							</ul>
-						</li>
-					</ul>
-					<ul class="ignoreboards floatright">
-						<li class="category">
-							<ul>';
-
 				echo '
-								<li class="board">
+								<li>
 									<label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '
 									</label>
 								</li>';
-
-				$i++;
 			}
 
 			echo '
@@ -250,7 +237,7 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<div class="roundframe noup">';
+		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
 		if (isset($context['did_you_mean']))
@@ -461,23 +448,6 @@ function template_results()
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
-			if ($topic['can_reply'])
-				echo '
-		<ul class="quickbuttons">';
-
-			// If they *can* reply?
-			if ($topic['can_reply'])
-				echo '
-			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
-
-			// If they *can* quote?
-			if ($topic['can_quote'])
-				echo '
-			<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
-
-			if ($topic['can_reply'])
-				echo '
-		</ul>';
 			echo '
 		<br class="clear">
 	</div><!-- $topic[css_class] -->';

@@ -189,14 +189,13 @@ function ModifyPostSettings($return_config = false)
 	$can_spell_check = false;
 	if (function_exists('pspell_new'))
 		$can_spell_check = true;
-	elseif (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv')))
+	elseif (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv')))
 		$can_spell_check = true;
 
 	// All the settings...
 	$config_vars = array(
 			// Simple post options...
 			array('check', 'removeNestedQuotes'),
-			array('check', 'enableEmbeddedFlash', 'subtext' => $txt['enableEmbeddedFlash_warning']),
 			array('check', 'enableSpellChecking', 'disabled' => !$can_spell_check),
 			array('check', 'disable_wysiwyg'),
 			array('check', 'additional_options_collapsable'),

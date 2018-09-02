@@ -1290,6 +1290,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		// Maybe we can still save this?  The port might be wrong.
 		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
 		{
+			// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
+			if (substr($modSettings['smtp_host'], 0, 6) != 'ssl://')
+				$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', $modSettings['smtp_host']);
+
 			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
 		}
@@ -1331,7 +1335,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 				if (!server_parse('STARTTLS', $socket, '220'))
 					return false;
 				// Enable the encryption
-				if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT))
+				// php 5.6+ fix
+				$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+
+				if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT'))
+				{
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+				}
+
+				if (!@stream_socket_enable_crypto($socket, true, $crypto_method))
 					return false;
 				// Send the EHLO command again
 				if (!server_parse('EHLO ' . $helo, $socket, null) == '250')
@@ -2820,7 +2833,7 @@ function spell_init()
 		}
 
 		// Success
-		if ($enchant_link)
+		if (!empty($enchant_link))
 		{
 			$context['provider'] = 'enchant';
 			return $enchant_link;

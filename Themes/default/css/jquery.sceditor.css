@@ -15,6 +15,9 @@ div.sceditor-grip,
   width: 16px;
   height: 16px;
 }
+.sceditor-button-flash div {
+    background-position: 0px -712px;
+}
 .sceditor-button-youtube div {
   background-position: 0px 0px;
 }
@@ -173,7 +176,6 @@ div.sceditor-grip {
   color: #222;
   line-height: 1;
   font-weight: bold;
-  overflow: hidden;
   height: 250px;
   border-radius: 4px;
   background-clip: padding-box;
@@ -409,6 +411,10 @@ div.sceditor-color-picker {
 .sceditor-insertemoticon {
   padding: 4px !important;
 }
+.sceditor-insertemoticon>div, .sceditor-insertemoticon>center {
+    display: inline-block;
+    vertical-align: middle;
+}
 .sceditor-more {
   border-top: 1px solid #bbb;
   display: inline-block;
@@ -594,10 +600,12 @@ div.sceditor-group {
 .sceditor-button-floatright div {
   background-position: 0px -664px;
 }
-.sceditor-insertemoticon img {
+.sceditor-insertemoticon img,
+.sceditor-smileyPopup img {
   margin: 6px 7px 0 0;
 }
 .sceditor-insertemoticon img,
-div.sceditor-dropdown img {
+div.sceditor-dropdown img,
+.sceditor-smileyPopup img {
   cursor: pointer;
 }

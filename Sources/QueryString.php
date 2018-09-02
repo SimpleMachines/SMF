@@ -64,7 +64,7 @@ function cleanRequest()
 	// It seems that sticking a URL after the query string is mighty common, well, it's evil - don't.
 	if (strpos($_SERVER['QUERY_STRING'], 'http') === 0)
 	{
-		header('HTTP/1.1 400 Bad Request');
+		send_http_status(400);
 		die;
 	}
 

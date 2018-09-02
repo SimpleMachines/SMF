@@ -77,7 +77,7 @@ function template_main()
 						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
-				<div id="preview_body" class="windowbg noup">
+				<div id="preview_body" class="windowbg">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div>
@@ -93,7 +93,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe noup">', isset($context['current_topic']) ? '
+				<div class="roundframe">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
@@ -512,7 +512,7 @@ function template_main()
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-					<div id="postDraftOptionsHeader" class="title_bar title_top">
+					<div id="postDraftOptionsHeader" class="title_bar">
 						<h4 class="titlebg">
 							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 						</h4>

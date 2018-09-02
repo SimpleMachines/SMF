@@ -1989,89 +1989,6 @@ ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
---- Converting old bbcodes
-/******************************************************************************/
----# Replacing [br] with &lt;br&gt; on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
----#
-
----# Replacing [br] with &lt;br&gt; on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
----#
-
----# Replacing [acronym] with [abbr] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
----#
-
----# Replacing [acronym] with [abbr] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
----#
-
----# Replacing [tt] with [font=monospace] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
----#
-
----# Replacing [tt] with [font=monospace] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
----#
-
----# Replacing [bdo=ltr] with [ltr] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
----#
-
----# Replacing [bdo=ltr] with [ltr] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
----#
-
----# Replacing [bdo=rtl] with [rtl] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
----#
-
----# Replacing [bdo=rtl] with [rtl] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
----#
-
----# Replacing [black] with [color=black] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
----#
-
----# Replacing [black] with [color=black] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
----#
-
----# Replacing [white] with [color=white] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
----#
-
----# Replacing [white] with [color=white] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
----#
-
----# Replacing [red] with [color=red] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
----#
-
----# Replacing [red] with [color=red] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
----#
-
----# Replacing [green] with [color=green] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
----#
-
----# Replacing [green] with [color=green] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
----#
-
----# Replacing [blue] with [color=blue] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
----#
-
----# Replacing [blue] with [color=blue] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
----#
-
-/******************************************************************************/
 --- Remove redundant indexes
 /******************************************************************************/
 ---# Duplicates to messages_current_topic
@@ -2619,34 +2536,60 @@ WHERE
 	filename LIKE '%.gif';
 ---#
 
----# Update Settings sets_known
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, ',alienine')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',aaron', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',akyhne', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',fugue', '')
-WHERE variable = 'smiley_sets_known';
----#
+---# Cleaning up unused smiley sets and adding the lovely new ones
+---{
+// Start with the prior values...
+$dirs = explode(',', $modSettings['smiley_sets_known']);
+$setnames = explode("\n", $modSettings['smiley_sets_names']);
 
----#  Update Settings sets_names
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, '\n{$default_alienine_smileyset_name}')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_akyhne_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
-WHERE variable = 'smiley_sets_names';
+// Build combined pairs of folders and names; bypass default which is not used anymore
+$combined = array();
+foreach ($dirs AS $ix => $dir)
+	if (!empty($setnames[$ix]) && $dir != 'default')
+		$combined[$dir] = $setnames[$ix];
+
+// Add our lovely new 2.1 smiley sets if not already there
+$combined['fugue'] = $txt['default_fugue_smileyset_name'];
+$combined['alienine'] = $txt['default_alienine_smileyset_name'];
+
+// Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['aaron'] = $txt['default_aaron_smileyset_name'];
+$combined['akyhne'] = $txt['default_akyhne_smileyset_name'];
+
+// Confirm they exist in the filesystem
+$filtered = array();
+foreach ($combined AS $dir => $name)
+	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
+		$filtered[$dir] = $name;
+
+// Update the Settings Table...
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($filtered))) . "'
+	WHERE variable = 'smiley_sets_known'");
+
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_values($filtered))) . "'
+	WHERE variable = 'smiley_sets_names'");
+
+// Set new default if the old one doesnt exist
+// If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
+if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
+{
+	if (array_key_exists('fugue', $filtered))
+		$newdefault = 'fugue';
+	elseif (!empty($filtered))
+		$newdefault = array_keys($filtered)[0];
+	else
+		$newdefault = '';
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = '" . $newdefault . "'
+		WHERE variable = 'smiley_sets_default'");
+}
+
+---}
 ---#
 
 /******************************************************************************/
