@@ -352,8 +352,8 @@ function load_lang_file()
 // This handy function loads some settings and the like.
 function load_database()
 {
-	global $db_prefix, $db_connection, $sourcedir, $smcFunc, $modSettings;
-	global $db_server, $db_passwd, $db_type, $db_name, $db_user, $db_persist;
+	global $db_prefix, $db_connection, $sourcedir, $smcFunc, $modSettings, $db_port;
+	global $db_server, $db_passwd, $db_type, $db_name, $db_user, $db_persist, $db_mb4;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -374,28 +374,16 @@ function load_database()
 		if (version_compare(PHP_VERSION, '5', '<'))
 			require_once($sourcedir . '/Subs-Compat.php');
 
-		$db_options = array('persist' => $db_persist);
-		$port = '';
+		$options = array('persist' => $db_persist);
 
-		// Figure out the port...
-		if (!empty($_POST['db_port']))
-		{
-			if ($db_type == 'mysql')
-			{
-				$port = ((int) $_POST['db_port'] == ini_get($db_type . 'default_port')) ? '' : (int) $_POST['db_port'];
-			}
-			elseif ($db_type == 'postgresql')
-			{
-				// PostgreSQL doesn't have a default port setting in php.ini, so just check against the default
-				$port = ((int) $_POST['db_port'] == 5432) ? '' : (int) $_POST['db_port'];
-			}
-		}
+		if (!empty($db_port))
+			$options['port'] = $db_port;
 
-		if (!empty($port))
-			$db_options['port'] = $port;
+		if (!empty($db_mb4))
+			$options['db_mb4'] = $db_mb4;
 
 		if (!$db_connection)
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options);
+			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 	}
 }
 
