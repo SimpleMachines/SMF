@@ -4684,6 +4684,10 @@ function setupMenuContext()
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$total_admin_reports += $context['unapproved_members'];
+	}
+	
+	if($total_admin_reports > 0 && !empty($context['menu_buttons']['admin']))
+	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
 	}
 
