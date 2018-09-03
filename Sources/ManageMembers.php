@@ -37,42 +37,12 @@ function ViewMembers()
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
 
-	call_integration_hook('integrate_manage_members', array(&$subActions));
-
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
-
-	// We know the sub action, now we know what you're allowed to do.
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	// Load the essentials.
 	loadLanguage('ManageMembers');
 	loadTemplate('ManageMembers');
-
-	// Get counts on every type of activation - for sections and filtering alike.
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS total_members, is_activated
-		FROM {db_prefix}members
-		WHERE is_activated != {int:is_activated}
-		GROUP BY is_activated',
-		array(
-			'is_activated' => 1,
-		)
-	);
-	$context['activation_numbers'] = array();
-	$context['awaiting_activation'] = 0;
-	$context['awaiting_approval'] = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
-	$smcFunc['db_free_result']($request);
-
-	foreach ($context['activation_numbers'] as $activation_type => $total_members)
-	{
-		if (in_array($activation_type, array(0, 2)))
-			$context['awaiting_activation'] += $total_members;
-		elseif (in_array($activation_type, array(3, 4, 5)))
-			$context['awaiting_approval'] += $total_members;
-	}
 
 	// For the page header... do we show activation?
 	$context['show_activate'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1) || !empty($context['awaiting_activation']);
@@ -101,33 +71,44 @@ function ViewMembers()
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=search',
 			'is_selected' => $_REQUEST['sa'] == 'search' || $_REQUEST['sa'] == 'query',
 		),
-		'approve' => array(
+	);
+	$context['last_tab'] = 'search';
+
+	// Fetch our activation counts.
+	GetMemberActivationCounts();
+
+	// Do we have approvals
+	if ($context['show_approve'])
+	{
+		$context['tabs']['approve'] = array(
 			'label' => sprintf($txt['admin_browse_awaiting_approval'], $context['awaiting_approval']),
 			'description' => $txt['admin_browse_approve_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 			'is_selected' => false,
-		),
-		'activate' => array(
+		);
+		$context['last_tab'] = 'approve';
+	}
+
+	// Do we have activations to show?
+	if ($context['show_activate'])
+	{
+		$context['tabs']['activate'] = array(
 			'label' => sprintf($txt['admin_browse_awaiting_activate'], $context['awaiting_activation']),
 			'description' => $txt['admin_browse_activate_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			'is_selected' => false,
-			'is_last' => true,
-		),
-	);
+		);
+		$context['last_tab'] = 'activate';
+	}
 
-	// Sort out the tabs for the ones which may not exist!
-	if (!$context['show_activate'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'activate'))
-	{
-		$context['tabs']['approve']['is_last'] = true;
-		unset($context['tabs']['activate']);
-	}
-	if (!$context['show_approve'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'approve'))
-	{
-		if (!$context['show_activate'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'activate'))
-			$context['tabs']['search']['is_last'] = true;
-		unset($context['tabs']['approve']);
-	}
+	// Call our hook now, letting customizations add to the subActions and/or modify $context as needed.
+	call_integration_hook('integrate_manage_members', array(&$subActions));
+
+	// We know the sub action, now we know what you're allowed to do.
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
+
+	// Set the last tab.
+	$context['tabs'][$context['last_tab']]['is_last'] = true;
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }
@@ -1313,6 +1294,41 @@ function jeffsdatediff($old)
 
 	// Divide out the seconds in a day to get the number of days.
 	return ceil($dis / (24 * 60 * 60));
+}
+
+/**
+ * Fetches all the activation counts for ViewMembers.
+ *
+ */
+function GetMemberActivationCounts()
+{
+	global $smcFunc, $context;
+
+	// Get counts on every type of activation - for sections and filtering alike.
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*) AS total_members, is_activated
+		FROM {db_prefix}members
+		WHERE is_activated != {int:is_activated}
+		GROUP BY is_activated',
+		array(
+			'is_activated' => 1,
+		)
+	);
+	$context['activation_numbers'] = array();
+	$context['awaiting_activation'] = 0;
+	$context['awaiting_approval'] = 0;
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
+	$smcFunc['db_free_result']($request);
+
+	foreach ($context['activation_numbers'] as $activation_type => $total_members)
+	{
+		if (in_array($activation_type, array(0, 2)))
+			$context['awaiting_activation'] += $total_members;
+		elseif (in_array($activation_type, array(3, 4, 5)))
+			$context['awaiting_approval'] += $total_members;
+	}
+
 }
 
 ?>
