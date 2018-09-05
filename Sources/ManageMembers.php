@@ -38,11 +38,14 @@ function ViewMembers()
 	);
 
 	// Default to sub action 'index' or 'settings' depending on permissions.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
+	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
 
 	// Load the essentials.
 	loadLanguage('ManageMembers');
 	loadTemplate('ManageMembers');
+
+	// Fetch our activation counts.
+	GetMemberActivationCounts();
 
 	// For the page header... do we show activation?
 	$context['show_activate'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1) || !empty($context['awaiting_activation']);
@@ -63,19 +66,16 @@ function ViewMembers()
 			'label' => $txt['view_all_members'],
 			'description' => $txt['admin_members_list'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=all',
-			'is_selected' => $_REQUEST['sa'] == 'all',
+			'selected_actions' => array('all'),
 		),
 		'search' => array(
 			'label' => $txt['mlist_search'],
 			'description' => $txt['admin_members_list'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=search',
-			'is_selected' => $_REQUEST['sa'] == 'search' || $_REQUEST['sa'] == 'query',
+			'selected_actions' => array('search', 'query'),
 		),
 	);
 	$context['last_tab'] = 'search';
-
-	// Fetch our activation counts.
-	GetMemberActivationCounts();
 
 	// Do we have approvals
 	if ($context['show_approve'])
@@ -84,7 +84,6 @@ function ViewMembers()
 			'label' => sprintf($txt['admin_browse_awaiting_approval'], $context['awaiting_approval']),
 			'description' => $txt['admin_browse_approve_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-			'is_selected' => false,
 		);
 		$context['last_tab'] = 'approve';
 	}
@@ -96,7 +95,6 @@ function ViewMembers()
 			'label' => sprintf($txt['admin_browse_awaiting_activate'], $context['awaiting_activation']),
 			'description' => $txt['admin_browse_activate_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
-			'is_selected' => false,
 		);
 		$context['last_tab'] = 'activate';
 	}
@@ -105,12 +103,20 @@ function ViewMembers()
 	call_integration_hook('integrate_manage_members', array(&$subActions));
 
 	// We know the sub action, now we know what you're allowed to do.
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
+	isAllowedTo($subActions[$context['current_subaction']][1]);
 
 	// Set the last tab.
 	$context['tabs'][$context['last_tab']]['is_last'] = true;
 
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	// Find the active tab.
+	if (isset($context['tabs'][$context['current_subaction']]))
+		$context['tabs'][$context['current_subaction']]['is_selected'] = true;
+	elseif (isset($context['current_subaction']))
+		foreach ($context['tabs'] as $id_tab => $tab_data)
+			if (!empty($tab_data['selected_actions']) && in_array($context['current_subaction'], $tab_data['selected_actions']))
+				$context['tabs'][$id_tab]['is_selected'] = true;
+
+	call_helper($subActions[$context['current_subaction']][0]);
 }
 
 /**
