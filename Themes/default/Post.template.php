@@ -554,181 +554,54 @@ function template_main()
 	echo '
 		<script>';
 
-	// The functions used to preview a posts without loading a new page.
-	echo '
-			var make_poll = ', $context['make_poll'] ? 'true' : 'false', ';
-			var txt_preview_title = "', $txt['preview_title'], '";
-			var txt_preview_fetch = "', $txt['preview_fetch'], '";
-			var new_replies = new Array();
-			var reply_counter = ', empty($counter) ? 0 : $counter, ';
-			function previewPost()
-			{
-				if (window.XMLHttpRequest)
-				{
-					// Opera didn\'t support setRequestHeader() before 8.01.
-					if (\'opera\' in window)
-					{
-						var test = new XMLHttpRequest();
-						if (!(\'setRequestHeader\' in test))
-							return submitThisOnce(document.forms.postmodify);
-					}
-					// @todo Currently not sending poll options and option checkboxes.
-					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', ', JavaScriptEscape($context['session_var']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
-					var numericFields = [
-						\'board\', \'topic\', \'last_msg\',
-						\'eventid\', \'calendar\', \'year\', \'month\', \'day\',
-						\'poll_max_votes\', \'poll_expire\', \'poll_change_vote\', \'poll_hide\'
-					];
-					var checkboxFields = [
-						\'ns\'
-					];
-
-					for (var i = 0, n = textFields.length; i < n; i++)
-						if (textFields[i] in document.forms.postmodify)
-						{
-							// Handle the WYSIWYG editor.
-							var e = $("#', $context['post_box_name'], '").get(0);
-							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && sceditor.instance(e) != undefined)
-								x[x.length] = textFields[i] + \'=\' + sceditor.instance(e).getText().html();
-							else
-								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.html();
-						}
-					for (var i = 0, n = numericFields.length; i < n; i++)
-						if (numericFields[i] in document.forms.postmodify && \'value\' in document.forms.postmodify[numericFields[i]])
-							x[x.length] = numericFields[i] + \'=\' + parseInt(document.forms.postmodify.elements[numericFields[i]].value);
-					for (var i = 0, n = checkboxFields.length; i < n; i++)
-						if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
-							x[x.length] = checkboxFields[i] + \'=\' + document.forms.postmodify.elements[checkboxFields[i]].value;
-
-					sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=post2\' + (current_board ? \';board=\' + current_board : \'\') + (make_poll ? \';poll\' : \'\') + \';preview;xml\', x.join(\'&\'), onDocSent);
-
-					document.getElementById(\'preview_section\').style.display = \'\';
-					setInnerHTML(document.getElementById(\'preview_subject\'), txt_preview_title);
-					setInnerHTML(document.getElementById(\'preview_body\'), txt_preview_fetch);
-
-					return false;
-				}
-				else
-					return submitThisOnce(document.forms.postmodify);
-			}
-			function onDocSent(XMLDoc)
-			{
-				if (!XMLDoc)
-				{
-					document.forms.postmodify.preview.onclick = new function ()
-					{
-						return true;
-					}
-					document.forms.postmodify.preview.click();
-				}
-
-				// Show the preview section.
-				var preview = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'preview\')[0];
-				setInnerHTML(document.getElementById(\'preview_subject\'), preview.getElementsByTagName(\'subject\')[0].firstChild.nodeValue);
-
-				var bodyText = \'\';
-				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
-					if (preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue != null)
-						bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
-
-				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
-				document.getElementById(\'preview_body\').className = \'windowbg\';
-
-				// Show a list of errors (if any).
-				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
-				var errorList = new Array();
-				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
-					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
-				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				document.getElementById(\'errors\').className = errors.getAttribute(\'serious\') == 1 ? \'errorbox\' : \'noticebox\';
-				document.getElementById(\'error_serious\').style.display = numErrors == 0 ? \'none\' : \'\';
-				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
-
-				// Adjust the color of captions if the given data is erroneous.
-				var captions = errors.getElementsByTagName(\'caption\');
-				for (var i = 0, numCaptions = errors.getElementsByTagName(\'caption\').length; i < numCaptions; i++)
-					if (document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')))
-						document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')).className = captions[i].getAttribute(\'class\');
-
-				if (errors.getElementsByTagName(\'post_error\').length == 1)
-					document.forms.postmodify.', $context['post_box_name'], '.style.border = \'1px solid red\';
-				else if (document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red\' || document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red red red red\')
-				{
-					if (\'runtimeStyle\' in document.forms.postmodify.', $context['post_box_name'], ')
-						document.forms.postmodify.', $context['post_box_name'], '.style.borderColor = \'\';
-					else
-						document.forms.postmodify.', $context['post_box_name'], '.style.border = null;
-				}
-
-				// Set the new last message id.
-				if (\'last_msg\' in document.forms.postmodify)
-					document.forms.postmodify.last_msg.value = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'last_msg\')[0].firstChild.nodeValue;
-
-				// Remove the new image from old-new replies!
-				for (i = 0; i < new_replies.length; i++)
-					document.getElementById(\'image_new_\' + new_replies[i]).style.display = \'none\';
-				new_replies = new Array();
-
-				var ignored_replies = new Array(), ignoring;
-				var newPosts = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'new_posts\')[0] ? XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'new_posts\')[0].getElementsByTagName(\'post\') : {length: 0};
-				var numNewPosts = newPosts.length;
-				if (numNewPosts != 0)
-				{
-					var newPostsHTML = \'<span id="new_replies"><\' + \'/span>\';
-					for (var i = 0; i < numNewPosts; i++)
-					{
-						new_replies[new_replies.length] = newPosts[i].getAttribute("id");
-
-						ignoring = false;
-						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
-							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
-
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \'"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+	$newPostsHTML = '
+		<span id="new_replies"></span>
+		<div class="windowbg">
+			<div id="msg%PostID%">
+			<h5 class="floatleft">
+				<span>' . $txt['posted_by'] . '</span>
+				%PosterName%
+			</h5>
+			&nbsp;-&nbsp;%PostTime%&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . $txt['new'] . '</span>';
 
 	if ($context['can_quote'])
-		echo '
-						newPostsHTML += \'<ul class="quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>', $txt['quote'], '</span><\' + \'/a></li></ul>\';';
+		$newPostsHTML .= '
+			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
+				<li id="post_modify">
+					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="generic_icons quote"></span>' . $txt['quote'] . '</a>
+				</li>
+			</ul>';
+
+	$newPostsHTML .= '
+			<br class="clear">
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] .  '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
+			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>
+		</div>';
+
+	// The functions used to preview a posts without loading a new page.
+	echo '
+			var oPreviewPost = new smc_preview_post({
+				sPreviewSectionContainerID: "preview_section",
+				sPreviewSubjectContainerID: "preview_subject",
+				sPreviewBodyContainerID: "preview_body",
+				sErrorsContainerID: "errors",
+				sErrorsSeriousContainerID: "error_serious",
+				sErrorsListContainerID: "error_list",
+				sCaptionContainerID: "caption_%ID%",
+				sNewImageContainerID: "image_new_%ID%",
+				sPostBoxContainerID: ', JavaScriptEscape($context['post_box_name']), ',
+				bMakePoll: ', $context['make_poll'] ? 'true' : 'false', ',
+				sTxtPreviewTitle: ', JavaScriptEscape($txt['preview_title']), ',
+				sTxtPreviewFetch: ', JavaScriptEscape($txt['preview_fetch']), ',
+				sSessionVar: ', JavaScriptEscape($context['session_var']), ',
+				newPostsTemplate:', JavaScriptEscape($newPostsHTML);
+
+	if (!empty($context['current_board']))
+		echo ',
+				iCurrentBoard: ', $context['current_board'], '';
 
 	echo '
-						newPostsHTML += \'<br class="clear">\';
-
-						if (ignoring)
-							newPostsHTML += \'<div id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_prompt" class="smalltext">', $txt['ignoring_user'], '<a href="#" id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a></div>\';
-
-						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div></div>\';
-					}
-					setOuterHTML(document.getElementById(\'new_replies\'), newPostsHTML);
-				}
-
-				var numIgnoredReplies = ignored_replies.length;
-				if (numIgnoredReplies != 0)
-				{
-					for (var i = 0; i < numIgnoredReplies; i++)
-					{
-						aIgnoreToggles[ignored_replies[i]] = new smc_Toggle({
-							bToggleEnabled: true,
-							bCurrentlyCollapsed: true,
-							aSwappableContainers: [
-								\'msg_\' + ignored_replies[i] + \'_body\',
-								\'msg_\' + ignored_replies[i] + \'_quote\',
-							],
-							aSwapLinks: [
-								{
-									sId: \'msg_\' + ignored_replies[i] + \'_ignored_link\',
-									msgExpanded: \'\',
-									msgCollapsed: ', JavaScriptEscape($txt['show_ignore_user_post']), '
-								}
-							]
-						});
-					}
-				}
-
-				location.hash = \'#\' + \'preview_section\';
-
-				if (typeof(smf_codeFix) != \'undefined\')
-					smf_codeFix();
-			}';
+			});';
 
 	// Code for showing and hiding additional options.
 	if (!empty($modSettings['additional_options_collapsable']))
