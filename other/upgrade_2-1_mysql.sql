@@ -213,6 +213,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 	);
 ---}
 
+---# Disable Moderation Center Security if it doesn't exist
+---{
+	if (!isset($modSettings['securityDisable_moderate']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('securityDisable_moderate', '1'),
+			array()
+		);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
