@@ -6687,7 +6687,7 @@ function send_http_status($code, $status = '')
 	if (!isset($statuses[$code]) && empty($status))
 		header($protocol . ' 500 Internal Server Error');
 	else
-		header($protocol . ' ' . $code . ' ' . !empty($status) ? $status : $statuses[$code]);
+		header($protocol . ' ' . $code . ' ' . (!empty($status) ? $status : $statuses[$code]));
 }
 
 ?>
