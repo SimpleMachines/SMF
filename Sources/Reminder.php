@@ -356,7 +356,12 @@ function SecretAnswer2()
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Check if the secret answer is correct.
+	/*
+	 * Check if the secret answer is correct.
+	 * In 2.1 this was changed to use hash_(verify_)passsword, same as the password. The length of the hash is 60 characters.
+	 * Prior to 2.1 this was a simple md5.  The length of the hash is 32 charccters.
+	 * For compatibility with older answers, we still check if a match occurs on md5.  As there is a difference in the hash lengths, there isn't a possiblity of a cross match between the hashes.  This will ensure in future answer updates will prevent md5 methods from working.
+	*/
 	if ($row['secret_question'] == '' || $row['secret_answer'] == '' || (!hash_verify_password($row['member_name'], $_POST['secret_answer'], $row['secret_answer']) && md5($_POST['secret_answer']) != $row['secret_answer']))
 	{
 		log_error(sprintf($txt['reminder_error'], $row['member_name']), 'user');
