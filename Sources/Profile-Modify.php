@@ -433,9 +433,9 @@ function loadProfileFields($force_reload = false)
 			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
-			'input_validate' => function(&$value)
+			'input_validate' => function(&$value) use ($cur_profile)
 			{
-				$value = $value != '' ? md5($value) : '';
+				$value = $value != '' ? hash_password($cur_profile['member_name'], $value) : '';
 				return true;
 			},
 		),
