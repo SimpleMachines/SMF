@@ -525,8 +525,9 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	color: red;
-	font-weight: bold;
+    font-weight: bold;
+    padding: 0px 8px;
+	background: #f59e00;
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
