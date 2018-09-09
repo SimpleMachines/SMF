@@ -169,7 +169,6 @@ function template_bi_board_info($board)
 	echo '
 						<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
 							', $board['name'], '
-							<p class="board_description mobile_display">', $board['description'], '</p>
 						</a>';
 
 	// Has it outstanding posts for approval?

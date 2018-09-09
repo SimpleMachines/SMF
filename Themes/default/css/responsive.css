@@ -129,8 +129,6 @@
 	}
 	/* some new stuff for far better UX */
 	.mobile_subject {
-		display: block;
-		padding: 9px 0;
 		position: relative;
 	}
 	.mobile_subject .board_description {
@@ -138,9 +136,6 @@
 		font-weight: normal;
 		font-size: 0.9em;
 		color: #222;
-	}
-	.board_description {
-		display: none;
 	}
 	fieldset {
 		max-width: 100%;
