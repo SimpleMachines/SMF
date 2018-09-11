@@ -1754,9 +1754,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	else
 		$id_theme = $modSettings['theme_guests'];
 
-	// Allow mod authors the option to override the theme id for custom page themes
-	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
-
 	// Verify the id_theme... no foul play.
 	// Always allow the board specific theme, if they are overriding.
 	if (!empty($board_info['theme']) && $board_info['override_theme'])
@@ -1773,6 +1770,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$id_theme = (int) $id_theme;
 	}
 		
+	// Allow mod authors the option to override the theme id for custom page themes
+	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
+
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
