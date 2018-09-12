@@ -403,6 +403,10 @@
 	#ban_list .added, #ban_list .num_triggers, #ban_log .date, #mail_queue .age {
 		display: none;
 	}
+	/* Likes */
+	#likes li .like_time {
+		display: none;
+	}
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
 		margin: 0 !important;

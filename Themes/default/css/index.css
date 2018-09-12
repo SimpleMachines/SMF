@@ -175,20 +175,25 @@ body#help_popup {
 
 #likes li {
 	clear: both;
+	padding: 1px 0;
 }
 #likes .avatar {
-	max-height: 90px;
-	max-width: 90px;
+	max-height: 45px;
+	max-width: 45px;
 	padding: 0 10px 0 0;
 }
-#likes span {
+#likes .avatar, #likes li .like_profile {
+	vertical-align: middle;
 	display: inline-block;
-	vertical-align: top;
+}
+#likes li .like_time {
+	padding: 4px 0;
 }
 #likes .description {
 	font-style: italic;
 	opacity: 0.4;
 	font-size: 0.9em;
+	display: block;
 }
 
 /* The "new" button */

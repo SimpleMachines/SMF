@@ -35,11 +35,11 @@ function template_popup()
 		echo '
 				<li>
 					', $like_details['profile']['avatar']['image'], '
-					<span>
-						', $like_details['profile']['link_color'], '<br>
+					<span class="like_profile">
+						', $like_details['profile']['link_color'], '
 						<span class="description">', $like_details['profile']['group'], '</span>
 					</span>
-					<span class="floatright">', $like_details['time'], '</span>
+					<span class="floatright like_time">', $like_details['time'], '</span>
 				</li>';
 
 	echo '
