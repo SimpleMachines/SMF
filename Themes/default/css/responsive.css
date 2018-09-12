@@ -400,7 +400,7 @@
 	/* Generic Lists */
 	#request_list .time_applied,
 	#track_user_list .date, #track_user_list .date2, #file_list .filesize, #file_list .downloads,
-	#ban_list .added, #ban_list .num_triggers, #ban_log .date, #mail_queue .age {
+	#ban_list .added, #ban_list .num_triggers, #ban_log .date, #mail_queue .age, #attachments .subject {
 		display: none;
 	}
 	/* Likes */
@@ -700,7 +700,7 @@
 	/* Generic Lists */
 	#topic_notification_list .last_post, #topic_notification_list .started_by,
 	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
-	#mail_queue .priority {
+	#mail_queue .priority, #attachments .posted {
 		display: none;
 	}
 
