@@ -1742,6 +1742,13 @@ function EditTheme()
 		}
 		else
 			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
+		
+		// Do not list minified_ files
+		foreach($context['theme_files'] as $key=>$file)
+		{
+			if(strpos($file['filename'], 'minified_') !== FALSE)
+				unset($context['theme_files'][$key]);
+		}
 
 		$context['sub_template'] = 'edit_browse';
 

@@ -1003,7 +1003,7 @@ function template_edit_style()
 					url = url.substr(0, url.indexOf("#"));
 				}
 
-				myDoc.open("GET", url + (url.indexOf("?") == -1 ? "?" : ";") + "theme=', $context['theme_id'], '" + anchor, true);
+				myDoc.open("GET", url + (url.indexOf("?") == -1 ? "?" : ";") + "theme=', $context['theme_id'], ';normalcss" + anchor, true);
 				myDoc.send(null);
 			}
 			navigatePreview(smf_scripturl);

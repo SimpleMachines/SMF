@@ -3869,7 +3869,7 @@ function template_css()
 		if (!isset($file['options']['minimize']))
 			$file['options']['minimize'] = true;
 
-		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']) && !isset($_REQUEST['normalcss']))
 		{
 			$toMinify[] = $file;
 
