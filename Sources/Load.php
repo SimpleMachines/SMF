@@ -1770,6 +1770,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$id_theme = (int) $id_theme;
 	}
 		
+	// Allow mod authors the option to override the theme id for custom page themes
+	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
+
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
