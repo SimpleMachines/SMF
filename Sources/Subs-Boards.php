@@ -658,9 +658,11 @@ function modifyBoard($board_id, &$boardOptions)
 	
 	// Do permission sync
 	if (!empty($boardUpdateParameters['deny_groups']))
+	{
 		$insert = array();
 		foreach($boardOptions['deny_groups'] as $value)
 			$insert[] = array($value, $board_id, 1);
+
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:selected_board} AND deny = 1',
@@ -674,6 +676,8 @@ function modifyBoard($board_id, &$boardOptions)
 				$insert,
 				array('id_group','id_board','deny')
 				);
+	}
+
 	if (!empty($boardUpdateParameters['member_groups']))
 	{
 		$insert = array();
