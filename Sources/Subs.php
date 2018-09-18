@@ -6334,20 +6334,12 @@ function build_query_board($userid)
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($is_admin)
-	{
 		$query_part['query_see_board'] = '1=1';
-		$query_part['query_see_board_join'] = '';
-	}
 	// Otherwise just the groups in $user_info['groups'].
 	else
-	{
 		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
 				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
 				. ' AND bpv.id_board = b.id_board)';
-		$query_part['query_see_board_join'] = 'JOIN (SELECT DISTINCT id_board FROM ' . $db_prefix . 'board_permissions_view WHERE (id_group IN ( '. implode(',', $groups) .') AND deny = 0) '
-				.  ( !empty($deny_boards_access) ? ' AND (id_group NOT IN ( '. implode(',', $groups) .') and deny = 1)' : '')
-				. ') bpv ON (bpv.id_board = b.id_board)';
-	}
 		
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
