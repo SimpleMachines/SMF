@@ -1084,6 +1084,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$disabled[trim($tag)] = true;
 		}
 
+		// The YouTube bbc needs this for its origin parameter
+		$scripturl_parts = parse_url($scripturl);
+		$hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
+
 		/* The following bbc are formatted as an array, with keys as follows:
 
 			tag: the tag's name - should be lowercase!
@@ -1890,7 +1894,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
-				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 				'block_level' => true,
 			),
@@ -4685,7 +4689,7 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$total_admin_reports += $context['unapproved_members'];
 	}
-	
+
 	if($total_admin_reports > 0 && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
