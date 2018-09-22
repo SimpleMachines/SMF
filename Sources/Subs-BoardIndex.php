@@ -346,8 +346,18 @@ function getBoardIndex($boardIndexOptions)
 		}
 
 		// Set the last post in the parent board.
-		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'] || ($isChild && !empty($row_board['poster_time']) && forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time'])))
+		if ($isChild && !empty($row_board['poster_time']) 
+				&& forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time']))
 			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
+
+		// Set the last post in the root board 
+		if (!$isChild && !empty($row_board['poster_time'])
+			&& ( empty($this_category[$row_board['id_board']]['last_post']['poster_time'])
+				|| forum_time(true,$this_category[$row_board['id_board']]['last_post']['poster_time']) < forum_time(true, $row_board['poster_time'])
+				)
+			)
+			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
+
 		// Just in the child...?
 		if ($isChild)
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['last_post'] = $this_last_post;
