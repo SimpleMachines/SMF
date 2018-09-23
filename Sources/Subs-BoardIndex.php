@@ -297,6 +297,26 @@ function getBoardIndex($boardIndexOptions)
 					$row_boards[$row_board['id_parent']]['num_posts'] += $row_board['num_posts'];
 					$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
 				}
+
+				if (forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time']))
+				{
+					$row_boards[$row_board['id_parent']]['id_msg'] = $row_board['id_msg'];
+					$row_boards[$row_board['id_parent']]['subject'] = $row_board['subject'];
+					$row_boards[$row_board['id_parent']]['poster_time'] = $row_board['poster_time'];
+					$row_boards[$row_board['id_parent']]['short_subject'] = (!empty($row_board['short_subject']) ? $row_board['short_subject'] : '') ;
+					$row_boards[$row_board['id_parent']]['poster_name'] = $row_board['poster_name'];
+					$row_boards[$row_board['id_parent']]['real_name'] = $row_board['real_name'];
+					$row_boards[$row_board['id_parent']]['id_member'] = $row_board['id_member'];
+					$row_boards[$row_board['id_parent']]['id_topic'] = $row_board['id_topic'];
+					$row_boards[$row_board['id_parent']]['new_from'] = $row_board['new_from'];
+
+					if (!empty($settings['avatars_on_boardIndex']))
+					{
+						$row_boards[$row_board['id_parent']]['avatar'] = $row_board['avatar'];
+						$row_boards[$row_board['id_parent']]['email_address'] = $row_board['email_address'];
+						$row_boards[$row_board['id_parent']]['member_filename'] = !empty($row_board['member_filename']) ? $row_board['member_filename'] : '';
+					}
+				}
 			}
 
 			continue;
@@ -349,12 +369,12 @@ function getBoardIndex($boardIndexOptions)
 		// Set the last post in the parent board.
 		if ($isChild && !empty($row_board['poster_time']) 
 				&& forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time']))
-			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
+			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
 
 		// Set the last post in the root board 
 		if (!$isChild && !empty($row_board['poster_time'])
-			&& ( empty($this_category[$row_board['id_board']]['last_post']['poster_time'])
-				|| forum_time(true,$this_category[$row_board['id_board']]['last_post']['poster_time']) < forum_time(true, $row_board['poster_time'])
+			&& ( empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
+				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
 				)
 			)
 			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
