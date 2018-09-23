@@ -1055,6 +1055,7 @@ function smf_db_cte_support()
 
 /**
  * Function which return the escaped string
+ * 
  * @param string the unescaped text
  * @param resource $connection = null The connection to use (null to use $db_connection)
  * @return string escaped string
