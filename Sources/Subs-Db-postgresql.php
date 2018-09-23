@@ -46,8 +46,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_num_rows'				=> 'pg_num_rows',
 			'db_data_seek'				=> 'smf_db_data_seek',
 			'db_num_fields'				=> 'pg_num_fields',
-			'db_escape_string'			=> 'pg_escape_string',
-			'db_unescape_string'		=> 'smf_db_unescape_string',
+			'db_escape_string'			=> 'smf_db_escape_string',
+			'db_unescape_string'		=> 'stripslashes',
 			'db_server_info'			=> 'smf_db_version',
 			'db_affected_rows'			=> 'smf_db_affected_rows',
 			'db_transaction'			=> 'smf_db_transaction',
@@ -678,17 +678,6 @@ function smf_db_data_seek($request, $counter)
 }
 
 /**
- * Unescape an escaped string!
- *
- * @param string $string The string to unescape
- * @return string The unescaped string
- */
-function smf_db_unescape_string($string)
-{
-	return strtr($string, array('\'\'' => '\''));
-}
-
-/**
  * Inserts data into a table
  *
  * @param string $method The insert method - can be 'replace', 'ignore' or 'insert'
@@ -1047,6 +1036,19 @@ function smf_db_native_replace()
 function smf_db_cte_support()
 {
 	return true;
+}
+
+/**
+ * Function which return the escaped string
+ * @param string the unescaped text
+ * @param resource $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_escape_string($string, $connection = null)
+{
+	global $db_connection;
+
+	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
 }
 
 ?>
