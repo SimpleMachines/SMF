@@ -236,27 +236,33 @@ function messageIndexBar($area)
 				'inbox' => array(
 					'label' => $txt['inbox'],
 					'custom_url' => $scripturl . '?action=pm',
+					'amt' => 0,
 				),
 				'send' => array(
 					'label' => $txt['new_message'],
 					'custom_url' => $scripturl . '?action=pm;sa=send',
 					'permission' => 'pm_send',
+					'amt' => 0,
 				),
 				'sent' => array(
 					'label' => $txt['sent_items'],
 					'custom_url' => $scripturl . '?action=pm;f=sent',
+					'amt' => 0,
 				),
 				'drafts' => array(
 					'label' => $txt['drafts_show'],
 					'custom_url' => $scripturl . '?action=pm;sa=showpmdrafts',
 					'permission' => 'pm_draft',
 					'enabled' => !empty($modSettings['drafts_pm_enabled']),
+					'amt' => 0,
 				),
 			),
+			'amt' => 0,
 		),
 		'labels' => array(
 			'title' => $txt['pm_labels'],
 			'areas' => array(),
+			'amt' => 0,
 		),
 		'actions' => array(
 			'title' => $txt['pm_actions'],
@@ -296,34 +302,31 @@ function messageIndexBar($area)
 	else
 	{
 		// Note we send labels by id as it will have less problems in the querystring.
-		$unread_in_labels = 0;
 		foreach ($context['labels'] as $label)
 		{
 			if ($label['id'] == -1)
 				continue;
 
 			// Count the amount of unread items in labels.
-			$unread_in_labels += $label['unread_messages'];
+			$pm_areas['labels']['amt'] += $label['unread_messages'];
 
 			// Add the label to the menu.
 			$pm_areas['labels']['areas']['label' . $label['id']] = array(
-				'label' => $label['name'] . (!empty($label['unread_messages']) ? ' <span class="amt">' . $label['unread_messages'] . '</span>' : ''),
+				'label' => $label['name'],
 				'custom_url' => $scripturl . '?action=pm;l=' . $label['id'],
+				'amt' => $label['unread_messages'],
 				'unread_messages' => $label['unread_messages'],
 				'messages' => $label['messages'],
 			);
 		}
-
-		if (!empty($unread_in_labels))
-			$pm_areas['labels']['title'] .= ' <span class="amt">' . $unread_in_labels . '</span>';
 	}
 
 	$pm_areas['folders']['areas']['inbox']['unread_messages'] = &$context['labels'][-1]['unread_messages'];
 	$pm_areas['folders']['areas']['inbox']['messages'] = &$context['labels'][-1]['messages'];
 	if (!empty($context['labels'][-1]['unread_messages']))
 	{
-		$pm_areas['folders']['areas']['inbox']['label'] .= ' <span class="amt">' . $context['labels'][-1]['unread_messages'] . '</span>';
-		$pm_areas['folders']['title'] .= ' <span class="amt">' . $context['labels'][-1]['unread_messages'] . '</span>';
+		$pm_areas['folders']['areas']['inbox']['amt'] = $context['labels'][-1]['unread_messages'];
+		$pm_areas['folders']['amt'] = $context['labels'][-1]['unread_messages'];
 	}
 
 	// Do we have a limit on the amount of messages we can keep?
