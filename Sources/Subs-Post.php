@@ -1338,6 +1338,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 					$helo = gethostbyaddr($dns_record['ip' . ($dns_record['type'] === 'AAAA' ? 'v6' : '')]);
 			}
 		}
+
+		// This is one of those situations where 'www.' is undesirable
+		if (strpos($helo, 'www.') === 0)
+			$helo = substr($helo, 4);
 	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2
