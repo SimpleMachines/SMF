@@ -1323,7 +1323,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 			$helo = php_uname('n');
 
 		// Local domains won't cut it, so look up the canonical one for $boardurl in DNS
-		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0)
+		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/', $helo)))
 		{
 			$helo = parse_url($boardurl, PHP_URL_HOST);
 
