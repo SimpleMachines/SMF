@@ -1327,8 +1327,17 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		{
 			$helo = parse_url($boardurl, PHP_URL_HOST);
 
-			if (function_exists('gethostbyaddr') && function_exists('gethostbyname'))
-				$helo = gethostbyaddr(gethostbyname($helo));
+			if (function_exists('gethostbyaddr') && function_exists('dns_get_record') && ($dns_record = dns_get_record($helo)))
+			{
+				foreach ($dns_record as $dns_rec)
+				{
+					if (in_array($dns_rec['type'], array('A', 'AAAA')))
+					{
+						$helo = gethostbyaddr($dns_rec['ip' . ($dns_rec['type'] === 'AAAA' ? 'v6' : '')]);
+						break;
+					}
+				}
+			}
 		}
 	}
 
