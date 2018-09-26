@@ -18,9 +18,8 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * !!!Compatibility!!!
- * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
- * Convert only the BBC that can be edited in HTML mode for the editor.
+ * As of SMF 2.1, this is unused. But it is available if any mod wants to use it.
+ * Convert only the BBC that can be edited in HTML mode for the (old) editor.
  *
  * @deprecated since version 2.1
  * @param string $text The text with bbcode in it
@@ -87,13 +86,9 @@ function bbc_to_html($text, $compat_mode = false)
 }
 
 /**
- * !!!Compatibility!!!
- * This is no more needed, but to avoid break mods let's keep it
- * Run it it shouldn't even hurt either, so let's not bother remove it
+ * Converts HTML to BBC
+ * As of SMF 2.1, only used by ManageBoards.php (and possibly mods)
  *
- * The harder one - wysiwyg to BBC!
- *
- * @deprecated since version 2.1
  * @param string $text Text containing HTML
  * @return string The text with html converted to bbc
  */
@@ -975,12 +970,8 @@ function html_to_bbc($text)
 }
 
 /**
- * !!!Compatibility!!!
- * This is no more needed, but to avoid break mods let's keep it
- *
  * Returns an array of attributes associated with a tag.
  *
- * @deprecated since version 2.1
  * @param string $text A tag
  * @return array An array of attributes
  */
@@ -1038,10 +1029,8 @@ function fetchTagAttributes($text)
 }
 
 /**
- * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
- * 
- * @deprecated since version 2.1
+ *
  * @param string $text Text
  * @return string Cleaned up text
  */
@@ -1122,8 +1111,10 @@ function legalise_bbc($text)
 	while (strlen($text) !== $lastlen)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
-	// Need to sort the tags my name length.
-	uksort($valid_tags, 'sort_array_length');
+	// Need to sort the tags by name length.
+	uksort($valid_tags, function ($a, $b) {
+		return strlen($a) < strlen($b) ? 1 : -1;
+	});
 
 	// These inline tags can compete with each other regarding style.
 	$competing_tags = array(
@@ -1412,20 +1403,6 @@ function legalise_bbc($text)
 }
 
 /**
- * !!!Compatibility!!!
- * A help function for legalise_bbc for sorting arrays based on length.
- * 
- * @deprecated since version 2.1
- * @param string $a A string
- * @param string $b Another string
- * @return int 1 if $a is shorter than $b, -1 otherwise
- */
-function sort_array_length($a, $b)
-{
-	return strlen($a) < strlen($b) ? 1 : -1;
-}
-
-/**
  * Creates the javascript code for localization of the editor (SCEditor)
  */
 function loadLocale()
@@ -1543,20 +1520,6 @@ function getMessageIcons($board_id)
 	call_integration_hook('integrate_load_message_icons', array(&$icons));
 
 	return array_values($icons);
-}
-
-/**
- * Compatibility function - used in 1.1 for showing a post box.
- *
- * @deprecated since version 2.1
- * @param string $msg The message
- * @return string The HTML for an editor
- */
-function theme_postbox($msg)
-{
-	global $context;
-
-	return template_control_richedit($context['post_box_name']);
 }
 
 /**

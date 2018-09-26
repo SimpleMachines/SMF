@@ -836,8 +836,7 @@ function rebuildModCache()
 }
 
 /**
- * The same thing as setcookie but gives support for HTTP-Only cookies in PHP < 5.2
- * @todo We can remove this since SMF requires PHP >= 5.3.8 now
+ * A wrapper for setcookie that gives integration hook access to it
  *
  * @param string $name
  * @param string $value = ''
@@ -860,7 +859,6 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 	// Intercept cookie?
 	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly));
 
-	// This function is pointless if we have PHP >= 5.2.
 	return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
 }
 

@@ -898,11 +898,10 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 }
 
 /**
- * Removes special entities from strings.  Compatibility...
- * Should be used instead of html_entity_decode for PHP version compatibility reasons.
+ * Replaces special entities in strings with the real characters.
  *
- * - removes the base entities (&lt;, &quot;, etc.) from text.
- * - additionally converts &nbsp; and &#039;.
+ * Functionally equivalent to htmlspecialchars_decode(), except that this also
+ * replaces '&nbsp;' with a simple space character.
  *
  * @param string $string A string
  * @return string The string without entities
