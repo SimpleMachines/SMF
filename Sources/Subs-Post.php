@@ -1322,22 +1322,9 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		elseif (function_exists('php_uname'))
 			$helo = php_uname('n');
 
-		// Local domains won't cut it, so look up the canonical one for $boardurl in DNS
+		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
 		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/', $helo)))
-		{
 			$helo = parse_url($boardurl, PHP_URL_HOST);
-
-			if (function_exists('gethostbyaddr') && function_exists('dns_get_record'))
-			{
-				$dns_record = dns_get_record($helo, DNS_A);
-
-				if (empty($dns_record))
-					$dns_record = dns_get_record($helo, DNS_AAAA);
-
-				if (!empty($dns_record))
-					$helo = gethostbyaddr($dns_record['ip' . ($dns_record['type'] === 'AAAA' ? 'v6' : '')]);
-			}
-		}
 
 		// This is one of those situations where 'www.' is undesirable
 		if (strpos($helo, 'www.') === 0)
