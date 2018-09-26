@@ -1323,7 +1323,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 			$helo = php_uname('n');
 
 		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
-		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/', $helo)))
+		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
 			$helo = parse_url($boardurl, PHP_URL_HOST);
 
 		// This is one of those situations where 'www.' is undesirable
