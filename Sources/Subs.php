@@ -1323,7 +1323,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context['browser']['is_opera'])
+						if (!empty($context['browser']['is_opera']))
 							$data .= '&nbsp;';
 					}
 				},
@@ -1360,7 +1360,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context['browser']['is_opera'])
+						if (!empty($context['browser']['is_opera']))
 							$data[0] .= '&nbsp;';
 					}
 				},
@@ -1448,8 +1448,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => $context['browser']['is_ie'] ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
-				'after' => $context['browser']['is_ie'] ? '</td></tr></table> ' : '</span>',
+				'before' => '<span style="text-shadow: $1 1px 1px 1px">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'green',
@@ -1737,30 +1737,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'shadow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
-				'before' => $context['browser']['is_ie'] ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
+				'before' => '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
-				'validate' => $context['browser']['is_ie'] ? function(&$tag, &$data, $disabled)
-				{
-					switch ($data[1])
-					{
-						case 'left':
-							$data[1] = 270;
-							break;
-						case 'right':
-							$data[1] = 90;
-							break;
-						case 'top':
-							$data[1] = 0;
-							break;
-						case 'bottom':
-							$data[1] = 180;
-							break;
-						default:
-							$data[1] = (int) $data[1];
-					}
-				}
-
-					: function(&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 					{
 
 						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
