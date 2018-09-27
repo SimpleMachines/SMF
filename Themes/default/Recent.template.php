@@ -189,7 +189,7 @@ function template_unread()
 
 		if (empty($context['topics']))
 			echo '
-					<div style="display: none;"></div>';
+					<div class="hidden"></div>';
 
 		echo '
 				</div><!-- #topic_container -->
