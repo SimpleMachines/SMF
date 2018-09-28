@@ -34,7 +34,7 @@ function template_main()
 
 	// Want to see your master piece?
 	echo '
-	<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+	<div id="preview_section"', isset($context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span>', $txt['preview'], '</span>
@@ -71,7 +71,7 @@ function template_main()
 	}
 	else
 		echo '
-				<div style="display:none" id="error_box" class="errorbox">';
+				<div id="error_box" class="errorbox hidden">';
 
 	echo '
 				</div>';

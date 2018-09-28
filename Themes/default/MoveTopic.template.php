@@ -52,9 +52,9 @@ function template_move()
 	echo '
 					</dl>
 					<label for="reset_subject">
-						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['movetopic_change_subject'], '.
+						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', $txt['movetopic_change_subject'], '.
 					</label><br>
-   					<fieldset id="subjectArea" style="display: none;">
+   					<fieldset id="subjectArea" class="hidden">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
 							<dd><input type="text" name="custom_subject" size="30" value="', $context['subject'], '"></dd>
@@ -92,9 +92,9 @@ function template_redirect_options($type)
 
     echo '
 					<label for="postRedirect">
-						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';"> ', $txt['post_redirection'], '.
+						<input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', $txt['post_redirection'], '.
 					</label>
-					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'style="display: none;"', '>
+					<fieldset id="reasonArea"', $context['is_approved'] ? '' : 'class="hidden"', '>
 						<dl class="settings">
 							<dt>
 								', $txt[$type . '_why'], '
