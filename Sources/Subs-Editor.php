@@ -1040,7 +1040,7 @@ function fetchTagAttributes($text)
 /**
  * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
- * 
+ *
  * @deprecated since version 2.1
  * @param string $text Text
  * @return string Cleaned up text
@@ -1414,7 +1414,7 @@ function legalise_bbc($text)
 /**
  * !!!Compatibility!!!
  * A help function for legalise_bbc for sorting arrays based on length.
- * 
+ *
  * @deprecated since version 2.1
  * @param string $a A string
  * @param string $b Another string
@@ -2026,7 +2026,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
-		'plugins' => 'undo',
+		'plugins' => '',
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
