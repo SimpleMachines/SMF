@@ -4624,13 +4624,13 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	$total_mod_reports = 0;
-	$total_admin_reports = 0;
+	$context['total_mod_reports'] = 0;
+	$context['total_admin_reports'] = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
-		$total_mod_reports = $context['open_mod_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$context['total_mod_reports'] = $context['open_mod_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = $context['open_mod_reports'];
 	}
 
 	// Show how many errors there are
@@ -4651,33 +4651,33 @@ function setupMenuContext()
 
 		if (!empty($context['num_errors']))
 		{
-			$total_admin_reports += $context['num_errors'];
-			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$context['total_admin_reports'] += $context['num_errors'];
+			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['amt'] = $context['num_errors'];
 		}
 	}
 
 	// Show number of reported members
 	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
 	{
-		$total_mod_reports += $context['open_member_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
+		$context['total_mod_reports'] += $context['open_member_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['amt'] = $context['open_member_reports'];
 	}
 
 	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
-		$total_admin_reports += $context['unapproved_members'];
+		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['amt'] = $context['unapproved_members'];
+		$context['total_admin_reports'] += $context['unapproved_members'];
 	}
 
-	if($total_admin_reports > 0 && !empty($context['menu_buttons']['admin']))
+	if($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
+		$context['menu_buttons']['admin']['amt'] = $context['total_admin_reports'];
 	}
 
 	// Do we have any open reports?
-	if ($total_mod_reports > 0 && !empty($context['menu_buttons']['moderate']))
+	if ($context['total_mod_reports'] > 0 && !empty($context['menu_buttons']['moderate']))
 	{
-		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
+		$context['menu_buttons']['moderate']['amt'] = $context['total_mod_reports'];
 	}
 
 	// Not all actions are simple.
