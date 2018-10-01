@@ -113,12 +113,20 @@ function createMenu($menuData, $menuOptions = array())
 						if (!isset($menu_context['sections'][$section_id]))
 							$menu_context['sections'][$section_id]['title'] = $section['title'];
 
+						// Is there a counter amount to show for this section?
+						if (!empty($section['amt']))
+							$menu_context['sections'][$section_id]['amt'] = $section['amt'];
+
 						$menu_context['sections'][$section_id]['areas'][$area_id] = array('label' => isset($area['label']) ? $area['label'] : $txt[$area_id]);
 						// We'll need the ID as well...
 						$menu_context['sections'][$section_id]['id'] = $section_id;
 						// Does it have a custom URL?
 						if (isset($area['custom_url']))
 							$menu_context['sections'][$section_id]['areas'][$area_id]['url'] = $area['custom_url'];
+
+						// Is there a counter amount to show for this area?
+						if (!empty($area['amt']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['amt'] = $area['amt'];
 
 						// Does this area have its own icon?
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
@@ -186,6 +194,10 @@ function createMenu($menuData, $menuOptions = array())
 									// Custom URL?
 									if (isset($sub['url']))
 										$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['url'] = $sub['url'];
+
+									// Is there a counter amount to show for this subsection?
+									if (!empty($sub['amt']))
+										$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['amt'] = $sub['amt'];
 
 									// A bit complicated - but is this set?
 									if ($menu_context['current_area'] == $area_id)
