@@ -1244,7 +1244,7 @@ function QuickModeration()
 
 	if (!empty($markCache))
 	{
-		$smcFunc['db_query']('', '
+		$request = $smcFunc['db_query']('', '
 			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
