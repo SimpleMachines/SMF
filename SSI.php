@@ -612,6 +612,8 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 			$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
+		elseif (!isset($icon_sources[$row['icon']]))
+			$icon_sources[$row['icon']] = 'images_url';
 
 		// Build the array.
 		$posts[] = array(
@@ -2038,6 +2040,8 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		// Check that this message icon is there...
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 			$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
+		elseif (!isset($icon_sources[$row['icon']]))
+			$icon_sources[$row['icon']] = 'images_url';
 
 		censorText($row['subject']);
 		censorText($row['body']);
