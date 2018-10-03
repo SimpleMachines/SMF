@@ -776,6 +776,10 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Determine the method of insertion.
 	$queryTitle = $method == 'replace' ? 'REPLACE' : ($method == 'ignore' ? 'INSERT IGNORE' : 'INSERT');
 
+	// Sanity check for replace is key part of the columns array
+	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
+		smf_db_error_backtrace('Primary Key field missing in insert call','Change the methode of db insert to insert or add the pk field to the columns array');
+
 	if (!$with_returning || $method != 'ingore')
 	{
 		// Do the insert.
