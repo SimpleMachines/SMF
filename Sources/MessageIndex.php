@@ -242,7 +242,7 @@ function MessageIndex()
 	// Default sort methods tables.
 		$sort_methods_table = array(
 			'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
-			'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg) 
+			'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)
 							LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
 			'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 							LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
@@ -325,10 +325,10 @@ function MessageIndex()
 				WHERE t.id_board = {int:current_board} '
 				. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 					AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') .'
-				ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . ' 
+				ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 				LIMIT {int:maxindex}
 					OFFSET {int:start} ';
-	
+
 	$result = $smcFunc['db_query']('substring', '
 		SELECT
 			t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
@@ -345,7 +345,7 @@ function MessageIndex()
 			SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
 			SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
 			' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
-		FROM (' . $sort_table . ') as st 
+		FROM (' . $sort_table . ') as st
 			JOIN {db_prefix}topics AS t ON (st.id_topic = t.id_topic)
 			JOIN {db_prefix}messages AS ml ON (ml.id_msg = st.id_last_msg)
 			JOIN {db_prefix}messages AS mf ON (mf.id_msg = st.id_first_msg)
