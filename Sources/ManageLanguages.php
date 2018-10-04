@@ -1104,12 +1104,53 @@ function ModifyLanguage()
 				continue;
 
 			// These are arrays that need breaking out.
-			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short');
-			if (in_array($entryKey, $arrays))
+			if (strpos($entryValue['entry'], 'array(') === 0 && strpos($entryValue['entry'], ')', -1) === strlen($entryValue['entry']) - 1)
 			{
 				// Get off the first bits.
-				$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], '(') + 1, strrpos($entryValue['entry'], ')') - strpos($entryValue['entry'], '('));
-				$entryValue['entry'] = explode(',', strtr($entryValue['entry'], array(' ' => '')));
+				$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], 'array(') + 6, -1);
+
+				// This crazy regex extracts each array element, even if the value contains commas or escaped quotes
+				// The keys can be either integers or strings
+				// The values must be strings, or the regex will fail
+				$m = preg_match_all('/
+					# Optional explicit key assignment
+					(?:
+						(?:
+							\d+
+							|
+							(?:
+								(?:
+									\'(?:[^\']|(?<=\\\)\')*\'
+								)
+								|
+								(?:
+									"(?:[^"]|(?<=\\\)")*"
+								)
+							)
+						)
+						\s*=>\s*
+					)?
+
+					# String value in single or double quotes
+					(?:
+						(?:
+							\'(?:[^\']|(?<=\\\)\')*\'
+						)
+						|
+						(?:
+							"(?:[^"]|(?<=\\\)")*"
+						)
+					)
+
+					# Followed by a comma or the end of the string
+					(?=,|$)
+
+					/ux', $entryValue['entry'], $matches);
+
+				if (empty($m))
+					continue;
+
+				$entryValue['entry'] = $matches[0];
 
 				// Now create an entry for each item.
 				$cur_index = 0;
@@ -1127,7 +1168,10 @@ function ModifyLanguage()
 					}
 
 					// Clean up some bits.
-					$subValue = strtr($subValue, array('"' => '', '\'' => '', ')' => ''));
+					if (strpos($subValue, '\'') === 0)
+						$subValue = trim($subValue, '\'');
+					elseif (strpos($subValue, '"') === 0)
+						$subValue = trim($subValue, '"');
 
 					// Can we save?
 					if (isset($save_strings[$entryKey . '-+- ' . $cur_index]))
