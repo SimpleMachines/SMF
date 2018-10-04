@@ -1187,7 +1187,7 @@ function ModifyLanguage()
 					// And we know what to save now!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . PHP_EOL . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = ' . $save_strings[$entryKey] . ';',
+						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = ' . $save_strings[$entryKey] . ';',
 					);
 				}
 				// Deleting? (But only if this entry allows it)
