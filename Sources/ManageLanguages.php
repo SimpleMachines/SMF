@@ -1142,6 +1142,7 @@ function ModifyLanguage()
 						'key' => $entryKey . '-+- ' . $cur_index,
 						'value' => $subValue,
 						'rows' => 1,
+						'can_remove' => $entryValue['can_remove'],
 					);
 					$cur_index++;
 				}
