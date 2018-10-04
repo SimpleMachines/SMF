@@ -1169,7 +1169,7 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
+						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
 					);
 				}
 			}
