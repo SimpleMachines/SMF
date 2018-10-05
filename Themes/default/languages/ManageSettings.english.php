@@ -394,6 +394,7 @@ $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
 $txt['languages_txt_for_timezones'] = 'Custom location names';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
+$txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';

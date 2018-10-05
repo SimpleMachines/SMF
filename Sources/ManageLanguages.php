@@ -1044,7 +1044,7 @@ function ModifyLanguage()
 						elseif ($subv == 'add' && isset($_POST['entry'][$k][$subk]))
 						{
 							$add_strings[$k][$subk] = array(
-								'group' => isset($_POST['grp'][$k][$subk]) ? $_POST['grp'][$k][$subk] : 'txt',
+								'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
 								'string' => cleanLangString($_POST['entry'][$k][$subk], false),
 							);
 						}
@@ -1324,19 +1324,39 @@ function ModifyLanguage()
 		// Do they want to add some brand new strings? Does this file allow that?
 		if (!empty($add_strings) && !empty($allows_add_remove[$file_id]['add']))
 		{
-			$special_types = array_flip($special_groups[$file_id]);
+			$special_types = isset($special_groups[$file_id]) ? array_flip($special_groups[$file_id]) : array();
 
 			foreach ($add_strings as $string_key => $string_val)
 			{
-				$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
+				// Adding a normal string
+				if (is_string($string_val['string']))
+				{
+					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-				if (!in_array($type, $allows_add_remove[$file_id]['add']))
-					continue;
+					if (!in_array($type, $allows_add_remove[$file_id]['add']))
+						continue;
 
-				$final_saves[$string_key] = array(
-					'find' => "\n\n?".'>',
-					'replace' => "\n$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
-				);
+					$final_saves[$string_key] = array(
+						'find' => "\n\n?".'>',
+						'replace' => "\n$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+					);
+				}
+				// Adding an array element
+				else
+				{
+					foreach ($string_val as $substring_key => $substring_val)
+					{
+						$type = isset($special_types[$substring_val['group']]) ? $special_types[$substring_val['group']] : $substring_val['group'];
+
+						if (!in_array($type, $allows_add_remove[$file_id]['add']))
+							continue;
+
+						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
+							'find' => "\n\n?".'>',
+							'replace' => "\n$" . $type . '[\'' . $string_key . '\'][\'' . $substring_key . '\'] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+						);
+					}
+				}
 			}
 		}
 
@@ -1395,7 +1415,22 @@ function ModifyLanguage()
 					if (key !== null) {
 						++entry_num;
 
-						$("#language_" + group).append("<dt><span>" + key + "</span></dt> <dd id=\"entry_" + entry_num + "\"><input id=\"entry_" + entry_num + "_edit\" class=\"entry_toggle\" type=\"checkbox\" name=\"edit[" + key + "]\" value=\"add\" data-target=\"#entry_" + entry_num + "\" checked> <label for=\"entry_" + entry_num + "_edit\">' . $txt['edit'] . '</label> <input type=\"hidden\" class=\"entry_oldvalue\" name=\"grp[" + key + "]\" value=\"" + group + "\"> <textarea name=\"entry[" + key + "]\" class=\"entry_textfield\" cols=\"40\" rows=\"1\" style=\"width: 96%; margin-bottom: 2em;\"></textarea></dd>");
+						var array_regex = /^(.*)(\[[^\[\]]*\])$/
+						var result = array_regex.exec(key);
+						if (result != null) {
+							key = result[1];
+							var subkey = result[2];
+						} else {
+							var subkey = "";
+						}
+
+						var bracket_regex = /[\[\]]/
+						if (bracket_regex.test(key)) {
+							alert("' . $txt['languages_invalid_key'] . '" + key + subkey);
+							return;
+						}
+
+						$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\"entry_" + entry_num + "\"><input id=\"entry_" + entry_num + "_edit\" class=\"entry_toggle\" type=\"checkbox\" name=\"edit[" + key + "]" + subkey + "\" value=\"add\" data-target=\"#entry_" + entry_num + "\" checked> <label for=\"entry_" + entry_num + "_edit\">' . $txt['edit'] . '</label> <input type=\"hidden\" class=\"entry_oldvalue\" name=\"grp[" + key + "]\" value=\"" + group + "\"> <textarea name=\"entry[" + key + "]" + subkey + "\" class=\"entry_textfield\" cols=\"40\" rows=\"1\" style=\"width: 96%; margin-bottom: 2em;\"></textarea></dd>");
 					}
 				};');
 
