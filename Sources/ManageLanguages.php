@@ -1081,19 +1081,23 @@ function ModifyLanguage()
 				$multiline_cache .= $line;
 
 			// Got a new entry?
-			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
+			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
 			{
+				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
+
 				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
 				if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
 					$context['can_add_lang_entry'][$group] = true;
 
-				$entries[$matches[2]] = array(
+				$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
 					'type' => $matches[1],
 					'group' => $group,
 					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+					'key' => $matches[2],
+					'subkey' => $matches[3],
 					'full' => rtrim($matches[0]),
-					'entry' => $matches[3],
+					'entry' => $matches[4],
 				);
 				$multiline_cache = '';
 			}
@@ -1112,7 +1116,11 @@ function ModifyLanguage()
 			// These are arrays that need breaking out.
 			if (strpos($entryValue['entry'], 'array(') === 0 && strpos($entryValue['entry'], ')', -1) === strlen($entryValue['entry']) - 1)
 			{
-				// Get off the first bits.
+				// No, you may not use multidimensional arrays of $txt strings. Madness stalks that path.
+				if (isset($entryValue['subkey']))
+					continue;
+
+				// Trim off the array construct bits.
 				$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], 'array(') + 6, -1);
 
 				// This crazy regex extracts each array element, even if the value contains commas or escaped quotes
@@ -1230,26 +1238,30 @@ function ModifyLanguage()
 					);
 				}
 			}
-			// A simple string entry
-			else
+			// A single array element, like: $txt['foo']['bar'] = 'baz';
+			elseif (isset($entryValue['subkey']))
 			{
 				// Saving?
-				if (isset($save_strings[$entryKey]) && $save_strings[$entryKey] != $entryValue['entry'])
+				if (isset($save_strings[$entryValue['key']][$entryValue['subkey']]) && $save_strings[$entryValue['key']][$entryValue['subkey']] != $entryValue['entry'])
 				{
-					// @todo Fix this properly.
-					if ($save_strings[$entryKey] == '')
-						$save_strings[$entryKey] = '\'\'';
+					if ($save_strings[$entryValue['key']][$entryValue['subkey']] == '')
+						$save_strings[$entryValue['key']][$entryValue['subkey']] = '\'\'';
 
-					// Set the new value.
-					$entryValue['entry'] = $save_strings[$entryKey];
-					// And we know what to save now!
+					// Preserve subkey as either digit or string
+					$subKey = ctype_digit($entryValue['subkey']) ? $entryValue['subkey'] : '\'' . $entryValue['subkey'] . '\'';
+
+					// We have a new value, so we should use it
+					$entryValue['entry'] = $save_strings[$entryValue['key']][$entryValue['subkey']];
+
+					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = ' . $save_strings[$entryKey] . ';',
+						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';',
 					);
 				}
-				// Deleting? (But only if this entry allows it)
-				if (in_array($entryKey, $remove_strings) && $entryValue['can_remove'])
+
+				// Remove this entry only if it is allowed
+				if (isset($remove_strings[$entryValue['key']]) && in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove'])
 				{
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
@@ -1260,7 +1272,44 @@ function ModifyLanguage()
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
 				$context['file_entries'][$entryValue['group']][] = array(
-					'key' => $entryKey,
+					'key' => $entryValue['key'],
+					'subkey' => $entryValue['subkey'],
+					'value' => $editing_string,
+					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
+					'can_remove' => $entryValue['can_remove'],
+				);
+			}
+			// A simple string entry
+			else
+			{
+				// Saving?
+				if (isset($save_strings[$entryValue['key']]) && $save_strings[$entryValue['key']] != $entryValue['entry'])
+				{
+					// @todo Fix this properly.
+					if ($save_strings[$entryValue['key']] == '')
+						$save_strings[$entryValue['key']] = '\'\'';
+
+					// Set the new value.
+					$entryValue['entry'] = $save_strings[$entryValue['key']];
+					// And we know what to save now!
+					$final_saves[$entryKey] = array(
+						'find' => $entryValue['full'],
+						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';',
+					);
+				}
+				// Remove this entry only if it is allowed
+				if (in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove'])
+				{
+					$entryValue['entry'] = '\'\'';
+					$final_saves[$entryKey] = array(
+						'find' => $entryValue['full'],
+						'replace' => '// ' . $entryValue['full'],
+					);
+				}
+
+				$editing_string = cleanLangString($entryValue['entry'], true);
+				$context['file_entries'][$entryValue['group']][] = array(
+					'key' => $entryValue['key'],
 					'subkey' => null,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
