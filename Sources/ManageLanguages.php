@@ -1059,7 +1059,7 @@ function ModifyLanguage()
 				$multiline_cache .= $line;
 
 			// Got a new entry?
-			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
+			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
 			{
 				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
