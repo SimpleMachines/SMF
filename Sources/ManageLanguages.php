@@ -1199,10 +1199,12 @@ function ModifyLanguage()
 						$save_cache['entries'][$subKey] = strtr($save_strings[$entryKey][$subKey], array('\'' => ''));
 						$save_cache['enabled'] = true;
 					}
+					// Should we remove this one?
 					elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove'])
 					{
 						$save_cache['enabled'] = true;
 					}
+					// Just keep this one as it is
 					else
 						$save_cache['entries'][$subKey] = $subValue;
 
@@ -1214,6 +1216,21 @@ function ModifyLanguage()
 						'can_remove' => $entryValue['can_remove'],
 					);
 				}
+
+				// Should we add a new string to this array?
+				if (in_array($entryValue['type'], $allows_add_remove[$file_id]['add']) && isset($add_strings[$entryKey]))
+				{
+					foreach ($add_strings[$entryKey] as $string_key => $string_val)
+						$save_cache['entries'][$string_key] = strtr($string_val['string'], array('\'' => ''));
+
+					$save_cache['enabled'] = true;
+
+					// Make sure we don't add this again as an independent line
+					unset($add_strings[$entryKey][$string_key]);
+					if (empty($add_strings[$entryKey]))
+						unset($add_strings[$entryKey]);
+				}
+
 
 				// Do we need to save?
 				if ($save_cache['enabled'])
@@ -1329,7 +1346,7 @@ function ModifyLanguage()
 			foreach ($add_strings as $string_key => $string_val)
 			{
 				// Adding a normal string
-				if (is_string($string_val['string']))
+				if (isset($string_val['string']) && is_string($string_val['string']))
 				{
 					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
@@ -1351,9 +1368,11 @@ function ModifyLanguage()
 						if (!in_array($type, $allows_add_remove[$file_id]['add']))
 							continue;
 
+						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
+
 						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
 							'find' => "\n\n?".'>',
-							'replace' => "\n$" . $type . '[\'' . $string_key . '\'][\'' . $substring_key . '\'] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'replace' => "\n$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
 						);
 					}
 				}
