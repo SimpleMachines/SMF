@@ -1185,7 +1185,7 @@ function ModifyLanguage()
 						$subValue = trim(substr($subValue, strpos($subValue, '=>') + 2));
 					}
 					else
-						$subKey = $cur_index;
+						$subKey = $cur_index++;
 
 					// Clean up some bits.
 					if (strpos($subValue, '\'') === 0)
@@ -1194,13 +1194,17 @@ function ModifyLanguage()
 						$subValue = trim($subValue, '"');
 
 					// Can we save?
-					if (isset($save_strings[$entryKey][$cur_index]))
+					if (isset($save_strings[$entryKey][$subKey]))
 					{
-						$save_cache['entries'][$cur_index] = strtr($save_strings[$entryKey][$cur_index], array('\'' => ''));
+						$save_cache['entries'][$subKey] = strtr($save_strings[$entryKey][$subKey], array('\'' => ''));
+						$save_cache['enabled'] = true;
+					}
+					elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove'])
+					{
 						$save_cache['enabled'] = true;
 					}
 					else
-						$save_cache['entries'][$cur_index] = $subValue;
+						$save_cache['entries'][$subKey] = $subValue;
 
 					$context['file_entries'][$entryValue['group']][] = array(
 						'key' => $entryKey,
@@ -1209,7 +1213,6 @@ function ModifyLanguage()
 						'rows' => 1,
 						'can_remove' => $entryValue['can_remove'],
 					);
-					$cur_index++;
 				}
 
 				// Do we need to save?
