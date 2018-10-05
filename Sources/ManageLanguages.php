@@ -1218,7 +1218,7 @@ function ModifyLanguage()
 				}
 
 				// Should we add a new string to this array?
-				if (in_array($entryValue['type'], $allows_add_remove[$file_id]['add']) && isset($add_strings[$entryKey]))
+				if (!empty($context['can_add_lang_entry'][$entryValue['type']]) && isset($add_strings[$entryKey]))
 				{
 					foreach ($add_strings[$entryKey] as $string_key => $string_val)
 						$save_cache['entries'][$string_key] = strtr($string_val['string'], array('\'' => ''));
@@ -1350,7 +1350,7 @@ function ModifyLanguage()
 				{
 					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-					if (!in_array($type, $allows_add_remove[$file_id]['add']))
+					if (empty($context['can_add_lang_entry'][$entryValue['type']]))
 						continue;
 
 					$final_saves[$string_key] = array(
