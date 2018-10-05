@@ -279,7 +279,7 @@ function template_modify_language_entries()
 				echo '
 							</span>
 							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="', $entry['value'], '">
-							<textarea name="entry[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
+							<textarea name="entry[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : ($entry['rows'] > 25 ? 25 : $entry['rows']), '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
 						</dd>';
 			}
 
