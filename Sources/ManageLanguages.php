@@ -820,6 +820,10 @@ function ModifyLanguage()
 	// This will be where we look
 	$lang_dirs = array();
 
+	// There are different kinds of strings
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$additional_string_types = array();
+
 	// Some files allow the admin to add and/or remove certain types of strings
 	$allows_add_remove = array(
 		'Timezones' => array(
@@ -835,8 +839,10 @@ function ModifyLanguage()
 		),
 	);
 
-	// Does a hook need to add in some additional places to look for languages?
-	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove));
+	// Does a hook need to add in some additional places to look for languages or info about how to handle them?
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove, &$additional_string_types));
+
+	$string_types = array_unique(array_merge($string_types, $additional_string_types));
 
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
@@ -1051,7 +1057,7 @@ function ModifyLanguage()
 			// Got a new entry?
 			if ($line[0] == '$' && !empty($multiline_cache))
 			{
-				preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
+				preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 				if (!empty($matches[3]))
 				{
 					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
@@ -1074,7 +1080,7 @@ function ModifyLanguage()
 		// Last entry to add?
 		if ($multiline_cache)
 		{
-			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
+			preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
 			{
 				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
