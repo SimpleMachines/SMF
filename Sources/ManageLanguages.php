@@ -1076,12 +1076,8 @@ function ModifyLanguage()
 		$multiline_cache = '';
 		foreach (file($current_file) as $line)
 		{
-			// Build up the entry to process (it might span multiple lines, so...)
-			if (!empty($multiline_cache) || $line[0] == '$')
-				$multiline_cache .= $line;
-
-			// Got a new entry?
-			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
+			// Do we have a complete entry yet?
+			if (!empty($multiline_cache) && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
 			{
 				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
@@ -1099,8 +1095,17 @@ function ModifyLanguage()
 					'full' => rtrim($matches[0]),
 					'entry' => $matches[4],
 				);
+
+				// Clear out the entry we just finished
 				$multiline_cache = '';
 			}
+
+			// Have we found the start of a new entry?
+			if ($line[0] == '$')
+				$multiline_cache = $line;
+			// Are we in the middle of an entry?
+			elseif (!empty($multiline_cache))
+				$multiline_cache .= $line;
 		}
 
 		// These are the entries we can definitely save.
