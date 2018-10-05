@@ -1070,7 +1070,7 @@ function ModifyLanguage()
 					'type' => $matches[1],
 					'group' => $group,
 					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
-					'full' => $matches[0],
+					'full' => rtrim($matches[0]),
 					'entry' => $matches[3],
 				);
 				$multiline_cache = '';
