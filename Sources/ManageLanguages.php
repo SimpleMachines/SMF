@@ -1015,7 +1015,7 @@ function ModifyLanguage()
 		{
 			foreach ($_POST['edit'] as $k => $v)
 			{
-				if (is_string($_POST['entry'][$k]))
+				if (is_string($v))
 				{
 					// Only try to save if 'edit' was specified and if the string has changed
 					if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
@@ -1032,7 +1032,7 @@ function ModifyLanguage()
 						);
 					}
 				}
-				elseif (is_array($_POST['entry'][$k]))
+				elseif (is_array($v))
 				{
 					foreach ($v as $subk => $subv)
 					{
