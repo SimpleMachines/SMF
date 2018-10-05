@@ -1167,11 +1167,17 @@ function ModifyLanguage()
 				foreach ($entryValue['entry'] as $id => $subValue)
 				{
 					// Is this a new index?
-					if (preg_match('~^(\d+)~', $subValue, $matches))
+					if (preg_match('~^(\d+|(?:(?:\'(?:[^\']|(?<=\\\)\')*\')|(?:"(?:[^"]|(?<=\\\)")*")))\s*=>~', $subValue, $matches))
 					{
-						$cur_index = $matches[1];
-						$subValue = substr($subValue, strpos($subValue, '\''));
+						$subKey = trim($matches[1], '\'"');
+
+						if (ctype_digit($subKey))
+							$cur_index = $subKey;
+
+						$subValue = trim(substr($subValue, strpos($subValue, '=>') + 2));
 					}
+					else
+						$subKey = $cur_index;
 
 					// Clean up some bits.
 					if (strpos($subValue, '\'') === 0)
@@ -1190,7 +1196,7 @@ function ModifyLanguage()
 
 					$context['file_entries'][$entryValue['group']][] = array(
 						'key' => $entryKey,
-						'subkey' => $cur_index,
+						'subkey' => $subKey,
 						'value' => $subValue,
 						'rows' => 1,
 						'can_remove' => $entryValue['can_remove'],
