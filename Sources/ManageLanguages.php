@@ -1054,34 +1054,12 @@ function ModifyLanguage()
 		$multiline_cache = '';
 		foreach (file($current_file) as $line)
 		{
+			// Build up the entry to process (it might span multiple lines, so...)
+			if (!empty($multiline_cache) || $line[0] == '$')
+				$multiline_cache .= $line;
+
 			// Got a new entry?
-			if ($line[0] == '$' && !empty($multiline_cache))
-			{
-				preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
-				if (!empty($matches[3]))
-				{
-					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
-
-					if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
-						$context['can_add_lang_entry'][$group] = true;
-
-					$entries[$matches[2]] = array(
-						'type' => $matches[1],
-						'group' => $group,
-						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
-						'full' => $matches[0],
-						'entry' => $matches[3],
-					);
-					$multiline_cache = '';
-				}
-			}
-			$multiline_cache .= $line;
-		}
-		// Last entry to add?
-		if ($multiline_cache)
-		{
-			preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
-			if (!empty($matches[3]))
+			if ($line[0] == '$' && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
 			{
 				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
@@ -1095,6 +1073,7 @@ function ModifyLanguage()
 					'full' => $matches[0],
 					'entry' => $matches[3],
 				);
+				$multiline_cache = '';
 			}
 		}
 
