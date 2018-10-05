@@ -1015,19 +1015,41 @@ function ModifyLanguage()
 		{
 			foreach ($_POST['edit'] as $k => $v)
 			{
-				// Only try to save if 'edit' was specified and if the string has changed
-				if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
-					$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
-
-				// Record any add or remove requests. We'll decide on them later.
-				elseif ($v == 'remove')
-					$remove_strings[] = $k;
-				elseif ($v == 'add' && isset($_POST['entry'][$k]))
+				if (is_string($_POST['entry'][$k]))
 				{
-					$add_strings[$k] = array(
-						'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
-						'string' => cleanLangString($_POST['entry'][$k], false),
-					);
+					// Only try to save if 'edit' was specified and if the string has changed
+					if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
+						$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
+
+					// Record any add or remove requests. We'll decide on them later.
+					elseif ($v == 'remove')
+						$remove_strings[] = $k;
+					elseif ($v == 'add' && isset($_POST['entry'][$k]))
+					{
+						$add_strings[$k] = array(
+							'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
+							'string' => cleanLangString($_POST['entry'][$k], false),
+						);
+					}
+				}
+				elseif (is_array($_POST['entry'][$k]))
+				{
+					foreach ($v as $subk => $subv)
+					{
+						if ($subv == 'edit' && isset($_POST['entry'][$k][$subk]) && isset($_POST['comp'][$k][$subk]) && $_POST['entry'][$k][$subk] != $_POST['comp'][$k][$subk])
+							$save_strings[$k][$subk] = cleanLangString($_POST['entry'][$k][$subk], false);
+
+						elseif ($subv == 'remove')
+							$remove_strings[$k][] = $subk;
+						elseif ($subv == 'add' && isset($_POST['entry'][$k][$subk]))
+						{
+							$add_strings[$k][$subk] = array(
+								'group' => isset($_POST['grp'][$k][$subk]) ? $_POST['grp'][$k][$subk] : 'txt',
+								'string' => cleanLangString($_POST['entry'][$k][$subk], false),
+							);
+						}
+
+					}
 				}
 			}
 		}
@@ -1158,16 +1180,17 @@ function ModifyLanguage()
 						$subValue = trim($subValue, '"');
 
 					// Can we save?
-					if (isset($save_strings[$entryKey . '-+- ' . $cur_index]))
+					if (isset($save_strings[$entryKey][$cur_index]))
 					{
-						$save_cache['entries'][$cur_index] = strtr($save_strings[$entryKey . '-+- ' . $cur_index], array('\'' => ''));
+						$save_cache['entries'][$cur_index] = strtr($save_strings[$entryKey][$cur_index], array('\'' => ''));
 						$save_cache['enabled'] = true;
 					}
 					else
 						$save_cache['entries'][$cur_index] = $subValue;
 
 					$context['file_entries'][$entryValue['group']][] = array(
-						'key' => $entryKey . '-+- ' . $cur_index,
+						'key' => $entryKey,
+						'subkey' => $cur_index,
 						'value' => $subValue,
 						'rows' => 1,
 						'can_remove' => $entryValue['can_remove'],
@@ -1201,6 +1224,7 @@ function ModifyLanguage()
 					);
 				}
 			}
+			// A simple string entry
 			else
 			{
 				// Saving?
@@ -1231,6 +1255,7 @@ function ModifyLanguage()
 				$editing_string = cleanLangString($entryValue['entry'], true);
 				$context['file_entries'][$entryValue['group']][] = array(
 					'key' => $entryKey,
+					'subkey' => null,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
 					'can_remove' => $entryValue['can_remove'],

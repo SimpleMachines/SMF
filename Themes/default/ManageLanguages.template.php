@@ -253,33 +253,33 @@ function template_modify_language_entries()
 
 				echo '
 						<dt>
-							<span>', $entry['key'], '</span>
+							<span>', $entry['key'], isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '</span>
 						</dt>
 						<dd id="entry_', $entry_num, '">';
 
 				if ($entry['can_remove'])
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
+								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="" data-target="#entry_', $entry_num, '" checked>
 								<label for="entry_', $entry_num, '_none">', $txt['no_change'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
 								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="remove" data-target="#entry_', $entry_num, '">
+								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="remove" data-target="#entry_', $entry_num, '">
 								<label for="entry_', $entry_num, '_remove">', $txt['remove'], '</label>
 							</span>';
 				else
 					echo '
-							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
 							<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>';
 
 				echo '
 							</span>
-							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
+							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="', $entry['value'], '">
+							<textarea name="entry[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
 						</dd>';
 			}
 
