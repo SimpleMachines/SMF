@@ -1082,7 +1082,7 @@ function ModifyLanguage()
 				$blobs[++$bnum] = $line;
 
 				// Process previous blob
-				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms', strtr($blobs[$bnum - 1], array("\r" => '')), $matches))
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blobs[$bnum - 1], array("\r" => '')), $matches))
 				{
 					// Need this to be either null or not empty
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
@@ -1169,7 +1169,7 @@ function ModifyLanguage()
 					# Followed by a comma or the end of the string
 					(?=,|$)
 
-					/ux', $entryValue['entry'], $matches);
+					/x' . ($context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
 
 				if (empty($m))
 					continue;
