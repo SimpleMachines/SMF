@@ -1071,6 +1071,17 @@ function ModifyLanguage()
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
+		// Determine which groups of strings (if any) allow adding new entries
+		if (isset($allows_add_remove[$file_id]['add']))
+		{
+			foreach ($allows_add_remove[$file_id]['add'] as $var_group)
+			{
+				$group = !empty($special_groups[$file_id][$var_group]) ? $special_groups[$file_id][$var_group] : $var_group;
+				if (in_array($var_group, $allows_add_remove[$file_id]['add']))
+					$context['can_add_lang_entry'][$group] = true;
+			}
+		}
+
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
 		$bnum = 0;
@@ -1087,16 +1098,10 @@ function ModifyLanguage()
 					// Need this to be either null or not empty
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
-					// What group is this entry in, and what can we do with it?
-					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
-
-					if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
-						$context['can_add_lang_entry'][$group] = true;
-
 					// The point of this exercise
 					$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
 						'type' => $matches[1],
-						'group' => $group,
+						'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
 						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
 						'key' => $matches[2],
 						'subkey' => $matches[3],
@@ -1409,34 +1414,16 @@ function ModifyLanguage()
 		// Another restore.
 		$txt = $old_txt;
 
-		if (!empty($context['file_entries']))
-		{
-			addInlineJavaScript('
-				max_inputs = ' . $context['max_inputs'] . ';
-				num_inputs = 0;
-
-				$(".entry_textfield").prop("disabled", true);
-				$(".entry_oldvalue").prop("disabled", true);
-
-				$(".entry_toggle").click(function() {
-					var target_dd = $( $(this).data("target") );
-
-					if ($(this).prop("checked") === true && $(this).val() === "edit") {
-						if (++num_inputs <= max_inputs) {
-							target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
-						} else {
-							alert("' . sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']) . '");
-							$(this).prop("checked", false);
-						}
-					} else {
-						--num_inputs;
-						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
-					}
-				});', true);
-		}
-
+		// If they can add new language entries, make sure the UI is set up for that
 		if (!empty($context['can_add_lang_entry']))
 		{
+			// Make sure the Add button has a place to show up.
+			foreach ($context['can_add_lang_entry'] as $group => $value)
+			{
+				if (!isset($context['file_entries'][$group]))
+					$context['file_entries'][$group] = array();
+			}
+
 			addInlineJavaScript('
 				function add_lang_entry(group) {
 					var key = prompt("' . $txt['languages_enter_key'] . '");
@@ -1465,6 +1452,33 @@ function ModifyLanguage()
 
 			addInlineJavaScript('
 				$(".add_lang_entry_button").show();', true);
+		}
+
+		// Warn them if they try to submit more changes than the server can accept in a single request
+		if (!empty($context['file_entries']))
+		{
+			addInlineJavaScript('
+				max_inputs = ' . $context['max_inputs'] . ';
+				num_inputs = 0;
+
+				$(".entry_textfield").prop("disabled", true);
+				$(".entry_oldvalue").prop("disabled", true);
+
+				$(".entry_toggle").click(function() {
+					var target_dd = $( $(this).data("target") );
+
+					if ($(this).prop("checked") === true && $(this).val() === "edit") {
+						if (++num_inputs <= max_inputs) {
+							target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", false);
+						} else {
+							alert("' . sprintf($txt['languages_max_inputs_warning'], $context['max_inputs']) . '");
+							$(this).prop("checked", false);
+						}
+					} else {
+						--num_inputs;
+						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
+					}
+				});', true);
 		}
 	}
 
