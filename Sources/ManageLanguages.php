@@ -974,9 +974,8 @@ function ModifyLanguage()
 		// Build the replacements. old => new
 		$replace_array = array();
 		foreach ($primary_settings as $setting => $type)
-		{
-			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . preg_replace('~[^\w-]~i', '', $_POST[$setting]) . '\'') . ';';
-		}
+			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, $context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+
 		$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
 		$fp = fopen($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php', 'w+');
 		fwrite($fp, $current_data);
