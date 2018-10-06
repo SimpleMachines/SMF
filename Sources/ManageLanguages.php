@@ -1073,39 +1073,44 @@ function ModifyLanguage()
 
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		$multiline_cache = '';
+		$bnum = 0;
+		$blobs = array('');
 		foreach (file($current_file) as $line)
 		{
-			// Do we have a complete entry yet?
-			if (!empty($multiline_cache) && preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+?);\s*(?://[^\n]*)?$~ms', strtr($multiline_cache, array("\r" => '')), $matches))
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')~', $line))
 			{
-				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
+				$blobs[++$bnum] = $line;
 
-				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
+				// Process previous blob
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms', strtr($blobs[$bnum - 1], array("\r" => '')), $matches))
+				{
+					// Need this to be either null or not empty
+					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
-				if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
-					$context['can_add_lang_entry'][$group] = true;
+					// What group is this entry in, and what can we do with it?
+					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
 
-				$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
-					'type' => $matches[1],
-					'group' => $group,
-					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
-					'key' => $matches[2],
-					'subkey' => $matches[3],
-					'full' => rtrim($matches[0]),
-					'entry' => $matches[4],
-				);
+					if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
+						$context['can_add_lang_entry'][$group] = true;
 
-				// Clear out the entry we just finished
-				$multiline_cache = '';
+					// The point of this exercise
+					$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
+						'type' => $matches[1],
+						'group' => $group,
+						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+						'key' => $matches[2],
+						'subkey' => $matches[3],
+						'full' => $matches[0],
+						'entry' => $matches[4],
+					);
+
+					unset($blobs[$bnum - 1]);
+				}
 			}
-
-			// Have we found the start of a new entry?
-			if ($line[0] == '$')
-				$multiline_cache = $line;
-			// Are we in the middle of an entry?
-			elseif (!empty($multiline_cache))
-				$multiline_cache .= $line;
+			else
+			{
+				$blobs[$bnum] .= $line;
+			}
 		}
 
 		// These are the entries we can definitely save.
