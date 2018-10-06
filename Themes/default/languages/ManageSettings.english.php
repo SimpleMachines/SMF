@@ -202,7 +202,7 @@ $txt['recaptcha_secret_key'] = 'Secret Key';
 $txt['recaptcha_secret_key_desc'] = 'This is for communication between your site and Google. Be sure to keep it a secret.';
 $txt['recaptcha_no_key_question'] = 'Don\'t have a key for reCAPTCHA?';
 $txt['recaptcha_get_key'] = 'Get your reCAPTCHA key here.';
-$txt['languages_recaptcha'] = '<a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">ReCAPTCHA language</a>';
+$txt['languages_recaptcha'] = 'ReCAPTCHA language';
 
 $txt['setting_image_verification_nogd'] = '<strong>Note:</strong> as this server does not have the GD library installed the different complexity settings will have no effect.';
 $txt['setup_verification_questions'] = 'Verification Questions';

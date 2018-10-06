@@ -163,6 +163,7 @@ function template_modify_language_entries()
 		if ($setting != 'name')
 			echo '
 						<dt>
+							<a id="settings_', $setting, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $setting_info['label'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
 							<label for="', $setting, '">', $txt['languages_' . $setting_info['label']], ':</label>
 						</dt>
 						<dd>
