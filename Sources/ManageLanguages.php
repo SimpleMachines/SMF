@@ -1087,8 +1087,10 @@ function ModifyLanguage()
 		$blobs = array('');
 		foreach (file($current_file) as $line)
 		{
+			// Is this the start of a new variable?
 			if (preg_match('~^\$(' . implode('|', $string_types) . ')~', $line))
 			{
+				// Start a new blob
 				$blobs[++$bnum] = $line;
 
 				// Process previous blob
@@ -1111,10 +1113,9 @@ function ModifyLanguage()
 					unset($blobs[$bnum - 1]);
 				}
 			}
+			// Just append this line to the current blob and keep going
 			else
-			{
 				$blobs[$bnum] .= $line;
-			}
 		}
 
 		// These are the entries we can definitely save.
@@ -1215,9 +1216,7 @@ function ModifyLanguage()
 					}
 					// Should we remove this one?
 					elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove'])
-					{
 						$save_cache['enabled'] = true;
-					}
 					// Just keep this one as it is
 					else
 						$save_cache['entries'][$subKey] = $subValue;
