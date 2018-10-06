@@ -1259,7 +1259,7 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
 					);
 				}
 			}
@@ -1281,7 +1281,7 @@ function ModifyLanguage()
 					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';',
 					);
 				}
 
@@ -1291,7 +1291,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
 					);
 				}
 
@@ -1319,7 +1319,7 @@ function ModifyLanguage()
 					// And we know what to save now!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';',
 					);
 				}
 				// Remove this entry only if it is allowed
@@ -1328,7 +1328,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
 					);
 				}
 
