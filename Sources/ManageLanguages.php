@@ -1083,18 +1083,26 @@ function ModifyLanguage()
 
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
+		$lines = file($current_file);
+		$lnum = count($lines);
 		$bnum = 0;
 		$blobs = array('');
-		foreach (file($current_file) as $line)
+		for ($i=0; $i < $lnum; $i++)
 		{
+			$line = $lines[$i];
+			$blob =& $blobs[$bnum];
+
 			// Is this the start of a new variable?
-			if (preg_match('~^\$(' . implode('|', $string_types) . ')~', $line))
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')~', $line) || $i == $lnum - 1)
 			{
 				// Start a new blob
-				$blobs[++$bnum] = $line;
+				if ($i != $lnum - 1)
+					$blobs[++$bnum] = $line;
+				else
+					$blob .= $line;
 
 				// Process previous blob
-				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blobs[$bnum - 1], array("\r" => '')), $matches))
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 				{
 					// Need this to be either null or not empty
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
@@ -1109,13 +1117,11 @@ function ModifyLanguage()
 						'full' => $matches[0],
 						'entry' => $matches[4],
 					);
-
-					unset($blobs[$bnum - 1]);
 				}
 			}
 			// Just append this line to the current blob and keep going
 			else
-				$blobs[$bnum] .= $line;
+				$blob .= $line;
 		}
 
 		// These are the entries we can definitely save.
