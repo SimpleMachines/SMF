@@ -593,11 +593,11 @@ function template_edit_censored()
 									<input type="text" name="censor_vulgar[]" size="30"> =&gt; <input type="text" name="censor_proper[]" size="30">
 								</div>
 								<div id="moreCensoredWords"></div>
-								<div class="block" style="display: none;" id="moreCensoredWords_link">
+								<div class="block hidden" id="moreCensoredWords_link">
 									<a class="button" href="#" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
 								<script>
-									document.getElementById("moreCensoredWords_link").style.display = "";
+									document.getElementById("moreCensoredWords_link").classList.remove(\'hidden\');
 								</script>
 								<hr>
 								<dl class="settings">

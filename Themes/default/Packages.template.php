@@ -381,7 +381,7 @@ function template_view_package()
 	<script>
 		var database_changes_area = document.getElementById(\'db_changes_div\');
 		var db_vis = false;
-		database_changes_area.style.display = "none";
+		database_changes_area.classList.add(\'hidden\');
 	</script>';
 }
 

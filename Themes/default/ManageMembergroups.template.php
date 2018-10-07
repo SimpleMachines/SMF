@@ -523,10 +523,10 @@ function template_add_edit_group_boards_list($collapse = true)
 
 	if ($collapse)
 		echo '
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
+							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').classList.remove(\'hidden\'); document.getElementById(\'visible_boards_link\').classList.add(\'hidden\'); return false;" id="visible_boards_link" class="hidden">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
 							<script>
-								document.getElementById("visible_boards_link").style.display = "";
-								document.getElementById("visible_boards").style.display = "none";
+								document.getElementById("visible_boards_link").classList.remove(\'hidden\');
+								document.getElementById("visible_boards").classList.add(\'hidden\');
 							</script>';
 }
 

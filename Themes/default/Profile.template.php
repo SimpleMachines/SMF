@@ -378,9 +378,9 @@ function template_summary()
 		{
 			echo '
 				<dt class="clear">
-					<span class="alert">', $txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').style.display = document.getElementById(\'ban_info\').style.display == \'none\' ? \'\' : \'none\';return false;">' . $txt['view_ban'] . '</a>]
+					<span class="alert">', $txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . $txt['view_ban'] . '</a>]
 				</dt>
-				<dt class="clear" id="ban_info" style="display: none;">
+				<dt class="clear hidden" id="ban_info">
 					<strong>', $txt['user_banned_by_following'], ':</strong>';
 
 			foreach ($context['member']['bans'] as $ban)
