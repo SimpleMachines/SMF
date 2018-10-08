@@ -1089,7 +1089,7 @@ function ModifyLanguage()
 			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
 
 			// Extract the variable
-			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 			{
 				// If no valid subkey was found, we need it to be explicitly null
 				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
@@ -1103,6 +1103,7 @@ function ModifyLanguage()
 					'subkey' => $matches[3],
 					'full' => $matches[0],
 					'entry' => $matches[4],
+					'cruft' => $matches[5],
 				);
 			}
 		}
@@ -1256,7 +1257,7 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
 					);
 				}
 			}
@@ -1278,7 +1279,7 @@ function ModifyLanguage()
 					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
 					);
 				}
 
@@ -1316,7 +1317,7 @@ function ModifyLanguage()
 					// And we know what to save now!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
 					);
 				}
 				// Remove this entry only if it is allowed
