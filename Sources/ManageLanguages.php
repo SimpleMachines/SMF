@@ -1083,45 +1083,24 @@ function ModifyLanguage()
 
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		$lines = file($current_file);
-		$lnum = count($lines);
-		$bnum = 0;
-		$blobs = array('');
-		for ($i=0; $i < $lnum; $i++)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
 		{
-			$line = $lines[$i];
-			$blob =& $blobs[$bnum];
-
-			// Is this the start of a new variable?
-			if (preg_match('~^\$(' . implode('|', $string_types) . ')~', $line) || $i == $lnum - 1)
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 			{
-				// Start a new blob
-				if ($i != $lnum - 1)
-					$blobs[++$bnum] = $line;
-				else
-					$blob .= $line;
+				// Need this to be either null or not empty
+				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
-				// Process previous blob
-				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
-				{
-					// Need this to be either null or not empty
-					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
-
-					// The point of this exercise
-					$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
-						'type' => $matches[1],
-						'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
-						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
-						'key' => $matches[2],
-						'subkey' => $matches[3],
-						'full' => $matches[0],
-						'entry' => $matches[4],
-					);
-				}
+				// The point of this exercise
+				$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
+					'type' => $matches[1],
+					'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
+					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+					'key' => $matches[2],
+					'subkey' => $matches[3],
+					'full' => $matches[0],
+					'entry' => $matches[4],
+				);
 			}
-			// Just append this line to the current blob and keep going
-			else
-				$blob .= $line;
 		}
 
 		// These are the entries we can definitely save.
