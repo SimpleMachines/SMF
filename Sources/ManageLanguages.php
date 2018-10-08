@@ -1085,9 +1085,13 @@ function ModifyLanguage()
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
 		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
 		{
+			// Comment lines at the end of the blob can make terrible messes
+			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
+
+			// Extract the variable
 			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);[ \t]*(?://[^\n]*)?$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 			{
-				// Need this to be either null or not empty
+				// If no valid subkey was found, we need it to be explicitly null
 				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
 				// The point of this exercise
