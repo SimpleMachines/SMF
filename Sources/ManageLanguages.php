@@ -834,7 +834,7 @@ function ModifyLanguage()
 			'add' => array('txt'),
 			'remove' => array('txt'),
 		),
-		'Themes' => array(
+		'ThemeStrings' => array(
 			'add' => array('txt'),
 		),
 	);
