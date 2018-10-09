@@ -134,7 +134,7 @@ function template_modify_language_entries()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" id="primary_settings" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['edit_languages'], '
@@ -167,7 +167,7 @@ function template_modify_language_entries()
 							<label for="', $setting, '">', $txt['languages_' . $setting_info['label']], ':</label>
 						</dt>
 						<dd>
-							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (empty($context['file_entries']) ? '' : ' disabled'), '>
+							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (!empty($context['lang_file_not_writable_message']) ? ' disabled' : ''), ' data-orig="' . (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? 'true' : 'false') : $setting_info['value']) . '">
 						</dd>';
 	}
 
@@ -176,12 +176,13 @@ function template_modify_language_entries()
 				</fieldset>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' class="button">';
+				<input type="submit" name="save_main" value="', $txt['save'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' class="button">
+				<input type="reset" id="reset_main" value="', $txt['reset'], '" class="button">';
 
 	// Allow deleting entries. English can't be deleted though.
 	if ($context['lang_id'] != 'english')
 		echo '
-				<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
+				<input type="submit" name="delete_main" value="', $txt['delete'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
 
 	echo '
 			</div><!-- .windowbg -->
@@ -235,7 +236,7 @@ function template_modify_language_entries()
 	if (!empty($context['file_entries']))
 	{
 		echo '
-			<div class="windowbg">';
+			<div id="entry_fields" class="windowbg">';
 
 		$entry_num = 0;
 		foreach ($context['file_entries'] as $group => $entries)

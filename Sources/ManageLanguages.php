@@ -1448,7 +1448,7 @@ function ModifyLanguage()
 				$(".add_lang_entry_button").show();', true);
 		}
 
-		// Warn them if they try to submit more changes than the server can accept in a single request
+		// Warn them if they try to submit more changes than the server can accept in a single request and make it obvious that they cannot submit changes to both the primary settings and the entries at the same time
 		if (!empty($context['file_entries']))
 		{
 			addInlineJavaScript('
@@ -1472,13 +1472,43 @@ function ModifyLanguage()
 						--num_inputs;
 						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
 					}
+
+					if (num_inputs > 0) {
+						$("#primary_settings").trigger("reset");
+						$("#primary_settings input").prop("disabled", true);
+					} else {
+						$("#primary_settings input").prop("disabled", false);
+					}
+				});
+
+				$("#primary_settings input").change(function() {
+					num_changed = 0;
+					$("#primary_settings input:text").each(function(i, e) {
+						if ($(e).data("orig") != $(e).val())
+							num_changed++;
+					});
+					$("#primary_settings input:checkbox").each(function(i, e) {
+						cur_val = $(e).is(":checked");
+						orig_val = $(e).val == "true";
+						if (cur_val != orig_val)
+							num_changed++;
+					});
+
+					if (num_changed > 0) {
+						$("#entry_fields").fadeOut();
+					} else {
+						$("#entry_fields").fadeIn();
+					}
+				});
+				$("#reset_main").click(function() {
+					$("#entry_fields").fadeIn();
 				});', true);
 		}
 	}
 
 	// If we saved, redirect.
 	if ($madeSave)
-		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id']);
+		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id'] . ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id);
 
 	createToken('admin-mlang');
 }
