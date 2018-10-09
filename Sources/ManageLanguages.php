@@ -1508,7 +1508,7 @@ function ModifyLanguage()
 
 	// If we saved, redirect.
 	if ($madeSave)
-		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id'] . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id) : '');
+		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id'] . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
 
 	createToken('admin-mlang');
 }
