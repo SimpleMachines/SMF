@@ -487,7 +487,9 @@ function selectMethod(element)
 function updatePreview()
 {
 	var currentImage = document.getElementById("preview");
-	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
+	var index = document.getElementById("set").selectedIndex;
+	let extsarr = smf_smiley_sets_exts.split(",");
+	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value + extsarr[index];
 }
 
 function swap_database_changes()

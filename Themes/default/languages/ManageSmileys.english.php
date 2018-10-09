@@ -4,7 +4,7 @@
 $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';
 $txt['smiley_sets_delete'] = 'Delete selected';
-$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?-n-Note: This won\\\'t remove the images, just the choices.';
+$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?-n-Note: This won&#39;t remove the images, just the choices.';
 $txt['smiley_sets_none'] = 'There are currently no smiley sets.';
 
 $txt['setting_smiley_sets_default'] = 'Default Smiley Set';
@@ -18,15 +18,13 @@ $txt['setting_messageIcons_enable_note'] = '(otherwise, the default message icon
 $txt['groups_manage_smileys'] = 'Groups allowed to manage smileys and message icons';
 
 $txt['smiley_sets_name'] = 'Name';
+$txt['smiley_sets_ext'] = 'Extension';
 $txt['smiley_sets_url'] = 'URL';
 $txt['smiley_sets_default'] = 'Default';
 
 $txt['smileys_add_method'] = 'Image Source';
 $txt['smileys_add_existing'] = 'Use existing file';
 $txt['smileys_add_upload'] = 'Upload new smiley';
-$txt['smileys_add_upload_choose'] = 'File to upload';
-$txt['smileys_add_upload_choose_desc'] = 'Image to be used by all smiley sets.';
-$txt['smileys_add_upload_all'] = 'Same image for all sets';
 $txt['smileys_add_upload_for'] = 'Image for the %1$s set';
 
 $txt['smileys_enable_note'] = '(otherwise, the default smileys will be used.)';
@@ -68,7 +66,7 @@ $txt['smiley_new'] = 'Add new smiley';
 $txt['smiley_modify_existing'] = 'Modify smiley';
 $txt['smiley_preview'] = 'Preview';
 $txt['smiley_preview_using'] = 'using smiley set';
-$txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\n\\nNote: This won\\\'t remove the images, just the choices.';
+$txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\nNote: This won\\\'t remove the images, just the choices.';
 $txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
 $txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'more\' button.';
 $txt['smileys_move_select_destination'] = 'Select smiley destination';

@@ -3093,7 +3093,7 @@ function template_profile_smiley_pick()
 
 	echo '
 								</select>
-								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.png' : $settings['images_url'] . '/blank.png', '" alt=":)">
+								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] . '/smiley' . $context['user']['smiley_set_ext'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) . '/smiley' . $context['user']['smiley_set_default_ext']) : $settings['images_url'] . '/blank.png', '" alt=":)">
 							</dd>';
 }
 

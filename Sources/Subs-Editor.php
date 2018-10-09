@@ -1861,82 +1861,82 @@ function create_control_richedit($editorOptions)
 				'smileys' => array(
 					array(
 						'code' => ':)',
-						'filename' => 'smiley.png',
+						'filename' => 'smiley',
 						'description' => $txt['icon_smiley'],
 					),
 					array(
 						'code' => ';)',
-						'filename' => 'wink.png',
+						'filename' => 'wink',
 						'description' => $txt['icon_wink'],
 					),
 					array(
 						'code' => ':D',
-						'filename' => 'cheesy.png',
+						'filename' => 'cheesy',
 						'description' => $txt['icon_cheesy'],
 					),
 					array(
 						'code' => ';D',
-						'filename' => 'grin.png',
+						'filename' => 'grin',
 						'description' => $txt['icon_grin']
 					),
 					array(
 						'code' => '>:(',
-						'filename' => 'angry.png',
+						'filename' => 'angry',
 						'description' => $txt['icon_angry'],
 					),
 					array(
 						'code' => ':(',
-						'filename' => 'sad.png',
+						'filename' => 'sad',
 						'description' => $txt['icon_sad'],
 					),
 					array(
 						'code' => ':o',
-						'filename' => 'shocked.png',
+						'filename' => 'shocked',
 						'description' => $txt['icon_shocked'],
 					),
 					array(
 						'code' => '8)',
-						'filename' => 'cool.png',
+						'filename' => 'cool',
 						'description' => $txt['icon_cool'],
 					),
 					array(
 						'code' => '???',
-						'filename' => 'huh.png',
+						'filename' => 'huh',
 						'description' => $txt['icon_huh'],
 					),
 					array(
 						'code' => '::)',
-						'filename' => 'rolleyes.png',
+						'filename' => 'rolleyes',
 						'description' => $txt['icon_rolleyes'],
 					),
 					array(
 						'code' => ':P',
-						'filename' => 'tongue.png',
+						'filename' => 'tongue',
 						'description' => $txt['icon_tongue'],
 					),
 					array(
 						'code' => ':-[',
-						'filename' => 'embarrassed.png',
+						'filename' => 'embarrassed',
 						'description' => $txt['icon_embarrassed'],
 					),
 					array(
 						'code' => ':-X',
-						'filename' => 'lipsrsealed.png',
+						'filename' => 'lipsrsealed',
 						'description' => $txt['icon_lips'],
 					),
 					array(
 						'code' => ':-\\',
-						'filename' => 'undecided.png',
+						'filename' => 'undecided',
 						'description' => $txt['icon_undecided'],
 					),
 					array(
 						'code' => ':-*',
-						'filename' => 'kiss.png',
+						'filename' => 'kiss',
 						'description' => $txt['icon_kiss'],
 					),
 					array(
 						'code' => ':\'(',
-						'filename' => 'cry.png',
+						'filename' => 'cry',
 						'description' => $txt['icon_cry'],
 						'isLast' => true,
 					),
@@ -1978,6 +1978,20 @@ function create_control_richedit($editorOptions)
 			else
 				$context['smileys'] = $temp;
 		}
+
+		// Set proper extensions; do this post caching so cache doesn't become extension-specific
+		array_walk_recursive($context['smileys'], function (&$filename, $key)
+			{
+				global $context, $user_info, $modSettings;
+				if ($key == 'filename')
+					// Need to use the default if user selection is disabled
+					if (empty($modSettings['smiley_sets_enable']))
+						$filename .= $context['user']['smiley_set_default_ext'];
+					else
+						$filename .= $user_info['smiley_set_ext'];
+				
+			}
+		);
 	}
 
 	// Set a flag so the sub template knows what to do...
