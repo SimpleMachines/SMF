@@ -1353,12 +1353,13 @@ function ModifyLanguage()
 				{
 					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-					if (empty($context['can_add_lang_entry'][$entryValue['type']]))
+					if (empty($context['can_add_lang_entry'][$type]))
 						continue;
 
 					$final_saves[$string_key] = array(
-						'find' => "\n\n?".'>',
-						'replace' => "\n$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+						'find' => "\s*\?".'>$',
+						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+						'is_regex' => true,
 					);
 				}
 				// Adding an array element
@@ -1368,14 +1369,15 @@ function ModifyLanguage()
 					{
 						$type = isset($special_types[$substring_val['group']]) ? $special_types[$substring_val['group']] : $substring_val['group'];
 
-						if (!in_array($type, $allows_add_remove[$file_id]['add']))
+						if (empty($context['can_add_lang_entry'][$type]))
 							continue;
 
 						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
 
 						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
-							'find' => "\n\n?".'>',
-							'replace' => "\n$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'find' => "\s*\?".'>$',
+							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'is_regex' => true,
 						);
 					}
 				}
@@ -1387,14 +1389,18 @@ function ModifyLanguage()
 		{
 			checkSession();
 
-			$file_contents = implode('', file($current_file));
+			$file_contents = file_get_contents($current_file);
+
 			foreach ($final_saves as $save)
-				$file_contents = strtr($file_contents, array($save['find'] => $save['replace']));
+			{
+				if (!empty($save['is_regex']))
+					$file_contents = preg_replace('~' . $save['find'] . '~' . ($context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
+				else
+					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
+			}
 
 			// Save the actual changes.
-			$fp = fopen($current_file, 'w+');
-			fwrite($fp, strtr($file_contents, array("\r" => '')));
-			fclose($fp);
+			file_put_contents($current_file, $file_contents);
 
 			$madeSave = true;
 		}
