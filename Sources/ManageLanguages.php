@@ -559,6 +559,7 @@ function ModifyLanguages()
 					{
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
 					},
+					'class' => 'centercol',
 				),
 			),
 			'character_set' => array(
@@ -567,6 +568,7 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'char_set',
+					'class' => 'centercol',
 				),
 			),
 			'count' => array(
@@ -575,6 +577,7 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'count',
+					'class' => 'centercol',
 				),
 			),
 			'locale' => array(
@@ -583,6 +586,19 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'locale',
+					'class' => 'centercol',
+				),
+			),
+			'editlang' => array(
+				'header' => array(
+					'value' => '',
+				),'data' => array(
+					'function' => function($rowData) use ($scripturl, $txt)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', $scripturl, $rowData['id'], $txt['edit']);
+					},
+					'style' => 'width: 8%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -591,10 +607,6 @@ function ModifyLanguages()
 			'token' => 'admin-lang',
 		),
 		'additional_rows' => array(
-			array(
-				'position' => 'top_of_list',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
-			),
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
