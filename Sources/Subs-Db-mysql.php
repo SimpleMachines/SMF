@@ -45,7 +45,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_num_rows'               => 'mysqli_num_rows',
 			'db_data_seek'              => 'mysqli_data_seek',
 			'db_num_fields'             => 'mysqli_num_fields',
-			'db_escape_string'          => 'addslashes',
+			'db_escape_string'          => 'smf_db_escape_string',
 			'db_unescape_string'        => 'stripslashes',
 			'db_server_info'            => 'smf_db_get_server_info',
 			'db_affected_rows'          => 'smf_db_affected_rows',
@@ -1051,6 +1051,20 @@ function smf_db_cte_support()
 		$return = version_compare($version, '8.0.1', '>=');
 
 	return $return;
+}
+
+/**
+ * Function which return the escaped string
+ * 
+ * @param string the unescaped text
+ * @param resource $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_escape_string($string, $connection = null)
+{
+	global $db_connection;
+
+	return mysqli_real_escape_string($connection === null ? $db_connection : $connection, $string);
 }
 
 ?>
