@@ -298,7 +298,7 @@ function getBoardIndex($boardIndexOptions)
 					$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
 				}
 
-				if (forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time']))
+				if ($row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
 				{
 					$row_boards[$row_board['id_parent']]['id_msg'] = $row_board['id_msg'];
 					$row_boards[$row_board['id_parent']]['subject'] = $row_board['subject'];
@@ -368,7 +368,7 @@ function getBoardIndex($boardIndexOptions)
 
 		// Set the last post in the parent board.
 		if ($isChild && !empty($row_board['poster_time']) 
-				&& forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time']))
+				&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
 			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
 
 		// Set the last post in the root board 
