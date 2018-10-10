@@ -1555,7 +1555,6 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
-		loadJavaScriptFile('sceditor.undo.js', array('minimize' => true), 'smf_sceditor_undo');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1989,7 +1988,7 @@ function create_control_richedit($editorOptions)
 						$filename .= $context['user']['smiley_set_default_ext'];
 					else
 						$filename .= $user_info['smiley_set_ext'];
-				
+
 			}
 		);
 	}
