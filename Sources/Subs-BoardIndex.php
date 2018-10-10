@@ -81,6 +81,7 @@ function getBoardIndex($boardIndexOptions)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
 				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
+			WHERE b.id_parent != 0
 			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
 			array(
 				'current_member' => $user_info['id'],
@@ -296,6 +297,26 @@ function getBoardIndex($boardIndexOptions)
 					$row_boards[$row_board['id_parent']]['num_posts'] += $row_board['num_posts'];
 					$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
 				}
+
+				if ($row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
+				{
+					$row_boards[$row_board['id_parent']]['id_msg'] = $row_board['id_msg'];
+					$row_boards[$row_board['id_parent']]['subject'] = $row_board['subject'];
+					$row_boards[$row_board['id_parent']]['poster_time'] = $row_board['poster_time'];
+					$row_boards[$row_board['id_parent']]['short_subject'] = (!empty($row_board['short_subject']) ? $row_board['short_subject'] : '') ;
+					$row_boards[$row_board['id_parent']]['poster_name'] = $row_board['poster_name'];
+					$row_boards[$row_board['id_parent']]['real_name'] = $row_board['real_name'];
+					$row_boards[$row_board['id_parent']]['id_member'] = $row_board['id_member'];
+					$row_boards[$row_board['id_parent']]['id_topic'] = $row_board['id_topic'];
+					$row_boards[$row_board['id_parent']]['new_from'] = $row_board['new_from'];
+
+					if (!empty($settings['avatars_on_boardIndex']))
+					{
+						$row_boards[$row_board['id_parent']]['avatar'] = $row_board['avatar'];
+						$row_boards[$row_board['id_parent']]['email_address'] = $row_board['email_address'];
+						$row_boards[$row_board['id_parent']]['member_filename'] = !empty($row_board['member_filename']) ? $row_board['member_filename'] : '';
+					}
+				}
 			}
 
 			continue;
@@ -346,8 +367,18 @@ function getBoardIndex($boardIndexOptions)
 		}
 
 		// Set the last post in the parent board.
-		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'] || ($isChild && !empty($row_board['poster_time']) && forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time'])))
-			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
+		if ($isChild && !empty($row_board['poster_time']) 
+				&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
+			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
+
+		// Set the last post in the root board 
+		if (!$isChild && !empty($row_board['poster_time'])
+			&& ( empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
+				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
+				)
+			)
+			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
+
 		// Just in the child...?
 		if ($isChild)
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['last_post'] = $this_last_post;
