@@ -1876,7 +1876,7 @@ function EditMessageIcons()
 
 			if (!empty($iconInsert_new))
 			{
-				$smcFunc['db_insert']('replace',
+				$smcFunc['db_insert']('insert',
 					'{db_prefix}message_icons',
 					array('id_board' => 'int', 'title' => 'string-80', 'filename' => 'string-80', 'icon_order' => 'int'),
 					$iconInsert_new,
