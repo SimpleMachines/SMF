@@ -134,7 +134,7 @@ function template_modify_language_entries()
 	global $context, $txt, $scripturl;
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=languages;sa=editlang;lid=', $context['lang_id'], '" id="primary_settings" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['edit_languages'], '
@@ -156,47 +156,33 @@ function template_modify_language_entries()
 			<div class="windowbg">
 				<fieldset>
 					<legend>', $context['primary_settings']['name'], '</legend>
-					<dl class="settings">
+					<dl class="settings">';
+
+	foreach ($context['primary_settings'] as $setting => $setting_info)
+	{
+		if ($setting != 'name')
+			echo '
 						<dt>
-							<label for="character_set">', $txt['languages_character_set'], ':</label>
+							<a id="settings_', $setting, '_help" href="', $scripturl, '?action=helpadmin;help=languages_', $setting_info['label'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+							<label for="', $setting, '">', $txt['languages_' . $setting_info['label']], ':</label>
 						</dt>
 						<dd>
-							<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled'), '>
-						</dd>
-						<dt>
-							<label for="locale">', $txt['languages_locale'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled'), '>
-						</dd>
-						<dt>
-							<label for="dictionary">', $txt['languages_dictionary'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled'), '>
-						</dd>
-						<dt>
-							<label for="spelling">', $txt['languages_spelling'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled'), '>
-						</dd>
-						<dt>
-							<label for="rtl">', $txt['languages_rtl'], ':</label>
-						</dt>
-						<dd>
-							<input type="checkbox" name="rtl" id="rtl"', $context['primary_settings']['rtl'] ? ' checked' : '', '', (empty($context['file_entries']) ? '' : ' disabled'), '>
-						</dd>
+							<input type="', (is_bool($setting_info['value']) ? 'checkbox' : 'text'), '" name="', $setting, '" id="', $setting_info['label'], '" size="20"', (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? ' checked' : '') : ' value="' . $setting_info['value'] . '"'), (!empty($context['lang_file_not_writable_message']) ? ' disabled' : ''), ' data-orig="' . (is_bool($setting_info['value']) ? (!empty($setting_info['value']) ? 'true' : 'false') : $setting_info['value']) . '">
+						</dd>';
+	}
+
+	echo '
 					</dl>
 				</fieldset>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
-				<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' class="button">';
+				<input type="submit" name="save_main" value="', $txt['save'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' class="button">
+				<input type="reset" id="reset_main" value="', $txt['reset'], '" class="button">';
 
 	// Allow deleting entries. English can't be deleted though.
 	if ($context['lang_id'] != 'english')
 		echo '
-				<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
+				<input type="submit" name="delete_main" value="', $txt['delete'], '"', !empty($context['lang_file_not_writable_message']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button">';
 
 	echo '
 			</div><!-- .windowbg -->
@@ -250,7 +236,7 @@ function template_modify_language_entries()
 	if (!empty($context['file_entries']))
 	{
 		echo '
-			<div class="windowbg">';
+			<div id="entry_fields" class="windowbg">';
 
 		$entry_num = 0;
 		foreach ($context['file_entries'] as $group => $entries)
@@ -269,33 +255,33 @@ function template_modify_language_entries()
 
 				echo '
 						<dt>
-							<span>', $entry['key'], '</span>
+							<span>', $entry['key'], isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '</span>
 						</dt>
 						<dd id="entry_', $entry_num, '">';
 
 				if ($entry['can_remove'])
 					echo '
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="" data-target="#entry_', $entry_num, '" checked>
+								<input id="entry_', $entry_num, '_none" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="" data-target="#entry_', $entry_num, '" checked>
 								<label for="entry_', $entry_num, '_none">', $txt['no_change'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+								<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
 								<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>
 							</span>
 							<span style="margin-right: 1ch; white-space: nowrap">
-								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']" value="remove" data-target="#entry_', $entry_num, '">
+								<input id="entry_', $entry_num, '_remove" class="entry_toggle" type="radio" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="remove" data-target="#entry_', $entry_num, '">
 								<label for="entry_', $entry_num, '_remove">', $txt['remove'], '</label>
 							</span>';
 				else
 					echo '
-							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']" value="edit" data-target="#entry_', $entry_num, '">
+							<input id="entry_', $entry_num, '_edit" class="entry_toggle" type="checkbox" name="edit[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="edit" data-target="#entry_', $entry_num, '">
 							<label for="entry_', $entry_num, '_edit">', $txt['edit'], '</label>';
 
 				echo '
 							</span>
-							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-							<textarea name="entry[', $entry['key'], ']" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
+							<input type="hidden" class="entry_oldvalue" name="comp[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" value="', $entry['value'], '">
+							<textarea name="entry[', $entry['key'], ']', isset($entry['subkey']) ? '[' . $entry['subkey'] . ']' : '', '" class="entry_textfield" cols="40" rows="', $entry['rows'] < 2 ? 2 : ($entry['rows'] > 25 ? 25 : $entry['rows']), '" style="width: 96%; margin-bottom: 2em;">', $entry['value'], '</textarea>
 						</dd>';
 			}
 

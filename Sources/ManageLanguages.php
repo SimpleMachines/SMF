@@ -559,6 +559,7 @@ function ModifyLanguages()
 					{
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
 					},
+					'class' => 'centercol',
 				),
 			),
 			'character_set' => array(
@@ -567,6 +568,7 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'char_set',
+					'class' => 'centercol',
 				),
 			),
 			'count' => array(
@@ -575,6 +577,7 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'count',
+					'class' => 'centercol',
 				),
 			),
 			'locale' => array(
@@ -583,6 +586,19 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'locale',
+					'class' => 'centercol',
+				),
+			),
+			'editlang' => array(
+				'header' => array(
+					'value' => '',
+				),'data' => array(
+					'function' => function($rowData) use ($scripturl, $txt)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', $scripturl, $rowData['id'], $txt['edit']);
+					},
+					'style' => 'width: 8%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -591,10 +607,6 @@ function ModifyLanguages()
 			'token' => 'admin-lang',
 		),
 		'additional_rows' => array(
-			array(
-				'position' => 'top_of_list',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
-			),
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled') . ' class="button">',
@@ -820,6 +832,10 @@ function ModifyLanguage()
 	// This will be where we look
 	$lang_dirs = array();
 
+	// There are different kinds of strings
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$additional_string_types = array();
+
 	// Some files allow the admin to add and/or remove certain types of strings
 	$allows_add_remove = array(
 		'Timezones' => array(
@@ -830,13 +846,15 @@ function ModifyLanguage()
 			'add' => array('txt'),
 			'remove' => array('txt'),
 		),
-		'Themes' => array(
+		'ThemeStrings' => array(
 			'add' => array('txt'),
 		),
 	);
 
-	// Does a hook need to add in some additional places to look for languages?
-	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove));
+	// Does a hook need to add in some additional places to look for languages or info about how to handle them?
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs, &$allows_add_remove, &$additional_string_types));
+
+	$string_types = array_unique(array_merge($string_types, $additional_string_types));
 
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
@@ -955,6 +973,7 @@ function ModifyLanguage()
 	}
 
 	// Saving primary settings?
+	$primary_settings = array('native_name' => 'string', 'lang_character_set' => 'string', 'lang_locale' => 'string', 'lang_rtl' => 'bool', 'lang_dictionary' => 'string', 'lang_spelling' => 'string', 'lang_recaptcha' => 'string');
 	$madeSave = false;
 	if (!empty($_POST['save_main']) && !$current_file)
 	{
@@ -963,14 +982,12 @@ function ModifyLanguage()
 
 		// Read in the current file.
 		$current_data = implode('', file($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php'));
-		// These are the replacements. old => new
-		$replace_array = array(
-			'~\$txt\[\'lang_character_set\'\]\s=\s(\'|")[^\r\n]+~' => '$txt[\'lang_character_set\'] = \'' . preg_replace('~[^\w-]~i', '', $_POST['character_set']) . '\';',
-			'~\$txt\[\'lang_locale\'\]\s=\s(\'|")[^\r\n]+~' => '$txt[\'lang_locale\'] = \'' . preg_replace('~[^\w-]~i', '', $_POST['locale']) . '\';',
-			'~\$txt\[\'lang_dictionary\'\]\s=\s(\'|")[^\r\n]+~' => '$txt[\'lang_dictionary\'] = \'' . preg_replace('~[^\w-]~i', '', $_POST['dictionary']) . '\';',
-			'~\$txt\[\'lang_spelling\'\]\s=\s(\'|")[^\r\n]+~' => '$txt[\'lang_spelling\'] = \'' . preg_replace('~[^\w-]~i', '', $_POST['spelling']) . '\';',
-			'~\$txt\[\'lang_rtl\'\]\s=\s[A-Za-z0-9]+;~' => '$txt[\'lang_rtl\'] = ' . (!empty($_POST['rtl']) ? 'true' : 'false') . ';',
-		);
+
+		// Build the replacements. old => new
+		$replace_array = array();
+		foreach ($primary_settings as $setting => $type)
+			$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(un_htmlspecialchars($_POST[$setting]), ENT_QUOTES, $context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+
 		$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
 		$fp = fopen($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php', 'w+');
 		fwrite($fp, $current_data);
@@ -984,14 +1001,14 @@ function ModifyLanguage()
 	require($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php');
 	$context['lang_file_not_writable_message'] = is_writable($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php') ? '' : sprintf($txt['lang_file_not_writable'], $settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php');
 	// Setup the primary settings context.
-	$context['primary_settings'] = array(
-		'name' => $smcFunc['ucwords'](strtr($context['lang_id'], array('_' => ' ', '-utf8' => ''))),
-		'character_set' => $txt['lang_character_set'],
-		'locale' => $txt['lang_locale'],
-		'dictionary' => $txt['lang_dictionary'],
-		'spelling' => $txt['lang_spelling'],
-		'rtl' => $txt['lang_rtl'],
-	);
+	$context['primary_settings']['name'] = $smcFunc['ucwords'](strtr($context['lang_id'], array('_' => ' ', '-utf8' => '')));
+	foreach ($primary_settings as $setting => $type)
+	{
+		$context['primary_settings'][$setting] = array(
+			'label' => str_replace('lang_', '', $setting),
+			'value' => $txt[$setting],
+		);
+	}
 
 	// Restore normal service.
 	$txt = $old_txt;
@@ -1009,19 +1026,41 @@ function ModifyLanguage()
 		{
 			foreach ($_POST['edit'] as $k => $v)
 			{
-				// Only try to save if 'edit' was specified and if the string has changed
-				if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
-					$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
-
-				// Record any add or remove requests. We'll decide on them later.
-				elseif ($v == 'remove')
-					$remove_strings[] = $k;
-				elseif ($v == 'add' && isset($_POST['entry'][$k]))
+				if (is_string($v))
 				{
-					$add_strings[$k] = array(
-						'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
-						'string' => cleanLangString($_POST['entry'][$k], false),
-					);
+					// Only try to save if 'edit' was specified and if the string has changed
+					if ($v == 'edit' && isset($_POST['entry'][$k]) && isset($_POST['comp'][$k]) && $_POST['entry'][$k] != $_POST['comp'][$k])
+						$save_strings[$k] = cleanLangString($_POST['entry'][$k], false);
+
+					// Record any add or remove requests. We'll decide on them later.
+					elseif ($v == 'remove')
+						$remove_strings[] = $k;
+					elseif ($v == 'add' && isset($_POST['entry'][$k]))
+					{
+						$add_strings[$k] = array(
+							'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
+							'string' => cleanLangString($_POST['entry'][$k], false),
+						);
+					}
+				}
+				elseif (is_array($v))
+				{
+					foreach ($v as $subk => $subv)
+					{
+						if ($subv == 'edit' && isset($_POST['entry'][$k][$subk]) && isset($_POST['comp'][$k][$subk]) && $_POST['entry'][$k][$subk] != $_POST['comp'][$k][$subk])
+							$save_strings[$k][$subk] = cleanLangString($_POST['entry'][$k][$subk], false);
+
+						elseif ($subv == 'remove')
+							$remove_strings[$k][] = $subk;
+						elseif ($subv == 'add' && isset($_POST['entry'][$k][$subk]))
+						{
+							$add_strings[$k][$subk] = array(
+								'group' => isset($_POST['grp'][$k]) ? $_POST['grp'][$k] : 'txt',
+								'string' => cleanLangString($_POST['entry'][$k][$subk], false),
+							);
+						}
+
+					}
 				}
 			}
 		}
@@ -1043,51 +1082,40 @@ function ModifyLanguage()
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
+		// Determine which groups of strings (if any) allow adding new entries
+		if (isset($allows_add_remove[$file_id]['add']))
+		{
+			foreach ($allows_add_remove[$file_id]['add'] as $var_group)
+			{
+				$group = !empty($special_groups[$file_id][$var_group]) ? $special_groups[$file_id][$var_group] : $var_group;
+				if (in_array($var_group, $allows_add_remove[$file_id]['add']))
+					$context['can_add_lang_entry'][$group] = true;
+			}
+		}
+
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		$multiline_cache = '';
-		foreach (file($current_file) as $line)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
 		{
-			// Got a new entry?
-			if ($line[0] == '$' && !empty($multiline_cache))
+			// Comment lines at the end of the blob can make terrible messes
+			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
+
+			// Extract the variable
+			if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . ($context['utf8'] ? 'u' : ''), strtr($blob, array("\r" => '')), $matches))
 			{
-				preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
-				if (!empty($matches[3]))
-				{
-					$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
+				// If no valid subkey was found, we need it to be explicitly null
+				$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
-					if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
-						$context['can_add_lang_entry'][$group] = true;
-
-					$entries[$matches[2]] = array(
-						'type' => $matches[1],
-						'group' => $group,
-						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
-						'full' => $matches[0],
-						'entry' => $matches[3],
-					);
-					$multiline_cache = '';
-				}
-			}
-			$multiline_cache .= $line;
-		}
-		// Last entry to add?
-		if ($multiline_cache)
-		{
-			preg_match('~^\$(helptxt|txt|editortxt|tztxt)\[\'([^\n]+)\'\]\s?=\s?(.+?);$~ms', strtr($multiline_cache, array("\r" => '')), $matches);
-			if (!empty($matches[3]))
-			{
-				$group = !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1];
-
-				if (isset($allows_add_remove[$file_id]['add']) && in_array($matches[1], $allows_add_remove[$file_id]['add']))
-					$context['can_add_lang_entry'][$group] = true;
-
-				$entries[$matches[2]] = array(
+				// The point of this exercise
+				$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = array(
 					'type' => $matches[1],
-					'group' => $group,
+					'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
 					'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+					'key' => $matches[2],
+					'subkey' => $matches[3],
 					'full' => $matches[0],
-					'entry' => $matches[3],
+					'entry' => $matches[4],
+					'cruft' => $matches[5],
 				);
 			}
 		}
@@ -1099,17 +1127,61 @@ function ModifyLanguage()
 		foreach ($entries as $entryKey => $entryValue)
 		{
 			// Ignore some things we set separately.
-			$ignore_files = array('lang_character_set', 'lang_locale', 'lang_dictionary', 'lang_spelling', 'lang_rtl');
-			if (in_array($entryKey, $ignore_files))
+			if (in_array($entryKey, array_keys($primary_settings)))
 				continue;
 
 			// These are arrays that need breaking out.
-			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short');
-			if (in_array($entryKey, $arrays))
+			if (strpos($entryValue['entry'], 'array(') === 0 && strpos($entryValue['entry'], ')', -1) === strlen($entryValue['entry']) - 1)
 			{
-				// Get off the first bits.
-				$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], '(') + 1, strrpos($entryValue['entry'], ')') - strpos($entryValue['entry'], '('));
-				$entryValue['entry'] = explode(',', strtr($entryValue['entry'], array(' ' => '')));
+				// No, you may not use multidimensional arrays of $txt strings. Madness stalks that path.
+				if (isset($entryValue['subkey']))
+					continue;
+
+				// Trim off the array construct bits.
+				$entryValue['entry'] = substr($entryValue['entry'], strpos($entryValue['entry'], 'array(') + 6, -1);
+
+				// This crazy regex extracts each array element, even if the value contains commas or escaped quotes
+				// The keys can be either integers or strings
+				// The values must be strings, or the regex will fail
+				$m = preg_match_all('/
+					# Optional explicit key assignment
+					(?:
+						(?:
+							\d+
+							|
+							(?:
+								(?:
+									\'(?:[^\']|(?<=\\\)\')*\'
+								)
+								|
+								(?:
+									"(?:[^"]|(?<=\\\)")*"
+								)
+							)
+						)
+						\s*=>\s*
+					)?
+
+					# String value in single or double quotes
+					(?:
+						(?:
+							\'(?:[^\']|(?<=\\\)\')*\'
+						)
+						|
+						(?:
+							"(?:[^"]|(?<=\\\)")*"
+						)
+					)
+
+					# Followed by a comma or the end of the string
+					(?=,|$)
+
+					/x' . ($context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
+
+				if (empty($m))
+					continue;
+
+				$entryValue['entry'] = $matches[0];
 
 				// Now create an entry for each item.
 				$cur_index = 0;
@@ -1120,31 +1192,60 @@ function ModifyLanguage()
 				foreach ($entryValue['entry'] as $id => $subValue)
 				{
 					// Is this a new index?
-					if (preg_match('~^(\d+)~', $subValue, $matches))
+					if (preg_match('~^(\d+|(?:(?:\'(?:[^\']|(?<=\\\)\')*\')|(?:"(?:[^"]|(?<=\\\)")*")))\s*=>~', $subValue, $matches))
 					{
-						$cur_index = $matches[1];
-						$subValue = substr($subValue, strpos($subValue, '\''));
-					}
+						$subKey = trim($matches[1], '\'"');
 
-					// Clean up some bits.
-					$subValue = strtr($subValue, array('"' => '', '\'' => '', ')' => ''));
+						if (ctype_digit($subKey))
+							$cur_index = $subKey;
 
-					// Can we save?
-					if (isset($save_strings[$entryKey . '-+- ' . $cur_index]))
-					{
-						$save_cache['entries'][$cur_index] = strtr($save_strings[$entryKey . '-+- ' . $cur_index], array('\'' => ''));
-						$save_cache['enabled'] = true;
+						$subValue = trim(substr($subValue, strpos($subValue, '=>') + 2));
 					}
 					else
-						$save_cache['entries'][$cur_index] = $subValue;
+						$subKey = $cur_index++;
+
+					// Clean up some bits.
+					if (strpos($subValue, '\'') === 0)
+						$subValue = trim($subValue, '\'');
+					elseif (strpos($subValue, '"') === 0)
+						$subValue = trim($subValue, '"');
+
+					// Can we save?
+					if (isset($save_strings[$entryKey][$subKey]))
+					{
+						$save_cache['entries'][$subKey] = strtr($save_strings[$entryKey][$subKey], array('\'' => ''));
+						$save_cache['enabled'] = true;
+					}
+					// Should we remove this one?
+					elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove'])
+						$save_cache['enabled'] = true;
+					// Just keep this one as it is
+					else
+						$save_cache['entries'][$subKey] = $subValue;
 
 					$context['file_entries'][$entryValue['group']][] = array(
-						'key' => $entryKey . '-+- ' . $cur_index,
+						'key' => $entryKey,
+						'subkey' => $subKey,
 						'value' => $subValue,
 						'rows' => 1,
+						'can_remove' => $entryValue['can_remove'],
 					);
-					$cur_index++;
 				}
+
+				// Should we add a new string to this array?
+				if (!empty($context['can_add_lang_entry'][$entryValue['type']]) && isset($add_strings[$entryKey]))
+				{
+					foreach ($add_strings[$entryKey] as $string_key => $string_val)
+						$save_cache['entries'][$string_key] = strtr($string_val['string'], array('\'' => ''));
+
+					$save_cache['enabled'] = true;
+
+					// Make sure we don't add this again as an independent line
+					unset($add_strings[$entryKey][$string_key]);
+					if (empty($add_strings[$entryKey]))
+						unset($add_strings[$entryKey]);
+				}
+
 
 				// Do we need to save?
 				if ($save_cache['enabled'])
@@ -1168,40 +1269,83 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
 					);
 				}
 			}
-			else
+			// A single array element, like: $txt['foo']['bar'] = 'baz';
+			elseif (isset($entryValue['subkey']))
 			{
 				// Saving?
-				if (isset($save_strings[$entryKey]) && $save_strings[$entryKey] != $entryValue['entry'])
+				if (isset($save_strings[$entryValue['key']][$entryValue['subkey']]) && $save_strings[$entryValue['key']][$entryValue['subkey']] != $entryValue['entry'])
 				{
-					// @todo Fix this properly.
-					if ($save_strings[$entryKey] == '')
-						$save_strings[$entryKey] = '\'\'';
+					if ($save_strings[$entryValue['key']][$entryValue['subkey']] == '')
+						$save_strings[$entryValue['key']][$entryValue['subkey']] = '\'\'';
 
-					// Set the new value.
-					$entryValue['entry'] = $save_strings[$entryKey];
-					// And we know what to save now!
+					// Preserve subkey as either digit or string
+					$subKey = ctype_digit($entryValue['subkey']) ? $entryValue['subkey'] : '\'' . $entryValue['subkey'] . '\'';
+
+					// We have a new value, so we should use it
+					$entryValue['entry'] = $save_strings[$entryValue['key']][$entryValue['subkey']];
+
+					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'] . PHP_EOL . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = ' . $save_strings[$entryKey] . ';',
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
 					);
 				}
-				// Deleting? (But only if this entry allows it)
-				if (in_array($entryKey, $remove_strings) && $entryValue['can_remove'])
+
+				// Remove this entry only if it is allowed
+				if (isset($remove_strings[$entryValue['key']]) && in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove'])
 				{
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . $entryValue['full'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
 					);
 				}
 
 				$editing_string = cleanLangString($entryValue['entry'], true);
 				$context['file_entries'][$entryValue['group']][] = array(
-					'key' => $entryKey,
+					'key' => $entryValue['key'],
+					'subkey' => $entryValue['subkey'],
+					'value' => $editing_string,
+					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
+					'can_remove' => $entryValue['can_remove'],
+				);
+			}
+			// A simple string entry
+			else
+			{
+				// Saving?
+				if (isset($save_strings[$entryValue['key']]) && $save_strings[$entryValue['key']] != $entryValue['entry'])
+				{
+					// @todo Fix this properly.
+					if ($save_strings[$entryValue['key']] == '')
+						$save_strings[$entryValue['key']] = '\'\'';
+
+					// Set the new value.
+					$entryValue['entry'] = $save_strings[$entryValue['key']];
+					// And we know what to save now!
+					$final_saves[$entryKey] = array(
+						'find' => $entryValue['full'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
+					);
+				}
+				// Remove this entry only if it is allowed
+				if (in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove'])
+				{
+					$entryValue['entry'] = '\'\'';
+					$final_saves[$entryKey] = array(
+						'find' => $entryValue['full'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
+					);
+				}
+
+				$editing_string = cleanLangString($entryValue['entry'], true);
+				$context['file_entries'][$entryValue['group']][] = array(
+					'key' => $entryValue['key'],
+					'subkey' => null,
 					'value' => $editing_string,
 					'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
 					'can_remove' => $entryValue['can_remove'],
@@ -1212,19 +1356,43 @@ function ModifyLanguage()
 		// Do they want to add some brand new strings? Does this file allow that?
 		if (!empty($add_strings) && !empty($allows_add_remove[$file_id]['add']))
 		{
-			$special_types = array_flip($special_groups[$file_id]);
+			$special_types = isset($special_groups[$file_id]) ? array_flip($special_groups[$file_id]) : array();
 
 			foreach ($add_strings as $string_key => $string_val)
 			{
-				$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
+				// Adding a normal string
+				if (isset($string_val['string']) && is_string($string_val['string']))
+				{
+					$type = isset($special_types[$string_val['group']]) ? $special_types[$string_val['group']] : $string_val['group'];
 
-				if (!in_array($type, $allows_add_remove[$file_id]['add']))
-					continue;
+					if (empty($context['can_add_lang_entry'][$type]))
+						continue;
 
-				$final_saves[$string_key] = array(
-					'find' => "\n\n?".'>',
-					'replace' => "\n$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
-				);
+					$final_saves[$string_key] = array(
+						'find' => "\s*\?".'>$',
+						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+						'is_regex' => true,
+					);
+				}
+				// Adding an array element
+				else
+				{
+					foreach ($string_val as $substring_key => $substring_val)
+					{
+						$type = isset($special_types[$substring_val['group']]) ? $special_types[$substring_val['group']] : $substring_val['group'];
+
+						if (empty($context['can_add_lang_entry'][$type]))
+							continue;
+
+						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
+
+						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
+							'find' => "\s*\?".'>$',
+							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'is_regex' => true,
+						);
+					}
+				}
 			}
 		}
 
@@ -1233,14 +1401,18 @@ function ModifyLanguage()
 		{
 			checkSession();
 
-			$file_contents = implode('', file($current_file));
+			$file_contents = file_get_contents($current_file);
+
 			foreach ($final_saves as $save)
-				$file_contents = strtr($file_contents, array($save['find'] => $save['replace']));
+			{
+				if (!empty($save['is_regex']))
+					$file_contents = preg_replace('~' . $save['find'] . '~' . ($context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
+				else
+					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
+			}
 
 			// Save the actual changes.
-			$fp = fopen($current_file, 'w+');
-			fwrite($fp, strtr($file_contents, array("\r" => '')));
-			fclose($fp);
+			file_put_contents($current_file, $file_contents);
 
 			$madeSave = true;
 		}
@@ -1248,6 +1420,47 @@ function ModifyLanguage()
 		// Another restore.
 		$txt = $old_txt;
 
+		// If they can add new language entries, make sure the UI is set up for that
+		if (!empty($context['can_add_lang_entry']))
+		{
+			// Make sure the Add button has a place to show up.
+			foreach ($context['can_add_lang_entry'] as $group => $value)
+			{
+				if (!isset($context['file_entries'][$group]))
+					$context['file_entries'][$group] = array();
+			}
+
+			addInlineJavaScript('
+				function add_lang_entry(group) {
+					var key = prompt("' . $txt['languages_enter_key'] . '");
+
+					if (key !== null) {
+						++entry_num;
+
+						var array_regex = /^(.*)(\[[^\[\]]*\])$/
+						var result = array_regex.exec(key);
+						if (result != null) {
+							key = result[1];
+							var subkey = result[2];
+						} else {
+							var subkey = "";
+						}
+
+						var bracket_regex = /[\[\]]/
+						if (bracket_regex.test(key)) {
+							alert("' . $txt['languages_invalid_key'] . '" + key + subkey);
+							return;
+						}
+
+						$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\"entry_" + entry_num + "\"><input id=\"entry_" + entry_num + "_edit\" class=\"entry_toggle\" type=\"checkbox\" name=\"edit[" + key + "]" + subkey + "\" value=\"add\" data-target=\"#entry_" + entry_num + "\" checked> <label for=\"entry_" + entry_num + "_edit\">' . $txt['edit'] . '</label> <input type=\"hidden\" class=\"entry_oldvalue\" name=\"grp[" + key + "]\" value=\"" + group + "\"> <textarea name=\"entry[" + key + "]" + subkey + "\" class=\"entry_textfield\" cols=\"40\" rows=\"1\" style=\"width: 96%; margin-bottom: 2em;\"></textarea></dd>");
+					}
+				};');
+
+			addInlineJavaScript('
+				$(".add_lang_entry_button").show();', true);
+		}
+
+		// Warn them if they try to submit more changes than the server can accept in a single request and make it obvious that they cannot submit changes to both the primary settings and the entries at the same time
 		if (!empty($context['file_entries']))
 		{
 			addInlineJavaScript('
@@ -1271,30 +1484,43 @@ function ModifyLanguage()
 						--num_inputs;
 						target_dd.find(".entry_oldvalue, .entry_textfield").prop("disabled", true);
 					}
-				});', true);
-		}
 
-		if (!empty($context['can_add_lang_entry']))
-		{
-			addInlineJavaScript('
-				function add_lang_entry(group) {
-					var key = prompt("' . $txt['languages_enter_key'] . '");
-
-					if (key !== null) {
-						++entry_num;
-
-						$("#language_" + group).append("<dt><span>" + key + "</span></dt> <dd id=\"entry_" + entry_num + "\"><input id=\"entry_" + entry_num + "_edit\" class=\"entry_toggle\" type=\"checkbox\" name=\"edit[" + key + "]\" value=\"add\" data-target=\"#entry_" + entry_num + "\" checked> <label for=\"entry_" + entry_num + "_edit\">' . $txt['edit'] . '</label> <input type=\"hidden\" class=\"entry_oldvalue\" name=\"grp[" + key + "]\" value=\"" + group + "\"> <textarea name=\"entry[" + key + "]\" class=\"entry_textfield\" cols=\"40\" rows=\"1\" style=\"width: 96%; margin-bottom: 2em;\"></textarea></dd>");
+					if (num_inputs > 0) {
+						$("#primary_settings").trigger("reset");
+						$("#primary_settings input").prop("disabled", true);
+					} else {
+						$("#primary_settings input").prop("disabled", false);
 					}
-				};');
+				});
 
-			addInlineJavaScript('
-				$(".add_lang_entry_button").show();', true);
+				$("#primary_settings input").change(function() {
+					num_changed = 0;
+					$("#primary_settings input:text").each(function(i, e) {
+						if ($(e).data("orig") != $(e).val())
+							num_changed++;
+					});
+					$("#primary_settings input:checkbox").each(function(i, e) {
+						cur_val = $(e).is(":checked");
+						orig_val = $(e).val == "true";
+						if (cur_val != orig_val)
+							num_changed++;
+					});
+
+					if (num_changed > 0) {
+						$("#entry_fields").fadeOut();
+					} else {
+						$("#entry_fields").fadeIn();
+					}
+				});
+				$("#reset_main").click(function() {
+					$("#entry_fields").fadeIn();
+				});', true);
 		}
 	}
 
 	// If we saved, redirect.
 	if ($madeSave)
-		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id']);
+		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id'] . (!empty($file_id) ? ';entries;tfid=' . $theme_id . rawurlencode('+') . $file_id : ''));
 
 	createToken('admin-mlang');
 }
