@@ -4626,7 +4626,7 @@ function setupMenuContext()
 		if (!isset($context['num_errors']))
 		{
 			$query = $smcFunc['db_query']('', '
-				SELECT COUNT(id_error)
+				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);
