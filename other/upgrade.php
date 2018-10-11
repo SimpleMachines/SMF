@@ -3933,7 +3933,7 @@ function template_upgrade_options()
 					<li>
 						<input type="checkbox" name="maint" id="maint" value="1" checked>
 						<label for="maint">', $txt['upgrade_maintenace'], '</label>
-						<span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
+						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
 						<div id="mainmess" class="hidden">
 							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
 							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
@@ -4004,7 +4004,7 @@ function template_backup_database()
 					<h3 id="current_tab">
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ';">Backup Complete! Click Continue to Proceed.</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">Backup Complete! Click Continue to Proceed.</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4126,7 +4126,7 @@ function template_database_changes()
 					<h3 id="info2">
 						<strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span>
 					</h3>
-					<p id="commess" class="', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline_block' : 'hidden', ';">', $txt['upgrade_db_complete2'], '</p>';
+					<p id="commess" class="', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_db_complete2'], '</p>';
 
 		if ($is_debug)
 		{
@@ -4497,7 +4497,7 @@ function template_convert_utf8()
 
 	// Completion notification
 	echo '
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ';">', $txt['upgrade_conversion_proceed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_conversion_proceed'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4590,7 +4590,7 @@ function template_serialize_json()
 					<h3 id="current_tab">
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ';">', $txt['upgrade_json_completed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_json_completed'], '</p>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
