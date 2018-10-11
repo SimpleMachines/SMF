@@ -2639,3 +2639,55 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Update permissions system
+/******************************************************************************/
+---# Create table board_permissions_view
+CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
+(
+    id_group SMALLINT NOT NULL DEFAULT '0',
+    id_board SMALLINT UNSIGNED NOT NULL,
+    deny smallint NOT NULL,
+    PRIMARY KEY (id_group, id_board, deny)
+) ENGINE=MyISAM;
+
+TRUNCATE {$db_prefix}board_permissions_view;
+---#
+
+---# Update board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group,0
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group, 1
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+

@@ -6366,7 +6366,7 @@ function https_redirect_active($url)
  */
 function build_query_board($userid)
 {
-	global $user_info, $modSettings, $smcFunc;
+	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
 	$groups = array();
@@ -6451,8 +6451,10 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $groups) . ', b.member_groups) != 0)' . (!empty($deny_boards_access) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $groups) . ', b.deny_member_groups) = 0)' : '') . (isset($mod_cache) ? ' OR ' . $mod_cache['mq'] : '') . ')';
-
+		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
+				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
+				. ' AND bpv.id_board = b.id_board)';
+		
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 

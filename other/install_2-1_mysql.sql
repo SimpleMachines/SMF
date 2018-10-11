@@ -146,6 +146,18 @@ CREATE TABLE {$db_prefix}boards (
 ) ENGINE={$engine};
 
 #
+# Table structure for table `board_permissions_view`
+#
+
+CREATE TABLE {$db_prefix}board_permissions_view
+(
+    id_group SMALLINT NOT NULL DEFAULT '0',
+    id_board SMALLINT UNSIGNED NOT NULL,
+    deny smallint NOT NULL,
+    PRIMARY KEY (id_group, id_board, deny)
+) ENGINE={$engine};
+
+#
 # Table structure for table `calendar`
 #
 
@@ -1528,6 +1540,16 @@ VALUES (-1, 1, 'poll_view'),
 INSERT INTO {$db_prefix}boards
 	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
 VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
+# --------------------------------------------------------
+
+
+#
+# Dumping data for table `board_permissions_view`
+#
+
+INSERT INTO {$db_prefix}board_permissions_view
+	(grp, id_board, deny)
+VALUES (-1,1,0), (0,1,0), (2,1,0);
 # --------------------------------------------------------
 
 #
