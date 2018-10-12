@@ -2096,7 +2096,7 @@ VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 
 #
 
 INSERT INTO {$db_prefix}board_permissions_view
-	(grp, id_board, deny)
+	(id_group, id_board, deny)
 VALUES (-1,1,0), (0,1,0), (2,1,0);
 # --------------------------------------------------------
 
