@@ -131,10 +131,12 @@ function getBoardIndex($boardIndexOptions)
 	// Children can affect parents, so we need to gather all the boards first and then process them after.
 	$row_boards = array();
 	$row_boards_fetch = $smcFunc['db_fetch_all']($result_boards);
-	foreach ($row_boards_fetch as $row)
-	{
-		$row_boards[$row['id_board']] = $row;
-	}
+	
+	if(is_array($row_boards_fetch))
+		foreach ($row_boards_fetch as $row)
+		{
+			$row_boards[$row['id_board']] = $row;
+		}
 	$smcFunc['db_free_result']($result_boards);
 	unset($row_boards_fetch);
 
