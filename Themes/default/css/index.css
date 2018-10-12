@@ -2846,6 +2846,9 @@ h3 .collapse {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 }
+.boardindex_table .board_stats:last-child p {
+	border-right: none;
+}
 .info {
 	overflow: hidden;
 	overflow-wrap: break-word;
