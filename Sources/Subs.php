@@ -767,9 +767,6 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	// Today and Yesterday?
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		// Get the current time.
-		//$nowtime = forum_time();
-
 		$then = @getdate($time);
 		$now = (!empty($now) ? $now : @getdate(forum_time()));
 

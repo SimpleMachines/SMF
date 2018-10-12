@@ -1227,18 +1227,12 @@ function getTreeOrder()
 		array()
 	);
 	$rows = $smcFunc['db_fetch_all']($request);
-	foreach ($rows as $value)
+	foreach ($rows as $row)
 	{
-		if (!in_array($value['id_cat'], $tree_order['cats']))
-			$tree_order['cats'][] = $value['id_cat'];
-		$tree_order['boards'][] = $value['id_board'];
+		if (!in_array($row['id_cat'], $tree_order['cats']))
+			$tree_order['cats'][] = $row['id_cat'];
+		$tree_order['boards'][] = $row['id_board'];
 	}
-	//while ($row = $smcFunc['db_fetch_assoc']($request))
-	//{
-	//	if (!in_array($row['id_cat'], $tree_order['cats']))
-	//		$tree_order['cats'][] = $row['id_cat'];
-	//	$tree_order['boards'][] = $row['id_board'];
-	//}
 	$smcFunc['db_free_result']($request);
 	unset($rows);
 

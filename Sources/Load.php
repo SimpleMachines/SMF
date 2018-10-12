@@ -52,8 +52,6 @@ function reloadSettings()
 		foreach ($rows as $row) {
 			$modSettings[$row['variable']] = $row['value'];
 		}
-		//while ($row = $smcFunc['db_fetch_row']($request))
-		//	$modSettings[$row[0]] = $row[1];
 		$smcFunc['db_free_result']($request);
 		unset($rows);
 
