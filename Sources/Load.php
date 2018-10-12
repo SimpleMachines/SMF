@@ -48,9 +48,14 @@ function reloadSettings()
 		$modSettings = array();
 		if (!$request)
 			display_db_error();
-		while ($row = $smcFunc['db_fetch_row']($request))
-			$modSettings[$row[0]] = $row[1];
+		$rows = $smcFunc['db_fetch_all']($request);
+		foreach ($rows as $row) {
+			$modSettings[$row['variable']] = $row['value'];
+		}
+		//while ($row = $smcFunc['db_fetch_row']($request))
+		//	$modSettings[$row[0]] = $row[1];
 		$smcFunc['db_free_result']($request);
+		unset($rows);
 
 		// Do a few things to protect against missing settings or settings with invalid values...
 		if (empty($modSettings['defaultMaxTopics']) || $modSettings['defaultMaxTopics'] <= 0 || $modSettings['defaultMaxTopics'] > 999)
