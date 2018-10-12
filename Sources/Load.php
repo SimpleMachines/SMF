@@ -49,7 +49,8 @@ function reloadSettings()
 		if (!$request)
 			display_db_error();
 		$rows = $smcFunc['db_fetch_all']($request);
-		foreach ($rows as $row) {
+		foreach ($rows as $row)
+		{
 			$modSettings[$row['variable']] = $row['value'];
 		}
 		$smcFunc['db_free_result']($request);
