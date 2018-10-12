@@ -1158,13 +1158,21 @@ function getTreeOrder()
 		ORDER BY b.board_order',
 		array()
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$rows = $smcFunc['db_fetch_all']($request);
+	foreach ($rows as $value)
 	{
-		if (!in_array($row['id_cat'], $tree_order['cats']))
-			$tree_order['cats'][] = $row['id_cat'];
-		$tree_order['boards'][] = $row['id_board'];
+		if (!in_array($value['id_cat'], $tree_order['cats']))
+			$tree_order['cats'][] = $value['id_cat'];
+		$tree_order['boards'][] = $value['id_board'];
 	}
+	//while ($row = $smcFunc['db_fetch_assoc']($request))
+	//{
+	//	if (!in_array($row['id_cat'], $tree_order['cats']))
+	//		$tree_order['cats'][] = $row['id_cat'];
+	//	$tree_order['boards'][] = $row['id_board'];
+	//}
 	$smcFunc['db_free_result']($request);
+	unset($rows);
 
 	cache_put_data('board_order', $tree_order, 86400);
 

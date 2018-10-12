@@ -741,7 +741,7 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $locale_cache;
+	static $non_twelve_hour, $locale_cache, $now;
 	static $unsupportedFormats, $finalizedFormats;
 
 	$unsupportedFormatsWindows = array('z','Z');
@@ -768,10 +768,10 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
 		// Get the current time.
-		$nowtime = forum_time();
+		//$nowtime = forum_time();
 
 		$then = @getdate($time);
-		$now = @getdate($nowtime);
+		$now = (!empty($now) ? $now : @getdate(forum_time()));
 
 		// Try to make something of a time format string...
 		$s = strpos($user_info['time_format'], '%S') === false ? '' : ':%S';
