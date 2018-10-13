@@ -353,11 +353,6 @@ function getBoardIndex($boardIndexOptions)
 		{
 			$this_last_post['href'] = $scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
-			/* The board's and children's 'last_post's have:
-			time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
-			link, href, subject, start (where they should go for the first unread post.),
-			and member. (which has id, name, link, href, username in it.) */
-			//$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['link'], $this_last_post['link'], $this_last_post['time']);
 		}
 		else
 		{
@@ -391,6 +386,11 @@ function getBoardIndex($boardIndexOptions)
 			);
 	}
 	
+	/* The board's and children's 'last_post's have:
+	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
+	link, href, subject, start (where they should go for the first unread post.),
+	and member. (which has id, name, link, href, username in it.) 
+	timeformat is a pricy call do it only for thos how get shown */
 	if ($boardIndexOptions['include_categories'])
 		foreach ($categories as &$category)
 		{
