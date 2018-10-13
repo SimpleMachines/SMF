@@ -48,7 +48,7 @@ function getBoardIndex($boardIndexOptions)
 		$modSettings['boardindex_max_depth'] = 1;
 
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
-	if ($boardIndexOptions['parent_id'] != 0 && $smcFunc['db_cte_support']() && false)
+	if ($boardIndexOptions['parent_id'] != 0 && $smcFunc['db_cte_support']())
 		$result_boards = $smcFunc['db_query']('', '
 			WITH RECURSIVE 
 				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
@@ -391,7 +391,7 @@ function getBoardIndex($boardIndexOptions)
 			);
 	}
 	
-	if (!empty($categories))
+	if ($boardIndexOptions['include_categories'])
 		foreach ($categories as &$category)
 		{
 			foreach ($category['boards'] as &$board )
