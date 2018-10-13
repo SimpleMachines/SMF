@@ -3319,7 +3319,7 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
 
 	// is caching enabled?
-	if (empty($cache_enable))
+	if (empty($cache_enable) && empty($overrideCache))
 		return false;
 
 	// Not overriding this and we have a cacheAPI, send it back.
