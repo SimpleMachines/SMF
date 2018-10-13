@@ -1809,8 +1809,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				)
 			);
 			// Pick between $settings and $options depending on whose data it is.
-			$rows = $smcFunc['db_fetch_all']($result);
-			foreach ($rows as $row)
+			foreach ($smcFunc['db_fetch_all']($result) as $row)
 			{
 				// There are just things we shouldn't be able to change as members.
 				if ($row['id_member'] != 0 && in_array($row['variable'], array('actual_theme_url', 'actual_images_url', 'base_theme_dir', 'base_theme_url', 'default_images_url', 'default_theme_dir', 'default_theme_url', 'default_template', 'images_url', 'number_recent_posts', 'smiley_sets_default', 'theme_dir', 'theme_id', 'theme_layers', 'theme_templates', 'theme_url')))
@@ -1825,7 +1824,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 					$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
 			}
 			$smcFunc['db_free_result']($result);
-			unset($rows);
 
 			if (!empty($themeData[-1]))
 				foreach ($themeData[-1] as $k => $v)
