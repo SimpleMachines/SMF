@@ -133,9 +133,7 @@ function getBoardIndex($boardIndexOptions)
 	
 
 	foreach ($smcFunc['db_fetch_all']($result_boards) as $row)
-	{
 		$row_boards[$row['id_board']] = $row;
-	}
 	$smcFunc['db_free_result']($result_boards);;
 
 	// Run through the categories and boards (or only boards)....
