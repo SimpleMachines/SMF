@@ -327,7 +327,7 @@ function getBoardIndex($boardIndexOptions)
 		$row_board['short_subject'] = shorten_subject($row_board['subject'], 24);
 		$this_last_post = array(
 			'id' => $row_board['id_msg'],
-			'time' => $row_board['poster_time'] > 0 ? timeformat($row_board['poster_time']) : $txt['not_applicable'],
+			'time' => $row_board['poster_time'],
 			'timestamp' => forum_time(true, $row_board['poster_time']),
 			'subject' => $row_board['short_subject'],
 			'member' => array(
@@ -357,7 +357,7 @@ function getBoardIndex($boardIndexOptions)
 			time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
 			link, href, subject, start (where they should go for the first unread post.),
 			and member. (which has id, name, link, href, username in it.) */
-			$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['link'], $this_last_post['link'], $this_last_post['time']);
+			//$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['link'], $this_last_post['link'], $this_last_post['time']);
 		}
 		else
 		{
@@ -389,6 +389,16 @@ function getBoardIndex($boardIndexOptions)
 				'timestamp' => $row_board['poster_time'],
 				'ref' => &$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'],
 			);
+	}
+	
+	foreach ($categories as &$category)
+	{
+		foreach ($category['boards'] as &$board )
+		{
+			if (empty($board['last_post']))
+				continue;
+			$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
+		}
 	}
 
 	// Fetch the board's moderators and moderator groups
