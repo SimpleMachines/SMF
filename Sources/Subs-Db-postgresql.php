@@ -955,7 +955,8 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 function smf_db_fetch_all($request)
 {
 	// Return the right row.
-	return @pg_fetch_all($request);
+	$return = @pg_fetch_all($request);
+	return !empty($return) ? $return : array();
 }
 
 /**

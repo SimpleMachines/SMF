@@ -1226,15 +1226,14 @@ function getTreeOrder()
 		ORDER BY b.board_order',
 		array()
 	);
-	$rows = $smcFunc['db_fetch_all']($request);
-	foreach ($rows as $row)
+
+	foreach ($smcFunc['db_fetch_all']($request) as $row)
 	{
 		if (!in_array($row['id_cat'], $tree_order['cats']))
 			$tree_order['cats'][] = $row['id_cat'];
 		$tree_order['boards'][] = $row['id_board'];
 	}
 	$smcFunc['db_free_result']($request);
-	unset($rows);
 
 	cache_put_data('board_order', $tree_order, 86400);
 
