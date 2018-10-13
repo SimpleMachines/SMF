@@ -49,9 +49,7 @@ function reloadSettings()
 		if (!$request)
 			display_db_error();
 		foreach ($smcFunc['db_fetch_all']($request) as $row)
-		{
 			$modSettings[$row['variable']] = $row['value'];
-		}
 		$smcFunc['db_free_result']($request);
 
 		// Do a few things to protect against missing settings or settings with invalid values...
