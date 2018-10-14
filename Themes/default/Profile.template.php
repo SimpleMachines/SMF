@@ -1560,7 +1560,7 @@ function template_edit_options()
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
 							echo '
-							<option', is_numeric($value) ? ' value="" disabled' : ' value="' . $value . '"', $value === $field['value'] ? ' selected' : '', '>', $name, '</option>';
+							<option', (!empty($field['disabled']) && is_array($field['disabled']) && in_array($name, $field['disabled']) ? ' disabled' : ''), ' value="' . $value . '"', $value === $field['value'] ? ' selected' : '', '>', $name, '</option>';
 				}
 
 				echo '
