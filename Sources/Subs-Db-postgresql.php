@@ -621,44 +621,24 @@ function smf_db_error($db_string, $connection = null)
  * A PostgreSQL specific function for tracking the current row...
  *
  * @param resource $request A PostgreSQL result resource
- * @param bool|int $counter The row number in the result to fetch (false to fetch the next one)
  * @return array The contents of the row that was fetched
  */
-function smf_db_fetch_row($request, $counter = false)
+function smf_db_fetch_row($request)
 {
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_row($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
 	// Return the right row.
-	return @pg_fetch_row($request, $db_row_count[(int) $request]++);
+	return @pg_fetch_row($request);
 }
 
 /**
  * Get an associative array
  *
  * @param resource $request A PostgreSQL result resource
- * @param int|bool $counter The row to get. If false, returns the next row.
  * @return array An associative array of row contents
  */
-function smf_db_fetch_assoc($request, $counter = false)
+function smf_db_fetch_assoc($request)
 {
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_assoc($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
 	// Return the right row.
-	return @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
+	return @pg_fetch_assoc($request);
 }
 
 /**
@@ -670,11 +650,7 @@ function smf_db_fetch_assoc($request, $counter = false)
  */
 function smf_db_data_seek($request, $counter)
 {
-	global $db_row_count;
-
-	$db_row_count[(int) $request] = $counter;
-
-	return true;
+	return pg_result_seek($request, $counter);
 }
 
 /**
