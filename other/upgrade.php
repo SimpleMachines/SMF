@@ -4928,6 +4928,7 @@ function migrateSettingsFile($changes)
 		'sourcedir' => 'string',
 		'packagesdir' => 'string',
 		'tasksdir' => 'string',
+		'db_character_set' => 'string',
 	);
 
 	// The Settings file, in an array as if it was handled by updateSettingsFile
