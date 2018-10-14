@@ -37,9 +37,6 @@ function ViewMembers()
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
 
-	// Default to sub action 'index' or 'settings' depending on permissions.
-	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
-
 	// Load the essentials.
 	loadLanguage('ManageMembers');
 	loadTemplate('ManageMembers');
@@ -102,6 +99,9 @@ function ViewMembers()
 	// Call our hook now, letting customizations add to the subActions and/or modify $context as needed.
 	call_integration_hook('integrate_manage_members', array(&$subActions));
 
+	// Default to sub action 'index' or 'settings' depending on permissions.
+	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
+
 	// We know the sub action, now we know what you're allowed to do.
 	isAllowedTo($subActions[$context['current_subaction']][1]);
 
@@ -132,9 +132,6 @@ function ViewMemberlist()
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir, $smcFunc, $user_info;
 
-	// Set the current sub action.
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
 	{
@@ -157,7 +154,7 @@ function ViewMemberlist()
 	}
 
 	// Check input after a member search has been submitted.
-	if ($context['sub_action'] == 'query')
+	if ($context['current_subaction'] == 'query')
 	{
 		// Retrieving the membergroups and postgroups.
 		$context['membergroups'] = array(
@@ -263,7 +260,7 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
+		if ($context['current_subaction'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
 			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
@@ -418,7 +415,7 @@ function ViewMemberlist()
 		$search_url_params = null;
 
 	// Construct the additional URL part with the query info in it.
-	$context['params_url'] = $context['sub_action'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
+	$context['params_url'] = $context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
 	$context['page_title'] = $txt['admin_members'];
