@@ -40,11 +40,11 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_quote'                  => 'smf_db_quote',
 			'db_insert'                 => 'smf_db_insert',
 			'db_insert_id'              => 'smf_db_insert_id',
-			'db_fetch_assoc'            => 'smf_db_fetch_assoc',
-			'db_fetch_row'              => 'smf_db_fetch_row',
+			'db_fetch_assoc'            => 'pg_fetch_assoc',
+			'db_fetch_row'              => 'pg_fetch_row',
 			'db_free_result'            => 'pg_free_result',
 			'db_num_rows'               => 'pg_num_rows',
-			'db_data_seek'              => 'smf_db_data_seek',
+			'db_data_seek'              => 'pg_result_seek',
 			'db_num_fields'             => 'pg_num_fields',
 			'db_escape_string'          => 'smf_db_escape_string',
 			'db_unescape_string'        => 'stripslashes',
@@ -615,42 +615,6 @@ function smf_db_error($db_string, $connection = null)
 
 	// It's already been logged... don't log it again.
 	fatal_error($context['error_message'], false);
-}
-
-/**
- * A PostgreSQL specific function for tracking the current row...
- *
- * @param resource $request A PostgreSQL result resource
- * @return array The contents of the row that was fetched
- */
-function smf_db_fetch_row($request)
-{
-	// Return the right row.
-	return @pg_fetch_row($request);
-}
-
-/**
- * Get an associative array
- *
- * @param resource $request A PostgreSQL result resource
- * @return array An associative array of row contents
- */
-function smf_db_fetch_assoc($request)
-{
-	// Return the right row.
-	return @pg_fetch_assoc($request);
-}
-
-/**
- * Reset the pointer...
- *
- * @param resource $request A PostgreSQL result resource
- * @param int $counter The counter
- * @return bool Always returns true
- */
-function smf_db_data_seek($request, $counter)
-{
-	return pg_result_seek($request, $counter);
 }
 
 /**
