@@ -1840,6 +1840,10 @@ function getXmlProfile($xml_format)
 				'tag' => 'age',
 				'content' => $age,
 			);
+			$data[] = array(
+				'tag' => 'birthdate',
+				'content' => $profile['birth_date'],
+			);
 		}
 	}
 
