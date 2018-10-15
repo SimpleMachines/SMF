@@ -1830,7 +1830,7 @@ function getXmlProfile($xml_format)
 			),
 		);
 
-		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')
+		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004')
 		{
 			list ($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 			$datearray = getdate(forum_time());
