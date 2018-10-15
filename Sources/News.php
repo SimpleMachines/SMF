@@ -1813,7 +1813,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'email',
-				'content' => !empty($profile['show_email']) ? $profile['show_email'] : null,
+				'content' => !empty($profile['show_email']) ? $profile['email'] : null,
 			),
 			array(
 				'tag' => 'website',
