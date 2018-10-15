@@ -1624,8 +1624,8 @@ function getXmlProfile($xml_format)
 
 	// Make sure the id is a number and not "I like trying to hack the database".
 	$_GET['u'] = (int) $_GET['u'];
-	// Load the member's contextual information!
-	if (!loadMemberContext($_GET['u']) || !allowedTo('profile_view'))
+	// Load the member's contextual information! (Including custom fields for our proprietary XML type)
+	if (!loadMemberContext($_GET['u'], ($xml_format == 'smf')) || !allowedTo('profile_view'))
 		return array();
 
 	// Okay, I admit it, I'm lazy.  Stupid $_GET['u'] is long and hard to type.
@@ -1784,10 +1784,6 @@ function getXmlProfile($xml_format)
 				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
 			),
 			array(
-				'tag' => 'gender',
-				'content' => !empty($profile['gender']['name']) ? $profile['gender']['name'] : null,
-			),
-			array(
 				'tag' => 'avatar',
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 			),
@@ -1844,6 +1840,18 @@ function getXmlProfile($xml_format)
 				'tag' => 'birthdate',
 				'content' => $profile['birth_date'],
 			);
+		}
+
+		if (!empty($profile['custom_fields']))
+		{
+			foreach ($profile['custom_fields'] as $custom_field)
+			{
+				$data[] = array(
+					'tag' => $custom_field['col_name'],
+					'attributes' => array('title' => $custom_field['title']),
+					'content' => $custom_field['raw'],
+				);
+			}
 		}
 	}
 

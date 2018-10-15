@@ -1597,6 +1597,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
 				'col_name' => $custom['col_name'],
 				'value' => un_htmlspecialchars($value),
+				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
 		}
@@ -1769,7 +1770,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		else
 			$id_theme = (int) $id_theme;
 	}
-		
+
 	// Allow mod authors the option to override the theme id for custom page themes
 	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
 
