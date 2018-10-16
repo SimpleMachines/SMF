@@ -44,6 +44,7 @@ function ShowXmlFeed()
 
 	// Default to latest 5.  No more than 255, please.
 	$_GET['limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
+	$_GET['offset'] = empty($_GET['offset']) || (int) $_GET['offset'] < 1 ? 0 : (int) $_GET['offset'];
 
 	// Some general metadata for this feed. We'll change some of these values below.
 	$feed_meta = array(
@@ -357,7 +358,7 @@ function ShowXmlFeed()
 	elseif ($xml_format == 'atom')
 	{
 		foreach ($_REQUEST as $var => $val)
-			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
+			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset')))
 				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		echo '
@@ -657,9 +658,10 @@ function getXmlMembers($xml_format)
 		SELECT id_member, member_name, real_name, date_registered, last_login
 		FROM {db_prefix}members
 		ORDER BY id_member DESC
-		LIMIT {int:limit}',
+		LIMIT {int:limit} OFFSET {int:offset}',
 		array(
 			'limit' => $_GET['limit'],
+			'offset' => $_GET['offset'],
 		)
 	);
 	$data = array();
@@ -821,11 +823,12 @@ function getXmlNews($xml_format)
 				AND t.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY t.id_first_msg DESC
-			LIMIT {int:limit}',
+			LIMIT {int:limit} OFFSET {int:offset}',
 			array(
 				'current_board' => $board,
 				'is_approved' => 1,
 				'limit' => $_GET['limit'],
+				'offset' => $_GET['offset'],
 				'optimize_msg' => $optimize_msg,
 			)
 		);
@@ -1209,9 +1212,10 @@ function getXmlRecent($xml_format)
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
-			LIMIT {int:limit}',
+			LIMIT {int:limit} OFFSET {int:offset}',
 			array(
 				'limit' => $_GET['limit'],
+				'offset' => $_GET['offset'],
 				'current_board' => $board,
 				'is_approved' => 1,
 				'optimize_msg' => $optimize_msg,
