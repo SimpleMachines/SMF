@@ -289,13 +289,13 @@ function ShowXmlFeed()
 		ob_start();
 
 	if ($xml_format == 'smf' || isset($_REQUEST['debug']))
-		header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 	elseif ($xml_format == 'rss' || $xml_format == 'rss2')
-		header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 	elseif ($xml_format == 'atom')
-		header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 	elseif ($xml_format == 'rdf')
-		header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 
 	// First, output the xml header.
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?' . '>';
