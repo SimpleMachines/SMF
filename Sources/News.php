@@ -665,6 +665,9 @@ function getXmlMembers($xml_format)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// If any control characters slipped in somehow, kill the evil things
+		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
+
 		// Create a GUID for each member using the tag URI scheme
 		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
@@ -843,6 +846,9 @@ function getXmlNews($xml_format)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// If any control characters slipped in somehow, kill the evil things
+		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
+
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
 			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
@@ -1259,6 +1265,9 @@ function getXmlRecent($xml_format)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// If any control characters slipped in somehow, kill the evil things
+		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
+
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
 			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
