@@ -297,6 +297,19 @@ function ShowXmlFeed()
 	elseif ($xml_format == 'rdf')
 		header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
 
+	$xml_filename[] = preg_replace('/\s+/', '_', $feed_meta['title']);
+	$xml_filename[] = $_GET['sa'];
+	if (in_array($_GET['sa'], array('profile', 'posts', 'pms')))
+		$xml_filename[] = 'u=' . (isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id']);
+	if (!empty($boards))
+		$xml_filename[] = 'boards=' . implode(',', $boards);
+	elseif (!empty($board))
+		$xml_filename[] = 'board=' . $board;
+	$xml_filename[] = $xml_format;
+	$xml_filename = strtr(un_htmlspecialchars(implode('-', $xml_filename)), '"', '') ;
+
+	header('content-disposition: ' . (isset($_REQUEST['download']) ? 'attachment' : 'inline') . '; filename="' . $xml_filename . '.xml"');
+
 	// First, output the xml header.
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?' . '>';
 
