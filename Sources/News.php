@@ -1831,7 +1831,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'email',
-				'content' => !empty($profile['show_email']) ? $profile['email'] : null,
+				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
 			),
 			array(
 				'tag' => 'website',
