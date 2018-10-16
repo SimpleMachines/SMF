@@ -1810,10 +1810,6 @@ function getXmlProfile($xml_format)
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 			),
 			array(
-				'tag' => 'online',
-				'content' => !empty($profile['online']['is_online']) ? '' : null,
-			),
-			array(
 				'tag' => 'signature',
 				'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 			),
@@ -1845,6 +1841,23 @@ function getXmlProfile($xml_format)
 						'content' => $profile['website']['url'],
 					),
 				),
+			),
+			array(
+				'tag' => 'online',
+				'content' => !empty($profile['online']['is_online']) ? '' : null,
+			),
+			array(
+				'tag' => 'ip_addresses',
+				'content' => allowedTo('moderate_forum') || $user_info['id'] == $profile['id'] ? array(
+					array(
+						'tag' => 'ip',
+						'content' => $profile['ip'],
+					),
+					array(
+						'tag' => 'ip2',
+						'content' => $profile['ip'] != $profile['ip2'] ? $profile['ip2'] : null,
+					),
+				) : null,
 			),
 		);
 
