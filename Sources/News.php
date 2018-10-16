@@ -609,7 +609,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		}
 
 		// If it's empty, simply output an empty element.
-		if (empty($val))
+		if (empty($val) && $val !== '0' && $val !== 0)
 		{
 			echo ' />';
 		}
