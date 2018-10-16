@@ -36,6 +36,10 @@ function ShowXmlFeed()
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
 	global $query_this_board, $smcFunc, $forum_version, $settings;
 
+	// Users can always export their own profile data
+	if (!empty($_GET['sa']) && !empty($_GET['u']) && in_array($_GET['sa'], array('profile', 'posts', 'pms')) && (int) $_GET['u'] == $context['user']['id'])
+		$modSettings['xmlnews_enable'] = true;
+
 	// If it's not enabled, die.
 	if (empty($modSettings['xmlnews_enable']))
 		obExit(false);
@@ -192,6 +196,7 @@ function ShowXmlFeed()
 		'news' => array('getXmlNews', 'article'),
 		'members' => array('getXmlMembers', 'member'),
 		'profile' => array('getXmlProfile', null),
+		'posts' => array('getXmlPosts', 'member-post'),
 	);
 
 	// Easy adding of sub actions
@@ -1896,6 +1901,407 @@ function getXmlProfile($xml_format)
 
 	// Save some memory.
 	unset($profile, $memberContext[$_GET['u']]);
+
+	return $data;
+}
+
+/**
+ * Get a user's posts.
+ * The returned array will be generated to match the xml_format.
+ *
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
+ * @return array An array of arrays containing data for the feed. Each array has keys corresponding to the appropriate tags for the specified format.
+ */
+function getXmlPosts($xml_format)
+{
+	global $scripturl, $modSettings, $board, $txt;
+	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
+
+	$uid = isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id'];
+
+	if (empty($uid) || (!allowedTo('profile_view') && $uid != $user_info['id']))
+		return array();
+
+	$show_all = $user_info['is_admin'] || $uid != $user_info['id'];
+
+	// You are allowed in this special case to see your own posts from anywhere
+	if ($show_all)
+		$query_this_board = preg_replace('/\{query_see_board\}\s*(AND )?/', '', $query_this_board);
+
+	$query_this_board = str_replace('b.id_board', 'id_board', $query_this_board);
+
+	require_once($sourcedir . '/Subs-Attachments.php');
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_msg, id_topic, id_board, poster_name, poster_email, poster_ip, poster_time, subject,
+			modified_time, modified_name, modified_reason, body, likes, approved, smileys_enabled
+		FROM {db_prefix}messages
+		WHERE id_member = {int:id}
+			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
+			AND approved = {int:is_approved}' : '') . '
+		ORDER BY id_msg
+		LIMIT {int:limit} OFFSET {int:offset}',
+		array(
+			'limit' => $_GET['limit'],
+			'offset' => $_GET['offset'],
+			'id' => $uid,
+			'is_approved' => 1,
+		)
+	);
+	$data = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// We want a readable version of the IP address
+		$row['poster_ip'] = inet_dtop($row['poster_ip']);
+
+		// If any control characters slipped in somehow, kill the evil things
+		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
+
+		// If using our own format, we want the raw BBC
+		if ($xml_format != 'smf')
+			$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+
+		// Do we want to include any attachments?
+		if (!empty($modSettings['attachmentEnable']) && !empty($modSettings['xmlnews_attachments']))
+		{
+			$attach_request = $smcFunc['db_query']('', '
+				SELECT
+					a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.mime_type, a.downloads, a.approved, m.id_topic AS topic
+				FROM {db_prefix}attachments AS a
+					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+				WHERE a.attachment_type = {int:attachment_type}
+					AND a.id_msg = {int:message_id}',
+				array(
+					'message_id' => $row['id_msg'],
+					'attachment_type' => 0,
+					'is_approved' => 1,
+				)
+			);
+			$loaded_attachments = array();
+			while ($attach = $smcFunc['db_fetch_assoc']($attach_request))
+			{
+				// Include approved attachments only
+				if ($attach['approved'])
+					$loaded_attachments['attachment_' . $attach['id_attach']] = $attach;
+			}
+			$smcFunc['db_free_result']($attach_request);
+
+			// Sort the attachments by size to make things easier below
+			if (!empty($loaded_attachments))
+			{
+				uasort($loaded_attachments, function($a, $b) {
+					if ($a['filesize'] == $b['filesize'])
+					        return 0;
+					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+				});
+			}
+			else
+				$loaded_attachments = null;
+		}
+		else
+			$loaded_attachments = null;
+
+		// Create a GUID for this post using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+
+		if ($xml_format == 'rss' || $xml_format == 'rss2')
+		{
+			// Only one attachment allowed in RSS.
+			if ($loaded_attachments !== null)
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'url' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+					'length' => $attachment['filesize'],
+					'type' => $attachment['mime_type'],
+				);
+			}
+			else
+				$enclosure = null;
+
+			$data[] = array(
+				'tag' => 'item',
+				'content' => array(
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'link',
+						'content' => $scripturl . '?msg=' . $row['id_msg'],
+					),
+					array(
+						'tag' => 'description',
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'author',
+						'content' => (allowedTo('moderate_forum') || ($uid == $user_info['id'])) ? $row['poster_email'] : null,
+					),
+					array(
+						'tag' => 'category',
+						'content' => $row['bname'],
+					),
+					array(
+						'tag' => 'comments',
+						'content' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
+					),
+					array(
+						'tag' => 'pubDate',
+						'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
+					),
+					array(
+						'tag' => 'guid',
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
+					),
+					array(
+						'tag' => 'enclosure',
+						'attributes' => $enclosure,
+					),
+				),
+			);
+		}
+		elseif ($xml_format == 'rdf')
+		{
+			$data[] = array(
+				'tag' => 'item',
+				'attributes' => array('rdf:about' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']),
+				'content' => array(
+					array(
+						'tag' => 'dc:format',
+						'content' => 'text/html',
+					),
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'link',
+						'content' => $scripturl . '?msg=' . $row['id_msg'],
+					),
+					array(
+						'tag' => 'description',
+						'content' => $row['body'],
+					),
+				),
+			);
+		}
+		elseif ($xml_format == 'atom')
+		{
+			// Only one attachment allowed
+			if (!empty($loaded_attachments))
+			{
+				$attachment = array_pop($loaded_attachments);
+				$enclosure = array(
+					'rel' => 'enclosure',
+					'href' => fix_possible_url($scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach']),
+					'length' => $attachment['filesize'],
+					'type' => $attachment['mime_type'],
+				);
+			}
+			else
+				$enclosure = null;
+
+			$data[] = array(
+				'tag' => 'entry',
+				'content' => array(
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'link',
+						'attributes' => array(
+							'rel' => 'alternate',
+							'type' => 'text/html',
+							'href' => $scripturl . '?msg=' . $row['id_msg'],
+						),
+					),
+					array(
+						'tag' => 'summary',
+						'attributes' => array('type' => 'html'),
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'author',
+						'content' => array(
+							array(
+								'tag' => 'name',
+								'content' => $row['poster_name'],
+							),
+							array(
+								'tag' => 'email',
+								'content' => (allowedTo('moderate_forum') || ($uid == $user_info['id'])) ? $row['poster_email'] : null,
+							),
+							array(
+								'tag' => 'uri',
+								'content' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $uid : null,
+							),
+						),
+					),
+					array(
+						'tag' => 'published',
+						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+					),
+					array(
+						'tag' => 'updated',
+						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+					),
+					array(
+						'tag' => 'id',
+						'content' => $guid,
+					),
+					array(
+						'tag' => 'link',
+						'attributes' => $enclosure,
+					),
+				),
+			);
+		}
+		// A lot of information here.  Should be enough to please the rss-ers.
+		else
+		{
+			$attachments = array();
+			if (!empty($loaded_attachments))
+			{
+				foreach ($loaded_attachments as $attachment)
+				{
+					$attachments[] = array(
+						'tag' => 'attachment',
+						'content' => array(
+							array(
+								'tag' => 'id',
+								'content' => $attachment['id_attach'],
+							),
+							array(
+								'tag' => 'name',
+								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+							),
+							array(
+								'tag' => 'downloads',
+								'content' => $attachment['downloads'],
+							),
+							array(
+								'tag' => 'size',
+								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
+							),
+							array(
+								'tag' => 'byte_size',
+								'content' => $attachment['filesize'],
+							),
+							array(
+								'tag' => 'link',
+								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+							),
+						)
+					);
+				}
+			}
+			else
+				$attachments = null;
+
+			$data[] = array(
+				'tag' => 'member-post',
+				'content' => array(
+					array(
+						'tag' => 'id',
+						'content' => $row['id_msg'],
+					),
+					array(
+						'tag' => 'subject',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'body',
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'poster',
+						'content' => array(
+							array(
+								'tag' => 'name',
+								'content' => $row['poster_name'],
+							),
+							array(
+								'tag' => 'id',
+								'content' => $uid,
+							),
+							array(
+								'tag' => 'link',
+								'content' => $scripturl . '?action=profile;u=' . $uid,
+							),
+							array(
+								'tag' => 'email',
+								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_email'] : null,
+							),
+							array(
+								'tag' => 'ip',
+								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_ip'] : null,
+							),
+						),
+					),
+					array(
+						'tag' => 'topic',
+						'content' => array(
+							array(
+								'tag' => 'id',
+								'content' => $row['id_topic'],
+							),
+							array(
+								'tag' => 'link',
+								'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
+							),
+						),
+					),
+					array(
+						'tag' => 'board',
+						'content' => array(
+							array(
+								'tag' => 'id',
+								'content' => $row['id_board'],
+							),
+							array(
+								'tag' => 'link',
+								'content' => $scripturl . '?board=' . $row['id_board'] . '.0',
+							),
+						),
+					),
+					array(
+						'tag' => 'link',
+						'content' => $scripturl . '?msg=' . $row['id_msg'],
+					),
+					array(
+						'tag' => 'time',
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
+					),
+					array(
+						'tag' => 'modified_time',
+						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
+					),
+					array(
+						'tag' => 'modified_by',
+						'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
+					),
+					array(
+						'tag' => 'modified_reason',
+						'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
+					),
+					array(
+						'tag' => 'likes',
+						'content' => $row['likes'],
+					),
+					array(
+						'tag' => 'attachments',
+						'content' => $attachments,
+					),
+				),
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
 
 	return $data;
 }
