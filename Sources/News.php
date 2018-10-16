@@ -368,7 +368,7 @@ function ShowXmlFeed()
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
 	<id>', $feed_meta['source'], '</id>
 	<subtitle>', $feed_meta['desc'], '</subtitle>
-	<generator uri="https://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>',
+	<generator uri="https://www.simplemachines.org" version="', trim(strtr($forum_version, array('SMF' => ''))), '">SMF</generator>',
 	!empty($feed_meta['icon']) ? '
 	<icon>' . $feed_meta['icon'] . '</icon>' : '',
 	!empty($feed_meta['author']) ? '
