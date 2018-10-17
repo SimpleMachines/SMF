@@ -498,6 +498,8 @@ function cdata_parse($data, $ns = '', $force = false)
 
 	$cdata = '<![CDATA[';
 
+	// @todo If we drop the obsolete $ns parameter, this whole loop could be replaced with a simple `str_replace(']]>', ']]]]><[CDATA[>', $data)`
+
 	for ($pos = 0, $n = $smcFunc['strlen']($data); $pos < $n; null)
 	{
 		$positions = array(
