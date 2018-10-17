@@ -197,6 +197,7 @@ function ShowXmlFeed()
 		'members' => array('getXmlMembers', 'member'),
 		'profile' => array('getXmlProfile', null),
 		'posts' => array('getXmlPosts', 'member-post'),
+		'pms' => array('getXmlPMs', 'personal-message'),
 	);
 
 	// Easy adding of sub actions
@@ -245,6 +246,13 @@ function ShowXmlFeed()
 			'smf' => 'http://www.simplemachines.org/',
 		),
 	);
+	if ($_GET['sa'] == 'pms')
+	{
+		$namespaces['rss']['smf'] = 'http://www.simplemachines.org/';
+		$namespaces['rss2']['smf'] = 'http://www.simplemachines.org/';
+		$namespaces['atom']['smf'] = 'http://www.simplemachines.org/';
+	}
+
 	$extraFeedTags = array(
 		'rss' => array(),
 		'rss2' => array(),
@@ -569,6 +577,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		'name',
 		'description',
 		'summary',
+		'content',
 		'subject',
 		'body',
 		'username',
@@ -2299,6 +2308,236 @@ function getXmlPosts($xml_format)
 					),
 				),
 			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $data;
+}
+
+/**
+ * Get a user's personal messages.
+ * Only the user can do this, and no one else -- not even the admin!
+ *
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
+ * @return array An array of arrays containing data for the feed. Each array has keys corresponding to the appropriate tags for the specified format.
+ */
+function getXmlPMs($xml_format)
+{
+	global $scripturl, $modSettings, $board, $txt;
+	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
+
+	// Personal messages are supposed to be private
+	if (isset($_GET['u']) && (int) $_GET['u'] != $user_info['id'])
+		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, GROUP_CONCAT(pmr.id_member) AS id_members_to, GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name)) AS to_names
+		FROM {db_prefix}personal_messages AS pm
+			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
+			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
+		WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
+		GROUP BY pm.id_pm
+		ORDER BY pm.id_pm
+		LIMIT {int:limit} OFFSET {int:offset}',
+		array(
+			'limit' => $_GET['limit'],
+			'offset' => $_GET['offset'],
+			'uid' => $user_info['id'],
+		)
+	);
+	$data = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// If any control characters slipped in somehow, kill the evil things
+		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
+
+		// If using our own format, we want the raw BBC
+		if ($xml_format != 'smf')
+			$row['body'] = parse_bbc($row['body']);
+
+		$recipients = array_combine(explode(',', $row['id_members_to']), explode(',', $row['to_names']));
+
+		// Create a GUID for this post using the tag URI scheme
+		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+
+		if ($xml_format == 'rss' || $xml_format == 'rss2')
+		{
+			$item = array(
+				'tag' => 'item',
+				'content' => array(
+					array(
+						'tag' => 'guid',
+						'content' => $guid,
+						'attributes' => array(
+							'isPermaLink' => 'false',
+						),
+					),
+					array(
+						'tag' => 'pubDate',
+						'content' => gmdate('D, d M Y H:i:s \G\M\T', $row['msgtime']),
+					),
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'description',
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'smf:sender',
+						// This technically violates the RSS spec, but meh...
+						'content' => $row['from_name'],
+					),
+				),
+			);
+
+			foreach ($recipients as $recipient_id => $recipient_name)
+				$item['content'][] = array(
+					'tag' => 'smf:recipient',
+					'content' => $recipient_name,
+				);
+
+			$data[] = $item;
+		}
+		elseif ($xml_format == 'rdf')
+		{
+			$data[] = array(
+				'tag' => 'item',
+				'attributes' => array('rdf:about' => $scripturl . '?action=pm#msg' . $row['id_pm']),
+				'content' => array(
+					array(
+						'tag' => 'dc:format',
+						'content' => 'text/html',
+					),
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'link',
+						'content' => $scripturl . '?action=pm#msg' . $row['id_pm'],
+					),
+					array(
+						'tag' => 'description',
+						'content' => $row['body'],
+					),
+				),
+			);
+		}
+		elseif ($xml_format == 'atom')
+		{
+			$item = array(
+				'tag' => 'entry',
+				'content' => array(
+					array(
+						'tag' => 'id',
+						'content' => $guid,
+					),
+					array(
+						'tag' => 'updated',
+						'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
+					),
+					array(
+						'tag' => 'title',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'content',
+						'attributes' => array('type' => 'html'),
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'author',
+						'content' => array(
+							array(
+								'tag' => 'name',
+								'content' => $row['from_name'],
+							),
+						),
+					),
+				),
+			);
+
+			foreach ($recipients as $recipient_id => $recipient_name)
+				$item['content'][] = array(
+					'tag' => 'contributor',
+					'content' => array(
+						array(
+							'tag' => 'smf:role',
+							'content' => 'recipient',
+						),
+						array(
+							'tag' => 'name',
+							'content' => $recipient_name,
+						),
+					),
+				);
+
+			$data[] = $item;
+		}
+		else
+		{
+			$item = array(
+				'tag' => 'personal-message',
+				'content' => array(
+					array(
+						'tag' => 'id',
+						'content' => $row['id_pm'],
+					),
+					array(
+						'tag' => 'sent-date',
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime']))),
+					),
+					array(
+						'tag' => 'subject',
+						'content' => $row['subject'],
+					),
+					array(
+						'tag' => 'body',
+						'content' => $row['body'],
+					),
+					array(
+						'tag' => 'sender',
+						'content' => array(
+							array(
+								'tag' => 'name',
+								'content' => $row['from_name'],
+							),
+							array(
+								'tag' => 'id',
+								'content' => $row['id_member_from'],
+							),
+							array(
+								'tag' => 'link',
+								'content' => $scripturl . '?action=profile;u=' . $row['id_member_from'],
+							),
+						),
+					),
+				),
+			);
+
+			foreach ($recipients as $recipient_id => $recipient_name)
+				$item['content'][] = array(
+					'tag' => 'recipient',
+					'content' => array(
+						array(
+							'tag' => 'name',
+							'content' => $recipient_name,
+						),
+						array(
+							'tag' => 'id',
+							'content' => $recipient_id,
+						),
+						array(
+							'tag' => 'link',
+							'content' => $scripturl . '?action=profile;u=' . $recipient_id,
+						),
+					),
+				);
+
+			$data[] = $item;
 		}
 	}
 	$smcFunc['db_free_result']($request);
