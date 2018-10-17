@@ -571,31 +571,6 @@ function cdata_parse($data, $ns = '', $force = false)
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = array(), $nsKeys = array())
 {
-	// Wrap the values of these keys into CDATA tags
-	$keysToCdata = array(
-		'title',
-		'name',
-		'description',
-		'summary',
-		'content',
-		'subject',
-		'body',
-		'username',
-		'signature',
-		'position',
-		'language',
-		'gender',
-		'blurb',
-	);
-	if ($xml_format != 'atom')
-		$keysToCdata[] = 'category';
-
-	if (!empty($forceCdataKeys))
-	{
-		$keysToCdata = array_merge($keysToCdata, $forceCdataKeys);
-		$keysToCdata = array_unique($keysToCdata);
-	}
-
 	// For every array in the data...
 	foreach ($data as $element)
 	{
@@ -641,10 +616,10 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 			}
 			// A string with returns in it.... show this as a multiline element.
 			elseif (strpos($val, "\n") !== false)
-				echo "\n", in_array($key, $keysToCdata) ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val), "\n", str_repeat("\t", $i);
+				echo "\n", !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val), "\n", str_repeat("\t", $i);
 			// A simple string.
 			else
-				echo in_array($key, $keysToCdata) ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
+				echo !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
 
 			// Ending tag.
 			echo '</', $key, '>';
@@ -695,6 +670,7 @@ function getXmlMembers($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['real_name'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -729,6 +705,7 @@ function getXmlMembers($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['real_name'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -743,6 +720,7 @@ function getXmlMembers($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['real_name'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -774,6 +752,7 @@ function getXmlMembers($xml_format)
 					array(
 						'tag' => 'name',
 						'content' => $row['real_name'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'time',
@@ -940,6 +919,7 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -948,6 +928,7 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -992,6 +973,7 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -1000,6 +982,7 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 				),
 			);
@@ -1026,6 +1009,7 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -1039,6 +1023,7 @@ function getXmlNews($xml_format)
 						'tag' => 'summary',
 						'attributes' => array('type' => 'html'),
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
@@ -1050,6 +1035,7 @@ function getXmlNews($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'email',
@@ -1136,10 +1122,12 @@ function getXmlNews($xml_format)
 					array(
 						'tag' => 'subject',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'poster',
@@ -1147,6 +1135,7 @@ function getXmlNews($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1360,6 +1349,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -1368,6 +1358,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -1412,6 +1403,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -1420,6 +1412,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 				),
 			);
@@ -1446,6 +1439,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -1459,6 +1453,7 @@ function getXmlRecent($xml_format)
 						'tag' => 'summary',
 						'attributes' => array('type' => 'html'),
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
@@ -1470,6 +1465,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'email',
@@ -1556,10 +1552,12 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'subject',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'starter',
@@ -1567,6 +1565,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['first_poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1584,6 +1583,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1601,6 +1601,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'subject',
 								'content' => $row['first_subject'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1682,6 +1683,7 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'title',
 					'content' => $profile['name'],
+					'cdata' => true,
 				),
 				array(
 					'tag' => 'link',
@@ -1690,6 +1692,7 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'description',
 					'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+					'cdata' => true,
 				),
 				array(
 					'tag' => 'comments',
@@ -1722,6 +1725,7 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'title',
 					'content' => $profile['name'],
+					'cdata' => true,
 				),
 				array(
 					'tag' => 'link',
@@ -1730,6 +1734,7 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'description',
 					'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+					'cdata' => true,
 				),
 			)
 		);
@@ -1742,6 +1747,7 @@ function getXmlProfile($xml_format)
 				array(
 					'tag' => 'title',
 					'content' => $profile['name'],
+					'cdata' => true,
 				),
 				array(
 					'tag' => 'link',
@@ -1755,6 +1761,7 @@ function getXmlProfile($xml_format)
 					'tag' => 'summary',
 					'attributes' => array('type' => 'html'),
 					'content' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
+					'cdata' => true,
 				),
 				array(
 					'tag' => 'author',
@@ -1762,6 +1769,7 @@ function getXmlProfile($xml_format)
 						array(
 							'tag' => 'name',
 							'content' => $profile['name'],
+							'cdata' => true,
 						),
 						array(
 							'tag' => 'email',
@@ -1794,10 +1802,12 @@ function getXmlProfile($xml_format)
 			array(
 				'tag' => 'username',
 				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'name',
 				'content' => $profile['name'],
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'link',
@@ -1810,10 +1820,12 @@ function getXmlProfile($xml_format)
 			array(
 				'tag' => 'post-group',
 				'content' => $profile['post_group'],
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'language',
 				'content' => $profile['language'],
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'last-login',
@@ -1830,18 +1842,22 @@ function getXmlProfile($xml_format)
 			array(
 				'tag' => 'signature',
 				'content' => !empty($profile['signature']) ? $profile['signature'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'blurb',
 				'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'title',
 				'content' => !empty($profile['title']) ? $profile['title'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'position',
 				'content' => !empty($profile['group']) ? $profile['group'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'email',
@@ -1903,6 +1919,7 @@ function getXmlProfile($xml_format)
 					'tag' => $custom_field['col_name'],
 					'attributes' => array('title' => $custom_field['title']),
 					'content' => $custom_field['raw'],
+					'cdata' => true,
 				);
 			}
 		}
@@ -2034,6 +2051,7 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -2042,6 +2060,7 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -2086,6 +2105,7 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -2094,6 +2114,7 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 				),
 			);
@@ -2120,6 +2141,7 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -2133,6 +2155,7 @@ function getXmlPosts($xml_format)
 						'tag' => 'summary',
 						'attributes' => array('type' => 'html'),
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -2140,6 +2163,7 @@ function getXmlPosts($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'email',
@@ -2222,10 +2246,12 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'subject',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'poster',
@@ -2233,6 +2259,7 @@ function getXmlPosts($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['poster_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -2293,10 +2320,12 @@ function getXmlPosts($xml_format)
 					array(
 						'tag' => 'modified_by',
 						'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'modified_reason',
 						'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'likes',
@@ -2380,15 +2409,18 @@ function getXmlPMs($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'smf:sender',
 						// This technically violates the RSS spec, but meh...
 						'content' => $row['from_name'],
+						'cdata' => true,
 					),
 				),
 			);
@@ -2397,6 +2429,7 @@ function getXmlPMs($xml_format)
 				$item['content'][] = array(
 					'tag' => 'smf:recipient',
 					'content' => $recipient_name,
+					'cdata' => true,
 				);
 
 			$data[] = $item;
@@ -2414,6 +2447,7 @@ function getXmlPMs($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
@@ -2422,6 +2456,7 @@ function getXmlPMs($xml_format)
 					array(
 						'tag' => 'description',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 				),
 			);
@@ -2442,11 +2477,13 @@ function getXmlPMs($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'content',
 						'attributes' => array('type' => 'html'),
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -2454,6 +2491,7 @@ function getXmlPMs($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['from_name'],
+								'cdata' => true,
 							),
 						),
 					),
@@ -2471,6 +2509,7 @@ function getXmlPMs($xml_format)
 						array(
 							'tag' => 'name',
 							'content' => $recipient_name,
+							'cdata' => true,
 						),
 					),
 				);
@@ -2493,10 +2532,12 @@ function getXmlPMs($xml_format)
 					array(
 						'tag' => 'subject',
 						'content' => $row['subject'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
 						'content' => $row['body'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'sender',
@@ -2504,6 +2545,7 @@ function getXmlPMs($xml_format)
 							array(
 								'tag' => 'name',
 								'content' => $row['from_name'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -2525,6 +2567,7 @@ function getXmlPMs($xml_format)
 						array(
 							'tag' => 'name',
 							'content' => $recipient_name,
+							'cdata' => true,
 						),
 						array(
 							'tag' => 'id',
