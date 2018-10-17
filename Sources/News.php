@@ -502,7 +502,7 @@ function cdata_parse($data, $ns = '', $force = false)
 	{
 		$positions = array(
 			$smcFunc['strpos']($data, '&', $pos),
-			$smcFunc['strpos']($data, ']', $pos),
+			$smcFunc['strpos']($data, ']]>', $pos),
 		);
 		if ($ns != '')
 			$positions[] = $smcFunc['strpos']($data, '<', $pos);
@@ -531,10 +531,10 @@ function cdata_parse($data, $ns = '', $force = false)
 				$cdata .= ']]><' . $ns . ':' . $smcFunc['substr']($data, $pos + 1, $pos2 - $pos) . '<![CDATA[';
 			$pos = $pos2 + 1;
 		}
-		elseif ($smcFunc['substr']($data, $pos, 1) == ']')
+		elseif ($smcFunc['substr']($data, $pos, 3) == ']]>')
 		{
-			$cdata .= ']]>&#093;<![CDATA[';
-			$pos++;
+			$cdata .= ']]]]><![CDATA[>';
+			$pos = $pos + 3;
 		}
 		elseif ($smcFunc['substr']($data, $pos, 1) == '&')
 		{
