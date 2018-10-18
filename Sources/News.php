@@ -34,7 +34,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $forum_version, $settings;
+	global $query_this_board, $smcFunc, $forum_version, $settings, $cachedir;
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -53,8 +53,30 @@ function ShowXmlFeed()
 		$_GET['sa'] = 'recent';
 
 	// Users can always export their own profile data
-	if (!empty($_GET['sa']) && !empty($_GET['u']) && in_array($_GET['sa'], array('profile', 'posts', 'pms')) && (int) $_GET['u'] == $context['user']['id'])
+	if (in_array($_GET['sa'], array('profile', 'posts', 'pms')) && !$user_info['is_guest'] && (empty($_GET['u']) || (int) $_GET['u'] == $user_info['id']))
+	{
 		$modSettings['xmlnews_enable'] = true;
+
+		// Batch mode builds a whole file and then sends it all when done.
+		if ($_GET['limit'] == 'all' && empty($_REQUEST['c']) && empty($_REQUEST['boards']) && empty($board))
+		{
+			$context['batch_mode'] = true;
+			$_GET['limit'] = 50;
+			unset($_GET['offset']);
+
+			// We track our progress for greater efficiency
+			$progress_file = $cachedir . '/xml-batch-' . $_GET['sa'] . '-' . $user_info['id'];
+			if (file_exists($progress_file))
+			{
+				list($context[$_GET['sa'] . '_start'], $context['batch_prev'], $context['batch_total']) = explode(';', file_get_contents($progress_file));
+
+				if ($context['batch_prev'] == $context['batch_total'])
+					$context['batch_done'] = true;
+			}
+			else
+				$context[$_GET['sa'] . '_start'] = 0;
+		}
+	}
 
 	// If it's not enabled, die.
 	if (empty($modSettings['xmlnews_enable']))
@@ -293,22 +315,7 @@ function ShowXmlFeed()
 			$extraFeedTags_string .= "\n" . $indent . $extraTag;
 	}
 
-	// This is an xml file....
-	ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		ob_start();
-
-	if ($xml_format == 'smf' || isset($_REQUEST['debug']))
-		header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-	elseif ($xml_format == 'rss' || $xml_format == 'rss2')
-		header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-	elseif ($xml_format == 'atom')
-		header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-	elseif ($xml_format == 'rdf')
-		header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-
+	// Descriptive filenames = good
 	$xml_filename[] = preg_replace('/\s+/', '_', $feed_meta['title']);
 	$xml_filename[] = $_GET['sa'];
 	if (in_array($_GET['sa'], array('profile', 'posts', 'pms')))
@@ -320,10 +327,8 @@ function ShowXmlFeed()
 	$xml_filename[] = $xml_format;
 	$xml_filename = strtr(un_htmlspecialchars(implode('-', $xml_filename)), '"', '') ;
 
-	header('content-disposition: ' . (isset($_REQUEST['download']) ? 'attachment' : 'inline') . '; filename="' . $xml_filename . '.xml"');
-
 	// First, output the xml header.
-	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?' . '>';
+	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>';
 
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -334,35 +339,41 @@ function ShowXmlFeed()
 					$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
 		// Start with an RSS 2.0 header.
-		echo '
-<rss version=', $xml_format == 'rss2' ? '"2.0"' : '"0.92"', ' xml:lang="', strtr($txt['lang_locale'], '_', '-'), '"', $ns_string, '>
+		$context['feed']['header'] .= '
+<rss version=' . ($xml_format == 'rss2' ? '"2.0"' : '"0.92"') . ' xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . '>
 	<channel>
-		<title>', $feed_meta['title'], '</title>
-		<link>', $feed_meta['source'], '</link>
-		<description>', $feed_meta['desc'], '</description>',
-		!empty($feed_meta['icon']) ? '
+		<title>' . $feed_meta['title'] . '</title>
+		<link>' . $feed_meta['source'] . '</link>
+		<description>' . $feed_meta['desc'] . '</description>';
+
+		if (!empty($feed_meta['icon']))
+			$context['feed']['header'] .= '
 		<image>
 			<url>' . $feed_meta['icon'] . '</url>
 			<title>' . $feed_meta['title'] . '</title>
 			<link>' . $feed_meta['source'] . '</link>
-		</image>' : '',
-		!empty($feed_meta['rights']) ? '
-		<copyright>' . $feed_meta['rights'] . '</copyright>' : '',
-		!empty($feed_meta['language']) ? '
-		<language>' . $feed_meta['language'] . '</language>' : '';
+		</image>';
+
+		if (!empty($feed_meta['rights']))
+			$context['feed']['header'] .= '
+		<copyright>' . $feed_meta['rights'] . '</copyright>';
+
+		if (!empty($feed_meta['language']))
+			$context['feed']['header'] .= '
+		<language>' . $feed_meta['language'] . '</language>';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
-			echo '
-		<atom:link rel="self" type="application/rss+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />';
+			$context['feed']['header'] .= '
+		<atom:link rel="self" type="application/rss+xml" href="' . $scripturl . (!empty($url_parts) ? '?' . implode(';', $url_parts) : '') . '" />';
 
-		echo $extraFeedTags_string;
+		$context['feed']['header'] .= $extraFeedTags_string;
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
 		dumpTags($xml_data, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
 
 		// Output the footer of the xml.
-		echo '
+		$context['feed']['footer'] = '
 	</channel>
 </rss>';
 	}
@@ -372,43 +383,49 @@ function ShowXmlFeed()
 			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset')))
 				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
 
-		echo '
-<feed', $ns_string, !empty($feed_meta['language']) ? ' xml:lang="' . $feed_meta['language'] . '"' : '', '>
-	<title>', $feed_meta['title'], '</title>
-	<link rel="alternate" type="text/html" href="', $feed_meta['source'], '" />
-	<link rel="self" type="application/atom+xml" href="', $scripturl, !empty($url_parts) ? '?' . implode(';', $url_parts) : '', '" />
-	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
-	<id>', $feed_meta['source'], '</id>
-	<subtitle>', $feed_meta['desc'], '</subtitle>
-	<generator uri="https://www.simplemachines.org" version="', trim(strtr($forum_version, array('SMF' => ''))), '">SMF</generator>',
-	!empty($feed_meta['icon']) ? '
-	<icon>' . $feed_meta['icon'] . '</icon>' : '',
-	!empty($feed_meta['author']) ? '
+		$context['feed']['header'] .= '
+<feed' . $ns_string . (!empty($feed_meta['language']) ? ' xml:lang="' . $feed_meta['language'] . '"' : '') . '>
+	<title>' . $feed_meta['title'] . '</title>
+	<link rel="alternate" type="text/html" href="' . $feed_meta['source'] . '" />
+	<link rel="self" type="application/atom+xml" href="' . $scripturl . (!empty($url_parts) ? '?' . implode(';', $url_parts) : '') . '" />
+	<updated>' . gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
+	<id>' . $feed_meta['source'] . '</id>
+	<subtitle>' . $feed_meta['desc'] . '</subtitle>
+	<generator uri="https://www.simplemachines.org" version="' . trim(strtr($forum_version, array('SMF' => ''))) . '">SMF</generator>';
+
+		if (!empty($feed_meta['icon']))
+			$context['feed']['header'] .= '
+	<icon>' . $feed_meta['icon'] . '</icon>';
+
+		if (!empty($feed_meta['author']))
+			$context['feed']['header'] .= '
 	<author>
 		<name>' . $feed_meta['author'] . '</name>
-	</author>' : '',
-	!empty($feed_meta['rights']) ? '
-	<rights>' . $feed_meta['rights'] . '</rights>' : '';
+	</author>';
 
-		echo $extraFeedTags_string;
+		if (!empty($feed_meta['rights']))
+			$context['feed']['header'] .= '
+	<rights>' . $feed_meta['rights'] . '</rights>';
+
+		$context['feed']['header'] .= $extraFeedTags_string;
 
 		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
-		echo '
+		$context['feed']['footer'] = '
 </feed>';
 	}
 	elseif ($xml_format == 'rdf')
 	{
-		echo '
-<rdf:RDF', $ns_string, '>
-	<channel rdf:about="', $scripturl, '">
-		<title>', $feed_meta['title'], '</title>
-		<link>', $feed_meta['source'], '</link>
-		<description>', $feed_meta['desc'], '</description>';
+		$context['feed']['header'] .= '
+<rdf:RDF' . $ns_string . '>
+	<channel rdf:about="' . $scripturl . '">
+		<title>' . $feed_meta['title'] . '</title>
+		<link>' . $feed_meta['source'] . '</link>
+		<description>' . $feed_meta['desc'] . '</description>';
 
-		echo $extraFeedTags_string;
+		$context['feed']['header'] .= $extraFeedTags_string;
 
-		echo '
+		$context['feed']['header'] .= '
 		<items>
 			<rdf:Seq>';
 
@@ -417,38 +434,122 @@ function ShowXmlFeed()
 			$link = array_filter($item['content'], function ($e) { return ($e['tag'] == 'link'); });
 			$link = array_pop($link);
 
-			echo '
-				<rdf:li rdf:resource="', $link['content'], '" />';
+			$context['feed']['header'] .= '
+				<rdf:li rdf:resource="' . $link['content'] . '" />';
 		}
 
-		echo '
+		$context['feed']['header'] .= '
 			</rdf:Seq>
 		</items>
-	</channel>
-';
+	</channel>';
 
 		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
 
-		echo '
+		$context['feed']['footer'] = '
 </rdf:RDF>';
 	}
 	// Otherwise, we're using our proprietary formats - they give more data, though.
 	else
 	{
-		echo '
-<smf:xml-feed xml:lang="', strtr($txt['lang_locale'], '_', '-'), '"', $ns_string, '>';
+		$context['feed']['header'] .= '
+<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . '>';
 
 		// Hard to imagine anyone wanting to add these for the proprietary format, but just in case...
-		echo $extraFeedTags_string;
+		$context['feed']['header'] .= $extraFeedTags_string;
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
 		dumpTags($xml_data, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
 
-		echo '
+		$context['feed']['footer'] = '
 </smf:xml-feed>';
-}
+	}
 
-	obExit(false);
+	// Batch mode involves a lot of reading and writing to a temporary file
+	if (!empty($context['batch_mode']))
+	{
+		$xml_filepath = $cachedir . '/' . $xml_filename . '.xml';
+
+		// Append our current items to the output file
+		if (file_exists($xml_filepath))
+		{
+			$handle = fopen($xml_filepath, 'r+');
+
+			// Trim off the existing feed footer
+			ftruncate($handle, filesize($xml_filepath) - strlen($context['feed']['footer']));
+
+			// Add the new data
+			fseek($handle, 0, SEEK_END);
+			fwrite($handle, $context['feed']['items']);
+			fwrite($handle, $context['feed']['footer']);
+
+			fclose($handle);
+		}
+		else
+			file_put_contents($xml_filepath, implode('', $context['feed']));
+
+		if (!empty($context['batch_done']))
+		{
+			if (file_exists($xml_filepath))
+				$feed = file_get_contents($xml_filepath);
+			else
+				$feed = implode('', $context['feed']);
+
+			$_REQUEST['download'] = true;
+			unlink($progress_file);
+			unlink($xml_filepath);
+		}
+		else
+		{
+			loadTemplate('Admin');
+			loadLanguage('Admin');
+			$context['sub_template'] = 'not_done';
+			$context['continue_post_data'] = '';
+			$context['continue_countdown'] = 3;
+			$context['continue_percent'] = number_format(($context['batch_prev'] / $context['batch_total']) * 100, 1);
+			$context['continue_get_data'] = '?action=' . $_REQUEST['action'] . ';sa=' . $_GET['sa'] . ';type=' . $xml_format . (!empty($_GET['u']) ? ';u=' . $_GET['u'] : '') . ';limit=all';
+
+			if ($context['batch_prev'] == $context['batch_total'])
+			{
+				$context['continue_countdown'] = 1;
+				$context['continue_post_data'] = '
+					<script>
+						var x = document.getElementsByName("cont");
+						var i;
+						for (i = 0; i < x.length; i++) {
+							x[i].disabled = true;
+						}
+					</script>';
+			}
+		}
+	}
+	// Keepin' it simple...
+	else
+		$feed = implode('', $context['feed']);
+
+	if (!empty($feed))
+	{
+		// This is an xml file....
+		ob_end_clean();
+		if (!empty($modSettings['enableCompressedOutput']))
+			@ob_start('ob_gzhandler');
+		else
+			ob_start();
+
+		if ($xml_format == 'smf' || isset($_REQUEST['debug']))
+			header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'rss' || $xml_format == 'rss2')
+			header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'atom')
+			header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'rdf')
+			header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+
+		header('content-disposition: ' . (isset($_REQUEST['download']) ? 'attachment' : 'inline') . '; filename="' . $xml_filename . '.xml"');
+
+		echo $feed;
+
+		obExit(false);
+	}
 }
 
 /**
@@ -571,6 +672,11 @@ function cdata_parse($data, $ns = '', $force = false)
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = array(), $nsKeys = array())
 {
+	global $context;
+
+	if (empty($context['feed']['items']))
+		$context['feed']['items'] = '';
+
 	// For every array in the data...
 	foreach ($data as $element)
 	{
@@ -587,42 +693,42 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 		$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
 		// First let's indent!
-		echo "\n", str_repeat("\t", $i);
+		$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 
 		// Beginning tag.
-		echo '<', $key;
+		$context['feed']['items'] .= '<' . $key;
 
 		if (!empty($attrs))
 		{
 			foreach ($attrs as $attr_key => $attr_value)
-				echo ' ', $attr_key, '="', fix_possible_url($attr_value), '"';
+				$context['feed']['items'] .= ' ' . $attr_key . '="' . fix_possible_url($attr_value) . '"';
 		}
 
 		// If it's empty, simply output an empty element.
 		if (empty($val) && $val !== '0' && $val !== 0)
 		{
-			echo ' />';
+			$context['feed']['items'] .= ' />';
 		}
 		else
 		{
-			echo '>';
+			$context['feed']['items'] .= '>';
 
 			// The element's value.
 			if (is_array($val))
 			{
 				// An array.  Dump it, and then indent the tag.
 				dumpTags($val, $i + 1, null, $xml_format, $forceCdataKeys, $nsKeys);
-				echo "\n", str_repeat("\t", $i);
+				$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
 			elseif (strpos($val, "\n") !== false)
-				echo "\n", !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val), "\n", str_repeat("\t", $i);
+				$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val)) . "\n" . str_repeat("\t", $i);
 			// A simple string.
 			else
-				echo !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
+				$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
 
 			// Ending tag.
-			echo '</', $key, '>';
+			$context['feed']['items'] .= '</' . $key . '>';
 		}
 	}
 }
@@ -1659,12 +1765,13 @@ function getXmlProfile($xml_format)
 {
 	global $scripturl, $memberContext, $user_profile, $user_info;
 
+	// Make sure the id is a number and not "I like trying to hack the database".
+	$_GET['u'] = isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id'];
+
 	// You must input a valid user....
 	if (empty($_GET['u']) || !loadMemberData((int) $_GET['u']))
 		return array();
 
-	// Make sure the id is a number and not "I like trying to hack the database".
-	$_GET['u'] = (int) $_GET['u'];
 	// Load the member's contextual information! (Including custom fields for our proprietary XML type)
 	if (!loadMemberContext($_GET['u'], ($xml_format == 'smf')) || !allowedTo('profile_view'))
 		return array();
@@ -1940,8 +2047,8 @@ function getXmlProfile($xml_format)
  */
 function getXmlPosts($xml_format)
 {
-	global $scripturl, $modSettings, $board, $txt;
-	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
+	global $scripturl, $modSettings, $board, $txt, $context, $user_info;
+	global $query_this_board, $smcFunc, $sourcedir, $cachedir;
 
 	$uid = isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id'];
 
@@ -1958,25 +2065,47 @@ function getXmlPosts($xml_format)
 
 	require_once($sourcedir . '/Subs-Attachments.php');
 
+	// Need to know the total so we can track our progress
+	if (!empty($context['batch_mode']) && empty($context['batch_total']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(id_msg)
+			FROM {db_prefix}messages
+			WHERE id_member = {int:uid}
+				AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
+				AND approved = {int:is_approved}' : ''),
+			array(
+				'uid' => $uid,
+				'is_approved' => 1,
+			)
+		);
+		list($context['batch_total']) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg, id_topic, id_board, poster_name, poster_email, poster_ip, poster_time, subject,
 			modified_time, modified_name, modified_reason, body, likes, approved, smileys_enabled
 		FROM {db_prefix}messages
-		WHERE id_member = {int:id}
+		WHERE id_member = {int:uid}
+			AND id_msg > {int:start_after}
 			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
 			AND approved = {int:is_approved}' : '') . '
 		ORDER BY id_msg
 		LIMIT {int:limit} OFFSET {int:offset}',
 		array(
 			'limit' => $_GET['limit'],
-			'offset' => $_GET['offset'],
-			'id' => $uid,
+			'offset' => !empty($context['posts_start']) ? 0 : $_GET['offset'],
+			'start_after' => !empty($context['posts_start']) ? $context['posts_start'] : 0,
+			'uid' => $uid,
 			'is_approved' => 1,
 		)
 	);
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$last = $row['id_msg'];
+
 		// We want a readable version of the IP address
 		$row['poster_ip'] = inet_dtop($row['poster_ip']);
 
@@ -2341,6 +2470,14 @@ function getXmlPosts($xml_format)
 	}
 	$smcFunc['db_free_result']($request);
 
+	// If we're in batch mode, make a note of our progress.
+	if (!empty($context['batch_mode']))
+	{
+		$context['batch_prev'] = (empty($context['batch_prev']) ? 0 : $context['batch_prev']) + count($data);
+
+		file_put_contents($cachedir . '/xml-batch-posts-' . $uid, implode(';', array($last, $context['batch_prev'], $context['batch_total'])));
+	}
+
 	return $data;
 }
 
@@ -2353,12 +2490,28 @@ function getXmlPosts($xml_format)
  */
 function getXmlPMs($xml_format)
 {
-	global $scripturl, $modSettings, $board, $txt;
-	global $query_this_board, $smcFunc, $context, $user_info, $sourcedir;
+	global $scripturl, $modSettings, $board, $txt, $context, $user_info;
+	global $query_this_board, $smcFunc, $sourcedir, $cachedir;
 
 	// Personal messages are supposed to be private
 	if (isset($_GET['u']) && (int) $_GET['u'] != $user_info['id'])
 		return array();
+
+	// For batch mode, we need to know how many there are
+	if (!empty($context['batch_mode']) && empty($context['batch_total']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(pm.id_pm)
+			FROM {db_prefix}personal_messages AS pm
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
+			WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})',
+			array(
+				'uid' => $user_info['id'],
+			)
+		);
+		list($context['batch_total']) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
 
 	$request = $smcFunc['db_query']('', '
 		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, GROUP_CONCAT(pmr.id_member) AS id_members_to, GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name)) AS to_names
@@ -2366,18 +2519,22 @@ function getXmlPMs($xml_format)
 			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
 		WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
+			AND pm.id_pm > {int:start_after}
 		GROUP BY pm.id_pm
 		ORDER BY pm.id_pm
 		LIMIT {int:limit} OFFSET {int:offset}',
 		array(
 			'limit' => $_GET['limit'],
-			'offset' => $_GET['offset'],
+			'offset' => !empty($context['pms_start']) ? 0 : $_GET['offset'],
+			'start_after' => !empty($context['pms_start']) ? $context['pms_start'] : 0,
 			'uid' => $user_info['id'],
 		)
 	);
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$last = $row['id_pm'];
+
 		// If any control characters slipped in somehow, kill the evil things
 		$row = preg_replace($context['utf8'] ? '/\pCc*/u' : '/[\x00-\x1F\x7F]*/', '', $row);
 
@@ -2584,6 +2741,14 @@ function getXmlPMs($xml_format)
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	// If we're in batch mode, make a note of our progress.
+	if (!empty($context['batch_mode']))
+	{
+		$context['batch_prev'] = (empty($context['batch_prev']) ? 0 : $context['batch_prev']) + count($data);
+
+		file_put_contents($cachedir . '/xml-batch-pms-' . $user_info['id'], implode(';', array($last, $context['batch_prev'], $context['batch_total'])));
+	}
 
 	return $data;
 }
