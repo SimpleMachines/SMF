@@ -36,6 +36,22 @@ function ShowXmlFeed()
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
 	global $query_this_board, $smcFunc, $forum_version, $settings;
 
+	// List all the different types of data they can pull.
+	$subActions = array(
+		'recent' => array('getXmlRecent', 'recent-post'),
+		'news' => array('getXmlNews', 'article'),
+		'members' => array('getXmlMembers', 'member'),
+		'profile' => array('getXmlProfile', null),
+		'posts' => array('getXmlPosts', 'member-post'),
+		'pms' => array('getXmlPMs', 'personal-message'),
+	);
+
+	// Easy adding of sub actions
+	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
+
+	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
+		$_GET['sa'] = 'recent';
+
 	// Users can always export their own profile data
 	if (!empty($_GET['sa']) && !empty($_GET['u']) && in_array($_GET['sa'], array('profile', 'posts', 'pms')) && (int) $_GET['u'] == $context['user']['id'])
 		$modSettings['xmlnews_enable'] = true;
@@ -187,24 +203,6 @@ function ShowXmlFeed()
 
 	// Show in rss or proprietary format?
 	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
-
-	// @todo Birthdays?
-
-	// List all the different types of data they can pull.
-	$subActions = array(
-		'recent' => array('getXmlRecent', 'recent-post'),
-		'news' => array('getXmlNews', 'article'),
-		'members' => array('getXmlMembers', 'member'),
-		'profile' => array('getXmlProfile', null),
-		'posts' => array('getXmlPosts', 'member-post'),
-		'pms' => array('getXmlPMs', 'personal-message'),
-	);
-
-	// Easy adding of sub actions
- 	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
-
-	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
-		$_GET['sa'] = 'recent';
 
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa'], $_GET['offset']);
