@@ -1948,7 +1948,7 @@ function getXmlPosts($xml_format)
 	if (empty($uid) || (!allowedTo('profile_view') && $uid != $user_info['id']))
 		return array();
 
-	$show_all = $user_info['is_admin'] || $uid != $user_info['id'];
+	$show_all = $user_info['is_admin'] || $uid == $user_info['id'];
 
 	// You are allowed in this special case to see your own posts from anywhere
 	if ($show_all)
