@@ -189,7 +189,7 @@ function ScheduledTasks()
 			// Log that we did it ;)
 			if ($completed)
 			{
-				$total_time = round( microtime(true) - $start_time, 3);
+				$total_time = round(microtime(true) - $start_time, 3);
 				$smcFunc['db_insert']('',
 					'{db_prefix}log_scheduled_tasks',
 					array('id_task' => 'int', 'time_run' => 'int', 'time_taken' => 'float'),
