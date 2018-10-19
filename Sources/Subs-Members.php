@@ -1255,7 +1255,7 @@ function BuddyListToggle()
 
 	checkSession('get');
 
-	isAllowedTo('profile_identity_own');
+	isAllowedTo('profile_extra_own');
 	is_not_guest();
 
 	$userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;

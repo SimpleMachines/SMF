@@ -108,7 +108,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					}
 
 					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
 					{
 						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
@@ -3326,7 +3326,7 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && ($modSettings['registration_method'] == 2 || (!empty($modSettings['coppaType']) && $modSettings['coppaType'] == 2))) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
+			$context['unapproved_members'] = !empty($modSettings['unapprovedMembers']) ? $modSettings['unapprovedMembers'] : 0;
 
 		$context['user']['avatar'] = array();
 

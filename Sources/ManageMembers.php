@@ -1012,8 +1012,8 @@ function MembersAwaitingActivation()
 	if (!empty($context['show_filter']) && !empty($context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . $context['available_filters'][0]['desc'],
-			'class' => 'smalltext floatright',
+			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_'.$context['current_filter']])) ? $txt['admin_browse_filter_type_'.$context['current_filter']] : $context['available_filters'][0]['desc']),
+			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 
 	// Now that we have all the options, create the list.

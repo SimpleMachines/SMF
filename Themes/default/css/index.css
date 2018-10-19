@@ -2970,7 +2970,7 @@ span.postby {
 
 /* MessageIndex */
 /* Start with description and other things */
-#description_board {
+#description_board, .filter_row {
 	padding: 8px 10px;
 	border-radius: 6px 6px 0 0;
 	border-bottom: none;
