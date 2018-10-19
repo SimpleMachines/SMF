@@ -198,6 +198,10 @@ if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
 if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
+######### Legacy Settings #########
+# UTF-8 is now the only character set supported in 2.1.
+$db_character_set = 'utf8';
+
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.
 if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))

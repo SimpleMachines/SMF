@@ -4928,6 +4928,7 @@ function migrateSettingsFile($changes)
 		'sourcedir' => 'string',
 		'packagesdir' => 'string',
 		'tasksdir' => 'string',
+		'db_character_set' => 'string',
 	);
 
 	// The Settings file, in an array as if it was handled by updateSettingsFile
@@ -5131,6 +5132,10 @@ function migrateSettingsFile($changes)
 		'	$sourcedir = $boarddir . \'/Sources\';',
 		'if (!file_exists($cachedir) && file_exists($boarddir . \'/cache\'))',
 		'	$cachedir = $boarddir . \'/cache\';',
+		'',
+		'######### Legacy Settings #########',
+		'# UTF-8 is now the only character set supported in 2.1.',
+		'$db_character_set = \'utf8\';',
 		'',
 		'########## Error-Catching ##########',
 		'# Note: You shouldn\'t touch these settings.',
