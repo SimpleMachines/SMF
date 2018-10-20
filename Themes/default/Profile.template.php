@@ -3182,7 +3182,7 @@ function template_tfasetup()
  */
 function template_tfadisable()
 {
-	global $txt, $context, $scripturl, $modSettings;
+	global $txt, $context, $scripturl;
 
 	echo '
 			<div class="cat_bar">
