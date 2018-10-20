@@ -115,3 +115,108 @@ checks:
         avoid_superglobals: false
         security_vulnerabilities: false
         no_exit: false
+
+coding_style:
+    php:
+        indentation:
+            general:
+                use_tabs: true
+                size: 4
+            switch:
+                indent_case: true
+        spaces:
+            general:
+                linefeed_character: newline
+            before_parentheses:
+                function_declaration: false
+                closure_definition: false
+                function_call: false
+                if: true
+                for: true
+                while: true
+                switch: true
+                catch: true
+                array_initializer: false
+            around_operators:
+                assignment: true
+                logical: true
+                equality: true
+                relational: true
+                bitwise: true
+                additive: true
+                multiplicative: true
+                shift: true
+                unary_additive: false
+                concatenation: false
+                negation: false
+            before_left_brace:
+                class: true
+                function: true
+                if: true
+                else: true
+                for: true
+                while: true
+                do: true
+                switch: true
+                try: true
+                catch: true
+                finally: true
+            before_keywords:
+                else: true
+                while: true
+                catch: true
+                finally: true
+            within:
+                brackets: false
+                array_initializer: false
+                grouping: false
+                function_call: false
+                function_declaration: false
+                if: false
+                for: false
+                while: false
+                switch: false
+                catch: false
+                type_cast: false
+            ternary_operator:
+                before_condition: true
+                after_condition: true
+                before_alternative: true
+                after_alternative: true
+                in_short_version: false
+            other:
+                before_comma: false
+                after_comma: true
+                before_semicolon: false
+                after_semicolon: true
+                after_type_cast: true
+        braces:
+            classes_functions:
+                class: new-line
+                function: new-line
+                closure: new-line
+            if:
+                opening: new-line
+                always: false
+                else_on_new_line: true
+            for:
+                opening: new-line
+                always: false
+            while:
+                opening: new-line
+                always: false
+            do_while:
+                opening: undefined
+                always: true
+                while_on_new_line: true
+            switch:
+                opening: new-line
+            try:
+                opening: new-line
+                catch_on_new_line: true
+                finally_on_new_line: true
+        upper_lower_casing:
+            keywords:
+                general: lower
+            constants:
+                true_false_null: lower
