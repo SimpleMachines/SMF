@@ -391,73 +391,57 @@ function getBoardIndex($boardIndexOptions)
 	link, href, subject, start (where they should go for the first unread post.),
 	and member. (which has id, name, link, href, username in it.) 
 	timeformat is a pricy call do it only for thos how get shown */
-	if ($boardIndexOptions['include_categories'])
-		foreach ($categories as &$category)
-		{
-			foreach ($category['boards'] as &$board )
-			{
-				if (empty($board['last_post']))
-					continue;
-				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
-			}
-		}
-	else
-		foreach ($this_category as &$board )
-		{
-			if (empty($board['last_post']))
-				continue;
-			$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
-		}
-
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
 	if ($boardIndexOptions['include_categories'])
-	{
-		foreach ($categories as $k => $category)
+		foreach ($categories as &$category)
 		{
-			foreach ($category['boards'] as $j => $board)
+			foreach ($category['boards'] as &$board )
 			{
 				if (!empty($moderators[$board['id']]))
 				{
-					$categories[$k]['boards'][$j]['moderators'] = $moderators[$board['id']];
+					$board['moderators'] = $moderators[$board['id']];
 					foreach ($moderators[$board['id']] as $moderator)
-						$categories[$k]['boards'][$j]['link_moderators'][] = $moderator['link'];
+						$board['link_moderators'][] = $moderator['link'];
 				}
 				if (!empty($groups[$board['id']]))
 				{
-					$categories[$k]['boards'][$j]['moderator_groups'] = $groups[$board['id']];
+					$board['moderator_groups'] = $groups[$board['id']];
 					foreach ($groups[$board['id']] as $group)
 					{
-						$categories[$k]['boards'][$j]['link_moderators'][] = $group['link'];
-						$categories[$k]['boards'][$j]['link_moderator_groups'][] = $group['link'];
+						$board['link_moderators'][] = $group['link'];
+						$board['link_moderator_groups'][] = $group['link'];
 					}
 				}
+				if (!empty($board['last_post']))
+					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
-	}
 	else
-	{
-		foreach ($this_category as $k => $board)
+		foreach ($this_category as &$board )
 		{
 			if (!empty($moderators[$board['id']]))
 			{
-				$this_category[$k]['moderators'] = $moderators[$board['id']];
+				$board['moderators'] = $moderators[$board['id']];
 				foreach ($moderators[$board['id']] as $moderator)
-					$this_category[$k]['link_moderators'][] = $moderator['link'];
+					$board['link_moderators'][] = $moderator['link'];
 			}
 			if (!empty($groups[$board['id']]))
 			{
-				$this_category[$k]['moderator_groups'] = $groups[$board['id']];
+				$board['moderator_groups'] = $groups[$board['id']];
 				foreach ($groups[$board['id']] as $group)
 				{
-					$this_category[$k]['link_moderators'][] = $group['link'];
-					$this_category[$k]['link_moderator_groups'][] = $group['link'];
+					$board['link_moderators'][] = $group['link'];
+					$board['link_moderator_groups'][] = $group['link'];
 				}
 			}
+			if (!empty($board['last_post']))
+				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 		}
-	}
+
+	unset($category,$board);
 
 	if ($boardIndexOptions['include_categories'])
 		sortCategories($categories);
