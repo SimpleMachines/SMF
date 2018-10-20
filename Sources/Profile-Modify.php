@@ -4121,7 +4121,7 @@ function tfasetup($memID)
 }
 
 /**
- * Provides interface to setup Two Factor Auth in SMF
+ * Provides interface to disable two-factor authentication in SMF
  *
  * @param int $memID The ID of the member
  */

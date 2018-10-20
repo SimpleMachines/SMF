@@ -3178,7 +3178,7 @@ function template_tfasetup()
 }
 
 /**
- * Template for setting up and managing Two-Factor Authentication.
+ * Template for disabling two-factor authentication.
  */
 function template_tfadisable()
 {
