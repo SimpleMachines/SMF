@@ -564,6 +564,7 @@ $txt['tfa_code'] = 'Code';
 $txt['tfa_backup_code'] = 'Backup code';
 $txt['tfa_backup_desc'] = 'If you have lost your device or authentication app, you can use the backup code provided to you when two-factor authentication was setup. If you have lost that as well, please contact the administrator.';
 $txt['tfa_wait'] = 'Please wait for about 2 minutes before attempting to log in via two-factor authentication again.';
+$txt['tfa_disable_for_user'] = 'This will disable two-factor authentication for %s.';
 $txt['cannot_disable_tfa'] = 'You cannot disable two-factor authentication because it is required on all accounts.';
 $txt['cannot_disable_tfa2'] = 'You cannot disable two-factor authentication because it is required on one or more of the membergroups that you belong to. Contact the administrator for more information.';
 

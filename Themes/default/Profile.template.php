@@ -3197,6 +3197,11 @@ function template_tfadisable()
 						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
+	else
+		echo '
+					<div class="smalltext">
+						', sprintf($txt['tfa_disable_for_user'], $context['user']['name']), '
+					</div>';
 
 	echo '
 					<input type="submit" name="save" value="', $txt['tfa_disable'], '" class="button floatright">
