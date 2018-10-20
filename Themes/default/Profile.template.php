@@ -3189,13 +3189,17 @@ function template_tfadisable()
 				<h3 class="catbg">', $txt['tfadisable'], '</h3>
 			</div>
 			<div class="roundframe">
-				<form action="', $scripturl, '?action=profile;area=tfadisable" method="post">
+				<form action="', $scripturl, '?action=profile;area=tfadisable" method="post">';
+
+	if ($context['user']['is_owner'])
+		echo '
 					<div class="block">
 						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
 						<input type="password" name="oldpasswrd" size="20">
-					</div>
-						<input type="submit" name="save" value="', $txt['tfa_disable'], '" class="button floatright">
-					</div>
+					</div>';
+
+	echo '
+					<input type="submit" name="save" value="', $txt['tfa_disable'], '" class="button floatright">
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</form>
