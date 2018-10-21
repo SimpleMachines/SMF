@@ -1,7 +1,3 @@
-tools:
-    php_sim: true
-    php_pdepend: true
-    php_analyzer: true
 filter:
     excluded_paths:
         - '*.min.js'
@@ -180,13 +176,11 @@ coding_style:
                 general: lower
             constants:
                 true_false_null: lower
+
+
 build:
     nodes:
-        tests: true
         analysis:
             tests:
                 override:
-                    -
-                        command: phpcs-run
-                        use_website_config: true
                     - php-scrutinizer-run
