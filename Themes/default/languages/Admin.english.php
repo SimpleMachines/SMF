@@ -55,6 +55,7 @@ $txt['admin_check_user'] = 'Check username.';
 $txt['admin_check_display'] = 'Check display name.';
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader, in milliseconds';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
+$txt['guest_post_no_email'] = 'Do not show the email field for guests posts';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
 $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if they are already embedded in it.';
