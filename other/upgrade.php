@@ -126,10 +126,6 @@ else
 // Load this now just because we can.
 require_once($upgrade_path . '/Settings.php');
 
-// For php below 7
-if (!function_exists('random_int'))
-	require_once ($sourcedir . '/random_compat/random_int.php');
-
 // We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
 if (isset($language))
 	$language = str_ireplace('-utf8', '', $language);

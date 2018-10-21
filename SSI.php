@@ -55,10 +55,6 @@ if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !
 if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
 
-// For php below 7
-if (!function_exists('random_int'))
-	require_once ($sourcedir . '/random_compat/random_int.php');
-
 // Load the important includes.
 require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Session.php');

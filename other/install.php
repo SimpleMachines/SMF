@@ -19,10 +19,6 @@ $GLOBALS['required_php_version'] = '5.4.0';
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
-// For php below 7
-if (!function_exists('random_int'))
-	require_once ('Sources/random_compat/random_int.php');
-
 // Let's pull in useful classes
 if (!defined('SMF'))
 	define('SMF', 1);
