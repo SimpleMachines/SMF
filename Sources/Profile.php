@@ -651,6 +651,14 @@ function ModifyProfile($post_errors = array())
 				redirectexit();
 			}
 		}
+		elseif ($current_area == 'tfadisable')
+		{
+			// Already checked the password, token, permissions, and session.
+			$profile_vars += array(
+				'tfa_secret' => '',
+				'tfa_backup' => '',
+			);
+		}
 		elseif ($current_area == 'groupmembership' && empty($post_errors))
 		{
 			$msg = groupMembership2($profile_vars, $post_errors, $memID);

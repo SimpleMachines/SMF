@@ -4159,16 +4159,6 @@ function tfadisable($memID)
 				fatal_lang_error('cannot_disable_tfa2', false);
 			$smcFunc['db_free_result']($request);
 		}
-
-		// The code in Profile.php checks the password, token, permissions, and session for us.
-		if (!empty($_REQUEST['save']) && empty($context['post_errors']))
-		{
-			updateMemberData($memID, array(
-				'tfa_secret' => '',
-				'tfa_backup' => '',
-			));
-			redirectexit('action=profile;area=account;u=' . $memID);
-		}
 	}
 	else
 		redirectexit('action=profile;area=account;u=' . $memID);
