@@ -55,6 +55,10 @@ if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !
 if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
 
+// For php below 7
+if (!function_exists('random_int'))
+	require_once ($sourcedir . '/random_compat/random_int.php');
+
 // Load the important includes.
 require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Session.php');
@@ -78,7 +82,7 @@ reloadSettings();
 cleanRequest();
 
 // Seed the random generator?
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+if (empty($modSettings['rand_seed']) || random_int(1, 250) == 69)
 	smf_seed_generator();
 
 // Check on any hacking attempts.
@@ -160,8 +164,8 @@ else
 
 	if (!isset($_SESSION['session_value']))
 	{
-		$_SESSION['session_var'] = substr(md5(mt_rand() . session_id() . mt_rand()), 0, rand(7, 12));
-		$_SESSION['session_value'] = md5(session_id() . mt_rand());
+		$_SESSION['session_var'] = substr(md5(random_int(0, PHP_INT_MAX) . session_id() . random_int(0, PHP_INT_MAX)), 0, rand(7, 12));
+		$_SESSION['session_value'] = md5(session_id() . random_int(0, PHP_INT_MAX));
 	}
 	$sc = $_SESSION['session_value'];
 }
@@ -936,7 +940,7 @@ function ssi_randomMember($random_type = '', $output_method = 'echo')
 	}
 
 	// Get the lowest ID we're interested in.
-	$member_id = mt_rand(1, $modSettings['latestMember']);
+	$member_id = random_int(1, $modSettings['latestMember']);
 
 	$where_query = '
 		id_member >= {int:selected_member}
@@ -1746,7 +1750,7 @@ function ssi_news($output_method = 'echo')
 {
 	global $context;
 
-	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][random_int(0, count($context['news_lines']) - 1)] : '';
 
 	// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
 	call_integration_hook('integrate_ssi_news');

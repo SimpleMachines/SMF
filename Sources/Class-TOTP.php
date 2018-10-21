@@ -270,7 +270,7 @@ class Auth
 		$code = '';
 
 		for ($i = 0; $i < $length; $i++) {
-			$code .= $lookup[mt_rand(0, strlen($lookup) - 1)];
+			$code .= $lookup[random_int(0, strlen($lookup) - 1)];
 		}
 
 		return $code;

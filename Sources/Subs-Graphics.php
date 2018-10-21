@@ -929,24 +929,24 @@ function showCodeImage($code)
 
 	// Randomize the foreground color a little.
 	for ($i = 0; $i < 3; $i++)
-		$foreground_color[$i] = mt_rand(max($foreground_color[$i] - 3, 0), min($foreground_color[$i] + 3, 255));
+		$foreground_color[$i] = random_int(max($foreground_color[$i] - 3, 0), min($foreground_color[$i] + 3, 255));
 	$fg_color = imagecolorallocate($code_image, $foreground_color[0], $foreground_color[1], $foreground_color[2]);
 
 	// Color for the dots.
 	for ($i = 0; $i < 3; $i++)
-		$dotbgcolor[$i] = $background_color[$i] < $foreground_color[$i] ? mt_rand(0, max($foreground_color[$i] - 20, 0)) : mt_rand(min($foreground_color[$i] + 20, 255), 255);
+		$dotbgcolor[$i] = $background_color[$i] < $foreground_color[$i] ? random_int(0, max($foreground_color[$i] - 20, 0)) : random_int(min($foreground_color[$i] + 20, 255), 255);
 	$randomness_color = imagecolorallocate($code_image, $dotbgcolor[0], $dotbgcolor[1], $dotbgcolor[2]);
 
 	// Some squares/rectanges for new extreme level
 	if ($noiseType == 'extreme')
 	{
-		for ($i = 0; $i < mt_rand(1, 5); $i++)
+		for ($i = 0; $i < random_int(1, 5); $i++)
 		{
-			$x1 = mt_rand(0, $total_width / 4);
+			$x1 = random_int(0, $total_width / 4);
 			$x2 = $x1 + round(rand($total_width / 4, $total_width));
-			$y1 = mt_rand(0, $max_height);
+			$y1 = random_int(0, $max_height);
 			$y2 = $y1 + round(rand(0, $max_height / 3));
-			imagefilledrectangle($code_image, $x1, $y1, $x2, $y2, mt_rand(0, 1) ? $fg_color : $randomness_color);
+			imagefilledrectangle($code_image, $x1, $y1, $x2, $y2, random_int(0, 1) ? $fg_color : $randomness_color);
 		}
 	}
 
@@ -963,7 +963,7 @@ function showCodeImage($code)
 			if ($rotationType == 'none')
 				$angle = 0;
 			else
-				$angle = mt_rand(-100, 100) / ($rotationType == 'high' ? 6 : 10);
+				$angle = random_int(-100, 100) / ($rotationType == 'high' ? 6 : 10);
 
 			// What color shall we do it?
 			if ($fontColorType == 'cyclic')
@@ -981,12 +981,12 @@ function showCodeImage($code)
 					$last_index = -1;
 				$new_index = $last_index;
 				while ($last_index == $new_index)
-					$new_index = mt_rand(0, count($colors) - 1);
+					$new_index = random_int(0, count($colors) - 1);
 				$char_fg_color = $colors[$new_index];
 				$last_index = $new_index;
 			}
 			elseif ($fontColorType == 'random')
-				$char_fg_color = array(mt_rand(max($foreground_color[0] - 2, 0), $foreground_color[0]), mt_rand(max($foreground_color[1] - 2, 0), $foreground_color[1]), mt_rand(max($foreground_color[2] - 2, 0), $foreground_color[2]));
+				$char_fg_color = array(random_int(max($foreground_color[0] - 2, 0), $foreground_color[0]), random_int(max($foreground_color[1] - 2, 0), $foreground_color[1]), random_int(max($foreground_color[2] - 2, 0), $foreground_color[2]));
 			else
 				$char_fg_color = array($foreground_color[0], $foreground_color[1], $foreground_color[2]);
 
@@ -994,20 +994,20 @@ function showCodeImage($code)
 			{
 				// GD2 handles font size differently.
 				if ($fontSizeRandom)
-					$font_size = $gd2 ? mt_rand(17, 19) : mt_rand(18, 25);
+					$font_size = $gd2 ? random_int(17, 19) : random_int(18, 25);
 				else
 					$font_size = $gd2 ? 18 : 24;
 
 				// Work out the sizes - also fix the character width cause TTF not quite so wide!
 				$font_x = $fontHorSpace == 'minus' && $cur_x > 0 ? $cur_x - 3 : $cur_x + 5;
-				$font_y = $max_height - ($fontVerPos == 'vrandom' ? mt_rand(2, 8) : ($fontVerPos == 'random' ? mt_rand(3, 5) : 5));
+				$font_y = $max_height - ($fontVerPos == 'vrandom' ? random_int(2, 8) : ($fontVerPos == 'random' ? random_int(3, 5) : 5));
 
 				// What font face?
 				if (!empty($ttfont_list))
-					$fontface = $settings['default_theme_dir'] . '/fonts/' . $ttfont_list[mt_rand(0, count($ttfont_list) - 1)];
+					$fontface = $settings['default_theme_dir'] . '/fonts/' . $ttfont_list[random_int(0, count($ttfont_list) - 1)];
 
 				// What color are we to do it in?
-				$is_reverse = $showReverseChars ? mt_rand(0, 1) : false;
+				$is_reverse = $showReverseChars ? random_int(0, 1) : false;
 				$char_color = function_exists('imagecolorallocatealpha') && $fontTrans ? imagecolorallocatealpha($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2], 50) : imagecolorallocate($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]);
 
 				$fontcord = @imagettftext($code_image, $font_size, $angle, $font_x, $font_y, $char_color, $fontface, $character['id']);
@@ -1033,7 +1033,7 @@ function showCodeImage($code)
 					$char_bgcolor = imagecolorallocate($char_image, $background_color[0], $background_color[1], $background_color[2]);
 					imagefilledrectangle($char_image, 0, 0, $character['width'] - 1, $character['height'] - 1, $char_bgcolor);
 					imagechar($char_image, $loaded_fonts[$character['font']], 0, 0, $character['id'], imagecolorallocate($char_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]));
-					$rotated_char = imagerotate($char_image, mt_rand(-100, 100) / 10, $char_bgcolor);
+					$rotated_char = imagerotate($char_image, random_int(-100, 100) / 10, $char_bgcolor);
 					imagecopy($code_image, $rotated_char, $cur_x, 0, 0, 0, $character['width'], $character['height']);
 					imagedestroy($rotated_char);
 					imagedestroy($char_image);
@@ -1062,43 +1062,43 @@ function showCodeImage($code)
 	// Add some noise to the background?
 	if ($noiseType != 'none')
 	{
-		for ($i = mt_rand(0, 2); $i < $max_height; $i += mt_rand(1, 2))
-			for ($j = mt_rand(0, 10); $j < $total_width; $j += mt_rand(1, 10))
-				imagesetpixel($code_image, $j, $i, mt_rand(0, 1) ? $fg_color : $randomness_color);
+		for ($i = random_int(0, 2); $i < $max_height; $i += random_int(1, 2))
+			for ($j = random_int(0, 10); $j < $total_width; $j += random_int(1, 10))
+				imagesetpixel($code_image, $j, $i, random_int(0, 1) ? $fg_color : $randomness_color);
 
 		// Put in some lines too?
 		if ($noiseType != 'extreme')
 		{
-			$num_lines = $noiseType == 'high' ? mt_rand(3, 7) : mt_rand(2, 5);
+			$num_lines = $noiseType == 'high' ? random_int(3, 7) : random_int(2, 5);
 			for ($i = 0; $i < $num_lines; $i++)
 			{
-				if (mt_rand(0, 1))
+				if (random_int(0, 1))
 				{
-					$x1 = mt_rand(0, $total_width);
-					$x2 = mt_rand(0, $total_width);
+					$x1 = random_int(0, $total_width);
+					$x2 = random_int(0, $total_width);
 					$y1 = 0; $y2 = $max_height;
 				}
 				else
 				{
-					$y1 = mt_rand(0, $max_height);
-					$y2 = mt_rand(0, $max_height);
+					$y1 = random_int(0, $max_height);
+					$y2 = random_int(0, $max_height);
 					$x1 = 0; $x2 = $total_width;
 				}
-				imagesetthickness($code_image, mt_rand(1, 2));
-				imageline($code_image, $x1, $y1, $x2, $y2, mt_rand(0, 1) ? $fg_color : $randomness_color);
+				imagesetthickness($code_image, random_int(1, 2));
+				imageline($code_image, $x1, $y1, $x2, $y2, random_int(0, 1) ? $fg_color : $randomness_color);
 			}
 		}
 		else
 		{
 			// Put in some ellipse
-			$num_ellipse = $noiseType == 'extreme' ? mt_rand(6, 12) : mt_rand(2, 6);
+			$num_ellipse = $noiseType == 'extreme' ? random_int(6, 12) : random_int(2, 6);
 			for ($i = 0; $i < $num_ellipse; $i++)
 			{
 				$x1 = round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
 				$x2 = round(rand($total_width / 2, 2 * $total_width));
 				$y1 = round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
 				$y2 = round(rand($max_height / 2, 2 * $max_height));
-				imageellipse($code_image, $x1, $y1, $x2, $y2, mt_rand(0, 1) ? $fg_color : $randomness_color);
+				imageellipse($code_image, $x1, $y1, $x2, $y2, random_int(0, 1) ? $fg_color : $randomness_color);
 			}
 		}
 	}

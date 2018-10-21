@@ -586,7 +586,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'member_name' => $regOptions['username'],
 		'email_address' => $regOptions['email'],
 		'passwd' => hash_password($regOptions['username'], $regOptions['password']),
-		'password_salt' => substr(md5(mt_rand()), 0, 4) ,
+		'password_salt' => substr(md5(random_int(0, PHP_INT_MAX)), 0, 4) ,
 		'posts' => 0,
 		'date_registered' => time(),
 		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $user_info['ip'],
@@ -1520,7 +1520,7 @@ function generateValidationCode()
 	list ($dbRand) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return substr(preg_replace('/\W/', '', sha1(microtime() . mt_rand() . $dbRand . $modSettings['rand_seed'])), 0, 10);
+	return substr(preg_replace('/\W/', '', sha1(microtime() . random_int(0, PHP_INT_MAX) . $dbRand . $modSettings['rand_seed'])), 0, 10);
 }
 
 ?>

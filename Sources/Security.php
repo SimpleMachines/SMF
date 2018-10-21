@@ -723,7 +723,7 @@ function checkConfirm($action)
 
 	else
 	{
-		$token = md5(mt_rand() . session_id() . (string) microtime() . $modSettings['rand_seed']);
+		$token = md5(random_int(0, PHP_INT_MAX) . session_id() . (string) microtime() . $modSettings['rand_seed']);
 		$_SESSION['confirm_' . $action] = md5($token . $_SERVER['HTTP_USER_AGENT']);
 
 		return $token;
@@ -741,8 +741,8 @@ function createToken($action, $type = 'post')
 {
 	global $modSettings, $context;
 
-	$token = md5(mt_rand() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
-	$token_var = substr(preg_replace('~^\d+~', '', md5(mt_rand() . (string) microtime() . mt_rand())), 0, mt_rand(7, 12));
+	$token = md5(random_int(0, PHP_INT_MAX) . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
+	$token_var = substr(preg_replace('~^\d+~', '', md5(random_int(0, PHP_INT_MAX) . (string) microtime() . random_int(0, PHP_INT_MAX))), 0, random_int(7, 12));
 
 	$_SESSION['token'][$type . '-' . $action] = array($token_var, md5($token . $_SERVER['HTTP_USER_AGENT']), time(), $token);
 
@@ -809,7 +809,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		unset($_SESSION['token'][$type . '-' . $action]);
 
 	// Randomly check if we should remove some older tokens.
-	if (mt_rand(0, 138) == 23)
+	if (random_int(0, 138) == 23)
 		cleanTokens();
 
 	return false;
@@ -858,7 +858,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 	{
 		$context['form_sequence_number'] = 0;
 		while (empty($context['form_sequence_number']) || in_array($context['form_sequence_number'], $_SESSION['forms']))
-			$context['form_sequence_number'] = mt_rand(1, 16000000);
+			$context['form_sequence_number'] = random_int(1, 16000000);
 	}
 	// Check whether the submitted number can be found in the session.
 	elseif ($action == 'check')

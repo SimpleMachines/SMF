@@ -80,6 +80,10 @@ if (!file_exists($upgrade_path . '/upgrade-helper.php'))
 
 require_once($upgrade_path . '/upgrade-helper.php');
 
+// For php below 7
+if (!function_exists('random_int'))
+	require_once ('Sources/random_compat/random_int.php');
+
 global $txt;
 
 // Initialize everything and load the language files.
@@ -251,7 +255,7 @@ if (isset($_GET['data']))
 else
 {
 	$upcontext['current_step'] = 0;
-	$upcontext['rid'] = mt_rand(0, 5000);
+	$upcontext['rid'] = random_int(0, 5000);
 	$upcontext['upgrade_status'] = array(
 		'curstep' => 0,
 		'lang' => isset($_GET['lang']) ? $_GET['lang'] : basename($language, '.lng'),
@@ -1006,7 +1010,7 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = mt_rand(0, 60000);
+			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
@@ -1186,7 +1190,7 @@ function UpgradeOptions()
 	// Add proxy settings.
 	if (!isset($GLOBALS['image_proxy_maxsize']))
 		$changes += array(
-			'image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\'',
+			'image_proxy_secret' => '\'' . substr(sha1(random_int(0, PHP_INT_MAX)), 0, 20) . '\'',
 			'image_proxy_maxsize' => 5190,
 			'image_proxy_enabled' => 0,
 		);

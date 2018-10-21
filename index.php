@@ -43,6 +43,10 @@ require_once(dirname(__FILE__) . '/Settings.php');
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
+// For php below 7
+if (!function_exists('random_int'))
+	require_once ($sourcedir . '/random_compat/random_int.php');
+
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Subs.php');
@@ -67,7 +71,7 @@ reloadSettings();
 cleanRequest();
 
 // Seed the random generator.
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+if (empty($modSettings['rand_seed']) || random_int(1, 250) == 69)
 	smf_seed_generator();
 
 // Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!

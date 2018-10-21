@@ -19,6 +19,10 @@ $GLOBALS['required_php_version'] = '5.4.0';
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
 
+// For php below 7
+if (!function_exists('random_int'))
+	require_once ('Sources/random_compat/random_int.php');
+
 // Let's pull in useful classes
 if (!defined('SMF'))
 	define('SMF', 1);
@@ -1000,7 +1004,7 @@ function ForumSettings()
 			'tasksdir' => addslashes(dirname(__FILE__)) . '/Sources/tasks',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
-			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
+			'image_proxy_secret' => substr(sha1(random_int(0, PHP_INT_MAX)), 0, 20),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 		);
 
@@ -1107,7 +1111,7 @@ function DatabasePopulation()
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
-		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+		'{$sched_task_offset}' => 82800 + random_int(0, 86399),
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 
@@ -1553,7 +1557,7 @@ function AdminAccount()
 		}
 		elseif ($_POST['username'] != '')
 		{
-			$incontext['member_salt'] = substr(md5(mt_rand()), 0, 4);
+			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);

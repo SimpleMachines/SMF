@@ -576,7 +576,7 @@ function ModifyAntispamSettings($return_config = false)
 
 	// Generate a sample registration image.
 	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
-	$context['verification_image_href'] = $scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
+	$context['verification_image_href'] = $scripturl . '?action=verificationcode;rand=' . md5(random_int(0, PHP_INT_MAX));
 
 	$config_vars = array(
 				array('check', 'reg_verification'),
@@ -1813,7 +1813,7 @@ function EditCustomProfiles()
 			if (isset($matches[1]))
 				$col_name = $initial_col_name = 'cust_' . strtolower($matches[1]);
 			else
-				$col_name = $initial_col_name = 'cust_' . mt_rand(1, 9999);
+				$col_name = $initial_col_name = 'cust_' . random_int(1, 9999);
 
 			// Make sure this is unique.
 			$current_fields = array();
