@@ -849,7 +849,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		}
 
 		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
-		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		if (DIRECTORY_SEPARATOR === '\\')
 			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
 
 		// Substitute unsupported formats with supported ones

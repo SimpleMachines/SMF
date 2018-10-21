@@ -733,7 +733,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	$disabled = true;
 	$context['settings_message'] = $txt['loadavg_disabled_conf'];
 
-	if (stripos(PHP_OS, 'win') === 0)
+	if (DIRECTORY_SEPARATOR === '\\')
 	{
 		$context['settings_message'] = $txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
