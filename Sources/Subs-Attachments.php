@@ -73,7 +73,7 @@ function automanage_attachments_check_directory()
 
 	$basedirectory = (!empty($modSettings['use_subdirectories_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
 	//Just to be sure: I don't want directory separators at the end
-	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
+	$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
 	switch ($modSettings['automanage_attachments'])
@@ -171,7 +171,7 @@ function automanage_attachments_create_directory($updir)
 	if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htaccess'))
 		secureDirectory($updir, true);
 
-	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
+	$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
 	$updir = rtrim($updir, $sep);
 
 	// Only update if it's a new directory
@@ -206,7 +206,7 @@ function automanage_attachments_by_space()
 
 	$basedirectory = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : $boarddir;
 	// Just to be sure: I don't want directory separators at the end
-	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
+	$sep = (DIRECTORY_SEPARATOR === '\\') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
 	// Get the current base directory
@@ -256,7 +256,7 @@ function get_directory_tree_elements($directory)
 			* in Windows we need to explode for both \ and /
 			* while in linux should be safe to explode only for / (aka DIRECTORY_SEPARATOR)
 	*/
-	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+	if (DIRECTORY_SEPARATOR === '\\')
 		$tree = preg_split('#[\\\/]#', $directory);
 	else
 	{
@@ -280,7 +280,7 @@ function attachments_init_dir(&$tree, &$count)
 {
 	$directory = '';
 	// If on Windows servers the first part of the path is the drive (e.g. "C:")
-	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+	if (DIRECTORY_SEPARATOR === '\\')
 	{
 		 //Better be sure that the first part of the path is actually a drive letter...
 		 //...even if, I should check this in the admin page...isn't it?
