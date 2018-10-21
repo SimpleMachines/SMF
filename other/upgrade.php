@@ -82,7 +82,7 @@ require_once($upgrade_path . '/upgrade-helper.php');
 
 // For php below 7
 if (!function_exists('random_int'))
-	require_once ('Sources/random_compat/random_int.php');
+	require_once ($upgrade_path . '/Sources/random_compat/random_int.php');
 
 global $txt;
 
