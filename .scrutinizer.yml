@@ -103,7 +103,7 @@ coding_style:
                 multiplicative: true
                 shift: true
                 unary_additive: false
-                concatenation: false
+                concatenation: true
                 negation: false
             before_left_brace:
                 class: true
