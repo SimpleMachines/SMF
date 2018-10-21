@@ -80,10 +80,6 @@ if (!file_exists($upgrade_path . '/upgrade-helper.php'))
 
 require_once($upgrade_path . '/upgrade-helper.php');
 
-// For php below 7
-if (!function_exists('random_int'))
-	require_once ($upgrade_path . '/Sources/random_compat/random_int.php');
-
 global $txt;
 
 // Initialize everything and load the language files.
@@ -129,6 +125,10 @@ else
 
 // Load this now just because we can.
 require_once($upgrade_path . '/Settings.php');
+
+// For php below 7
+if (!function_exists('random_int'))
+	require_once ($sourcedir . '/random_compat/random_int.php');
 
 // We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
 if (isset($language))
