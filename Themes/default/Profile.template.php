@@ -3155,6 +3155,7 @@ function template_tfasetup()
 									', $txt['tfa_code_invalid'], '
 								</div>';
 
+	loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
 	echo '
 								<input type="text" name="tfa_code" size="25"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '', '>
 								<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button">
@@ -3164,7 +3165,10 @@ function template_tfasetup()
 						</form>
 					</div>
 					<div class="floatright tfa_qrcode">
-						<img src="', $context['tfa_qr_url'], '" alt="">
+						<div id="qrcode"></div>
+						<script type="text/javascript">
+							new QRCode(document.getElementById("qrcode"), "' , $context['tfa_qr_url'],'");
+						</script>
 					</div>';
 
 	if (!empty($context['from_ajax']))
