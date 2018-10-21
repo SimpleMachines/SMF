@@ -3207,6 +3207,7 @@ function template_tfadisable()
 					<input type="submit" name="save" value="', $txt['tfa_disable'], '" class="button floatright">
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="u" value="', $context['id_member'], '">
 				</form>
 			</div><!-- .roundframe -->';
 }
