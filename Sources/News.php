@@ -18,18 +18,29 @@ if (!defined('SMF'))
 
 /**
  * Outputs xml data representing recent information or a profile.
- * Can be passed 4 subactions which decide what is output:
+ *
+ * Can be passed subactions which decide what is output:
  *  'recent' for recent posts,
  *  'news' for news topics,
  *  'members' for recently registered members,
  *  'profile' for a member's profile.
- * To display a member's profile, a user id has to be given. (;u=1)
- * Outputs an rss feed instead of a proprietary one if the 'type' $_GET
- * parameter is 'rss' or 'rss2'.
- * Accessed via ?action=.xml.
- * Does not use any templates, sub templates, or template layers.
+ *  'posts' for a member's posts.
+ *  'pms' for a member's personal messages.
  *
- * @uses Stats language file.
+ * When displaying a member's profile or posts, the u parameter identifies which member. Defaults
+ * to the current user's id.
+ * To display a member's personal messages, the u parameter must match the id of the current user.
+ *
+ * Outputs can be in RSS 0.92, RSS 2, Atom, RDF, or our own custom XML format. Default is RSS 2.
+ *
+ * Accessed via ?action=.xml.
+ *
+ * Does not use any templates, sub templates, or template layers...
+ * ...except when requesting all the user's own posts or PMs. Then we show a template indicating
+ * our progress compiling the info. This template will auto-refresh until the all the info is
+ * compiled, at which point we emit the full XML feed as a downloadable file.
+ *
+ * @uses Stats language file, and in special cases the Admin template and language file.
  */
 function ShowXmlFeed()
 {
@@ -500,6 +511,9 @@ function ShowXmlFeed()
 		}
 		else
 		{
+			// This shouldn't interfere with normal feed reader operation, because the only way this
+			// can happen is when the user is logged into their account, which isn't possible when
+			// connecting via any normal feed reader.
 			loadTemplate('Admin');
 			loadLanguage('Admin');
 			$context['sub_template'] = 'not_done';
