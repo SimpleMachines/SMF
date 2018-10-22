@@ -656,7 +656,7 @@ function template_set_settings()
 				echo '
 						<input type="text"';
 
-			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($settings['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
+			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
 		}
 	}
