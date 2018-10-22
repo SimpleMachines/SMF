@@ -2075,16 +2075,15 @@ function getXmlPosts($xml_format)
 	if ($show_all)
 		$query_this_board = preg_replace('/\{query_see_board\}\s*(AND )?/', '', $query_this_board);
 
-	$query_this_board = str_replace('b.id_board', 'id_board', $query_this_board);
-
 	require_once($sourcedir . '/Subs-Attachments.php');
 
 	// Need to know the total so we can track our progress
 	if (!empty($context['batch_mode']) && empty($context['batch_total']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(id_msg)
-			FROM {db_prefix}messages
+			SELECT COUNT(m.id_msg)
+			FROM {db_prefix}messages as m
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			WHERE id_member = {int:uid}
 				AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
 				AND approved = {int:is_approved}' : ''),
@@ -2098,9 +2097,10 @@ function getXmlPosts($xml_format)
 	}
 
 	$request = $smcFunc['db_query']('', '
-		SELECT id_msg, id_topic, id_board, poster_name, poster_email, poster_ip, poster_time, subject,
-			modified_time, modified_name, modified_reason, body, likes, approved, smileys_enabled
-		FROM {db_prefix}messages
+		SELECT m.id_msg, m.id_topic, m.id_board, m.poster_name, m.poster_email, m.poster_ip, m.poster_time, m.subject,
+			modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled
+		FROM {db_prefix}messages as m
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE id_member = {int:uid}
 			AND id_msg > {int:start_after}
 			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
