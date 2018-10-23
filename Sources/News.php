@@ -757,10 +757,12 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
  */
 function getXmlMembers($xml_format)
 {
-	global $scripturl, $smcFunc;
+	global $scripturl, $smcFunc, $txt, $context;
 
 	if (!allowedTo('view_mlist'))
 		return array();
+
+	loadLanguage('Profile');
 
 	// Find the most recent members.
 	$request = $smcFunc['db_query']('', '
@@ -1828,7 +1830,7 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $scripturl, $memberContext, $user_profile, $user_info;
+	global $scripturl, $memberContext, $user_profile, $user_info, $txt, $context;
 
 	// Make sure the id is a number and not "I like trying to hack the database".
 	$_GET['u'] = isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id'];
@@ -2791,6 +2793,8 @@ function getXmlPMs($xml_format)
 		}
 		else
 		{
+			loadLanguage('PersonalMessage');
+
 			$item = array(
 				'tag' => 'personal-message',
 				'attributes' => array('title' => $txt['personal_message']),
