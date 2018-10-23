@@ -214,6 +214,8 @@ $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
+$txt['modified_time'] = 'Last edited';
+$txt['modified_by'] = 'Edited by';
 
 $txt['recent_posts'] = 'Recent posts';
 
@@ -340,7 +342,7 @@ $txt['always_logged_in'] = 'Always stay logged in';
 $txt['logged'] = 'Logged';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
-
+$txt['url'] = 'URL';
 $txt['www'] = 'WWW';
 
 $txt['hours'] = 'hours';

@@ -294,7 +294,7 @@ $txt['reminder_error'] = '%1$s failed to answer their secret question correctly 
 $txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click <a href="%1$s">here</a>.';
 $txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
 
-$txt['primary_membergroup'] = 'Primary Membergroup';
+$txt['membergroups_group_type_post'] = 'Primary Membergroup';
 $txt['additional_membergroups'] = 'Additional Membergroups';
 $txt['additional_membergroups_show'] = 'show additional groups';
 $txt['no_primary_membergroup'] = '(no primary membergroup)';

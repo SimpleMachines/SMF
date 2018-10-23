@@ -868,14 +868,17 @@ function getXmlMembers($xml_format)
 		else
 			$data[] = array(
 				'tag' => 'member',
+				'attributes' => array('title' => $txt['who_member']),
 				'content' => array(
 					array(
 						'tag' => 'name',
+						'attributes' => array('title' => $txt['name']),
 						'content' => $row['real_name'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'time',
+						'attributes' => array('title' => $txt['date_registered']),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
 					),
 					array(
@@ -884,6 +887,7 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'link',
+						'attributes' => array('title' => $txt['url']),
 						'content' => $scripturl . '?action=profile;u=' . $row['id_member'],
 					),
 				),
@@ -1189,6 +1193,8 @@ function getXmlNews($xml_format)
 		// The biggest difference here is more information.
 		else
 		{
+			loadLanguage('Post');
+
 			$attachments = array();
 			if (!empty($loaded_attachments))
 			{
@@ -1196,6 +1202,7 @@ function getXmlNews($xml_format)
 				{
 					$attachments[] = array(
 						'tag' => 'attachment',
+						'attributes' => array('title' => $txt['attachment']),
 						'content' => array(
 							array(
 								'tag' => 'id',
@@ -1203,22 +1210,27 @@ function getXmlNews($xml_format)
 							),
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',
+								'attributes' => array('title' => $txt['downloads']),
 								'content' => $attachment['downloads'],
 							),
 							array(
 								'tag' => 'size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => $attachment['filesize'],
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 							),
 						)
@@ -1230,9 +1242,11 @@ function getXmlNews($xml_format)
 
 			$data[] = array(
 				'tag' => 'article',
+				'attributes' => array('title' => $txt['news']),
 				'content' => array(
 					array(
 						'tag' => 'time',
+						'attributes' => array('title' => $txt['date']),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
@@ -1241,19 +1255,23 @@ function getXmlNews($xml_format)
 					),
 					array(
 						'tag' => 'subject',
+						'attributes' => array('title' => $txt['subject']),
 						'content' => $row['subject'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
+						'attributes' => array('title' => $txt['message']),
 						'content' => $row['body'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'poster',
+						'attributes' => array('title' => $txt['author']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['poster_name'],
 								'cdata' => true,
 							),
@@ -1263,19 +1281,23 @@ function getXmlNews($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 							),
 						)
 					),
 					array(
 						'tag' => 'topic',
+						'attributes' => array('title' => $txt['topic']),
 						'content' => $row['id_topic'],
 					),
 					array(
 						'tag' => 'board',
+						'attributes' => array('title' => $txt['board']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['bname'],
 							),
 							array(
@@ -1284,16 +1306,19 @@ function getXmlNews($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?board=' . $row['id_board'] . '.0',
 							),
 						),
 					),
 					array(
 						'tag' => 'link',
+						'attributes' => array('title' => $txt['url']),
 						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					),
 					array(
 						'tag' => 'attachments',
+						'attributes' => array('title' => $txt['attachments']),
 						'content' => $attachments,
 					),
 				),
@@ -1619,6 +1644,8 @@ function getXmlRecent($xml_format)
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
 		{
+			loadLanguage('Post');
+
 			$attachments = array();
 			if (!empty($loaded_attachments))
 			{
@@ -1626,6 +1653,7 @@ function getXmlRecent($xml_format)
 				{
 					$attachments[] = array(
 						'tag' => 'attachment',
+						'attributes' => array('title' => $txt['attachment']),
 						'content' => array(
 							array(
 								'tag' => 'id',
@@ -1633,22 +1661,27 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',
+								'attributes' => array('title' => $txt['downloads']),
 								'content' => $attachment['downloads'],
 							),
 							array(
 								'tag' => 'size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => $attachment['filesize'],
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 							),
 						)
@@ -1660,9 +1693,11 @@ function getXmlRecent($xml_format)
 
 			$data[] = array(
 				'tag' => 'recent-post',
+				'attributes' => array('title' => $txt['post']),
 				'content' => array(
 					array(
 						'tag' => 'time',
+						'attributes' => array('title' => $txt['date']),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
@@ -1671,19 +1706,23 @@ function getXmlRecent($xml_format)
 					),
 					array(
 						'tag' => 'subject',
+						'attributes' => array('title' => $txt['subject']),
 						'content' => $row['subject'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
+						'attributes' => array('title' => $txt['message']),
 						'content' => $row['body'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'starter',
+						'attributes' => array('title' => $txt['topic_started']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['first_poster_name'],
 								'cdata' => true,
 							),
@@ -1693,15 +1732,18 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => !empty($row['id_first_member']) ? $scripturl . '?action=profile;u=' . $row['id_first_member'] : '',
 							),
 						),
 					),
 					array(
 						'tag' => 'poster',
+						'attributes' => array('title' => $txt['author']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['poster_name'],
 								'cdata' => true,
 							),
@@ -1711,15 +1753,18 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 							),
 						),
 					),
 					array(
 						'tag' => 'topic',
+						'attributes' => array('title' => $txt['topic']),
 						'content' => array(
 							array(
 								'tag' => 'subject',
+								'attributes' => array('title' => $txt['subject']),
 								'content' => $row['first_subject'],
 								'cdata' => true,
 							),
@@ -1729,15 +1774,18 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?topic=' . $row['id_topic'] . '.new#new',
 							),
 						),
 					),
 					array(
 						'tag' => 'board',
+						'attributes' => array('title' => $txt['board']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['bname'],
 							),
 							array(
@@ -1746,16 +1794,19 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?board=' . $row['id_board'] . '.0',
 							),
 						),
 					),
 					array(
 						'tag' => 'link',
+						'attributes' => array('title' => $txt['url']),
 						'content' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 					),
 					array(
 						'tag' => 'attachments',
+						'attributes' => array('title' => $txt['attachments']),
 						'content' => $attachments,
 					),
 				),
@@ -1919,93 +1970,115 @@ function getXmlProfile($xml_format)
 	}
 	else
 	{
+		loadLanguage('Profile');
+
 		$data = array(
 			array(
 				'tag' => 'username',
+				'attributes' => array('title' => $txt['username']),
 				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'name',
+				'attributes' => array('title' => $txt['name']),
 				'content' => $profile['name'],
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'link',
+				'attributes' => array('title' => $txt['url']),
 				'content' => $scripturl . '?action=profile;u=' . $profile['id'],
 			),
 			array(
 				'tag' => 'posts',
+				'attributes' => array('title' => $txt['member_postcount']),
 				'content' => $profile['posts'],
 			),
 			array(
 				'tag' => 'post-group',
+				'attributes' => array('title' => $txt['membergroups_group_type_post']),
 				'content' => $profile['post_group'],
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'language',
+				'attributes' => array('title' => $txt['preferred_language']),
 				'content' => $profile['language'],
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'last-login',
+				'attributes' => array('title' => $txt['lastLoggedIn']),
 				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['last_login']),
 			),
 			array(
 				'tag' => 'registered',
+				'attributes' => array('title' => $txt['date_registered']),
 				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
 			),
 			array(
 				'tag' => 'avatar',
+				'attributes' => array('title' => $txt['personal_picture']),
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 			),
 			array(
 				'tag' => 'signature',
+				'attributes' => array('title' => $txt['signature']),
 				'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'blurb',
+				'attributes' => array('title' => $txt['personal_text']),
 				'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'title',
+				'attributes' => array('title' => $txt['title']),
 				'content' => !empty($profile['title']) ? $profile['title'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'position',
+				'attributes' => array('title' => $txt['position']),
 				'content' => !empty($profile['group']) ? $profile['group'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'email',
+				'attributes' => array('title' => $txt['user_email_address']),
 				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
 			),
 			array(
 				'tag' => 'website',
+				'attributes' => array('title' => $txt['website']),
 				'content' => empty($profile['website']['url']) ? null : array(
 					array(
 						'tag' => 'title',
+						'attributes' => array('title' => $txt['website_title']),
 						'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 					),
 					array(
 						'tag' => 'link',
+						'attributes' => array('title' => $txt['website_url']),
 						'content' => $profile['website']['url'],
 					),
 				),
 			),
 			array(
 				'tag' => 'online',
+				'attributes' => array('title' => $txt['online']),
 				'content' => !empty($profile['online']['is_online']) ? '' : null,
 			),
 			array(
 				'tag' => 'ip_addresses',
+				'attributes' => array('title' => $txt['ip_address']),
 				'content' => allowedTo('moderate_forum') || $user_info['id'] == $profile['id'] ? array(
 					array(
 						'tag' => 'ip',
+						'attributes' => array('title' => $txt['most_recent_ip']),
 						'content' => $profile['ip'],
 					),
 					array(
@@ -2024,10 +2097,12 @@ function getXmlProfile($xml_format)
 
 			$data[] = array(
 				'tag' => 'age',
+				'attributes' => array('title' => $txt['age']),
 				'content' => $age,
 			);
 			$data[] = array(
 				'tag' => 'birthdate',
+				'attributes' => array('title' => $txt['dob']),
 				'content' => $profile['birth_date'],
 			);
 		}
@@ -2340,6 +2415,8 @@ function getXmlPosts($xml_format)
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
 		{
+			loadLanguage('Post');
+
 			$attachments = array();
 			if (!empty($loaded_attachments))
 			{
@@ -2347,6 +2424,7 @@ function getXmlPosts($xml_format)
 				{
 					$attachments[] = array(
 						'tag' => 'attachment',
+						'attributes' => array('title' => $txt['attachment']),
 						'content' => array(
 							array(
 								'tag' => 'id',
@@ -2354,22 +2432,27 @@ function getXmlPosts($xml_format)
 							),
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',
+								'attributes' => array('title' => $txt['downloads']),
 								'content' => $attachment['downloads'],
 							),
 							array(
 								'tag' => 'size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 							),
 							array(
 								'tag' => 'byte_size',
+								'attributes' => array('title' => $txt['filesize']),
 								'content' => $attachment['filesize'],
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 							),
 						)
@@ -2381,6 +2464,7 @@ function getXmlPosts($xml_format)
 
 			$data[] = array(
 				'tag' => 'member-post',
+				'attributes' => array('title' => $txt['post']),
 				'content' => array(
 					array(
 						'tag' => 'id',
@@ -2388,19 +2472,23 @@ function getXmlPosts($xml_format)
 					),
 					array(
 						'tag' => 'subject',
+						'attributes' => array('title' => $txt['subject']),
 						'content' => $row['subject'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
+						'attributes' => array('title' => $txt['message']),
 						'content' => $row['body'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'poster',
+						'attributes' => array('title' => $txt['author']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['poster_name'],
 								'cdata' => true,
 							),
@@ -2410,20 +2498,24 @@ function getXmlPosts($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?action=profile;u=' . $uid,
 							),
 							array(
 								'tag' => 'email',
+								'attributes' => array('title' => $txt['user_email_address']),
 								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_email'] : null,
 							),
 							array(
 								'tag' => 'ip',
+								'attributes' => array('title' => $txt['ip']),
 								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_ip'] : null,
 							),
 						),
 					),
 					array(
 						'tag' => 'topic',
+						'attributes' => array('title' => $txt['topic']),
 						'content' => array(
 							array(
 								'tag' => 'id',
@@ -2431,12 +2523,14 @@ function getXmlPosts($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 							),
 						),
 					),
 					array(
 						'tag' => 'board',
+						'attributes' => array('title' => $txt['board']),
 						'content' => array(
 							array(
 								'tag' => 'id',
@@ -2444,38 +2538,46 @@ function getXmlPosts($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?board=' . $row['id_board'] . '.0',
 							),
 						),
 					),
 					array(
 						'tag' => 'link',
+						'attributes' => array('title' => $txt['url']),
 						'content' => $scripturl . '?msg=' . $row['id_msg'],
 					),
 					array(
 						'tag' => 'time',
+						'attributes' => array('title' => $txt['date']),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
 						'tag' => 'modified_time',
+						'attributes' => array('title' => $txt['modified_time']),
 						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
 					),
 					array(
 						'tag' => 'modified_by',
+						'attributes' => array('title' => $txt['modified_by']),
 						'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'modified_reason',
+						'attributes' => array('title' => $txt['reason_for_edit']),
 						'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'likes',
+						'attributes' => array('title' => $txt['likes']),
 						'content' => $row['likes'],
 					),
 					array(
 						'tag' => 'attachments',
+						'attributes' => array('title' => $txt['attachments']),
 						'content' => $attachments,
 					),
 				),
@@ -2691,6 +2793,7 @@ function getXmlPMs($xml_format)
 		{
 			$item = array(
 				'tag' => 'personal-message',
+				'attributes' => array('title' => $txt['personal_message']),
 				'content' => array(
 					array(
 						'tag' => 'id',
@@ -2698,23 +2801,28 @@ function getXmlPMs($xml_format)
 					),
 					array(
 						'tag' => 'sent-date',
+						'attributes' => array('title' => $txt['date']),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime']))),
 					),
 					array(
 						'tag' => 'subject',
+						'attributes' => array('title' => $txt['subject']),
 						'content' => $row['subject'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'body',
+						'attributes' => array('title' => $txt['message']),
 						'content' => $row['body'],
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'sender',
+						'attributes' => array('title' => $txt['author']),
 						'content' => array(
 							array(
 								'tag' => 'name',
+								'attributes' => array('title' => $txt['name']),
 								'content' => $row['from_name'],
 								'cdata' => true,
 							),
@@ -2724,6 +2832,7 @@ function getXmlPMs($xml_format)
 							),
 							array(
 								'tag' => 'link',
+								'attributes' => array('title' => $txt['url']),
 								'content' => $scripturl . '?action=profile;u=' . $row['id_member_from'],
 							),
 						),
@@ -2734,9 +2843,11 @@ function getXmlPMs($xml_format)
 			foreach ($recipients as $recipient_id => $recipient_name)
 				$item['content'][] = array(
 					'tag' => 'recipient',
+					'attributes' => array('title' => $txt['recipient']),
 					'content' => array(
 						array(
 							'tag' => 'name',
+							'attributes' => array('title' => $txt['name']),
 							'content' => $recipient_name,
 							'cdata' => true,
 						),
@@ -2746,6 +2857,7 @@ function getXmlPMs($xml_format)
 						),
 						array(
 							'tag' => 'link',
+							'attributes' => array('title' => $txt['url']),
 							'content' => $scripturl . '?action=profile;u=' . $recipient_id,
 						),
 					),
