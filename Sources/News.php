@@ -1283,7 +1283,7 @@ function getXmlNews($xml_format)
 							),
 							array(
 								'tag' => 'link',
-								'attributes' => array('title' => $txt['url']),
+								'attributes' => !empty($row['id_member']) ? array('title' => $txt['url']) : null,
 								'content' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 							),
 						)
@@ -1734,7 +1734,7 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
-								'attributes' => array('title' => $txt['url']),
+								'attributes' => !empty($row['id_first_member']) ? array('title' => $txt['url']) : null,
 								'content' => !empty($row['id_first_member']) ? $scripturl . '?action=profile;u=' . $row['id_first_member'] : '',
 							),
 						),
@@ -1755,7 +1755,7 @@ function getXmlRecent($xml_format)
 							),
 							array(
 								'tag' => 'link',
-								'attributes' => array('title' => $txt['url']),
+								'attributes' => !empty($row['id_member']) ? array('title' => $txt['url']) : null,
 								'content' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 							),
 						),
@@ -1977,7 +1977,7 @@ function getXmlProfile($xml_format)
 		$data = array(
 			array(
 				'tag' => 'username',
-				'attributes' => array('title' => $txt['username']),
+				'attributes' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('title' => $txt['username']) : null,
 				'content' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : null,
 				'cdata' => true,
 			),
@@ -2021,36 +2021,36 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'avatar',
-				'attributes' => array('title' => $txt['personal_picture']),
+				'attributes' => !empty($profile['avatar']['url']) ? array('title' => $txt['personal_picture']) : null,
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 			),
 			array(
 				'tag' => 'signature',
-				'attributes' => array('title' => $txt['signature']),
+				'attributes' => !empty($profile['signature']) ? array('title' => $txt['signature']) : null,
 				'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'blurb',
-				'attributes' => array('title' => $txt['personal_text']),
+				'attributes' => !empty($profile['blurb']) ? array('title' => $txt['personal_text']) : null,
 				'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'title',
-				'attributes' => array('title' => $txt['title']),
+				'attributes' => !empty($profile['title']) ? array('title' => $txt['title']) : null,
 				'content' => !empty($profile['title']) ? $profile['title'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'position',
-				'attributes' => array('title' => $txt['position']),
+				'attributes' => !empty($profile['group']) ? array('title' => $txt['position']) : null,
 				'content' => !empty($profile['group']) ? $profile['group'] : null,
 				'cdata' => true,
 			),
 			array(
 				'tag' => 'email',
-				'attributes' => array('title' => $txt['user_email_address']),
+				'attributes' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('title' => $txt['user_email_address']) : null,
 				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
 			),
 			array(
@@ -2059,7 +2059,7 @@ function getXmlProfile($xml_format)
 				'content' => empty($profile['website']['url']) ? null : array(
 					array(
 						'tag' => 'title',
-						'attributes' => array('title' => $txt['website_title']),
+						'attributes' => !empty($profile['website']['title']) ? array('title' => $txt['website_title']) : null,
 						'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 					),
 					array(
@@ -2071,7 +2071,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'online',
-				'attributes' => array('title' => $txt['online']),
+				'attributes' => !empty($profile['online']['is_online']) ? array('title' => $txt['online']) : null,
 				'content' => !empty($profile['online']['is_online']) ? '' : null,
 			),
 			array(
@@ -2505,12 +2505,12 @@ function getXmlPosts($xml_format)
 							),
 							array(
 								'tag' => 'email',
-								'attributes' => array('title' => $txt['user_email_address']),
+								'attributes' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? array('title' => $txt['user_email_address']) : null,
 								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_email'] : null,
 							),
 							array(
 								'tag' => 'ip',
-								'attributes' => array('title' => $txt['ip']),
+								'attributes' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? array('title' => $txt['ip']) : null,
 								'content' => (allowedTo('moderate_forum') || $uid == $user_info['id']) ? $row['poster_ip'] : null,
 							),
 						),
@@ -2557,18 +2557,18 @@ function getXmlPosts($xml_format)
 					),
 					array(
 						'tag' => 'modified_time',
-						'attributes' => array('title' => $txt['modified_time']),
+						'attributes' => !empty($row['modified_time']) ? array('title' => $txt['modified_time']) : null,
 						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
 					),
 					array(
 						'tag' => 'modified_by',
-						'attributes' => array('title' => $txt['modified_by']),
+						'attributes' => !empty($row['modified_name']) ? array('title' => $txt['modified_by']) : null,
 						'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
 						'cdata' => true,
 					),
 					array(
 						'tag' => 'modified_reason',
-						'attributes' => array('title' => $txt['reason_for_edit']),
+						'attributes' => !empty($row['modified_reason']) ? array('title' => $txt['reason_for_edit']) : null,
 						'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
 						'cdata' => true,
 					),
