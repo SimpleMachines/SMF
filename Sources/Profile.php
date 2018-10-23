@@ -255,6 +255,19 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_password_any'),
 					),
 				),
+				'tfadisable' => array(
+					'file' => 'Profile-Modify.php',
+					'function' => 'tfadisable',
+					'token' => 'profile-tfa%u',
+					'sc' => 'post',
+					'password' => true,
+					'enabled' => !empty($modSettings['tfa_mode']),
+					'hidden' => isset($_REQUEST['area']) && $_REQUEST['area'] != 'tfadisable',
+					'permission' => array(
+						'own' => array('profile_password_own'),
+						'any' => array('profile_password_any'),
+					),
+				),
 				'forumprofile' => array(
 					'label' => $txt['forumprofile'],
 					'file' => 'Profile-Modify.php',
@@ -637,6 +650,14 @@ function ModifyProfile($post_errors = array())
 				deleteAccount2($memID);
 				redirectexit();
 			}
+		}
+		elseif ($current_area == 'tfadisable')
+		{
+			// Already checked the password, token, permissions, and session.
+			$profile_vars += array(
+				'tfa_secret' => '',
+				'tfa_backup' => '',
+			);
 		}
 		elseif ($current_area == 'groupmembership' && empty($post_errors))
 		{

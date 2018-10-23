@@ -4116,13 +4116,49 @@ function tfasetup($memID)
 
 		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ':' . $user_info['name'], $context['tfa_secret']);
 	}
-	elseif (isset($_REQUEST['disable']))
-	{
-		updateMemberData($memID, array(
-			'tfa_secret' => '',
-			'tfa_backup' => '',
-		));
+	else
 		redirectexit('action=profile;area=account;u=' . $memID);
+}
+
+/**
+ * Provides interface to disable two-factor authentication in SMF
+ *
+ * @param int $memID The ID of the member
+ */
+function tfadisable($memID)
+{
+	global $context, $modSettings, $smcFunc, $user_settings;
+
+	if (!empty($user_settings['tfa_secret']))
+	{
+		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
+		if (!empty($modSettings['force_ssl']) && !httpsOn())
+			fatal_lang_error('login_ssl_required', false);
+
+		// The admin giveth...
+		elseif ($modSettings['tfa_mode'] == 3 && $context['user']['is_owner'])
+			fatal_lang_error('cannot_disable_tfa', false);
+		elseif ($modSettings['tfa_mode'] == 2 && $context['user']['is_owner'])
+		{
+			$groups = array($user_settings['id_group']);
+			if (!empty($user_settings['additional_groups']))
+				$groups = array_unique(array_merge($groups, explode(',', $user_settings['additional_groups'])));
+
+			$request = $smcFunc['db_query']('', '
+				SELECT id_group
+				FROM {db_prefix}membergroups
+				WHERE tfa_required = {int:tfa_required}
+					AND id_group IN ({array_int:groups})',
+				array(
+					'tfa_required' => 1,
+					'groups' => $groups,
+				)
+			);
+			// They belong to a membergroup that requires tfa.
+			if (!empty($smcFunc['db_num_rows']($request)))
+				fatal_lang_error('cannot_disable_tfa2', false);
+			$smcFunc['db_free_result']($request);
+		}
 	}
 	else
 		redirectexit('action=profile;area=account;u=' . $memID);
