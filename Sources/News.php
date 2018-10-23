@@ -880,7 +880,7 @@ function getXmlMembers($xml_format)
 					),
 					array(
 						'tag' => 'time',
-						'attributes' => array('title' => $txt['date_registered']),
+						'attributes' => array('title' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $row['date_registered'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
 					),
 					array(
@@ -1248,7 +1248,7 @@ function getXmlNews($xml_format)
 				'content' => array(
 					array(
 						'tag' => 'time',
-						'attributes' => array('title' => $txt['date']),
+						'attributes' => array('title' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
@@ -1699,7 +1699,7 @@ function getXmlRecent($xml_format)
 				'content' => array(
 					array(
 						'tag' => 'time',
-						'attributes' => array('title' => $txt['date']),
+						'attributes' => array('title' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
@@ -2016,7 +2016,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'registered',
-				'attributes' => array('title' => $txt['date_registered']),
+				'attributes' => array('title' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $row['date_registered'])),
 				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
 			),
 			array(
@@ -2552,12 +2552,12 @@ function getXmlPosts($xml_format)
 					),
 					array(
 						'tag' => 'time',
-						'attributes' => array('title' => $txt['date']),
+						'attributes' => array('title' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 					),
 					array(
 						'tag' => 'modified_time',
-						'attributes' => !empty($row['modified_time']) ? array('title' => $txt['modified_time']) : null,
+						'attributes' => !empty($row['modified_time']) ? array('title' => $txt['modified_time'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])) : null,
 						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
 					),
 					array(
@@ -2805,7 +2805,7 @@ function getXmlPMs($xml_format)
 					),
 					array(
 						'tag' => 'sent-date',
-						'attributes' => array('title' => $txt['date']),
+						'attributes' => array('title' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['msg_time'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime']))),
 					),
 					array(
