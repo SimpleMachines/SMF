@@ -2557,7 +2557,7 @@ function getXmlPosts($xml_format)
 					),
 					array(
 						'tag' => 'modified_time',
-						'attributes' => !empty($row['modified_time']) ? array('title' => $txt['modified_time'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])) : null,
+						'attributes' => !empty($row['modified_time']) ? array('title' => $txt['modified_time'], 'UTC' => gmstrftime('%F %T', $row['modified_time'])) : null,
 						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
 					),
 					array(
