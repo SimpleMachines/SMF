@@ -467,7 +467,6 @@ function ViewMemberlist()
 							'member_name' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_name',
@@ -520,7 +519,6 @@ function ViewMemberlist()
 							'member_ip' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_ip',
@@ -560,7 +558,6 @@ function ViewMemberlist()
 
 						return $difference;
 					},
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'last_login DESC',
@@ -573,7 +570,6 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'db' => 'posts',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'posts',
