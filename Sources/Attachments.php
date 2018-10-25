@@ -131,7 +131,7 @@ class Attachments
 
 		// The attachments was created and moved the the right folder, time to update the DB.
 		if (!empty($_SESSION['temp_attachments']))
-			$this->createAtttach();
+			$this->createAttach();
 
 		// Set the response.
 		$this->setResponse();
@@ -313,7 +313,7 @@ class Attachments
 		call_integration_hook('integrate_attachment_upload', array());
 	}
 
-	protected function createAtttach()
+	protected function createAttach()
 	{
 		global $txt, $user_info, $modSettings;
 
