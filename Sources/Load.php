@@ -311,7 +311,7 @@ function reloadSettings()
 		'is_lighttpd' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false,
 		'is_nginx' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false,
 		'is_cgi' => isset($_SERVER['SERVER_SOFTWARE']) && strpos(php_sapi_name(), 'cgi') !== false,
-		'is_windows' => strpos(PHP_OS, 'WIN') === 0,
+		'is_windows' => DIRECTORY_SEPARATOR === '\\',
 		'iso_case_folding' => ord(strtolower(chr(138))) === 154,
 	);
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
@@ -1770,6 +1770,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$id_theme = (int) $id_theme;
 	}
 		
+	// Allow mod authors the option to override the theme id for custom page themes
+	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
+
 	// We already load the basic stuff?
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
 	{
@@ -1976,8 +1979,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$context['user']['name'] = $txt['guest_title'];
 
 		// Determine the current smiley set.
-		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], explode(',', $modSettings['smiley_sets_known'])) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
+		$smiley_sets_known = explode(',', $modSettings['smiley_sets_known']);
+		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], $smiley_sets_known) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
 		$context['user']['smiley_set'] = $user_info['smiley_set'];
+
+		// Determine current smiley set extension
+		$smiley_sets_exts = explode(',', $modSettings['smiley_sets_exts']);
+		$user_info['smiley_set_ext'] = $smiley_sets_exts[array_search($user_info['smiley_set'], $smiley_sets_known)];
+		$context['user']['smiley_set_ext'] = $user_info['smiley_set_ext'];
+
+		// Determine global default smiley set extension
+		$context['user']['smiley_set_default_ext'] = $smiley_sets_exts[array_search($modSettings['smiley_sets_default'], $smiley_sets_known)];
 	}
 	else
 	{
@@ -2219,6 +2231,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
+		'smf_smiley_sets_exts' => '"' . $modSettings['smiley_sets_exts'] . '"',
+		'smf_smiley_sets_default_ext' => '"' . $context['user']['smiley_set_default_ext'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',
@@ -3302,7 +3316,11 @@ function loadDatabase()
 */
 function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI, $cache_accelerator;
+	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
+
+	// is caching enabled?
+	if (empty($cache_enable) && empty($overrideCache))
+		return false;
 
 	// Not overriding this and we have a cacheAPI, send it back.
 	if (empty($overrideCache) && is_object($cacheAPI))
@@ -3422,7 +3440,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
 		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value)));
-		$st = microtime();
+		$st = microtime(true);
 	}
 
 	// The API will handle the rest.
@@ -3433,7 +3451,7 @@ function cache_put_data($key, $value, $ttl = 120)
 		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
 
 	if (isset($db_show_debug) && $db_show_debug === true)
-		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
+		$cache_hits[$cache_count]['t'] = microtime(true) - $st;
 }
 
 /**
@@ -3457,7 +3475,7 @@ function cache_get_data($key, $ttl = 120)
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
 		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'get');
-		$st = microtime();
+		$st = microtime(true);
 		$original_key = $key;
 	}
 
@@ -3466,7 +3484,7 @@ function cache_get_data($key, $ttl = 120)
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
+		$cache_hits[$cache_count]['t'] = microtime(true) - $st;
 		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
 
 		if (empty($value))

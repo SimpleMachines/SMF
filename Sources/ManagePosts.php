@@ -199,6 +199,7 @@ function ModifyPostSettings($return_config = false)
 			array('check', 'enableSpellChecking', 'disabled' => !$can_spell_check),
 			array('check', 'disable_wysiwyg'),
 			array('check', 'additional_options_collapsable'),
+			array('check', 'guest_post_no_email'),
 		'',
 			// Posting limits...
 			array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),

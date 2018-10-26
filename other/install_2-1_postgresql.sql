@@ -292,6 +292,18 @@ CREATE INDEX {$db_prefix}boards_id_msg_updated ON {$db_prefix}boards (id_msg_upd
 CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups varchar_pattern_ops);
 
 #
+# Table structure for table `board_permissions_view`
+#
+
+CREATE TABLE {$db_prefix}board_permissions_view
+(
+    id_group smallint NOT NULL DEFAULT '0',
+    id_board smallint NOT NULL,
+    deny smallint NOT NULL,
+    PRIMARY KEY (id_group, id_board, deny)
+);
+
+#
 # Sequence for table `calendar`
 #
 
@@ -2080,6 +2092,15 @@ VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 
 # --------------------------------------------------------
 
 #
+# Dumping data for table `board_permissions_view`
+#
+
+INSERT INTO {$db_prefix}board_permissions_view
+	(id_group, id_board, deny)
+VALUES (-1,1,0), (0,1,0), (2,1,0);
+# --------------------------------------------------------
+
+#
 # Dumping data for table `calendar_holidays`
 #
 
@@ -2505,6 +2526,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cookieTime', '60'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
+	('smiley_sets_exts', '.png,.png'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}'),
 	('smiley_sets_default', 'fugue'),
 	('cal_days_for_index', '7'),
@@ -2587,28 +2609,28 @@ VALUES ('smfVersion', '{$smf_version}'),
 
 INSERT INTO {$db_prefix}smileys
 	(code, filename, description, smiley_order, hidden)
-VALUES (':)', 'smiley.png', '{$default_smiley_smiley}', 0, 0),
-	(';)', 'wink.png', '{$default_wink_smiley}', 1, 0),
-	(':D', 'cheesy.png', '{$default_cheesy_smiley}', 2, 0),
-	(';D', 'grin.png', '{$default_grin_smiley}', 3, 0),
-	('>:(', 'angry.png', '{$default_angry_smiley}', 4, 0),
-	(':(', 'sad.png', '{$default_sad_smiley}', 5, 0),
-	(':o', 'shocked.png', '{$default_shocked_smiley}', 6, 0),
-	('8)', 'cool.png', '{$default_cool_smiley}', 7, 0),
-	('???', 'huh.png', '{$default_huh_smiley}', 8, 0),
-	('::)', 'rolleyes.png', '{$default_roll_eyes_smiley}', 9, 0),
-	(':P', 'tongue.png', '{$default_tongue_smiley}', 10, 0),
-	(':-[', 'embarrassed.png', '{$default_embarrassed_smiley}', 11, 0),
-	(':-X', 'lipsrsealed.png', '{$default_lips_sealed_smiley}', 12, 0),
-	(':-\\', 'undecided.png', '{$default_undecided_smiley}', 13, 0),
-	(':-*', 'kiss.png', '{$default_kiss_smiley}', 14, 0),
-	(':''(', 'cry.png', '{$default_cry_smiley}', 15, 0),
-	('>:D', 'evil.png', '{$default_evil_smiley}', 16, 1),
-	('^-^', 'azn.png', '{$default_azn_smiley}', 17, 1),
-	('O0', 'afro.png', '{$default_afro_smiley}', 18, 1),
-	(':))', 'laugh.png', '{$default_laugh_smiley}', 19, 1),
-	('C:-)', 'police.png', '{$default_police_smiley}', 20, 1),
-	('O:-)', 'angel.png', '{$default_angel_smiley}', 21, 1);
+VALUES (':)', 'smiley', '{$default_smiley_smiley}', 0, 0),
+	(';)', 'wink', '{$default_wink_smiley}', 1, 0),
+	(':D', 'cheesy', '{$default_cheesy_smiley}', 2, 0),
+	(';D', 'grin', '{$default_grin_smiley}', 3, 0),
+	('>:(', 'angry', '{$default_angry_smiley}', 4, 0),
+	(':(', 'sad', '{$default_sad_smiley}', 5, 0),
+	(':o', 'shocked', '{$default_shocked_smiley}', 6, 0),
+	('8)', 'cool', '{$default_cool_smiley}', 7, 0),
+	('???', 'huh', '{$default_huh_smiley}', 8, 0),
+	('::)', 'rolleyes', '{$default_roll_eyes_smiley}', 9, 0),
+	(':P', 'tongue', '{$default_tongue_smiley}', 10, 0),
+	(':-[', 'embarrassed', '{$default_embarrassed_smiley}', 11, 0),
+	(':-X', 'lipsrsealed', '{$default_lips_sealed_smiley}', 12, 0),
+	(':-\\', 'undecided', '{$default_undecided_smiley}', 13, 0),
+	(':-*', 'kiss', '{$default_kiss_smiley}', 14, 0),
+	(':''(', 'cry', '{$default_cry_smiley}', 15, 0),
+	('>:D', 'evil', '{$default_evil_smiley}', 16, 1),
+	('^-^', 'azn', '{$default_azn_smiley}', 17, 1),
+	('O0', 'afro', '{$default_afro_smiley}', 18, 1),
+	(':))', 'laugh', '{$default_laugh_smiley}', 19, 1),
+	('C:-)', 'police', '{$default_police_smiley}', 20, 1),
+	('O:-)', 'angel', '{$default_angel_smiley}', 21, 1);
 # --------------------------------------------------------
 
 #

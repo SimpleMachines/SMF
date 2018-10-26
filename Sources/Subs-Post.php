@@ -1259,7 +1259,9 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $modSettings, $webmaster_email, $txt;
+	global $modSettings, $webmaster_email, $txt, $boardurl;
+
+	static $helo;
 
 	$modSettings['smtp_host'] = trim($modSettings['smtp_host']);
 
@@ -1310,17 +1312,24 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (!server_parse(null, $socket, '220'))
 		return false;
 
-	// Try and determine the servers name, fall back to the mail servers if not found
-	$helo = false;
-	if (function_exists('gethostname') && gethostname() !== false)
-		$helo = gethostname();
-	elseif (function_exists('php_uname'))
-		$helo = php_uname('n');
-	elseif (array_key_exists('SERVER_NAME', $_SERVER) && !empty($_SERVER['SERVER_NAME']))
-		$helo = $_SERVER['SERVER_NAME'];
-
+	// Try to determine the server's fully qualified domain name
+	// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
 	if (empty($helo))
-		$helo = $modSettings['smtp_host'];
+	{
+		// See if we can get the domain name from the host itself
+		if (function_exists('gethostname'))
+			$helo = gethostname();
+		elseif (function_exists('php_uname'))
+			$helo = php_uname('n');
+
+		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
+		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
+			$helo = parse_url($boardurl, PHP_URL_HOST);
+
+		// This is one of those situations where 'www.' is undesirable
+		if (strpos($helo, 'www.') === 0)
+			$helo = substr($helo, 4);
+	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2
 	if (in_array($modSettings['mail_type'], array(1, 2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')

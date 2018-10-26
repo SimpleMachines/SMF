@@ -3617,7 +3617,7 @@ function template_upgrade_above()
 					</div>';
 
 	echo '
-					<div id="substep_bar_div" class="progress_bar" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
+					<div id="substep_bar_div" class="progress_bar ', isset($upcontext['substep_progress']) ? '' : 'hidden', '">
 						<h3 id="substep_name">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', '</h3>
 						<div id="substep_progress" class="bar" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%;"></div>
 						<span id="substep_text">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%</span>
@@ -3755,7 +3755,7 @@ function template_welcome_message()
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 
-					<div id="version_warning" class="noticebox" style="display: none;">
+					<div id="version_warning" class="noticebox hidden">
 						<h3>', $txt['upgrade_warning'], '</h3>
 						', sprintf($txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
 					</div>';
@@ -3781,7 +3781,7 @@ function template_welcome_message()
 
 	// Paths are incorrect?
 	echo '
-					<div class="errorbox"', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' style="display: none;"' : ''), ' id="js_script_missing_error">
+					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
 						<h3>', $txt['upgrade_critical_error'], '</h3>
 						', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
 					</div>';
@@ -3896,13 +3896,13 @@ function template_welcome_message()
 
 							var currentVersion = getInnerHTML(yourVer);
 							if (currentVersion < window.smfVersion)
-								document.getElementById(\'version_warning\').style.display = \'\';
+								document.getElementById(\'version_warning\').classList.remove(\'hidden\');
 						}
 						addLoadEvent(smfCurrentVersion);
 
 						// This checks that the script file even exists!
 						if (typeof(smfSelectText) == \'undefined\')
-							document.getElementById(\'js_script_missing_error\').style.display = \'\';
+							document.getElementById(\'js_script_missing_error\').classList.remove(\'hidden\');
 
 					</script>';
 }
@@ -3933,8 +3933,8 @@ function template_upgrade_options()
 					<li>
 						<input type="checkbox" name="maint" id="maint" value="1" checked>
 						<label for="maint">', $txt['upgrade_maintenace'], '</label>
-						<span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">', $txt['upgrade_customize'], '</a>)</span>
-						<div id="mainmess" style="display: none;">
+						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
+						<div id="mainmess" class="hidden">
 							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
 							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
 							<strong class="smalltext">', $txt['upgrade_maintenace_message'], ' </strong><br>
@@ -4004,7 +4004,7 @@ function template_backup_database()
 					<h3 id="current_tab">
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">Backup Complete! Click Continue to Proceed.</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4048,8 +4048,8 @@ function template_backup_database()
 							// Get the next update...
 							if (iTableNum == ', $upcontext['table_count'], ')
 							{
-								document.getElementById(\'commess\').style.display = "";
-								document.getElementById(\'current_tab\').style.display = "none";
+								document.getElementById(\'commess\').classList.remove("hidden");
+								document.getElementById(\'current_tab\').classList.add("hidden");
 								document.getElementById(\'contbutt\').disabled = 0;
 								document.getElementById(\'backup_done\').value = 1;
 							}
@@ -4126,7 +4126,7 @@ function template_database_changes()
 					<h3 id="info2">
 						<strong>', $txt['upgrade_executing'], '</strong> &quot;<span id="cur_item_name">', $upcontext['current_item_name'], '</span>&quot; (<span id="item_num">', $upcontext['current_item_num'], '</span> ', $txt['upgrade_of'], ' <span id="total_items"><span id="item_count">', $upcontext['total_items'], '</span>', $upcontext['file_count'] > 1 ? ' - of this script' : '', ')</span>
 					</h3>
-					<p id="commess" style="display: ', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline' : 'none', ';">', $txt['upgrade_db_complete2'], '</p>';
+					<p id="commess" class="', !empty($upcontext['changes_complete']) || $upcontext['current_debug_item_num'] == $upcontext['debug_items'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_db_complete2'], '</p>';
 
 		if ($is_debug)
 		{
@@ -4154,7 +4154,7 @@ function template_database_changes()
 
 	// Place for the XML error message.
 	echo '
-					<div id="error_block" class="errorbox"', empty($upcontext['error_message']) ? 'style="display: none;"' : '', '>
+					<div id="error_block" class="errorbox', empty($upcontext['error_message']) ? ' hidden' : '', '">
 						<h3>', $txt['upgrade_error'], '</h3>
 						<div id="error_message">', isset($upcontext['error_message']) ? $upcontext['error_message'] : $txt['upgrade_unknown_error'], '</div>
 					</div>';
@@ -4210,7 +4210,7 @@ function template_database_changes()
 								clearTimeout(timeOutID);
 
 							// Assume no error at this time...
-							document.getElementById("error_block").style.display = "none";
+							document.getElementById("error_block").classList.add("hidden");
 
 							// Are we getting some duff info?
 							if (!oXMLDoc.getElementsByTagName("item")[0])
@@ -4218,7 +4218,7 @@ function template_database_changes()
 								// Too many errors?
 								if (retryCount > 15)
 								{
-									document.getElementById("error_block").style.display = "";
+									document.getElementById("error_block").classList.remove("hidden");
 									setInnerHTML(document.getElementById("error_message"), "Error retrieving information on step: " + (sDebugName == "" ? sLastString : sDebugName));';
 
 	if ($is_debug)
@@ -4241,7 +4241,7 @@ function template_database_changes()
 								retryCount++;
 								if (retryCount > 10)
 								{
-									document.getElementById("error_block").style.display = "";
+									document.getElementById("error_block").classList.remove("hidden");
 									setInnerHTML(document.getElementById("error_message"), "', $txt['upgrade_loop'], '" + sDebugName);';
 
 	if ($is_debug)
@@ -4283,14 +4283,14 @@ function template_database_changes()
 							// Do we have the additional progress bar?
 							if (iSubStepProgress != -1)
 							{
-								document.getElementById("substep_bar_div").style.display = "";
+								document.getElementById("substep_bar_div").classList.remove("hidden");
 								document.getElementById("substep_progress").style.width = iSubStepProgress + "%";
 								setInnerHTML(document.getElementById("substep_text"), iSubStepProgress + "%");
 								setInnerHTML(document.getElementById("substep_name"), sDebugName.replace(/\./g, ""));
 							}
 							else
 							{
-								document.getElementById("substep_bar_div").style.display = "none";
+								document.getElementById("substep_bar_div").classList.add("hidden");
 							}
 
 							// Move onto the next item?
@@ -4306,7 +4306,7 @@ function template_database_changes()
 		// Database Changes, tell us how much time we spen to do this.  If this gets updated via JS.
 		if ($is_debug)
 			echo '
-								document.getElementById(\'debug_section\').style.display = "none";
+								document.getElementById(\'debug_section\').classList.add("hidden");
 
 								var upgradeFinishedTime = parseInt(oXMLDoc.getElementsByTagName("curtime")[0].childNodes[0].nodeValue);
 								var diffTime = upgradeFinishedTime - upgradeStartTime;
@@ -4323,16 +4323,16 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 
 		echo '
 
-								document.getElementById(\'commess\').style.display = "";
+								document.getElementById(\'commess\').classList.remove("hidden");
 								document.getElementById(\'contbutt\').disabled = 0;
 								document.getElementById(\'database_done\').value = 1;';
 
 		if ($upcontext['file_count'] > 1)
 			echo '
-								document.getElementById(\'info1\').style.display = "none";';
+								document.getElementById(\'info1\').classList.add(\'hidden\');';
 
 		echo '
-								document.getElementById(\'info2\').style.display = "none";
+								document.getElementById(\'info2\').classList.add(\'hidden\');
 								updateStepProgress(100, 100, ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');
 								return true;
 							}
@@ -4392,7 +4392,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 								var sErrorMsg = "";
 								for (var i = 0; i < oXMLDoc.getElementsByTagName("error")[0].childNodes.length; i++)
 									sErrorMsg += oXMLDoc.getElementsByTagName("error")[0].childNodes[i].nodeValue;
-								document.getElementById("error_block").style.display = "";
+								document.getElementById("error_block").classList.remove("hidden");
 								setInnerHTML(document.getElementById("error_message"), sErrorMsg);
 								return false;
 							}
@@ -4421,12 +4421,12 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							// Oh noes...
 							if (!attemptAgain)
 							{
-								document.getElementById("error_block").style.display = "";
+								document.getElementById("error_block").classList.remove("hidden");
 								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
-								document.getElementById("error_block").style.display = "none";
+								document.getElementById("error_block").classList.add("hidden");
 								getNextItem();
 							}
 						}';
@@ -4493,11 +4493,11 @@ function template_convert_utf8()
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-					<p id="indexmsg" style="font-weight: bold; font-style: italic; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_fulltext'], '</p>';
+					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ' style="font-weight: bold; font-style: italic">', $txt['upgrade_fulltext'], '</p>';
 
 	// Completion notification
 	echo '
-					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_conversion_proceed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_conversion_proceed'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
@@ -4541,11 +4541,11 @@ function template_convert_utf8()
 						// Get the next update...
 						if (iTableNum == ', $upcontext['table_count'], ')
 						{
-							document.getElementById(\'commess\').style.display = "";
+							document.getElementById(\'commess\').classList.remove(\'hidden\');
 							if (document.getElementById(\'indexmsg\') != null) {
-								document.getElementById(\'indexmsg\').style.display = "";
+								document.getElementById(\'indexmsg\').classList.remove(\'hidden\');
 							}
-							document.getElementById(\'current_tab\').style.display = "none";
+							document.getElementById(\'current_tab\').classList.add(\'hidden\');
 							document.getElementById(\'contbutt\').disabled = 0;
 							document.getElementById(\'utf8_done\').value = 1;
 						}
@@ -4590,7 +4590,7 @@ function template_serialize_json()
 					<h3 id="current_tab">
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" style="display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">', $txt['upgrade_json_completed'], '</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_json_completed'], '</p>';
 
 	// Try to make sure substep was reset.
 	if ($upcontext['cur_table_num'] == $upcontext['table_count'])
@@ -4639,8 +4639,8 @@ function template_serialize_json()
 							// Get the next update...
 							if (iTableNum == ', $upcontext['table_count'], ')
 							{
-								document.getElementById(\'commess\').style.display = "";
-								document.getElementById(\'current_tab\').style.display = "none";
+								document.getElementById(\'commess\').classList.remove("hidden");
+								document.getElementById(\'current_tab\').classList.add("hidden");
 								document.getElementById(\'contbutt\').disabled = 0;
 								document.getElementById(\'json_done\').value = 1;
 							}
@@ -4928,6 +4928,7 @@ function migrateSettingsFile($changes)
 		'sourcedir' => 'string',
 		'packagesdir' => 'string',
 		'tasksdir' => 'string',
+		'db_character_set' => 'string',
 	);
 
 	// The Settings file, in an array as if it was handled by updateSettingsFile
@@ -5131,6 +5132,10 @@ function migrateSettingsFile($changes)
 		'	$sourcedir = $boarddir . \'/Sources\';',
 		'if (!file_exists($cachedir) && file_exists($boarddir . \'/cache\'))',
 		'	$cachedir = $boarddir . \'/cache\';',
+		'',
+		'######### Legacy Settings #########',
+		'# UTF-8 is now the only character set supported in 2.1.',
+		'$db_character_set = \'utf8\';',
 		'',
 		'########## Error-Catching ##########',
 		'# Note: You shouldn\'t touch these settings.',

@@ -1034,7 +1034,7 @@ function template_send()
 
 	// Show the preview of the personal message.
 	echo '
-		<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+		<div id="preview_section"', isset($context['preview_message']) ? '' : ' class="hidden"', '>
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
@@ -1060,7 +1060,7 @@ function template_send()
 
 	// If there were errors for sending the PM, show them.
 	echo '
-				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '', empty($context['post_error']['messages']) ? ' hidden' : '', '" id="errors">
 					<dl>
 						<dt>
 							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>

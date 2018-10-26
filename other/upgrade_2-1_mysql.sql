@@ -2540,39 +2540,62 @@ DROP INDEX id_board;
 /******************************************************************************/
 --- Update smileys
 /******************************************************************************/
----# Transform default from gif to png
+---# Remove hardcoded gif extensions
 UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.gif', '.png')
+SET filename = REPLACE(filename, '.gif', '')
 WHERE
 	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
+---#
+
+---# Remove hardcoded png extensions
+UPDATE {$db_prefix}smileys
+SET filename = REPLACE(filename, '.png', '')
+WHERE
+	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
+	filename LIKE '%.png';
+---#
+
+---# Adding new extensions setting...
+---{
+if (!isset($modSettings['smiley_sets_exts']))
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings
+			(variable, value)
+		VALUES
+			('smiley_sets_exts', '')");
+---}
 ---#
 
 ---# Cleaning up unused smiley sets and adding the lovely new ones
 ---{
 // Start with the prior values...
 $dirs = explode(',', $modSettings['smiley_sets_known']);
+$setexts = empty($modSettings['smiley_sets_exts']) ? array() : explode(',', $modSettings['smiley_sets_exts']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
 // Build combined pairs of folders and names; bypass default which is not used anymore
+// If extensions not provided, assume its an old 2.0 one, i.e., a .gif
 $combined = array();
 foreach ($dirs AS $ix => $dir)
 	if (!empty($setnames[$ix]) && $dir != 'default')
-		$combined[$dir] = $setnames[$ix];
+	{
+		$combined[$dir] = array($setnames[$ix], empty($setexts[$ix]) ? '.gif' : $setexts[$ix]);
+	}
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = $txt['default_fugue_smileyset_name'];
-$combined['alienine'] = $txt['default_alienine_smileyset_name'];
+$combined['fugue'] = array($txt['default_fugue_smileyset_name'], '.png');
+$combined['alienine'] = array($txt['default_alienine_smileyset_name'], '.png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['aaron'] = $txt['default_aaron_smileyset_name'];
-$combined['akyhne'] = $txt['default_akyhne_smileyset_name'];
+$combined['aaron'] = array($txt['default_aaron_smileyset_name'], '.gif');
+$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], '.gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
-foreach ($combined AS $dir => $name)
+foreach ($combined AS $dir => $attrs)
 	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
-		$filtered[$dir] = $name;
+		$filtered[$dir] = $attrs;
 
 // Update the Settings Table...
 upgrade_query("
@@ -2582,7 +2605,12 @@ upgrade_query("
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_values($filtered))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column($filtered, 1))) . "'
+	WHERE variable = 'smiley_sets_exts'");
+
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column($filtered, 0))) . "'
 	WHERE variable = 'smiley_sets_names'");
 
 // Set new default if the old one doesnt exist
@@ -2611,3 +2639,55 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Update permissions system
+/******************************************************************************/
+---# Create table board_permissions_view
+CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
+(
+    id_group SMALLINT NOT NULL DEFAULT '0',
+    id_board SMALLINT UNSIGNED NOT NULL,
+    deny smallint NOT NULL,
+    PRIMARY KEY (id_group, id_board, deny)
+) ENGINE=MyISAM;
+
+TRUNCATE {$db_prefix}board_permissions_view;
+---#
+
+---# Update board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group,0
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group, 1
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+

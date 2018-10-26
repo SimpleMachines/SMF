@@ -18,9 +18,8 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * !!!Compatibility!!!
- * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
- * Convert only the BBC that can be edited in HTML mode for the editor.
+ * As of SMF 2.1, this is unused. But it is available if any mod wants to use it.
+ * Convert only the BBC that can be edited in HTML mode for the (old) editor.
  *
  * @deprecated since version 2.1
  * @param string $text The text with bbcode in it
@@ -87,13 +86,9 @@ function bbc_to_html($text, $compat_mode = false)
 }
 
 /**
- * !!!Compatibility!!!
- * This is no more needed, but to avoid break mods let's keep it
- * Run it it shouldn't even hurt either, so let's not bother remove it
+ * Converts HTML to BBC
+ * As of SMF 2.1, only used by ManageBoards.php (and possibly mods)
  *
- * The harder one - wysiwyg to BBC!
- *
- * @deprecated since version 2.1
  * @param string $text Text containing HTML
  * @return string The text with html converted to bbc
  */
@@ -975,12 +970,8 @@ function html_to_bbc($text)
 }
 
 /**
- * !!!Compatibility!!!
- * This is no more needed, but to avoid break mods let's keep it
- *
  * Returns an array of attributes associated with a tag.
  *
- * @deprecated since version 2.1
  * @param string $text A tag
  * @return array An array of attributes
  */
@@ -1038,10 +1029,8 @@ function fetchTagAttributes($text)
 }
 
 /**
- * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
- * 
- * @deprecated since version 2.1
+ *
  * @param string $text Text
  * @return string Cleaned up text
  */
@@ -1122,8 +1111,10 @@ function legalise_bbc($text)
 	while (strlen($text) !== $lastlen)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
-	// Need to sort the tags my name length.
-	uksort($valid_tags, 'sort_array_length');
+	// Need to sort the tags by name length.
+	uksort($valid_tags, function ($a, $b) {
+		return strlen($a) < strlen($b) ? 1 : -1;
+	});
 
 	// These inline tags can compete with each other regarding style.
 	$competing_tags = array(
@@ -1412,20 +1403,6 @@ function legalise_bbc($text)
 }
 
 /**
- * !!!Compatibility!!!
- * A help function for legalise_bbc for sorting arrays based on length.
- * 
- * @deprecated since version 2.1
- * @param string $a A string
- * @param string $b Another string
- * @return int 1 if $a is shorter than $b, -1 otherwise
- */
-function sort_array_length($a, $b)
-{
-	return strlen($a) < strlen($b) ? 1 : -1;
-}
-
-/**
  * Creates the javascript code for localization of the editor (SCEditor)
  */
 function loadLocale()
@@ -1546,20 +1523,6 @@ function getMessageIcons($board_id)
 }
 
 /**
- * Compatibility function - used in 1.1 for showing a post box.
- *
- * @deprecated since version 2.1
- * @param string $msg The message
- * @return string The HTML for an editor
- */
-function theme_postbox($msg)
-{
-	global $context;
-
-	return template_control_richedit($context['post_box_name']);
-}
-
-/**
  * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
  * @param array $editorOptions Various options for the editor
  */
@@ -1592,7 +1555,6 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
-		loadJavaScriptFile('sceditor.undo.js', array('minimize' => true), 'smf_sceditor_undo');
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1898,82 +1860,82 @@ function create_control_richedit($editorOptions)
 				'smileys' => array(
 					array(
 						'code' => ':)',
-						'filename' => 'smiley.png',
+						'filename' => 'smiley',
 						'description' => $txt['icon_smiley'],
 					),
 					array(
 						'code' => ';)',
-						'filename' => 'wink.png',
+						'filename' => 'wink',
 						'description' => $txt['icon_wink'],
 					),
 					array(
 						'code' => ':D',
-						'filename' => 'cheesy.png',
+						'filename' => 'cheesy',
 						'description' => $txt['icon_cheesy'],
 					),
 					array(
 						'code' => ';D',
-						'filename' => 'grin.png',
+						'filename' => 'grin',
 						'description' => $txt['icon_grin']
 					),
 					array(
 						'code' => '>:(',
-						'filename' => 'angry.png',
+						'filename' => 'angry',
 						'description' => $txt['icon_angry'],
 					),
 					array(
 						'code' => ':(',
-						'filename' => 'sad.png',
+						'filename' => 'sad',
 						'description' => $txt['icon_sad'],
 					),
 					array(
 						'code' => ':o',
-						'filename' => 'shocked.png',
+						'filename' => 'shocked',
 						'description' => $txt['icon_shocked'],
 					),
 					array(
 						'code' => '8)',
-						'filename' => 'cool.png',
+						'filename' => 'cool',
 						'description' => $txt['icon_cool'],
 					),
 					array(
 						'code' => '???',
-						'filename' => 'huh.png',
+						'filename' => 'huh',
 						'description' => $txt['icon_huh'],
 					),
 					array(
 						'code' => '::)',
-						'filename' => 'rolleyes.png',
+						'filename' => 'rolleyes',
 						'description' => $txt['icon_rolleyes'],
 					),
 					array(
 						'code' => ':P',
-						'filename' => 'tongue.png',
+						'filename' => 'tongue',
 						'description' => $txt['icon_tongue'],
 					),
 					array(
 						'code' => ':-[',
-						'filename' => 'embarrassed.png',
+						'filename' => 'embarrassed',
 						'description' => $txt['icon_embarrassed'],
 					),
 					array(
 						'code' => ':-X',
-						'filename' => 'lipsrsealed.png',
+						'filename' => 'lipsrsealed',
 						'description' => $txt['icon_lips'],
 					),
 					array(
 						'code' => ':-\\',
-						'filename' => 'undecided.png',
+						'filename' => 'undecided',
 						'description' => $txt['icon_undecided'],
 					),
 					array(
 						'code' => ':-*',
-						'filename' => 'kiss.png',
+						'filename' => 'kiss',
 						'description' => $txt['icon_kiss'],
 					),
 					array(
 						'code' => ':\'(',
-						'filename' => 'cry.png',
+						'filename' => 'cry',
 						'description' => $txt['icon_cry'],
 						'isLast' => true,
 					),
@@ -2015,6 +1977,20 @@ function create_control_richedit($editorOptions)
 			else
 				$context['smileys'] = $temp;
 		}
+
+		// Set proper extensions; do this post caching so cache doesn't become extension-specific
+		array_walk_recursive($context['smileys'], function (&$filename, $key)
+			{
+				global $context, $user_info, $modSettings;
+				if ($key == 'filename')
+					// Need to use the default if user selection is disabled
+					if (empty($modSettings['smiley_sets_enable']))
+						$filename .= $context['user']['smiley_set_default_ext'];
+					else
+						$filename .= $user_info['smiley_set_ext'];
+
+			}
+		);
 	}
 
 	// Set a flag so the sub template knows what to do...
@@ -2026,7 +2002,7 @@ function create_control_richedit($editorOptions)
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
-		'plugins' => 'undo',
+		'plugins' => '',
 		'bbcodeTrim' => true,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))

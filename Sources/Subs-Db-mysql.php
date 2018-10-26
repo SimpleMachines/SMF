@@ -45,7 +45,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_num_rows'               => 'mysqli_num_rows',
 			'db_data_seek'              => 'mysqli_data_seek',
 			'db_num_fields'             => 'mysqli_num_fields',
-			'db_escape_string'          => 'addslashes',
+			'db_escape_string'          => 'smf_db_escape_string',
 			'db_unescape_string'        => 'stripslashes',
 			'db_server_info'            => 'smf_db_get_server_info',
 			'db_affected_rows'          => 'smf_db_affected_rows',
@@ -490,7 +490,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
-		$db_cache[$db_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
+		$db_cache[$db_count]['t'] = microtime(true) - $st;
 
 	return $ret;
 }
@@ -776,6 +776,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Determine the method of insertion.
 	$queryTitle = $method == 'replace' ? 'REPLACE' : ($method == 'ignore' ? 'INSERT IGNORE' : 'INSERT');
 
+	// Sanity check for replace is key part of the columns array
+	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
+		smf_db_error_backtrace('Primary Key field missing in insert call',
+				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+
 	if (!$with_returning || $method != 'ingore')
 	{
 		// Do the insert.
@@ -1051,6 +1056,20 @@ function smf_db_cte_support()
 		$return = version_compare($version, '8.0.1', '>=');
 
 	return $return;
+}
+
+/**
+ * Function which return the escaped string
+ * 
+ * @param string the unescaped text
+ * @param resource $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_escape_string($string, $connection = null)
+{
+	global $db_connection;
+
+	return mysqli_real_escape_string($connection === null ? $db_connection : $connection, $string);
 }
 
 ?>

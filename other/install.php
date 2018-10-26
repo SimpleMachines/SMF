@@ -1199,13 +1199,9 @@ function DatabasePopulation()
 
 		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), $db_connection) === false)
 		{
-			// Use the appropriate function based on the DB type
-			if ($db_type == 'mysql' || $db_type == 'mysqli')
-				$db_errorno = $db_type . '_errno';
-
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if ((($db_type != 'mysql' && $db_type != 'mysqli') || $db_errorno($db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+			if ((($db_type != 'mysql' && $db_type != 'mysqli') || mysqli_errno($db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
@@ -2021,7 +2017,7 @@ function template_welcome_message()
 	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
-		<div id="version_warning" class="noticebox" style="display: none;">
+		<div id="version_warning" class="noticebox hidden">
 			<h3>', $txt['error_warning_notice'], '</h3>
 			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
 		</div>';
@@ -2055,7 +2051,7 @@ function template_welcome_message()
 
 				var currentVersion = getInnerHTML(yourVer);
 				if (currentVersion < window.smfVersion)
-					document.getElementById(\'version_warning\').style.display = \'\';
+					document.getElementById(\'version_warning\').classList.remove(\'hidden\');
 			}
 			addLoadEvent(smfCurrentVersion);
 		</script>';
@@ -2254,9 +2250,9 @@ function template_database_settings()
 			function toggleDBInput()
 			{
 				if (document.getElementById(\'db_type_input\').value == \'postgresql\')
-					document.getElementById(\'db_name_info_warning\').style.display = \'none\';
+					document.getElementById(\'db_name_info_warning\').classList.add(\'hidden\');
 				else
-					document.getElementById(\'db_name_info_warning\').style.display = \'\';
+					document.getElementById(\'db_name_info_warning\').classList.remove(\'hidden\');
 			}
 			toggleDBInput();
 		</script>';

@@ -81,6 +81,7 @@ function getBoardIndex($boardIndexOptions)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
 				LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
+			WHERE b.id_parent != 0
 			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
 			array(
 				'current_member' => $user_info['id'],
@@ -296,6 +297,26 @@ function getBoardIndex($boardIndexOptions)
 					$row_boards[$row_board['id_parent']]['num_posts'] += $row_board['num_posts'];
 					$row_boards[$row_board['id_parent']]['num_topics'] += $row_board['num_topics'];
 				}
+
+				if ($row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
+				{
+					$row_boards[$row_board['id_parent']]['id_msg'] = $row_board['id_msg'];
+					$row_boards[$row_board['id_parent']]['subject'] = $row_board['subject'];
+					$row_boards[$row_board['id_parent']]['poster_time'] = $row_board['poster_time'];
+					$row_boards[$row_board['id_parent']]['short_subject'] = (!empty($row_board['short_subject']) ? $row_board['short_subject'] : '') ;
+					$row_boards[$row_board['id_parent']]['poster_name'] = $row_board['poster_name'];
+					$row_boards[$row_board['id_parent']]['real_name'] = $row_board['real_name'];
+					$row_boards[$row_board['id_parent']]['id_member'] = $row_board['id_member'];
+					$row_boards[$row_board['id_parent']]['id_topic'] = $row_board['id_topic'];
+					$row_boards[$row_board['id_parent']]['new_from'] = $row_board['new_from'];
+
+					if (!empty($settings['avatars_on_boardIndex']))
+					{
+						$row_boards[$row_board['id_parent']]['avatar'] = $row_board['avatar'];
+						$row_boards[$row_board['id_parent']]['email_address'] = $row_board['email_address'];
+						$row_boards[$row_board['id_parent']]['member_filename'] = !empty($row_board['member_filename']) ? $row_board['member_filename'] : '';
+					}
+				}
 			}
 
 			continue;
@@ -306,7 +327,7 @@ function getBoardIndex($boardIndexOptions)
 		$row_board['short_subject'] = shorten_subject($row_board['subject'], 24);
 		$this_last_post = array(
 			'id' => $row_board['id_msg'],
-			'time' => $row_board['poster_time'] > 0 ? timeformat($row_board['poster_time']) : $txt['not_applicable'],
+			'time' => $row_board['poster_time'],
 			'timestamp' => forum_time(true, $row_board['poster_time']),
 			'subject' => $row_board['short_subject'],
 			'member' => array(
@@ -332,11 +353,6 @@ function getBoardIndex($boardIndexOptions)
 		{
 			$this_last_post['href'] = $scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
-			/* The board's and children's 'last_post's have:
-			time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
-			link, href, subject, start (where they should go for the first unread post.),
-			and member. (which has id, name, link, href, username in it.) */
-			$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['link'], $this_last_post['link'], $this_last_post['time']);
 		}
 		else
 		{
@@ -346,8 +362,18 @@ function getBoardIndex($boardIndexOptions)
 		}
 
 		// Set the last post in the parent board.
-		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'] || ($isChild && !empty($row_board['poster_time']) && forum_time(true, $row_boards[$row_board['id_parent']]['poster_time']) < forum_time(true, $row_board['poster_time'])))
-			$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'] = $this_last_post;
+		if ($isChild && !empty($row_board['poster_time']) 
+				&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
+			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
+
+		// Set the last post in the root board 
+		if (!$isChild && !empty($row_board['poster_time'])
+			&& ( empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
+				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
+				)
+			)
+			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
+
 		// Just in the child...?
 		if ($isChild)
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['last_post'] = $this_last_post;
@@ -359,56 +385,63 @@ function getBoardIndex($boardIndexOptions)
 				'ref' => &$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post'],
 			);
 	}
-
+	
+	/* The board's and children's 'last_post's have:
+	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
+	link, href, subject, start (where they should go for the first unread post.),
+	and member. (which has id, name, link, href, username in it.) 
+	timeformat is a pricy call do it only for thos how get shown */
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
 	if ($boardIndexOptions['include_categories'])
-	{
-		foreach ($categories as $k => $category)
+		foreach ($categories as &$category)
 		{
-			foreach ($category['boards'] as $j => $board)
+			foreach ($category['boards'] as &$board )
 			{
 				if (!empty($moderators[$board['id']]))
 				{
-					$categories[$k]['boards'][$j]['moderators'] = $moderators[$board['id']];
+					$board['moderators'] = $moderators[$board['id']];
 					foreach ($moderators[$board['id']] as $moderator)
-						$categories[$k]['boards'][$j]['link_moderators'][] = $moderator['link'];
+						$board['link_moderators'][] = $moderator['link'];
 				}
 				if (!empty($groups[$board['id']]))
 				{
-					$categories[$k]['boards'][$j]['moderator_groups'] = $groups[$board['id']];
+					$board['moderator_groups'] = $groups[$board['id']];
 					foreach ($groups[$board['id']] as $group)
 					{
-						$categories[$k]['boards'][$j]['link_moderators'][] = $group['link'];
-						$categories[$k]['boards'][$j]['link_moderator_groups'][] = $group['link'];
+						$board['link_moderators'][] = $group['link'];
+						$board['link_moderator_groups'][] = $group['link'];
 					}
 				}
+				if (!empty($board['last_post']))
+					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
-	}
 	else
-	{
-		foreach ($this_category as $k => $board)
+		foreach ($this_category as &$board )
 		{
 			if (!empty($moderators[$board['id']]))
 			{
-				$this_category[$k]['moderators'] = $moderators[$board['id']];
+				$board['moderators'] = $moderators[$board['id']];
 				foreach ($moderators[$board['id']] as $moderator)
-					$this_category[$k]['link_moderators'][] = $moderator['link'];
+					$board['link_moderators'][] = $moderator['link'];
 			}
 			if (!empty($groups[$board['id']]))
 			{
-				$this_category[$k]['moderator_groups'] = $groups[$board['id']];
+				$board['moderator_groups'] = $groups[$board['id']];
 				foreach ($groups[$board['id']] as $group)
 				{
-					$this_category[$k]['link_moderators'][] = $group['link'];
-					$this_category[$k]['link_moderator_groups'][] = $group['link'];
+					$board['link_moderators'][] = $group['link'];
+					$board['link_moderator_groups'][] = $group['link'];
 				}
 			}
+			if (!empty($board['last_post']))
+				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 		}
-	}
+
+	unset($category,$board);
 
 	if ($boardIndexOptions['include_categories'])
 		sortCategories($categories);

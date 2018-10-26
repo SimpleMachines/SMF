@@ -655,6 +655,49 @@ function modifyBoard($board_id, &$boardOptions)
 				'selected_board' => $board_id,
 			))
 		);
+	
+	// Do permission sync
+	if (!empty($boardUpdateParameters['deny_groups']))
+	{
+		$insert = array();
+		foreach($boardOptions['deny_groups'] as $value)
+			$insert[] = array($value, $board_id, 1);
+
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:selected_board} AND deny = 1',
+			array(
+				'selected_board' => $board_id,
+			)
+		);
+		$smcFunc['db_insert']('insert',
+				'{db_prefix}board_permissions_view',
+				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				$insert,
+				array('id_group','id_board','deny')
+				);
+	}
+
+	if (!empty($boardUpdateParameters['member_groups']))
+	{
+		$insert = array();
+		foreach($boardOptions['access_groups'] as $value)
+			$insert[] = array($value, $board_id, 0);
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:selected_board} AND deny = 0',
+			array(
+				'selected_board' => $board_id,
+			)
+		);
+		$smcFunc['db_insert']('insert',
+				'{db_prefix}board_permissions_view',
+				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+				$insert,
+				array('id_group','id_board','deny')
+				);
+	}
+
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
@@ -833,13 +876,16 @@ function createBoard($boardOptions)
 		'inherit_permissions' => true,
 		'dont_log' => true,
 	);
+	
+	$default_memgrps = '-1,0';
+	
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
 	);
 	$board_parameters = array(
 		$boardOptions['target_category'], $boardOptions['board_name'], '', 0,
-		'-1,0', '',
+		$default_memgrps, '',
 	);
 
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
@@ -850,6 +896,19 @@ function createBoard($boardOptions)
 		$board_columns,
 		$board_parameters,
 		array('id_board'),
+		1
+	);
+
+	$insert = array();
+
+	foreach(explode(',', $default_memgrps) as $value)
+			$insert[] = array($value, $board_id, 0);
+
+	$smcFunc['db_insert']('',
+		'{db_prefix}board_permissions_view',
+		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+		$insert,
+		array('id_group','id_board','deny'),
 		1
 	);
 
@@ -1028,6 +1087,15 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	// Delete the boards.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}boards
+		WHERE id_board IN ({array_int:boards_to_remove})',
+		array(
+			'boards_to_remove' => $boards_to_remove,
+		)
+	);
+
+	// Delete permissions
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}board_permissions_view
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
 			'boards_to_remove' => $boards_to_remove,

@@ -178,7 +178,7 @@ function template_email_members_compose()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+	<div id="preview_section"', isset($context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>

@@ -57,10 +57,10 @@ function template_main()
 
 	echo '
 						</div>
-						<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').style.display=\'block\'; document.getElementById(\'known_themes_link\').style.display = \'none\'; return false; " id="known_themes_link" style="display: none;">[ ', $txt['themeadmin_themelist_link'], ' ]</a>
+						<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').classList.remove(\'hidden\'); document.getElementById(\'known_themes_link\').classList.add(\'hidden\'); return false; " id="known_themes_link" class="hidden">[ ', $txt['themeadmin_themelist_link'], ' ]</a>
 						<script>
-							document.getElementById("known_themes_list").style.display = "none";
-							document.getElementById("known_themes_link").style.display = "";
+							document.getElementById("known_themes_list").classList.add(\'hidden\');
+							document.getElementById("known_themes_link").classList.remove(\'hidden\');
 						</script>
 					</dd>
 					<dt>
@@ -656,7 +656,7 @@ function template_set_settings()
 				echo '
 						<input type="text"';
 
-			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($settings['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
+			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
 		}
 	}
@@ -1003,7 +1003,7 @@ function template_edit_style()
 					url = url.substr(0, url.indexOf("#"));
 				}
 
-				myDoc.open("GET", url + (url.indexOf("?") == -1 ? "?" : ";") + "theme=', $context['theme_id'], '" + anchor, true);
+				myDoc.open("GET", url + (url.indexOf("?") == -1 ? "?" : ";") + "theme=', $context['theme_id'], ';normalcss" + anchor, true);
 				myDoc.send(null);
 			}
 			navigatePreview(smf_scripturl);

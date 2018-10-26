@@ -75,7 +75,7 @@ function template_generic_menu(&$menu_context)
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], '</a>
+						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], !empty($section['amt']) ? ' <span class="amt">' . $section['amt'] . '</span>' : '', '</a>
 							<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
@@ -88,7 +88,7 @@ function template_generic_menu(&$menu_context)
 
 			echo '
 								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
-									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
+									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
@@ -109,7 +109,7 @@ function template_generic_menu(&$menu_context)
 
 					echo '
 										<li>
-											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
+											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '</a>
 										</li>';
 				}
 

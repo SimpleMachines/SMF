@@ -378,9 +378,9 @@ function template_summary()
 		{
 			echo '
 				<dt class="clear">
-					<span class="alert">', $txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').style.display = document.getElementById(\'ban_info\').style.display == \'none\' ? \'\' : \'none\';return false;">' . $txt['view_ban'] . '</a>]
+					<span class="alert">', $txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . $txt['view_ban'] . '</a>]
 				</dt>
-				<dt class="clear" id="ban_info" style="display: none;">
+				<dt class="clear hidden" id="ban_info">
 					<strong>', $txt['user_banned_by_following'], ':</strong>';
 
 			foreach ($context['member']['bans'] as $ban)
@@ -1560,7 +1560,7 @@ function template_edit_options()
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
 							echo '
-							<option', is_numeric($value) ? ' value="" disabled' : ' value="' . $value . '"', $value === $field['value'] ? ' selected' : '', '>', $name, '</option>';
+							<option', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ''), ' value="' . $value . '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
 				}
 
 				echo '
@@ -3093,7 +3093,7 @@ function template_profile_smiley_pick()
 
 	echo '
 								</select>
-								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.png' : $settings['images_url'] . '/blank.png', '" alt=":)">
+								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] . '/smiley' . $context['user']['smiley_set_ext'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) . '/smiley' . $context['user']['smiley_set_default_ext']) : $settings['images_url'] . '/blank.png', '" alt=":)">
 							</dd>';
 }
 
@@ -3178,6 +3178,41 @@ function template_tfasetup()
 }
 
 /**
+ * Template for disabling two-factor authentication.
+ */
+function template_tfadisable()
+{
+	global $txt, $context, $scripturl;
+
+	echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['tfadisable'], '</h3>
+			</div>
+			<div class="roundframe">
+				<form action="', $scripturl, '?action=profile;area=tfadisable" method="post">';
+
+	if ($context['user']['is_owner'])
+		echo '
+					<div class="block">
+						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
+						<input type="password" name="oldpasswrd" size="20">
+					</div>';
+	else
+		echo '
+					<div class="smalltext">
+						', sprintf($txt['tfa_disable_for_user'], $context['user']['name']), '
+					</div>';
+
+	echo '
+					<input type="submit" name="save" value="', $txt['tfa_disable'], '" class="button floatright">
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="u" value="', $context['id_member'], '">
+				</form>
+			</div><!-- .roundframe -->';
+}
+
+/**
  * Template for setting up 2FA backup code
  */
 function template_tfasetup_backup()
@@ -3220,7 +3255,7 @@ function template_profile_tfa()
 
 	else
 		echo '
-								', sprintf($txt['tfa_profile_enabled'], $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=tfasetup;disable');
+								', sprintf($txt['tfa_profile_enabled'], !empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=tfadisable');
 
 	echo '
 							</dd>';

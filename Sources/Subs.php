@@ -108,7 +108,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					}
 
 					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
 					{
 						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
@@ -849,7 +849,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		}
 
 		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
-		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		if (DIRECTORY_SEPARATOR === '\\')
 			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
 
 		// Substitute unsupported formats with supported ones
@@ -898,11 +898,10 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 }
 
 /**
- * Removes special entities from strings.  Compatibility...
- * Should be used instead of html_entity_decode for PHP version compatibility reasons.
+ * Replaces special entities in strings with the real characters.
  *
- * - removes the base entities (&lt;, &quot;, etc.) from text.
- * - additionally converts &nbsp; and &#039;.
+ * Functionally equivalent to htmlspecialchars_decode(), except that this also
+ * replaces '&nbsp;' with a simple space character.
  *
  * @param string $string A string
  * @return string The string without entities
@@ -1083,6 +1082,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			foreach ($temp as $tag)
 				$disabled[trim($tag)] = true;
 		}
+
+		// The YouTube bbc needs this for its origin parameter
+		$scripturl_parts = parse_url($scripturl);
+		$hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
 
 		/* The following bbc are formatted as an array, with keys as follows:
 
@@ -1319,7 +1322,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context['browser']['is_opera'])
+						if (!empty($context['browser']['is_opera']))
 							$data .= '&nbsp;';
 					}
 				},
@@ -1356,7 +1359,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context['browser']['is_opera'])
+						if (!empty($context['browser']['is_opera']))
 							$data[0] .= '&nbsp;';
 					}
 				},
@@ -1444,8 +1447,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => $context['browser']['is_ie'] ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
-				'after' => $context['browser']['is_ie'] ? '</td></tr></table> ' : '</span>',
+				'before' => '<span style="text-shadow: $1 1px 1px 1px">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'green',
@@ -1733,30 +1736,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'shadow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
-				'before' => $context['browser']['is_ie'] ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
+				'before' => '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
-				'validate' => $context['browser']['is_ie'] ? function(&$tag, &$data, $disabled)
-				{
-					switch ($data[1])
-					{
-						case 'left':
-							$data[1] = 270;
-							break;
-						case 'right':
-							$data[1] = 90;
-							break;
-						case 'top':
-							$data[1] = 0;
-							break;
-						case 'bottom':
-							$data[1] = 180;
-							break;
-						default:
-							$data[1] = (int) $data[1];
-					}
-				}
-
-					: function(&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 					{
 
 						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
@@ -1890,7 +1872,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
-				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 				'block_level' => true,
 			),
@@ -1979,7 +1961,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if (($temp = cache_get_data($cache_key, 240)) != null)
 			return $temp;
 
-		$cache_t = microtime();
+		$cache_t = microtime(true);
 	}
 
 	if ($smileys === 'print')
@@ -2869,7 +2851,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	call_integration_hook('integrate_post_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Cache the output if it took some time...
-	if (isset($cache_key, $cache_t) && array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.05)
+	if (isset($cache_key, $cache_t) && microtime(true) - $cache_t > 0.05)
 		cache_put_data($cache_key, $message, 240);
 
 	// If this was a force parse revert if needed.
@@ -2917,7 +2899,7 @@ function parsesmileys(&$message)
 		if (empty($modSettings['smiley_enable']))
 		{
 			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
-			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'laugh.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
+			$smileysto = array('evil', 'cheesy', 'rolleyes', 'angry', 'laugh', 'smiley', 'wink', 'grin', 'sad', 'shocked', 'cool', 'tongue', 'huh', 'embarrassed', 'lipsrsealed', 'kiss', 'cry', 'undecided', 'azn', 'afro', 'police', 'angel');
 			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
 		}
 		else
@@ -2949,6 +2931,14 @@ function parsesmileys(&$message)
 				list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 		}
 
+		// Set proper extensions; do this post caching so cache doesn't become extension-specific
+		foreach($smileysto AS $ix=>$file)
+			// Need to use the default if user selection is disabled
+			if (empty($modSettings['smiley_sets_enable']))
+				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
+			else
+				$smileysto[$ix] = $file . $user_info['smiley_set_ext'];
+
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
@@ -2956,30 +2946,9 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = $smcFunc['htmlspecialchars']($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
-		$smileys_dir = $modSettings['smileys_dir'] . '/' . $user_info['smiley_set'] . '/';
 
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
-			// If the image file is missing, see if there is an alternative available
-			if (!file_exists($smileys_dir . $smileysto[$i]))
-			{
-				$exts = array('svg', 'png', 'gif', 'jpg');
-				$fname = pathinfo($smileysto[$i], PATHINFO_FILENAME);
-				$alt_images = glob($smileys_dir . $fname .  '.{' . (implode(',', $exts)) . '}', GLOB_BRACE);
-				if (!empty($alt_images))
-				{
-					foreach ($exts as $ext)
-						if (in_array($smileys_dir . $fname . '.' . $ext, $alt_images))
-						{
-							$smileysto[$i] = $fname . '.' . $ext;
-							break;
-						}
-				}
-				// If we have no image, just leave the text version in place
-				else
-					continue;
-			}
-
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
 			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
@@ -3247,7 +3216,7 @@ function url_image_size($url)
 	// Can we pull this from the cache... please please?
 	if (($temp = cache_get_data('url_image_size-' . md5($url), 240)) !== null)
 		return $temp;
-	$t = microtime();
+	$t = microtime(true);
 
 	// Get the host to pester...
 	preg_match('~^\w+://(.+?)/(.*)$~', $url, $match);
@@ -3302,7 +3271,7 @@ function url_image_size($url)
 		$size = false;
 
 	// If this took a long time, we may never have to do it again, but then again we might...
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $t)) > 0.8)
+	if (microtime(true) - $t > 0.8)
 		cache_put_data('url_image_size-' . md5($url), $size, 240);
 
 	// Didn't work.
@@ -3357,7 +3326,7 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && ($modSettings['registration_method'] == 2 || (!empty($modSettings['coppaType']) && $modSettings['coppaType'] == 2))) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
+			$context['unapproved_members'] = !empty($modSettings['unapprovedMembers']) ? $modSettings['unapprovedMembers'] : 0;
 
 		$context['user']['avatar'] = array();
 
@@ -3869,7 +3838,7 @@ function template_css()
 		if (!isset($file['options']['minimize']))
 			$file['options']['minimize'] = true;
 
-		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']) && !isset($_REQUEST['normalcss']))
 		{
 			$toMinify[] = $file;
 
@@ -4232,7 +4201,7 @@ function host_from_ip($ip)
 
 	if (($host = cache_get_data('hostlookup-' . $ip, 600)) !== null)
 		return $host;
-	$t = microtime();
+	$t = microtime(true);
 
 	// Try the Linux host command, perhaps?
 	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
@@ -4268,7 +4237,7 @@ function host_from_ip($ip)
 		$host = @gethostbyaddr($ip);
 
 	// It took a long time, so let's cache it!
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $t)) > 0.5)
+	if (microtime(true) - $t > 0.5)
 		cache_put_data('hostlookup-' . $ip, $host, 600);
 
 	return $host;
@@ -4641,13 +4610,13 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	$total_mod_reports = 0;
-	$total_admin_reports = 0;
+	$context['total_mod_reports'] = 0;
+	$context['total_admin_reports'] = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reports']))
 	{
-		$total_mod_reports = $context['open_mod_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$context['total_mod_reports'] = $context['open_mod_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reports']['amt'] = $context['open_mod_reports'];
 	}
 
 	// Show how many errors there are
@@ -4657,7 +4626,7 @@ function setupMenuContext()
 		if (!isset($context['num_errors']))
 		{
 			$query = $smcFunc['db_query']('', '
-				SELECT COUNT(id_error)
+				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);
@@ -4668,33 +4637,33 @@ function setupMenuContext()
 
 		if (!empty($context['num_errors']))
 		{
-			$total_admin_reports += $context['num_errors'];
-			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+			$context['total_admin_reports'] += $context['num_errors'];
+			$context['menu_buttons']['admin']['sub_buttons']['errorlog']['amt'] = $context['num_errors'];
 		}
 	}
 
 	// Show number of reported members
 	if (!empty($context['open_member_reports']) && !empty($context['menu_buttons']['moderate']['sub_buttons']['reported_members']))
 	{
-		$total_mod_reports += $context['open_member_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
+		$context['total_mod_reports'] += $context['open_member_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['amt'] = $context['open_member_reports'];
 	}
 
 	if (!empty($context['unapproved_members']) && !empty($context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
-		$total_admin_reports += $context['unapproved_members'];
+		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['amt'] = $context['unapproved_members'];
+		$context['total_admin_reports'] += $context['unapproved_members'];
 	}
-	
-	if($total_admin_reports > 0 && !empty($context['menu_buttons']['admin']))
+
+	if($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
 	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $total_admin_reports . '</span>';
+		$context['menu_buttons']['admin']['amt'] = $context['total_admin_reports'];
 	}
 
 	// Do we have any open reports?
-	if ($total_mod_reports > 0 && !empty($context['menu_buttons']['moderate']))
+	if ($context['total_mod_reports'] > 0 && !empty($context['menu_buttons']['moderate']))
 	{
-		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
+		$context['menu_buttons']['moderate']['amt'] = $context['total_mod_reports'];
 	}
 
 	// Not all actions are simple.
@@ -6397,7 +6366,7 @@ function https_redirect_active($url)
  */
 function build_query_board($userid)
 {
-	global $user_info, $modSettings, $smcFunc;
+	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
 	$groups = array();
@@ -6482,8 +6451,10 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $groups) . ', b.member_groups) != 0)' . (!empty($deny_boards_access) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $groups) . ', b.deny_member_groups) = 0)' : '') . (isset($mod_cache) ? ' OR ' . $mod_cache['mq'] : '') . ')';
-
+		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
+				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
+				. ' AND bpv.id_board = b.id_board)';
+		
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 

@@ -51,6 +51,7 @@ $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
 
 $txt['save'] = 'Save';
+$txt['reset'] = 'Reset';
 $txt['upload'] = 'Upload';
 $txt['upload_all'] = 'Upload all';
 $txt['processing'] = 'Processing...';

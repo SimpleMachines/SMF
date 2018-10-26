@@ -36,35 +36,35 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
 		$smcFunc += array(
-			'db_query'					=> 'smf_db_query',
-			'db_quote'					=> 'smf_db_quote',
-			'db_insert'					=> 'smf_db_insert',
-			'db_insert_id'				=> 'smf_db_insert_id',
-			'db_fetch_assoc'			=> 'smf_db_fetch_assoc',
-			'db_fetch_row'				=> 'smf_db_fetch_row',
-			'db_free_result'			=> 'pg_free_result',
-			'db_num_rows'				=> 'pg_num_rows',
-			'db_data_seek'				=> 'smf_db_data_seek',
-			'db_num_fields'				=> 'pg_num_fields',
-			'db_escape_string'			=> 'pg_escape_string',
-			'db_unescape_string'		=> 'smf_db_unescape_string',
-			'db_server_info'			=> 'smf_db_version',
-			'db_affected_rows'			=> 'smf_db_affected_rows',
-			'db_transaction'			=> 'smf_db_transaction',
-			'db_error'					=> 'pg_last_error',
-			'db_select_db'				=> 'smf_db_select_db',
-			'db_title'					=> 'PostgreSQL',
-			'db_sybase'					=> true,
-			'db_case_sensitive'			=> true,
+			'db_query'                  => 'smf_db_query',
+			'db_quote'                  => 'smf_db_quote',
+			'db_insert'                 => 'smf_db_insert',
+			'db_insert_id'              => 'smf_db_insert_id',
+			'db_fetch_assoc'            => 'smf_db_fetch_assoc',
+			'db_fetch_row'              => 'smf_db_fetch_row',
+			'db_free_result'            => 'pg_free_result',
+			'db_num_rows'               => 'pg_num_rows',
+			'db_data_seek'              => 'smf_db_data_seek',
+			'db_num_fields'             => 'pg_num_fields',
+			'db_escape_string'          => 'smf_db_escape_string',
+			'db_unescape_string'        => 'stripslashes',
+			'db_server_info'            => 'smf_db_version',
+			'db_affected_rows'          => 'smf_db_affected_rows',
+			'db_transaction'            => 'smf_db_transaction',
+			'db_error'                  => 'pg_last_error',
+			'db_select_db'              => 'smf_db_select_db',
+			'db_title'                  => 'PostgreSQL',
+			'db_sybase'                 => true,
+			'db_case_sensitive'         => true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
-			'db_is_resource'			=> 'is_resource',
-			'db_mb4'					=> true,
-			'db_ping'					=> 'pg_ping',
-			'db_fetch_all'				=> 'smf_db_fetch_all',
-			'db_error_insert'			=> 'smf_db_error_insert',
-			'db_custom_order'			=> 'smf_db_custom_order',
-			'db_native_replace'			=> 'smf_db_native_replace',
-			'db_cte_support'			=> 'smf_db_cte_support',
+			'db_is_resource'            => 'is_resource',
+			'db_mb4'                    => true,
+			'db_ping'                   => 'pg_ping',
+			'db_fetch_all'              => 'smf_db_fetch_all',
+			'db_error_insert'           => 'smf_db_error_insert',
+			'db_custom_order'           => 'smf_db_custom_order',
+			'db_native_replace'         => 'smf_db_native_replace',
+			'db_cte_support'            => 'smf_db_cte_support',
 		);
 
 	// We are not going to make it very far without these.
@@ -495,7 +495,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
-		$db_cache[$db_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
+		$db_cache[$db_count]['t'] = microtime(true) - $st;
 
 	return $db_last_result;
 }
@@ -678,17 +678,6 @@ function smf_db_data_seek($request, $counter)
 }
 
 /**
- * Unescape an escaped string!
- *
- * @param string $string The string to unescape
- * @return string The unescaped string
- */
-function smf_db_unescape_string($string)
-{
-	return strtr($string, array('\'\'' => '\''));
-}
-
-/**
  * Inserts data into a table
  *
  * @param string $method The insert method - can be 'replace', 'ignore' or 'insert'
@@ -716,6 +705,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
+
+	// Sanity check for replace is key part of the columns array
+	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
+		smf_db_error_backtrace('Primary Key field missing in insert call',
+				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace' || $method == 'ignore')
@@ -1047,6 +1041,20 @@ function smf_db_native_replace()
 function smf_db_cte_support()
 {
 	return true;
+}
+
+/**
+ * Function which return the escaped string
+ * 
+ * @param string the unescaped text
+ * @param resource $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_escape_string($string, $connection = null)
+{
+	global $db_connection;
+
+	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
 }
 
 ?>

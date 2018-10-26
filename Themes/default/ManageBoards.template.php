@@ -667,18 +667,34 @@ function template_modify_board()
 			var nonDefaultTheme = document.getElementById("boardtheme").value == 0 ? false : true;
 
 			// What to show?
-			document.getElementById("override_theme_div").style.display = redirectEnabled || !nonDefaultTheme ? "none" : "";
-			document.getElementById("board_theme_div").style.display = redirectEnabled ? "none" : "";
-			document.getElementById("count_posts_div").style.display = redirectEnabled ? "none" : "";';
+			
+			if(redirectEnabled || !nonDefaultTheme) 
+				document.getElementById("override_theme_div").classList.add(\'hidden\'); 
+			else 
+				document.getElementById("override_theme_div").classList.remove(\'hidden\');
+			
+			if(redirectEnabled) {
+				document.getElementById("board_theme_div").classList.add(\'hidden\');
+				document.getElementById("count_posts_div").classList.add(\'hidden\');
+			} else {
+				document.getElementById("board_theme_div").classList.remove(\'hidden\');
+				document.getElementById("count_posts_div").classList.remove(\'hidden\');
+			}';
 
 	if (!$context['board']['topics'] && empty($context['board']['is_recycle']))
 	{
 		echo '
-			document.getElementById("redirect_address_div").style.display = redirectEnabled ? "" : "none";';
+			if(redirectEnabled)
+				document.getElementById("redirect_address_div").classList.remove(\'hidden\');
+			else 
+				document.getElementById("redirect_address_div").classList.add(\'hidden\');';
 
 		if ($context['board']['redirect'])
 			echo '
-			document.getElementById("reset_redirect_div").style.display = redirectEnabled ? "" : "none";';
+			if(redirectEnabled)
+				document.getElementById("reset_redirect_div").classList.remove(\'hidden\');
+			else 
+				document.getElementById("reset_redirect_div").classList.add(\'hidden\');';
 	}
 
 	// Include any JavaScript added by mods using the 'integrate_edit_board' hook.
