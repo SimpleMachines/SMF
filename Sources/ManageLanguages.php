@@ -1184,7 +1184,7 @@ function ModifyLanguage()
 				$entryValue['entry'] = $matches[0];
 
 				// Now create an entry for each item.
-				$cur_index = 0;
+				$cur_index = -1;
 				$save_cache = array(
 					'enabled' => false,
 					'entries' => array(),
@@ -1202,7 +1202,7 @@ function ModifyLanguage()
 						$subValue = trim(substr($subValue, strpos($subValue, '=>') + 2));
 					}
 					else
-						$subKey = $cur_index++;
+						$subKey = ++$cur_index;
 
 					// Clean up some bits.
 					if (strpos($subValue, '\'') === 0)
