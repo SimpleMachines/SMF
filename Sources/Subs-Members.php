@@ -468,11 +468,11 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	// 4-byte Unicode characters are not permitted within user names where db_mb4 is false and character set is non-UTF
 	if (!$smcFunc['db_mb4'] && max(array_map('ord', str_split($regOptions['username']))) >= 240 && stripos($context['character_set'], 'utf') !== false)
-		$regOptions['username'] = mb_convert_encoding($regOptions['username'], 'HTML-ENTITIES', $context['character_set']);
+		$regOptions['username'] = $smcFunc['htmlspecialchars']($regOptions['username'], ENT_COMPAT, $context['character_set']);
 	// if the character set is non-UTF then characters would be replaced by ???'s therefore do not allow it but purposely change them for logging
 	elseif (max(array_map('ord', str_split($regOptions['username']))) >= 240 && stripos($context['character_set'], 'utf') === false)
 	{
-		$reg_errors[] = array('lang', 'profile_error_name_illegal');
+		$reg_errors[] = array('lang', 'name_invalid_character');
 		$regOptions['username'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', "\xEF\xBF\xBD", $regOptions['username']);
 	}
 
