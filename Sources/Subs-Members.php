@@ -466,15 +466,8 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Spaces and other odd characters are evil...
 	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
 
-	// 4-byte Unicode characters are not permitted within user names where db_mb4 is false and character set is non-UTF
-	if (!$smcFunc['db_mb4'] && max(array_map('ord', str_split($regOptions['username']))) >= 240 && stripos($context['character_set'], 'utf') !== false)
-		$regOptions['username'] = preg_replace_callback('/[\x{10000}-\x{10FFFF}]/u', function($name) use($smcFunc){return $smcFunc['htmlspecialchars']($name[0], ENT_COMPAT, $context['character_set']);}, $regOptions['username']);
-	// if the character set is non-UTF then characters would be replaced by ???'s therefore do not allow it but purposely change them for logging
-	elseif (max(array_map('ord', str_split($regOptions['username']))) >= 240 && stripos($context['character_set'], 'utf') === false)
-	{
-		$reg_errors[] = array('lang', 'name_invalid_character');
-		preg_replace_callback('/[\x{10000}-\x{10FFFF}]/u', function($name) use($smcFunc){return "\xEF\xBF\xBD";}, $regOptions['username']);
-	}
+	// 4-byte Unicode characters are not permitted within user names where db_mb4 is false
+	$regOptions['username'] = !$smcFunc['db_mb4'] && max(array_map('ord', str_split($regOptions['username']))) >= 240 ? preg_replace_callback('/[\x{10000}-\x{10FFFF}]/u', function($name) use($smcFunc){return $smcFunc['htmlspecialchars']($name[0]);}, $regOptions['username']) : $regOptions['username'];
 
 	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || !filter_var($regOptions['email'], FILTER_VALIDATE_EMAIL) || strlen($regOptions['email']) > 255)
