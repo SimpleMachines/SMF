@@ -391,10 +391,7 @@ function updateMemberData($members, $data)
 				$type = 'raw';
 			}
 			else
-			{
 				$val = alert_count($members, false);
-				$val = count($blub);
-			}
 		}
 		else if ($type == 'int' && ($val === '+' || $val === '-'))
 		{

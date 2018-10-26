@@ -2267,28 +2267,6 @@ function alert_count($memID, $unread = false)
 	if (empty($memID))
 		return false;
 
-	// Leave a place holder here for now.
-	// MySQL uses JSON_CONTAINS() to find data, Postgresql seems to be able to natively use it with JSONB column type.
-	// Maybe a $smcFunc['db_json_supported']?
-	if (false)
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_alert
-			FROM {db_prefix}user_alerts
-			WHERE id_member = {int:id_member}
-				'.($unread ? '
-				AND is_read = 0' : ''),
-			array(
-				'id_member' => $memID,
-			)
-		);
-
-		$count = $smcFunc['db_num_rows']($request);
-		$smcFunc['db_free_result']($request);
-
-		return $count;
-	}
-
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, extra
