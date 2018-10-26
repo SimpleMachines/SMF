@@ -2110,7 +2110,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'show_visual' => !empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])),
 			'number_questions' => isset($verificationOptions['override_qs']) ? $verificationOptions['override_qs'] : (!empty($modSettings['qa_verification_number']) ? $modSettings['qa_verification_number'] : 0),
 			'max_errors' => isset($verificationOptions['max_errors']) ? $verificationOptions['max_errors'] : 3,
-			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(random_int(0, PHP_INT_MAX)),
+			'image_href' => $scripturl . '?action=verificationcode;vid=' . $verificationOptions['id'] . ';rand=' . md5(mt_rand()),
 			'text_value' => '',
 			'questions' => array(),
 			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
@@ -2278,7 +2278,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			// We're building a field that lives in the template, that we hope to be empty later. But at least we give it a believable name.
 			$terms = array('gadget', 'device', 'uid', 'gid', 'guid', 'uuid', 'unique', 'identifier');
 			$second_terms = array('hash', 'cipher', 'code', 'key', 'unlock', 'bit', 'value');
-			$start = random_int(0, 27);
+			$start = mt_rand(0, 27);
 			$hash = substr(md5(time()), $start, 4);
 			$_SESSION[$verificationOptions['id'] . '_vv']['empty_field'] = $terms[array_rand($terms)] . '-' . $second_terms[array_rand($second_terms)] . '-' . $hash;
 		}

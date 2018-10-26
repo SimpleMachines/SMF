@@ -1000,7 +1000,7 @@ function ForumSettings()
 			'tasksdir' => addslashes(dirname(__FILE__)) . '/Sources/tasks',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
-			'image_proxy_secret' => substr(sha1(random_int(0, PHP_INT_MAX)), 0, 20),
+			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 		);
 
@@ -1107,7 +1107,7 @@ function DatabasePopulation()
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
-		'{$sched_task_offset}' => 82800 + random_int(0, 86399),
+		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 

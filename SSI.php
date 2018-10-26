@@ -78,7 +78,7 @@ reloadSettings();
 cleanRequest();
 
 // Seed the random generator?
-if (empty($modSettings['rand_seed']) || random_int(1, 250) == 69)
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 	smf_seed_generator();
 
 // Check on any hacking attempts.
@@ -936,7 +936,7 @@ function ssi_randomMember($random_type = '', $output_method = 'echo')
 	}
 
 	// Get the lowest ID we're interested in.
-	$member_id = random_int(1, $modSettings['latestMember']);
+	$member_id = mt_rand(1, $modSettings['latestMember']);
 
 	$where_query = '
 		id_member >= {int:selected_member}
@@ -1746,7 +1746,7 @@ function ssi_news($output_method = 'echo')
 {
 	global $context;
 
-	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][random_int(0, count($context['news_lines']) - 1)] : '';
+	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
 
 	// If mods want to do somthing with the news, let them do that now. Don't need to pass the news line itself, since it is already in $context.
 	call_integration_hook('integrate_ssi_news');

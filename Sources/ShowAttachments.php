@@ -182,7 +182,7 @@ function showAttachment()
 
 		// Cache it.
 		if (!empty($file) || !empty($thumbFile))
-			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), random_int(850, 900));
+			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
 	// Replace the normal file with its thumbnail if it has one!

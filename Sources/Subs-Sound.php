@@ -65,16 +65,16 @@ function createWaveFile($word)
 			return false;
 
 		$sound_letter = substr($sound_letter, strpos($sound_letter, 'data') + 8);
-		switch ($word{$i} === 's' ? 0 : random_int(0, 2))
+		switch ($word{$i} === 's' ? 0 : mt_rand(0, 2))
 		{
 			case 0 : for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
-					for ($k = 0, $m = round(random_int(15, 25) / 10); $k < $m; $k++)
-						$sound_word .= $word{$i} === 's' ? $sound_letter{$j} : chr(random_int(max(ord($sound_letter{$j}) - 1, 0x00), min(ord($sound_letter{$j}) + 1, 0xFF)));
+					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
+						$sound_word .= $word{$i} === 's' ? $sound_letter{$j} : chr(mt_rand(max(ord($sound_letter{$j}) - 1, 0x00), min(ord($sound_letter{$j}) + 1, 0xFF)));
 			break;
 
 			case 1:
 				for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2)
-					$sound_word .= (random_int(0, 3) == 0 ? '' : $sound_letter{$j}) . (random_int(0, 3) === 0 ? $sound_letter{$j + 1} : $sound_letter{$j}) . (random_int(0, 3) === 0 ? $sound_letter{$j} : $sound_letter{$j + 1}) . $sound_letter{$j + 1} . (random_int(0, 3) == 0 ? $sound_letter{$j + 1} : '');
+					$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j + 1} : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j} : $sound_letter{$j + 1}) . $sound_letter{$j + 1} . (mt_rand(0, 3) == 0 ? $sound_letter{$j + 1} : '');
 				$sound_word .= str_repeat($sound_letter{$n}, 2);
 			break;
 
@@ -82,15 +82,15 @@ function createWaveFile($word)
 				$shift = 0;
 				for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
 				{
-					if (random_int(0, 10) === 0)
-						$shift += random_int(-3, 3);
-					for ($k = 0, $m = round(random_int(15, 25) / 10); $k < $m; $k++)
+					if (mt_rand(0, 10) === 0)
+						$shift += mt_rand(-3, 3);
+					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
 						$sound_word .= chr(min(max(ord($sound_letter{$j}) + $shift, 0x00), 0xFF));
 				}
 			break;
 		}
 
-		$sound_word .= str_repeat(chr(0x80), random_int(10000, 10500));
+		$sound_word .= str_repeat(chr(0x80), mt_rand(10000, 10500));
 	}
 
 	$data_size = strlen($sound_word);
