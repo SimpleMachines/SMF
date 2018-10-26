@@ -473,7 +473,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	elseif (max(array_map('ord', str_split($regOptions['username']))) >= 240 && stripos($context['character_set'], 'utf') === false)
 	{
 		$reg_errors[] = array('lang', 'name_invalid_character');
-		preg_replace_callback('/[\x{10000}-\x{10FFFF}]/u', function($name) use($smcFunc){return $smcFunc['htmlspecialchars']($name[0], ENT_COMPAT, $context['character_set']);}, $regOptions['username']);
+		preg_replace_callback('/[\x{10000}-\x{10FFFF}]/u', function($name) use($smcFunc){return "\xEF\xBF\xBD";}, $regOptions['username']);
 	}
 
 	// @todo Separate the sprintf?
