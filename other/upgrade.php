@@ -251,7 +251,7 @@ if (isset($_GET['data']))
 else
 {
 	$upcontext['current_step'] = 0;
-	$upcontext['rid'] = random_int(0, 5000);
+	$upcontext['rid'] = mt_rand(0, 5000);
 	$upcontext['upgrade_status'] = array(
 		'curstep' => 0,
 		'lang' => isset($_GET['lang']) ? $_GET['lang'] : basename($language, '.lng'),
