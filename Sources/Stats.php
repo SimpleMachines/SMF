@@ -415,20 +415,20 @@ function DisplayStats()
 	if (($members = cache_get_data('stats_top_starters', 360)) == null)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member_started, COUNT(*) AS hits
+			SELECT id_member_started, COUNT(*)
 			FROM {db_prefix}topics' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 			WHERE id_board != {int:recycle_board}' : '') . '
-			GROUP BY id_member_started
-			ORDER BY hits DESC
-			LIMIT 20',
+			GROUP BY id_member_started',
 			array(
 				'recycle_board' => $modSettings['recycle_board'],
 			)
 		);
 		$members = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$members[$row['id_member_started']] = $row['hits'];
+		while ($row = $smcFunc['db_fetch_row']($request))
+			$members[$row[0]] = $row[1];
 		$smcFunc['db_free_result']($request);
+		arsort($members);
+		$members = array_slice($members, 0, 10, true);
 
 		cache_put_data('stats_top_starters', $members, 360);
 	}
@@ -440,36 +440,36 @@ function DisplayStats()
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:member_list})
-		LIMIT 10',
+		WHERE id_member IN ({array_int:member_list})',
 		array(
 			'member_list' => array_keys($members),
 		)
 	);
 	$context['stats_blocks']['starters'] = array();
-	$max_num = 1;
-	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
+	$max_num = max($members);
+	while (list ($id, $name) = $smcFunc['db_fetch_row']($members_result))
 	{
-		$i = array_search($row_members['id_member'], array_keys($members));
-		$context['stats_blocks']['starters'][$i] = array(
-			'name' => $row_members['real_name'],
-			'id' => $row_members['id_member'],
-			'num' => $members[$row_members['id_member']],
-			'href' => $scripturl . '?action=profile;u=' . $row_members['id_member'],
-			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_members['id_member'] . '">' . $row_members['real_name'] . '</a>'
+		$context['stats_blocks']['starters'][$id] = array(
+			'name' => $name,
+			'id' => $id,
+			'num' => comma_format($members[$id]),
+			'percent' => round(($members[$id] * 100) / $max_num),
+			'href' => $scripturl . '?action=profile;u=' . $id,
+			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $id . '">' . $name . '</a>'
 		);
-
-		if ($max_num < $members[$row_members['id_member']])
-			$max_num = $members[$row_members['id_member']];
 	}
-	ksort($context['stats_blocks']['starters']);
 	$smcFunc['db_free_result']($members_result);
 
-	foreach ($context['stats_blocks']['starters'] as $i => $topic)
+	// Even spammers must be orderly.
+	uksort($context['stats_blocks']['starters'], function ($a, $b) use ($members)
 	{
-		$context['stats_blocks']['starters'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
-		$context['stats_blocks']['starters'][$i]['num'] = comma_format($context['stats_blocks']['starters'][$i]['num']);
-	}
+		if ($members[$b] == $members[$a])
+			return 0;
+
+		return $members[$b] < $members[$a] ? -1 : 1;
+	});
+
+	unset($members);
 
 	// Time online top 10.
 	$temp = cache_get_data('stats_total_time_members', 600);
