@@ -440,8 +440,7 @@ function DisplayStats()
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:member_list})
-		LIMIT 20',
+		WHERE id_member IN ({array_int:member_list})',
 		array(
 			'member_list' => array_keys($members),
 		)
@@ -466,7 +465,7 @@ function DisplayStats()
 	$smcFunc['db_free_result']($members_result);
 
 	// remove alle not top 10
-	for($i = 10; $i < 20; $i++)
+	for($i = 10; $i < count($members); $i++)
 		unset($context['stats_blocks']['starters'][$i]);
 
 	foreach ($context['stats_blocks']['starters'] as $i => $topic)
