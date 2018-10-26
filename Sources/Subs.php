@@ -3310,7 +3310,7 @@ function setupThemeContext($forceload = false)
 		$context['news_lines'][$i] = parse_bbc(stripslashes(trim($context['news_lines'][$i])), true, 'news' . $i);
 	}
 	if (!empty($context['news_lines']))
-		$context['random_news_line'] = $context['news_lines'][random_int(0, count($context['news_lines']) - 1)];
+		$context['random_news_line'] = $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)];
 
 	if (!$user_info['is_guest'])
 	{
@@ -4070,7 +4070,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 
 	// Just make up a nice hash...
 	if ($new)
-		return sha1(md5($filename . time()) . random_int(0, PHP_INT_MAX));
+		return sha1(md5($filename . time()) . mt_rand());
 
 	// Just make sure that attachment id is only a int
 	$attachment_id = (int) $attachment_id;
@@ -4096,7 +4096,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 
 	// Still no hash? mmm...
 	if (empty($file_hash))
-		$file_hash = sha1(md5($filename . time()) . random_int(0, PHP_INT_MAX));
+		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
 	if (is_array($modSettings['attachmentUploadDir']))
@@ -4204,7 +4204,7 @@ function host_from_ip($ip)
 	$t = microtime(true);
 
 	// Try the Linux host command, perhaps?
-	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && random_int(0, 1) == 1)
+	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
 	{
 		if (!isset($modSettings['host_to_dis']))
 			$test = @shell_exec('host -W 1 ' . @escapeshellarg($ip));
@@ -4223,7 +4223,7 @@ function host_from_ip($ip)
 	}
 
 	// This is nslookup; usually only Windows, but possibly some Unix?
-	if (!isset($host) && stripos(PHP_OS, 'win') !== false && strpos(strtolower(PHP_OS), 'darwin') === false && random_int(0, 1) == 1)
+	if (!isset($host) && stripos(PHP_OS, 'win') !== false && strpos(strtolower(PHP_OS), 'darwin') === false && mt_rand(0, 1) == 1)
 	{
 		$test = @shell_exec('nslookup -timeout=1 ' . @escapeshellarg($ip));
 		if (strpos($test, 'Non-existent domain') !== false)
