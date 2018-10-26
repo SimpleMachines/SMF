@@ -2582,6 +2582,9 @@ dl.addrules dt.floatleft {
 	margin: 0 0 0 6px;
 	text-align: left;
 }
+#search_results {
+	margin-bottom: 5px;
+}
 
 /* Styles for the help section.
 ------------------------------------------------- */
