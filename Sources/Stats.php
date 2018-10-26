@@ -450,6 +450,10 @@ function DisplayStats()
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
 		$i = array_search($row_members['id_member'], array_keys($members));
+		// skip all not top 10
+		if ($i >= 10)
+			continue;
+
 		$context['stats_blocks']['starters'][$i] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
@@ -463,10 +467,6 @@ function DisplayStats()
 	}
 	ksort($context['stats_blocks']['starters']);
 	$smcFunc['db_free_result']($members_result);
-
-	// remove alle not top 10
-	for($i = 10; $i < count($members); $i++)
-		unset($context['stats_blocks']['starters'][$i]);
 
 	foreach ($context['stats_blocks']['starters'] as $i => $topic)
 	{
