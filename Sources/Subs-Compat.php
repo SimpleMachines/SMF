@@ -205,7 +205,7 @@ if (!function_exists('smf_crc32'))
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-if (!is_callable('random_bytes') || !is_callable('random_int')
+if (!is_callable('random_bytes') || !is_callable('random_int'))
 {
 	if (!is_callable('RandomCompat_strlen'))
 	{
@@ -219,7 +219,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			 *
 			 * @param string $binary_string
 			 *
-			 * @throws TypeError
+			 * @throws Exception
 			 *
 			 * @return int
 			 */
@@ -227,7 +227,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			{
 				if (!is_string($binary_string))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_strlen() expects a string'
 					);
 				}
@@ -244,7 +244,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			 *
 			 * @param string $binary_string
 			 *
-			 * @throws TypeError
+			 * @throws Exception
 			 *
 			 * @return int
 			 */
@@ -252,7 +252,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			{
 				if (!is_string($binary_string))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_strlen() expects a string'
 					);
 				}
@@ -275,7 +275,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			 * @param int $start
 			 * @param int|null $length (optional)
 			 *
-			 * @throws TypeError
+			 * @throws Exception
 			 *
 			 * @return string
 			 */
@@ -283,14 +283,14 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			{
 				if (!is_string($binary_string))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_substr(): First argument should be a string'
 					);
 				}
 
 				if (!is_int($start))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_substr(): Second argument should be an integer'
 					);
 				}
@@ -306,7 +306,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 				}
 				elseif (!is_int($length))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_substr(): Third argument should be an integer, or omitted'
 					);
 				}
@@ -341,7 +341,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			 * @param int $start
 			 * @param int|null $length (optional)
 			 *
-			 * @throws TypeError
+			 * @throws Exception
 			 *
 			 * @return string
 			 */
@@ -349,14 +349,14 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			{
 				if (!is_string($binary_string))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_substr(): First argument should be a string'
 					);
 				}
 
 				if (!is_int($start))
 				{
-					throw new TypeError(
+					throw new Exception(
 						'RandomCompat_substr(): Second argument should be an integer'
 					);
 				}
@@ -365,7 +365,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 				{
 					if (!is_int($length))
 					{
-						throw new TypeError(
+						throw new Exception(
 							'RandomCompat_substr(): Third argument should be an integer, or omitted'
 						);
 					}
@@ -402,7 +402,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 		 * @return float|int
 		 * @psalm-suppress InvalidReturnType
 		 *
-		 * @throws TypeError
+		 * @throws Exception
 		 */
 		function RandomCompat_intval($number, $fail_open = false)
 		{
@@ -428,7 +428,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int')
 			}
 			elseif (!$fail_open)
 			{
-				throw new TypeError(
+				throw new Exception(
 					'Expected an integer.'
 				);
 			}
@@ -508,7 +508,7 @@ if (!is_callable('random_bytes'))
 				/** @var int $bytes */
 				$bytes = RandomCompat_intval($bytes);
 			}
-			catch (TypeError $ex)
+			catch (Exception $ex)
 			{
 				log_error('random_bytes(): $bytes must be an integer');
 			}
@@ -643,9 +643,11 @@ if (!is_callable('random_bytes'))
 				/** @var int $bytes */
 				$bytes = RandomCompat_intval($bytes);
 			}
-			catch (TypeError $ex)
+			catch (Exception $ex)
+			{
 				log_error('random_bytes(): $bytes must be an integer');
-			
+			}
+
 			if ($bytes < 1)
 				log_error('Length must be greater than 0');
 
@@ -701,8 +703,10 @@ if (!is_callable('random_bytes'))
 							/** @var int $bytes */
 							$bytes = RandomCompat_intval($bytes);
 						}
-						catch (TypeError $ex)
+						catch (Exception $ex)
+						{
 							log_error('random_bytes(): $bytes must be an integer');
+						}
 
 						if ($bytes < 1)
 							log_error('Length must be greater than 0');
@@ -802,16 +806,20 @@ if (!is_callable('random_int'))
 			/** @var int $min */
 			$min = RandomCompat_intval($min);
 		}
-		catch (TypeError $ex)
+		catch (Exception $ex)
+		{
 			log_error('random_int(): $min must be an integer');
+		}
 
 		try
 		{
 			/** @var int $max */
 			$max = RandomCompat_intval($max);
 		}
-		catch (TypeError $ex)
+		catch (Exception $ex)
+		{
 			log_error('random_int(): $max must be an integer');
+		}
 
 		/**
 		 * Now that we've verified our weak typing system has given us an integer,
