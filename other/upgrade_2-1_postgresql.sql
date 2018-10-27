@@ -141,7 +141,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts',
 ---#
 
 ---# Adding new "minimize_files" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '0') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Collapse object
