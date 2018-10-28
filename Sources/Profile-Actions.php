@@ -1022,6 +1022,11 @@ function getProfileData($memID)
 			)
 		);
 		$profileData = $smcFunc['db_fetch_all']($request);
+
+		foreach ($profileData as &$profile)
+			$profile['poster_ip'] = int_dtop($profile['poster_ip']);
+		unset($profile);
+
 		if (!is_array($profileData) || empty($profileData))
 			redirectexit('action=profile;area=getprofiledata;u=' . $memID . ';nofound=1');
 		array_unshift($profileData, array_keys($profileData[0]));
