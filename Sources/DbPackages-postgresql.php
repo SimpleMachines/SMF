@@ -735,7 +735,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 			'time' => 'time without time zone',
 			'datetime' => 'timestamp without time zone',
 			'timestamp' => 'timestamp without time zone',
-			'boolean' => 'smallint',
+			'boolean' => 'boolean',
 		);
 	}
 	else
