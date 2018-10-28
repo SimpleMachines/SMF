@@ -1681,7 +1681,7 @@ function template_edit_policy()
 										<label for="policy_not_approvals">',$txt['policy_not_approvals'], ':<label>
 									</dt>
 									<dd>
-										<input name="policy_not_approvals" id="policy_not_approvals" readonly value="', $context['policy']['novalid'], '">
+										<input name="policy_not_approvals" id="policy_not_approvals" readonly value="', $context['policy']['invalid'], '">
 									</dd>
 									<dt>
 										<label for="policy_old_approvals">',$txt['policy_old_approvals'], ':<label>

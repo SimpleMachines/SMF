@@ -2366,15 +2366,15 @@ function ModifyPolicySettings($return_config = false)
 		SELECT count( case when th.value is null then 1 end) novalid,
 			count( case when th.value is not null and th.value != {string:policy_version} then 1 end) outdated,
 			count( case when th.value = {string:policy_version} then 1 end) fresh
-		FROM smf_members mem
-		LEFT JOIN smf_themes th ON (mem.id_member = th.id_member AND th.id_theme = 1 AND th.variable = {string:policy_approved})',
+		FROM {db_prefix}members mem
+		LEFT JOIN {db_prefix}themes th ON (mem.id_member = th.id_member AND th.id_theme = 1 AND th.variable = {string:policy_approved})',
 		array(
 			'policy_version' => 'policy_text' . $currentVersion,
 			'policy_approved' => 'policy_approved',
 		)
 	);
 	
-	list ($context['policy']['novalid'], $context['policy']['outdated'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
+	list ($context['policy']['invalid'], $context['policy']['outdated'], $context['policy']['fresh']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	
 	$request = $smcFunc['db_query']('', '
