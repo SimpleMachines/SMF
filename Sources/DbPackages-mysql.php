@@ -561,6 +561,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 	{
 		$types = array(
 			'inet' => 'varbinary',
+			'boolean' => 'tinyint',
 		);
 	}
 	else
