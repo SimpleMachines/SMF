@@ -2476,7 +2476,7 @@ function ModifyPolicySettings($return_config = false)
 		
 		call_integration_hook('integrate_manage_policy_settings');
 		
-		// set user with the policy unvalid
+		// set user with the policy invalid
 			if ($smcFunc['db_title'] == 'MySQLi')
 				$select = '
 					UPDATE {db_prefix}themes c
