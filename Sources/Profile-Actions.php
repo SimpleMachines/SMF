@@ -1024,7 +1024,7 @@ function getProfileData($memID)
 		$profileData = $smcFunc['db_fetch_all']($request);
 
 		foreach ($profileData as &$profile)
-			$profile['poster_ip'] = int_dtop($profile['poster_ip']);
+			$profile['poster_ip'] = inet_dtop($profile['poster_ip']);
 		unset($profile);
 
 		if (!is_array($profileData) || empty($profileData))
