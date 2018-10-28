@@ -213,7 +213,7 @@ function smf_main()
 	check_cron();
 
 	// Privacy logic only when enabled, got no valid version, try not to call the policy data
-	if (!empty($modSettings['enable_policy_function']) && !$user_info['is_guest'])
+	if (!empty($modSettings['enable_policy_function']) && !$user_info['is_guest'] && !$user_info['is_admin'])
 	{
 		global $options;
 		if (empty($options['policy_isvalid']) && 
