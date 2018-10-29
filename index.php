@@ -221,7 +221,7 @@ function smf_main()
 			require_once($sourcedir . '/LogInOut.php');
 			return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
 		}
-		// Don't even try it, sonny.
+		// Don't even try it, sorry.
 		else
 			return 'InMaintenance';
 	}
