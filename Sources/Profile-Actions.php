@@ -1108,7 +1108,6 @@ function getPolicyData($memID)
 
 	$mode = $_REQUEST['activity'];
 
-	$profileData = array();
 	if ($mode == 'save') // profile
 	{
 		if (!$context['poc']['own']) //only for yourself
@@ -1134,8 +1133,8 @@ function getPolicyData($memID)
   * from https://stackoverflow.com/questions/3933668/convert-array-into-csv
  * 
  * @param array $fields a line of the array
- * @param string @delimiter the delimiter char
- * @param string @enclosure the enclosure char
+ * @param string $delimiter the delimiter char
+ * @param string $enclosure the enclosure char
  * @param boolean $encloseAll enclose all
  * @param boolean $nullToMysqlNull
   */

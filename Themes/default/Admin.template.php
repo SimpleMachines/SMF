@@ -1710,8 +1710,8 @@ function template_edit_policy()
 							</div>
 							<div class="windowbg">
 								<dl class="settings">';
-	$count = ( is_array($context['poc']['policy_management']) ? count($context['poc']['policy_management']) : 0);
-	foreach ($context['poc']['policy_management'] as $row)
+
+	foreach ((array) $context['poc']['policy_management'] as $row)
 	{
 		echo '
 									<dt>', ($row['new'] ? $txt['policy_current'] : '<input type="submit" name="delete_policy" value="' . $row['name'] . '" class="button">') , '</dt><dd>', $row['amount'], '</dd>';
