@@ -4054,6 +4054,9 @@ function tfasetup($memID)
 	require_once($sourcedir . '/Class-TOTP.php');
 	require_once($sourcedir . '/Subs-Auth.php');
 
+	// load JS lib for QR
+	loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
+
 	// If TFA has not been setup, allow them to set it up
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{

@@ -3164,7 +3164,10 @@ function template_tfasetup()
 						</form>
 					</div>
 					<div class="floatright tfa_qrcode">
-						<img src="', $context['tfa_qr_url'], '" alt="">
+						<div id="qrcode"></div>
+						<script type="text/javascript">
+							new QRCode(document.getElementById("qrcode"), "' , $context['tfa_qr_url'],'");
+						</script>
 					</div>';
 
 	if (!empty($context['from_ajax']))

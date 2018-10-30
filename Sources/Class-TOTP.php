@@ -347,8 +347,8 @@ class Auth
 	 */
 	public function getQrCodeUrl($name, $code)
 	{
-		$urlencoded = urlencode('otpauth://totp/' . urlencode($name) . '?secret=' . $code);
-		return 'https://chart.googleapis.com/chart?chs=280x280&chld=M|0&cht=qr&chl=' . $urlencoded;
+		$url = 'otpauth://totp/' . urlencode($name) . '?secret=' . $code;
+		return $url;
 	}
 }
 
