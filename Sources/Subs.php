@@ -3915,7 +3915,7 @@ function custMinify($data, $type)
 	list($toCache, $async, $defer) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 3, null);
 
 	// Already done?
-	if (!empty($toCache))
+	if (!empty($toCache) && file_exists($toCache))
 		return array('smf_minified' => array(
 			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
 			'filePath' => $toCache,
