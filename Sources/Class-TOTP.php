@@ -114,7 +114,7 @@ class Auth
 	 */
 	public function setInitKey($key)
 	{
-		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false) {
+		if (empty(preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key))) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 		$this->initKey = $key;
@@ -221,9 +221,9 @@ class Auth
 			throw new \InvalidArgumentException('Incorrect code length');
 		}
 
-		$range = ($range == null) ? $this->getRange() : $range;
-		$timestamp = ($timestamp == null) ? $this->generateTimestamp() : $timestamp;
-		$initKey = ($initKey == null) ? $this->getInitKey() : $initKey;
+		$range = ($range === null) ? $this->getRange() : $range;
+		$timestamp = ($timestamp === null) ? $this->generateTimestamp() : $timestamp;
+		$initKey = ($initKey === null) ? $this->getInitKey() : $initKey;
 
 		$binary = $this->base32_decode($initKey);
 
@@ -244,8 +244,8 @@ class Auth
 	 */
 	public function generateOneTime($initKey = null, $timestamp = null)
 	{
-		$initKey = ($initKey == null) ? $this->getInitKey() : $initKey;
-		$timestamp = ($timestamp == null) ? $this->generateTimestamp() : $timestamp;
+		$initKey = ($initKey === null) ? $this->getInitKey() : $initKey;
+		$timestamp = ($timestamp === null) ? $this->generateTimestamp() : $timestamp;
 
 		$hash = hash_hmac(
 			'sha1',
@@ -315,7 +315,7 @@ class Auth
 	{
 		$lookup = $this->getLookup();
 
-		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false) {
+		if (empty(preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash))) {
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 

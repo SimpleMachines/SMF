@@ -37,7 +37,7 @@ class Likes
 	protected $_type = '';
 
 	/**
-	 *@var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
+	 *@var string|boolean A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
 	 */
 	protected $_extra = false;
 

@@ -735,7 +735,7 @@ class ftp_connection
 	public $connection;
 
 	/**
-	 * @var string Holds any errors
+	 * @var string|boolean Holds any errors
 	 */
 	public $error;
 
@@ -745,7 +745,7 @@ class ftp_connection
 	public $last_message;
 
 	/**
-	 * @var boolean Whether or not this is a passive connection
+	 * @var array Whether or not this is a passive connection
 	 */
 	public $pasv;
 

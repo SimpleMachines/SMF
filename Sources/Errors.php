@@ -61,13 +61,13 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Add a file and line to the error message?
 	// Don't use the actual txt entries for file and line but instead use %1$s for file and %2$s for line
-	if ($file == null)
+	if ($file === null)
 		$file = '';
 	else
 		// Window style slashes don't play well, lets convert them to the unix style.
 		$file = str_replace('\\', '/', $file);
 
-	if ($line == null)
+	if ($line === null)
 		$line = 0;
 	else
 		$line = (int) $line;
@@ -194,6 +194,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 {
 	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
+	$error_message = 'Unkown';
 
 	// Send the status header - set this to 0 or false if you don't want to send one at all
 	if (!empty($status))

@@ -226,9 +226,9 @@ function smf_db_list_tables($db = false, $filter = false)
 {
 	global $db_name, $smcFunc;
 
-	$db = $db == false ? $db_name : $db;
+	$db = $db === false ? $db_name : $db;
 	$db = trim($db);
-	$filter = $filter == false ? '' : ' LIKE \'' . $filter . '\'';
+	$filter = $filter === false ? '' : ' LIKE \'' . $filter . '\'';
 
 	$request = $smcFunc['db_query']('', '
 		SHOW TABLES
