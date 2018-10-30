@@ -495,6 +495,9 @@ if (!is_callable('random_bytes'))
 					 *
 					 * stream_set_read_buffer returns 0 on success
 					 */
+					if (!defined('RANDOM_COMPAT_READ_BUFFER'))
+						define('RANDOM_COMPAT_READ_BUFFER', 8);
+
 					if (is_callable('stream_set_read_buffer'))
 						stream_set_read_buffer($fp, RANDOM_COMPAT_READ_BUFFER);
 
@@ -675,6 +678,16 @@ if (!is_callable('random_bytes'))
 	 */
 	if (!is_callable('random_bytes') && extension_loaded('com_dotnet') && class_exists('COM'))
 	{
+		/**
+		* Class COM
+		*
+		* This is just a stub class.
+		*/
+		class com_exception extends Exception
+		{
+
+		}
+
 		$RandomCompat_disabled_classes = preg_split(
 			'#\s*,\s*#',
 			strtolower(ini_get('disable_classes'))
