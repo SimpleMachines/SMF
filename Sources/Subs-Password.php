@@ -137,9 +137,9 @@ namespace {
 					$bl = PasswordCompat\binary\_strlen($buffer);
 					for ($i = 0; $i < $raw_salt_len; $i++) {
 						if ($i < $bl) {
-							$buffer[$i] = $buffer[$i] ^ chr(random_int(0, 255));
+							$buffer[$i] = $buffer[$i] ^ chr($smcFunc['random_int'](0, 255));
 						} else {
-							$buffer .= chr(random_int(0, 255));
+							$buffer .= chr($smcFunc['random_int'](0, 255));
 						}
 					}
 				}

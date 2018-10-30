@@ -723,7 +723,7 @@ function checkConfirm($action)
 
 	else
 	{
-		$token = md5(random_int(0, PHP_INT_MAX) . session_id() . (string) microtime() . $modSettings['rand_seed']);
+		$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed']);
 		$_SESSION['confirm_' . $action] = md5($token . $_SERVER['HTTP_USER_AGENT']);
 
 		return $token;
@@ -741,8 +741,8 @@ function createToken($action, $type = 'post')
 {
 	global $modSettings, $context;
 
-	$token = md5(random_int(0, PHP_INT_MAX) . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
-	$token_var = substr(preg_replace('~^\d+~', '', md5(random_int(0, PHP_INT_MAX) . (string) microtime() . random_int(0, PHP_INT_MAX))), 0, random_int(7, 12));
+	$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
+	$token_var = substr(preg_replace('~^\d+~', '', md5($smcFunc['random_int']() . (string) microtime() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));
 
 	$_SESSION['token'][$type . '-' . $action] = array($token_var, md5($token . $_SERVER['HTTP_USER_AGENT']), time(), $token);
 

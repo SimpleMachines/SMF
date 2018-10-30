@@ -221,6 +221,15 @@ function reloadSettings()
 		} : 'ucwords',
 		'json_decode' => 'smf_json_decode',
 		'json_encode' => 'json_encode',
+		'random_int' => function($min = PHP_INT_MIN, $max = PHP_INT_MAX)
+		{
+			global $sourcedir;
+
+			if (!function_exists('random_int'))
+				require_once($sourcedir . '/Subs-Compat.php');
+
+			return random_int($min, $max);
+		},
 	);
 
 	// Setting the timezone is a requirement for some functions.

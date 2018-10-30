@@ -4079,7 +4079,7 @@ function tfasetup($memID)
 
 			if ($valid_password && $valid_code)
 			{
-				$backup = substr(sha1(random_int(0, PHP_INT_MAX)), 0, 16);
+				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
 
 				updateMemberData($memID, array(
