@@ -266,6 +266,8 @@ class Auth
 	 */
 	public function generateCode($length = 16)
 	{
+		global $smcFunc;
+
 		$lookup = implode('', array_keys($this->getLookup()));
 		$code = '';
 

@@ -4048,7 +4048,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
  */
 function tfasetup($memID)
 {
-	global $user_info, $context, $user_settings, $sourcedir, $modSettings;
+	global $user_info, $context, $user_settings, $sourcedir, $modSettings, $smcFunc;
 
 	require_once($sourcedir . '/Class-TOTP.php');
 	require_once($sourcedir . '/Subs-Auth.php');

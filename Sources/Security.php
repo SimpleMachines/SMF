@@ -716,7 +716,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
  */
 function checkConfirm($action)
 {
-	global $modSettings;
+	global $modSettings, $smcFunc;
 
 	if (isset($_GET['confirm']) && isset($_SESSION['confirm_' . $action]) && md5($_GET['confirm'] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['confirm_' . $action])
 		return true;
@@ -739,7 +739,7 @@ function checkConfirm($action)
  */
 function createToken($action, $type = 'post')
 {
-	global $modSettings, $context;
+	global $modSettings, $context, $smcFunc;
 
 	$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
 	$token_var = substr(preg_replace('~^\d+~', '', md5($smcFunc['random_int']() . (string) microtime() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));

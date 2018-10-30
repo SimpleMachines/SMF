@@ -35,6 +35,8 @@ namespace {
 		 * @return string|false The hashed password, or false on error.
 		 */
 		function password_hash($password, $algo, array $options = array()) {
+			global $smcFunc;
+
 			if (!function_exists('crypt')) {
 				trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
 				return null;
