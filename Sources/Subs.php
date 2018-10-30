@@ -3997,7 +3997,7 @@ function custMinify($data, $type)
 	}
 
 	// And create a one day cache entry.
-	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async, $defer), 86400);
+	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCreate, $async, $defer), 86400);
 
 	return array('smf_minified' => array(
 		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
