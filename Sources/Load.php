@@ -221,7 +221,7 @@ function reloadSettings()
 		} : 'ucwords',
 		'json_decode' => 'smf_json_decode',
 		'json_encode' => 'json_encode',
-		'random_int' => function($min = PHP_INT_MIN, $max = PHP_INT_MAX)
+		'random_int' => function($min = 0, $max = PHP_INT_MAX)
 		{
 			global $sourcedir;
 

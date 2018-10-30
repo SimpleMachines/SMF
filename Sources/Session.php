@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc;
+	global $modSettings, $boardurl, $sc, $smcFunc;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
