@@ -871,7 +871,7 @@ function WelcomeLogin()
 function checkLogin()
 {
 	global $modSettings, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $support_js;
+	global $smcFunc, $db_type, $support_js, $sourcedir;
 
 	// Don't bother if the security is disabled.
 	if ($disable_security)
@@ -976,6 +976,8 @@ function checkLogin()
 
 		if ((empty($upcontext['password_failed']) && !empty($name)) || $disable_security)
 		{
+			require_once($sourcedir . '/Load.php');
+			reloadSettings();
 			// Set the password.
 			if (!$disable_security)
 			{
@@ -1006,7 +1008,7 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = mt_rand(0, 60000);
+			$upcontext['user']['pass'] = $smcFunc['random_int'](0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 

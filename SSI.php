@@ -160,8 +160,8 @@ else
 
 	if (!isset($_SESSION['session_value']))
 	{
-		$_SESSION['session_var'] = substr(md5(mt_rand() . session_id() . mt_rand()), 0, rand(7, 12));
-		$_SESSION['session_value'] = md5(session_id() . mt_rand());
+		$_SESSION['session_var'] = substr(md5($smcFunc['random_int']() . session_id() . $smcFunc['random_int']()), 0, rand(7, 12));
+		$_SESSION['session_value'] = md5(session_id() . $smcFunc['random_int']());
 	}
 	$sc = $_SESSION['session_value'];
 }

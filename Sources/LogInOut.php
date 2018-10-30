@@ -116,7 +116,7 @@ function Login2()
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
 
-		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
 		// Preserve the 2FA cookie?
@@ -361,7 +361,7 @@ function Login2()
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
 			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
-			$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+			$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 
 			// Update the password and set up the hash.
 			updateMemberData($user_settings['id_member'], array('passwd' => $user_settings['passwd'], 'password_salt' => $user_settings['password_salt'], 'passwd_flood' => ''));
@@ -398,7 +398,7 @@ function Login2()
 	// Correct password, but they've got no salt; fix it!
 	if ($user_settings['password_salt'] == '')
 	{
-		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 		updateMemberData($user_settings['id_member'], array('password_salt' => $user_settings['password_salt']));
 	}
 
@@ -679,7 +679,7 @@ function Logout($internal = false, $redirect = true)
 	setLoginCookie(-3600, 0);
 
 	// And some other housekeeping while we're at it.
-	$salt = substr(md5(mt_rand()), 0, 4);
+	$salt = substr(md5($smcFunc['random_int']()), 0, 4);
 	if (!empty($user_info['id']))
 		updateMemberData($user_info['id'], array('password_salt' => $salt));
 

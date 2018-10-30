@@ -4049,7 +4049,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
  */
 function tfasetup($memID)
 {
-	global $user_info, $context, $user_settings, $sourcedir, $modSettings;
+	global $user_info, $context, $user_settings, $sourcedir, $modSettings, $smcFunc;
 
 	require_once($sourcedir . '/Class-TOTP.php');
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -4083,7 +4083,7 @@ function tfasetup($memID)
 
 			if ($valid_password && $valid_code)
 			{
-				$backup = substr(sha1(mt_rand()), 0, 16);
+				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
 
 				updateMemberData($memID, array(
