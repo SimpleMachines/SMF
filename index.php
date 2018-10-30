@@ -182,7 +182,7 @@ function smf_main()
 	loadPermissions();
 
 	// Attachments don't require the entire theme to be loaded.
-	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty($maintenance))
 		detectBrowser();
 	// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 	else
