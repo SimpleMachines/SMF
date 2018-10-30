@@ -3911,43 +3911,51 @@ function custMinify($data, $type)
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_map(function($file) { return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']); }, $data)));
 
+	// Is this a deferred or asynchonous JavaScript file?
+	$async = $type === 'js';
+	$defer = $type === 'js';
+	if ($type === 'js')
+	{
+		foreach ($data as $id => $file)
+		{
+			// A minified script should only be loaded asynchronously if all its components wanted to be.
+			if (empty($file['options']['async']))
+				$async = false;
+
+			// A minified script should only be deferred if all its components wanted to be.
+			if (empty($file['options']['defer']))
+				$defer = false;
+		}
+	}
+
 	// Did we already do this?
-	list($toCache, $async, $defer) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 3, null);
+	$minified_file = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified_' . $hash . '.' . $type;
+	$already_exists = file_exists($minified_file);
 
 	// Already done?
-	if (!empty($toCache))
+	if ($already_exists)
+	{
 		return array('smf_minified' => array(
-			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
-			'filePath' => $toCache,
-			'fileName' => basename($toCache),
+			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
+			'filePath' => $minified_file,
+			'fileName' => basename($minified_file),
 			'options' => array('async' => !empty($async), 'defer' => !empty($defer)),
 		));
-
-
-	// No namespaces, sorry!
-	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
-
-	// Temp path.
-	$cTempPath = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/';
-
-	// What kind of file are we going to create?
-	$toCreate = $cTempPath . 'minified_' . $hash . '.' . $type;
-
+	}
 	// File has to exist. If it doesn't, try to create it.
-	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
+	elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
+		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed, so roll back to print each individual file.
 		return $data;
 	}
 
-	$minifier = new $classType();
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
 
-	$async = $type === 'js';
-	$defer = $type === 'js';
+	$minifier = new $classType();
 
 	foreach ($data as $id => $file)
 	{
@@ -3959,14 +3967,6 @@ function custMinify($data, $type)
 			$tempFile = str_replace($seed, '', $file['filePath']);
 			$toAdd = file_exists($tempFile) ? $tempFile : false;
 		}
-
-		// A minified script should only be loaded asynchronously if all its components wanted to be.
-		if (empty($file['options']['async']))
-			$async = false;
-
-		// A minified script should only be deferred if all its components wanted to be.
-		if (empty($file['options']['defer']))
-			$defer = false;
 
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
@@ -3981,28 +3981,24 @@ function custMinify($data, $type)
 	}
 
 	// Create the file.
-	$minifier->minify($toCreate);
+	$minifier->minify($minified_file);
 	unset($minifier);
 	clearstatcache();
 
 	// Minify process failed.
-	if (!filesize($toCreate))
+	if (!filesize($minified_file))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
+		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed so roll back to print each individual file.
 		return $data;
 	}
 
-	// And create a one day cache entry.
-	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async, $defer), 86400);
-
 	return array('smf_minified' => array(
-		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
-		'filePath' => $toCreate,
-		'fileName' => basename($toCreate),
+		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
+		'filePath' => $minified_file,
+		'fileName' => basename($minified_file),
 		'options' => array('async' => $async, 'defer' => $defer),
 	));
 }
@@ -6454,7 +6450,7 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
 				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
 				. ' AND bpv.id_board = b.id_board)';
-		
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
