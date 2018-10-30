@@ -4027,16 +4027,13 @@ function deleteAllMinified()
 		{
 			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified*.' . $type) as $filename)
 			{
-				// Remove the cache entry
-				if (preg_match('~([a-zA-Z0-9]+)\.' . $type . '$~', $filename, $matches))
-					cache_put_data('minimized_' . $theme['id'] . '_' . $type . '_' . $matches[1], null);
-
 				// Try to delete the file. Add it to our error list if it fails.
 				if (!@unlink($filename))
 					$not_deleted[] = $filename;
 			}
 		}
 	}
+	$smcFunc['db_free_result']($request);
 
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))
