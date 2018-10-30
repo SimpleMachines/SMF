@@ -683,10 +683,10 @@ if (!is_callable('random_bytes'))
 		*
 		* This is just a stub class.
 		*/
-	   class com_exception extends Exception
-	   {
+		class com_exception extends Exception
+		{
 
-	   }
+		}
 
 		$RandomCompat_disabled_classes = preg_split(
 			'#\s*,\s*#',
