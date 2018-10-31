@@ -903,7 +903,7 @@ function allowedTo($permission, $boards = null, $any = false)
 		return true;
 
 	// You're never allowed to do something if your data hasn't been loaded yet!
-	if (empty($user_info))
+	if (empty($user_info) || !isset($user_info['permissions']))
 		return false;
 
 	// Administrators are supermen :P.
