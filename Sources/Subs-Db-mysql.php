@@ -374,6 +374,26 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'',
 	);
 
+	// Special queries that need processing.
+	$replacements = array(
+		'managePrivacy' => array(
+			'/\\A.*\\z/ms' => '
+			UPDATE {db_prefix}themes c
+			JOIN (
+				SELECT a.id_member
+				FROM {db_prefix}themes a
+				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+				WHERE a.variable = {string:avar} and a.value = {string:aval} 
+					AND ( b.value != {string:bval}  or b.value is null)
+			) d ON (d.id_member = c.id_member)
+			SET c.value = {string:value}
+			WHERE c.variable = {string:avar}',
+		),
+	);
+
+	if (isset($replacements[$identifier]))
+		$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
+
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
 
