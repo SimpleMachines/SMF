@@ -5,6 +5,16 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
+	/* Generic Classes for Customizations */
+	.hide_480 {
+		display: none;
+	}
+	.block_480 {
+		display: block;
+	}
+	.inlineblock_480 {
+		display: inline-block;
+	}
 	/* This is general */
 	#main_menu .popup_container, #genericmenu .popup_container {
 		display: none;
@@ -462,6 +472,16 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+	/* Generic Classes for Customizations */
+	.hide_720 {
+		display: none;
+	}
+	.block_720 {
+		display: block;
+	}
+	.inlineblock_720 {
+		display: inline-block;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
