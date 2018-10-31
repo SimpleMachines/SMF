@@ -862,6 +862,8 @@ function WelcomeLogin()
 	if (checkLogin())
 		return true;
 
+	require_once($sourcedir . '/Load.php');
+	reloadSettings();	
 	$upcontext += createToken('login');
 
 	return false;
