@@ -2425,7 +2425,7 @@ function ModifyPolicySettings($return_config = false)
 			)
 			AND variable = {string:avar}';
 			
-			$smcFunc['db_query']('managePrivacy',
+			$smcFunc['db_query']('managePrivacyNew',
 				$select,
 				array(
 					'value' => '0',
@@ -2464,33 +2464,20 @@ function ModifyPolicySettings($return_config = false)
 		call_integration_hook('integrate_manage_policy_settings');
 		
 		// set user with the policy invalid
-			if ($smcFunc['db_title'] == 'MySQLi')
-				$select = '
-					UPDATE {db_prefix}themes c
-					JOIN (
-						SELECT a.id_member
-						FROM {db_prefix}themes a
-						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-						WHERE a.variable = {string:avar} and a.value = {string:aval} 
-							AND b.value = {string:bval}
-					) d ON (d.id_member = c.id_member)
-					SET value = {string:value}
-					WHERE c.variable = {string:avar}';
-			else
-				$select = '
-					UPDATE {db_prefix}themes
-					SET value = {string:value}
-					WHERE EXISTS (
-						SELECT a.id_member
-						FROM {db_prefix}themes a
-						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-						WHERE a.variable = {string:avar} and a.value = {string:aval} 
-							AND b.value = {string:bval}
-							AND a.id_member = {db_prefix}themes.id_member
-					)
-					AND variable = {string:avar}';
+		$select = '
+			UPDATE {db_prefix}themes
+			SET value = {string:value}
+			WHERE EXISTS (
+				SELECT a.id_member
+				FROM {db_prefix}themes a
+				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+				WHERE a.variable = {string:avar} and a.value = {string:aval} 
+					AND b.value = {string:bval}
+					AND a.id_member = {db_prefix}themes.id_member
+			)
+			AND variable = {string:avar}';
 
-		$smcFunc['db_query']('',
+		$smcFunc['db_query']('managePrivacyInvalid',
 				$select,
 			array(
 				'value' => '0',
@@ -2502,32 +2489,19 @@ function ModifyPolicySettings($return_config = false)
 		);
 		
 		// empty users
-			if ($smcFunc['db_title'] == 'MySQLi')
-				$select = '
-					UPDATE {db_prefix}themes c
-					JOIN (
-						SELECT a.id_member
-						FROM {db_prefix}themes a
-						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-						WHERE a.variable = {string:avar} and a.value = {int:aval} 
-							AND b.value = {string:bval}
-					) d ON (d.id_member = c.id_member)
-					SET c.value = {string:value}
-					WHERE c.variable = {string:avar}';
-			else
-				$select = '
-					UPDATE {db_prefix}themes
-					SET value = {string:value}
-					WHERE EXISTS (
-						SELECT a.id_member
-						FROM {db_prefix}themes a
-						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
-						WHERE a.variable = {string:avar} and a.value = {string:aval} 
-							AND b.value = {string:bval}
-							AND a.id_member = {db_prefix}themes.id_member
-					)
-					and variable = {string:bvar}';
-		$smcFunc['db_query']('',
+		$select = '
+			UPDATE {db_prefix}themes
+			SET value = {string:value}
+			WHERE EXISTS (
+				SELECT a.id_member
+				FROM {db_prefix}themes a
+				LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+				WHERE a.variable = {string:avar} and a.value = {string:aval} 
+					AND b.value = {string:bval}
+					AND a.id_member = {db_prefix}themes.id_member
+			)
+			and variable = {string:bvar}';
+		$smcFunc['db_query']('managePrivacyEmptyusers',
 			$select,
 			array(
 				'value' => '',

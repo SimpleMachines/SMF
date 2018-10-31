@@ -376,7 +376,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'managePrivacy' => array(
+		'managePrivacyNew' => array(
 			'/\\A.*\\z/ms' => '
 			UPDATE {db_prefix}themes c
 			JOIN (
@@ -388,6 +388,31 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 			) d ON (d.id_member = c.id_member)
 			SET c.value = {string:value}
 			WHERE c.variable = {string:avar}',
+		),
+		'managePrivacyInvalid' => array(
+			'/\\A.*\\z/ms' => '
+			UPDATE {db_prefix}themes c
+					JOIN (
+						SELECT a.id_member
+						FROM {db_prefix}themes a
+						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+						WHERE a.variable = {string:avar} and a.value = {string:aval} 
+							AND b.value = {string:bval}
+					) d ON (d.id_member = c.id_member)
+					SET value = {string:value}
+					WHERE c.variable = {string:avar}',
+		'managePrivacyEmptyusers' => array(
+			'/\\A.*\\z/ms' => '
+			UPDATE {db_prefix}themes c
+					JOIN (
+						SELECT a.id_member
+						FROM {db_prefix}themes a
+						LEFT JOIN {db_prefix}themes b ON (a.id_member = b.id_member and b.variable = {string:bvar})
+						WHERE a.variable = {string:avar} and a.value = {int:aval} 
+							AND b.value = {string:bval}
+					) d ON (d.id_member = c.id_member)
+					SET c.value = {string:value}
+					WHERE c.variable = {string:avar}',
 		),
 	);
 
