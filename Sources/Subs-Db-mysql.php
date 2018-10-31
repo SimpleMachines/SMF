@@ -400,7 +400,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 							AND b.value = {string:bval}
 					) d ON (d.id_member = c.id_member)
 					SET value = {string:value}
-					WHERE c.variable = {string:avar}',
+					WHERE c.variable = {string:avar}'),
 		'managePrivacyEmptyusers' => array(
 			'/\\A.*\\z/ms' => '
 			UPDATE {db_prefix}themes c
