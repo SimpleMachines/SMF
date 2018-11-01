@@ -450,7 +450,10 @@ function getBoardIndex($boardIndexOptions)
 
 	// By now we should know the most recent post...if we wanna know it that is.
 	if (!empty($boardIndexOptions['set_latest_post']) && !empty($latest_post['ref']))
+	{
+		$latest_post['ref']['time'] = timeformat($latest_post['ref']['time']);
 		$context['latest_post'] = $latest_post['ref'];
+	}
 
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($boardIndexOptions['include_categories'])
