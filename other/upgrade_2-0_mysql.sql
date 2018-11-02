@@ -2770,8 +2770,10 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 	// Don't do anything if this theme is already uninstalled
 	if (smf_mysql_num_rows($theme_request) == 1)
 	{
-		$id_theme = mysql_result($theme_request, 0);
-		mysql_free_result($theme_request);
+		$row = smf_mysql_fetch_row($theme_request);
+		$id_theme = $row[0];
+		smf_mysql_free_result($theme_request);
+		unset($row);
 
 		$known_themes = explode(', ', $modSettings['knownThemes']);
 
