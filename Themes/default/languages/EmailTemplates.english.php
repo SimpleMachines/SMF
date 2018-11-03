@@ -358,7 +358,7 @@ You can approve or reject this application by clicking the link below:
 {REGARDS}';
 
 /**
-	@additional_params: scheduled_approval
+	@additional_params: paid_subscription
 		REALNAME: The real (display) name of the person receiving the email.
 		PROFILE_LINK: Link to profile of member receiving email where can renew.
 		SUBSCRIPTION: Name of the subscription.
