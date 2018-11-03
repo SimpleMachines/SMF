@@ -11,11 +11,6 @@
 
 global $txtBirthdayEmails;
 
-$txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
-$txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
-$txt['scheduled_approval_email_attach'] = 'The following attachments are awaiting approval:';
-$txt['scheduled_approval_email_event'] = 'The following events are awaiting approval:';
-
 /**
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.
@@ -413,24 +408,6 @@ This mail was sent because the \'forgot password\' function has been applied to 
 
 IP: {IP}
 Username: {MEMBERNAME}
-
-{REGARDS}';
-
-/**
-	@additional_params: scheduled_approval
-		REALNAME: The real (display) name of the person receiving the email.
-		BODY: The generated body of the mail.
-	@description:
-*/
-$txt['scheduled_approval_subject'] = 'Summary of posts awaiting approval at {FORUMNAME}';
-$txt['scheduled_approval_body'] = '{REALNAME},
-
-This email contains a summary of all items awaiting approval at {FORUMNAME}.
-
-{BODY}
-
-Please log in to the forum to review these items.
-{SCRIPTURL}
 
 {REGARDS}';
 

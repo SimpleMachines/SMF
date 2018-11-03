@@ -2379,7 +2379,6 @@ VALUES (-1, 'search_posts'),
 INSERT INTO {$db_prefix}scheduled_tasks
 	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(1, 0, 0, 2, 'h', 0, 'approval_notification', ''),
 	(3, 0, 60, 1, 'd', 0, 'daily_maintenance', ''),
 	(5, 0, 0, 1, 'd', 0, 'daily_digest', ''),
 	(6, 0, 0, 1, 'w', 0, 'weekly_digest', ''),

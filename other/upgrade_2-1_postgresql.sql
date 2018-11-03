@@ -591,10 +591,9 @@ VALUES
 ---}
 ---#
 
----# Remove old mod tasks...
+---# Remove old tasks added by modifications...
 ---{
 	$vanilla_tasks = array(
-		'approval_notification',
 		'birthdayemails',
 		'daily_digest',
 		'daily_maintenance',
