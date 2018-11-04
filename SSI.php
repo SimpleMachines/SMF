@@ -589,7 +589,8 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' : '') . '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
-		WHERE t.id_topic IN ({array_int:topic_list})',
+		WHERE t.id_topic IN ({array_int:topic_list})
+		ORDER BY t.id_last_msg DESC',
 		array(
 			'current_member' => $user_info['id'],
 			'topic_list' => array_keys($topics),
