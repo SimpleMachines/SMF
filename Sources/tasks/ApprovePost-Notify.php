@@ -64,7 +64,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		{
 			$pref = !empty($prefs[$member]['unapproved_post']) ? $prefs[$member]['unapproved_post'] : 0;
 
-			if ($pref & 0x02)
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
 				require_once($sourcedir . '/Subs-Post.php');
@@ -80,7 +80,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
-			if ($pref & 0x01)
+			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
