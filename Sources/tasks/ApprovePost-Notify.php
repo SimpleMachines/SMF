@@ -19,7 +19,7 @@
 class ApprovePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
+	 * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
 	 * @return bool Always returns true
 	 */
 	public function execute()
@@ -41,7 +41,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
-			WHERE id_member IN({array_int:members})',
+			WHERE id_member IN ({array_int:members})',
 			array(
 				'members' => $modMembers,
 			)
