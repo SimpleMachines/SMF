@@ -1,6 +1,7 @@
 <?php
 /**
- * This file contains background notification code for any create post action
+ * This file contains background notification code for members to
+ * reply to posts made by moderators in their own unapproved topics.
  *
  * Simple Machines Forum (SMF)
  *
