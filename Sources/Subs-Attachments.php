@@ -735,6 +735,7 @@ function createAttachment(&$attachmentOptions)
 
 	// If it's not approved then add to the approval queue.
 	if (!$attachmentOptions['approved'])
+	{
 		$smcFunc['db_insert']('',
 			'{db_prefix}approval_queue',
 			array(
@@ -745,6 +746,32 @@ function createAttachment(&$attachmentOptions)
 			),
 			array()
 		);
+
+		// Queue background notification task.
+		$smcFunc['db_insert'](
+			'insert',
+			'{db_prefix}background_tasks',
+			array(
+				'task_file' => 'string',
+				'task_class' => 'string',
+				'task_data' => 'string',
+				'claimed_time' => 'int'
+			),
+			array(
+					'$sourcedir/tasks/CreateAttachment-Notify.php',
+					'CreateAttachment_Notify_Background',
+					$smcFunc['json_encode'](
+						array(
+							'id' => $attachmentOptions['id'],
+						)
+					),
+				0
+			),
+			array(
+				'id_task'
+			)
+		);
+	}
 
 	if (empty($modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
 		return true;

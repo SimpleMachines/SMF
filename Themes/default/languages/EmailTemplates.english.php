@@ -306,6 +306,21 @@ You can see it at
 {REGARDS}';
 
 /**
+	@additional_params: unapproved_attachment
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the message with the attachment.
+	@description:
+*/
+$txt['unapproved_attachment_subject'] = 'New Unapproved Attachment in: {SUBJECT}';
+$txt['unapproved_attachment_body'] = 'A new attachment has been made in \'{SUBJECT}\' which needs to be approved.
+
+You can approve or reject this attachment from the link below which will take you to the message that it is a part of.
+
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: alert_unapproved_post
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
