@@ -417,7 +417,7 @@ function DisplayStats()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member_started, COUNT(*) AS hits
 			FROM {db_prefix}topics' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			WHERE id_board != {int:recycle_board}' : '') . '
+				WHERE id_board != {int:recycle_board}' : '') . '
 			GROUP BY id_member_started
 			ORDER BY hits DESC
 			LIMIT 20',
@@ -479,7 +479,7 @@ function DisplayStats()
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
 		FROM {db_prefix}members' . (!empty($temp) ? '
-		WHERE id_member IN ({array_int:member_list_cached})' : '') . '
+			WHERE id_member IN ({array_int:member_list_cached})' : '') . '
 		ORDER BY total_time_logged_in DESC
 		LIMIT 20',
 		array(
@@ -559,7 +559,7 @@ function DisplayStats()
 				'subject' => $row_liked_message['subject'],
 				'num' => $row_liked_message['likes'],
 				'href' => $scripturl . '?msg=' . $row_liked_message['id_msg'],
-				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
+				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] . '">' . $row_liked_message['subject'] . '</a>'
 			);
 
 			if ($max_liked_message < $row_liked_message['likes'])
@@ -712,6 +712,7 @@ function DisplayStats()
 /**
  * Loads the statistics on a daily basis in $context.
  * called by DisplayStats().
+ *
  * @param string $condition_string An SQL condition string
  * @param array $condition_parameters Parameters for $condition_string
  */

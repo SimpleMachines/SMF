@@ -3,6 +3,7 @@
 /**
  * This file is all about mail, how we love it so. In particular it handles the admin side of
  * mail configuration, as well as reviewing the mail queue - if enabled.
+ *
  * @todo refactor as controller-model.
  *
  * Simple Machines Forum (SMF)
@@ -259,6 +260,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 /**
  * Returns the total count of items in the mail queue.
  * Callback for $listOptions['get_count'] in BrowseMailQueue
+ *
  * @return int The total number of mail queue items
  */
 function list_getMailQueueSize()

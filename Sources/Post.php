@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors Holds any errors found while tyring to post
+ * @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {
@@ -290,8 +290,8 @@ function Post($post_errors = array())
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		$js_time_string = str_replace(
-			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
-			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
+			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r', '%R', '%S', '%T', '%X'),
+			array('H', 'G', 'h', 'g', 'i', 'A', 'a', 'h:i:s A', 'H:i', 's', 'H:i:s', 'H:i:s'),
 			$time_string
 		);
 
@@ -1423,7 +1423,6 @@ function Post($post_errors = array())
 		);
 	}
 
-
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
@@ -2039,7 +2038,7 @@ function Post2()
 		if (!empty($context['we_are_history']))
 			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
 			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;

@@ -445,13 +445,13 @@ function ViewBacktrace()
 
 	$id_error = (int) $_REQUEST['backtrace'];
 	$request = $smcFunc['db_query']('',
-			'SELECT backtrace, error_type, message, file, line, url
-				FROM {db_prefix}log_errors
-				WHERE id_error = {int:id_error}',
-			array(
-				'id_error' => $id_error,
-				)
-			);
+		'SELECT backtrace, error_type, message, file, line, url
+			FROM {db_prefix}log_errors
+			WHERE id_error = {int:id_error}',
+		array(
+			'id_error' => $id_error,
+		)
+	);
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{

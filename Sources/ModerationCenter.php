@@ -896,6 +896,7 @@ function ReportedMembers()
 
 /**
  * Act as an entrace for all group related activity.
+ *
  * @todo As for most things in this file, this needs to be moved somewhere appropriate?
  */
 function ModerateGroups()
@@ -1133,12 +1134,12 @@ function ViewWatchedUsers()
 		),
 		'additional_rows' => array(
 			$context['view_posts'] ?
-			array(
-				'position' => 'bottom_of_list',
-				'value' => '
+				array(
+					'position' => 'bottom_of_list',
+					'value' => '
 					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button">',
-				'class' => 'floatright',
-			) : array(),
+					'class' => 'floatright',
+				) : array(),
 		),
 	);
 
@@ -1167,6 +1168,7 @@ function ViewWatchedUsers()
 
 /**
  * Callback for createList().
+ *
  * @param string $approve_query Not used here
  * @return int The number of users on the watch list
  */
@@ -1576,6 +1578,7 @@ function ViewWarningLog()
 
 /**
  * Callback for createList().
+ *
  * @return int The total number of warnings that have been issued
  */
 function list_getWarningCount()
@@ -1794,9 +1797,10 @@ function ViewWarningTemplates()
 }
 
 /**
-  * Callback for createList().
-  * @return int The total number of warning templates
-  */
+ * Callback for createList().
+ *
+ * @return int The total number of warning templates
+ */
 function list_getWarningTemplateCount()
 {
 	global $smcFunc, $user_info;

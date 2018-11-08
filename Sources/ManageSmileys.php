@@ -507,6 +507,7 @@ function EditSmileySets()
 
 /**
  * Callback function for createList().
+ *
  * @todo to be moved to Subs-Smileys?
  *
  * @param int $start The item to start with (not used here)
@@ -561,6 +562,7 @@ function list_getSmileySets($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList().
+ *
  * @todo to be moved to Subs-Smileys?
  * @return int The total number of known smiley sets
  */
@@ -1044,7 +1046,7 @@ function EditSmileys()
 						},
 					),
 					'sort' => array(
-						'default' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations)) ,
+						'default' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations)),
 						'reverse' => $smcFunc['db_custom_order']('hidden', array_keys($smiley_locations), true),
 					),
 				),
@@ -1274,6 +1276,7 @@ function list_getSmileys($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList().
+ *
  * @return int The number of smileys
  */
 function list_getNumSmileys()
@@ -1551,7 +1554,7 @@ function InstallSmileySet()
 		ORDER BY time_installed DESC
 		LIMIT 1',
 		array(
-			'not_installed'	=> 0,
+			'not_installed' => 0,
 			'current_package' => $smileyInfo['id'],
 		)
 	);
@@ -1596,7 +1599,7 @@ function InstallSmileySet()
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
 
-			$file =  $packagesdir . '/temp/' . $base_path . $action['filename'];
+			$file = $packagesdir . '/temp/' . $base_path . $action['filename'];
 			if (isset($action['filename']) && (!file_exists($file) || !is_writable(dirname($action['destination']))))
 			{
 				$context['has_failure'] = true;
@@ -1641,7 +1644,7 @@ function InstallSmileySet()
 		{
 			updateSettings(array(
 				'smiley_sets_known' => $modSettings['smiley_sets_known'] . ',' . basename($action['action']),
-				'smiley_sets_names' => $modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (count($context['actions']) > 1 ? ' ' .  (!empty($action['description']) ? $smcFunc['htmlspecialchars']($action['description']) : basename($action['action'])) : ''),
+				'smiley_sets_names' => $modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (count($context['actions']) > 1 ? ' ' . (!empty($action['description']) ? $smcFunc['htmlspecialchars']($action['description']) : basename($action['action'])) : ''),
 			));
 		}
 
@@ -1653,7 +1656,7 @@ function InstallSmileySet()
 			'{db_prefix}log_packages',
 			array(
 				'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
-				'id_member_installed' => 'int', 'member_installed' => 'string','time_installed' => 'int',
+				'id_member_installed' => 'int', 'member_installed' => 'string', 'time_installed' => 'int',
 				'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
 				'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 			),

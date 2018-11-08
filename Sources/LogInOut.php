@@ -22,7 +22,8 @@ if (!defined('SMF'))
  *  in their username and password.)
  *  It caches the referring URL in $_SESSION['login_url'].
  *  It is accessed from ?action=login.
- *  @uses Login template and language file with the login sub-template.
+ *
+ * @uses Login template and language file with the login sub-template.
  */
 function Login()
 {
@@ -229,7 +230,6 @@ function Login2()
 		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
 	}
-
 
 	// Are we using any sort of integration to validate the login?
 	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, $modSettings['cookieTime'])), true))

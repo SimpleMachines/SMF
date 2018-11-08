@@ -428,8 +428,8 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	$real_name = $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name';
 
 	// Searches.
-	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode( ' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
-	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode( ' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
+	$member_name_search = $member_name . ' ' . $comparison . ' ' . implode(' OR ' . $member_name . ' ' . $comparison . ' ', $names_list);
+	$real_name_search = $real_name . ' ' . $comparison . ' ' . implode(' OR ' . $real_name . ' ' . $comparison . ' ', $names_list);
 
 	// Search by username, display name, and email address.
 	$request = $smcFunc['db_query']('', '

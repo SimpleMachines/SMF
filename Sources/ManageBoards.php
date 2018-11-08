@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=manageboards.
  * It checks the permissions, based on the sub-action, and calls a function based on the sub-action.
  *
- *  @uses ManageBoards language file.
+ * @uses ManageBoards language file.
  */
 function ManageBoards()
 {
@@ -156,20 +156,20 @@ function ManageBoardsMain()
 					);
 
 				if (!$context['categories'][$catid]['boards'][$boardid]['move'])
-				$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
-					array(
-						'child_level' => $boards[$boardid]['level'],
-						'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
-						'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
-					),
-					array(
-						'child_level' => $boards[$boardid]['level'] + 1,
-						'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
-						'class' => 'here',
-					),
-				);
+					$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
+						array(
+							'child_level' => $boards[$boardid]['level'],
+							'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
+							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
+							'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
+						),
+						array(
+							'child_level' => $boards[$boardid]['level'] + 1,
+							'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
+							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
+							'class' => 'here',
+						),
+					);
 
 				$difference = $boards[$boardid]['level'] - $prev_child_level;
 				if ($difference == 1)

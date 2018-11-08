@@ -240,17 +240,17 @@ function MessageIndex()
 	);
 
 	// Default sort methods tables.
-		$sort_methods_table = array(
-			'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
-			'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)
-							LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
-			'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-							LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
-			'replies' => '',
-			'views' => '',
-			'first_post' => '',
-			'last_post' => ''
-		);
+	$sort_methods_table = array(
+		'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
+		'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
+		'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+			LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
+		'replies' => '',
+		'views' => '',
+		'first_post' => '',
+		'last_post' => ''
+	);
 
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
@@ -539,7 +539,6 @@ function MessageIndex()
 	if ($fake_ascending)
 		$context['topics'] = array_reverse($context['topics'], true);
 
-
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
 		'board_name' => $smcFunc['htmlspecialchars'](strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
@@ -738,6 +737,7 @@ function MessageIndex()
 
 /**
  * Handles moderation from the message index.
+ *
  * @todo refactor this...
  */
 function QuickModeration()

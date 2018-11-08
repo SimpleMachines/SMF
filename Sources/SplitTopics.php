@@ -241,8 +241,8 @@ function SplitSelectTopics()
 			WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
 				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-			' . (empty($settings['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
-			LIMIT {int:start}, {int:messages_per_page}',
+				' . (empty($settings['view_newest_first']) ? '' : 'ORDER BY id_msg DESC') . '
+				LIMIT {int:start}, {int:messages_per_page}',
 			array(
 				'current_topic' => $topic,
 				'no_split_msgs' => empty($_SESSION['split_selection'][$topic]) ? array() : $_SESSION['split_selection'][$topic],
@@ -349,8 +349,8 @@ function SplitSelectTopics()
 		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
 			AND id_msg NOT IN ({array_int:no_split_msgs})') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND approved = {int:is_approved}') . '
-		' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
-		LIMIT {int:start}, {int:messages_per_page}',
+			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
+			LIMIT {int:start}, {int:messages_per_page}',
 		array(
 			'current_topic' => $topic,
 			'no_split_msgs' => !empty($_SESSION['split_selection'][$topic]) ? $_SESSION['split_selection'][$topic] : array(),
@@ -489,6 +489,7 @@ function SplitSelectionExecute()
  * updates the statistics to reflect a newly created topic.
  * logs the action in the moderation log.
  * a notification is sent to all users monitoring this topic.
+ *
  * @param int $split1_ID_TOPIC The ID of the topic we're splitting
  * @param array $splitMessages The IDs of the messages being split
  * @param string $new_subject The subject of the new topic
@@ -625,25 +626,25 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	// We're off to insert the new topic!  Use 0 for now to avoid UNIQUE errors.
 	$split2_ID_TOPIC = $smcFunc['db_insert']('',
-			'{db_prefix}topics',
-			array(
-				'id_board' => 'int',
-				'id_member_started' => 'int',
-				'id_member_updated' => 'int',
-				'id_first_msg' => 'int',
-				'id_last_msg' => 'int',
-				'num_replies' => 'int',
-				'unapproved_posts' => 'int',
-				'approved' => 'int',
-				'is_sticky' => 'int',
-			),
-			array(
-				(int) $id_board, $split2_firstMem, $split2_lastMem, 0,
-				0, $split2_replies, $split2_unapprovedposts, (int) $split2_approved, 0,
-			),
-			array('id_topic'),
-			1
-		);
+		'{db_prefix}topics',
+		array(
+			'id_board' => 'int',
+			'id_member_started' => 'int',
+			'id_member_updated' => 'int',
+			'id_first_msg' => 'int',
+			'id_last_msg' => 'int',
+			'num_replies' => 'int',
+			'unapproved_posts' => 'int',
+			'approved' => 'int',
+			'is_sticky' => 'int',
+		),
+		array(
+			(int) $id_board, $split2_firstMem, $split2_lastMem, 0,
+			0, $split2_replies, $split2_unapprovedposts, (int) $split2_approved, 0,
+		),
+		array('id_topic'),
+		1
+	);
 	if ($split2_ID_TOPIC <= 0)
 		fatal_lang_error('cant_insert_topic');
 
@@ -996,6 +997,7 @@ function MergeIndex()
  * * logs the action in the moderation log.
  * * sends a notification is sent to all users monitoring this topic.
  * * redirects to ?action=mergetopics;sa=done.
+ *
  * @param array $topics The IDs of the topics to merge
  */
 function MergeExecute($topics = array())
@@ -1076,7 +1078,8 @@ function MergeExecute($topics = array())
 		{
 			unset($topics[$row['id_topic']]); // If we can't see it, we should not merge it and not adjust counts! Instead skip it.
 			continue;
-		}elseif (!$row['approved'])
+		}
+		elseif (!$row['approved'])
 			$boardTotals[$row['id_board']]['unapproved_topics']++;
 		else
 			$boardTotals[$row['id_board']]['topics']++;
@@ -1339,7 +1342,7 @@ function MergeExecute($topics = array())
 	list ($member_started) = $smcFunc['db_fetch_row']($request);
 	list ($member_updated) = $smcFunc['db_fetch_row']($request);
 	// First and last message are the same, so only row was returned.
-	if ($member_updated === NULL)
+	if ($member_updated === null)
 		$member_updated = $member_started;
 
 	$smcFunc['db_free_result']($request);
@@ -1368,8 +1371,8 @@ function MergeExecute($topics = array())
 	if (!isset($_POST['postRedirect']))
 	{
 		$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_search_subjects
-		WHERE id_topic IN ({array_int:deleted_topics})',
+			DELETE FROM {db_prefix}log_search_subjects
+			WHERE id_topic IN ({array_int:deleted_topics})',
 			array(
 				'deleted_topics' => $deleted_topics,
 			)
@@ -1556,11 +1559,11 @@ function MergeExecute($topics = array())
 				$replaceEntries[] = array($row['id_member'], $id_topic, 0, $row['sent']);
 
 			$smcFunc['db_insert']('replace',
-					'{db_prefix}log_notify',
-					array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'),
-					$replaceEntries,
-					array('id_member', 'id_topic', 'id_board')
-				);
+				'{db_prefix}log_notify',
+				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'),
+				$replaceEntries,
+				array('id_member', 'id_topic', 'id_board')
+			);
 			unset($replaceEntries);
 
 			$smcFunc['db_query']('', '

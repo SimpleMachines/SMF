@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * View a summary.
+ *
  * @param int $memID The ID of the member
  */
 function summary($memID)
@@ -270,7 +271,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	if($withSender)
+	if ($withSender)
 	{
 		$senders = loadMemberData($senders);
 		foreach ($senders as $member)
@@ -488,6 +489,7 @@ function showAlerts($memID)
 
 /**
  * Show all posts by the current user
+ *
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
@@ -1952,15 +1954,15 @@ function TrackIP($memID = 0)
 	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
+	$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
 	$fields = array(
-			'ip_address_low' => $context['ip']['low'],
-			'ip_address_high' => $context['ip']['high'],
-		);
+		'ip_address_low' => $context['ip']['low'],
+		'ip_address_high' => $context['ip']['high'],
+	);
 
 	$ip_var = $context['ip'];
 
-	if ($context['ip']['low'] !==  $context['ip']['high'])
+	if ($context['ip']['low'] !== $context['ip']['high'])
 		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];

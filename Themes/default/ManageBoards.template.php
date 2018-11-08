@@ -652,7 +652,7 @@ function template_modify_board()
 					sItemName: ', JavaScriptEscape($group_name), '
 				}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
 
-		echo '
+	echo '
 			]
 		});
 	</script>';

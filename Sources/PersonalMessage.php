@@ -20,6 +20,7 @@ if (!defined('SMF'))
 
 /**
  * This helps organize things...
+ *
  * @todo this should be a simple dispatcher....
  */
 function MessageMain()
@@ -687,8 +688,8 @@ function MessageFolder()
 		}
 
 		$request = $smcFunc['db_query']('', '
-				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
+			SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
+			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
 					AND pmr.id_member = {int:current_member}
@@ -2489,6 +2490,7 @@ function MessagePost2()
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
 }
+
 /**
  * This function performs all additional stuff...
  */
@@ -2681,7 +2683,7 @@ function MessageActionsApply()
 				// If this label is in the list and we're not adding it, remove it
 				if (array_key_exists($to_label[$row['id_pm']], $labels) && $type !== 'add')
 					unset($labels[$to_label[$row['id_pm']]]);
-				else if ($type !== 'rem')
+				elseif ($type !== 'rem')
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 

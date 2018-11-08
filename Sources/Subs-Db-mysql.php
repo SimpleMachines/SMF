@@ -262,8 +262,8 @@ function smf_db_replacement__callback($matches)
 
 		case 'datetime':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
-				return 'str_to_date('.
-					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5] ,$datetime_matches[6]).
+				return 'str_to_date(' .
+					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5], $datetime_matches[6]) .
 					',\'%Y-%m-%d %h:%i:%s\')';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
@@ -414,7 +414,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$old_pos = 0;
 		$pos = -1;
 		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\\\'','',$db_string);
+		$db_string_1 = str_replace('\\\'', '', $db_string);
 		while (true)
 		{
 			$pos = strpos($db_string_1, '\'', $pos + 1);
@@ -497,6 +497,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 /**
  * affected_rows
+ *
  * @param resource $connection A connection to use (if null, $db_connection is used)
  * @return int The number of rows affected by the last query
  */
@@ -779,7 +780,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Sanity check for replace is key part of the columns array
 	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 		smf_db_error_backtrace('Primary Key field missing in insert call',
-				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+			'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
 
 	if (!$with_returning || $method != 'ingore')
 	{
@@ -800,7 +801,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	{
 		$count = count($insertRows);
 		$ai = 0;
-		for($i = 0; $i < $count; $i++)
+		for ($i = 0; $i < $count; $i++)
 		{
 			$old_id = $smcFunc['db_insert_id']();
 
@@ -826,13 +827,13 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$count2 = count($indexed_columns);
 				for ($x = 0; $x < $count2; $x++)
 				{
-					$where_string += key($indexed_columns[$x]) . ' = '. $insertRows[$i][$x];
+					$where_string += key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
 					if (($x + 1) < $count2)
 						$where_string += ' AND ';
 				}
 
-				$request = $smcFunc['db_query']('','
-					SELECT `'. $keys[0] . '` FROM ' . $table .'
+				$request = $smcFunc['db_query']('', '
+					SELECT `' . $keys[0] . '` FROM ' . $table . '
 					WHERE ' . $where_string . ' LIMIT 1',
 					array()
 				);
@@ -846,22 +847,21 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 			if ($returnmode == 1)
 				$return_var = $ai;
-			else if ($returnmode == 2)
+			elseif ($returnmode == 2)
 				$return_var[] = $ai;
 		}
 	}
-
 
 	if ($with_returning)
 	{
 		if ($returnmode == 1 && empty($return_var))
 			$return_var = smf_db_insert_id($table, $keys[0]) + count($insertRows) - 1;
-		else if ($returnmode == 2 && empty($return_var))
+		elseif ($returnmode == 2 && empty($return_var))
 		{
 			$return_var = array();
 			$count = count($insertRows);
 			$start = smf_db_insert_id($table, $keys[0]);
-			for ($i = 0; $i < $count; $i++ )
+			for ($i = 0; $i < $count; $i++)
 				$return_var[] = $start + $i;
 		}
 		return $return_var;
@@ -978,7 +978,7 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global  $db_prefix, $db_connection;
+	global $db_prefix, $db_connection;
 	static $mysql_error_data_prep;
 
 	// without database we can't do anything
@@ -986,10 +986,10 @@ function smf_db_error_insert($error_array)
 		return;
 
 	if (empty($mysql_error_data_prep))
-			$mysql_error_data_prep = mysqli_prepare($db_connection,
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-													VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?, ?)'
-			);
+		$mysql_error_data_prep = mysqli_prepare($db_connection,
+			'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+			VALUES(		?,		?,		unhex(?), ?, 		?,		?,			?,		?,	?, ?)'
+		);
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));
@@ -998,7 +998,7 @@ function smf_db_error_insert($error_array)
 	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssis',
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
 		$error_array[7], $error_array[8], $error_array[9]);
-	mysqli_stmt_execute ($mysql_error_data_prep);
+	mysqli_stmt_execute($mysql_error_data_prep);
 }
 
 /**
@@ -1012,7 +1012,7 @@ function smf_db_error_insert($error_array)
  */
 function smf_db_custom_order($field, $array_values, $desc = false)
 {
-	$return = 'CASE '. $field . ' ';
+	$return = 'CASE ' . $field . ' ';
 	$count = count($array_values);
 	$then = ($desc ? ' THEN -' : ' THEN ');
 
@@ -1060,7 +1060,7 @@ function smf_db_cte_support()
 
 /**
  * Function which return the escaped string
- * 
+ *
  * @param string the unescaped text
  * @param resource $connection = null The connection to use (null to use $db_connection)
  * @return string escaped string

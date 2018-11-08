@@ -165,7 +165,7 @@ function ShowXmlFeed()
 		$smcFunc['db_free_result']($request);
 
 		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
-		$feed_meta['source'] .= '?board=' . $board . '.0' ;
+		$feed_meta['source'] .= '?board=' . $board . '.0';
 
 		$query_this_board = 'b.id_board = ' . $board;
 
@@ -627,6 +627,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 /**
  * Retrieve the list of members from database.
  * The array will be generated to match the format.
+ *
  * @todo get the list of members from Subs-Members.
  *
  * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
@@ -767,6 +768,7 @@ function getXmlMembers($xml_format)
  * Get the latest topics information from a specific board,
  * to display later.
  * The returned array will be generated to match the xml_format.
+ *
  * @todo does not belong here
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'.
@@ -869,7 +871,7 @@ function getXmlNews($xml_format)
 			{
 				uasort($loaded_attachments, function($a, $b) {
 					if ($a['filesize'] == $b['filesize'])
-							return 0;
+						return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}
@@ -1163,6 +1165,7 @@ function getXmlNews($xml_format)
 /**
  * Get the recent topics to display.
  * The returned array will be generated to match the xml_format.
+ *
  * @todo does not belong here.
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
@@ -1285,7 +1288,7 @@ function getXmlRecent($xml_format)
 			{
 				uasort($loaded_attachments, function($a, $b) {
 					if ($a['filesize'] == $b['filesize'])
-							return 0;
+						return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}
@@ -1609,6 +1612,7 @@ function getXmlRecent($xml_format)
 /**
  * Get the profile information for member into an array,
  * which will be generated to match the xml_format.
+ *
  * @todo refactor.
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'

@@ -626,14 +626,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		foreach ($to_array as $to)
 		{
 			set_error_handler(function($errno, $errstr, $errfile, $errline)
+			{
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
 				{
-					// error was suppressed with the @-operator
-					if (0 === error_reporting()) {
-						return false;
-					}
-
-					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+					return false;
 				}
+
+				throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+			}
 			);
 			try
 			{
@@ -1249,6 +1250,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 /**
  * Sends mail, like mail() but over SMTP.
  * It expects no slashes or entities.
+ *
  * @internal
  *
  * @param array $mail_to_array Array of strings (email addresses)
@@ -1425,6 +1427,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  * Parse a message to the SMTP server.
  * Sends the specified message to the server, and checks for the
  * expected response.
+ *
  * @internal
  *
  * @param string $message The message to send
@@ -2499,6 +2502,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 /**
  * Approve topics?
+ *
  * @todo shouldn't this be in topic
  *
  * @param array $topics Array of topic ids
@@ -2807,7 +2811,6 @@ function user_info_callback($matches)
 
 	return $use_ref ? $ref : $matches[0];
 }
-
 
 /**
  * spell_init()

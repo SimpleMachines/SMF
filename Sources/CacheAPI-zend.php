@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * Our Cache API class
+ *
  * @package cacheAPI
  */
 class zend_cache extends cache_api

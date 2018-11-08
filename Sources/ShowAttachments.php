@@ -308,7 +308,6 @@ function showAttachment()
 	else
 		header("content-length: " . $size);
 
-
 	// Try to buy some time...
 	@set_time_limit(600);
 

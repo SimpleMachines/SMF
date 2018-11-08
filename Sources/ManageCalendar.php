@@ -136,7 +136,7 @@ function ModifyHolidays()
 					'value' => $txt['date'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						// Recurring every year or just a single year?
 						$year = $rowData['year'] == '1004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
@@ -218,7 +218,7 @@ function EditHoliday()
 		checkSession();
 
 		// Not too long good sir?
-		$_REQUEST['title'] =  $smcFunc['substr']($_REQUEST['title'], 0, 60);
+		$_REQUEST['title'] = $smcFunc['substr']($_REQUEST['title'], 0, 60);
 		$_REQUEST['holiday'] = isset($_REQUEST['holiday']) ? (int) $_REQUEST['holiday'] : 0;
 
 		if (isset($_REQUEST['delete']))

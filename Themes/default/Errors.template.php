@@ -248,8 +248,8 @@ function template_attachment_errors()
 				<div class="noticebox">',
 					$context['error_message'], '
 				</div>';
-	
-	if (!empty($context['back_link'])) 
+
+	if (!empty($context['back_link']))
 		echo '
 				<a class="button" href="', $scripturl, $context['back_link'], '">', $txt['back'], '</a>';
 
@@ -308,7 +308,6 @@ function template_show_backtrace()
 			echo '
 					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
 
-
 		echo '
 				</ul>
 			</div>';
@@ -328,12 +327,12 @@ function template_show_backtrace()
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
 			//Check for existing
-			if (!property_exists($value,'file') || empty($value->file))
+			if (!property_exists($value, 'file') || empty($value->file))
 				$value->file = $txt['unknown'];
 			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 
-				echo '
+			echo '
 					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
 		}
 

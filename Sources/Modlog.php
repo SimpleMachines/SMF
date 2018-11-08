@@ -88,7 +88,7 @@ function ViewModlog()
 
 	// Do the column stuff!
 	$sort_types = array(
-		'action' =>'lm.action',
+		'action' => 'lm.action',
 		'time' => 'lm.log_time',
 		'member' => 'mem.real_name',
 		'group' => 'mg.group_name',

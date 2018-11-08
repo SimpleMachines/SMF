@@ -563,7 +563,7 @@ function ConvertEntities()
 				WHERE table_name = {string:cur_table}
 				AND (data_type = \'character varying\' or data_type = \'text\')',
 				array(
-					'cur_table' => $db_prefix.$cur_table,
+					'cur_table' => $db_prefix . $cur_table,
 				)
 			);
 		else
@@ -584,11 +584,11 @@ function ConvertEntities()
 				SELECT a.attname "Column_name", \'PRIMARY\' "Key_name", attnum "Seq_in_index"
 				FROM   pg_index i
 				JOIN   pg_attribute a ON a.attrelid = i.indrelid
-									 AND a.attnum = ANY(i.indkey)
+					AND a.attnum = ANY(i.indkey)
 				WHERE  i.indrelid = {string:cur_table}::regclass
-				AND    i.indisprimary',
+					AND    i.indisprimary',
 				array(
-					'cur_table' => $db_prefix.$cur_table,
+					'cur_table' => $db_prefix . $cur_table,
 				)
 			);
 		else
@@ -706,7 +706,7 @@ function ConvertEntities()
  * It shows as the maintain_forum admin area.
  * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
-
+ *
  * @uses the optimize sub template
  */
 function OptimizeTables()
@@ -1328,6 +1328,7 @@ function AdminBoardRecount()
  * It requires the admin_forum permission.
  * Uses the view_versions admin area.
  * Accessed through ?action=admin;area=maintain;sa=routine;activity=version.
+ *
  * @uses Admin template, view_versions sub-template.
  */
 function VersionDetail()
@@ -1394,6 +1395,7 @@ function MaintainReattributePosts()
 
 /**
  * Removing old members. Done and out!
+ *
  * @todo refactor
  */
 function MaintainPurgeInactiveMembers()
@@ -1904,7 +1906,7 @@ function list_integration_hooks()
 				'data' => array(
 					'db' => 'hook_name',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'hook_name',
 					'reverse' => 'hook_name DESC',
 				),
@@ -1926,7 +1928,7 @@ function list_integration_hooks()
 							return $instance . $data['real_function'];
 					},
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'function_name',
 					'reverse' => 'function_name DESC',
 				),
@@ -1938,7 +1940,7 @@ function list_integration_hooks()
 				'data' => array(
 					'db' => 'file_name',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'file_name',
 					'reverse' => 'file_name DESC',
 				),
@@ -1953,14 +1955,14 @@ function list_integration_hooks()
 					{
 						$change_status = array('before' => '', 'after' => '');
 
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
-							$change_status['after'] = '</a>';
+						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+						$change_status['after'] = '</a>';
 
 						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'status',
 					'reverse' => 'status DESC',
 				),
@@ -2001,7 +2003,6 @@ function list_integration_hooks()
 		'href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'name' => 'list_integration_hooks',
 	);
-
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($list_options);
@@ -2316,7 +2317,7 @@ function fixchardb__callback($matches)
 		return '';
 
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
-	
+
 	// it's to big for mb3?
 	if ($num > 0xFFFF && !$smcFunc['db_mb4'])
 		return $matches[0];

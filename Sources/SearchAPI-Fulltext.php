@@ -33,7 +33,7 @@ class fulltext_search extends search_api
 	/**
 	 * @var array Which databases support this method?
 	 */
-	protected $supported_databases = array('mysql','postgresql');
+	protected $supported_databases = array('mysql', 'postgresql');
 
 	/**
 	 * The constructor function
@@ -176,7 +176,7 @@ class fulltext_search extends search_api
 		$query_where = array();
 		$query_params = $search_data['params'];
 
-		if( $smcFunc['db_title'] == "PostgreSQL")
+		if ($smcFunc['db_title'] == "PostgreSQL")
 			$modSettings['search_simple_fulltext'] = true;
 
 		if ($query_params['id_search'])
@@ -256,7 +256,7 @@ class fulltext_search extends search_api
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match'])
 			{
-				if($smcFunc['db_title'] == "PostgreSQL")
+				if ($smcFunc['db_title'] == "PostgreSQL")
 				{
 					$language_ftx = $smcFunc['db_search_language']();
 
@@ -268,7 +268,7 @@ class fulltext_search extends search_api
 			}
 		}
 
-		$ignoreRequest = $smcFunc['db_search_query']('insert_into_log_messages_fulltext', ($smcFunc['db_support_ignore'] ? ( '
+		$ignoreRequest = $smcFunc['db_search_query']('insert_into_log_messages_fulltext', ($smcFunc['db_support_ignore'] ? ('
 			INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')') : '') . '
 			SELECT ' . implode(', ', $query_select) . '

@@ -629,8 +629,6 @@ function template_edit_agreement()
 				</div><!-- .information -->';
 	}
 
-
-
 	// Show the actual agreement in an oversized text box.
 	echo '
 				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">

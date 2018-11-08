@@ -199,7 +199,6 @@ function Register($reg_errors = array())
 	else
 		$context['visual_verification'] = false;
 
-
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
 		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
@@ -364,7 +363,7 @@ function Register2()
 
 		// Only set it if you can and if we are sure it is good
 		if ($canEditDisplayName && $smcFunc['htmltrim']($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
-				$possible_strings[] = 'real_name';
+			$possible_strings[] = 'real_name';
 	}
 
 	// Handle a string as a birthdate...
@@ -586,8 +585,8 @@ function Activate()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, validation_code, member_name, real_name, email_address, is_activated, passwd, lngfile
 		FROM {db_prefix}members' . (empty($_REQUEST['u']) ? '
-		WHERE member_name = {string:email_address} OR email_address = {string:email_address}' : '
-		WHERE id_member = {int:id_member}') . '
+			WHERE member_name = {string:email_address} OR email_address = {string:email_address}' : '
+			WHERE id_member = {int:id_member}') . '
 		LIMIT 1',
 		array(
 			'id_member' => isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0,

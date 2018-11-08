@@ -20,6 +20,7 @@ if (!defined('SMF'))
  * Redirect to the user help ;).
  * It loads information needed for the help section.
  * It is accessed by ?action=help.
+ *
  * @uses Help template and Manual language file.
  */
 function ShowHelp()
@@ -121,6 +122,7 @@ function HelpRules()
  * It uses the help parameter to decide what string to display and where to get
  * the string from. ($helptxt or $txt?)
  * It is accessed via ?action=helpadmin;help=?.
+ *
  * @uses ManagePermissions language file, if the help starts with permissionhelp.
  * @uses Help template, popup sub template, no layers.
  */

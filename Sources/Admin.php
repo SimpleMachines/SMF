@@ -506,7 +506,7 @@ function AdminMain()
  *  manage_boards, edit_news, or send_mail permission.
  *  It uses the index administrative area.
  *  It can be found by going to ?action=admin.
-*/
+ */
 function AdminHome()
 {
 	global $sourcedir, $forum_version, $txt, $scripturl, $context, $user_info;
@@ -554,7 +554,7 @@ function AdminHome()
 			'title' => $txt['admin_center'],
 			'help' => '',
 			'description' => '<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
-						' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
+				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
 		);
 
 	// Lastly, fill in the blanks in the support resources paragraphs.

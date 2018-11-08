@@ -51,7 +51,7 @@ function updateReport($action, $value, $report_id)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
 		SET  {raw:action} = {string:value}
-		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') .'
+		' . (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
 			' . $board_query,
 		array(
 			'action' => $action,
@@ -99,7 +99,7 @@ function updateReport($action, $value, $report_id)
 			)
 		);
 
-		while($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$extra[$row['id_report']] = array(
 				'report' => $row['id_report'],
 				'member' => $row['id_member'],
@@ -132,7 +132,6 @@ function updateReport($action, $value, $report_id)
  *
  * @param int $closed 1 for counting closed reports, 0 for open ones.
  * @return integer How many reports.
-
  */
 function countReports($closed = 0)
 {

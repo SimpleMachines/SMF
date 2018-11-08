@@ -32,15 +32,15 @@ class Punycode
 	 * Bootstring parameter values
 	 *
 	 */
-	const BASE         = 36;
-	const TMIN         = 1;
-	const TMAX         = 26;
-	const SKEW         = 38;
-	const DAMP         = 700;
+	const BASE = 36;
+	const TMIN = 1;
+	const TMAX = 26;
+	const SKEW = 38;
+	const DAMP = 700;
 	const INITIAL_BIAS = 72;
-	const INITIAL_N    = 128;
-	const PREFIX       = 'xn--';
-	const DELIMITER    = '-';
+	const INITIAL_N = 128;
+	const PREFIX = 'xn--';
+	const DELIMITER = '-';
 
 	/**
 	 * Encode table
@@ -59,8 +59,8 @@ class Punycode
 	 * @param array
 	 */
 	protected static $decodeTable = array(
-		'a' =>  0, 'b' =>  1, 'c' =>  2, 'd' =>  3, 'e' =>  4, 'f' =>  5,
-		'g' =>  6, 'h' =>  7, 'i' =>  8, 'j' =>  9, 'k' => 10, 'l' => 11,
+		'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3, 'e' => 4, 'f' => 5,
+		'g' => 6, 'h' => 7, 'i' => 8, 'j' => 9, 'k' => 10, 'l' => 11,
 		'm' => 12, 'n' => 13, 'o' => 14, 'p' => 15, 'q' => 16, 'r' => 17,
 		's' => 18, 't' => 19, 'u' => 20, 'v' => 21, 'w' => 22, 'x' => 23,
 		'y' => 24, 'z' => 25, '0' => 26, '1' => 27, '2' => 28, '3' => 29,
@@ -209,9 +209,12 @@ class Punycode
 		$output = '';
 
 		$pos = strrpos($input, static::DELIMITER);
-		if ($pos !== false) {
+		if ($pos !== false)
+		{
 			$output = substr($input, 0, $pos++);
-		} else {
+		}
+		else
+		{
 			$pos = 0;
 		}
 
@@ -253,9 +256,12 @@ class Punycode
 	 */
 	protected function calculateThreshold($k, $bias)
 	{
-		if ($k <= $bias + static::TMIN) {
+		if ($k <= $bias + static::TMIN)
+		{
 			return static::TMIN;
-		} elseif ($k >= $bias + static::TMAX) {
+		}
+		elseif ($k >= $bias + static::TMAX)
+		{
 			return static::TMAX;
 		}
 		return $k - $bias;
@@ -273,9 +279,9 @@ class Punycode
 	{
 		$delta = (int) (
 			($firstTime)
-				? $delta / static::DAMP
-				: $delta / 2
-			);
+			? $delta / static::DAMP
+			: $delta / 2
+		);
 		$delta += (int) ($delta / $numPoints);
 
 		$k = 0;

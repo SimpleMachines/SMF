@@ -37,7 +37,7 @@ function template_main()
 			<h2 class="display_title">
 				<span id="top_subject">', $context['subject'], '</span>', ($context['is_locked']) ? ' <span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? ' <span class="generic_icons sticky"></span>' : '', '
 			</h2>
-			<p>',$txt['started_by'], ' ', $context['topic_poster_name'], ', ', $context['topic_started_time'], '</p>';
+			<p>', $txt['started_by'], ' ', $context['topic_poster_name'], ', ', $context['topic_started_time'], '</p>';
 
 	// Next - Prev
 	echo '
@@ -146,7 +146,7 @@ function template_main()
 		</div><!-- #poll -->
 		<div id="pollmoderation">';
 
-			template_button_strip($context['poll_buttons']);
+		template_button_strip($context['poll_buttons']);
 
 		echo '
 		</div>';
@@ -236,7 +236,7 @@ function template_main()
 
 	// Mobile action - moderation buttons (top)
 	if (!empty($context['normal_buttons']))
-	echo '
+		echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
@@ -260,7 +260,7 @@ function template_main()
 
 	// Mobile action - moderation buttons (bottom)
 	if (!empty($context['normal_buttons']))
-	echo '
+		echo '
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
@@ -696,7 +696,7 @@ function template_single_post($message)
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
-									<span class="smalltext modified floatright', !empty($modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '','" id="modified_', $message['id'], '">';
+									<span class="smalltext modified floatright', !empty($modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
 
 	if (!empty($modSettings['show_modify']) && !empty($message['modified']['name']))
 		echo
@@ -983,7 +983,6 @@ function template_single_post($message)
 							<div class="signature" id="msg_', $message['id'], '_signature"', $ignoring ? ' style="display:none;"' : '', '>
 								', $message['member']['signature'], '
 							</div>';
-
 
 	// Are there any custom profile fields for below the signature?
 	if (!empty($message['custom_fields']['below_signature']))

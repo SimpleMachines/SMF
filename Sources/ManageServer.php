@@ -302,7 +302,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		  FROM {db_prefix}themes
-		 WHERE variable in ({string:themeurl}, {string:imagesurl})
+		WHERE variable in ({string:themeurl}, {string:imagesurl})
 		   AND id_member = {int:zero}',
 		array(
 			'themeurl' => 'theme_url',
@@ -323,7 +323,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}themes
 				   SET value = {string:theme_val}
-				 WHERE variable = {string:theme_var}
+				WHERE variable = {string:theme_var}
 				   AND id_theme = {string:theme_id}
 				   AND id_member = {int:zero}',
 				array(
@@ -405,13 +405,12 @@ function ModifyDatabaseSettings($return_config = false)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$fts_language[$row['cfgname']] = $row['cfgname'];
 
-		$config_vars = array_merge ($config_vars, array(
+		$config_vars = array_merge($config_vars, array(
 				'',
 				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
 			)
 		);
 	}
-
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
 
@@ -937,6 +936,7 @@ function prepareServerSettingsContext(&$config_vars)
 
 /**
  * Helper function, it sets up the context for database settings.
+ *
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars An array of configuration variables
@@ -1136,7 +1136,8 @@ function prepareDBSettingContext(&$config_vars)
 		$context['bbc_columns'] = array();
 		$tagsPerColumn = ceil($totalTags / $numColumns);
 
-		$col = 0; $i = 0;
+		$col = 0;
+		$i = 0;
 		foreach ($bbcTags as $tag)
 		{
 			if ($i % $tagsPerColumn == 0 && $i != 0)
@@ -1305,6 +1306,7 @@ function saveSettings(&$config_vars)
 
 /**
  * Helper function for saving database settings.
+ *
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars An array of configuration variables

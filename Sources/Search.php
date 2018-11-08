@@ -659,7 +659,7 @@ function PlushSearch2()
 
 	// Remove the phrase parts and extract the words.
 	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
-	$wordArray = explode(' ',  $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
+	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
 
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
@@ -997,7 +997,7 @@ function PlushSearch2()
 		// Are the result fresh?
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
 		{
-			$request = $smcFunc['db_query']('','
+			$request = $smcFunc['db_query']('', '
 				SELECT id_search 
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
@@ -1008,7 +1008,7 @@ function PlushSearch2()
 			);
 
 			if ($smcFunc['db_num_rows']($request) === 0)
-				$update_cache = true;	
+				$update_cache = true;
 		}
 
 		if ($update_cache)
@@ -1579,7 +1579,7 @@ function PlushSearch2()
 					}
 					$main_query['select']['relevance'] = substr($relevance, 0, -3) . ') / ' . $new_weight_total . ' AS relevance';
 
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_no_index', ($smcFunc['db_support_ignore'] ? ( '
+					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_no_index', ($smcFunc['db_support_ignore'] ? ('
 						INSERT IGNORE INTO ' . '{db_prefix}log_search_results
 							(' . implode(', ', array_keys($main_query['select'])) . ')') : '') . '
 						SELECT
@@ -1647,7 +1647,7 @@ function PlushSearch2()
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$usedIDs = array_flip(empty($inserts) ? array() : array_keys($inserts));
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ( '
+					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ('
 						INSERT IGNORE INTO {db_prefix}log_search_results
 							(id_search, id_topic, relevance, id_msg, num_matches)') : '') . '
 						SELECT

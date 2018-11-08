@@ -1112,7 +1112,8 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function ($a, $b) {
+	uksort($valid_tags, function ($a, $b)
+	{
 		return strlen($a) < strlen($b) ? 1 : -1;
 	});
 
@@ -1524,6 +1525,7 @@ function getMessageIcons($board_id)
 
 /**
  * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
+ *
  * @param array $editorOptions Various options for the editor
  */
 function create_control_richedit($editorOptions)
@@ -1980,16 +1982,16 @@ function create_control_richedit($editorOptions)
 
 		// Set proper extensions; do this post caching so cache doesn't become extension-specific
 		array_walk_recursive($context['smileys'], function (&$filename, $key)
-			{
-				global $context, $user_info, $modSettings;
-				if ($key == 'filename')
-					// Need to use the default if user selection is disabled
-					if (empty($modSettings['smiley_sets_enable']))
-						$filename .= $context['user']['smiley_set_default_ext'];
-					else
-						$filename .= $user_info['smiley_set_ext'];
+		{
+			global $context, $user_info, $modSettings;
+			if ($key == 'filename')
+				// Need to use the default if user selection is disabled
+				if (empty($modSettings['smiley_sets_enable']))
+					$filename .= $context['user']['smiley_set_default_ext'];
+				else
+					$filename .= $user_info['smiley_set_ext'];
 
-			}
+		}
 		);
 	}
 
@@ -2073,6 +2075,7 @@ function create_control_richedit($editorOptions)
 
 /**
  * Create a anti-bot verification control?
+ *
  * @param array &$verificationOptions Options for the verification control
  * @param bool $do_test Whether to check to see if the user entered the code correctly
  * @return bool|array False if there's nothing to show, true if everything went well or an array containing error indicators if the test failed
@@ -2368,6 +2371,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 /**
  * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+ *
  * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
  * @return void|bool Returns whether the callback function is registered if $checkRegistered isn't null
  */

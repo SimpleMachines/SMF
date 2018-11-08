@@ -113,7 +113,7 @@ function template_options()
 		),
 		array(
 			'id' => 'drafts_show_saved_enabled',
-			'label'  => $txt['drafts_show_saved_enabled'],
+			'label' => $txt['drafts_show_saved_enabled'],
 			'default' => true,
 			'enabled' => !empty($modSettings['drafts_show_saved_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
 		),

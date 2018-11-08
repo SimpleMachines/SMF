@@ -16,7 +16,7 @@ div.sceditor-grip,
 	height: 16px;
 }
 .sceditor-button-flash div {
-		background-position: 0px -712px;
+	background-position: 0px -712px;
 }
 .sceditor-button-youtube div {
 	background-position: 0px 0px;
@@ -411,9 +411,10 @@ div.sceditor-color-picker {
 .sceditor-insertemoticon {
 	padding: 4px !important;
 }
-.sceditor-insertemoticon>div, .sceditor-insertemoticon>center {
-		display: inline-block;
-		vertical-align: middle;
+
+.sceditor-insertemoticon > div, .sceditor-insertemoticon > center {
+	display: inline-block;
+	vertical-align: middle;
 }
 .sceditor-more {
 	border-top: 1px solid #bbb;
@@ -508,11 +509,12 @@ div.sceditor-group {
 .sceditor-button:active,
 .sceditor-button.active {
 	background: #fff;
-	box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3), inset -1px 0 rgba(0,0,0,0.3), inset 0 -1px 0 rgba(0,0,0,0.2);
+	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
+
 .sceditor-button:active {
 	background: #fff;
-	box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3), inset -1px 0 rgba(0,0,0,0.3), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 8px rgba(0,0,0,0.3);
+	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
 }
 .sceditor-button.disabled:hover {
 	background: inherit;

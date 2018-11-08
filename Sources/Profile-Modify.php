@@ -1021,7 +1021,7 @@ function makeThemeChanges($memID, $id_theme)
 				$val = max(0, min($val, 50));
 			// Only let admins and owners change the censor.
 			elseif ($opt == 'allow_no_censored' && !$user_info['is_admin'] && !$context['user']['is_owner'])
-					continue;
+				continue;
 
 			$themeSetArray[] = array($memID, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 			$erase_options[] = $opt;
@@ -1257,7 +1257,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1285,13 +1285,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('','
+			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}themes
 				WHERE id_theme = {int:id_theme} AND
 						variable = {string:variable} AND
 						id_member = {int:id_member}',
 				$deletes
-				);
+			);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1796,7 +1796,7 @@ function getAvatars($directory, $level)
 				'name' => '[' . $smcFunc['htmlspecialchars'](str_replace('_', ' ', $line)) . ']',
 				'is_dir' => true,
 				'files' => $tmp
-		);
+			);
 		unset($tmp);
 	}
 
@@ -1952,8 +1952,8 @@ function alert_configuration($memID)
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
-			'buddy_request'  => array('alert' => 'yes', 'email' => 'never'),
-			'birthday'  => array('alert' => 'yes', 'email' => 'yes'),
+			'buddy_request' => array('alert' => 'yes', 'email' => 'never'),
+			'birthday' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
@@ -2089,7 +2089,7 @@ function alert_configuration($memID)
 				{
 					case 'check':
 						$update_prefs[$this_option[1]] = !empty($_POST['opt_' . $this_option[1]]) ? 1 : 0;
-						break;
+					break;
 					case 'select':
 						if (isset($_POST['opt_' . $this_option[1]], $this_option['opts'][$_POST['opt_' . $this_option[1]]]))
 							$update_prefs[$this_option[1]] = $_POST['opt_' . $this_option[1]];
@@ -2100,7 +2100,7 @@ function alert_configuration($memID)
 							$first = array_shift($keys);
 							$update_prefs[$this_option[1]] = $first;
 						}
-						break;
+					break;
 				}
 			}
 		}
@@ -3171,6 +3171,7 @@ function profileSaveGroups(&$value)
 
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
+ *
  * @todo argh, the avatar here. Take this out of here!
  *
  * @param string &$value What kind of avatar we're expecting. Can be 'none', 'server_stored', 'gravatar', 'external' or 'upload'
@@ -3537,7 +3538,8 @@ function profileValidateSignature(&$value)
 			{
 				foreach ($matches[0] as $key => $image)
 				{
-					$width = -1; $height = -1;
+					$width = -1;
+					$height = -1;
 
 					// Does it have predefined restraints? Width first.
 					if ($matches[6][$key])

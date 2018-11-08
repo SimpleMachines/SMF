@@ -37,6 +37,7 @@ function db_extra_init()
 
 /**
  * Backup $table to $backup_table.
+ *
  * @param string $table The name of the table to backup
  * @param string $backup_table The name of the backup table for this table
  * @return resource -the request handle to the table creation query
@@ -83,6 +84,7 @@ function smf_db_backup_table($table, $backup_table)
 
 /**
  * This function optimizes a table.
+ *
  * @param string $table The table to be optimized
  * @return int How much space was gained
  */
@@ -92,7 +94,7 @@ function smf_db_optimize_table($table)
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
-	$pg_tables = array('pg_catalog','information_schema');
+	$pg_tables = array('pg_catalog', 'information_schema');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT pg_relation_size(C.oid) AS "size"
@@ -112,11 +114,11 @@ function smf_db_optimize_table($table)
 	$old_size = $row['size'];
 
 	$request = $smcFunc['db_query']('', '
-			VACUUM FULL ANALYZE {raw:table}',
-			array(
-				'table' => $table,
-			)
-		);
+		VACUUM FULL ANALYZE {raw:table}',
+		array(
+			'table' => $table,
+		)
+	);
 
 	if (!$request)
 		return -1;
@@ -133,12 +135,11 @@ function smf_db_optimize_table($table)
 		)
 	);
 
-
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (isset($row['size']))
-			return ($old_size - $row['size']) / 1024;
+		return ($old_size - $row['size']) / 1024;
 	else
 		return 0;
 }
@@ -177,6 +178,7 @@ function smf_db_list_tables($db = false, $filter = false)
 
 /**
  * Dumps the schema (CREATE) for a table.
+ *
  * @todo why is this needed for?
  * @param string $tableName The name of the table
  * @return string The "CREATE TABLE" SQL string for this table
@@ -284,14 +286,15 @@ function smf_db_table_sql($tableName)
 
 /**
  *  Get the version number.
- *  @return string The version
+ *
+ * @return string The version
  */
 function smf_db_get_version()
 {
 	global $db_connection;
 	static $ver;
 
-	if(!empty($ver))
+	if (!empty($ver))
 		return $ver;
 
 	$ver = pg_version($db_connection)['server'];
@@ -303,7 +306,7 @@ function smf_db_get_version()
  * Return PostgreSQL
  *
  * @return string The database engine we are using
-*/
+ */
 function smf_db_get_vendor()
 {
 	return 'PostgreSQL';
@@ -313,7 +316,7 @@ function smf_db_get_vendor()
  * Figures out if persistent connection is allowed
  *
  * @return boolean
-*/
+ */
 function smf_db_allow_persistent()
 {
 	$value = ini_get('pgsql.allow_persistent');

@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * Our Cache API class
+ *
  * @package cacheAPI
  */
 class smf_cache extends cache_api

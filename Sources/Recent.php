@@ -703,13 +703,13 @@ function UnreadTopics()
 
 	// This part is the same for each query.
 	$select_clause = '
-				ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
-				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, mems.avatar AS first_poster_avatar, mems.email_address AS first_poster_email, COALESCE(af.id_attach, 0) AS first_poster_id_attach, af.filename AS first_poster_filename, af.attachment_type AS first_poster_attach_type, COALESCE(al.id_attach, 0) AS last_poster_id_attach, al.filename AS last_poster_filename, al.attachment_type AS last_poster_attach_type,' : '') . '
-				ml.poster_time AS last_poster_time, COALESCE(mems.real_name, ms.poster_name) AS first_poster_name,
-				COALESCE(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
-				ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
-				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, SUBSTRING(ml.body, 1, 385) AS last_body,
-				SUBSTRING(ms.body, 1, 385) AS first_body, ml.smileys_enabled AS last_smileys, ms.smileys_enabled AS first_smileys, t.id_first_msg, t.id_last_msg';
+		ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
+		t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, mems.avatar AS first_poster_avatar, mems.email_address AS first_poster_email, COALESCE(af.id_attach, 0) AS first_poster_id_attach, af.filename AS first_poster_filename, af.attachment_type AS first_poster_attach_type, COALESCE(al.id_attach, 0) AS last_poster_id_attach, al.filename AS last_poster_filename, al.attachment_type AS last_poster_attach_type,' : '') . '
+		ml.poster_time AS last_poster_time, COALESCE(mems.real_name, ms.poster_name) AS first_poster_name,
+		COALESCE(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
+		ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
+		COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, SUBSTRING(ml.body, 1, 385) AS last_body,
+		SUBSTRING(ms.body, 1, 385) AS first_body, ml.smileys_enabled AS last_smileys, ms.smileys_enabled AS first_smileys, t.id_first_msg, t.id_last_msg';
 
 	if ($context['showing_all_topics'])
 	{
@@ -1400,7 +1400,7 @@ function UnreadTopics()
 	if ($is_topics)
 	{
 		$context['recent_buttons'] = array(
-			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'custom' => 'data-confirm="'.  $txt['are_sure_mark_read'] .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
 		);
 
 		if ($context['showCheckboxes'])
@@ -1416,7 +1416,7 @@ function UnreadTopics()
 	elseif (!$is_topics && isset($context['topics_to_mark']))
 	{
 		$context['recent_buttons'] = array(
-			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="'. $txt['are_sure_mark_read']  .'"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		);
 
 		if ($context['showCheckboxes'])

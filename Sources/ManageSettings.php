@@ -465,8 +465,8 @@ function ModifyWarningSettings($return_config = false)
 	list ($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
 	$config_vars = array(
-			// Warning system?
-			'enable' => array('check', 'warning_enable'),
+		// Warning system?
+		'enable' => array('check', 'warning_enable'),
 	);
 
 	if (!empty($modSettings['warning_settings']) && $currently_enabled)
@@ -564,6 +564,7 @@ function ModifyWarningSettings($return_config = false)
 
 /**
  * Let's try keep the spam to a minimum ah Thantos?
+ *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
@@ -1032,7 +1033,8 @@ function ModifySignatureSettings($return_config = false)
 						$image_count_holder = array();
 						foreach ($matches[0] as $key => $image)
 						{
-							$width = -1; $height = -1;
+							$width = -1;
+							$height = -1;
 							$img_count++;
 							// Too many images?
 							if (!empty($sig_limits[3]) && $img_count > $sig_limits[3])
@@ -1404,13 +1406,13 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function ($rowData) use ($context, $txt, $scripturl)
 					{
-						$return = '<p class="centertext bold_text">'. $rowData['field_order'] .'<br>';
+						$return = '<p class="centertext bold_text">' . $rowData['field_order'] . '<br>';
 
 						if ($rowData['field_order'] > 1)
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_up'] .'"></span></a>';
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
 
 						if ($rowData['field_order'] < $context['custFieldsMaxOrder'])
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_down'] .'"></span></a>';
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_down'] . '"></span></a>';
 
 						$return .= '</p>';
 
@@ -1526,6 +1528,7 @@ function ShowCustomProfiles()
 
 /**
  * Callback for createList().
+ *
  * @param int $start The item to start with (used for pagination purposes)
  * @param int $items_per_page The number of items to display per page
  * @param string $sort A string indicating how to sort the results
@@ -1578,6 +1581,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 
 /**
  * Callback for createList().
+ *
  * @return int The total number of custom profile fields
  */
 function list_getProfileFieldSize()
@@ -1711,7 +1715,7 @@ function EditCustomProfiles()
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
 
 		// All good, proceed.
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = {int:old_order}
 			WHERE field_order = {int:new_order}',
@@ -1720,7 +1724,7 @@ function EditCustomProfiles()
 				'old_order' => $context['field']['order'],
 			)
 		);
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = {int:new_order}
 			WHERE id_field = {int:id_field}',
@@ -1822,7 +1826,7 @@ function EditCustomProfiles()
 			$smcFunc['db_free_result']($request);
 
 			$unique = false;
-			for ($i = 0; !$unique && $i < 9; $i ++)
+			for ($i = 0; !$unique && $i < 9; $i++)
 			{
 				if (!in_array($col_name, $current_fields))
 					$unique = true;
@@ -1995,7 +1999,7 @@ function EditCustomProfiles()
 		);
 
 		// Re-arrange the order.
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = field_order - 1
 			WHERE field_order > {int:current_order}',
@@ -2053,6 +2057,7 @@ function EditCustomProfiles()
 
 /**
  * Returns the maximum field_order value for the custom fields
+ *
  * @return int The maximum value of field_order from the custom_fields table
  */
 function custFieldsMaxOrder()
@@ -2061,10 +2066,10 @@ function custFieldsMaxOrder()
 
 	// Gotta know the order limit
 	$result = $smcFunc['db_query']('', '
-			SELECT MAX(field_order)
+		SELECT MAX(field_order)
 			FROM {db_prefix}custom_fields',
 			array()
-		);
+	);
 
 	list ($order_count) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
@@ -2260,7 +2265,7 @@ function ModifyAlertsSettings()
 	$context['token_check'] = 'noti-admin';
 
 	// Specify our action since we'll want to post back here instead of the profile
-	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;'. $context['session_var'] .'='. $context['session_id'];
+	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . $context['session_var'] . '=' . $context['session_id'];
 
 	loadTemplate('Profile');
 	loadLanguage('Profile');

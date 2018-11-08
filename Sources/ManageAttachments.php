@@ -2,6 +2,7 @@
 
 /**
  * This file doing the job of attachments and avatars maintenance and management.
+ *
  * @todo refactor as controller-model
  *
  * Simple Machines Forum (SMF)
@@ -98,8 +99,8 @@ function ManageAttachmentSettings($return_config = false)
 		if (is_dir($modSettings['attachmentUploadDir'][1]))
 			$modSettings['basedirectory_for_attachments'] = $modSettings['attachmentUploadDir'][1];
 
-	else
-		$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
+		else
+			$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
 
 	$context['valid_upload_dir'] = is_dir($context['attachmentUploadDir']) && is_writable($context['attachmentUploadDir']);
 
@@ -671,13 +672,13 @@ function list_getNumFiles($browse_type)
 	// Depending on the type of file, different queries are used.
 	if ($browse_type === 'avatars')
 		$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}attachments
-		WHERE id_member != {int:guest_id_member}',
-		array(
-			'guest_id_member' => 0,
-		)
-	);
+			SELECT COUNT(*)
+			FROM {db_prefix}attachments
+			WHERE id_member != {int:guest_id_member}',
+			array(
+				'guest_id_member' => 0,
+			)
+		);
 	else
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*) AS num_attach
@@ -799,7 +800,8 @@ function MaintainFiles()
  *   ?action=admin;area=manageattachments;sa=byAge.
  * It optionally adds a certain text to the messages the attachments
  *  were removed from.
- *  @todo refactor this silly superglobals use...
+ *
+ * @todo refactor this silly superglobals use...
  */
 function RemoveAttachmentByAge()
 {
@@ -890,7 +892,7 @@ function RemoveAttachment()
 
 		if ($_REQUEST['type'] == 'avatars' && !empty($attachments))
 			removeAttachments(array('id_attach' => $attachments));
-		else if (!empty($attachments))
+		elseif (!empty($attachments))
 		{
 			$messages = removeAttachments(array('id_attach' => $attachments), 'messages', true);
 
@@ -954,6 +956,7 @@ function RemoveAllAttachments()
  * It allows query_types 'messages' and 'members', whichever is need by the
  * $condition parameter.
  * It does no permissions check.
+ *
  * @internal
  *
  * @param array $condition An array of conditions
@@ -1013,7 +1016,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		SELECT
 			a.id_folder, a.filename, a.file_hash, a.attachment_type, a.id_attach, a.id_member' . ($query_type == 'messages' ? ', m.id_msg' : ', a.id_msg') . ',
 			thumb.id_folder AS thumb_folder, COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
-		FROM {db_prefix}attachments AS a' .($query_type == 'members' ? '
+		FROM {db_prefix}attachments AS a' . ($query_type == 'members' ? '
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = a.id_member)' : ($query_type == 'messages' ? '
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)' : '')) . '
 			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
@@ -1541,7 +1544,7 @@ function RepairAttachments()
 					'no_msg' => 0,
 					'substep' => $_GET['substep'],
 					'ignore_ids' => $ignore_ids,
-					'attach_thumb' => array(0,3),
+					'attach_thumb' => array(0, 3),
 				)
 			);
 
@@ -1571,7 +1574,7 @@ function RepairAttachments()
 					array(
 						'to_remove' => $to_remove,
 						'no_member' => 0,
-						'attach_thumb' => array(0,3),
+						'attach_thumb' => array(0, 3),
 					)
 				);
 
@@ -1941,8 +1944,8 @@ function ManageAttachmentPaths()
 				// or is it?
 				if (in_array($path, $modSettings['attachmentUploadDir']) || in_array($boarddir . DIRECTORY_SEPARATOR . $path, $modSettings['attachmentUploadDir']))
 				{
-						$errors[] = $path . ': ' . $txt['attach_dir_duplicate_msg'];
-						continue;
+					$errors[] = $path . ': ' . $txt['attach_dir_duplicate_msg'];
+					continue;
 				}
 				elseif (empty($path))
 				{
@@ -2428,6 +2431,7 @@ function ManageAttachmentPaths()
 
 /**
  * Prepare the actual attachment directories to be displayed in the list.
+ *
  * @return array An array of information about the attachment directories
  */
 function list_getAttachDirs()
@@ -2483,7 +2487,7 @@ function list_getAttachDirs()
 			'id' => $id,
 			'current' => $id == $modSettings['currentAttachmentUploadDir'],
 			'disable_current' => isset($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] > 1,
-			'disable_base_dir' =>  $is_base_dir && $sub_dirs > 0 && !empty($files) && empty($error) && empty($save_errors),
+			'disable_base_dir' => $is_base_dir && $sub_dirs > 0 && !empty($files) && empty($error) && empty($save_errors),
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
@@ -2507,6 +2511,7 @@ function list_getAttachDirs()
 
 /**
  * Prepare the base directories to be displayed in a list.
+ *
  * @return void|array Returns nothing if there are no base directories, otherwise returns an array of info about the directories
  */
 function list_getBaseDirs()

@@ -18,6 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Create a menu.
+ *
  * @param array $menuData An array of menu data
  * @param array $menuOptions An array of menu options
  * @return boolean|array False if nothing to show or an array of info about the selected menu item
@@ -318,6 +319,7 @@ function createMenu($menuData, $menuOptions = array())
 
 /**
  * Delete a menu.
+ *
  * @param string $menu_id The ID of the menu to destroy or 'last' for the most recent one
  * @return bool|void False if the menu doesn't exist, nothing otherwise
  */

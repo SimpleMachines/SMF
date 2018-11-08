@@ -1160,7 +1160,6 @@ function spamProtection($error_type, $only_return_result = false)
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
 
-
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
@@ -1279,11 +1278,11 @@ else
 }
 
 /**
-* This sets the X-Frame-Options header.
-*
-* @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
-* @since 2.1
-*/
+ * This sets the X-Frame-Options header.
+ *
+ * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+ * @since 2.1
+ */
 function frameOptionsHeader($override = null)
 {
 	global $modSettings;

@@ -933,7 +933,7 @@ function SendMailing($clean_only = false)
 				}
 			}
 			if (!empty($queryBuild))
-			$sendQuery .= implode(' OR ', $queryBuild);
+				$sendQuery .= implode(' OR ', $queryBuild);
 		}
 		if (!empty($context['recipients']['members']))
 		{
@@ -1032,7 +1032,6 @@ function SendMailing($clean_only = false)
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
 	}
-
 
 	$context['start'] = $context['start'] + $num_at_once;
 	if (empty($context['recipients']['emails']) && ($context['start'] >= $context['total_members']))

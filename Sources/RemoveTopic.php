@@ -1492,6 +1492,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 
 /**
  * Try to determine if the topic has already been deleted by another user.
+ *
  * @return bool False if it can't be deleted (recycling not enabled or no recycling board set), true if we've confirmed it can be deleted. Dies with an error if it's already been deleted.
  */
 function removeDeleteConcurrence()

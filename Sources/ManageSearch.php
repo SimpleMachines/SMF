@@ -223,7 +223,8 @@ function EditSearchMethod()
 		checkSession('get');
 		validateToken('admin-msm', 'get');
 
-		if ($db_type == 'postgresql') {
+		if ($db_type == 'postgresql')
+		{
 			$smcFunc['db_query']('', '
 				DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 				array(
@@ -787,7 +788,8 @@ function detectFulltextIndex()
 	// We need this for db_get_version
 	db_extend();
 
-	if ($smcFunc['db_title'] == 'PostgreSQL') {
+	if ($smcFunc['db_title'] == 'PostgreSQL')
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				indexname
@@ -820,8 +822,8 @@ function detectFulltextIndex()
 		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-			if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
-				$context['fulltext_index'][] = $row['Key_name'];
+				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
+					$context['fulltext_index'][] = $row['Key_name'];
 			$smcFunc['db_free_result']($request);
 
 			if (is_array($context['fulltext_index']))
@@ -850,8 +852,8 @@ function detectFulltextIndex()
 		if ($request !== false)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'](), '5.6.4', '>=')))
-				$context['cannot_create_fulltext'] = true;
+				if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'](), '5.6.4', '>=')))
+					$context['cannot_create_fulltext'] = true;
 			$smcFunc['db_free_result']($request);
 		}
 	}

@@ -84,7 +84,7 @@ function template_main()
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
-						$child['link'] = ''. ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a>' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
+						$child['link'] = '' . ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a>' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
 					else
 						$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . '">' . $child['name'] . '</a>';
 
@@ -95,7 +95,7 @@ function template_main()
 					$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
 				}
 
-			echo '
+				echo '
 			<div id="board_', $board['id'], '_children" class="children">
 				<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
 			</div>';
@@ -113,7 +113,7 @@ function template_main()
 	{
 		// Mobile action buttons (top)
 		if (!empty($context['normal_buttons']))
-		echo '
+			echo '
 	<div class="mobile_buttons floatright">
 		<a class="button mobile_act">', $txt['mobile_action'], '</a>
 	</div>';
@@ -168,7 +168,7 @@ function template_main()
 				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
 			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
 
-		echo '
+			echo '
 			</div>';
 		}
 
@@ -347,7 +347,7 @@ function template_main()
 
 		// Mobile action buttons (bottom)
 		if (!empty($context['normal_buttons']))
-		echo '
+			echo '
 	<div class="mobile_buttons floatright">
 		<a class="button mobile_act">', $txt['mobile_action'], '</a>
 	</div>';
@@ -426,7 +426,7 @@ function template_topic_legend()
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
-				'. ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
+				' . ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
 				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>

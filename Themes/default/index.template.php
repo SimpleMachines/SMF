@@ -226,17 +226,16 @@ function template_body_above()
 			</ul>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
-	else
-		if (empty($maintenance))
-			echo '
+	elseif (empty($maintenance))
+		echo '
 			<ul class="floatleft welcome">
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
-		else
-			// In maintenance mode, only login is allowed and don't show OverlayDiv
-			echo '
+	else
+		// In maintenance mode, only login is allowed and don't show OverlayDiv
+		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl. '?action=login', 'return true;'), '</li>
+				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl . '?action=login', 'return true;'), '</li>
 			</ul>';
 
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
@@ -317,7 +316,7 @@ function template_body_above()
 	echo '
 		', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '';
 
-	echo'
+	echo '
 	</div>
 	<div id="wrapper">
 		<div id="upper_section">
@@ -427,7 +426,7 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
-		echo '
+	echo '
 				<div class="navigate_section">
 					<ul>';
 
@@ -602,7 +601,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 
 	echo '
 		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
-			',implode('', $buttons), '
+			', implode('', $buttons), '
 		</div>';
 }
 

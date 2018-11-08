@@ -939,7 +939,7 @@ function template_show_settings()
 				}
 
 				echo isset($config_var['postinput']) ? '
-											' . $config_var['postinput'] : '','
+											' . $config_var['postinput'] : '', '
 									</dd>';
 			}
 		}
@@ -970,7 +970,6 @@ function template_show_settings()
 	if ($is_open)
 		echo '
 							</div><!-- .windowbg -->';
-
 
 	// At least one token has to be used!
 	if (isset($context['admin-ssc_token']))

@@ -948,6 +948,7 @@ function ViewSubscribedUsers()
 
 /**
  * Returns how many people are subscribed to a paid subscription.
+ *
  * @todo refactor away
  *
  * @param int $id_sub The ID of the subscription
@@ -980,6 +981,7 @@ function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = arr
 
 /**
  * Return the subscribed users list, for the given parameters.
+ *
  * @todo refactor outta here
  *
  * @param int $start The item to start with (for pagination purposes)
@@ -1129,7 +1131,7 @@ function ModifyUserSubscription()
 					'{db_prefix}log_subscribed',
 					array(
 						'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-						'end_time' => 'int', 'status' => 'int','pending_details' => 'string-65534'
+						'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string-65534'
 					),
 					array(
 						$context['sub_id'], $id_member, $id_group, $starttime,

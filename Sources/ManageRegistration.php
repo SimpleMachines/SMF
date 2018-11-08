@@ -138,7 +138,6 @@ function AdminRegister()
 		}
 	}
 
-
 	// Load the assignable member groups.
 	if (allowedTo('manage_membergroups'))
 	{

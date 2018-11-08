@@ -2,6 +2,7 @@
 
 /**
  * This file contains all the functions used for the ban center.
+ *
  * @todo refactor as controller-model
  *
  * Simple Machines Forum (SMF)
@@ -283,11 +284,11 @@ function BanList()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("'. $txt['select_item_check'] .'");
+				return alert("' . $txt['select_item_check'] . '");
 			}
 
 
-			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
 		});',
 	);
 
@@ -1826,7 +1827,7 @@ function BanBrowseTriggers()
 			{
 				return range2ip(
 					$rowData['ip_low']
-				,
+					,
 					$rowData['ip_high']
 				);
 			},
@@ -2159,6 +2160,7 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 
 /**
  * This returns the total count of ban log entries. Callback for $listOptions['get_count'] in BanLog().
+ *
  * @return int The total number of ban log entries.
  */
 function list_getNumBanLogEntries()
@@ -2218,7 +2220,6 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 		'ip_low' => $ip_array['low'],
 		'ip_high' => $ip_array['high']
 	);
-
 
 	$request = $smcFunc['db_query']('', '
 		SELECT bg.id_ban_group, bg.name

@@ -199,7 +199,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				$result = $smcFunc['db_query']('', '
 				SELECT SUM(num_topics + unapproved_topics) AS total_topics
 				FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-				WHERE id_board != {int:recycle_board}' : ''),
+					WHERE id_board != {int:recycle_board}' : ''),
 					array(
 						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 					)
@@ -259,9 +259,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			$smcFunc['db_query']('', '
 			UPDATE {db_prefix}members
 			SET id_post_group = CASE ' . $conditions . '
-					ELSE 0
-				END' . ($parameter1 != null ? '
-			WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
+			ELSE 0
+			END' . ($parameter1 != null ? '
+				WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 				array(
 					'members' => $parameter1,
 				)
@@ -391,7 +391,7 @@ function updateMemberData($members, $data)
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. count(fetch_alerts($v, false, 0, array(), false)) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN ' . count(fetch_alerts($v, false, 0, array(), false)) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
@@ -401,7 +401,7 @@ function updateMemberData($members, $data)
 				$val = count($blub);
 			}
 		}
-		else if ($type == 'int' && ($val === '+' || $val === '-'))
+		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
 			$type = 'raw';
@@ -744,7 +744,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	static $non_twelve_hour, $locale_cache;
 	static $unsupportedFormats, $finalizedFormats;
 
-	$unsupportedFormatsWindows = array('z','Z');
+	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
 	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
@@ -829,7 +829,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
-			foreach($strftimeFormatSubstitutions as $format => $substitution)
+			foreach ($strftimeFormatSubstitutions as $format => $substitution)
 			{
 				// Avoid a crashing bug with PHP 7 on certain versions of Windows
 				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
@@ -1244,7 +1244,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '" class="atc_img"></a>';
+							$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
 						else
 							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
 					}
@@ -1739,23 +1739,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
 				'validate' => function(&$tag, &$data, $disabled)
-					{
+				{
 
-						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
-							$data[1] = '0 -2px 1px';
+					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
+						$data[1] = '0 -2px 1px';
 
-						elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
-							$data[1] = '2px 0 1px';
+					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
+						$data[1] = '2px 0 1px';
 
-						elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
-							$data[1] = '0 2px 1px';
+					elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
+						$data[1] = '0 2px 1px';
 
-						elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
-							$data[1] = '-2px 0 1px';
+					elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
+						$data[1] = '-2px 0 1px';
 
-						else
-							$data[1] = '1px 1px 1px';
-					},
+					else
+						$data[1] = '1px 1px 1px';
+				},
 			),
 			array(
 				'tag' => 'size',
@@ -1901,7 +1901,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, function ($a, $b) {
+			usort($codes, function ($a, $b)
+			{
 				return strcmp($a['tag'], $b['tag']);
 			});
 			return $codes;
@@ -2210,7 +2211,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								$fullUrl = $url;
 
 							// Make sure that $fullUrl really is valid
-							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '' ) . $fullUrl) === false)
+							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false)
 								return $url;
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
@@ -2222,7 +2223,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					{
 						$email_regex = '
 						# Preceded by a non-domain character or start of line
-						(?<=^|[^\p{L}\p{M}\p{N}\-\.])
+							(?<=^|[^\p{L}\p{M}\p{N}\-\.])
 
 						# An email address
 						[\p{L}\p{M}\p{N}_\-.]{1,80}
@@ -2274,7 +2275,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
 			// A closing tag that doesn't match any open tags? Skip it.
-			if (!in_array($look_for, array_map(function($code){return $code['tag'];}, $open_tags)))
+			if (!in_array($look_for, array_map(function ($code)
+			{
+				return $code['tag'];
+			}, $open_tags)))
 				continue;
 
 			$to_close = array();
@@ -2932,7 +2936,7 @@ function parsesmileys(&$message)
 		}
 
 		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		foreach($smileysto AS $ix=>$file)
+		foreach ($smileysto AS $ix => $file)
 			// Need to use the default if user selection is disabled
 			if (empty($modSettings['smiley_sets_enable']))
 				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
@@ -2950,7 +2954,7 @@ function parsesmileys(&$message)
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
-			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
+			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
@@ -3074,7 +3078,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 				function ($m) use ($scripturl)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID. (isset($m[2]) ? "$m[2]" : "");
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
 		else
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
@@ -3099,6 +3103,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 /**
  * Ends execution.  Takes care of template loading and remembering the previous URL.
+ *
  * @param bool $header Whether to do the header
  * @param bool $do_footer Whether to do the footer
  * @param bool $from_index Whether we're coming from the board index
@@ -3199,6 +3204,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 /**
  * Get the size of a specified image with better error handling.
+ *
  * @todo see if it's better in Subs-Graphics, but one step at the time.
  * Uses getimagesize() to determine the size of a file.
  * Attempts to connect to the server first so it won't time out.
@@ -3280,6 +3286,7 @@ function url_image_size($url)
 
 /**
  * Sets up the basic theme context stuff.
+ *
  * @param bool $forceload Whether to load the theme even if it's already loaded
  */
 function setupThemeContext($forceload = false)
@@ -3399,7 +3406,7 @@ function setupThemeContext($forceload = false)
 
 	// Add a generic "Are you sure?" confirmation message.
 	addInlineJavaScript('
-	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
+	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
 
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
@@ -3884,7 +3891,7 @@ function template_css()
 			echo $css .'
 	';
 
-		echo'
+		echo '
 	</style>';
 	}
 }
@@ -3953,7 +3960,7 @@ function custMinify($data, $type)
 	}
 
 	// No namespaces, sorry!
-	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
+	$classType = 'MatthiasMullie\\Minify\\' . strtoupper($type);
 
 	$minifier = new $classType();
 
@@ -4045,6 +4052,7 @@ function deleteAllMinified()
 
 /**
  * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
+ *
  * @todo this currently returns the hash if new, and the full filename otherwise.
  * Something messy like that.
  * @todo and of course everything relies on this behavior and work around it. :P.
@@ -4098,7 +4106,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash .'.dat';
+	return $path . '/' . $attachment_id . '_' . $file_hash . '.dat';
 }
 
 /**
@@ -4142,10 +4150,10 @@ function ip2range($fullip)
 		$valid_low = isValidIP($ip_parts[0]);
 		$valid_high = isValidIP($ip_parts[1]);
 		$count = 0;
-		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$mode = (preg_match('/:/', $ip_parts[0]) > 0 ? ':' : '.');
 		$max = ($mode == ':' ? 'ffff' : '255');
 		$min = 0;
-		if(!$valid_low)
+		if (!$valid_low)
 		{
 			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
 			$valid_low = isValidIP($ip_parts[0]);
@@ -4159,7 +4167,7 @@ function ip2range($fullip)
 		}
 
 		$count = 0;
-		if(!$valid_high)
+		if (!$valid_high)
 		{
 			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
 			$valid_high = isValidIP($ip_parts[1]);
@@ -4172,7 +4180,7 @@ function ip2range($fullip)
 			}
 		}
 
-		if($valid_high && $valid_low)
+		if ($valid_high && $valid_low)
 		{
 			$ip_array['low'] = $ip_parts[0];
 			$ip_array['high'] = $ip_parts[1];
@@ -4648,7 +4656,7 @@ function setupMenuContext()
 		$context['total_admin_reports'] += $context['unapproved_members'];
 	}
 
-	if($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
+	if ($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['amt'] = $context['total_admin_reports'];
 	}
@@ -4995,7 +5003,7 @@ function load_file($string)
 		// No? try a fallback to $sourcedir
 		else
 		{
-			$absPath = $sourcedir .'/'. $file;
+			$absPath = $sourcedir . '/' . $file;
 
 			if (file_exists($absPath))
 				require_once($absPath);
@@ -5203,6 +5211,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 
 /**
  * Prepares an array of "likes" info for the topic specified by $topic
+ *
  * @param integer $topic The topic ID to fetch the info from.
  * @return array An array of IDs of messages in the specified topic that the current user likes
  */
@@ -5213,7 +5222,6 @@ function prepareLikesContext($topic)
 	// Make sure we have something to work with.
 	if (empty($topic))
 		return array();
-
 
 	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
 	$user = $user_info['id'];
@@ -5517,7 +5525,6 @@ function smf_list_timezones($when = 'now')
 	// Process the preferred timezones first, then the normal ones, then the low priority ones.
 	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
 
-
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	foreach ($tzids as $tzid)
 	{
@@ -5616,7 +5623,7 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if(empty($bin))
+	if (empty($bin))
 		return '';
 
 	global $db_type;
@@ -5647,33 +5654,34 @@ function inet_dtop($bin)
  */
 function _safe_serialize($value)
 {
-	if(is_null($value))
+	if (is_null($value))
 		return 'N;';
 
-	if(is_bool($value))
-		return 'b:'. (int) $value .';';
+	if (is_bool($value))
+		return 'b:' . (int) $value . ';';
 
-	if(is_int($value))
-		return 'i:'. $value .';';
+	if (is_int($value))
+		return 'i:' . $value . ';';
 
-	if(is_float($value))
-		return 'd:'. str_replace(',', '.', $value) .';';
+	if (is_float($value))
+		return 'd:' . str_replace(',', '.', $value) . ';';
 
-	if(is_string($value))
-		return 's:'. strlen($value) .':"'. $value .'";';
+	if (is_string($value))
+		return 's:' . strlen($value) . ':"' . $value . '";';
 
-	if(is_array($value))
+	if (is_array($value))
 	{
 		$out = '';
-		foreach($value as $k => $v)
+		foreach ($value as $k => $v)
 			$out .= _safe_serialize($k) . _safe_serialize($v);
 
-		return 'a:'. count($value) .':{'. $out .'}';
+		return 'a:' . count($value) . ':{' . $out . '}';
 	}
 
 	// safe_serialize cannot serialize resources or objects.
 	return false;
 }
+
 /**
  * Wrapper for _safe_serialize() that handles exceptions and multibyte encoding issues.
  *
@@ -5710,7 +5718,7 @@ function safe_serialize($value)
 function _safe_unserialize($str)
 {
 	// Input  is not a string.
-	if(empty($str) || !is_string($str))
+	if (empty($str) || !is_string($str))
 		return false;
 
 	$stack = array();
@@ -5724,40 +5732,40 @@ function _safe_unserialize($str)
 	 *   3 - in array, expecting value or another array
 	 */
 	$state = 0;
-	while($state != 1)
+	while ($state != 1)
 	{
 		$type = isset($str[0]) ? $str[0] : '';
-		if($type == '}')
+		if ($type == '}')
 			$str = substr($str, 1);
 
-		else if($type == 'N' && $str[1] == ';')
+		elseif ($type == 'N' && $str[1] == ';')
 		{
 			$value = null;
 			$str = substr($str, 2);
 		}
-		else if($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
+		elseif ($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
 		{
 			$value = $matches[1] == '1' ? true : false;
 			$str = substr($str, 4);
 		}
-		else if($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
+		elseif ($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
 		{
-			$value = (int)$matches[1];
+			$value = (int) $matches[1];
 			$str = $matches[2];
 		}
-		else if($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
+		elseif ($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
 		{
-			$value = (float)$matches[1];
+			$value = (float) $matches[1];
 			$str = $matches[3];
 		}
-		else if($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int)$matches[1], 2) == '";')
+		elseif ($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int) $matches[1], 2) == '";')
 		{
-			$value = substr($matches[2], 0, (int)$matches[1]);
-			$str = substr($matches[2], (int)$matches[1] + 2);
+			$value = substr($matches[2], 0, (int) $matches[1]);
+			$str = substr($matches[2], (int) $matches[1] + 2);
 		}
-		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
+		elseif ($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
 		{
-			$expectedLength = (int)$matches[1];
+			$expectedLength = (int) $matches[1];
 			$str = $matches[2];
 		}
 
@@ -5765,10 +5773,10 @@ function _safe_unserialize($str)
 		else
 			return false;
 
-		switch($state)
+		switch ($state)
 		{
 			case 3: // In array, expecting value or another array.
-				if($type == 'a')
+				if ($type == 'a')
 				{
 					$stack[] = &$list;
 					$list[$key] = array();
@@ -5777,7 +5785,7 @@ function _safe_unserialize($str)
 					$state = 2;
 					break;
 				}
-				if($type != '}')
+				if ($type != '}')
 				{
 					$list[$key] = $value;
 					$state = 2;
@@ -5788,29 +5796,29 @@ function _safe_unserialize($str)
 				return false;
 
 			case 2: // in array, expecting end of array or a key
-				if($type == '}')
+				if ($type == '}')
 				{
 					// Array size is less than expected.
-					if(count($list) < end($expected))
+					if (count($list) < end($expected))
 						return false;
 
 					unset($list);
-					$list = &$stack[count($stack)-1];
+					$list = &$stack[count($stack) - 1];
 					array_pop($stack);
 
 					// Go to terminal state if we're at the end of the root array.
 					array_pop($expected);
 
-					if(count($expected) == 0)
+					if (count($expected) == 0)
 						$state = 1;
 
 					break;
 				}
 
-				if($type == 'i' || $type == 's')
+				if ($type == 'i' || $type == 's')
 				{
 					// Array size exceeds expected length.
-					if(count($list) >= end($expected))
+					if (count($list) >= end($expected))
 						return false;
 
 					$key = $value;
@@ -5823,7 +5831,7 @@ function _safe_unserialize($str)
 
 			// Expecting array or value.
 			case 0:
-				if($type == 'a')
+				if ($type == 'a')
 				{
 					$data = array();
 					$list = &$data;
@@ -5832,7 +5840,7 @@ function _safe_unserialize($str)
 					break;
 				}
 
-				if($type != '}')
+				if ($type != '}')
 				{
 					$data = $value;
 					$state = 1;
@@ -5845,7 +5853,7 @@ function _safe_unserialize($str)
 	}
 
 	// Trailing data in input.
-	if(!empty($str))
+	if (!empty($str))
 		return false;
 
 	return $data;
@@ -5877,7 +5885,7 @@ function safe_unserialize($str)
 
 /**
  * Tries different modes to make file/dirs writable. Wrapper function for chmod()
-
+ *
  * @param string $file The file/dir full path.
  * @param int $value Not needed, added for legacy reasons.
  * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
@@ -5899,7 +5907,7 @@ function smf_chmod($file, $value = 0)
 	// Set different modes.
 	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
 
-	foreach($chmodValues as $val)
+	foreach ($chmodValues as $val)
 	{
 		// If it's writable, break out of the loop.
 		if (is_writable($file))
@@ -5917,7 +5925,7 @@ function smf_chmod($file, $value = 0)
 
 /**
  * Wrapper function for json_decode() with error handling.
-
+ *
  * @param string $json The string to decode.
  * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
  * @param bool $logIt To specify if the error will be logged if theres any.
@@ -5934,13 +5942,13 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 	$returnArray = @json_decode($json, $returnAsArray);
 
 	// PHP 5.3 so no json_last_error_msg()
-	switch(json_last_error())
+	switch (json_last_error())
 	{
 		case JSON_ERROR_NONE:
 			$jsonError = false;
 			break;
 		case JSON_ERROR_DEPTH:
-			$jsonError =  'JSON_ERROR_DEPTH';
+			$jsonError = 'JSON_ERROR_DEPTH';
 			break;
 		case JSON_ERROR_STATE_MISMATCH:
 			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
@@ -5968,10 +5976,10 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 		loadLanguage('Errors');
 
 		if (!empty($jsonDebug))
-			log_error($txt['json_'. $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
+			log_error($txt['json_' . $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
 
 		else
-			log_error($txt['json_'. $jsonError], 'critical');
+			log_error($txt['json_' . $jsonError], 'critical');
 
 		// Everyone expects an array.
 		return array();
@@ -5996,6 +6004,7 @@ function isValidIP($IPString)
 /**
  * Outputs a response.
  * It assumes the data is already a string.
+ *
  * @param string $data The data to print
  * @param string $type The content type. Defaults to Json.
  * @return void
@@ -6233,11 +6242,11 @@ function build_regex($strings, $delim = null, $returnArray = false)
 
 				if (count(array_keys($value)) == 1)
 				{
-					$new_key_array = explode('(?'.'>', $sub_regex);
+					$new_key_array = explode('(?' . '>', $sub_regex);
 					$new_key .= $new_key_array[0];
 				}
 				else
-					$sub_regex = '(?'.'>' . $sub_regex . ')';
+					$sub_regex = '(?' . '>' . $sub_regex . ')';
 			}
 
 			if ($depth > 1)
@@ -6255,7 +6264,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		}
 
 		// Sort by key length and then alphabetically
-		uksort($regex, function($k1, $k2) use (&$strlen) {
+		uksort($regex, function ($k1, $k2) use (&$strlen)
+		{
 			$l1 = $strlen($k1);
 			$l2 = $strlen($k2);
 
@@ -6280,10 +6290,10 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	{
 		$regex = array();
 		while (!empty($index))
-			$regex[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+			$regex[] = '(?' . '>' . $index_to_regex($index, $delim) . ')';
 	}
 	else
-		$regex = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+		$regex = '(?' . '>' . $index_to_regex($index, $delim) . ')';
 
 	// Restore PHP's internal character encoding to whatever it was originally
 	if (!empty($current_encoding))
@@ -6296,10 +6306,11 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Check if the passed url has an SSL certificate.
  *
  * Returns true if a cert was found & false if not.
+ *
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
- function ssl_cert_found($url)
- {
+function ssl_cert_found($url)
+{
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
@@ -6322,6 +6333,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Returns true if a redirect was found & false if not.
  * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
  * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
+ *
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
 function https_redirect_active($url)
@@ -6355,6 +6367,7 @@ function https_redirect_active($url)
  * Build query_wanna_see_board and query_see_board for a userid
  *
  * Returns array with keys query_wanna_see_board and query_see_board
+ *
  * @param int $userid of the user
  */
 function build_query_board($userid)
@@ -6378,14 +6391,14 @@ function build_query_board($userid)
 	else
 	{
 		$request = $smcFunc['db_query']('', '
-				SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
-				FROM {db_prefix}members AS mem
-				WHERE mem.id_member = {int:id_member}
-				LIMIT 1',
-				array(
-					'id_member' => $userid,
-				)
-			);
+			SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
+			FROM {db_prefix}members AS mem
+			WHERE mem.id_member = {int:id_member}
+			LIMIT 1',
+			array(
+				'id_member' => $userid,
+			)
+		);
 
 		$row = $smcFunc['db_fetch_assoc']($request);
 
@@ -6393,8 +6406,8 @@ function build_query_board($userid)
 			$groups = array($row['id_group'], $row['id_post_group']);
 		else
 			$groups = array_merge(
-					array($row['id_group'], $row['id_post_group']),
-					explode(',', $row['additional_groups'])
+				array($row['id_group'], $row['id_post_group']),
+				explode(',', $row['additional_groups'])
 			);
 
 		// Because history has proven that it is possible for groups to go bad - clean up in case.
@@ -6444,9 +6457,9 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
-				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
-				. ' AND bpv.id_board = b.id_board)';
+		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( ' . implode(',', $groups) . ') AND bpv.deny = 0) '
+			. (!empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( ' . implode(',', $groups) . ') and bpv.deny = 1)' : '')
+			. ' AND bpv.id_board = b.id_board)';
 
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
@@ -6549,10 +6562,10 @@ function iri_to_url($iri)
 
 	// Encode any disallowed characters in the rest of the URL
 	$unescaped = array(
-		'%21'=>'!', '%23'=>'#', '%24'=>'$', '%26'=>'&',
-		'%27'=>"'", '%28'=>'(', '%29'=>')', '%2A'=>'*',
-		'%2B'=>'+', '%2C'=>',',	'%2F'=>'/', '%3A'=>':',
-		'%3B'=>';', '%3D'=>'=', '%3F'=>'?', '%40'=>'@',
+		'%21' => '!', '%23' => '#', '%24' => '$', '%26' => '&',
+		'%27' => "'", '%28' => '(', '%29' => ')', '%2A' => '*',
+		'%2B' => '+', '%2C' => ',', '%2F' => '/', '%3A' => ':',
+		'%3B' => ';', '%3D' => '=', '%3F' => '?', '%40' => '@',
 	);
 	$iri = strtr(rawurlencode($iri), $unescaped);
 
@@ -6630,6 +6643,7 @@ function check_cron()
 
 /**
  * Sends an appropriate HTTP status header based on a given status code
+ *
  * @param int $code The status code
  * @param string $status The string for the status. Set automatically if not provided.
  */

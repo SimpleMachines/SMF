@@ -414,6 +414,7 @@ function MarkRead()
 
 /**
  * Get the id_member associated with the specified message.
+ *
  * @param int $messageID The ID of the message
  * @return int The ID of the member associated with that post
  */
@@ -655,12 +656,12 @@ function modifyBoard($board_id, &$boardOptions)
 				'selected_board' => $board_id,
 			))
 		);
-	
+
 	// Do permission sync
 	if (!empty($boardUpdateParameters['deny_groups']))
 	{
 		$insert = array();
-		foreach($boardOptions['deny_groups'] as $value)
+		foreach ($boardOptions['deny_groups'] as $value)
 			$insert[] = array($value, $board_id, 1);
 
 		$smcFunc['db_query']('', '
@@ -671,17 +672,17 @@ function modifyBoard($board_id, &$boardOptions)
 			)
 		);
 		$smcFunc['db_insert']('insert',
-				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-				$insert,
-				array('id_group','id_board','deny')
-				);
+			'{db_prefix}board_permissions_view',
+			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+			$insert,
+			array('id_group', 'id_board', 'deny')
+		);
 	}
 
 	if (!empty($boardUpdateParameters['member_groups']))
 	{
 		$insert = array();
-		foreach($boardOptions['access_groups'] as $value)
+		foreach ($boardOptions['access_groups'] as $value)
 			$insert[] = array($value, $board_id, 0);
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}board_permissions_view
@@ -691,13 +692,12 @@ function modifyBoard($board_id, &$boardOptions)
 			)
 		);
 		$smcFunc['db_insert']('insert',
-				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-				$insert,
-				array('id_group','id_board','deny')
-				);
+			'{db_prefix}board_permissions_view',
+			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+			$insert,
+			array('id_group', 'id_board', 'deny')
+		);
 	}
-
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
@@ -876,9 +876,9 @@ function createBoard($boardOptions)
 		'inherit_permissions' => true,
 		'dont_log' => true,
 	);
-	
+
 	$default_memgrps = '-1,0';
-	
+
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
@@ -901,14 +901,14 @@ function createBoard($boardOptions)
 
 	$insert = array();
 
-	foreach(explode(',', $default_memgrps) as $value)
-			$insert[] = array($value, $board_id, 0);
+	foreach (explode(',', $default_memgrps) as $value)
+		$insert[] = array($value, $board_id, 0);
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}board_permissions_view',
 		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 		$insert,
-		array('id_group','id_board','deny'),
+		array('id_group', 'id_board', 'deny'),
 		1
 	);
 
@@ -1522,6 +1522,7 @@ function recursiveBoards(&$_boardList, &$_tree)
 
 /**
  * Returns whether the child board id is actually a child of the parent (recursive).
+ *
  * @param int $child The ID of the child board
  * @param int $parent The ID of a parent board
  * @return boolean Whether the specified child board is actually a child of the specified parent board.

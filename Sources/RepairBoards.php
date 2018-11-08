@@ -579,7 +579,7 @@ function loadForumTests()
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
-				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
+					SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 					WHERE id_msg = {int:newMessageID}',
 					array(
 						'id_board' => $row['id_board'],
@@ -589,7 +589,7 @@ function loadForumTests()
 				);
 
 				updateStats('subject', $newTopicID, $txt['salvaged_poll_topic_name']);
-		},
+			},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
 		),

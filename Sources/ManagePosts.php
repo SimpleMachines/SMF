@@ -272,7 +272,7 @@ function ModifyPostSettings($return_config = false)
  * Modify any setting related to topics.
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=topics.
-
+ *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns $config_vars if $return_config is true
  * @uses Admin template, edit_topic_settings sub-template.

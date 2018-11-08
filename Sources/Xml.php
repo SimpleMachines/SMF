@@ -24,7 +24,7 @@ function XMLhttpMain()
 	loadTemplate('Xml');
 
 	$subActions = array(
-		'jumpto' =>  'GetJumpTo',
+		'jumpto' => 'GetJumpTo',
 		'messageicons' => 'ListMessageIcons',
 		'previews' => 'RetrievePreview',
 	);
@@ -213,19 +213,19 @@ function sig_preview()
 		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
 
 	$context['xml_data']['signatures'] = array(
-			'identifier' => 'signature',
-			'children' => array()
-		);
+		'identifier' => 'signature',
+		'children' => array()
+	);
 	if (isset($current_signature))
 		$context['xml_data']['signatures']['children'][] = array(
-					'value' => $current_signature,
-					'attributes' => array('type' => 'current'),
-				);
+			'value' => $current_signature,
+			'attributes' => array('type' => 'current'),
+		);
 	if (isset($preview_signature))
 		$context['xml_data']['signatures']['children'][] = array(
-					'value' => $preview_signature,
-					'attributes' => array('type' => 'preview'),
-				);
+			'value' => $preview_signature,
+			'attributes' => array('type' => 'preview'),
+		);
 	if (!empty($errors))
 		$context['xml_data']['errors'] = array(
 			'identifier' => 'error',
