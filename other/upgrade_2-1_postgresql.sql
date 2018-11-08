@@ -2373,7 +2373,7 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---{
 upgrade_query("
 	CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
-    SELECT to_char($1, ''MM-DD'');'
+	SELECT to_char($1, ''MM-DD'');'
 	LANGUAGE 'sql' IMMUTABLE STRICT;"
 );
 ---}
@@ -2501,10 +2501,10 @@ ADD COLUMN backtrace text NOT NULL default '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group smallint NOT NULL DEFAULT '0',
-    id_board smallint NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group smallint NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 );
 
 TRUNCATE {$db_prefix}board_permissions_view;

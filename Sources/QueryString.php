@@ -429,7 +429,7 @@ function expandIPv6($addr, $strict_check = true)
 */
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
-    list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
+	list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
 	
 	//v6?
 	if ((strpos($cidr_network, ':') !== false))

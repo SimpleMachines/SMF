@@ -2490,10 +2490,10 @@ function cmdStep0()
 			echo 'SMF Command-line Upgrader
 Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
-    --language=LANG         Reset the forum\'s language to LANG.
-    --no-maintenance        Don\'t put the forum into maintenance mode.
-    --debug                 Output debugging information.
-    --backup                Create backups of tables with "backup_" prefix.';
+	--language=LANG         Reset the forum\'s language to LANG.
+	--no-maintenance        Don\'t put the forum into maintenance mode.
+	--debug                 Output debugging information.
+	--backup                Create backups of tables with "backup_" prefix.';
 			echo "\n";
 			exit;
 		}
@@ -3420,7 +3420,7 @@ EOT;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                        Templates are below this point
+						Templates are below this point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 // This is what is displayed if there's any chmod to be done. If not it returns nothing...
@@ -3969,7 +3969,7 @@ function template_upgrade_options()
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 						</label>
 					</li>
-          <li>
+		  <li>
 							<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
 							<label for="migrateSettings">
 								', $txt['upgrade_migrate_settings_file'], '

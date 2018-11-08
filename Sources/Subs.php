@@ -6313,7 +6313,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		$params = stream_context_get_params($stream);
 		$result = isset($params["options"]["ssl"]["peer_certificate"]) ? true : false;
 	}
-    return $result;
+	return $result;
 }
 
 /**

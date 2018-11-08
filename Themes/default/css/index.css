@@ -741,7 +741,7 @@ img.sort, .sort {
 	vertical-align: middle;
 }
 .profile_user_avatar img.avatar {
-    max-width: 100px;
+	max-width: 100px;
 }
 .profile_username {
 	font-size: 150%;
@@ -1379,8 +1379,8 @@ ul li.greeting {
 	clear: both;
 }
 div.event_options {
-    line-height: 25px;
-    margin-top: 5px;
+	line-height: 25px;
+	margin-top: 5px;
 }
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
@@ -1399,37 +1399,37 @@ div.event_options {
 	width: 50%;
 }
 .event_options_left div, .event_options_right div {
-    min-height: 25px;
-    margin-bottom: 5px;
+	min-height: 25px;
+	margin-bottom: 5px;
 }
 
 #post_event #event_main input {
-    margin: 0;
+	margin: 0;
 }
 #evtitle {
-    max-width: 100%;
+	max-width: 100%;
 }
 #event_time_input {
-    clear: left;
+	clear: left;
 }
 #event_time_input input[type="text"] {
 	width: 80px;
 	display: inline-block;
 }
 #post_event input[type="checkbox"] {
-    height: auto;
+	height: auto;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
 }
 #post_event select, #event_options input[type="text"], #tz {
-    max-width: calc(100% - 75px);
+	max-width: calc(100% - 75px);
 }
 #post_event select, #event_location {
-    width: calc(100% - 75px);
+	width: calc(100% - 75px);
 }
 #post_event input[type="checkbox"] + select {
-    max-width: calc(100% - 95px);
+	max-width: calc(100% - 95px);
 }
 
 /* Styles for the recent messages section.
@@ -3189,7 +3189,7 @@ div#pollmoderation {
 	vertical-align: middle;
 }
 .poster img.avatar {
-    max-width: 100%;
+	max-width: 100%;
 }
 .postarea, .moderatorbar {
 	margin: 0 0 0 175px;

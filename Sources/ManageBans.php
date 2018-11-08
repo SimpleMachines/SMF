@@ -813,7 +813,7 @@ function banLoadAdditionalIPsError($member_id)
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-	    $error_ips[] = inet_dtop($row['ip']);
+		$error_ips[] = inet_dtop($row['ip']);
 	$smcFunc['db_free_result']($request);
 
 	return $error_ips;
@@ -2195,9 +2195,9 @@ function range2ip($low, $high)
 
 	if ($low == '255.255.255.255') return 'unknown';
 	if ($low == $high)
-	    return $low;
+		return $low;
 	else
-	    return $low . '-' . $high;
+		return $low . '-' . $high;
 }
 
 /**

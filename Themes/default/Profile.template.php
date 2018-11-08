@@ -938,7 +938,7 @@ function template_editIgnoreList()
 				</dt>
 				<dd>
 					<input type="text" name="new_ignore" id="new_ignore" size="30">
-                    <input type="submit" value="', $txt['ignore_add_button'], '" class="button">
+					<input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 				</dd>
 			</dl>
 		</div>';
@@ -2182,10 +2182,10 @@ function template_groupMembership()
  */
 function template_ignoreboards()
 {
-    global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
-    // The main containing header.
-    echo '
+	// The main containing header.
+	echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
@@ -2197,34 +2197,34 @@ function template_ignoreboards()
 			<div class="flow_hidden boardslist">
 				<ul>';
 
-    foreach ($context['categories'] as $category)
-    {
-        echo '
+	foreach ($context['categories'] as $category)
+	{
+		echo '
 					<li>
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
-            			<ul>';
+						<ul>';
 
-        foreach ($category['boards'] as $board)
-        {
-            echo '
+		foreach ($category['boards'] as $board)
+		{
+			echo '
 							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
 							</li>';
-        }
+		}
 
-        echo '
+		echo '
 						</ul>
 					</li>';
-    }
+	}
 
-    echo '
+	echo '
 				</ul>
-    		</div><!-- .flow_hidden boardslist -->';
+			</div><!-- .flow_hidden boardslist -->';
 
-    // Show the standard "Save Settings" profile button.
-    template_profile_save();
+	// Show the standard "Save Settings" profile button.
+	template_profile_save();
 
-    echo '
+	echo '
 		</div><!-- .windowbg -->
 	</form>
 	<br>';

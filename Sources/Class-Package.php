@@ -793,7 +793,7 @@ class ftp_connection
 		if (!$this->connection)
 		{
 			$this->error = 'bad_server';
-            		$this->last_message = 'Invalid Server';
+					$this->last_message = 'Invalid Server';
 			return;
 		}
 
@@ -801,7 +801,7 @@ class ftp_connection
 		if (!$this->check_response(220))
 		{
 			$this->error = 'bad_response';
-		        $this->last_message = 'Bad Response';
+				$this->last_message = 'Bad Response';
 			return;
 		}
 

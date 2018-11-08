@@ -516,11 +516,11 @@ function CalendarPost()
 		timeClass: "time_input",
 		dateClass: "date_input",
 		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+			var utc = new Date($(el).datepicker("getDate"));
+			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
 		},
 		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
 		}
 	});
 	', true);

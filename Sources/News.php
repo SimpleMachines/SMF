@@ -194,7 +194,7 @@ function ShowXmlFeed()
 	);
 
 	// Easy adding of sub actions
- 	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
+	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
 
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
@@ -869,7 +869,7 @@ function getXmlNews($xml_format)
 			{
 				uasort($loaded_attachments, function($a, $b) {
 					if ($a['filesize'] == $b['filesize'])
-					        return 0;
+							return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}
@@ -1285,7 +1285,7 @@ function getXmlRecent($xml_format)
 			{
 				uasort($loaded_attachments, function($a, $b) {
 					if ($a['filesize'] == $b['filesize'])
-					        return 0;
+							return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}

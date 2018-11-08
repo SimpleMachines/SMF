@@ -2024,17 +2024,17 @@ ADD COLUMN ip_high varbinary(16);
 ---# Convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
-        )
-    ),
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+		)
+	),
 ip_high =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
-        )
-    )
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+		)
+	)
 where ip_low1 > 0;
 ---#
 
@@ -2646,10 +2646,10 @@ ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group SMALLINT NOT NULL DEFAULT '0',
-    id_board SMALLINT UNSIGNED NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group SMALLINT NOT NULL DEFAULT '0',
+	id_board SMALLINT UNSIGNED NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
 
 TRUNCATE {$db_prefix}board_permissions_view;

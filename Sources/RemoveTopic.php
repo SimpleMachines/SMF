@@ -558,7 +558,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	);
 
 	// Maybe there's a mod that wants to delete topic related data of its own
- 	call_integration_hook('integrate_remove_topics', array($topics));
+	call_integration_hook('integrate_remove_topics', array($topics));
 
 	// Update the totals...
 	updateStats('message');

@@ -134,7 +134,7 @@ class browser_detector
 		if (!isset($this->_browsers['is_ie11']))
 			$this->_browsers['is_ie11'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== false && $this->isGecko();
 		return $this->_browsers['is_ie11'];
- 	}
+	}
 
 	/**
 	* Determine if the browser is Edge or not

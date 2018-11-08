@@ -363,7 +363,7 @@ function recountOpenReports($type)
 		WHERE closed = {int:not_closed}
 			AND ignore_all = {int:not_ignored}
 			AND id_board' . ($type == 'members' ? '' : '!') . '= {int:not_a_reported_post}'
-		 	. $bq,
+			. $bq,
 		array(
 			'not_closed' => 0,
 			'not_ignored' => 0,
@@ -592,7 +592,7 @@ function saveModComment($report_id, $data)
 	{
 		$prefix = 'Member';
 		$data = array(
-		 	'report_id' => $report_id,
+			'report_id' => $report_id,
 			'user_id' => $report['id_user'],
 			'user_name' => $report['user_name'],
 			'sender_id' => $context['user']['id'],
