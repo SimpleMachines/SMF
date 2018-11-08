@@ -547,6 +547,16 @@ function loadEssentialData()
 	if (empty($smcFunc))
 		$smcFunc = array();
 
+	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
+	{
+		global $sourcedir;
+
+		if (!function_exists('random_int'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
+		return random_int($min, $max);
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
@@ -862,8 +872,6 @@ function WelcomeLogin()
 	if (checkLogin())
 		return true;
 
-	require_once($sourcedir . '/Load.php');
-	reloadSettings();	
 	$upcontext += createToken('login');
 
 	return false;
@@ -978,8 +986,6 @@ function checkLogin()
 
 		if ((empty($upcontext['password_failed']) && !empty($name)) || $disable_security)
 		{
-			require_once($sourcedir . '/Load.php');
-			reloadSettings();
 			// Set the password.
 			if (!$disable_security)
 			{
