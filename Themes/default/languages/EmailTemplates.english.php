@@ -897,7 +897,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body
@@ -916,7 +918,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_tolist
@@ -934,7 +938,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body_tolist
@@ -954,7 +960,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: msg_quote
