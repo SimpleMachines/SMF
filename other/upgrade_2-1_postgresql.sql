@@ -158,7 +158,6 @@
 		upgrade_query("
 			SELECT setval('{$db_prefix}" . $key . "', (SELECT COALESCE(MAX(" . $value['field'] ."),1) FROM {$db_prefix}" . $value['table'] ."))
 		");
-		
 	}
 ---}
 ---#
