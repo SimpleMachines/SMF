@@ -74,7 +74,7 @@ input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
 /* Prevent inputs and images overflowing */
-img, input, select {
+img, input, select, textarea {
 	max-width: 100%;
 }
 /* This is a specific issue on Ubuntu - Chrome */
