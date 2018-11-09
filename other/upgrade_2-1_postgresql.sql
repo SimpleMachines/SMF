@@ -1,6 +1,168 @@
 /* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Fixing sequences
+/******************************************************************************/
+---# Updating old sequences
+---{
+	$sequences = array(
+		'admin_info_files_seq' => array(
+			'table' => 'admin_info_files',
+			'field' => 'id_file',
+		),
+		'attachments_seq' => array(
+			'table' => 'attachments',
+			'field' => 'id_attach',
+		),
+		'ban_groups_seq' => array(
+			'table' => 'ban_groups',
+			'field' => 'id_ban_group',
+		),
+		'ban_items_seq' => array(
+			'table' => 'ban_items',
+			'field' => 'id_ban',
+		),
+		'boards_seq' => array(
+			'table' => 'boards',
+			'field' => 'id_board',
+		),
+		'calendar_seq' => array(
+			'table' => 'calendar',
+			'field' => 'id_event',
+		),
+		'calendar_holidays_seq' => array(
+			'table' => 'calendar_holidays',
+			'field' => 'id_holiday',
+		),
+		'categories_seq' => array(
+			'table' => 'categories',
+			'field' => 'id_cat',
+		),
+		'custom_fields_seq' => array(
+			'table' => 'custom_fields',
+			'field' => 'id_field',
+		),
+		'log_actions_seq' => array(
+			'table' => 'log_actions',
+			'field' => 'id_action',
+		),
+		'log_banned_seq' => array(
+			'table' => 'log_banned',
+			'field' => 'id_ban_log',
+		),
+		'log_comments_seq' => array(
+			'table' => 'log_comments',
+			'field' => 'id_comment',
+		),
+		'log_errors_seq' => array(
+			'table' => 'log_errors',
+			'field' => 'id_error',
+		),
+		'log_group_requests_seq' => array(
+			'table' => 'log_group_requests',
+			'field' => 'id_request',
+		),
+		'log_member_notices_seq' => array(
+			'table' => 'log_member_notices',
+			'field' => 'id_notice',
+		),
+		'log_packages_seq' => array(
+			'table' => 'log_packages',
+			'field' => 'id_install',
+		),
+		'log_reported_seq' => array(
+			'table' => 'log_reported',
+			'field' => 'id_report',
+		),
+		'log_reported_comments_seq' => array(
+			'table' => 'log_reported_comments',
+			'field' => 'id_comment',
+		),
+		'log_scheduled_tasks_seq' => array(
+			'table' => 'log_scheduled_tasks',
+			'field' => 'id_log',
+		),
+		'log_spider_hits_seq' => array(
+			'table' => 'log_spider_hits',
+			'field' => 'id_hit',
+		),
+		'log_subscribed_seq' => array(
+			'table' => 'log_subscribed',
+			'field' => 'id_sublog',
+		),
+		'mail_queue_seq' => array(
+			'table' => 'mail_queue',
+			'field' => 'id_mail',
+		),
+		'membergroups_seq' => array(
+			'table' => 'membergroups',
+			'field' => 'id_group',
+		),
+		'members_seq' => array(
+			'table' => 'members',
+			'field' => 'id_member',
+		),
+		'message_icons_seq' => array(
+			'table' => 'message_icons',
+			'field' => 'id_icon',
+		),
+		'messages_seq' => array(
+			'table' => 'messages',
+			'field' => 'id_msg',
+		),
+		'package_servers_seq' => array(
+			'table' => 'package_servers',
+			'field' => 'id_server',
+		),
+		'permission_profiles_seq' => array(
+			'table' => 'permission_profiles',
+			'field' => 'id_profile',
+		),
+		'personal_messages_seq' => array(
+			'table' => 'personal_messages',
+			'field' => 'id_pm',
+		),
+		'pm_rules_seq' => array(
+			'table' => 'pm_rules',
+			'field' => 'id_rule',
+		),
+		'polls_seq' => array(
+			'table' => 'polls',
+			'field' => 'id_poll',
+		),
+		'scheduled_tasks_seq' => array(
+			'table' => 'scheduled_tasks',
+			'field' => 'id_task',
+		),
+		'smileys_seq' => array(
+			'table' => 'smileys',
+			'field' => 'id_smiley',
+		),
+		'spiders_seq' => array(
+			'table' => 'spiders',
+			'field' => 'id_spider',
+		),
+		'subscriptions_seq' => array(
+			'table' => 'subscriptions',
+			'field' => 'id_subscribe',
+		),
+		'topics_seq' => array(
+			'table' => 'topics',
+			'field' => 'id_topic',
+		),
+	);
+
+	foreach ($sequences as $key => $value)
+	{
+		upgrade_query("
+			SELECT setval('{$db_prefix}" . $key . "', (SELECT COALESCE(MAX(" . $value['field'] ."),1) FROM {$db_prefix}" . $value['table'] ."))
+		");
+		
+	}
+---}
+---#
+
+/******************************************************************************/
 --- Fixing dates...
 /******************************************************************************/
 ---# Updating old values
