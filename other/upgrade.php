@@ -3707,11 +3707,13 @@ function template_upgrade_above()
 			<div id="main_content_section">
 				<div id="main_steps">
 					<h2>', $txt['upgrade_progress'], '</h2>
-					<ul>';
+					<ul class="steps_list">';
 
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
-						<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $txt[$step[1]], '</li>';
+						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
+						</li>';
 
 	echo '
 					</ul>

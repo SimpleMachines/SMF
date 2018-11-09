@@ -39,17 +39,15 @@ h1.forumtitle {
 	margin: 0 1em 0.5em 0;
 	color: #d05800;
 }
-#main_steps ul {
+ul.steps_list {
 	line-height: 1.8em;
+	color: #c2c2c2;
 }
-#main_steps ul li.stepdone {
-	color: #aaa;
-}
-#main_steps ul li.stepcurrent {
+ul.steps_list li.stepcurrent {
 	color: #222;
 	font-weight: bold;
 }
-#main_steps ul li.stepwaiting {
+ul.steps_list .stepcurrent ~ li {
 	color: #666;
 }
 #install_progress {
