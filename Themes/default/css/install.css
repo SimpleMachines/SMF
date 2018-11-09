@@ -57,6 +57,7 @@ ul.steps_list .stepcurrent ~ li {
 }
 .progress_bar {
 	line-height: 2em;
+	max-width: 500px;
 }
 .progress_bar + h3, .progress_bar + .progress_bar {
 	margin-top: 1.5em;
@@ -76,7 +77,7 @@ ul.steps_list .stepcurrent ~ li {
 	background-color: #eebaf4;
 }
 .time_elapsed {
-	margin-top: 3em;
+	margin-top: 1em;
 }
 #main_screen {
 	width: 100%;
