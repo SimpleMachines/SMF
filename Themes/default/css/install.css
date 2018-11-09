@@ -152,4 +152,32 @@ dl.settings.adminlogin dd {
 	display: none;
 }
 /* End [WIP] */
+
+
+/* Now make the installer and upgrader adaptive */
+
+@media screen and (max-width: 950px) {
+
+	.progress_bar span {
+		float: right;
+	}
+}
+
+@media screen and (max-width: 700px) {
+
+	#install_progress, #main_steps {
+		width: 100%;
+		margin-right: 0;
+	}
+	#install_progress {
+		order: 0;
+		margin-top: 2em;
+	}
+	dl.settings dd {
+		-ms-grid-column: 1;
+		grid-column: 1;
+	}
+	dl.settings dt {
+		margin: 10px 0 0;
+	}
 }
