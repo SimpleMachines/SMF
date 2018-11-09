@@ -3778,7 +3778,7 @@ function template_upgrade_below()
 							</div>';
 
 	echo '
-							<div class="righttext" style="margin: 1ex;">';
+							<div class="righttext buttons">';
 
 	if (!empty($upcontext['continue']))
 		echo '
@@ -4615,7 +4615,7 @@ function template_convert_utf8()
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ' style="font-weight: bold; font-style: italic">', $txt['upgrade_fulltext'], '</p>';
+					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '>', $txt['upgrade_fulltext'], '</p>';
 
 	// Completion notification
 	echo '

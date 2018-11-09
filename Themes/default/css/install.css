@@ -112,8 +112,14 @@ ul.steps_list .stepcurrent ~ li {
 .upgrade_settings li + li {
 	margin-top: 0.5em;
 }
-#commess {
+.buttons {
+	margin-top: 1em;
+}
+#commess, #indexmsg {
 	font-weight: bold;
+}
+#indexmsg {
+	font-style: italic;
 }
 .error_content {
 	margin: 2.5ex;
