@@ -138,6 +138,7 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	box-shadow: none;
 	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
