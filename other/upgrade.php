@@ -3600,7 +3600,7 @@ function template_chmod()
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
-			<div class="error_message red">
+			<div class="error">
 				<p>', $txt['upgrade_ftp_error'], '<p>
 				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>';
@@ -3853,7 +3853,7 @@ function template_error_message()
 	global $upcontext;
 
 	echo '
-	<div class="error_message red">
+	<div class="error">
 		', $upcontext['error_msg'], '
 		<br>
 		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>

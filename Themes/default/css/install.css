@@ -97,7 +97,7 @@ h1.forumtitle {
 .panel p, .panel h3, .panel ul {
 	margin: 0 0 1em 0;
 }
-.error_message {
+.error {
 	padding: 0.5em 0;
 }
 .panel .button {
