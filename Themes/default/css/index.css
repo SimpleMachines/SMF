@@ -38,8 +38,20 @@ input, button, select, textarea {
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
 	padding: 0.3em 0.4em;
+}
+input:hover, textarea:hover, button:hover, select:hover {
+	outline: none;
+	border-color: #82a2bc;
+}
+textarea:hover {
+	background: #fbfbfb;
+}
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
+	border-color: #7fb0d8;
+	background: #fff;
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -89,18 +101,6 @@ input, button, select {
 select option {
 	padding: 0 4px;
 }
-input:hover, textarea:hover, button:hover, select:hover {
-	outline: none;
-	border: 1px solid #999;
-}
-textarea:hover {
-	background: #fbfbfb;
-}
-input:focus, textarea:focus, button:focus, select:focus {
-	outline: none;
-	border: 1px solid #999;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
-}
 /* Fieldsets are used to group elements */
 fieldset {
 	padding: 18px;
@@ -144,10 +144,12 @@ input[type="checkbox"], input[type="radio"] {
 	display: none;
 }
 /* Give disabled input elements a different style */
-input[disabled], textarea[disabled], select[disabled] {
+input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
 	background: #eee;
 	color: #999;
+	border-color: #b6b6b6;
 	opacity: 0.8;
+	cursor: default;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
