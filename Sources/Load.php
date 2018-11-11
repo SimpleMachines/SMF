@@ -225,8 +225,9 @@ function reloadSettings()
 		{
 			global $sourcedir;
 
-			if (!function_exists('random_int'))
-				require_once($sourcedir . '/Subs-Compat.php');
+			// Oh, wouldn't it be great if I *was* crazy? Then the world would be okay.
+			if (!is_callable('random_int'))
+				require_once($sourcedir . '/random_compat/lib/random.php');
 
 			return random_int($min, $max);
 		},
@@ -1778,7 +1779,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		else
 			$id_theme = (int) $id_theme;
 	}
-		
+
 	// Allow mod authors the option to override the theme id for custom page themes
 	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
 
