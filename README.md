@@ -1,4 +1,4 @@
-# [SMF](www.simplemachines.org)
+# [SMF](https://www.simplemachines.org)
 [![Build Status](https://travis-ci.org/SimpleMachines/SMF2.1.svg?branch=release-2.1)](https://travis-ci.org/SimpleMachines/SMF2.1)
 
 This is a SMF 2.1 development repository.
