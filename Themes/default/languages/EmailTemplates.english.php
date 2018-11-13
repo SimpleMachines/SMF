@@ -11,11 +11,6 @@
 
 global $txtBirthdayEmails;
 
-$txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
-$txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
-$txt['scheduled_approval_email_attach'] = 'The following attachments are awaiting approval:';
-$txt['scheduled_approval_email_event'] = 'The following events are awaiting approval:';
-
 /**
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.
@@ -311,6 +306,21 @@ You can see it at
 {REGARDS}';
 
 /**
+	@additional_params: unapproved_attachment
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the message with the attachment.
+	@description:
+*/
+$txt['unapproved_attachment_subject'] = 'New Unapproved Attachment in: {SUBJECT}';
+$txt['unapproved_attachment_body'] = 'A new attachment has been made in \'{SUBJECT}\' which needs to be approved.
+
+You can approve or reject this attachment from the link below which will take you to the message that it is a part of.
+
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: alert_unapproved_post
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
@@ -363,7 +373,7 @@ You can approve or reject this application by clicking the link below:
 {REGARDS}';
 
 /**
-	@additional_params: scheduled_approval
+	@additional_params: paid_subscription
 		REALNAME: The real (display) name of the person receiving the email.
 		PROFILE_LINK: Link to profile of member receiving email where can renew.
 		SUBSCRIPTION: Name of the subscription.
@@ -413,24 +423,6 @@ This mail was sent because the \'forgot password\' function has been applied to 
 
 IP: {IP}
 Username: {MEMBERNAME}
-
-{REGARDS}';
-
-/**
-	@additional_params: scheduled_approval
-		REALNAME: The real (display) name of the person receiving the email.
-		BODY: The generated body of the mail.
-	@description:
-*/
-$txt['scheduled_approval_subject'] = 'Summary of posts awaiting approval at {FORUMNAME}';
-$txt['scheduled_approval_body'] = '{REALNAME},
-
-This email contains a summary of all items awaiting approval at {FORUMNAME}.
-
-{BODY}
-
-Please log in to the forum to review these items.
-{SCRIPTURL}
 
 {REGARDS}';
 

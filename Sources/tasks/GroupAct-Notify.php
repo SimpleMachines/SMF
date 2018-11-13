@@ -105,7 +105,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
-				if ($pref & 0x01)
+				if ($pref & self::RECEIVE_NOTIFY_ALERT)
 				{
 					$alert_rows[] = array(
 						'alert_time' => time(),
@@ -119,7 +119,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}
 
-				if ($pref & 0x02)
+				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 				{
 					// Emails are a bit complicated. We have to do language stuff.
 					require_once($sourcedir . '/Subs-Post.php');

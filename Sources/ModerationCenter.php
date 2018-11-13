@@ -2047,9 +2047,6 @@ function ModerationSettings()
 		// Now check other options!
 		$pref_binary = 0;
 
-		if ($context['can_moderate_approvals'] && !empty($_POST['mod_notify_approval']))
-			$pref_binary |= 4;
-
 		// Put it all together.
 		$mod_prefs = '0||' . $pref_binary;
 		updateMemberData($user_info['id'], array('mod_prefs' => $mod_prefs));
@@ -2057,7 +2054,6 @@ function ModerationSettings()
 
 	// What blocks does the user currently have selected?
 	$context['mod_settings'] = array(
-		'notify_approval' => $pref_binary & 4,
 	);
 
 	createToken('mod-set');

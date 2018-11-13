@@ -1942,6 +1942,7 @@ function alert_configuration($memID)
 			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
 		),
 		'moderation' => array(
+			'unapproved_attachment' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'unapproved_post' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),

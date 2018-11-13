@@ -1968,7 +1968,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
-	if ($msgOptions['approved'] && empty($topicOptions['is_approved']))
+	if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != $user_info['id'])
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
