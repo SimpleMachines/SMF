@@ -763,7 +763,7 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'birthday', 2),
 	(0, 'announcements', 0),
 	(0, 'member_report', 3),
-	(0, 'unapproved_attachment', 1)
+	(0, 'unapproved_attachment', 1),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
