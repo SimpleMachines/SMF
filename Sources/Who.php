@@ -575,24 +575,25 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						'Colin Schoen',
-						// Developers
 						'Jon "Sesquipedalian" Stovell',
-						'Michael "Oldiesmann" Eshom',
+						// Developers
+						'Jessica "Suki" Gonz&aacute;lez',
+						'John "live627" Rayes',
+						'Jeremy "SleePy" Darwood',
 
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern "Bloc" Kristiansen',
 						'Brad "IchBin&trade;" Grow',
+						'Colin Schoen',
 						'emanuele',
 						'Hendrik Jan "Compuart" Visser',
 						'Juan "JayBachatero" Hernandez',
-						'John "live627" Rayes',
-						'Jessica "Suki" Gonz&aacute;lez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
 						$user_info['is_admin'] ? 'Matt "Grudge" Wolf' : 'Grudge',
+						'Michael "Oldiesmann" Eshom',
 						'Michael "Thantos" Miller',
 						'Norv',
 						'Peter "Arantor" Spicer',
@@ -609,12 +610,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'br360',
-						// Support Specialists
 						'Aleksi "Lex" Kilpinen',
+						// Support Specialists
+						'br360',
+						'Gary M. Gadsdon',
+						'GigaWatt',
 						'Kindred',
 						'Steve',
-						'shawnb',
+						'shawnb61',
 						'ziycon',
 						// Former Support Specialists
 						'Adam Tallon',
@@ -644,18 +647,19 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Gary M. Gadsdon',
-						// Customizers
 						'Gwenwyfar',
-						'Jessica "Suki" Gonz&aacute;lez',
-						'NanoSector',
+						// Customizers
+						'Sych0',
 						// Former Customizers
 						'Brannon "B" Hall',
 						'Diego Andrés',
+						'Gary M. Gadsdon',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
+						'Jessica "Suki" Gonz&aacute;lez',
 						'Joey "Tyrsson" Smith',
 						'Kays',
+						'NanoSector',
 						'Ricky.',
 						'Russell "NEND" Najar',
 						'SA&#8482;',
@@ -665,7 +669,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'Irisado',
+						'Dr. Irisado',
 						// Doc Writers
 
 						// Former Doc Writers
@@ -679,9 +683,9 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Nikola "Dzonny" Novakovi&cacute;',
-						// Localizers
 						'd3vcho',
+						// Localizers
+						'Nikola "Dzonny" Novakovi&cacute;',
 						'Robert Monden',
 						// Former Localizers
 						'Relyana',
