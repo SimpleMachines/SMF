@@ -2255,6 +2255,8 @@ function alert_delete($toDelete, $memID = false)
 
 /**
  * Counts how many alerts a user has - either unread or all depending on $unread
+ * We can't use db_num_rows here, as we have to determine what boards the user can see
+ * Possibly in future versions as database support for json is mainstream, we can simplify this.
  *
  * @param int $memID The user ID.
  * @param bool $unread Whether to only count unread alerts.
@@ -2262,13 +2264,14 @@ function alert_delete($toDelete, $memID = false)
  */
 function alert_count($memID, $unread = false)
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	if (empty($memID))
 		return false;
 
+	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert
+		SELECT id_alert, extra
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			'.($unread ? '
@@ -2278,10 +2281,51 @@ function alert_count($memID, $unread = false)
 		)
 	);
 
-	$count = $smcFunc['db_num_rows']($request);
+	// First we dump alerts and possible boards information out.
+	$alerts = array();
+	$boards = array();
+	$possible_boards = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
+
+		// Only add to possible boards ones that are not empty and that we haven't set before.
+		if (!empty($alerts[$row['id_alert']]['board']) && !isset($possible_boards[$alerts[$row['id_alert']]['board']]))
+			$possible_boards[$alerts[$row['id_alert']]['board']] = $alerts[$row['id_alert']]['board'];
+	}
 	$smcFunc['db_free_result']($request);
 
-	return $count;
+	// If this isn't the current user, get their boards.
+	if (isset($user_info) && $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+
+	// Find only the boards they can see.
+	if (!empty($possible_boards))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board
+			FROM {db_prefix}boards AS b
+			WHERE ' . (!empty($query_see_board) ? '{raw:query_see_board}' : '{query_see_board}') . '
+				AND id_board IN ({array_int:boards})',
+			array(
+				'boards' => array_keys($possible_boards),
+				'query_see_board' => $query_see_board
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$boards[$row['id_board']] = $row['id_board'];
+	}
+	unset($possible_boards);
+
+	// Now check alerts again and remove any they can't see.
+	foreach ($alerts as $id_alert => $extra)
+		if (!isset($boards[$extra['board']]))
+			unset($alerts[$id_alert]);		
+
+	return count($alerts);
 }
 
 /**
