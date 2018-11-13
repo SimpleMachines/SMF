@@ -262,7 +262,7 @@ function ModifyProfile($post_errors = array())
 					'sc' => 'post',
 					'password' => true,
 					'enabled' => !empty($modSettings['tfa_mode']),
-					'hidden' => isset($_REQUEST['area']) && $_REQUEST['area'] != 'tfadisable',
+					'hidden' => !isset($_REQUEST['area']) || $_REQUEST['area'] != 'tfadisable',
 					'permission' => array(
 						'own' => array('profile_password_own'),
 						'any' => array('profile_password_any'),
