@@ -3683,7 +3683,7 @@ function template_footer()
 	$context['load_time'] = round(microtime(true) - $time_start, 3);
 	$context['load_queries'] = $db_count;
 
-	foreach (array_reverse($context['template_layers']) as $layer)
+	foreach (array_reverse((array) $context['template_layers']) as $layer)
 		loadSubTemplate($layer . '_below', true);
 }
 
