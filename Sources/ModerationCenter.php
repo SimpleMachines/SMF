@@ -1307,12 +1307,12 @@ function list_getWatchedUserPostsCount($approve_query)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			WHERE mem.warning >= {int:warning_watch}
-				AND {query_see_board}
-				' . $approve_query,
+		FROM {db_prefix}messages AS m
+			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+		WHERE mem.warning >= {int:warning_watch}
+			AND {query_see_board}
+			' . $approve_query,
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
 		)
@@ -2003,6 +2003,7 @@ function ModifyWarningTemplate()
 			$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
 			$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
 			$context['template_data']['personal'] = !empty($_POST['make_personal']);
+
 			if (empty($_POST['template_title']))
 				$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['template_body']))

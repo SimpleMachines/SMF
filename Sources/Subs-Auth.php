@@ -931,12 +931,14 @@ function hash_length()
 function hash_benchmark($hashTime = 0.2)
 {
 	$cost = 9;
-	do {
+	do
+	{
 		$timeStart = microtime(true);
 		hash_password('test', 'thisisatestpassword', $cost);
 		$timeTaken = microtime(true) - $timeStart;
 		$cost++;
-	} while ($timeTaken < $hashTime);
+	}
+	while ($timeTaken < $hashTime);
 
 	return $cost;
 }

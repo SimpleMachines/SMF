@@ -256,7 +256,7 @@ function Login2()
 
 		$request = $smcFunc['db_query']('', '
 			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			passwd_flood, tfa_secret
+				passwd_flood, tfa_secret
 			FROM {db_prefix}members
 			WHERE email_address = {string:user_name}
 			LIMIT 1',

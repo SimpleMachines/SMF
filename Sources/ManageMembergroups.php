@@ -757,9 +757,11 @@ function EditMembergroup()
 				$accesses = array();
 				$request = $smcFunc['db_query']('', '
 					SELECT id_board
-					FROM {db_prefix}boards');
+					FROM {db_prefix}boards'
+				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$accesses[(int) $row['id_board']] = 'allow';
+
 				$smcFunc['db_free_result']($request);
 			}
 

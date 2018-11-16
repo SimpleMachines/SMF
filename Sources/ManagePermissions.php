@@ -163,7 +163,7 @@ function PermissionIndex()
 	$query = $smcFunc['db_query']('', '
 		SELECT id_group, id_parent, group_name, min_posts, online_color, icons
 		FROM {db_prefix}membergroups' . (empty($modSettings['permission_enable_postgroups']) ? '
-			WHERE min_posts = {int:min_posts}' : '') . '
+		WHERE min_posts = {int:min_posts}' : '') . '
 		ORDER BY id_parent = {int:not_inherited} DESC, min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
 		array(
 			'min_posts' => -1,
@@ -948,6 +948,7 @@ function ModifyMembergroup2()
 	{
 		foreach ($givePerms['board'] as $k => $v)
 			$givePerms['board'][$k][] = $profileid;
+
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}board_permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int', 'id_profile' => 'int'),
@@ -978,12 +979,13 @@ function GeneralPermissionSettings($return_config = false)
 	// All the setting variables
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'manage_permissions'),
+		// Inline permissions.
+		array('permissions', 'manage_permissions'),
 		'',
-			// A few useful settings
-			array('check', 'permission_enable_deny', 0, $txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
-			array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
+
+		// A few useful settings
+		array('check', 'permission_enable_deny', 0, $txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
+		array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 	);
 
 	call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
@@ -1852,7 +1854,7 @@ function save_inline_permissions($permissions)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE permission IN ({array_string:permissions})
-		' . (empty($context['illegal_permissions']) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+			' . (empty($context['illegal_permissions']) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 		array(
 			'illegal_permissions' => !empty($context['illegal_permissions']) ? $context['illegal_permissions'] : array(),
 			'permissions' => $permissions,

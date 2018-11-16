@@ -329,47 +329,54 @@ function ModifyCalendarSettings($return_config = false)
 	// Look, all the calendar settings - of which there are many!
 	if (!empty($modSettings['cal_enabled']))
 		$config_vars = array(
-				array('check', 'cal_enabled'),
+			array('check', 'cal_enabled'),
 			'',
-				// All the permissions:
-				array('permissions', 'calendar_view'),
-				array('permissions', 'calendar_post'),
-				array('permissions', 'calendar_edit_own'),
-				array('permissions', 'calendar_edit_any'),
+
+			// All the permissions:
+			array('permissions', 'calendar_view'),
+			array('permissions', 'calendar_post'),
+			array('permissions', 'calendar_edit_own'),
+			array('permissions', 'calendar_edit_any'),
 			'',
-				// How many days to show on board index, and where to display events etc?
-				array('select', 'calendar_default_view', array('viewlist' => $txt['setting_cal_viewlist'], 'viewmonth' => $txt['setting_cal_viewmonth'], 'viewweek' => $txt['setting_cal_viewweek'])),
-				array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => $txt['days_word']),
-				array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
-				array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
-				array('select', 'cal_showevents', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
-				array('check', 'cal_export'),
+
+			// How many days to show on board index, and where to display events etc?
+			array('select', 'calendar_default_view', array('viewlist' => $txt['setting_cal_viewlist'], 'viewmonth' => $txt['setting_cal_viewmonth'], 'viewweek' => $txt['setting_cal_viewweek'])),
+			array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => $txt['days_word']),
+			array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
+			array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
+			array('select', 'cal_showevents', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
+			array('check', 'cal_export'),
 			'',
-				// Linking events etc...
-				array('select', 'cal_defaultboard', $boards),
-				array('check', 'cal_daysaslink', 'help' => 'cal_link_postevent'),
-				array('check', 'cal_allow_unlinked', 'help' => 'cal_allow_unlinkedevents'),
-				array('check', 'cal_showInTopic'),
+
+			// Linking events etc...
+			array('select', 'cal_defaultboard', $boards),
+			array('check', 'cal_daysaslink', 'help' => 'cal_link_postevent'),
+			array('check', 'cal_allow_unlinked', 'help' => 'cal_allow_unlinkedevents'),
+			array('check', 'cal_showInTopic'),
 			'',
-				// Dates of calendar...
-				array('int', 'cal_minyear', 'help' => 'cal_min_year'),
-				array('int', 'cal_maxyear', 'help' => 'cal_max_year'),
+
+			// Dates of calendar...
+			array('int', 'cal_minyear', 'help' => 'cal_min_year'),
+			array('int', 'cal_maxyear', 'help' => 'cal_max_year'),
 			'',
-				// Calendar spanning...
-				array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'),
+
+			// Calendar spanning...
+			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'),
 			'',
-				// A comment is like a dog marking its territory. ;)
-				array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
-				array('select', 'cal_highlight_holidays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
-				array('select', 'cal_highlight_birthdays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+
+			// A comment is like a dog marking its territory. ;)
+			array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_holidays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_birthdays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
 			'',
-				// Miscellaneous layout settings...
-				array('check', 'cal_disable_prev_next'),
-				array('select', 'cal_display_type', array(0 => $txt['setting_cal_display_comfortable'], 1 => $txt['setting_cal_display_compact'])),
-				array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
-				array('check', 'cal_prev_next_links'),
-				array('check', 'cal_short_days'),
-				array('check', 'cal_short_months'),
+
+			// Miscellaneous layout settings...
+			array('check', 'cal_disable_prev_next'),
+			array('select', 'cal_display_type', array(0 => $txt['setting_cal_display_comfortable'], 1 => $txt['setting_cal_display_compact'])),
+			array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
+			array('check', 'cal_prev_next_links'),
+			array('check', 'cal_short_days'),
+			array('check', 'cal_short_months'),
 		);
 	else
 		$config_vars = array(

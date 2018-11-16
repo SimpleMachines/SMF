@@ -487,7 +487,7 @@ function BanEdit()
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl	. '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
@@ -507,11 +507,11 @@ function BanEdit()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("'. $txt['select_item_check'] .'");
+				return alert("' . $txt['select_item_check'] . '");
 			}
 
 
-			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
 		});',
 			);
 			createList($listOptions);
@@ -789,6 +789,7 @@ function banLoadAdditionalIPsMember($member_id)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$message_ips[] = inet_dtop($row['poster_ip']);
+
 	$smcFunc['db_free_result']($request);
 
 	return $message_ips;
@@ -815,6 +816,7 @@ function banLoadAdditionalIPsError($member_id)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$error_ips[] = inet_dtop($row['ip']);
+
 	$smcFunc['db_free_result']($request);
 
 	return $error_ips;
@@ -2214,7 +2216,6 @@ function range2ip($low, $high)
 function checkExistingTriggerIP($ip_array, $fullip = '')
 {
 	global $smcFunc, $scripturl;
-
 
 	$values = array(
 		'ip_low' => $ip_array['low'],

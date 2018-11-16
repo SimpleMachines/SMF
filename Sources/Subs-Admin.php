@@ -466,7 +466,7 @@ function updateAdminPreferences()
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}themes
 		WHERE id_theme != {int:default_theme}
-		AND variable = {string:admin_preferences}',
+			AND variable = {string:admin_preferences}',
 		array(
 			'default_theme' => 1,
 			'admin_preferences' => 'admin_preferences',

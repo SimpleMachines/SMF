@@ -612,20 +612,20 @@ function template_homepage_sample1_php()
 		<h3>Online Users</h3>';
 		ssi_logOnline();
 
-		echo '
+	echo '
 	</div>
 
 	<div id="content">';
 
 		ssi_welcome();
-		echo '
+	echo '
 		<br><br>
 
 		<h2>News</h2>';
 
 		ssi_boardNews();
 
-		echo '
+	echo '
 	</div>';
 
 }

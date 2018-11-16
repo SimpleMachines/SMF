@@ -802,7 +802,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 		SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 		FROM information_schema.columns
 		WHERE table_schema = {string:schema_public}
-		AND table_name = {string:table_name}
+			AND table_name = {string:table_name}
 		ORDER BY ordinal_position',
 		array(
 			'schema_public' => 'public',

@@ -170,7 +170,7 @@ function Display()
 			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
-			$topic_parameters
+		$topic_parameters
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
@@ -922,8 +922,8 @@ function Display()
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
-			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
@@ -990,7 +990,7 @@ function Display()
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
 			array(

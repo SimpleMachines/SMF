@@ -66,12 +66,12 @@ class fulltext_search extends search_api
 			case 'indexedWordQuery':
 			case 'postRemoved':
 				$return = true;
-			break;
+				break;
 
 			// All other methods, too bad dunno you.
 			default:
 				$return = false;
-			break;
+				break;
 		}
 
 		// Maybe parent got support

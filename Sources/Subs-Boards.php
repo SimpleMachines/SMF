@@ -217,7 +217,7 @@ function MarkRead()
 		$result = $smcFunc['db_query']('', '
 			SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
-			LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+				LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			WHERE t.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
@@ -317,8 +317,7 @@ function MarkRead()
 				WHERE {query_see_board}
 					AND b.child_level > {int:no_parents}
 					AND b.id_board NOT IN ({array_int:board_list})
-				ORDER BY child_level ASC
-				',
+				ORDER BY child_level ASC',
 				array(
 					'no_parents' => 0,
 					'board_list' => $boards,
@@ -327,6 +326,7 @@ function MarkRead()
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				if (in_array($row['id_parent'], $boards))
 					$boards[] = $row['id_board'];
+
 			$smcFunc['db_free_result']($request);
 		}
 
@@ -438,6 +438,7 @@ function getMsgMemberID($messageID)
 	// The message doesn't even exist.
 	else
 		$memberID = 0;
+
 	$smcFunc['db_free_result']($result);
 
 	return (int) $memberID;
@@ -684,6 +685,7 @@ function modifyBoard($board_id, &$boardOptions)
 		$insert = array();
 		foreach ($boardOptions['access_groups'] as $value)
 			$insert[] = array($value, $board_id, 0);
+
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:selected_board} AND deny = 0',
@@ -1301,7 +1303,7 @@ function getBoardModerators(array $boards)
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.real_name, mo.id_board
 		FROM {db_prefix}moderators AS mo
-		  INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
+			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
 		WHERE mo.id_board IN ({array_int:boards})',
 		array(
 			'boards' => $boards,
@@ -1341,7 +1343,7 @@ function getBoardModeratorGroups(array $boards)
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, bg.id_board
 		FROM {db_prefix}moderator_groups AS bg
-		  INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
+			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
 		WHERE bg.id_board IN ({array_int:boards})',
 		array(
 			'boards' => $boards,

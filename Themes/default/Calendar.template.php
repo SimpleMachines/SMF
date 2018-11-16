@@ -1168,7 +1168,7 @@ function template_omfg()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
-		echo '
+			echo '
 				if (', $t, ' >= ', $i, ')
 				{
 					turnon.push("', $t, '_', $i, '");

@@ -236,7 +236,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/b]';
 								$replacement .= '[b]';
 							}
-						break;
+							break;
 
 						case 'text-decoration':
 							if ($style_value == 'underline')
@@ -249,7 +249,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/s]';
 								$replacement .= '[s]';
 							}
-						break;
+							break;
 
 						case 'text-align':
 							if ($style_value == 'left')
@@ -267,7 +267,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/right]';
 								$replacement .= '[right]';
 							}
-						break;
+							break;
 
 						case 'font-style':
 							if ($style_value == 'italic')
@@ -275,12 +275,12 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/i]';
 								$replacement .= '[i]';
 							}
-						break;
+							break;
 
 						case 'color':
 							$curCloseTags .= '[/color]';
 							$replacement .= '[color=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-size':
 							// Sometimes people put decimals where decimals should not be.
@@ -289,7 +289,7 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/size]';
 							$replacement .= '[size=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-family':
 							// Only get the first freaking font if there's a list!
@@ -298,19 +298,19 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/font]';
 							$replacement .= '[font=' . strtr($style_value, array("'" => '')) . ']';
-						break;
+							break;
 
 						// This is a hack for images with dimensions embedded.
 						case 'width':
 						case 'height':
 							if (preg_match('~[1-9]\d*~i', $style_value, $dimension) === 1)
 								$extra_attr .= ' ' . $style_type . '="' . $dimension[0] . '"';
-						break;
+							break;
 
 						case 'list-style-type':
 							if (preg_match('~none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha~i', $style_value, $listType) === 1)
 								$extra_attr .= ' listtype="' . $listType[0] . '"';
-						break;
+							break;
 					}
 				}
 
@@ -534,7 +534,7 @@ function html_to_bbc($text)
 							$parts[$i + 2] = '[list' . ($listType === null ? '' : ' type=' . $listType) . ']' . "\n";
 							$parts[$i + 3] = '';
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -569,7 +569,7 @@ function html_to_bbc($text)
 							}
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -620,7 +620,7 @@ function html_to_bbc($text)
 								$parts[$i + 3] = '';
 							}
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -644,7 +644,7 @@ function html_to_bbc($text)
 							$inList = true;
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -868,7 +868,7 @@ function html_to_bbc($text)
 		{
 			return "[hr]";
 		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function()
+		'~<blockquote(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "&lt;blockquote&gt;";
 		},
@@ -1112,7 +1112,7 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function ($a, $b)
+	uksort($valid_tags, function($a, $b)
 	{
 		return strlen($a) < strlen($b) ? 1 : -1;
 	});
@@ -1981,7 +1981,7 @@ function create_control_richedit($editorOptions)
 		}
 
 		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		array_walk_recursive($context['smileys'], function (&$filename, $key)
+		array_walk_recursive($context['smileys'], function(&$filename, $key)
 		{
 			global $context, $user_info, $modSettings;
 			if ($key == 'filename')
@@ -2474,8 +2474,7 @@ function AutoSuggest_Search_MemberGroups()
 		WHERE {raw:group_name} LIKE {string:search}
 			AND min_posts = {int:min_posts}
 			AND id_group NOT IN ({array_int:invalid_groups})
-			AND hidden != {int:hidden}
-		',
+			AND hidden != {int:hidden}',
 		array(
 			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,

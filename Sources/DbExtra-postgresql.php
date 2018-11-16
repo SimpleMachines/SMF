@@ -99,9 +99,9 @@ function smf_db_optimize_table($table)
 	$request = $smcFunc['db_query']('', '
 		SELECT pg_relation_size(C.oid) AS "size"
 		FROM pg_class C
-		LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+			LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
 		WHERE nspname NOT IN ({array_string:pg_tables})
-		and relname = {string:table}',
+			AND relname = {string:table}',
 		array(
 			'table' => $table,
 			'pg_tables' => $pg_tables,
@@ -126,9 +126,9 @@ function smf_db_optimize_table($table)
 	$request = $smcFunc['db_query']('', '
 		SELECT pg_relation_size(C.oid) AS "size"
 		FROM pg_class C
-		LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+			LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
 		WHERE nspname NOT IN ({array_string:pg_tables})
-		and relname = {string:table}',
+			AND relname = {string:table}',
 		array(
 			'table' => $table,
 			'pg_tables' => $pg_tables,

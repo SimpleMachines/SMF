@@ -166,12 +166,12 @@ abstract class search_api implements search_api_interface
 		{
 			case 'postRemoved':
 				return true;
-			break;
+				break;
 
 			// All other methods, too bad dunno you.
 			default:
 				return false;
-			break;
+				break;
 		}
 	}
 

@@ -456,7 +456,8 @@ function scheduled_daily_maintenance()
 		WHERE time < {int:oldLogins}',
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
-	));
+		)
+	);
 
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
@@ -986,7 +987,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 				array(
 					'next_mail_send' => time() + 60,
 					'last_send' => $modSettings['mail_next_send'],
-			));
+				)
+			);
 
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
@@ -1007,7 +1009,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			array(
 				'zero' => '0',
 				'mail_failed_attempts' => 'mail_failed_attempts',
-		));
+			)
+		);
 
 	// Had something to send...
 	return true;

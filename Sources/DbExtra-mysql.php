@@ -62,7 +62,8 @@ function smf_db_backup_table($table, $backup_table)
 		array(
 			'backup_table' => $backup_table,
 			'table' => $table
-	));
+		)
+	);
 	// If this failed, we go old school.
 	if ($result)
 	{
@@ -73,7 +74,8 @@ function smf_db_backup_table($table, $backup_table)
 			array(
 				'backup_table' => $backup_table,
 				'table' => $table
-			));
+			)
+		);
 
 		// Old school or no school?
 		if ($request)

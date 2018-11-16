@@ -389,7 +389,10 @@ function ShowXmlFeed()
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function ($e) { return ($e['tag'] == 'link'); });
+			$link = array_filter($item['content'], function($e)
+			{
+				return ($e['tag'] == 'link');
+			});
 			$link = array_pop($link);
 
 			echo '
@@ -421,7 +424,7 @@ function ShowXmlFeed()
 
 		echo '
 </smf:xml-feed>';
-}
+	}
 
 	obExit(false);
 }
@@ -446,9 +449,9 @@ function fix_possible_url($val)
 		return $val;
 
 	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
-		{
-			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
-		}, $val);
+	{
+		return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+	}, $val);
 	return $val;
 }
 
@@ -869,7 +872,8 @@ function getXmlNews($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
+				uasort($loaded_attachments, function($a, $b)
+				{
 					if ($a['filesize'] == $b['filesize'])
 						return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
@@ -1286,9 +1290,11 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
+				uasort($loaded_attachments, function($a, $b)
+				{
 					if ($a['filesize'] == $b['filesize'])
 						return 0;
+
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}

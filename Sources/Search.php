@@ -1119,7 +1119,7 @@ function PlushSearch2()
 						SELECT
 							{int:id_search},
 							t.id_topic,
-							' . $relevance. ',
+							' . $relevance . ',
 							' . (empty($userQuery) ? 't.id_first_msg' : 'm.id_msg') . ',
 							1
 						FROM ' . $subject_query['from'] . (empty($subject_query['inner_join']) ? '' : '
@@ -1352,7 +1352,7 @@ function PlushSearch2()
 						if (empty($subject_query['where']))
 							continue;
 
-						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ( '
+						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ('
 							INSERT IGNORE INTO {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics
 								(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)') : '') . '
 							SELECT ' . ($createTemporary ? '' : $_SESSION['search_cache']['id_search'] . ', ') . 't.id_topic
@@ -1830,6 +1830,7 @@ function PlushSearch2()
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 				$participants[$row['id_topic']] = true;
+
 			$smcFunc['db_free_result']($result);
 		}
 	}
@@ -2116,7 +2117,7 @@ function prepareSearchContext($reset = false)
 		if (strlen($query) == 0)
 			continue;
 
-		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function ($m)
+		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function($m)
 		{
 			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
 		}, $body_highlighted);

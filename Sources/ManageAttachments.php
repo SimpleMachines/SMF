@@ -130,48 +130,53 @@ function ManageAttachmentSettings($return_config = false)
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
-			// Are attachments enabled?
-			array('select', 'attachmentEnable', array($txt['attachmentEnable_deactivate'], $txt['attachmentEnable_enable_all'], $txt['attachmentEnable_disable_new'])),
+		// Are attachments enabled?
+		array('select', 'attachmentEnable', array($txt['attachmentEnable_deactivate'], $txt['attachmentEnable_enable_all'], $txt['attachmentEnable_disable_new'])),
 		'',
-			// Directory and size limits.
-			array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
-			array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
-			(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : $txt['basedirectory_for_attachments_warning']))),
-			empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
-			array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
-			array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-			array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
+
+		// Directory and size limits.
+		array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
+		array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
+		(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : $txt['basedirectory_for_attachments_warning']))),
+		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
+		array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+		array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
 		'',
-			// Posting limits
-			array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-			array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
-			array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-			array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
-			array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
-			// Security Items
+
+		// Posting limits
+		array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+		array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
+		array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+		array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
+		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+		// Security Items
 		array('title', 'attachment_security_settings'),
-			// Extension checks etc.
-			array('check', 'attachmentCheckExtensions'),
-			array('text', 'attachmentExtensions', 40),
+		// Extension checks etc.
+		array('check', 'attachmentCheckExtensions'),
+		array('text', 'attachmentExtensions', 40),
 		'',
-			// Image checks.
-			array('warning', empty($testImg) ? 'attachment_img_enc_warning' : ''),
-			array('check', 'attachment_image_reencode'),
+
+		// Image checks.
+		array('warning', empty($testImg) ? 'attachment_img_enc_warning' : ''),
+		array('check', 'attachment_image_reencode'),
 		'',
-			array('warning', 'attachment_image_paranoid_warning'),
-			array('check', 'attachment_image_paranoid'),
-			// Thumbnail settings.
+
+		array('warning', 'attachment_image_paranoid_warning'),
+		array('check', 'attachment_image_paranoid'),
+		// Thumbnail settings.
 		array('title', 'attachment_thumbnail_settings'),
-			array('check', 'attachmentShowImages'),
-			array('check', 'attachmentThumbnails'),
-			array('check', 'attachment_thumb_png'),
-			array('check', 'attachment_thumb_memory'),
-			array('warning', 'attachment_thumb_memory_note'),
-			array('text', 'attachmentThumbWidth', 6),
-			array('text', 'attachmentThumbHeight', 6),
+		array('check', 'attachmentShowImages'),
+		array('check', 'attachmentThumbnails'),
+		array('check', 'attachment_thumb_png'),
+		array('check', 'attachment_thumb_memory'),
+		array('warning', 'attachment_thumb_memory_note'),
+		array('text', 'attachmentThumbWidth', 6),
+		array('text', 'attachmentThumbHeight', 6),
 		'',
-			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+
+		array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 	);
 
 	$context['settings_post_javascript'] = '
@@ -275,63 +280,66 @@ function ManageAvatarSettings($return_config = false)
 	$config_vars = array(
 		// Server stored avatars!
 		array('title', 'avatar_server_stored'),
-			array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
-			array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
-			array('warning', !$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
-			array('text', 'avatar_directory', 40, 'invalid' => !$context['valid_avatar_dir']),
-			array('text', 'avatar_url', 40),
+		array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
+		array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
+		array('warning', !$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
+		array('text', 'avatar_directory', 40, 'invalid' => !$context['valid_avatar_dir']),
+		array('text', 'avatar_url', 40),
 		// External avatars?
 		array('title', 'avatar_external'),
-			array('permissions', 'profile_remote_avatar', 0, $txt['avatar_external_url_groups']),
-			array('check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'),
-			array('text', 'avatar_max_width_external', 'subtext' => $txt['zero_for_no_limit'], 6),
-			array('text', 'avatar_max_height_external', 'subtext' => $txt['zero_for_no_limit'], 6),
-			array('select', 'avatar_action_too_large',
-				array(
-					'option_refuse' => $txt['option_refuse'],
-					'option_css_resize' => $txt['option_css_resize'],
-					'option_download_and_resize' => $txt['option_download_and_resize'],
-				),
+		array('permissions', 'profile_remote_avatar', 0, $txt['avatar_external_url_groups']),
+		array('check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'),
+		array('text', 'avatar_max_width_external', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('text', 'avatar_max_height_external', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('select', 'avatar_action_too_large',
+			array(
+				'option_refuse' => $txt['option_refuse'],
+				'option_css_resize' => $txt['option_css_resize'],
+				'option_download_and_resize' => $txt['option_download_and_resize'],
 			),
+		),
 		// Uploadable avatars?
 		array('title', 'avatar_upload'),
-			array('permissions', 'profile_upload_avatar', 0, $txt['avatar_upload_groups']),
-			array('text', 'avatar_max_width_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
-			array('text', 'avatar_max_height_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
-			array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
-			array('check', 'avatar_download_png'),
-			array('check', 'avatar_reencode'),
+		array('permissions', 'profile_upload_avatar', 0, $txt['avatar_upload_groups']),
+		array('text', 'avatar_max_width_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('text', 'avatar_max_height_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
+		array('check', 'avatar_download_png'),
+		array('check', 'avatar_reencode'),
 		'',
-			array('warning', 'avatar_paranoid_warning'),
-			array('check', 'avatar_paranoid'),
+
+		array('warning', 'avatar_paranoid_warning'),
+		array('check', 'avatar_paranoid'),
 		'',
-			array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
-			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
-			array('text', 'custom_avatar_url', 40),
+
+		array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
+		array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
+		array('text', 'custom_avatar_url', 40),
 		// Grvatars?
 		array('title', 'gravatar_settings'),
-			array('check', 'gravatarEnabled'),
-			array('check', 'gravatarOverride'),
-			array('check', 'gravatarAllowExtraEmail'),
+		array('check', 'gravatarEnabled'),
+		array('check', 'gravatarOverride'),
+		array('check', 'gravatarAllowExtraEmail'),
 		'',
-			array('select', 'gravatarMaxRating',
-				array(
-					'G' => $txt['gravatar_maxG'],
-					'PG' => $txt['gravatar_maxPG'],
-					'R' => $txt['gravatar_maxR'],
-					'X' => $txt['gravatar_maxX'],
-				),
+
+		array('select', 'gravatarMaxRating',
+			array(
+				'G' => $txt['gravatar_maxG'],
+				'PG' => $txt['gravatar_maxPG'],
+				'R' => $txt['gravatar_maxR'],
+				'X' => $txt['gravatar_maxX'],
 			),
-			array('select', 'gravatarDefault',
-				array(
-					'mm' => $txt['gravatar_mm'],
-					'identicon' => $txt['gravatar_identicon'],
-					'monsterid' => $txt['gravatar_monsterid'],
-					'wavatar' => $txt['gravatar_wavatar'],
-					'retro' => $txt['gravatar_retro'],
-					'blank' => $txt['gravatar_blank'],
-				),
+		),
+		array('select', 'gravatarDefault',
+			array(
+				'mm' => $txt['gravatar_mm'],
+				'identicon' => $txt['gravatar_identicon'],
+				'monsterid' => $txt['gravatar_monsterid'],
+				'wavatar' => $txt['gravatar_wavatar'],
+				'retro' => $txt['gravatar_retro'],
+				'blank' => $txt['gravatar_blank'],
 			),
+		),
 	);
 
 	call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));

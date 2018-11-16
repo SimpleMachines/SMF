@@ -131,18 +131,20 @@ function EditSmileySettings($return_config = false)
 	// All the settings for the page...
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'manage_smileys'),
+		// Inline permissions.
+		array('permissions', 'manage_smileys'),
 		'',
-			array('select', 'smiley_sets_default', $smiley_context),
-			array('check', 'smiley_sets_enable'),
-			array('check', 'smiley_enable', 'subtext' => $txt['smileys_enable_note']),
-			array('text', 'smileys_url', 40),
-			array('warning', !is_dir($context['smileys_dir']) ? 'setting_smileys_dir_wrong' : ''),
-			array('text', 'smileys_dir', 'invalid' => !$context['smileys_dir_found'], 40),
+
+		array('select', 'smiley_sets_default', $smiley_context),
+		array('check', 'smiley_sets_enable'),
+		array('check', 'smiley_enable', 'subtext' => $txt['smileys_enable_note']),
+		array('text', 'smileys_url', 40),
+		array('warning', !is_dir($context['smileys_dir']) ? 'setting_smileys_dir_wrong' : ''),
+		array('text', 'smileys_dir', 'invalid' => !$context['smileys_dir_found'], 40),
 		'',
-			// Message icons.
-			array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
+
+		// Message icons.
+		array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
 	);
 
 	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
@@ -405,7 +407,7 @@ function EditSmileySets()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return $rowData['selected'] ? '<span class="generic_icons valid"></span>' : '';
 					},
@@ -477,7 +479,7 @@ function EditSmileySets()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]">', $rowData['id']);
 					},
@@ -1035,7 +1037,7 @@ function EditSmileys()
 						'value' => $txt['smileys_location'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($txt)
+						'function' => function($rowData) use ($txt)
 						{
 							if (empty($rowData['hidden']))
 								return $txt['smileys_location_form'];
@@ -1055,7 +1057,7 @@ function EditSmileys()
 						'value' => $txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => function ($rowData) use ($context, $txt, $modSettings, $smcFunc)
+						'function' => function($rowData) use ($context, $txt, $modSettings, $smcFunc)
 						{
 							if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']))
 								return $smcFunc['htmlspecialchars']($rowData['description']);
@@ -1906,7 +1908,7 @@ function EditMessageIcons()
 		'columns' => array(
 			'icon' => array(
 				'data' => array(
-					'function' => function ($rowData) use ($settings, $smcFunc)
+					'function' => function($rowData) use ($settings, $smcFunc)
 					{
 						$images_url = $settings[file_exists(sprintf('%1$s/images/post/%2$s.png', $settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
 						return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], $smcFunc['htmlspecialchars']($rowData['title']));
@@ -1940,7 +1942,7 @@ function EditMessageIcons()
 					'value' => $txt['icons_board'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return empty($rowData['board_name']) ? $txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
 					},

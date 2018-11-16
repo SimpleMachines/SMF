@@ -164,12 +164,12 @@ function smf_db_replacement__callback($matches)
 			if (!is_numeric($replacement) || (string) $replacement !== (string) (int) $replacement)
 				smf_db_error_backtrace('Wrong value type sent to the database. Integer expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return (string) (int) $replacement;
-		break;
+			break;
 
 		case 'string':
 		case 'text':
 			return sprintf('\'%1$s\'', pg_escape_string($replacement));
-		break;
+			break;
 
 		case 'array_int':
 			if (is_array($replacement))
@@ -190,7 +190,7 @@ function smf_db_replacement__callback($matches)
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of integers expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
-		break;
+			break;
 
 		case 'array_string':
 			if (is_array($replacement))
@@ -205,21 +205,21 @@ function smf_db_replacement__callback($matches)
 			}
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'date':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1)
 				return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]) . '::date';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Date expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'time':
 			if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1)
 				return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]) . '::time';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'datetime':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
@@ -228,21 +228,21 @@ function smf_db_replacement__callback($matches)
 					',\'YYYY-MM-DD HH24:MI:SS\')';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'float':
 			if (!is_numeric($replacement))
 				smf_db_error_backtrace('Wrong value type sent to the database. Floating point number expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return (string) (float) $replacement;
-		break;
+			break;
 
 		case 'identifier':
 			return '"' . strtr($replacement, array('`' => '', '.' => '"."')) . '"';
-		break;
+			break;
 
 		case 'raw':
 			return $replacement;
-		break;
+			break;
 
 		case 'inet':
 			if ($replacement == 'null' || $replacement == '')
@@ -270,11 +270,11 @@ function smf_db_replacement__callback($matches)
 			}
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		default:
 			smf_db_error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
-		break;
+			break;
 	}
 }
 
@@ -977,8 +977,9 @@ function smf_db_error_insert($error_array)
 
 	if (empty($pg_error_data_prep))
 		$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-			'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-			VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9, $10)'
+			'INSERT INTO ' . $db_prefix . 'log_errors
+				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
 		);
 
 	pg_execute($db_connection, 'smf_log_errors', $error_array);

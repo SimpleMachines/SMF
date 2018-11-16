@@ -442,16 +442,16 @@ function matchIPtoCIDR($ip_address, $cidr_address)
 		switch ($cidr_subnetmask % 4)
 		{
 			case 0:
-			break;
+				break;
 			case 1:
 				$binMask .= "8";
-			break;
+				break;
 			case 2:
 				$binMask .= "c";
-			break;
+				break;
 			case 3:
 				$binMask .= "e";
-			break;
+				break;
 		}
 		$binMask = str_pad($binMask, 32, '0');
 		$binMask = pack("H*", $binMask);

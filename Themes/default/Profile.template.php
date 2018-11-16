@@ -1913,7 +1913,7 @@ function template_alert_configuration()
 					case 'check':
 						echo '
 						<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '"', $this_value ? ' checked' : '', '>';
-					break;
+						break;
 
 					case 'select':
 						echo '
@@ -1924,7 +1924,7 @@ function template_alert_configuration()
 							<option value="', $k, '"', $this_value == $k ? ' selected' : '', '>', $v, '</option>';
 						echo '
 						</select>';
-					break;
+						break;
 				}
 
 				if ($label_pos == 'after')
@@ -1956,15 +1956,15 @@ function template_alert_configuration()
 					case 'always':
 						echo '
 						<input type="checkbox" checked disabled>';
-					break;
+						break;
 					case 'yes':
 						echo '
 						<input type="checkbox" name="', $type, '_', $alert_id, '"', ($this_value & $bitmask) ? ' checked' : '', '>';
-					break;
+						break;
 					case 'never':
 						echo '
 						<input type="checkbox" disabled>';
-					break;
+						break;
 				}
 				echo '
 					</td>';

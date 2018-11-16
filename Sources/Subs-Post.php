@@ -644,7 +644,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 					$mail_result = false;
 				}
 			}
-			catch(ErrorException $e)
+			catch (ErrorException $e)
 			{
 				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 				log_error(sprintf($txt['mail_send_unable'], $to));

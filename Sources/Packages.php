@@ -856,8 +856,10 @@ function PackageInstall()
 	);
 	$theme_paths = array();
 	$themes_installed = array(1);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$theme_paths[$row['id_theme']][$row['variable']] = $row['value'];
+
 	$smcFunc['db_free_result']($request);
 
 	// Are there any theme copying that we want to take place?

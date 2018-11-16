@@ -313,7 +313,8 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	// Now add the thing!
 	$query = '
 		ALTER TABLE ' . $table_name . '
-		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key');
+		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'
+	);
 	$smcFunc['db_query']('', $query,
 		array(
 			'security_override' => true,

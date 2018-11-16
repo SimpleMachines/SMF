@@ -91,6 +91,7 @@ function SplitIndex()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('cant_find_messages');
+
 	list ($_REQUEST['subname'], $num_replies, $unapproved_posts, $id_first_msg, $approved) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -165,6 +166,7 @@ function SplitExecute()
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$messagesToBeSplit[] = $row['id_msg'];
+
 		$smcFunc['db_free_result']($request);
 	}
 	// Only the selected message has to be split. That should be easy.
@@ -277,6 +279,7 @@ function SplitSelectTopics()
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				$original_msgs['selected'][] = $row['id_msg'];
+
 			$smcFunc['db_free_result']($request);
 		}
 	}
@@ -310,8 +313,10 @@ function SplitSelectTopics()
 			)
 		);
 		$_SESSION['split_selection'][$topic] = array();
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$_SESSION['split_selection'][$topic][] = $row['id_msg'];
+
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -1049,6 +1054,7 @@ function MergeExecute($topics = array())
 	);
 	if ($smcFunc['db_num_rows']($request) < 2)
 		fatal_lang_error('no_topic_id');
+
 	$num_views = 0;
 	$is_sticky = 0;
 	$boardTotals = array();
@@ -1058,6 +1064,7 @@ function MergeExecute($topics = array())
 	$context['is_approved'] = 1;
 	$lowestTopicId = 0;
 	$lowestTopicBoard = 0;
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Sorry, redirection topics can't be merged
@@ -1341,6 +1348,7 @@ function MergeExecute($topics = array())
 	);
 	list ($member_started) = $smcFunc['db_fetch_row']($request);
 	list ($member_updated) = $smcFunc['db_fetch_row']($request);
+
 	// First and last message are the same, so only row was returned.
 	if ($member_updated === null)
 		$member_updated = $member_started;
@@ -1355,7 +1363,8 @@ function MergeExecute($topics = array())
 		WHERE id_topic IN ({array_int:topic_list})',
 		array(
 			'topic_list' => $topics,
-	));
+		)
+	);
 	while ($row = $smcFunc['db_fetch_row']($request))
 		$affected_msgs[] = $row[0];
 	$smcFunc['db_free_result']($request);

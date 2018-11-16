@@ -307,20 +307,22 @@ function ModifyMailSettings($return_config = false)
 		$emails[$index] = $index;
 
 	$config_vars = array(
-			// Mail queue stuff, this rocks ;)
-			array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
-			array('int', 'mail_quantity'),
+		// Mail queue stuff, this rocks ;)
+		array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mail_quantity'),
 		'',
-			// SMTP stuff.
-			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
-			array('text', 'smtp_host'),
-			array('text', 'smtp_port'),
-			array('text', 'smtp_username'),
-			array('password', 'smtp_password'),
+
+		// SMTP stuff.
+		array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
+		array('text', 'smtp_host'),
+		array('text', 'smtp_port'),
+		array('text', 'smtp_username'),
+		array('password', 'smtp_password'),
 		'',
-			array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
-			'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
-			'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
+
+		array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
+		'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
+		'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 	);
 
 	call_integration_hook('integrate_modify_mail_settings', array(&$config_vars));

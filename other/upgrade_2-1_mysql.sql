@@ -173,9 +173,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -423,7 +424,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -600,9 +602,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -673,7 +675,8 @@ if (!empty($member_groups))
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_board, member_groups
-		FROM {db_prefix}boards');
+		FROM {db_prefix}boards'
+	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$current_groups = explode(',', $row['member_groups']);
@@ -691,7 +694,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
+				WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -988,9 +991,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1350,7 +1353,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1409,7 +1413,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -1834,7 +1839,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -1844,7 +1849,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,

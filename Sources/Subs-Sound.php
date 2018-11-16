@@ -71,13 +71,13 @@ function createWaveFile($word)
 				for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
 					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
 						$sound_word .= $word{$i} === 's' ? $sound_letter{$j} : chr(mt_rand(max(ord($sound_letter{$j}) - 1, 0x00), min(ord($sound_letter{$j}) + 1, 0xFF)));
-			break;
+				break;
 
 			case 1:
 				for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2)
 					$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j + 1} : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j} : $sound_letter{$j + 1}) . $sound_letter{$j + 1} . (mt_rand(0, 3) == 0 ? $sound_letter{$j + 1} : '');
 				$sound_word .= str_repeat($sound_letter{$n}, 2);
-			break;
+				break;
 
 			case 2:
 				$shift = 0;
@@ -88,7 +88,7 @@ function createWaveFile($word)
 					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
 						$sound_word .= chr(min(max(ord($sound_letter{$j}) + $shift, 0x00), 0xFF));
 				}
-			break;
+				break;
 		}
 
 		$sound_word .= str_repeat(chr(0x80), mt_rand(10000, 10500));

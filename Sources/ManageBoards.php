@@ -854,16 +854,17 @@ function EditBoardSettings($return_config = false)
 	// Here and the board settings...
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'manage_boards'),
+		// Inline permissions.
+		array('permissions', 'manage_boards'),
 		'',
-			// Other board settings.
-			array('int', 'boardindex_max_depth', 'step' => 1, 'min' => 1, 'max' => 100),
-			array('check', 'countChildPosts'),
-			array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
-			array('select', 'recycle_board', $recycle_boards),
-			array('check', 'allow_ignore_boards'),
-			array('check', 'deny_boards_access'),
+
+		// Other board settings.
+		array('int', 'boardindex_max_depth', 'step' => 1, 'min' => 1, 'max' => 100),
+		array('check', 'countChildPosts'),
+		array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
+		array('select', 'recycle_board', $recycle_boards),
+		array('check', 'allow_ignore_boards'),
+		array('check', 'deny_boards_access'),
 	);
 
 	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));

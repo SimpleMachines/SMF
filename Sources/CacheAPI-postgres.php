@@ -128,8 +128,8 @@ class postgres_cache extends cache_api
 	{
 		global $smcFunc;
 
-		$smcFunc['db_query']('',
-			'TRUNCATE TABLE {db_prefix}cache',
+		$smcFunc['db_query']('', '
+			TRUNCATE TABLE {db_prefix}cache',
 			array()
 		);
 

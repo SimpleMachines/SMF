@@ -301,9 +301,9 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// First, get a list of theme URLs...
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
-		  FROM {db_prefix}themes
+		FROM {db_prefix}themes
 		WHERE variable in ({string:themeurl}, {string:imagesurl})
-		   AND id_member = {int:zero}',
+			AND id_member = {int:zero}',
 		array(
 			'themeurl' => 'theme_url',
 			'imagesurl' => 'images_url',
@@ -320,12 +320,13 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 				$newval = strtr($row['value'], array('http://' => 'https://'));
 			else
 				$newval = strtr($row['value'], array('https://' => 'http://'));
+
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}themes
-				   SET value = {string:theme_val}
+				SET value = {string:theme_val}
 				WHERE variable = {string:theme_var}
-				   AND id_theme = {string:theme_id}
-				   AND id_member = {int:zero}',
+					AND id_theme = {string:theme_id}
+					AND id_member = {int:zero}',
 				array(
 					'theme_val' => $newval,
 					'theme_var' => $row['variable'],
@@ -579,27 +580,60 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	global $txt, $scripturl, $context;
 
 	$config_vars = array(
-			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'failed_login_threshold'),
+		array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
 		'',
-			array('check', 'securityDisable'),
-			array('check', 'securityDisable_moderate'),
+
+		array('check', 'securityDisable'),
+		array('check', 'securityDisable_moderate'),
 		'',
-			// Reactive on email, and approve on delete
-			array('check', 'send_validation_onChange'),
-			array('check', 'approveAccountDeletion'),
+
+		// Reactive on email, and approve on delete
+		array('check', 'send_validation_onChange'),
+		array('check', 'approveAccountDeletion'),
 		'',
-			// Password strength.
-			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
-			array('check', 'enable_password_conversion'),
+
+		// Password strength.
+		array(
+			'select', 
+			'password_strength', 
+			array(
+				$txt['setting_password_strength_low'], 
+				$txt['setting_password_strength_medium'], 
+				$txt['setting_password_strength_high']
+			)
+		),
+		array('check', 'enable_password_conversion'),
 		'',
-			// Reporting of personal messages?
-			array('check', 'enableReportPM'),
+
+		// Reporting of personal messages?
+		array('check', 'enableReportPM'),
 		'',
-			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
+
+		array(
+			'select', 
+			'frame_security', 
+			array(
+				'SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 
+				'DENY' => $txt['setting_frame_security_DENY'], 
+				'DISABLE' => $txt['setting_frame_security_DISABLE']
+			)
+		),
 		'',
-			array('select', 'proxy_ip_header', array('disabled' => $txt['setting_proxy_ip_header_disabled'], 'autodetect' => $txt['setting_proxy_ip_header_autodetect'], 'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP', 'CF-Connecting-IP' => 'CF-Connecting-IP')),
-			array('text', 'proxy_ip_servers'),
+
+		array(
+			'select', 
+			'proxy_ip_header', 
+			array(
+				'disabled' => $txt['setting_proxy_ip_header_disabled'], 
+				'autodetect' => $txt['setting_proxy_ip_header_autodetect'], 
+				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR', 
+				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP', 
+				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP', 
+				'CF-Connecting-IP' => 'CF-Connecting-IP'
+			)
+		),
+		array('text', 'proxy_ip_servers'),
 	);
 
 	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
@@ -1350,6 +1384,7 @@ function saveDBSettings(&$config_vars)
 				$request = $smcFunc['db_query']('', '
 					SELECT id_board
 					FROM {db_prefix}boards');
+
 				while ($row = $smcFunc['db_fetch_row']($request))
 					$board_list[$row[0]] = true;
 

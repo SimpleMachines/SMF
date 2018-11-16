@@ -167,9 +167,9 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
+		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
-			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
+			alert(' . JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
@@ -703,13 +703,13 @@ function setupProfileContext($fields)
 	addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
-	'. (!empty($context['require_password']) ? '
+	' . (!empty($context['require_password']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert('. (JavaScriptEscape($txt['required_security_reasons'])) . ');
+			alert(' . (JavaScriptEscape($txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -1288,8 +1288,8 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}themes
 				WHERE id_theme = {int:id_theme} AND
-						variable = {string:variable} AND
-						id_member = {int:id_member}',
+					variable = {string:variable} AND
+					id_member = {int:id_member}',
 				$deletes
 			);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
@@ -2089,7 +2089,7 @@ function alert_configuration($memID)
 				{
 					case 'check':
 						$update_prefs[$this_option[1]] = !empty($_POST['opt_' . $this_option[1]]) ? 1 : 0;
-					break;
+						break;
 					case 'select':
 						if (isset($_POST['opt_' . $this_option[1]], $this_option['opts'][$_POST['opt_' . $this_option[1]]]))
 							$update_prefs[$this_option[1]] = $_POST['opt_' . $this_option[1]];
@@ -2100,7 +2100,7 @@ function alert_configuration($memID)
 							$first = array_shift($keys);
 							$update_prefs[$this_option[1]] = $first;
 						}
-					break;
+						break;
 				}
 			}
 		}
@@ -2270,7 +2270,7 @@ function alert_count($memID, $unread = false)
 		SELECT id_alert
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
-			'.($unread ? '
+			' . ($unread ? '
 			AND is_read = 0' : ''),
 		array(
 			'id_member' => $memID,
@@ -2779,7 +2779,7 @@ function ignoreboards($memID)
 	// Find all the boards this user is allowed to see.
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
-			'. (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
+			' . (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}

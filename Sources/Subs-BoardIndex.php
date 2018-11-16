@@ -25,6 +25,7 @@ if (!defined('SMF'))
  * 	- Depending on the include_categories setting returns an associative
  * array with categories->boards->child_boards or an associative array
  * with boards->child_boards.
+ *
  * @param array $boardIndexOptions An array of boardindex options
  * @return array An array of information for displaying the boardindex
  */
@@ -57,10 +58,10 @@ function getBoardIndex($boardIndexOptions)
 				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards as b
 				WHERE {query_see_board} AND b.id_board = {int:id_parent}
-				UNION ALL
+					UNION ALL
 				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards as b
-				JOIN boards_cte as bc ON (b.id_parent = bc.id_board)
+					JOIN boards_cte as bc ON (b.id_parent = bc.id_board)
 				WHERE {query_see_board}
 					AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
 			)
@@ -112,7 +113,7 @@ function getBoardIndex($boardIndexOptions)
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			WHERE {query_see_board}
 				AND b.child_level BETWEEN {int:child_level} AND {int:max_child_level}
-				ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
+			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level DESC, b.board_order DESC',
 			array(
 				'current_member' => $user_info['id'],
 				'child_level' => $boardIndexOptions['base_level'],

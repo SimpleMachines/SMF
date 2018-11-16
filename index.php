@@ -155,6 +155,7 @@ obExit(null, null, true);
 /**
  * The main dispatcher.
  * This delegates to each area.
+ *
  * @return array|string|void An array containing the file to include and name of function to call, the name of a function to call or dies with a fatal_lang_error if we couldn't find anything to do.
  */
 function smf_main()

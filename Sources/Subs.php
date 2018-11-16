@@ -66,9 +66,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// Update the latest activated member (highest id_member) and count.
 				$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*), MAX(id_member)
-				FROM {db_prefix}members
-				WHERE is_activated = {int:is_activated}',
+					SELECT COUNT(*), MAX(id_member)
+					FROM {db_prefix}members
+					WHERE is_activated = {int:is_activated}',
 					array(
 						'is_activated' => 1,
 					)
@@ -78,10 +78,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 				// Get the latest activated member's display name.
 				$result = $smcFunc['db_query']('', '
-				SELECT real_name
-				FROM {db_prefix}members
-				WHERE id_member = {int:id_member}
-				LIMIT 1',
+					SELECT real_name
+					FROM {db_prefix}members
+					WHERE id_member = {int:id_member}
+					LIMIT 1',
 					array(
 						'id_member' => (int) $changes['latestMember'],
 					)
@@ -96,9 +96,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					{
 						// Update the amount of members awaiting approval
 						$result = $smcFunc['db_query']('', '
-						SELECT COUNT(*)
-						FROM {db_prefix}members
-						WHERE is_activated IN ({array_int:activation_status})',
+							SELECT COUNT(*)
+							FROM {db_prefix}members
+							WHERE is_activated IN ({array_int:activation_status})',
 							array(
 								'activation_status' => array(3, 4),
 							)
@@ -111,9 +111,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
 					{
 						$result = $smcFunc['db_query']('', '
-						SELECT COUNT(*)
-						FROM {db_prefix}members
-						WHERE is_activated = {int:coppa_approval}',
+							SELECT COUNT(*)
+							FROM {db_prefix}members
+							WHERE is_activated = {int:coppa_approval}',
 							array(
 								'coppa_approval' => 5,
 							)
@@ -139,10 +139,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// SUM and MAX on a smaller table is better for InnoDB tables.
 				$result = $smcFunc['db_query']('', '
-				SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
-				FROM {db_prefix}boards
-				WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-					AND id_board != {int:recycle_board}' : ''),
+					SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
+					FROM {db_prefix}boards
+					WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+						AND id_board != {int:recycle_board}' : ''),
 					array(
 						'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 						'blank_redirect' => '',
@@ -161,8 +161,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		case 'subject':
 			// Remove the previous subject (if any).
 			$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_search_subjects
-			WHERE id_topic = {int:id_topic}',
+				DELETE FROM {db_prefix}log_search_subjects
+				WHERE id_topic = {int:id_topic}',
 				array(
 					'id_topic' => (int) $parameter1,
 				)
@@ -197,8 +197,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				// Get the number of topics - a SUM is better for InnoDB tables.
 				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
 				$result = $smcFunc['db_query']('', '
-				SELECT SUM(num_topics + unapproved_topics) AS total_topics
-				FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					SELECT SUM(num_topics + unapproved_topics) AS total_topics
+					FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					WHERE id_board != {int:recycle_board}' : ''),
 					array(
 						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
@@ -221,9 +221,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// Fetch the postgroups!
 				$request = $smcFunc['db_query']('', '
-				SELECT id_group, min_posts
-				FROM {db_prefix}membergroups
-				WHERE min_posts != {int:min_posts}',
+					SELECT id_group, min_posts
+					FROM {db_prefix}membergroups
+					WHERE min_posts != {int:min_posts}',
 					array(
 						'min_posts' => -1,
 					)
@@ -257,10 +257,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
 			$smcFunc['db_query']('', '
-			UPDATE {db_prefix}members
-			SET id_post_group = CASE ' . $conditions . '
-			ELSE 0
-			END' . ($parameter1 != null ? '
+				UPDATE {db_prefix}members
+				SET id_post_group = CASE ' . $conditions . '
+				ELSE 0
+				END' . ($parameter1 != null ? '
 				WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 				array(
 					'members' => $parameter1,
@@ -1209,7 +1209,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
 				{
 					$returnContext = '';
 
@@ -1296,7 +1296,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
 				{
 					if (!isset($disabled['code']))
 					{
@@ -1333,7 +1333,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals_content',
 				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
 				{
 					if (!isset($disabled['code']))
 					{
@@ -1377,7 +1377,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<a href="mailto:$1" class="bbc_email">$1</a>',
 				// @todo Should this respect guest_hideContacts?
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 				},
@@ -1397,7 +1397,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
 				'before' => '<div $1>',
 				'after' => '</div>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
 
@@ -1483,7 +1483,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $user_info;
 
@@ -1509,7 +1509,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'img',
 				'type' => 'unparsed_content',
 				'content' => '<img src="$1" alt="" class="bbc_img">',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $user_info;
 
@@ -1535,7 +1535,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'iurl',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1549,7 +1549,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link">',
 				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
@@ -1642,7 +1642,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'php',
 				'type' => 'unparsed_content',
 				'content' => '<span class="phpcode">$1</span>',
-				'validate' => isset($disabled['php']) ? null : function (&$tag, &$data, $disabled)
+				'validate' => isset($disabled['php']) ? null : function(&$tag, &$data, $disabled)
 				{
 					if (!isset($disabled['php']))
 					{
@@ -1770,7 +1770,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[1-7]\]',
 				'before' => '<span style="font-size: $1;" class="bbc_size">',
 				'after' => '</span>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$sizes = array(1 => 0.7, 2 => 1.0, 3 => 1.35, 4 => 1.45, 5 => 2.0, 6 => 2.65, 7 => 3.95);
 					$data = $sizes[$data] . 'em';
@@ -1808,7 +1808,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'time',
 				'type' => 'unparsed_content',
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					if (is_numeric($data))
 						$data = timeformat($data);
@@ -1841,7 +1841,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1855,7 +1855,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -1901,7 +1901,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, function ($a, $b)
+			usort($codes, function($a, $b)
 			{
 				return strcmp($a['tag'], $b['tag']);
 			});
@@ -2118,7 +2118,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										# a run of Unicode domain name characters and a dot
 										[\p{L}\p{M}\p{N}\-.:@]+\.
 										# and then a TLD valid in the DNS or the reserved "local" TLD
-										(?:'. $modSettings['tld_regex'] .'|local)
+										(?:' . $modSettings['tld_regex'] . '|local)
 									)
 									# followed by a non-domain character or end of line
 									(?=[^\p{L}\p{N}\-.]|$)
@@ -2186,7 +2186,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						)?
 						';
 
-						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function ($matches) {
+						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function($matches)
+						{
 							$url = array_shift($matches);
 
 							// If this isn't a clean URL, bail out
@@ -2223,14 +2224,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					{
 						$email_regex = '
 						# Preceded by a non-domain character or start of line
-							(?<=^|[^\p{L}\p{M}\p{N}\-\.])
+						(?<=^|[^\p{L}\p{M}\p{N}\-\.])
 
 						# An email address
 						[\p{L}\p{M}\p{N}_\-.]{1,80}
 						@
 						[\p{L}\p{M}\p{N}\-.]+
 						\.
-						'. $modSettings['tld_regex'] . '
+						' . $modSettings['tld_regex'] . '
 
 						# Followed by either:
 						(?=
@@ -2275,7 +2276,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
 			// A closing tag that doesn't match any open tags? Skip it.
-			if (!in_array($look_for, array_map(function ($code)
+			if (!in_array($look_for, array_map(function($code)
 			{
 				return $code['tag'];
 			}, $open_tags)))
@@ -2979,7 +2980,7 @@ function parsesmileys(&$message)
 
 	// Replace away!
 	$message = preg_replace_callback($smileyPregSearch,
-		function ($matches) use ($smileyPregReplacements)
+		function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
 		}, $message);
@@ -3076,13 +3077,13 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	{
 		if (defined('SID') && SID != '')
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function ($m) use ($scripturl)
+				function($m) use ($scripturl)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
 		else
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-				function ($m) use ($scripturl)
+				function($m) use ($scripturl)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
@@ -3872,7 +3873,7 @@ function template_css()
 	if (!empty($normal))
 		foreach ($normal as $nf)
 			echo '
-	<link rel="stylesheet" href="', $nf ,'">';
+	<link rel="stylesheet" href="', $nf, '">';
 
 	if ($db_show_debug === true)
 	{
@@ -3888,7 +3889,7 @@ function template_css()
 	<style>';
 
 		foreach ($context['css_header'] as $css)
-			echo $css .'
+			echo $css . '
 	';
 
 		echo '
@@ -3916,7 +3917,10 @@ function custMinify($data, $type)
 		return $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
-	$hash = md5(implode(' ', array_map(function($file) { return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']); }, $data)));
+	$hash = md5(implode(' ', array_map(function($file)
+	{
+		return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']);
+	}, $data)));
 
 	// Is this a deferred or asynchonous JavaScript file?
 	$async = $type === 'js';
@@ -4086,7 +4090,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 			WHERE id_attach = {int:id_attach}',
 			array(
 				'id_attach' => $attachment_id,
-			));
+			)
+		);
 
 		if ($smcFunc['db_num_rows']($request) === 0)
 			return false;
@@ -4361,7 +4366,7 @@ function setupMenuContext()
 		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
 		if ($context['allow_pm'])
 			addInlineJavaScript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
@@ -6086,7 +6091,8 @@ function set_tld_regex($update = false)
 	if (!empty($tlds))
 	{
 		// Clean $tlds and convert it to an array
-		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line) {
+		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
+		{
 			$line = trim($line);
 			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
 				return false;
@@ -6097,7 +6103,10 @@ function set_tld_regex($update = false)
 		// Convert Punycode to Unicode
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
-		$tlds = array_map(function ($input) use ($Punycode) { return $Punycode->decode($input); }, $tlds);
+		$tlds = array_map(function($input) use ($Punycode)
+		{
+			return $Punycode->decode($input);
+		}, $tlds);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -6191,7 +6200,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	}
 
 	// This recursive function creates the index array from the strings
-	$add_string_to_index = function ($string, $index) use (&$strlen, &$substr, &$add_string_to_index)
+	$add_string_to_index = function($string, $index) use (&$strlen, &$substr, &$add_string_to_index)
 	{
 		static $depth = 0;
 		$depth++;
@@ -6218,7 +6227,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	};
 
 	// This recursive function turns the index array into a regular expression
-	$index_to_regex = function (&$index, $delim) use (&$strlen, &$index_to_regex)
+	$index_to_regex = function(&$index, $delim) use (&$strlen, &$index_to_regex)
 	{
 		static $depth = 0;
 		$depth++;
@@ -6264,7 +6273,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		}
 
 		// Sort by key length and then alphabetically
-		uksort($regex, function ($k1, $k2) use (&$strlen)
+		uksort($regex, function($k1, $k2) use (&$strlen)
 		{
 			$l1 = $strlen($k1);
 			$l2 = $strlen($k2);
@@ -6522,7 +6531,8 @@ function validate_iri($iri, $flags = null)
 function sanitize_iri($iri)
 {
 	// Encode any non-ASCII characters (but not space or control characters of any sort)
-	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function ($matches) {
+	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function($matches)
+	{
 		return rawurlencode($matches[0]);
 	}, $iri);
 

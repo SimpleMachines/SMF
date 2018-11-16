@@ -1809,7 +1809,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN (-1, 0, {int:id_member})' : ' = {int:id_member}') . '
-					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)') .'
+					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)') . '
 				ORDER BY id_theme asc',
 				array(
 					'id_theme' => $id_theme,

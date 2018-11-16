@@ -173,12 +173,12 @@ function template_settings()
 			'options' => $context['smiley_sets'],
 			'type' => 'text',
 		),
-	'',
+		'',
 		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
-	'',
+		'',
 		array(
 			'id' => 'show_newsfader',
 			'label' => $txt['news_fader'],
@@ -216,7 +216,7 @@ function template_settings()
 			),
 			'type' => 'number',
 		),
-	'',
+		'',
 		array(
 			'id' => 'og_image',
 			'label' => $txt['og_image'],

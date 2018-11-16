@@ -239,7 +239,7 @@ function RecentPosts()
 	else
 	{
 		$query_this_board = '{query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-					AND b.id_board != {int:recycle_board}' : ''). '
+					AND b.id_board != {int:recycle_board}' : '') . '
 					AND m.id_msg >= {int:max_id_msg}';
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
@@ -519,8 +519,7 @@ function UnreadTopics()
 			WHERE {query_wanna_see_board}
 				AND b.child_level > {int:no_child}
 				AND b.id_board NOT IN ({array_int:boards})
-			ORDER BY child_level ASC
-			',
+			ORDER BY child_level ASC',
 			array(
 				'no_child' => 0,
 				'boards' => $boards,
@@ -580,6 +579,7 @@ function UnreadTopics()
 			$_REQUEST['c'][$i] = (int) $c;
 
 		$see_board = isset($_REQUEST['action']) && $_REQUEST['action'] == 'unreadreplies' ? 'query_see_board' : 'query_wanna_see_board';
+
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
@@ -1126,7 +1126,7 @@ function UnreadTopics()
 			);
 		else
 			$request = $smcFunc['db_query']('', '
-				SELECT DISTINCT t.id_topic,'.$_REQUEST['sort'].'
+				SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
 					INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '

@@ -609,6 +609,7 @@ function removeMessage($message, $decreasePostCount = true)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		return false;
+
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 

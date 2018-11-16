@@ -401,8 +401,8 @@ function getReportDetails($report_id)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_member,
-					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
+				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+				COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_report = {int:id_report}

@@ -194,28 +194,32 @@ function ModifyPostSettings($return_config = false)
 
 	// All the settings...
 	$config_vars = array(
-			// Simple post options...
-			array('check', 'removeNestedQuotes'),
-			array('check', 'enableSpellChecking', 'disabled' => !$can_spell_check),
-			array('check', 'disable_wysiwyg'),
-			array('check', 'additional_options_collapsable'),
-			array('check', 'guest_post_no_email'),
+		// Simple post options...
+		array('check', 'removeNestedQuotes'),
+		array('check', 'enableSpellChecking', 'disabled' => !$can_spell_check),
+		array('check', 'disable_wysiwyg'),
+		array('check', 'additional_options_collapsable'),
+		array('check', 'guest_post_no_email'),
 		'',
-			// Posting limits...
-			array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
-			array('int', 'topicSummaryPosts', 'postinput' => $txt['manageposts_posts']),
+
+		// Posting limits...
+		array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
+		array('int', 'topicSummaryPosts', 'postinput' => $txt['manageposts_posts']),
 		'',
-			// Posting time limits...
-			array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
-			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
-			array('int', 'edit_disable_time', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['manageposts_minutes']),
+
+		// Posting time limits...
+		array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
+		array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
+		array('int', 'edit_disable_time', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['manageposts_minutes']),
 		'',
-			// Automagic image resizing.
-			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+
+		// Automagic image resizing.
+		array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
-			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+
+		// First & Last message preview lengths
+		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -283,31 +287,35 @@ function ModifyTopicSettings($return_config = false)
 
 	// Here are all the topic settings.
 	$config_vars = array(
-			// Some simple bools...
-			array('check', 'enableParticipation'),
+		// Some simple bools...
+		array('check', 'enableParticipation'),
 		'',
-			// Pagination etc...
-			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['zero_to_disable']),
-			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
-			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
-			array('check', 'disable_print_topic'),
+
+		// Pagination etc...
+		array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['zero_to_disable']),
+		array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
+		array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
+		array('check', 'disable_print_topic'),
 		'',
-			// All, next/prev...
-			array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),
-			array('check', 'disableCustomPerPage'),
-			array('check', 'enablePreviousNext'),
+
+		// All, next/prev...
+		array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),
+		array('check', 'disableCustomPerPage'),
+		array('check', 'enablePreviousNext'),
 		'',
-			// Topic related settings (show gender icon/avatars etc...)
-			array('check', 'subject_toggle'),
-			array('check', 'show_modify'),
-			array('check', 'show_profile_buttons'),
-			array('check', 'show_user_images'),
-			array('check', 'show_blurb'),
-			array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
+
+		// Topic related settings (show gender icon/avatars etc...)
+		array('check', 'subject_toggle'),
+		array('check', 'show_modify'),
+		array('check', 'show_profile_buttons'),
+		array('check', 'show_user_images'),
+		array('check', 'show_blurb'),
+		array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
 		'',
-			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
-			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
+
+		// First & Last message preview lengths
+		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+		array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 
 	call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));

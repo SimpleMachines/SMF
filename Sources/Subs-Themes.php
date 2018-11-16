@@ -356,8 +356,8 @@ function theme_install($to_install = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT variable, value
 				FROM {db_prefix}themes
-					WHERE variable IN ({array_string:theme_values})
-						AND id_theme = ({int:based_on})
+				WHERE variable IN ({array_string:theme_values})
+					AND id_theme = ({int:based_on})
 				LIMIT 1',
 				array(
 					'no_member' => 0,

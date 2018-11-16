@@ -377,7 +377,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int'))
 					}
 
 					return (string) substr(
-						(string )$binary_string,
+						(string) $binary_string,
 						(int) $start,
 						(int) $length
 					);
@@ -686,10 +686,10 @@ if (!is_callable('random_bytes'))
 	if (!is_callable('random_bytes') && extension_loaded('com_dotnet') && class_exists('COM'))
 	{
 		/**
-		* Class COM
-		*
-		* This is just a stub class.
-		*/
+		 * Class COM
+		 *
+		 * This is just a stub class.
+		 */
 		class com_exception extends Exception
 		{
 

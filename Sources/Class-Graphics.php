@@ -130,12 +130,12 @@ class gif_lzw_compression
 					$this->Vals[$i] = 0;
 				}
 
-				$this->CodeSize    = $this->SetCodeSize + 1;
+				$this->CodeSize = $this->SetCodeSize + 1;
 				$this->MaxCodeSize = $this->ClearCode << 1;
-				$this->MaxCode     = $this->ClearCode + 2;
-				$this->sp          = 0;
-				$this->FirstCode   = $this->GetCode($data, $bInit);
-				$this->OldCode     = $this->FirstCode;
+				$this->MaxCode = $this->ClearCode + 2;
+				$this->sp = 0;
+				$this->FirstCode = $this->GetCode($data, $bInit);
+				$this->OldCode = $this->FirstCode;
 
 				return $this->FirstCode;
 			}
@@ -288,11 +288,11 @@ class gif_color_table
 
 	public function colorIndex($rgb)
 	{
-		$rgb  = intval($rgb) & 0xFFFFFF;
-		$r1   = ($rgb & 0x0000FF);
-		$g1   = ($rgb & 0x00FF00) >>  8;
-		$b1   = ($rgb & 0xFF0000) >> 16;
-		$idx  = -1;
+		$rgb = intval($rgb) & 0xFFFFFF;
+		$r1 = ($rgb & 0x0000FF);
+		$g1 = ($rgb & 0x00FF00) >> 8;
+		$b1 = ($rgb & 0xFF0000) >> 16;
+		$idx = -1;
 
 		for ($i = 0; $i < $this->m_nColors; $i++)
 		{
@@ -338,11 +338,11 @@ class gif_file_header
 			return false;
 
 		$b = ord(substr($lpData, 10, 1));
-		$this->m_bGlobalClr  = ($b & 0x80) ? true : false;
-		$this->m_nColorRes   = ($b & 0x70) >> 4;
-		$this->m_bSorted     = ($b & 0x08) ? true : false;
-		$this->m_nTableSize  = 2 << ($b & 0x07);
-		$this->m_nBgColor    = ord(substr($lpData, 11, 1));
+		$this->m_bGlobalClr = ($b & 0x80) ? true : false;
+		$this->m_nColorRes = ($b & 0x70) >> 4;
+		$this->m_bSorted = ($b & 0x08) ? true : false;
+		$this->m_nTableSize = 2 << ($b & 0x07);
+		$this->m_nBgColor = ord(substr($lpData, 11, 1));
 		$this->m_nPixelRatio = ord(substr($lpData, 12, 1));
 		$hdrLen = 13;
 
@@ -381,9 +381,9 @@ class gif_image_header
 			return false;
 
 		$b = ord($lpData[8]);
-		$this->m_bLocalClr  = ($b & 0x80) ? true : false;
+		$this->m_bLocalClr = ($b & 0x80) ? true : false;
 		$this->m_bInterlace = ($b & 0x40) ? true : false;
-		$this->m_bSorted    = ($b & 0x20) ? true : false;
+		$this->m_bSorted = ($b & 0x20) ? true : false;
 		$this->m_nTableSize = 2 << ($b & 0x07);
 		$hdrLen = 9;
 
@@ -431,7 +431,7 @@ class gif_image
 						return false;
 
 					$datLen += $len;
-				break;
+					break;
 
 				// Image...
 				case 0x2C:
@@ -476,25 +476,25 @@ class gif_image
 			// Graphic Control...
 			case 0xF9:
 				$b = ord($data[1]);
-				$this->m_disp   = ($b & 0x1C) >> 2;
-				$this->m_bUser  = ($b & 0x02) ? true : false;
+				$this->m_disp = ($b & 0x1C) >> 2;
+				$this->m_bUser = ($b & 0x02) ? true : false;
 				$this->m_bTrans = ($b & 0x01) ? true : false;
 				list ($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
 				$this->m_nTrans = ord($data[4]);
-			break;
+				break;
 
 			// Comment...
 			case 0xFE:
 				$this->m_lpComm = substr($data, 1, ord($data[0]));
-			break;
+				break;
 
 			// Plain text...
 			case 0x01:
-			break;
+				break;
 
 			// Application...
 			case 0xFF:
-			break;
+				break;
 		}
 
 		// Skip default as defs may change.
@@ -523,22 +523,22 @@ class gif_image
 				case 0:
 					$s = 8;
 					$y = 0;
-				break;
+					break;
 
 				case 1:
 					$s = 8;
 					$y = 4;
-				break;
+					break;
 
 				case 2:
 					$s = 4;
 					$y = 2;
-				break;
+					break;
 
 				case 3:
 					$s = 2;
 					$y = 1;
-				break;
+					break;
 			}
 
 			for (; $y < $this->m_gih->m_nHeight; $y += $s)

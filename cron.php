@@ -116,6 +116,7 @@ exit;
 
 /**
  * The heart of this cron handler...
+ *
  * @return bool|array False if there's nothing to do or an array of info about the task
  */
 function fetch_task()
@@ -176,6 +177,7 @@ function fetch_task()
 
 /**
  * This actually handles the task
+ *
  * @param array $task_details An array of info about the task
  * @return bool|void True if the task is invalid; otherwise calls the function to execute the task
  */
@@ -215,6 +217,7 @@ function perform_task($task_details)
 // These are all our helper functions that resemble their big brother counterparts. These are not so important.
 /**
  * Cleans up the request variables
+ *
  * @return void
  */
 function cleanRequest_cron()
@@ -235,6 +238,7 @@ function cleanRequest_cron()
 
 /**
  * The error handling function
+ *
  * @param int $error_level One of the PHP error level constants (see )
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
@@ -286,6 +290,7 @@ abstract class SMF_BackgroundTask
 
 	/**
 	 * The constructor.
+	 *
 	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
@@ -295,6 +300,7 @@ abstract class SMF_BackgroundTask
 
 	/**
 	 * The function to actually execute a task
+	 *
 	 * @return mixed
 	 */
 	abstract public function execute();

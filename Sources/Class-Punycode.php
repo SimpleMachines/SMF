@@ -182,8 +182,10 @@ class Punycode
 	{
 		$input = strtolower($input);
 		$parts = explode('.', $input);
-		foreach ($parts as &$part) {
-			if (strpos($part, static::PREFIX) !== 0) {
+		foreach ($parts as &$part)
+		{
+			if (strpos($part, static::PREFIX) !== 0)
+			{
 				continue;
 			}
 
@@ -220,16 +222,19 @@ class Punycode
 
 		$outputLength = strlen($output);
 		$inputLength = strlen($input);
-		while ($pos < $inputLength) {
+		while ($pos < $inputLength)
+		{
 			$oldi = $i;
 			$w = 1;
 
-			for ($k = static::BASE;; $k += static::BASE) {
+			for ($k = static::BASE;; $k += static::BASE)
+			{
 				$digit = static::$decodeTable[$input[$pos++]];
 				$i = $i + ($digit * $w);
 				$t = $this->calculateThreshold($k, $bias);
 
-				if ($digit < $t) {
+				if ($digit < $t)
+				{
 					break;
 				}
 
@@ -285,7 +290,8 @@ class Punycode
 		$delta += (int) ($delta / $numPoints);
 
 		$k = 0;
-		while ($delta > ((static::BASE - static::TMIN) * static::TMAX) / 2) {
+		while ($delta > ((static::BASE - static::TMIN) * static::TMAX) / 2)
+		{
 			$delta = (int) ($delta / (static::BASE - static::TMIN));
 			$k = $k + static::BASE;
 		}
@@ -303,18 +309,22 @@ class Punycode
 	protected function listCodePoints($input)
 	{
 		$codePoints = array(
-			'all'      => array(),
-			'basic'    => array(),
+			'all' => array(),
+			'basic' => array(),
 			'nonBasic' => array(),
 		);
 
 		$length = mb_strlen($input, $this->encoding);
-		for ($i = 0; $i < $length; $i++) {
+		for ($i = 0; $i < $length; $i++)
+		{
 			$char = mb_substr($input, $i, 1, $this->encoding);
 			$code = $this->charToCodePoint($char);
-			if ($code < 128) {
+			if ($code < 128)
+			{
 				$codePoints['all'][] = $codePoints['basic'][] = $code;
-			} else {
+			}
+			else
+			{
 				$codePoints['all'][] = $codePoints['nonBasic'][] = $code;
 			}
 		}
@@ -331,13 +341,20 @@ class Punycode
 	protected function charToCodePoint($char)
 	{
 		$code = ord($char[0]);
-		if ($code < 128) {
+		if ($code < 128)
+		{
 			return $code;
-		} elseif ($code < 224) {
+		}
+		elseif ($code < 224)
+		{
 			return (($code - 192) * 64) + (ord($char[1]) - 128);
-		} elseif ($code < 240) {
+		}
+		elseif ($code < 240)
+		{
 			return (($code - 224) * 4096) + ((ord($char[1]) - 128) * 64) + (ord($char[2]) - 128);
-		} else {
+		}
+		else
+		{
 			return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
 		}
 	}
@@ -350,13 +367,20 @@ class Punycode
 	 */
 	protected function codePointToChar($code)
 	{
-		if ($code <= 0x7F) {
+		if ($code <= 0x7F)
+		{
 			return chr($code);
-		} elseif ($code <= 0x7FF) {
+		}
+		elseif ($code <= 0x7FF)
+		{
 			return chr(($code >> 6) + 192) . chr(($code & 63) + 128);
-		} elseif ($code <= 0xFFFF) {
+		}
+		elseif ($code <= 0xFFFF)
+		{
 			return chr(($code >> 12) + 224) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
-		} else {
+		}
+		else
+		{
 			return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
 		}
 	}

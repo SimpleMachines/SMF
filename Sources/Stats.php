@@ -312,6 +312,7 @@ function DisplayStats()
 	);
 	$context['stats_blocks']['topics_replies'] = array();
 	$max_num_replies = 1;
+
 	while ($row_topic_reply = $smcFunc['db_fetch_assoc']($topic_reply_result))
 	{
 		censorText($row_topic_reply['subject']);
@@ -417,7 +418,7 @@ function DisplayStats()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member_started, COUNT(*) AS hits
 			FROM {db_prefix}topics' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-				WHERE id_board != {int:recycle_board}' : '') . '
+			WHERE id_board != {int:recycle_board}' : '') . '
 			GROUP BY id_member_started
 			ORDER BY hits DESC
 			LIMIT 20',
@@ -479,7 +480,7 @@ function DisplayStats()
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
 		FROM {db_prefix}members' . (!empty($temp) ? '
-			WHERE id_member IN ({array_int:member_list_cached})' : '') . '
+		WHERE id_member IN ({array_int:member_list_cached})' : '') . '
 		ORDER BY total_time_logged_in DESC
 		LIMIT 20',
 		array(
@@ -539,7 +540,7 @@ function DisplayStats()
 			FROM {db_prefix}messages as m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . ')
+					AND b.id_board != {int:recycle_board}' : '') . ')
 			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC

@@ -80,6 +80,7 @@ function ListMessageIcons()
 /**
  * Handles retrieving previews of news items, newsletters, signatures and warnings.
  * Calls the appropriate function based on $_POST['item']
+ *
  * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
  */
 function RetrievePreview()
@@ -270,13 +271,13 @@ function warning_preview()
 				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
 			// Add in few replacements.
 			/**
-			* These are the defaults:
-			* - {MEMBER} - Member Name. => current user for review
-			* - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
-			* - {FORUMNAME} - Forum Name.
-			* - {SCRIPTURL} - Web address of forum.
-			* - {REGARDS} - Standard email sign-off.
-			*/
+			 * These are the defaults:
+			 * - {MEMBER} - Member Name. => current user for review
+			 * - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
+			 * - {FORUMNAME} - Forum Name.
+			 * - {SCRIPTURL} - Web address of forum.
+			 * - {REGARDS} - Standard email sign-off.
+			 */
 			$find = array(
 				'{MEMBER}',
 				'{FORUMNAME}',

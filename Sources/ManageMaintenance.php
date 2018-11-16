@@ -561,7 +561,7 @@ function ConvertEntities()
 				SELECT column_name "Field", data_type "Type"
 				FROM information_schema.columns 
 				WHERE table_name = {string:cur_table}
-				AND (data_type = \'character varying\' or data_type = \'text\')',
+					AND (data_type = \'character varying\' or data_type = \'text\')',
 				array(
 					'cur_table' => $db_prefix . $cur_table,
 				)
@@ -1216,6 +1216,7 @@ function AdminBoardRecount()
 			$boards = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				$boards[$row['id_board']][] = $row['id_msg'];
+
 			$smcFunc['db_free_result']($request);
 
 			foreach ($boards as $board_id => $messages)
@@ -1814,8 +1815,8 @@ function MaintainRecountPosts()
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.posts
 			FROM {db_prefix}members AS mem
-			LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
-			ON res.id_member = mem.id_member
+				LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
+				ON res.id_member = mem.id_member
 			WHERE res.id_member IS null
 				AND mem.posts != {int:zero}',
 			array(
