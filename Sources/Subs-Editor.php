@@ -2303,8 +2303,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			$possible_langs = array();
 			if (isset($_SESSION['language']))
 				$possible_langs[] = strtr($_SESSION['language'], array('-utf8' => ''));
-			if (!empty($user_info['language']));
-			$possible_langs[] = $user_info['language'];
+			if (!empty($user_info['language']))
+				$possible_langs[] = $user_info['language'];
+
 			$possible_langs[] = $language;
 
 			$questionIDs = array();

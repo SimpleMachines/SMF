@@ -530,8 +530,8 @@ function redirectLocation($location, $addForm = true)
 		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(json_encode($upcontext['upgrade_status'])) . $location;
 	}
 
-	while (@ob_end_clean());
-	header('location: ' . strtr($location, array('&amp;' => '&')));
+	while (@ob_end_clean())
+		header('location: ' . strtr($location, array('&amp;' => '&')));
 
 	// Exit - saving status as we go.
 	upgradeExit(true);

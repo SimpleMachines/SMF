@@ -2669,7 +2669,7 @@ function MessageActionsApply()
 				// How many labels do you have?
 				list ($num_labels) = $smcFunc['db_fetch_assoc']($request2);
 
-				if ($num_labels > 0);
+				if ($num_labels > 0)
 					$context['can_remove_inbox'] = true;
 
 				$smcFunc['db_free_result']($request2);
