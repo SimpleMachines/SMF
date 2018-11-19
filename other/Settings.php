@@ -186,7 +186,7 @@ $image_proxy_enabled = true;
 $image_proxy_secret = 'smfisawesome';
 
 /**
- * Maximum file size (in KB) for indiviudal files
+ * Maximum file size (in KB) for individual files
  *
  * @var int
  */

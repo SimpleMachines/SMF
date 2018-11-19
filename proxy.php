@@ -35,7 +35,7 @@ class ProxyServer
 	/** @var string The cache directory */
 	protected $cache;
 
-	/** @var int $maxDays until enties get deleted */
+	/** @var int $maxDays until entries get deleted */
 	protected $maxDays;
 
 	/**

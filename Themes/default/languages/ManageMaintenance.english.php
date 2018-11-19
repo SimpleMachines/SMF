@@ -137,7 +137,7 @@ $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
 $txt['errortype_paidsubs'] = 'Paid Subs';
 $txt['errortype_paidsubs_desc'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
 $txt['errortype_backup'] = 'Backups';
-$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the proceedure failed.';
+$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the procedure failed.';
 $txt['errortype_login'] = 'Logins';
 $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute force attempts.';
 

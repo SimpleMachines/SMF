@@ -11,7 +11,7 @@
  */
 
 /**
- * This tempate handles displaying a topic
+ * This template handles displaying a topic
  */
 function template_main()
 {

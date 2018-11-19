@@ -1530,7 +1530,7 @@ function template_php_info()
 			{
 				if ($localmaster)
 				{
-					// heading row for the settings section of this categorys settings
+					// heading row for the settings section of this category's settings
 					echo '
 								<tr class="title_bar">
 									<td class="equal_table"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>

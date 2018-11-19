@@ -4,7 +4,7 @@
 // Since all of these strings are being used in emails, numeric entities should be used.
 
 // Do not translate anything that is between {}, they are used as replacement variables and MUST remain exactly how they are.
-//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it. You may
+//   Additionally, do not translate the @additional_params: line or the variable names in the lines that follow it. You may
 //   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
@@ -342,7 +342,7 @@ You can approve or reject this topic by clicking the link below:
 
 /**
 	@additional_params: request_membership
-		RECPNAME: The name of the person recieving the email
+		RECPNAME: The name of the person receiving the email
 		APPYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.

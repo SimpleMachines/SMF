@@ -531,7 +531,7 @@ function template_add_edit_group_boards_list($collapse = true)
 }
 
 /**
- * Templatine for viewing the members of a group.
+ * Template for viewing the members of a group.
  */
 function template_group_members()
 {

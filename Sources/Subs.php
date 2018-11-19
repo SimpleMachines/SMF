@@ -3701,7 +3701,7 @@ function template_footer()
 /**
  * Output the Javascript files
  * 	- tabbing in this function is to make the HTML source look good and proper
- *  - if defered is set function will output all JS set to load at page end
+ *  - if deferred is set function will output all JS set to load at page end
  *
  * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
@@ -3922,7 +3922,7 @@ function custMinify($data, $type)
 		return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']);
 	}, $data)));
 
-	// Is this a deferred or asynchonous JavaScript file?
+	// Is this a deferred or asynchronous JavaScript file?
 	$async = $type === 'js';
 	$defer = $type === 'js';
 	if ($type === 'js')
@@ -6056,7 +6056,7 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
  * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
  *
- * @param bool $update If true, fetch and process the latest offical list of TLDs from iana.org.
+ * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
 function set_tld_regex($update = false)
 {
@@ -6169,7 +6169,7 @@ function set_tld_regex($update = false)
  * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
  * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
  * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accomodate everything in $strings and return them in an array. You will need to iterate
+ * to accommodate everything in $strings and return them in an array. You will need to iterate
  * through all elements of the returned array in order to test all possible matches.
  *
  * @param array $strings An array of strings to make a regex for.

@@ -273,7 +273,7 @@ function template_view_package()
 						$operation_num = 1;
 						foreach ($action['operations'] as $operation)
 						{
-							// Determine the possition text.
+							// Determine the position text.
 							$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 							echo '

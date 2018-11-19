@@ -175,7 +175,7 @@ function template_generic_menu_tabs(&$menu_context)
 				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 					$tab_context['tabs'][$id]['url'] = $tab['url'];
 
-				// Any additional paramaters for the url?
+				// Any additional parameters for the url?
 				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
 

@@ -102,7 +102,7 @@ function template_main()
 }
 
 /**
- * Tempalte for editing/adding a category on the forum.
+ * Template for editing/adding a category on the forum.
  */
 function template_modify_category()
 {

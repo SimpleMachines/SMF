@@ -52,7 +52,7 @@ require_once(dirname(__FILE__) . '/Settings.php');
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
-// Don't do john didley if the forum's been shut down competely.
+// Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2)
 	die($mmessage);
 

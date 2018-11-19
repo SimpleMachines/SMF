@@ -4699,7 +4699,7 @@ function template_upgrade_complete()
 					</script>
 					<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
-	// Show Upgrade time in debug mode when we completed the upgrade process totatly
+	// Show Upgrade time in debug mode when we completed the upgrade process totally
 	if ($is_debug)
 	{
 		$active = time() - $upcontext['started'];
@@ -4908,7 +4908,7 @@ function upgradeGetColumnInfo($targetTable, $column)
  *
  * @param array $config_vars An array of one or more variables to update
  *
- * @return void We either succesfully update the Settings file, or throw a error here.
+ * @return void We either successfully update the Settings file, or throw a error here.
  */
 function migrateSettingsFile($changes)
 {
@@ -5115,7 +5115,7 @@ function migrateSettingsFile($changes)
 		'$image_proxy_secret = \'smfisawesome\';',
 		'',
 		'/**',
-		' * Maximum file size (in KB) for indiviudal files',
+		' * Maximum file size (in KB) for individual files',
 		' * @var int',
 		' */',
 		'$image_proxy_maxsize = 5192;',
@@ -5325,7 +5325,7 @@ function migrateSettingsFile($changes)
  *
  * @param array $config_vars An array of one or more variables to update
  *
- * @return void We either succesfully update the Settings file, or throw a error here.
+ * @return void We either successfully update the Settings file, or throw a error here.
  */
 
 function detectSettingsFileMigrationNeeded()
@@ -5347,7 +5347,7 @@ function detectSettingsFileMigrationNeeded()
 	if (preg_match('~\$GLOBALS\[~im', $file_contents))
 		return false;
 
-	// If these are not set, it makes us a canidate to migrate.
+	// If these are not set, it makes us a candidate to migrate.
 	if (!isset($packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled))
 		return true;
 
