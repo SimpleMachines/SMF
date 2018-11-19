@@ -38,7 +38,7 @@ if (is_ie || is_webkit || is_ff)
 // Toggles the element height and width styles of an image.
 function smc_toggleImageDimensions()
 {
-	$('.postarea .bbc_img').each(function(index, item)
+	$('.postarea .bbc_img.resized').each(function(index, item)
 	{
 		$(item).click(function(e)
 		{
