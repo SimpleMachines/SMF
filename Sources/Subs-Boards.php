@@ -655,6 +655,15 @@ function modifyBoard($board_id, &$boardOptions)
 				'selected_board' => $board_id,
 			))
 		);
+		
+	// Before we add new access_groups or deny_groups, remove all of the old entries
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}board_permissions_view
+		WHERE id_board = {int:selected_board}',
+		array(
+			'selected_board' => $board_id,
+		)
+	);
 	
 	// Do permission sync
 	if (!empty($boardUpdateParameters['deny_groups']))
@@ -663,13 +672,6 @@ function modifyBoard($board_id, &$boardOptions)
 		foreach($boardOptions['deny_groups'] as $value)
 			$insert[] = array($value, $board_id, 1);
 
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 1',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
 		$smcFunc['db_insert']('insert',
 				'{db_prefix}board_permissions_view',
 				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
@@ -683,14 +685,8 @@ function modifyBoard($board_id, &$boardOptions)
 		$insert = array();
 		foreach($boardOptions['access_groups'] as $value)
 			$insert[] = array($value, $board_id, 0);
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 0',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
-		$smcFunc['db_insert']('insert',
+
+			$smcFunc['db_insert']('insert',
 				'{db_prefix}board_permissions_view',
 				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 				$insert,
