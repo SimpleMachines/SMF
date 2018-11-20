@@ -3211,6 +3211,11 @@ div#pollmoderation {
 	line-height: 1.5em;
 	font-size: 0.9em;
 }
+.keyinfo h5::after {
+	content: "";
+	clear: right;
+	display: block;
+}
 .keyinfo h5 a, .keyinfo h5 a strong {
 	color: #ad6825;
 }
