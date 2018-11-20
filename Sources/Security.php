@@ -1160,13 +1160,13 @@ function spamProtection($error_type, $only_return_result = false)
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
 
+	call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
+
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
 	else
 		$timeLimit = 2;
-
-	call_integration_hook('integrate_spam_protection', array(&$timeOverrides, &$timeLimit));
 
 	// Delete old entries...
 	$smcFunc['db_query']('', '
