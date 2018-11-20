@@ -40,27 +40,27 @@ function template_main()
 					', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
 				</div>
 				<div class="info">
-					', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board);
+					', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
+				</div><!-- .info -->';
 
-				// Show some basic information about the number of posts, etc.
-				echo '
-				</div><!-- .info -->
+			// Show some basic information about the number of posts, etc.
+			echo '
 				<div class="board_stats">
 					', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
 				</div>';
 				
-				// Show the last post if there is one.
-				if (!empty($board['last_post']['id']))
-					echo '
-					<div class="lastpost lpr_border">
-						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
-					</div>';
+			// Show the last post if there is one.
+			if(!empty($board['last_post']['id']))
+				echo '
+				<div class="lastpost lpr_border">
+					', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+				</div>';
 
-				// Won't somebody think of the children!
-				if (function_exists('template_bi_' . $board['type'] . '_children'))
-					call_user_func('template_bi_' . $board['type'] . '_children', $board);
-				else
-					template_bi_board_children($board);
+			// Won't somebody think of the children!
+			if (function_exists('template_bi_' . $board['type'] . '_children'))
+				call_user_func('template_bi_' . $board['type'] . '_children', $board);
+			else
+				template_bi_board_children($board);
 
 				echo '
 			</div><!-- #board_[id] -->';
@@ -381,7 +381,7 @@ function template_bi_board_icon($board)
 	global $context, $scripturl;
 
 	echo '
-						<a href="', ($context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', ($context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
 }
 
 /**
@@ -394,7 +394,7 @@ function template_bi_redirect_icon($board)
 	global $context, $scripturl;
 
 	echo '
-						<a href="', $board['href'], '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', $board['href'], '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
 }
 
 /**
@@ -407,22 +407,22 @@ function template_bi_board_info($board)
 	global $context, $scripturl, $txt;
 
 	echo '
-						<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
-							', $board['name'], '
-						</a>';
+		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+			', $board['name'], '
+		</a>';
 
 	// Has it outstanding posts for approval?
 	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
 		echo '
-						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
+		<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 	echo '
-						<p class="board_description">', $board['description'], '</p>';
+		<p class="board_description">', $board['description'], '</p>';
 
 	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 	if (!empty($board['link_moderators']))
 		echo '
-						<p class="moderators">', count($board['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+		<p class="moderators">', count($board['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
 }
 
 /**
@@ -435,9 +435,9 @@ function template_bi_board_stats($board)
 	global $txt;
 
 	echo '
-						<p>
-							', $txt['posts'], ': ', comma_format($board['posts']), '<br>', $txt['board_topics'], ': ', comma_format($board['topics']), '
-						</p>';
+		<p>
+			', $txt['posts'], ': ', comma_format($board['posts']), '<br>', $txt['board_topics'], ': ', comma_format($board['topics']), '
+		</p>';
 }
 
 /**
@@ -450,9 +450,9 @@ function template_bi_redirect_stats($board)
 	global $txt;
 
 	echo '
-						<p>
-							', $txt['redirects'], ': ', comma_format($board['posts']), '
-						</p>';
+		<p>
+			', $txt['redirects'], ': ', comma_format($board['posts']), '
+		</p>';
 }
 
 /**
@@ -465,7 +465,7 @@ function template_bi_board_lastpost($board)
 {
 	if (!empty($board['last_post']['id']))
 		echo '
-						<p>', $board['last_post']['last_post_message'], '</p>';
+			<p>', $board['last_post']['last_post_message'], '</p>';
 }
 
 /**
@@ -499,9 +499,9 @@ function template_bi_board_children($board)
 		}
 
 		echo '
-					<div id="board_', $board['id'], '_children" class="children">
-						<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
-					</div>';
+			<div id="board_', $board['id'], '_children" class="children">
+				<p><strong id="child_list_', $board['id'], '">', $txt['sub_boards'], '</strong>', implode($children), '</p>
+			</div>';
 	}
 }
 
