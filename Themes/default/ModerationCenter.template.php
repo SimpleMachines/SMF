@@ -503,27 +503,7 @@ function template_moderation_settings()
 	echo '
 	<div id="modcenter">';
 
-	if (!empty($context['can_moderate_approvals']))
-	{
-		echo '
-		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
-			<div class="windowbg">
-				<dl class="settings">
-					<dt>
-						<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
-					</dt>
-					<dd>
-						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', '>
-					</dd>
-				</dl>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
-				<input type="submit" name="save" value="', $txt['save'], '" class="button">
-			</div>
-		</form>';
-	}
-	else
-		echo '
+	echo '
 		<div class="windowbg">
 			<div class="centertext">', $txt['mc_no_settings'], '</div>
 		</div>';

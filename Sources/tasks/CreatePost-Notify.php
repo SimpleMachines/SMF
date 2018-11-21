@@ -18,12 +18,6 @@
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-	 * Constants for receiving email notfications.
-	*/
-	const RECEIVE_NOTIFY_EMAIL = 0x02;
-	const RECEIVE_NOTIFY_ALERT = 0x01;
-
-	/**
 	 * Constants for reply types.
 	*/
 	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;

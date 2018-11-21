@@ -1,6 +1,7 @@
 <?php
 /**
- * This file contains background notification code for any create post action
+ * This file contains background notification code for moderators
+ * to approve posts.
  *
  * Simple Machines Forum (SMF)
  *
@@ -18,7 +19,7 @@
 class ApprovePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
+	 * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
 	 * @return bool Always returns true
 	 */
 	public function execute()
@@ -40,7 +41,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
-			WHERE id_member IN({array_int:members})',
+			WHERE id_member IN ({array_int:members})',
 			array(
 				'members' => $modMembers,
 			)
@@ -64,7 +65,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		{
 			$pref = !empty($prefs[$member]['unapproved_post']) ? $prefs[$member]['unapproved_post'] : 0;
 
-			if ($pref & 0x02)
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
 				require_once($sourcedir . '/Subs-Post.php');
@@ -80,7 +81,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
-			if ($pref & 0x01)
+			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
