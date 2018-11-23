@@ -1,6 +1,6 @@
 /* Some very big stuff? Dunno... */
 @media (min-width: 856px) and (max-width: 1024px) {
-	div.lastpost {
+	.lastpost {
 		width: 20%;
 		margin: 3px 0 0 5px;
 	}
@@ -9,7 +9,7 @@
 /* Still not enough data or people to test this... */
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
 @media (min-width: 721px) and (max-width: 855px) {
-	div.lastpost {
+	.lastpost {
 		margin: 0 0 0 20px;
 	}
 	.board_stats {
@@ -148,7 +148,7 @@
 	.info {
 		width: calc(100% - 65px);
 	}
-	div.lastpost {
+	.lastpost {
 		width: 100%;
 		padding: 0;
 		display: block;
@@ -157,7 +157,7 @@
 	.lpr_border {
 		border-top: 1px solid #ddd;
 	}
-	div.lastpost p {
+	.lastpost p {
 		margin: 5px;
 	}
 	span.postby {
