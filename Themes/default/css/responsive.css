@@ -1,7 +1,7 @@
 /* Some very big stuff? Dunno... */
 @media (min-width: 856px) and (max-width: 1024px) {
 	div.lastpost {
-		width: 20% !important;
+		width: 20%;
 		margin: 3px 0 0 5px;
 	}
 }
@@ -10,7 +10,7 @@
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
 @media (min-width: 721px) and (max-width: 855px) {
 	div.lastpost {
-		margin: 0 0 0 20px !important;
+		margin: 0 0 0 20px;
 	}
 	.board_stats {
 		display: none;
@@ -40,7 +40,7 @@
 		display: inline-block;
 	}
 	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
-		width: 100% !important;
+		width: 100%;
 		margin: 0;
 		border-radius: 0;
 		border-left: 0;
@@ -110,7 +110,7 @@
 		width: 100% !important;
 	}
 	#wrapper {
-		width: 100% !important;
+		width: 100%;
 		border-left: 0;
 		border-right: 0;
 		border-radius: 0;
@@ -132,12 +132,12 @@
 	.login {
 		width: 100%;
 	}
-	.unread_links {
+	.navigate_section .unread_links {
 		width: 95%;
-		float: left !important;
+		float: left;
 	}
-	.unread_links a {
-		padding: 5px 0 5px 0 !important;
+	.navigate_section .unread_links a {
+		padding: 5px 0 5px 0;
 		margin-right: 3px;
 	}
 
@@ -152,7 +152,7 @@
 		width: 100%;
 		padding: 0;
 		display: block;
-		min-height: 2em !important;
+		min-height: 2em;
 	}
 	.lpr_border {
 		border-top: 1px solid #ddd;
@@ -239,7 +239,7 @@
 	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
-		padding: 5px !important;
+		padding: 5px;
 	}
 	#post_header input {
 		width: 100%;
@@ -400,12 +400,12 @@
 		margin: 0 auto;
 	}
 	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px !important;
+		padding: 5px 0 0 4px;
 		max-width: 300px;
 		margin: 10px 0;
 	}
-	span.board_moderators {
-		display: none !important;
+	.board_moderators {
+		display: none;
 	}
 	#top_info {
 		width: 100%;
@@ -509,18 +509,14 @@
 	#registration .button {
 		font-size: 0.67em;
 	}
-	dl.register_form {
-		float: none !important;
-		width: 100% !important;
-	}
-	dl.register_form dt, dl.register_form dd {
-		float: none !important;
-		width: 100% !important;
+	dl.register_form, dl.register_form dt, dl.register_form dd {
+		float: none;
+		width: 100%;
 	}
 	/* Login Page */
 	.login dt, .login dd {
-		float: none !important;
-		width: 100% !important;
+		float: none;
+		width: 100%;
 		text-align: left;
 	}
 	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
@@ -556,10 +552,10 @@
 
 	/* Post Section */
 	#post_header dd {
-		width: 55% !important;
+		width: 55%;
 	}
 	#post_header dt {
-		width: 35% !important;
+		width: 35%;
 	}
 	img#icons {
 		margin: 0 0 0 5px;
@@ -675,7 +671,7 @@
 	}
 	/* Moderation */
 	.post_note input {
-		width: 75% !important;
+		width: 75%;
 	}
 	.modbox .floatleft {
 		float: none;
@@ -686,8 +682,8 @@
 	}
 	/* Admin */
 	#live_news, #supportVersionsTable {
-		width: 100% !important;
-		padding: 0 !important;
+		width: 100%;
+		padding: 0;
 		margin: 0 0 5px 0;
 	}
 	.admin_search {
@@ -696,8 +692,8 @@
 		width: 100%;
 		margin-bottom: 10px;
 	}
-	.admin_group a {
-		width: 50% !important;
+	fieldset.admin_group a {
+		width: 50%;
 		float: left;
 		margin: 0 0 5px 0;
 	}
