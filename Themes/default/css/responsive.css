@@ -59,6 +59,10 @@
 		border-right: 0;
 		text-indent: 5px;
 	}
+	#mobile_action .button, #mobile_moderation .button {
+		line-height: 2.8em;
+		height: auto;
+	}
 	#mobile_action .notify_dropdown {
 		top: 0 !important;
 		left: 0 !important;
