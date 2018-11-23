@@ -22,11 +22,23 @@
 	#event_time_options {
 		width: 44%;
 	}
-	#event_title, #event_board {
-		width: 100%;
+	#event_title {
+		padding: 0;
 	}
 	#evtitle {
 		width: 98%;
+	}
+	.event_options_left, .event_options_right {
+		display: block;
+		max-width: unset;
+		width: unset;
+	}
+	#event_title input[type="text"] {
+		width: 100%;
+	}
+	#post_event #event_board select {
+		width: calc(100% - 90px);
+		max-width: unset;
 	}
 }
 
