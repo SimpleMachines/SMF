@@ -175,6 +175,14 @@
 	span.postby {
 		display: inline-block;
 	}
+	/* Stats Center */
+	#ic_recentposts {
+		margin: 0;
+		width: 100%;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px;
+	}
 
 	/* MessageIndex */
 	#messageindex .board_icon, #messageindex .lastpost {
@@ -190,12 +198,34 @@
 	.moderation a {
 		padding: 3px;
 	}
+	#topic_container .moderation .generic_icons {
+		display: none;
+	}
 	/* Unread */
 	#unread .board_icon, #unread .lastpost {
 		display: none;
 	}
 
 	/* Display (Topics) */
+	.poster {
+		float: none;
+	}
+	.postarea {
+		margin: 0;
+	}
+	.moderatorbar {
+		margin: 0;
+	}
+	.keyinfo h5 .modified {
+		float: none;
+	}
+	.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display: none;
+	}
 	.user_info li {
 		display: inline-block;
 	}
@@ -267,6 +297,24 @@
 		margin: 2px 5px 0 0;
 		width: 48%;
 	}
+	/* Search */
+	#searchform .roundframe {
+		padding: 5px;
+	}
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: auto;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	input#searchfor, input#userspec {
+		width: 75%;
+	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
@@ -309,55 +357,6 @@
 
 	.boardslist ul {
 		page-break-inside: avoid;
-	}
-}
-
-@media (min-width: 481px) and (max-width: 720px) {
-	/* Display (Topic View) */
-	.poster {
-		float: none !important;
-	}
-	.postarea {
-		margin: 0 !important;
-	}
-	.moderatorbar {
-		margin: 0 !important;
-	}
-	img.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
-	}
-	img.icon, #forumposts .catbg img,
-	#topic_container .moderation .main_icons {
-		display: none;
-	}
-	.keyinfo h5 .modified {
-		float: none !important;
-	}
-
-	/* Stats Center */
-	#ic_recentposts {
-		margin: 0 !important;
-		width: 100% !important;
-	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
-		padding: 5px !important;
-	}
-
-	/* Search */
-	#advanced_search dt {
-		text-align: left;
-		width: 100%;
-		float: left;
-	}
-	#advanced_search dd {
-		width: auto;
-	}
-	#advanced_search dl#search_options {
-		width: 100%;
-	}
-	input#searchfor, input#userspec {
-		width: 75%;
 	}
 }
 
@@ -435,7 +434,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu, #topic_container .moderation .generic_icons {
+	.generic_menu {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -536,25 +535,6 @@
 	}
 
 	/* Display (Topic View) */
-	.poster {
-		float: none !important;
-	}
-	.postarea {
-		margin: 0 !important;
-	}
-	.moderatorbar {
-		margin: 0 !important;
-	}
-	img.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
-	}
-	img.icon, #forumposts .catbg img {
-		display: none;
-	}
-	.keyinfo h5 .modified {
-		float: none !important;
-	}
 	.subject_title input {
 		width: 90%;
 	}
@@ -622,13 +602,6 @@
 		margin: 0;
 		padding: 0;
 	}
-	#ic_recentposts {
-		margin: 0 !important;
-		width: 100% !important;
-	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
-		padding: 5px !important;
-	}
 	th.recentboard, th.recenttime,
 	td.recentboard, td.recenttime {
 		display: none;
@@ -637,20 +610,6 @@
 		min-height: 375px;
 	}
 
-	/* Search */
-	#searchform .roundframe {
-		padding: 5px;
-	}
-	#advanced_search dt {
-		text-align: left;
-		float: left;
-	}
-	#advanced_search dl#search_options {
-		width: 100%;
-	}
-	input#searchfor, input#userspec {
-		width: 75%;
-	}
 	/* Memberlist */
 	th.website_url,
 	td.website_url, td.reg_group, td.reg_date, td.post_num {
