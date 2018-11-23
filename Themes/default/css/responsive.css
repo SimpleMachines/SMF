@@ -130,9 +130,12 @@
 		border-right: 0;
 		border-radius: 0;
 	}
-	#top_section, #footer {
+	#top_section {
 		padding-left: 0;
 		padding-right: 0;
+	}
+	#footer {
+		padding: 10px;
 	}
 	#header {
 		margin-left: 0;
@@ -481,6 +484,11 @@
 	#footer ul {
 		width: 100%;
 		float: none;
+	}
+	#footer li {
+		display: block;
+		float: none;
+		text-align: center;
 	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
