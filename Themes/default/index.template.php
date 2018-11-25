@@ -277,7 +277,7 @@ function template_body_above()
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
 			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
+					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisboard'], '</option>';
 
 		// Can't search for members if we can't see the memberlist
 		if (!empty($context['allow_memberlist']))

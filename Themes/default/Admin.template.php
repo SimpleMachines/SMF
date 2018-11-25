@@ -33,7 +33,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smfAnnouncements">', $txt['lfyi'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
@@ -897,7 +897,7 @@ function template_show_settings()
 				{
 					echo '
 										<fieldset id="', $config_var['name'], '">
-											<legend>', $txt['bbcTagsToUse_select'], '</legend>
+											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
 					foreach ($context['bbc_columns'] as $bbcColumn)
@@ -909,7 +909,7 @@ function template_show_settings()
 												</li>';
 					}
 					echo '					</ul>
-											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['enabled_bbc_select_all'], '</em></label>
 										</fieldset>';
 				}
 				// A simple message?

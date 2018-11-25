@@ -28,7 +28,7 @@ function template_main()
 	if ($context['becomesUnapproved'])
 		echo '
 		<div class="noticebox">
-			', $txt['post_becomesUnapproved'], '
+			', $txt['post_becomes_unapproved'], '
 		</div>';
 
 	// Show new topic info here?

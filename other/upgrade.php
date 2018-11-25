@@ -3967,7 +3967,7 @@ function template_upgrade_options()
 					</li>
 					<li>
 						<input type="checkbox" name="empty_error" id="empty_error" value="1">
-						<label for="empty_error">', $txt['upgrade_empty_errlog'], '</label>
+						<label for="empty_error">', $txt['upgrade_empty_errorlog'], '</label>
 					</li>';
 
 	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))

@@ -198,7 +198,7 @@ $txt['search_on'] = 'on';
 $txt['search'] = 'Search';
 $txt['all'] = 'All';
 $txt['search_entireforum'] = 'Entire forum';
-$txt['search_thisbrd'] = 'This board';
+$txt['search_thisboard'] = 'This board';
 $txt['search_thistopic'] = 'This topic';
 $txt['search_members'] = 'Members';
 
@@ -299,7 +299,7 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['post_becomesUnapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
+$txt['post_becomes_unapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -714,12 +714,12 @@ $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
-$txt['totalTimeLogged2'] = ' days, ';
-$txt['totalTimeLogged3'] = ' hours and ';
-$txt['totalTimeLogged4'] = ' minutes.';
-$txt['totalTimeLogged5'] = 'd ';
-$txt['totalTimeLogged6'] = 'h ';
-$txt['totalTimeLogged7'] = 'm';
+$txt['total_time_logged_days'] = ' days, ';
+$txt['total_time_logged_hours'] = ' hours and ';
+$txt['total_time_logged_minutes'] = ' minutes.';
+$txt['total_time_logged_d'] = 'd ';
+$txt['total_time_logged_h'] = 'h ';
+$txt['total_time_logged_m'] = 'm';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
 
@@ -802,7 +802,7 @@ $txt['activate_changed_email_title'] = 'Email Address Changed';
 $txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
 $txt['modSettings_title'] = 'Features and Options';
 $txt['package'] = 'Package Manager';
-$txt['errlog'] = 'Error Log';
+$txt['errorlog'] = 'Error Log';
 $txt['edit_permissions'] = 'Permissions';
 $txt['mc_unapproved_attachments'] = 'Unapproved Attachments';
 $txt['mc_unapproved_poststopics'] = 'Unapproved Posts and Topics';

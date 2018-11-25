@@ -21,7 +21,7 @@ function template_main()
 	echo '
 	<div id="manage_boards">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['boardsEdit'], '</h3>
+			<h3 class="catbg">', $txt['boards_edit'], '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -45,7 +45,7 @@ function template_main()
 		echo '
 			<div class="sub_bar">
 				<h3 class="subbg">
-					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['catModify'], '</a>
+					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['cat_modify'], '</a>
 				</h3>
 			</div>';
 
@@ -115,7 +115,7 @@ function template_modify_category()
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
+					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['cat_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -188,7 +188,7 @@ function template_modify_category()
 	else
 		echo '
 				<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button">
-				<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['catConfirm'], '" class="button you_sure">';
+				<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['cat_delete_confirm'], '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
@@ -271,7 +271,7 @@ function template_modify_board()
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boardsEdit'], '
+					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boards_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -599,7 +599,7 @@ function template_modify_board()
 
 	if (!isset($context['board']['is_new']) && empty($context['board']['is_recycle']))
 		echo '
-				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['boardConfirm'], '" class="button you_sure">';
+				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['board_delete_confirm'], '" class="button you_sure">';
 	echo '
 			</div><!-- .windowbg -->
 		</form>

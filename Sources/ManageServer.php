@@ -1191,7 +1191,7 @@ function prepareDBSettingContext(&$config_vars)
 		foreach ($bbcChoice as $bbc)
 		{
 			$context['bbc_sections'][$bbc] = array(
-				'title' => isset($txt['bbc_title_' . $bbc]) ? $txt['bbc_title_' . $bbc] : $txt['bbcTagsToUse_select'],
+				'title' => isset($txt['bbc_title_' . $bbc]) ? $txt['bbc_title_' . $bbc] : $txt['enabled_bbc_select'],
 				'disabled' => empty($modSettings['bbc_disabled_' . $bbc]) ? array() : $modSettings['bbc_disabled_' . $bbc],
 				'all_selected' => empty($modSettings['bbc_disabled_' . $bbc]),
 			);

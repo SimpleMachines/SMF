@@ -21,7 +21,7 @@ function template_main()
 	if ($context['becomesUnapproved'])
 		echo '
 	<div class="noticebox">
-		', $txt['post_becomesUnapproved'], '
+		', $txt['post_becomes_unapproved'], '
 	</div>';
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))

@@ -287,7 +287,7 @@ function EditCategory()
 	if (!isset($_REQUEST['delete']))
 	{
 		$context['sub_template'] = 'modify_category';
-		$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['catEdit'];
+		$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['cat_edit'];
 	}
 	else
 	{
@@ -593,7 +593,7 @@ function EditBoard()
 	if (!isset($_REQUEST['delete']))
 	{
 		$context['sub_template'] = 'modify_board';
-		$context['page_title'] = $txt['boardsEdit'];
+		$context['page_title'] = $txt['boards_edit'];
 		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else

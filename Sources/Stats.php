@@ -503,10 +503,10 @@ function DisplayStats()
 		// Figure out which things to show... (days, hours, minutes, etc.)
 		$timelogged = '';
 		if ($timeDays > 0)
-			$timelogged .= $timeDays . $txt['totalTimeLogged5'];
+			$timelogged .= $timeDays . $txt['total_time_logged_d'];
 		if ($timeHours > 0)
-			$timelogged .= $timeHours . $txt['totalTimeLogged6'];
-		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged7'];
+			$timelogged .= $timeHours . $txt['total_time_logged_h'];
+		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_m'];
 
 		$context['stats_blocks']['time_online'][] = array(
 			'id' => $row_members['id_member'],

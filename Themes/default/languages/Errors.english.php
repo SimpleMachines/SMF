@@ -430,7 +430,7 @@ $txt['file_minimize_fail'] = 'The file "%1$s" could not be located on the curren
 $txt['unlink_minimized_fail'] = 'The following files could not be deleted. Please check the file permissions of the files themselves and the parent directory.<br>%1$s';
 
 // SubActions failed attempt.
-$txt['subAction_fail'] = 'The callable %s could not be called.';
+$txt['sub_action_fail'] = 'The callable %s could not be called.';
 
 // Restore topic/posts
 $txt['cannot_restore_first_post'] = 'You cannot restore the first post in a topic.';

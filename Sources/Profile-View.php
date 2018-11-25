@@ -1291,7 +1291,7 @@ function statPanel($memID)
 	// General user statistics.
 	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['totalTimeLogged2'] : '') . ($timeHours > 0 ? $timeHours . $txt['totalTimeLogged3'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged4'];
+	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . $txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_minutes'];
 	$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(

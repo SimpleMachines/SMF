@@ -318,7 +318,7 @@ function ViewErrorLog()
 		$context['error_types']['all']['is_last'] = true;
 
 	// And this is pretty basic ;).
-	$context['page_title'] = $txt['errlog'];
+	$context['page_title'] = $txt['errorlog'];
 	$context['has_filter'] = isset($filter);
 	$context['sub_template'] = 'error_log';
 

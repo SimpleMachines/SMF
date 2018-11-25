@@ -1617,137 +1617,137 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $editortxt['Bold'],
+				'description' => $editortxt['bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $editortxt['Italic'],
+				'description' => $editortxt['italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $editortxt['Underline']
+				'description' => $editortxt['underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $editortxt['Strikethrough']
+				'description' => $editortxt['strikethrough']
 			),
 			array(
 				'code' => 'superscript',
-				'description' => $editortxt['Superscript']
+				'description' => $editortxt['superscript']
 			),
 			array(
 				'code' => 'subscript',
-				'description' => $editortxt['Subscript']
+				'description' => $editortxt['subscript']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $editortxt['Preformatted Text']
+				'description' => $editortxt['preformatted_text']
 			),
 			array(
 				'code' => 'left',
-				'description' => $editortxt['Align left']
+				'description' => $editortxt['align_left']
 			),
 			array(
 				'code' => 'center',
-				'description' => $editortxt['Center']
+				'description' => $editortxt['center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $editortxt['Align right']
+				'description' => $editortxt['align_right']
 			),
 			array(
 				'code' => 'justify',
-				'description' => $editortxt['Justify']
+				'description' => $editortxt['justify']
 			),
 			array(),
 			array(
 				'code' => 'font',
-				'description' => $editortxt['Font Name']
+				'description' => $editortxt['font_name']
 			),
 			array(
 				'code' => 'size',
-				'description' => $editortxt['Font Size']
+				'description' => $editortxt['font_size']
 			),
 			array(
 				'code' => 'color',
-				'description' => $editortxt['Font Color']
+				'description' => $editortxt['font_color']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'removeformat',
-				'description' => $editortxt['Remove Formatting'],
+				'description' => $editortxt['remove_formatting'],
 			);
 		}
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
-				'description' => $editortxt['Float left']
+				'description' => $editortxt['float_left']
 			),
 			array(
 				'code' => 'floatright',
-				'description' => $editortxt['Float right']
+				'description' => $editortxt['float_right']
 			),
 			array(),
 			array(
 				'code' => 'flash',
-				'description' => $editortxt['Flash']
+				'description' => $editortxt['flash']
 			),
 			array(
 				'code' => 'youtube',
-				'description' => $editortxt['Insert a YouTube video']
+				'description' => $editortxt['insert_youtube_video']
 			),
 			array(
 				'code' => 'image',
-				'description' => $editortxt['Insert an image']
+				'description' => $editortxt['insert_image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $editortxt['Insert a link']
+				'description' => $editortxt['insert_link']
 			),
 			array(
 				'code' => 'email',
-				'description' => $editortxt['Insert an email']
+				'description' => $editortxt['insert_email']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $editortxt['Insert a table']
+				'description' => $editortxt['insert_table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $editortxt['Code']
+				'description' => $editortxt['code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $editortxt['Insert a Quote']
+				'description' => $editortxt['insert_quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $editortxt['Bullet list']
+				'description' => $editortxt['bullet_list']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $editortxt['Numbered list']
+				'description' => $editortxt['numbered_list']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $editortxt['Insert a horizontal rule']
+				'description' => $editortxt['insert_horizontal_rule']
 			),
 			array(),
 			array(
 				'code' => 'maximize',
-				'description' => $editortxt['Maximize']
+				'description' => $editortxt['maximize']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'source',
-				'description' => $editortxt['View source'],
+				'description' => $editortxt['view_source'],
 			);
 		}
 

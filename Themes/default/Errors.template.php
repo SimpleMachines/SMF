@@ -66,7 +66,7 @@ function template_error_log()
 		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errlog'], '
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errorlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
@@ -113,7 +113,7 @@ function template_error_log()
 	if (count($context['errors']) == 0)
 		echo '
 				<tr class="windowbg">
-					<td class="centertext" colspan="2">', $txt['errlog_no_entries'], '</td>
+					<td class="centertext" colspan="2">', $txt['errorlog_no_entries'], '</td>
 				</tr>';
 
 	// We have some errors, must be some mods installed :P

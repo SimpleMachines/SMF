@@ -243,7 +243,7 @@ $helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot
 		</ul>';
 $helptxt['disableCustomPerPage'] = 'Check this setting to stop users from customizing the amount of messages and topics to display per page on the Message Index and Topic Display page respectively.';
 $helptxt['enablePreviousNext'] = 'This will show a link to the next and previous topic.';
-$helptxt['pollMode'] = 'This selects whether polls are enabled or not. If polls are disabled, any existing polls will be hidden
+$helptxt['poll_mode'] = 'This selects whether polls are enabled or not. If polls are disabled, any existing polls will be hidden
 		from the topic listing. You can choose to continue to show the regular topic without their polls by selecting
 		&quot;Show Existing Polls as Topics&quot;.<br><br>To choose who can post polls, view polls, and similar, you
 		can allow and disallow those permissions. Remember this if polls are not working.';

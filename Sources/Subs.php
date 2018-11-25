@@ -4417,7 +4417,7 @@ function setupMenuContext()
 						'show' => allowedTo('admin_forum'),
 					),
 					'errorlog' => array(
-						'title' => $txt['errlog'],
+						'title' => $txt['errorlog'],
 						'href' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 						'show' => allowedTo('admin_forum') && !empty($modSettings['enableErrorLogging']),
 					),
@@ -4947,7 +4947,7 @@ function call_helper($string, $return = false)
 	if (!is_callable($func, false, $callable_name))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['subAction_fail'], $callable_name), 'general');
+		log_error(sprintf($txt['sub_action_fail'], $callable_name), 'general');
 
 		// Gotta tell everybody.
 		return false;

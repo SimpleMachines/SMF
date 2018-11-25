@@ -652,11 +652,11 @@ function loadForumTests()
 					return false;
 
 				if ($row['id_first_msg'] != $row['myid_first_msg'])
-					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_1'], $row['id_topic'], $row['id_first_msg']);
+					$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_first_id'], $row['id_topic'], $row['id_first_msg']);
 				if ($row['id_last_msg'] != $row['myid_last_msg'])
-					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_2'], $row['id_topic'], $row['id_last_msg']);
+					$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_last_id'], $row['id_topic'], $row['id_last_msg']);
 				if ($row['approved'] != $row['firstmsg_approved'])
-					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_5'], $row['id_topic']);
+					$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_approval'], $row['id_topic']);
 
 				return true;
 			},
@@ -707,7 +707,7 @@ function loadForumTests()
 					return false;
 
 				if ($row['num_replies'] != $row['my_num_replies'])
-					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_3'], $row['id_topic'], $row['num_replies']);
+					$context['repair_errors'][] = sprintf($txt['repair_topic_wrong_replies'], $row['id_topic'], $row['num_replies']);
 
 				return true;
 			},
@@ -744,7 +744,7 @@ function loadForumTests()
 					)
 				);
 			},
-			'messages' => array('repair_stats_topics_4', 'id_topic', 'unapproved_posts'),
+			'messages' => array('repair_topic_wrong_unapproved_number', 'id_topic', 'unapproved_posts'),
 		),
 		// Find topics with nonexistent boards.
 		'missing_boards' => array(
