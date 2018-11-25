@@ -1010,7 +1010,11 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = $smcFunc['random_int'](0, 60000);
+
+            if (!is_callable('random_int'))
+                require_once('Sources/random_compat/lib/random.php');
+
+			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
