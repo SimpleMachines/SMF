@@ -905,26 +905,20 @@ function PlushSearch2()
 	// Do we have captcha enabled?
 	if ($user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
 	{
-		// If we come from another search box tone down the error...
-		if (!isset($_REQUEST['search_vv']))
-			$context['search_errors']['need_verification_code'] = true;
-		else
-		{
-			require_once($sourcedir . '/Subs-Editor.php');
-			$verificationOptions = array(
-				'id' => 'search',
-			);
-			$context['require_verification'] = create_control_verification($verificationOptions, true);
+		require_once($sourcedir . '/Subs-Editor.php');
+		$verificationOptions = array(
+			'id' => 'search',
+		);
+		$context['require_verification'] = create_control_verification($verificationOptions, true);
 
-			if (is_array($context['require_verification']))
-			{
-				foreach ($context['require_verification'] as $error)
-					$context['search_errors'][$error] = true;
-			}
-			// Don't keep asking for it - they've proven themselves worthy.
-			else
-				$_SESSION['ss_vv_passed'] = true;
+		if (is_array($context['require_verification']))
+		{
+			foreach ($context['require_verification'] as $error)
+				$context['search_errors'][$error] = true;
 		}
+		// Don't keep asking for it - they've proven themselves worthy.
+		else
+			$_SESSION['ss_vv_passed'] = true;
 	}
 
 	// *** Encode all search params
@@ -998,7 +992,7 @@ function PlushSearch2()
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
 		{
 			$request = $smcFunc['db_query']('','
-				SELECT id_search 
+				SELECT id_search
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
 				LIMIT 1',
@@ -1008,7 +1002,7 @@ function PlushSearch2()
 			);
 
 			if ($smcFunc['db_num_rows']($request) === 0)
-				$update_cache = true;	
+				$update_cache = true;
 		}
 
 		if ($update_cache)
