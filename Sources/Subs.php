@@ -5121,7 +5121,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 				$header = '';
 				$location = '';
 				while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-					if (strpos($header, 'location:') !== false)
+					if (stripos($header, 'location:') !== false)
 						$location = trim(substr($header, strpos($header, ':') + 1));
 
 				if (empty($location))
