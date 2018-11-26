@@ -6546,6 +6546,8 @@ function iri_to_url($iri)
 	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
 
 	// Encode any disallowed characters in the rest of the URL
+	// First deal with spaces that may already be encoded...
+	$iri = strtr($iri, array('%20'=>' '));
 	$unescaped = array(
 		'%21'=>'!', '%23'=>'#', '%24'=>'$', '%26'=>'&',
 		'%27'=>"'", '%28'=>'(', '%29'=>')', '%2A'=>'*',
