@@ -197,7 +197,7 @@ class ProxyServer
 
 		// Looks like nobody was home
 		if (empty($image))
-			return -1;
+			return 0;
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
