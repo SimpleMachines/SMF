@@ -6533,11 +6533,6 @@ function iri_to_url($iri)
 {
 	global $sourcedir;
 
-	// First do a quick check to ensure there are no encoded values already
-	// These get mangled by rawurlencode()...
-	if (preg_match('~%\d{2}~', $iri) === 1)
-		return($iri);
-
 	$host = parse_url((strpos($iri, '://') === false ? 'http://' : '') . ltrim($iri, ':/'), PHP_URL_HOST);
 
 	if (empty($host))
@@ -6549,6 +6544,10 @@ function iri_to_url($iri)
 	$encoded_host = $Punycode->encode($host);
 	$pos = strpos($iri, $host);
 	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
+
+	// Safety check...  Just in case anything is already pre-encoded...
+	// Don't want %20 to turn into %2520
+	$iri = rawurldecode($iri);
 
 	// Encode any disallowed characters in the rest of the URL
 	$unescaped = array(
