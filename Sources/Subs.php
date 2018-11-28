@@ -391,12 +391,15 @@ function updateMemberData($members, $data)
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, false) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. count(fetch_alerts($v, false, 0, array(), false)) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
 			else
-				$val = alert_count($members, false);
+			{
+				$blub = fetch_alerts($members, false, 0, array(), false);
+				$val = count($blub);
+			}
 		}
 		else if ($type == 'int' && ($val === '+' || $val === '-'))
 		{
@@ -6365,8 +6368,7 @@ function build_query_board($userid)
 	$mod_cache;
 	$ignoreboards;
 
-	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid)
+	if ($user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
 		$is_admin = $user_info['is_admin'];

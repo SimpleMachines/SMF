@@ -229,6 +229,15 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	$query_see_board = build_query_board($memID);
 	$query_see_board = $query_see_board['query_see_board'];
 
+	$user_old = $user_info;
+	// are we someone else?
+	if (empty($user_info) || $user_info['id'] != $memID)
+	{
+		if (empty($user_profile[$memID]))
+			loadMemberData($memID, false, 'profile');
+		$user_info = $user_profile[$memID];
+	}
+
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
@@ -261,7 +270,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	if ($withSender)
+	if($withSender)
 	{
 		$senders = loadMemberData($senders);
 		foreach ($senders as $member)
@@ -377,18 +386,16 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			$extra = $alerts[$id_alert]['extra'];
 			$search = array('{member_link}', '{scripturl}');
 			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
-
-			if (is_array($extra))
+			foreach ((array) $extra as $k => $v)
 			{
-				foreach ($extra as $k => $v)
-				{
-					$search[] = '{' . $k . '}';
-					$repl[] = $v;
-				}
+				$search[] = '{' . $k . '}';
+				$repl[] = $v;
 			}
 			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
 		}
 	}
+
+	$user_info = $user_old;
 
 	return $alerts;
 }
