@@ -6545,10 +6545,6 @@ function iri_to_url($iri)
 	$pos = strpos($iri, $host);
 	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
 
-	// Safety check...  Just in case anything is already pre-encoded...
-	// Don't want %20 to turn into %2520
-	$iri = rawurldecode($iri);
-
 	// Encode any disallowed characters in the rest of the URL
 	$unescaped = array(
 		'%21'=>'!', '%23'=>'#', '%24'=>'$', '%26'=>'&',

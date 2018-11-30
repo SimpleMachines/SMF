@@ -89,9 +89,6 @@ class ProxyServer
 		if (md5($request . $this->secret) != $hash)
 			return false;
 
-		// Ensure any non-ASCII characters in the URL are encoded correctly
-		$request = iri_to_url($request);
-
 		// Attempt to cache the request if it doesn't exist
 		if (!$this->isCached($request))
 			return $this->cacheImage($request);
