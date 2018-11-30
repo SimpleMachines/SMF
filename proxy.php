@@ -243,7 +243,7 @@ class ProxyServer
 	 */
 	static public function redirectexit($request)
 	{
-		header('Location: ' . $request, false, 301);
+		header('Location: ' . un_htmlspecialchars($request), false, 301);
 		exit;
 	}
 
