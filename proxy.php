@@ -209,7 +209,7 @@ class ProxyServer
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)
-			return -1;
+			return 0;
 
 		// Validate the filesize
 		$size = strlen($image);
