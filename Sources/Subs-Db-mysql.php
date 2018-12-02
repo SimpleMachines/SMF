@@ -414,7 +414,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$old_pos = 0;
 		$pos = -1;
 		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\\\'','',$db_string);
+		$db_string_1 = str_replace('\'\'','',$db_string);
 		while (true)
 		{
 			$pos = strpos($db_string_1, '\'', $pos + 1);
