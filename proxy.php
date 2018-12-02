@@ -117,9 +117,6 @@ class ProxyServer
 	public function serve()
 	{
 		$request = $_GET['request'];
-		$cached_file = $this->getCachedPath($request);
-		$cached = json_decode(file_get_contents($cached_file), true);
-
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
 		if ($response === -1)
@@ -134,10 +131,14 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
+		// We should have a cached image at this point
+		$cached_file = $this->getCachedPath($request);
+		$cached = json_decode(file_get_contents($cached_file), true);
+
 		$time = time();
 
 		// Is the cache expired?
-		if (!$cached || $time - $cached['time'] > ($this->maxDays * 86400))
+		if ($time - $cached['time'] > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
