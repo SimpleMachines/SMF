@@ -1721,6 +1721,9 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					}
 				}
 
+				// Save some memory by not passing the xmlArray object into context.
+				unset($packageInfo['xml']);
+
 				if (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
