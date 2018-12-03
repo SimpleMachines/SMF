@@ -1359,6 +1359,10 @@ function PackageBrowse()
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
 	$context['forum_version'] = SMF_FULL_VERSION;
+	$context['available_modification'] = array();
+	$context['available_avatar'] = array();
+	$context['available_language'] = array();
+	$context['available_unknown'] = array();
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
 	call_integration_hook('integrate_modification_types');
@@ -1491,13 +1495,6 @@ function PackageBrowse()
 
 	$context['sub_template'] = 'browse';
 	$context['default_list'] = 'packages_lists';
-
-	// Empty lists for now.
-	$context['available_mods'] = array();
-	$context['available_avatars'] = array();
-	$context['available_languages'] = array();
-	$context['available_other'] = array();
-	$context['available_all'] = array();
 
 	$get_versions = $smcFunc['db_query']('', '
 		SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
