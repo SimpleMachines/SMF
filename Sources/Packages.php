@@ -1590,15 +1590,10 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		$context['installed_mods'] = array_keys($installed_mods);
 	}
 
-	if (empty($packages))
-		foreach ($context['modification_types'] as $type)
-			$packages[$type] = array();
-
 	if ($dir = @opendir($packagesdir))
 	{
 		$dirs = array();
 		$sort_id = array(
-			'mod' => 1,
 			'modification' => 1,
 			'avatar' => 1,
 			'language' => 1,
@@ -1609,14 +1604,6 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
-				continue;
-
-			$skip = false;
-			foreach ($context['modification_types'] as $type)
-				if (isset($context['available_' . $type][md5($package)]))
-					$skip = true;
-
-			if ($skip)
 				continue;
 
 			// Skip directories or files that are named the same.
@@ -1737,37 +1724,13 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					}
 				}
 
-				// Modification.
-				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
-				{
-					$sort_id['modification']++;
-					$sort_id['mod']++;
-					$packages['modification'][strtolower($packageInfo[$sort]) . '_' . $sort_id['mod']] = md5($package);
-					$context['available_modification'][md5($package)] = $packageInfo;
-				}
-				// Avatar package.
-				elseif ($packageInfo['type'] == 'avatar')
-				{
-					$sort_id[$packageInfo['type']]++;
-					$packages['avatar'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_avatar'][md5($package)] = $packageInfo;
-				}
-				// Language package.
-				elseif ($packageInfo['type'] == 'language')
-				{
-					$sort_id[$packageInfo['type']]++;
-					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_language'][md5($package)] = $packageInfo;
-				}
-				// This might be a 3rd party section.
-				elseif (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]))
+				if (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
 					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
-				// Other stuff.
-				else
+				elseif (!isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == 'unknown')
 				{
 					$sort_id['unknown']++;
 					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
