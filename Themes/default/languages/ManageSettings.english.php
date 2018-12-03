@@ -8,7 +8,7 @@ $txt['modification_settings_desc'] = 'This page contains settings added by any m
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
 
-$txt['poll_mode'] = 'Poll mode';
+$txt['pollMode'] = 'Poll mode';
 $txt['disable_polls'] = 'Disable polls';
 $txt['enable_polls'] = 'Enable polls';
 $txt['polls_as_topics'] = 'Show existing polls as topics';
