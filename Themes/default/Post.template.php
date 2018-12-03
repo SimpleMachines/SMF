@@ -331,9 +331,9 @@ function template_main()
 								', $context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . ($context['notify'] || !empty($options['auto_notify']) || $context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . $txt['notify_replies'] . '</label></li>' : '', '
 								', $context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . $context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . ($context['locked'] ? ' checked' : '') . ' value="1"> ' . $txt['lock_topic'] . '</label></li>' : '', '
 								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . ($context['back_to_topic'] || !empty($options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . $txt['back_to_topic'] . '</label></li>
-								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after'] . '</label></li>' : '', '
+								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after_posting'] . '</label></li>' : '', '
 								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', $context['use_smileys'] ? '' : ' checked', ' value="NS"> ', $txt['dont_use_smileys'], '</label></li>', '
-								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after2'] . '</label></li>' : '', '
+								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after_posting'] . '</label></li>' : '', '
 								', $context['can_announce'] && $context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty($context['announce']) ? ' checked' : '') . '> ' . $txt['announce_topic'] . '</label></li>' : '', '
 								', $context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . ($context['show_approval'] === 2 ? ' checked' : '') . '> ' . $txt['approve_this_post'] . '</label></li>' : '', '
 							</ul>
@@ -388,11 +388,11 @@ function template_main()
 										<input type="text" name="attachBBC" value="" readonly>
 										<div class="attached_BBC_width_height">
 											<div class="attached_BBC_width">
-												<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+												<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
 												<input type="number" name="attached_BBC_width" min="0" value="" placeholder="auto">
 											</div>
 											<div class="attached_BBC_height">
-												<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+												<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
 												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
 											</div>
 										</div>
@@ -420,8 +420,8 @@ function template_main()
 							<dd class="smalltext fallback">
 								<div id="attachUpload" class="descbox">
 									<h5>', $txt['attach_drop_zone'], '</h5>
-									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'], '</a>
-									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'], '</a>
+									<a class="button" id="attach-cancelAll">', $txt['attached_cancel_all'], '</a>
+									<a class="button" id="attach-uploadAll">', $txt['attached_upload_all'], '</a>
 									<a class="button fileinput-button">', $txt['attach_add'], '</a>
 									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
