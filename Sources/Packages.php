@@ -1729,6 +1729,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				}
 				elseif (!isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == 'unknown')
 				{
+					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
 					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_unknown'][md5($package)] = $packageInfo;
