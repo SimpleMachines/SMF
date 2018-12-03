@@ -1727,14 +1727,14 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				if (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
-					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort]) . '_' . $sort_id[$packageInfo['type']]] = md5($package);
 					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
 				elseif (!isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == 'unknown')
 				{
 					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
-					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
+					$packages['unknown'][strtolower($packageInfo[$sort]) . '_' . $sort_id['unknown']] = md5($package);
 					$context['available_unknown'][md5($package)] = $packageInfo;
 				}
 			}
