@@ -767,7 +767,7 @@ function AdminSearchInternal()
 	foreach ($settings_search as $setting_area)
 	{
 		// Get a list of their variables.
-		$config_vars = $setting_area[0](true);
+		$config_vars = call_user_func($setting_area[0], true);
 
 		foreach ($config_vars as $var)
 			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch', 'desc')))
