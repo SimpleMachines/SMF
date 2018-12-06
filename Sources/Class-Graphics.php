@@ -288,6 +288,7 @@ class gif_color_table
 
 	public function colorIndex($rgb)
 	{
+		$dif  = 0;
 		$rgb  = intval($rgb) & 0xFFFFFF;
 		$r1   = ($rgb & 0x0000FF);
 		$g1   = ($rgb & 0x00FF00) >>  8;
