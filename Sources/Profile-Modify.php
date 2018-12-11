@@ -2312,7 +2312,7 @@ function alert_count($memID, $unread = false)
 				AND id_board IN ({array_int:boards})',
 			array(
 				'boards' => array_keys($possible_boards),
-				'query_see_board' => $query_see_board
+				'query_see_board' => !empty($query_see_board) ? $query_see_board : '',
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -2323,7 +2323,7 @@ function alert_count($memID, $unread = false)
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $extra)
 		if (!isset($boards[$extra['board']]))
-			unset($alerts[$id_alert]);		
+			unset($alerts[$id_alert]);
 
 	return count($alerts);
 }
