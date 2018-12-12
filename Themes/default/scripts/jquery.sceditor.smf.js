@@ -417,12 +417,11 @@ sceditor.formats.bbcode.set(
 			// Is this an attachment?
 			if (element.attr('data-attachment'))
 			{
-				if (element.attr('title'))
-					attribs += ' name=' + element.attr('title');
+				attribs = " id=" + element.attr('data-attachment') + attribs;
 				if (element.attr('data-type'))
-					attribs += ' type=' + 	element.attr('data-type');
+					attribs += " type=" + element.attr('data-type');
 
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+				return '[attach' + attribs + ']' + element.attr('title') + '[/attach]';
 			}
 			else if (element.attr('title'))
 				attribs += " title=" + element.attr('title');
@@ -464,55 +463,65 @@ sceditor.formats.bbcode.set(
 					return element.style ? element.style[name] : null;
 				};
 
-			// only add width and height if one is specified
+			attribs += " id=" + element.attr('data-attachment');
 			if (element.attr('width') || style('width'))
 				attribs += " width=" + $(element).width();
 			if (element.attr('height') || style('height'))
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('title'))
-				attribs += " name=" + element.attr('title');
 			if (element.attr('data-type'))
 				attribs += " type=" + element.attr('data-type');
 
-			return '[attach' + attribs + ']' + (element.attr('data-attachment') ? element.attr('data-attachment') : content) + '[/attach]';
+			if (element.attr('title') && element.attr('data-type').indexOf("image") === 0)
+				content = element.attr('title');
+
+			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
-		html: function (token, attrs, id) {
+		html: function (token, attrs, content) {
 			var parts,
 				attribs = '';
+
+			// Handles SMF 2.1 final format
+			if (typeof attrs.id !== "undefined")
+				var id = attrs.id;
+			// Handles format from SMF 2.1 betas
+			else {
+				var id = content;
+				if (typeof attrs.name !== "undefined")
+					content = attrs.name;
+			}
 
 			// If id is not an integer, bail out
 			if (!$.isNumeric(id) || Math.floor(id) != +id || +id <= 0) {
 
+				attribs += ' id=' + id;
 				if (typeof attrs.width !== "undefined")
 					attribs += ' width=' + attrs.width;
 				if (typeof attrs.height !== "undefined")
 					attribs += ' height=' + attrs.height;
 				if (typeof attrs.alt !== "undefined")
 					attribs += ' alt=' + attrs.alt;
-				if (typeof attrs.name !== "undefined")
-					attribs += ' name=' + attrs.name;
 				if (typeof attrs.type !== "undefined")
 					attribs += ' type=' + attrs.type;
 
-				return '[attach' + attribs + ']' + id + '[/attach]';
+				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
 			attribs += ' data-attachment="' + id + '"'
-			if (typeof attrs.width !== "undefined")
-				attribs += ' width="' + attrs.width + '"';
-			if (typeof attrs.height !== "undefined")
-				attribs += ' height="' + attrs.height + '"';
-			if (typeof attrs.alt !== "undefined")
-				attribs += ' alt="' + attrs.alt + '"';
 			if (typeof attrs.type !== "undefined")
 				attribs += ' data-type="' + attrs.type + '"';
-			if (typeof attrs.name !== "undefined")
-				attribs += ' title="' + attrs.name + '"';
+			if (typeof attrs.alt !== "undefined")
+				attribs += ' alt="' + attrs.alt + '"';
 
 			// Is this an image?
 			if ((typeof attrs.type !== "undefined" && attrs.type.indexOf("image") === 0)) {
+				attribs += ' title="' + content + '"';
+				if (typeof attrs.width !== "undefined")
+					attribs += ' width="' + attrs.width + '"';
+				if (typeof attrs.height !== "undefined")
+					attribs += ' height="' + attrs.height + '"';
+
 				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
 				contentIMG = new Image();
 					contentIMG.src = contentUrl;
@@ -520,7 +529,7 @@ sceditor.formats.bbcode.set(
 
 			// If not an image, show a boring ol' link
 			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
-				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + (typeof attrs.name !== "undefined" ? attrs.name : id) + '</a>';
+				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + content + '</a>';
 			// Show our purdy li'l picture
 			else
 				return '<img' + attribs + ' src="' + contentUrl + '">';
@@ -555,13 +564,13 @@ sceditor.formats.bbcode.set(
 			// Is this an attachment?
 			else if (typeof element.attr('data-attachment') !== "undefined")
 			{
-				var attribs = '';
-				if (typeof element.attr('title') !== "undefined")
-					attribs += ' name=' + element.attr('title');
+				var attribs = ' id=' + element.attr('data-attachment');
+				if (typeof element.attr('alt') !== "undefined")
+					attribs += ' alt=' + element.attr('alt');
 				if (typeof element.attr('data-type') !== "undefined")
 					attribs += ' type=' + element.attr("data-type");
 
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
 			else
@@ -719,7 +728,7 @@ sceditor.formats.bbcode.set(
 
 			/*
 			 * This fixes GH Bug #2845
-			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]". 
+			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]".
 			*/
 			if (attr_author == '' && attrs.defaultattr != '')
 				attr_author = attrs.defaultattr;

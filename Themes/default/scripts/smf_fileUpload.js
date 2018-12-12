@@ -27,11 +27,10 @@ function smf_fileUpload(oOptions) {
 				bbcOptionalParams = {
 					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
 					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
-					name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
 					type: ' type=' + mime_type,
 				};
 
-			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type + ']' + file.attachID + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + bbcOptionalParams.type + ']' + (typeof file.name !== "undefined" ? file.name : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
