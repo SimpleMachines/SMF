@@ -1397,13 +1397,15 @@ function statPanel($memID)
 		SELECT
 			HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 			COUNT(*) AS post_count
-		FROM {db_prefix}messages
-		WHERE id_member = {int:current_member}' . ($modSettings['totalMessages'] > 100000 ? '
-			AND id_topic > {int:top_ten_thousand_topics}' : '') . '
+		FROM (
+			SELECT poster_time, id_msg 
+			FROM {db_prefix}messages WHERE id_member = {int:current_member}
+			ORDER BY id_msg DESC
+			LIMIT 10000
+		) a
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'top_ten_thousand_topics' => $modSettings['totalTopics'] - 10000,
 			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
 		)
 	);
