@@ -213,7 +213,7 @@ function summary($memID)
 }
 
 /**
- * Fetch the alerts a user currently has.
+ * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member
  * @param bool $all Whether to fetch all alerts or just unread ones
@@ -226,8 +226,14 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
-	$query_see_board = build_query_board($memID);
-	$query_see_board = $query_see_board['query_see_board'];
+	// If this isn't the current user, get their boards.
+	if (!isset($user_info) || $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -394,7 +400,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 }
 
 /**
- * Shows all alerts for this user
+ * Shows all alerts for a member
  *
  * @param int $memID The ID of the member
  */
@@ -480,7 +486,7 @@ function showAlerts($memID)
 }
 
 /**
- * Show all posts by the current user
+ * Show all posts by a member
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
@@ -834,7 +840,7 @@ function showPosts($memID)
 }
 
 /**
- * Show all the attachments of a user.
+ * Show all the attachments belonging to a member.
  *
  * @param int $memID The ID of the member
  */
@@ -958,7 +964,7 @@ function showAttachments($memID)
 }
 
 /**
- * Get a list of attachments for this user. Callback for the list in showAttachments()
+ * Get a list of attachments for a member. Callback for the list in showAttachments()
  *
  * @param int $start Which item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show on each page
@@ -1019,7 +1025,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 }
 
 /**
- * Gets the total number of attachments for the user
+ * Gets the total number of attachments for a member
  *
  * @param array $boardsAllowed An array of the IDs of the boards they can see
  * @param int $memID The ID of the member
