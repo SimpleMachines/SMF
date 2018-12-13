@@ -2319,6 +2319,8 @@ function alert_count($memID, $unread = false)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$boards[$row['id_board']] = $row['id_board'];
+
+		$smcFunc['db_free_result']($request);
 	}
 	unset($possible_boards);
 
