@@ -2302,6 +2302,8 @@ function alert_count($memID, $unread = false)
 		$query_see_board = build_query_board($memID);
 		$query_see_board = $query_see_board['query_see_board'];
 	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	// Find only the boards they can see.
 	if (!empty($possible_boards))
@@ -2309,11 +2311,10 @@ function alert_count($memID, $unread = false)
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board
 			FROM {db_prefix}boards AS b
-			WHERE ' . (!empty($query_see_board) ? '{raw:query_see_board}' : '{query_see_board}') . '
+			WHERE ' . $query_see_board . '
 				AND id_board IN ({array_int:boards})',
 			array(
 				'boards' => $possible_boards,
-				'query_see_board' => !empty($query_see_board) ? $query_see_board : '',
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
