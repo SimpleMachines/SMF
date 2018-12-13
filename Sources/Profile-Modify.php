@@ -2322,7 +2322,7 @@ function alert_count($memID, $unread = false)
 
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $extra)
-		if (!isset($boards[$extra['board']]))
+		if (isset($extra['board']) && !isset($boards[$extra['board']]))
 			unset($alerts[$id_alert]);
 
 	return count($alerts);
