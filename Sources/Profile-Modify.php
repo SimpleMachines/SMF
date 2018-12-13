@@ -2289,11 +2289,12 @@ function alert_count($memID, $unread = false)
 	{
 		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 
-		// Only add to possible boards ones that are not empty and that we haven't set before.
-		if (!empty($alerts[$row['id_alert']]['board']) && !isset($possible_boards[$alerts[$row['id_alert']]['board']]))
-			$possible_boards[$alerts[$row['id_alert']]['board']] = $alerts[$row['id_alert']]['board'];
+		if (!empty($alerts[$row['id_alert']]['board']))
+			$possible_boards[] = $alerts[$row['id_alert']]['board'];
 	}
 	$smcFunc['db_free_result']($request);
+
+	$possible_boards = array_unique($possible_boards);
 
 	// If this isn't the current user, get their boards.
 	if (!isset($user_info) || $user_info['id'] != $memID)
@@ -2311,7 +2312,7 @@ function alert_count($memID, $unread = false)
 			WHERE ' . (!empty($query_see_board) ? '{raw:query_see_board}' : '{query_see_board}') . '
 				AND id_board IN ({array_int:boards})',
 			array(
-				'boards' => array_keys($possible_boards),
+				'boards' => $possible_boards,
 				'query_see_board' => !empty($query_see_board) ? $query_see_board : '',
 			)
 		);
