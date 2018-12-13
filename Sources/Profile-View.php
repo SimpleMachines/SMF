@@ -347,7 +347,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	{
 		if (!empty($alert['text']))
 			continue;
+
 		if (isset($alert['extra']['board']))
+		{
 			if ($boards[$alert['extra']['board']] == $txt['board_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -355,7 +357,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
+		}
+
 		if (isset($alert['extra']['topic']))
+		{
 			if ($alert['extra']['topic'] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -363,7 +368,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
+		}
+
 		if ($alert['content_type'] == 'msg')
+		{
 			if ($msgs[$alert['content_id']] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -371,6 +379,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+		}
+
 		if ($alert['content_type'] == 'profile')
 			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
 
