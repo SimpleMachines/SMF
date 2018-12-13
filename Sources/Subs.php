@@ -386,7 +386,7 @@ function updateMemberData($members, $data)
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
 		{
-			include_once($sourcedir . '/Profile-View.php');
+			include_once($sourcedir . '/Profile-Modify.php');
 			if (is_array($members))
 			{
 				$val = 'CASE ';
