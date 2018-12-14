@@ -1082,7 +1082,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
@@ -1121,9 +1121,6 @@ if (!empty($select_columns))
 
 			if (!empty($row['msn']))
 				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
-
-			if (!empty($row['yim']))
-				$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
 
 			if (!empty($row['location']))
 				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);

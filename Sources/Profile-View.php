@@ -213,7 +213,7 @@ function summary($memID)
 }
 
 /**
- * Fetch the alerts a user currently has.
+ * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member
  * @param bool $all Whether to fetch all alerts or just unread ones
@@ -226,8 +226,14 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
-	$query_see_board = build_query_board($memID);
-	$query_see_board = $query_see_board['query_see_board'];
+	// If this isn't the current user, get their boards.
+	if (!isset($user_info) || $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -341,7 +347,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	{
 		if (!empty($alert['text']))
 			continue;
+
 		if (isset($alert['extra']['board']))
+		{
 			if ($boards[$alert['extra']['board']] == $txt['board_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -349,7 +357,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
+		}
+
 		if (isset($alert['extra']['topic']))
+		{
 			if ($alert['extra']['topic'] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -357,7 +368,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
+		}
+
 		if ($alert['content_type'] == 'msg')
+		{
 			if ($msgs[$alert['content_id']] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -365,6 +379,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+		}
+
 		if ($alert['content_type'] == 'profile')
 			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
 
@@ -394,7 +410,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 }
 
 /**
- * Shows all alerts for this user
+ * Shows all alerts for a member
  *
  * @param int $memID The ID of the member
  */
@@ -480,7 +496,7 @@ function showAlerts($memID)
 }
 
 /**
- * Show all posts by the current user
+ * Show all posts by a member
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
@@ -834,7 +850,7 @@ function showPosts($memID)
 }
 
 /**
- * Show all the attachments of a user.
+ * Show all the attachments belonging to a member.
  *
  * @param int $memID The ID of the member
  */
@@ -958,7 +974,7 @@ function showAttachments($memID)
 }
 
 /**
- * Get a list of attachments for this user. Callback for the list in showAttachments()
+ * Get a list of attachments for a member. Callback for the list in showAttachments()
  *
  * @param int $start Which item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show on each page
@@ -1019,7 +1035,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 }
 
 /**
- * Gets the total number of attachments for the user
+ * Gets the total number of attachments for a member
  *
  * @param array $boardsAllowed An array of the IDs of the boards they can see
  * @param int $memID The ID of the member

@@ -3258,7 +3258,7 @@ function template_profile_tfa()
 
 	else
 		echo '
-								', sprintf($txt['tfa_profile_enabled'], !empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=tfadisable');
+								', sprintf($txt['tfa_profile_enabled'], (!empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=profile;u=' . $context['id_member'] . ';area=tfadisable');
 
 	echo '
 							</dd>';
