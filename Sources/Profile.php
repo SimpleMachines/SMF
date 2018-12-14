@@ -859,12 +859,15 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
+	// No funny business allowed
+	$_REQUEST['counter'] = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+
 	$context['unread_alerts'] = array();
-	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	if ($_REQUEST['counter'] < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - $_REQUEST['counter']);
 	}
 }
 
