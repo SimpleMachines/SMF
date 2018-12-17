@@ -1247,9 +1247,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// No image. Show a link.
 					else
-					{
-						$returnContext .= '<a href="' . $currentAttachment['href'] . '">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
-					}
+						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
 
 					// Gotta append what we just did.
 					$data = $returnContext;
