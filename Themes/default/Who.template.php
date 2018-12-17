@@ -160,7 +160,7 @@ function template_credits()
 			else
 			{
 				$last_peep = array_pop($group['members']);
-				echo implode(', ', $group['members']), ' ', $txt['credits_and'], ' ', $last_peep;
+				echo implode(', ', $group['members']), ', ', $txt['credits_and'], ' ', $last_peep;
 			}
 
 			echo '
