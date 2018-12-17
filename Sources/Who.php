@@ -255,7 +255,7 @@ function Who()
  *    use whoallow_ACTION and add a list of possible permissions to the
  *    $allowedActions array, using ACTION as the key.
  *
- * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
+ * @param mixed $urls a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
  * @param string|bool $preferred_prefix = false
  * @return array, an array of descriptions if you passed an array, otherwise the string describing their current location.
  */
@@ -592,7 +592,7 @@ function Credits($in_admin = false)
 						'Jessica "Suki" Gonz&aacute;lez',
 						'Karl "RegularExpression" Benson',
 						'Matthew "Labradoodle-360" Kerle',
-						$user_info['is_admin'] ? 'Matt "Grudge" Wolf': 'Grudge',
+						$user_info['is_admin'] ? 'Matt "Grudge" Wolf' : 'Grudge',
 						'Michael "Thantos" Miller',
 						'Norv',
 						'Peter "Arantor" Spicer',
@@ -825,13 +825,13 @@ function Credits($in_admin = false)
 			$credit_info = $smcFunc['json_decode']($row['credits'], true);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
-			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));
+			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="' . $smcFunc['htmlspecialchars']($credit_info['licenseurl']) . '">' . $smcFunc['htmlspecialchars']($credit_info['license']) . '</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));
 			$version = $txt['credits_version'] . ' ' . $row['version'];
 			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ': ' . $version;
 
 			// build this one out and stash it away
 			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
-			$mods[] = $mod_name . (!empty($license) ? ' | ' . $license  : '') . (!empty($copyright) ? ' | ' . $copyright  : '');
+			$mods[] = $mod_name . (!empty($license) ? ' | ' . $license : '') . (!empty($copyright) ? ' | ' . $copyright : '');
 		}
 		cache_put_data('mods_credits', $mods, 86400);
 	}

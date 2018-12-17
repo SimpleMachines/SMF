@@ -66,7 +66,7 @@ function template_error_log()
 		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errlog'], '
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['errorlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
@@ -113,7 +113,7 @@ function template_error_log()
 	if (count($context['errors']) == 0)
 		echo '
 				<tr class="windowbg">
-					<td class="centertext" colspan="2">', $txt['errlog_no_entries'], '</td>
+					<td class="centertext" colspan="2">', $txt['errorlog_no_entries'], '</td>
 				</tr>';
 
 	// We have some errors, must be some mods installed :P
@@ -248,8 +248,8 @@ function template_attachment_errors()
 				<div class="noticebox">',
 					$context['error_message'], '
 				</div>';
-	
-	if (!empty($context['back_link'])) 
+
+	if (!empty($context['back_link']))
 		echo '
 				<a class="button" href="', $scripturl, $context['back_link'], '">', $txt['back'], '</a>';
 
@@ -308,7 +308,6 @@ function template_show_backtrace()
 			echo '
 					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
 
-
 		echo '
 				</ul>
 			</div>';
@@ -328,12 +327,12 @@ function template_show_backtrace()
 		foreach ($context['error_info']['backtrace'] as $key => $value)
 		{
 			//Check for existing
-			if (!property_exists($value,'file') || empty($value->file))
+			if (!property_exists($value, 'file') || empty($value->file))
 				$value->file = $txt['unknown'];
 			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 
-				echo '
+			echo '
 					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
 		}
 

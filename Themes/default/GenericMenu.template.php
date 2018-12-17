@@ -51,7 +51,7 @@ function template_generic_menu_dropdown_above()
 
 	// It's possible that some pages have their own tabs they wanna force...
 // 	if (!empty($context['tabs']))
-		template_generic_menu_tabs($menu_context);
+	template_generic_menu_tabs($menu_context);
 }
 
 /**
@@ -92,7 +92,7 @@ function template_generic_menu(&$menu_context)
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
-					$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
+				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
 			if (!empty($area['subsections']))
@@ -175,7 +175,7 @@ function template_generic_menu_tabs(&$menu_context)
 				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 					$tab_context['tabs'][$id]['url'] = $tab['url'];
 
-				// Any additional paramaters for the url?
+				// Any additional parameters for the url?
 				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
 

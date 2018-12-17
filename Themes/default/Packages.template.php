@@ -273,7 +273,7 @@ function template_view_package()
 						$operation_num = 1;
 						foreach ($action['operations'] as $operation)
 						{
-							// Determine the possition text.
+							// Determine the position text.
 							$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 							echo '
@@ -651,7 +651,7 @@ function template_browse()
 		{
 			var default_version = "', $context['default_version'], '";
 			$("#ve").find("option").filter(function(index) {
-    			return default_version === $(this).text();
+				return default_version === $(this).text();
 			}).attr("selected", "selected");
 			return false;
 		}

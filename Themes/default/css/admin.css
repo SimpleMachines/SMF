@@ -185,7 +185,7 @@ fieldset.admin_group .inactive {
 	height: 32px;
 }
 .large_admin_menu_icon::before {
-	background: url(../images/icons/admin_sprite.png) no-repeat  -5px -47px;
+	background: url(../images/icons/admin_sprite.png) no-repeat -5px -47px;
 	margin: 0 auto;
 	display: block;
 	content: '';
@@ -426,7 +426,8 @@ tr[id^="operation_"] .table_grid {
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
 }
-#manage_boards dl textarea, #manage_boards dl table{
+
+#manage_boards dl textarea, #manage_boards dl table {
 	margin: 0 0 8px 0;
 }
 #manage_boards span.post_group, #manage_boards span.regular_members {
@@ -437,7 +438,7 @@ tr[id^="operation_"] .table_grid {
 	margin: 2px 2px 0px 12px;
 }
 .select_all_box {
-	display:none;
+	display: none;
 }
 
 /* Styles for the manage members section. */
@@ -681,7 +682,7 @@ h3.config_hd {
 }
 
 .move_smileys .selected_item {
-	border-color: #FFB42D;
+	border-color: #ffb42d;
 }
 
 /* Progress bars */

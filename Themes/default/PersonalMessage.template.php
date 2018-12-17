@@ -230,7 +230,7 @@ function template_folder()
 
 				foreach ($message['custom_fields']['above_member'] as $custom)
 					echo '
-							<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+							<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 				echo '
 						</ul>
@@ -256,10 +256,10 @@ function template_folder()
 			echo '
 				', $message['member']['link'];
 
-				// Custom fields AFTER the username?
-				if (!empty($message['custom_fields']['after_member']))
-					foreach ($message['custom_fields']['after_member'] as $custom)
-						echo '
+			// Custom fields AFTER the username?
+			if (!empty($message['custom_fields']['after_member']))
+				foreach ($message['custom_fields']['after_member'] as $custom)
+					echo '
 						<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
 
 			echo '
@@ -279,7 +279,7 @@ function template_folder()
 			if (!empty($message['custom_fields']['below_avatar']))
 				foreach ($message['custom_fields']['below_avatar'] as $custom)
 					echo '
-						<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 			if (!$message['member']['is_guest'])
 				echo '
@@ -321,7 +321,7 @@ function template_folder()
 
 					foreach ($message['custom_fields']['icons'] as $custom)
 						echo '
-								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 					echo '
 							</ol>
@@ -385,7 +385,7 @@ function template_folder()
 				if (!empty($message['custom_fields']['standard']))
 					foreach ($message['custom_fields']['standard'] as $custom)
 						echo '
-						<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
+						<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
 
 				// Are we showing the warning status?
 				if ($message['member']['can_see_warning'])
@@ -396,7 +396,7 @@ function template_folder()
 				if (!empty($message['custom_fields']['bottom_poster']))
 					foreach ($message['custom_fields']['bottom_poster'] as $custom)
 						echo '
-						<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 			}
 
 			// Done with the information about the poster... on to the post itself.
@@ -485,7 +485,7 @@ function template_folder()
 							</ul>';
 
 			if ($message['can_report'] || $context['can_send_pm'])
-			echo '
+				echo '
 						</div><!-- .under_message -->';
 
 			// Are there any custom profile fields for above the signature?
@@ -497,7 +497,7 @@ function template_folder()
 
 				foreach ($message['custom_fields']['above_signature'] as $custom)
 					echo '
-								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 				echo '
 							</ul>
@@ -520,7 +520,7 @@ function template_folder()
 
 				foreach ($message['custom_fields']['below_signature'] as $custom)
 					echo '
-								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 				echo '
 							</ul>
@@ -656,7 +656,7 @@ function template_subject_list()
 	while ($message = $context['get_pmessage']('subject'))
 	{
 		echo '
-			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '','">
+			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '', '">
 				<td class="table_icon pm_icon">
 					<script>
 						currentLabels[', $message['id'], '] = {';
@@ -680,7 +680,7 @@ function template_subject_list()
 				<td class="pm_time">', $message['time'], '</td>
 				<td class="pm_subject">
 					', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a>
-					<span class="pm_inline_time"><span class="generic_icons ', ($context['from_or_to']=='to' && count($message['recipients']['to'])>1) ? 'people' : 'members', '"></span> ', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="generic_icons time_online"></span> ', $message['time'], '</span>
+					<span class="pm_inline_time"><span class="generic_icons ', ($context['from_or_to'] == 'to' && count($message['recipients']['to']) > 1) ? 'people' : 'members', '"></span> ', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '  <span class="generic_icons time_online"></span> ', $message['time'], '</span>
 				</td>
 				<td class="pm_from_to">
 					', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '
@@ -957,13 +957,13 @@ function template_search_results()
 				// You can only reply if they are not a guest...
 				if (!$message['member']['is_guest'])
 					echo '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote;u=', $context['folder'] == 'sent' ? '' : $message['member']['id'], '">', $quote_button , '</a>', $context['menu_separator'], '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '">', $reply_button , '</a> ', $context['menu_separator'];
+					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote;u=', $context['folder'] == 'sent' ? '' : $message['member']['id'], '">', $quote_button, '</a>', $context['menu_separator'], '
+					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '">', $reply_button, '</a> ', $context['menu_separator'];
 
 				// This is for "forwarding" - even if the member is gone.
 				else
 					echo '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote">', $quote_button , '</a>', $context['menu_separator'];
+					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote">', $quote_button, '</a>', $context['menu_separator'];
 			}
 
 			echo '
@@ -1063,7 +1063,7 @@ function template_send()
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '', empty($context['post_error']['messages']) ? ' hidden' : '', '" id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
@@ -1119,14 +1119,13 @@ function template_send()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>';
 
 	// Show BBC buttons, smileys and textbox.
 	echo '
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
-
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
@@ -1455,7 +1454,7 @@ function template_labels()
 			if ($label['id'] == -1)
 				continue;
 
-				echo '
+			echo '
 				<tr class="windowbg">
 					<td>
 						<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30">
@@ -1472,7 +1471,7 @@ function template_labels()
 		echo '
 		<div class="block righttext">
 			<input type="submit" name="save" value="', $txt['save'], '" class="button">
-			<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" data-confirm="', $txt['pm_labels_delete'] ,'" class="button you_sure">
+			<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" data-confirm="', $txt['pm_labels_delete'], '" class="button you_sure">
 		</div>';
 
 	echo '
@@ -1636,7 +1635,7 @@ function template_rules()
 	if (!empty($context['rules']))
 		echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="submit" name="delselected" value="', $txt['pm_delete_selected_rule'], '" data-confirm="', $txt['pm_js_delete_rule_confirm'] ,'" class="button smalltext you_sure">';
+			<input type="submit" name="delselected" value="', $txt['pm_delete_selected_rule'], '" data-confirm="', $txt['pm_js_delete_rule_confirm'], '" class="button smalltext you_sure">';
 
 	echo '
 		</div>
@@ -1879,9 +1878,9 @@ function template_add_rule()
 
 		echo '
 				<select name="acttype[', $k, ']" id="acttype', $k, '" onchange="updateActionDef(', $k, '); rebuildRuleDesc();">
-					<option value="">', $txt['pm_rule_sel_action'] , ':</option>
-					<option value="lab"', $action['t'] == 'lab' ? ' selected' : '', '>', $txt['pm_rule_label'] , '</option>
-					<option value="del"', $action['t'] == 'del' ? ' selected' : '', '>', $txt['pm_rule_delete'] , '</option>
+					<option value="">', $txt['pm_rule_sel_action'], ':</option>
+					<option value="lab"', $action['t'] == 'lab' ? ' selected' : '', '>', $txt['pm_rule_label'], '</option>
+					<option value="del"', $action['t'] == 'del' ? ' selected' : '', '>', $txt['pm_rule_delete'], '</option>
 				</select>
 				<span id="labdiv', $k, '">
 					<select name="labdef[', $k, ']" id="labdef', $k, '" onchange="rebuildRuleDesc();">
@@ -1921,7 +1920,7 @@ function template_add_rule()
 	</form>';
 
 	// Now setup all the bits!
-		echo '
+	echo '
 	<script>';
 
 	foreach ($context['rule']['criteria'] as $k => $c)
@@ -1993,7 +1992,7 @@ function template_showPMDrafts()
 			</div>
 			<ul class="quickbuttons">
 				<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons modifybutton"></span>', $txt['draft_edit'], '</a></li>
-				<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'] ,'?" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
+				<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '?" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
 			</ul>
 		</div><!-- .windowbg -->';
 		}
