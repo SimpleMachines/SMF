@@ -649,7 +649,7 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Gwenwyfar',
 						// Customizers
-						'Sych0',
+						'Sami "SychO" Mazouz',
 						// Former Customizers
 						'Brannon "B" Hall',
 						'Diego Andrés',
