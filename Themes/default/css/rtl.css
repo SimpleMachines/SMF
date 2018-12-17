@@ -88,7 +88,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	padding-left: 9px;
 }
 
-
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 #main_menu {
@@ -293,7 +292,7 @@ ul.post_options {
 }
 ul.post_options li {
 	float: right;
-	margin: 0 2px ;
+	margin: 0 2px;
 }
 
 /* Styles for edit event section
@@ -314,7 +313,7 @@ ul.post_options li {
 #post_event ul.event_options {
 	padding: 0 .7em .7em 0;
 }
-#post_event #event_main select, #post_event ul.event_options li select, 
+#post_event #event_main select, #post_event ul.event_options li select,
 #post_event ul.event_options li input[type="checkbox"] {
 	margin: 0 0 0 1em;
 }
@@ -462,11 +461,11 @@ div#admin_menu {
 /* h3 HD Icons */
 h3.search_hd {
 	padding: 8px 45px 6px;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 h3.profile_hd {
 	padding: 8px 50px 8px 0;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 
 /* Activity by time */

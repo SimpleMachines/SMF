@@ -167,7 +167,6 @@ $txt['alert_group_paidsubs'] = 'Paid Subscriptions';
 $txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
 
-
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';
 $txt['notifications_topics_none'] = 'You are not currently receiving any notifications from topics.';

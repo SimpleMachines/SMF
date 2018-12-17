@@ -258,7 +258,6 @@ function issueWarning($memID)
 			$context['post_errors'][] = $txt[$error];
 	}
 
-
 	$context['page_title'] = $txt['profile_issue_warning'];
 
 	// Let's use a generic list to get all the current warnings

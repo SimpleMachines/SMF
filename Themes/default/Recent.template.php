@@ -21,7 +21,7 @@ function template_recent()
 	<div id="recent" class="main_section">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="xx"></span>',$txt['recent_posts'],'
+				<span class="xx"></span>', $txt['recent_posts'], '
 			</h3>
 		</div>
 		<div class="pagesection">', $context['page_index'], '</div>';
@@ -164,7 +164,7 @@ function template_unread()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							', !empty($topic['pages']) ? '<span id="pages'.$topic['first_post']['id'].'" class="topic_pages">'.$topic['pages'].'</span>' : '', '
+							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
@@ -315,7 +315,7 @@ function template_replies()
 							<p class="floatleft">
 								', $topic['first_post']['started_by'], '
 							</p>
-							', !empty($topic['pages']) ? '<span id="pages'.$topic['first_post']['id'].'" class="topic_pages">'.$topic['pages'].'</span>' : '', '
+							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>

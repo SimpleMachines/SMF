@@ -70,7 +70,7 @@ function template_main()
 
 		echo '
 		<div class="main_container">
-			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '','" id="category_', $category['id'], '">
+			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
 				<h3 class="catbg">';
 
 		// If this category even can collapse, show a link to collapse it.
@@ -85,35 +85,35 @@ function template_main()
 			</div>
 			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), '>';
 
-			/* Each board in each category's boards has:
-			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
-			children (see below.), link_children (easier to use.), children_new (are they new?),
-			topics (# of), posts (# of), link, href, and last_post. (see below.) */
-			foreach ($category['boards'] as $board)
-			{
-				echo '
+		/* Each board in each category's boards has:
+		new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
+		children (see below.), link_children (easier to use.), children_new (are they new?),
+		topics (# of), posts (# of), link, href, and last_post. (see below.) */
+		foreach ($category['boards'] as $board)
+		{
+			echo '
 				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
 					<div class="board_icon">', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
 					</div>
 					<div class="info">', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board);
 
-				// Show some basic information about the number of posts, etc.
-				echo '
+			// Show some basic information about the number of posts, etc.
+			echo '
 					</div>
 					<div class="board_stats">', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
 					</div>
-					<div class="lastpost ',!empty($board['last_post']['id']) ? 'lpr_border' : 'hidden', '">', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+					<div class="lastpost ', !empty($board['last_post']['id']) ? 'lpr_border' : 'hidden', '">', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 					</div>';
 
-				// Won't somebody think of the children!
-				if (function_exists('template_bi_' . $board['type'] . '_children'))
-					call_user_func('template_bi_' . $board['type'] . '_children', $board);
-				else
-					template_bi_board_children($board);
+			// Won't somebody think of the children!
+			if (function_exists('template_bi_' . $board['type'] . '_children'))
+				call_user_func('template_bi_' . $board['type'] . '_children', $board);
+			else
+				template_bi_board_children($board);
 
-				echo '
+			echo '
 				</div><!-- #board_[id] -->';
-			}
+		}
 
 		echo '
 			</div><!-- #category_[id]_boards -->
@@ -248,7 +248,7 @@ function template_bi_board_children($board)
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
-				$child['link'] = ''. ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a>' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
+				$child['link'] = '' . ($child['new'] ? '<a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')" class="new_posts">' . $txt['new'] . '</a>' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . '</a>';
 			else
 				$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 

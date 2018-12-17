@@ -273,11 +273,11 @@ $txt['upgrade_areyouready'] = 'Before the upgrade gets underway please review th
 $txt['upgrade_backup_table'] = 'Backup tables in your database with the prefix';
 $txt['upgrade_recommended'] = 'recommended!';
 $txt['upgrade_maintenace'] = 'Put the forum into maintenance mode during upgrade.';
-$txt['upgrade_maintenance_title'] = 'Maintenace Title:';
+$txt['upgrade_maintenance_title'] = 'Maintenance Title:';
 $txt['upgrade_maintenace_message'] = 'Maintenance Message:';
 $txt['upgrade_customize'] = 'Customize';
 $txt['upgrade_debug_info'] = 'Output extra debugging information';
-$txt['upgrade_empty_errlog'] = 'Empty error log before upgrading';
+$txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
