@@ -683,7 +683,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'd3vcho',
+						'Francisco "d3vcho" Domínguez',
 						// Localizers
 						'Nikola "Dzonny" Novaković',
 						'Robert Monden',

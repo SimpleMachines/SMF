@@ -8,17 +8,17 @@ Code Contributors:
 
 Aaron van Geffen, Adam Tallon, ahrasis, albertlast, AngelinaBelle, Antechinus, Antes, AnthonyCalandra, asmith20002,
 beratdogan, Bjoern "Bloc" Kristiansen, Blober, Brad "IchBin™" Grow, Bruno "margarett" Alves, Bryan "Runic" Deakin,
-butchs, Colin Schoen, Daniel15, Danilo Margarido, Dr. Deejay, Diego Andrés, Duncan Fairley, d3vcho, ElPlayer, emanuele,
-equinoxmatt, FearThe1337,  Feline, Graeme Spence, georaldc, gnif, Hendrik Jan "Compuart" Visser, hhy89, HorusGoul,
-Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jon "Sesquipedalian" Stovell, Jonathan
-"vbgamer45" Valentin, José, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood, Juan "JayBachatero" Hernandez, Karl
-"RegularExpression" Benson, Kays, liviuroman, live627, Marcus "cσσкιє мσηѕтєя" Forsberg, Matt "Grudge" Wolf, Matthew
-"Labradoodle-360" Kerle, Michael Colin Blaber, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, mikemill, motokochan,
-NIBOGO, nwsw, Norv, Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Rupurudu, Russell "sicommnend"
-Najar, Sebastiaan Stok,  Selman "[SiNaN]" Eser, sexwarrior, Shawn Bulen, Shitiz "Dragooon" Garg, siddhartha-gupta,
-skysky6, socram8888, Spuds, SSPMark, Steven "Fustrate" Hoffman, Underdog-01, Unknown W. "[Unknown]" Brackets, tekkla,
-Theodore "Orstio" Hildebrandt, Thomas Fok, tinoest, The-Craw, Thorsten "TE" Eurich, Trekkie101, Wade "sησω" Poulsen,
-winrules, Xarcell, Yoshi2889, and zilladotexe.
+butchs, Colin Schoen, Daniel15, Danilo Margarido, Dr. Deejay, Diego Andrés, Duncan Fairley, Francisco "d3vcho"
+Domínguez, ElPlayer, emanuele, equinoxmatt, FearThe1337,  Feline, Graeme Spence, georaldc, gnif, Hendrik Jan "Compuart"
+Visser, hhy89, HorusGoul, Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jon "Sesquipedalian"
+Stovell, Jonathan "vbgamer45" Valentin, José, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood, Juan "JayBachatero"
+Hernandez, Karl "RegularExpression" Benson, Kays, liviuroman, live627, Marcus "cσσкιє мσηѕтєя" Forsberg, Matt "Grudge"
+Wolf, Matthew "Labradoodle-360" Kerle, Michael Colin Blaber, Michael "Oldiesmann" Eshom, Michele "Illori" Davis,
+mikemill, motokochan, NIBOGO, nwsw, Norv, Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Rupurudu,
+Russell "sicommnend" Najar, Sebastiaan Stok,  Selman "[SiNaN]" Eser, sexwarrior, Shawn Bulen, Shitiz "Dragooon" Garg,
+siddhartha-gupta, skysky6, socram8888, Spuds, SSPMark, Steven "Fustrate" Hoffman, Underdog-01, Unknown W. "[Unknown]"
+Brackets, tekkla, Theodore "Orstio" Hildebrandt, Thomas Fok, tinoest, The-Craw, Thorsten "TE" Eurich, Trekkie101, Wade
+"sησω" Poulsen, winrules, Xarcell, Yoshi2889, and zilladotexe.
 
 
 
@@ -29,22 +29,22 @@ Kilpinen, Alexandre "Ap2" Patenaude, Amacythe, Andrea Hubacher, AngelinaBelle, A
 Ben Scott, Bigguy, Bjoern "Bloc" Kristiansen, BlackouT, Brad "IchBin™" Grow, Bruno "margarett" Alves, Bryan "Runic"
 Deakin, br360, Bugo, Bulakbol, Burpee, Chainy, Chas Large, Chris Cromer, M. Colin Blaber, Colin Schoen, Cristián "Anguz"
 Lávaque, Daniel15, Daniel Diehl, Dannii Willis, [darksteel], David Recordon, Derek Schwab, ディン1031, Diego Andrés,
-diplomat, Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, d3vcho, eldacar, Eliana Tamerin, emanuele, Eren
-Yasarkurt, Fiery, Gary M. Gadsdon, gbsothere, Goosemoose, Graeme Spence, GravuTrad, Harro, Hendrik Jan "Compuart"
-Visser, Horseman, Huw, Hyper Piranha, Irisado, Jack "akabugeyes" Thorsen, Jack.R.Abbit, Jade Elizabeth Trainor, James
-"Cheschire" Yarbro, Jan-Olof "Owdy" Eriksson, Jason "JBlaze" Clemons, Jeff Lewis, Jesse "Gobalopper" Reid, Jessica
-González, Jeremy "SleePy" Darwood, Jeremy "jerm" Strike, jerm, Jerry, JimM, Joey "Tyrsson" Smith, Joker™, John "live627"
-Rayes, Jon "Sesquipedalian" Stovell, Jonathan "vbgamer45" Valentin, Joseph Fung, Joshua "groundup" Dickerson, Juan
-"JayBachatero" Hernandez, Justin "metallica48423" O'Leary, Justyne, Karl "RegularExpression" Benson, Kays, Kevin
-"greyknight17" Hou, kegobeer, KGIII, Killer Possum, Kill Em All, Will "Kindred" Wagner, Kirby, K@, Liroy "CoreISP" van
-Hoewijk, Marcus "cσσкιє мσηѕтєя" Forsberg, Mashby, Matt "Grudge" Wolf, Matt "SlammedDime" Zuba, Matthew "Mattitude"
-Hall, Matthew "Labradoodle-360" Kerle, Mattitude, Mediman, Metho, Michael "Oldiesmann" Eshom, Michele "Illori" Davis,
-Mick G., MrPhil, Mystica, Nave, Nibogo, Nick "Fizzy" Dyer, Nick "Ha²", Nico "aliencowfarm" Boer, Niko, Nikola "Dzonny"
-Novaković, Norv, Nova "ChalkCat" Howard, Old Fossil, Omar Bazavilvazo, Paul_Pauline, Peter Duggan, Peter "Arantor"
-Spicer, Philip "Meriadoc" Renich, Piro "Sarge" Dhima, Pitti, Ralph "[n3rve]" Otowo, RedOne, Relyana, rickC, Ricky.,
-Rumbaar, Russell "NEND" Najar, Selman "[SiNaN]" Eser, Shitiz "Dragooon" Garg, snork13, Steven "Fustrate" Hoffman,
-Storman™, S-Ace, Theodore "Orstio" Hildebrandt, Thorsten "TE" Eurich, Tim, Tippmaster, Tomer "Lamper" Dean, Tony Reid,
-Wade "sησω" Poulsen, winrules, xenovanis, Yoshi2889, and ziycon.
+diplomat, Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, Francisco "d3vcho" Domínguez, eldacar, Eliana
+Tamerin, emanuele, Eren Yasarkurt, Fiery, Gary M. Gadsdon, gbsothere, Goosemoose, Graeme Spence, GravuTrad, Harro,
+Hendrik Jan "Compuart" Visser, Horseman, Huw, Hyper Piranha, Irisado, Jack "akabugeyes" Thorsen, Jack.R.Abbit, Jade
+Elizabeth Trainor, James "Cheschire" Yarbro, Jan-Olof "Owdy" Eriksson, Jason "JBlaze" Clemons, Jeff Lewis, Jesse
+"Gobalopper" Reid, Jessica González, Jeremy "SleePy" Darwood, Jeremy "jerm" Strike, jerm, Jerry, JimM, Joey "Tyrsson"
+Smith, Joker™, John "live627" Rayes, Jon "Sesquipedalian" Stovell, Jonathan "vbgamer45" Valentin, Joseph Fung, Joshua
+"groundup" Dickerson, Juan "JayBachatero" Hernandez, Justin "metallica48423" O'Leary, Justyne, Karl "RegularExpression"
+Benson, Kays, Kevin "greyknight17" Hou, kegobeer, KGIII, Killer Possum, Kill Em All, Will "Kindred" Wagner, Kirby, K@,
+Liroy "CoreISP" van Hoewijk, Marcus "cσσкιє мσηѕтєя" Forsberg, Mashby, Matt "Grudge" Wolf, Matt "SlammedDime" Zuba,
+Matthew "Mattitude" Hall, Matthew "Labradoodle-360" Kerle, Mattitude, Mediman, Metho, Michael "Oldiesmann" Eshom,
+Michele "Illori" Davis, Mick G., MrPhil, Mystica, Nave, Nibogo, Nick "Fizzy" Dyer, Nick "Ha²", Nico "aliencowfarm" Boer,
+Niko, Nikola "Dzonny" Novaković, Norv, Nova "ChalkCat" Howard, Old Fossil, Omar Bazavilvazo, Paul_Pauline, Peter Duggan,
+Peter "Arantor" Spicer, Philip "Meriadoc" Renich, Piro "Sarge" Dhima, Pitti, Ralph "[n3rve]" Otowo, RedOne, Relyana,
+rickC, Ricky., Rumbaar, Russell "NEND" Najar, Selman "[SiNaN]" Eser, Shitiz "Dragooon" Garg, snork13, Steven "Fustrate"
+Hoffman, Storman™, S-Ace, Theodore "Orstio" Hildebrandt, Thorsten "TE" Eurich, Tim, Tippmaster, Tomer "Lamper" Dean,
+Tony Reid, Wade "sησω" Poulsen, winrules, xenovanis, Yoshi2889, and ziycon.
 
 
 
