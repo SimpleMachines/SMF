@@ -567,7 +567,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Michele "Illori" Davis',
 						// Former Project Managers
-						'Jessica "Suki" Gonz&aacute;lez',
+						'Jessica "Suki" González',
 						'Kindred',
 					),
 				),
@@ -577,7 +577,7 @@ function Credits($in_admin = false)
 						// Lead Developer
 						'Jon "Sesquipedalian" Stovell',
 						// Developers
-						'Jessica "Suki" Gonz&aacute;lez',
+						'Jessica "Suki" González',
 						'John "live627" Rayes',
 						'Jeremy "SleePy" Darwood',
 
@@ -585,7 +585,7 @@ function Credits($in_admin = false)
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern "Bloc" Kristiansen',
-						'Brad "IchBin&trade;" Grow',
+						'Brad "IchBin™" Grow',
 						'Colin Schoen',
 						'emanuele',
 						'Hendrik Jan "Compuart" Visser',
@@ -638,8 +638,8 @@ function Credits($in_admin = false)
 						'Michele "Illori" Davis',
 						'Old Fossil',
 						'S-Ace',
-						'Storman&trade;',
-						'Wade "s&eta;&sigma;&omega;" Poulsen',
+						'Storman™',
+						'Wade "sησω" Poulsen',
 						'xenovanis',
 					),
 				),
@@ -656,13 +656,13 @@ function Credits($in_admin = false)
 						'Gary M. Gadsdon',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
-						'Jessica "Suki" Gonz&aacute;lez',
+						'Jessica "Suki" González',
 						'Joey "Tyrsson" Smith',
 						'Kays',
 						'NanoSector',
 						'Ricky.',
 						'Russell "NEND" Najar',
-						'SA&#8482;',
+						'SA™',
 					),
 				),
 				array(
@@ -685,7 +685,7 @@ function Credits($in_admin = false)
 						// Lead Localizer
 						'd3vcho',
 						// Localizers
-						'Nikola "Dzonny" Novakovi&cacute;',
+						'Nikola "Dzonny" Novakoviá',
 						'Robert Monden',
 						// Former Localizers
 						'Relyana',
@@ -701,8 +701,8 @@ function Credits($in_admin = false)
 						// Former Marketing
 						'Adish "(F.L.A.M.E.R)" Patel',
 						'Bryan "Runic" Deakin',
-						'Marcus "c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;" Forsberg',
-						'Mert "Antes" Al&#305;nbay ',
+						'Marcus "cσσкιє мσηѕтєя" Forsberg',
+						'Mert "Antes" Alınbay',
 						'Ralph "[n3rve]" Otowo',
 					),
 				),
@@ -746,7 +746,7 @@ function Credits($in_admin = false)
 					'albertlast',
 					'Brett Flannigan',
 					'Mark Rose',
-					'Ren&eacute;-Gilles "Nao &#23578;" Deberdt',
+					'René-Gilles "Nao 尚" Deberdt',
 					'tinoest',
 				),
 			),
@@ -782,27 +782,27 @@ function Credits($in_admin = false)
 	// Give credit to any graphic library's, software library's, plugins etc
 	$context['credits_software_graphics'] = array(
 		'graphics' => array(
-			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | &copy; 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
+			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | © 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
 			'<a href="https://techbase.kde.org/Projects/Oxygen/Licensing#Use_on_Websites">Oxygen Icons</a> | These icons are licensed under <a href="http://www.gnu.org/copyleft/lesser.html">GNU LGPLv3</a>',
 		),
 		'software' => array(
-			'<a href="https://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="https://github.com/jquery/jquery/blob/master/LICENSE.txt">The MIT License (MIT)</a>',
-			'<a href="https://briancherne.github.io/jquery-hoverIntent/">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="https://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="https://github.com/mzubala/jquery-custom-scrollbar">jQuery Custom Scrollbar</a> | &copy; Maciej Zubala | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="http://slippry.com/">jQuery Responsive Slider</a> | &copy; booncon ROCKETS | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="https://github.com/ichord/At.js">At.js</a> | &copy; chord.luo@gmail.com | Licensed under <a href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT">The MIT License (MIT)</a>',
-			'<a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications">HTML5 Desktop Notifications</a> | &copy; Tsvetan Tsvetkov | Licensed under <a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications/blob/master/License.txt">The Apache License Version 2.0</a>',
-			'<a href="https://github.com/enygma/gauth">GAuth Code Generator/Validator</a> | &copy; Chris Cornutt | Licensed under <a href="https://github.com/enygma/gauth/blob/master/LICENSE">The MIT License (MIT)</a>',
-			'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | &copy; Matias Meno | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="https://github.com/matthiasmullie/minify">Minify</a> | &copy; Matthias Mullie | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="https://github.com/true/php-punycode">PHP-Punycode</a> | &copy; True B.V. | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://jquery.org/">JQuery</a> | © John Resig | Licensed under <a href="https://github.com/jquery/jquery/blob/master/LICENSE.txt">The MIT License (MIT)</a>',
+			'<a href="https://briancherne.github.io/jquery-hoverIntent/">hoverIntent</a> | © Brian Cherne | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://www.sceditor.com/">SCEditor</a> | © Sam Clarke | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | © Abel Mohler | Licensed under <a href="https://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/mzubala/jquery-custom-scrollbar">jQuery Custom Scrollbar</a> | © Maciej Zubala | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://slippry.com/">jQuery Responsive Slider</a> | © booncon ROCKETS | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/ichord/At.js">At.js</a> | © chord.luo@gmail.com | Licensed under <a href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT">The MIT License (MIT)</a>',
+			'<a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications">HTML5 Desktop Notifications</a> | © Tsvetan Tsvetkov | Licensed under <a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications/blob/master/License.txt">The Apache License Version 2.0</a>',
+			'<a href="https://github.com/enygma/gauth">GAuth Code Generator/Validator</a> | © Chris Cornutt | Licensed under <a href="https://github.com/enygma/gauth/blob/master/LICENSE">The MIT License (MIT)</a>',
+			'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | © Matias Meno | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/matthiasmullie/minify">Minify</a> | © Matthias Mullie | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/true/php-punycode">PHP-Punycode</a> | © True B.V. | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
-			'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="https://fontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="https://fontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/consolamono"> ConsolaMono</a> | © 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="https://fontlibrary.org/en/font/phennig"> Phennig</a> | © 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 		),
 	);
 
@@ -828,7 +828,7 @@ function Credits($in_admin = false)
 		{
 			$credit_info = $smcFunc['json_decode']($row['credits'], true);
 
-			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
+			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' © ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
 			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="' . $smcFunc['htmlspecialchars']($credit_info['licenseurl']) . '">' . $smcFunc['htmlspecialchars']($credit_info['license']) . '</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));
 			$version = $txt['credits_version'] . ' ' . $row['version'];
 			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ': ' . $version;
@@ -845,7 +845,7 @@ function Credits($in_admin = false)
 		'smf' => sprintf($forum_copyright, $forum_version, $software_year),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
-				'Some Mod by Thantos &copy; 2010',
+				'Some Mod by Thantos © 2010',
 				$txt['some_mod_copyright'],
 		*/
 		'mods' => array(
