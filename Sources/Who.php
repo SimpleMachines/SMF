@@ -685,7 +685,7 @@ function Credits($in_admin = false)
 						// Lead Localizer
 						'd3vcho',
 						// Localizers
-						'Nikola "Dzonny" Novakoviá',
+						'Nikola "Dzonny" Novaković',
 						'Robert Monden',
 						// Former Localizers
 						'Relyana',
