@@ -4207,10 +4207,12 @@ function tfadisable($memID)
 					'groups' => $groups,
 				)
 			);
-			// They belong to a membergroup that requires tfa.
-			if (!empty($smcFunc['db_num_rows']($request)))
-				fatal_lang_error('cannot_disable_tfa2', false);
+			$tfa_required_groups = $smcFunc['db_num_rows']($request);
 			$smcFunc['db_free_result']($request);
+
+			// They belong to a membergroup that requires tfa.
+			if (!empty($tfa_required_groups))
+				fatal_lang_error('cannot_disable_tfa2', false);
 		}
 	}
 	else
