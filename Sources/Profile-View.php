@@ -1401,12 +1401,13 @@ function statPanel($memID)
 			SELECT poster_time, id_msg 
 			FROM {db_prefix}messages WHERE id_member = {int:current_member}
 			ORDER BY id_msg DESC
-			LIMIT 10000
+			LIMIT {int:max_messages}
 		) a
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
 			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'max_messages' => 1001,
 		)
 	);
 	$maxPosts = $realPosts = 0;
