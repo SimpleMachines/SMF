@@ -146,11 +146,11 @@ interface cache_api_interface
 	 * @return string the value of $key.
 	 */
 	public function getVersion();
-	
+
 	/**
 	 * Run housekeeping of this cache
 	 * exp. clean up old data or do optimization
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -336,7 +336,7 @@ abstract class cache_api implements cache_api_interface
 	{
 		return $this->min_smf_version;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

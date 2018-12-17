@@ -4,7 +4,7 @@
 	width: 6.5em;
 	background: #fff;
 	border: 1px solid #ddd;
-	box-shadow:0 5px 10px rgba(0,0,0,0.2);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	outline: none;
 	z-index: 10001;
 	margin: 0;
@@ -26,7 +26,8 @@
 }
 
 .ui-timepicker-duration {
-	margin-left: 5px; color: #888;
+	margin-left: 5px;
+	color: #888;
 }
 
 .ui-timepicker-list:hover .ui-timepicker-duration {
@@ -43,13 +44,15 @@
 }
 
 .ui-timepicker-list:hover .ui-timepicker-selected {
-	background: #fff; color: #000;
+	background: #fff;
+	color: #000;
 }
 
 li.ui-timepicker-selected,
 .ui-timepicker-list li:hover,
 .ui-timepicker-list .ui-timepicker-selected:hover {
-	background: #1980EC; color: #fff;
+	background: #1980ec;
+	color: #fff;
 }
 
 li.ui-timepicker-selected .ui-timepicker-duration,

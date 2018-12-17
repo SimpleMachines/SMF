@@ -119,7 +119,7 @@ function template_main()
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
-	echo '
+		echo '
 					<div class="errorbox">
 						', $txt['topic_locked_no_reply'], '
 					</div>';
@@ -401,8 +401,8 @@ function template_main()
 										<div class="bar"></div>
 									</div>
 									<div class="attach-ui">
-										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
-										<a class="button upload">', $txt['upload'] ,'</a>
+										<a data-dz-remove class="button cancel">', $txt['modify_cancel'], '</a>
+										<a class="button upload">', $txt['upload'], '</a>
 									</div>
 								</div><!-- .attach-info -->
 							</div><!-- #au-template -->
@@ -419,10 +419,10 @@ function template_main()
 							</dt>
 							<dd class="smalltext fallback">
 								<div id="attachUpload" class="descbox">
-									<h5>', $txt['attach_drop_zone'] ,'</h5>
-									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
-									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
-									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
+									<h5>', $txt['attach_drop_zone'], '</h5>
+									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'], '</a>
+									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'], '</a>
+									<a class="button fileinput-button">', $txt['attach_add'], '</a>
 									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
 									</div>
@@ -532,7 +532,7 @@ function template_main()
 	// Option to delete an event if user is editing one.
 	if ($context['make_event'] && !$context['event']['new'])
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button you_sure">';
+						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'], '" class="button you_sure">';
 
 	echo '
 					</span>
@@ -574,7 +574,7 @@ function template_main()
 
 	$newPostsHTML .= '
 			<br class="clear">
-			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] .  '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
 			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>
 		</div>';
 
@@ -660,7 +660,7 @@ function template_main()
 			});';
 
 	echo '
-			var oEditorID = "', $context['post_box_name'] ,'";
+			var oEditorID = "', $context['post_box_name'], '";
 			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 		</script>';
 
@@ -692,7 +692,7 @@ function template_main()
 			if ($context['can_quote'])
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
 						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
 
@@ -777,7 +777,7 @@ function template_spellcheck()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 		<style>
 			body, td {
 				font-size: small;
@@ -807,8 +807,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		</script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'] ,'"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
 		<script>
 			', $context['spell_js'], '
 		</script>
@@ -852,7 +852,7 @@ function template_quotefast()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '
@@ -1012,11 +1012,10 @@ function template_post_header()
 	if (empty($context['posting_fields']['subject']) || !is_array($context['posting_fields']['subject']))
 	{
 		$context['posting_fields']['subject'] = array(
-				'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
-				'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
-			);
+			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
+			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+		);
 	}
-
 
 	// THEME AUTHORS: Above this line is a great place to make customizations to the posting_fields array
 

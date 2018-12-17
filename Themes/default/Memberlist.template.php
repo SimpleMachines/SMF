@@ -106,7 +106,7 @@ function template_main()
 			if (!empty($context['custom_profile_fields']['columns']))
 				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
-						<td class="' , $key , ' centertext">', $member['options'][$key], '</td>';
+						<td class="', $key, ' centertext">', $member['options'][$key], '</td>';
 
 			echo '
 					</tr>';

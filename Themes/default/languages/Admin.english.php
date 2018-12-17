@@ -103,7 +103,7 @@ $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any c
 $txt['version_check_desc'] = 'This shows you the versions of your installation\'s files versus those of the latest version. If any of these files are out of date, you should download and upgrade to the latest version at <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>.';
 $txt['version_check_more'] = '(more detailed)';
 
-$txt['lfyi'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
+$txt['smf_news_cant_connect'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
 $txt['manage_calendar'] = 'Calendar';
 $txt['manage_search'] = 'Search';
@@ -244,8 +244,8 @@ $txt['default_language'] = 'Default forum language';
 $txt['maintenance_subject'] = 'Subject for display';
 $txt['maintenance_message'] = 'Message for display';
 
-$txt['errlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
-$txt['errlog_no_entries'] = 'There are currently no error log entries.';
+$txt['errorlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
+$txt['errorlog_no_entries'] = 'There are currently no error log entries.';
 
 $txt['theme_settings'] = 'Theme Settings';
 $txt['theme_current_settings'] = 'Current Theme';
@@ -576,8 +576,8 @@ $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
 $txt['autoLinkUrls'] = 'Automatically link posted URLs';
 $txt['disabledBBC'] = 'Enabled BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
-$txt['bbcTagsToUse_select'] = 'Select the tags allowed to be used';
-$txt['bbcTagsToUse_select_all'] = 'Select all tags';
+$txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
+$txt['enabled_bbc_select_all'] = 'Select all tags';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
@@ -659,7 +659,7 @@ $txt['pruning_desc'] = 'The following options are useful for keeping your logs f
 $txt['log_settings'] = 'Log Settings';
 $txt['log_ban_hits'] = 'Log ban hits in the error log?';
 
-$txt['boardsEdit'] = 'Modify Boards';
+$txt['boards_edit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create new category';
 $txt['manage_holidays'] = 'Manage Holidays';
 $txt['calendar_settings'] = 'Calendar Settings';

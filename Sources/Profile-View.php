@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * View a summary.
+ *
  * @param int $memID The ID of the member
  */
 function summary($memID)
@@ -497,6 +498,7 @@ function showAlerts($memID)
 
 /**
  * Show all posts by a member
+ *
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
@@ -1305,7 +1307,7 @@ function statPanel($memID)
 	// General user statistics.
 	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['totalTimeLogged2'] : '') . ($timeHours > 0 ? $timeHours . $txt['totalTimeLogged3'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged4'];
+	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . $txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_minutes'];
 	$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
@@ -1496,7 +1498,7 @@ function statPanel($memID)
 	);
 
 	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
+	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
 }
 
 /**
@@ -1961,15 +1963,15 @@ function TrackIP($memID = 0)
 	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
+	$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
 	$fields = array(
-			'ip_address_low' => $context['ip']['low'],
-			'ip_address_high' => $context['ip']['high'],
-		);
+		'ip_address_low' => $context['ip']['low'],
+		'ip_address_high' => $context['ip']['high'],
+	);
 
 	$ip_var = $context['ip'];
 
-	if ($context['ip']['low'] !==  $context['ip']['high'])
+	if ($context['ip']['low'] !== $context['ip']['high'])
 		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];

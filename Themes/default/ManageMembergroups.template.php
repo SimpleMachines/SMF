@@ -351,7 +351,7 @@ function template_edit_group()
 	echo '
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
-				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
+				<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
 			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
@@ -531,7 +531,7 @@ function template_add_edit_group_boards_list($collapse = true)
 }
 
 /**
- * Templatine for viewing the members of a group.
+ * Template for viewing the members of a group.
  */
 function template_group_members()
 {

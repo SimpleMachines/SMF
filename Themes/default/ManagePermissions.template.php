@@ -290,7 +290,7 @@ function template_by_board()
 				<h3 id="board_permissions" class="catbg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
 					<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>';
-					echo '
+	echo '
 				</h3>
 			</div>
 			<div class="windowbg">';
@@ -733,7 +733,7 @@ function template_inline_permissions()
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
 													<li>
-														<input type="checkbox" onclick="invertAll(this, this.form, \''. $context['current_permission'] . '[\');">
+														<input type="checkbox" onclick="invertAll(this, this.form, \'' . $context['current_permission'] . '[\');">
 														<span>', $txt['check_all'], '</span>
 													</li>
 												</ul>';
@@ -860,12 +860,12 @@ function template_postmod_permissions()
 										<td class="half_table">
 											<span ', ($group['color'] ? 'style="color: ' . $group['color'] . '"' : ''), '>', $group['name'], '</span>';
 
-				if (!empty($group['children']))
-					echo '
+			if (!empty($group['children']))
+				echo '
 											<br>
 											<span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
 
-				echo '
+			echo '
 										</td>
 										<td class="centercol">
 											<input type="radio" name="new_topic[', $group['id'], ']" value="allow"', $group['new_topic'] == 'allow' ? ' checked' : '', '>
@@ -877,12 +877,12 @@ function template_postmod_permissions()
 											<input type="radio" name="new_topic[', $group['id'], ']" value="disallow"', $group['new_topic'] == 'disallow' ? ' checked' : '', '>
 										</td>';
 
-				// Guests can't have "own" permissions
-				if ($group['id'] == '-1')
-					echo '
+			// Guests can't have "own" permissions
+			if ($group['id'] == '-1')
+				echo '
 										<td colspan="3"></td>';
-				else
-					echo '
+			else
+				echo '
 										<td class="centercol">
 											<input type="radio" name="replies_own[', $group['id'], ']" value="allow"', $group['replies_own'] == 'allow' ? ' checked' : '', '>
 										</td>
@@ -893,7 +893,7 @@ function template_postmod_permissions()
 											<input type="radio" name="replies_own[', $group['id'], ']" value="disallow"', $group['replies_own'] == 'disallow' ? ' checked' : '', '>
 										</td>';
 
-				echo '
+			echo '
 										<td class="centercol">
 											<input type="radio" name="replies_any[', $group['id'], ']" value="allow"', $group['replies_any'] == 'allow' ? ' checked' : '', '>
 										</td>
@@ -904,8 +904,8 @@ function template_postmod_permissions()
 											<input type="radio" name="replies_any[', $group['id'], ']" value="disallow"', $group['replies_any'] == 'disallow' ? ' checked' : '', '>
 										</td>';
 
-				if ($modSettings['attachmentEnable'] == 1)
-					echo '
+			if ($modSettings['attachmentEnable'] == 1)
+				echo '
 										<td class="centercol">
 											<input type="radio" name="attachment[', $group['id'], ']" value="allow"', $group['attachment'] == 'allow' ? ' checked' : '', '>
 										</td>
@@ -916,7 +916,7 @@ function template_postmod_permissions()
 											<input type="radio" name="attachment[', $group['id'], ']" value="disallow"', $group['attachment'] == 'disallow' ? ' checked' : '', '>
 										</td>';
 
-				echo '
+			echo '
 									</tr>';
 		}
 

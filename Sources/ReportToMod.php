@@ -89,9 +89,9 @@ function ReportToModerator()
 		);
 		if ($smcFunc['db_num_rows']($result) == 0)
 			fatal_lang_error('no_board', false);
+
 		list ($_REQUEST['msg'], $member, $starter) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
-
 
 		// This is here so that the user could, in theory, be redirected back to the topic.
 		$context['start'] = $_REQUEST['start'];

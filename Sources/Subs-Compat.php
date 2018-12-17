@@ -19,9 +19,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-
 /**
  * Define the old SMF sha1 function. Uses mhash if available
+ *
  * @param string $str The string
  * @return string The sha1 hashed version of $str
  */
@@ -44,6 +44,7 @@ function sha1_smf($str)
 
 /**
  * This is the core SHA-1 calculation routine, used by sha1().
+ *
  * @param string $x
  * @param int $len
  * @return string
@@ -95,6 +96,7 @@ function sha1_core($x, $len)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $t
  * @param int $b
  * @param int $c
@@ -115,6 +117,7 @@ function sha1_ft($t, $b, $c, $d)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $t
  * @return int 1518500249, 1859775393, -1894007588 or -899497514 depending on the value of $t
  */
@@ -125,6 +128,7 @@ function sha1_kt($t)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $num
  * @param int $cnt
  * @return int
@@ -144,6 +148,7 @@ function sha1_rol($num, $cnt)
  * Available since: (PHP 5)
  * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
  * otherwise the returned value is a 40-character hexadecimal number.
+ *
  * @param string $text The text to hash
  * @return string The sha1 hash of $text
  */
@@ -156,6 +161,7 @@ function sha1_raw($text)
  * Compatibility function.
  * crc32 doesn't work as expected on 64-bit functions - make our own.
  * https://php.net/crc32#79567
+ *
  * @param string $number
  * @return string The crc32 polynomial of $number
  */
@@ -371,7 +377,7 @@ if (!is_callable('random_bytes') || !is_callable('random_int'))
 					}
 
 					return (string) substr(
-						(string )$binary_string,
+						(string) $binary_string,
 						(int) $start,
 						(int) $length
 					);
@@ -389,16 +395,16 @@ if (!is_callable('random_bytes') || !is_callable('random_int'))
 	{
 		/**
 		 * Cast to an integer if we can, safely.
-		 * 
+		 *
 		 * If you pass it a float in the range (~PHP_INT_MAX, PHP_INT_MAX)
 		 * (non-inclusive), it will sanely cast it to an int. If you it's equal to
-		 * ~PHP_INT_MAX or PHP_INT_MAX, we let it fail as not an integer. Floats 
+		 * ~PHP_INT_MAX or PHP_INT_MAX, we let it fail as not an integer. Floats
 		 * lose precision, so the <= and => operators might accidentally let a float
 		 * through.
-		 * 
+		 *
 		 * @param int|float $number    The number we want to convert to an int
 		 * @param bool      $fail_open Set to true to not throw an exception
-		 * 
+		 *
 		 * @return float|int
 		 * @psalm-suppress InvalidReturnType
 		 *
@@ -567,13 +573,14 @@ if (!is_callable('random_bytes'))
 					 * Decrease the number of bytes returned from remaining
 					 */
 					$remaining -= RandomCompat_strlen($read);
-					
+
 					/**
 					 * @var string|bool
 					 */
 					$buf = $buf . $read;
 
-				} while ($remaining > 0);
+				}
+				while ($remaining > 0);
 
 				/**
 				 * Is our result valid?
@@ -679,10 +686,10 @@ if (!is_callable('random_bytes'))
 	if (!is_callable('random_bytes') && extension_loaded('com_dotnet') && class_exists('COM'))
 	{
 		/**
-		* Class COM
-		*
-		* This is just a stub class.
-		*/
+		 * Class COM
+		 *
+		 * This is just a stub class.
+		 */
 		class com_exception extends Exception
 		{
 
@@ -749,7 +756,8 @@ if (!is_callable('random_bytes'))
 							}
 							++$execCount;
 
-						} while ($execCount < $bytes);
+						}
+						while ($execCount < $bytes);
 
 						/**
 						 * If we reach here, PHP has failed us.
@@ -792,7 +800,7 @@ if (!is_callable('random_bytes'))
 
 if (!is_callable('random_int'))
 {
-	 /**
+	/**
 	 * Fetch a random integer between $min and $max inclusive
 	 *
 	 * @param int $min
@@ -963,11 +971,11 @@ if (!is_callable('random_int'))
 			 * then try again.
 			 */
 
-		} while (!is_int($val) || $val > $max || $val < $min);
+		}
+		while (!is_int($val) || $val > $max || $val < $min);
 
 		return (int) $val;
 	}
 }
-
 
 ?>
