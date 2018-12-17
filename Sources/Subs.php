@@ -1880,6 +1880,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'url',
 			'iurl',
 			'email',
+			'html',
 		);
 
 		// Handle legacy bbc codes.
