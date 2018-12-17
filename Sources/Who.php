@@ -568,7 +568,7 @@ function Credits($in_admin = false)
 						'Michele "Illori" Davis',
 						// Former Project Managers
 						'Jessica "Suki" González',
-						'Kindred',
+						'Will "Kindred" Wagner',
 					),
 				),
 				array(
@@ -615,7 +615,7 @@ function Credits($in_admin = false)
 						'br360',
 						'Gary M. Gadsdon',
 						'GigaWatt',
-						'Kindred',
+						'Will "Kindred" Wagner',
 						'Steve',
 						'shawnb61',
 						'ziycon',
