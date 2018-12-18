@@ -592,7 +592,7 @@ $txt['select_item_check'] = 'Please select at least one item in the list';
 $txt['tables_optimized'] = 'Database tables optimized';
 
 $txt['add_poll'] = 'Add poll';
-$txt['poll_options6'] = 'You may only select up to %1$s options.';
+$txt['poll_options_limit'] = 'You may only select up to %1$s options.';
 $txt['poll_remove'] = 'Remove Poll';
 $txt['poll_remove_warn'] = 'Are you sure you want to remove this poll from the topic?';
 $txt['poll_results_expire'] = 'Results will be shown when voting has closed';

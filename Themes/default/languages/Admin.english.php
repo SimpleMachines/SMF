@@ -731,6 +731,6 @@ $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
 
-$txt['sm_state_setting'] = 'Allow Stat Collection';
+$txt['enable_sm_stats'] = 'Allow Stat Collection';
 
 ?>

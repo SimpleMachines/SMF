@@ -287,7 +287,7 @@ function determineActions($urls, $preferred_prefix = false)
 		'setcensor' => array('moderate_forum'),
 		'setreserve' => array('moderate_forum'),
 		'stats' => array('view_stats'),
-		'viewErrorLog' => array('admin_forum'),
+		'viewerrorlog' => array('admin_forum'),
 		'viewmembers' => array('moderate_forum'),
 	);
 	call_integration_hook('who_allowed', array(&$allowedActions));
