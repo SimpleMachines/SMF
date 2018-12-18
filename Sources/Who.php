@@ -669,7 +669,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'Dr. Irisado',
+						'Irisado',
 						// Doc Writers
 
 						// Former Doc Writers
