@@ -6081,7 +6081,7 @@ function set_tld_regex($update = false)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is gone.
+		// If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
 		// We're probably running on a server hidden in a bunker deep underground to protect it from
 		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
 		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
@@ -6143,7 +6143,13 @@ function set_tld_regex($update = false)
 			'yt', 'yu', 'za', 'zm', 'zw');
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
-		$schedule_update = empty($postapocalypticNightmare);
+		if (empty($postapocalypticNightmare))
+		{
+			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+			);
+		}
 	}
 
 	// Get an optimized regex to match all the TLDs
@@ -6151,15 +6157,6 @@ function set_tld_regex($update = false)
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
-
-	// Schedule a background update if we need one
-	if (!empty($schedule_update))
-	{
-		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
-			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
-		);
-	}
 
 	// Redundant repetition is redundant
 	$done = true;
