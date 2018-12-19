@@ -748,6 +748,7 @@ function Credits($in_admin = false)
 					'Mark Rose',
 					'René-Gilles "Nao 尚" Deberdt',
 					'tinoest',
+					$txt['credits_code_contributors'],
 				),
 			),
 			array(
