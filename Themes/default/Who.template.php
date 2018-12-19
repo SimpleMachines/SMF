@@ -147,10 +147,9 @@ function template_credits()
 
 		foreach ($section['groups'] as $group)
 		{
-			if (isset($group['title']))
-				echo '
+			echo '
 				<dt>
-					<strong>', $group['title'], '</strong>
+					', isset($group['title']) ? '<strong>' . $group['title'] . '</strong>' : '', '
 				</dt>
 				<dd>';
 
