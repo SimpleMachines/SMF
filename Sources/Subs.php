@@ -1880,6 +1880,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'url',
 			'iurl',
 			'email',
+			'img',
+			'html',
 		);
 
 		// Handle legacy bbc codes.
@@ -2026,6 +2028,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Pick a block of data to do some raw fixing on.
 			$data = substr($message, $last_pos, $pos - $last_pos);
 
+			$placeholders = array();
+			$placeholders_counter = 0;
+
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
 			{
@@ -2057,10 +2062,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = empty($matches[3][$match]) ? '' : ' alt=' . preg_replace('~^&quot;|&quot;$~', '', $matches[3][$match]);
 
 						// Remove action= from the URL - no funny business, now.
+						// @todo Testing this preg_match seems pointless
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
+						$placeholder = '[placeholder]' . ++$placeholders_counter . '[/placeholder]';
+						$placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
+
+						$replaces[$matches[0][$match]] = $placeholder;
 					}
 
 					$data = strtr($data, $replaces);
@@ -2243,6 +2252,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					}
 				}
 			}
+
+			// Restore any placeholders
+			$data = strtr($data, $placeholders);
 
 			$data = strtr($data, array("\t" => '&nbsp;&nbsp;&nbsp;'));
 
