@@ -2901,6 +2901,9 @@ ALTER filename SET DEFAULT '';
 ---# ban_items
 ALTER TABLE {$db_prefix}ban_items
 ALTER hostname SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}ban_items
+ALTER email_address SET DEFAULT '';
 ---#
 
 ---# boards
