@@ -153,15 +153,8 @@ function template_credits()
 				</dt>
 				<dd>';
 
-			// Try to make this read nicely.
-			// @todo: This assumes English grammar. Need to make it properly localizable.
-			if (count($group['members']) <= 2)
-				echo implode(' ' . $txt['credits_and'] . ' ', $group['members']), '.';
-			else
-			{
-				$last_peep = array_pop($group['members']);
-				echo implode(', ', $group['members']), ', ', $txt['credits_and'], ' ', $last_peep, '.';
-			}
+			$names = sentence_list($group['members']);
+			echo sprintf($txt['credits_list'], $names);
 
 			echo '
 				</dd>';

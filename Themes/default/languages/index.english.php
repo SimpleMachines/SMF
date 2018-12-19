@@ -896,4 +896,20 @@ $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
 $txt['mobile_user_menu'] = 'Mobile Main Menu';
 
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie")
+// Feel free to add or remove entries here as necessary for your language
+// Examples:
+// 	$txt['sentence_list_format'][2] specifies a format for a list with two items
+// 	$txt['sentence_list_format']['n'] specifies the default format
+// Notes on placeholders:
+// 	{1} = first item in the list, {2} = second item, etc.
+// 	{-1} = last item in the list, {-2} = second last item, etc.
+// 	{series} = concatenated string of the rest of the items in the list
+$txt['sentence_list_format'][1] = '{1}';
+$txt['sentence_list_format'][2] = '{1} and {-1}';
+$txt['sentence_list_format']['n'] = '{series}, and {-1}';
+// Separators used to build lists in a sentence
+$txt['sentence_list_separator'] = ', ';
+$txt['sentence_list_separator_alt'] = '; ';
+
 ?>
