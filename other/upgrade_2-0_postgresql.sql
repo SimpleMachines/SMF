@@ -235,7 +235,7 @@ $smcFunc['db_insert']('ignore',
 	'{db_prefix}themes',
 	array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-255'),
 	array(1, 'forum_width', '90%'),
-	array('id_theme', 'variable', 'value')
+	array('id_theme', 'variable')
 );
 ---}
 ---#
