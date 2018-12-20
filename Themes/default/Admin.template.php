@@ -33,13 +33,13 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
+									<div id="smf_news">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="floatright">
+							<div id="support_info" class="floatright">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
@@ -68,7 +68,7 @@ function template_admin()
 	echo '
 									</div><!-- #version_details -->
 								</div><!-- .windowbg -->
-							</div><!-- #supportVersionsTable -->
+							</div><!-- #support_info -->
 						</div><!-- #admin_main_section -->';
 
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
@@ -121,7 +121,7 @@ function template_admin()
 									%message%
 								</dd>
 							'), ',
-							sAnnouncementContainerId: \'smfAnnouncements\',
+							sAnnouncementContainerId: \'smf_news\',
 
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',

@@ -293,7 +293,7 @@ function template_info_center()
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
-		<div id="upshrinkHeaderIC"', empty($options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
+		<div id="upshrink_stats"', empty($options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 
 	foreach ($context['info_center'] as $block)
 	{
@@ -302,7 +302,7 @@ function template_info_center()
 	}
 
 	echo '
-		</div><!-- #upshrinkHeaderIC -->
+		</div><!-- #upshrink_stats -->
 	</div><!-- #info_center -->';
 
 	// Info center collapse object.
@@ -312,7 +312,7 @@ function template_info_center()
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
 			aSwappableContainers: [
-				\'upshrinkHeaderIC\'
+				\'upshrink_stats\'
 			],
 			aSwapImages: [
 				{

@@ -124,10 +124,10 @@ body#chrome #quick_search form input {
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
 /* Live news from smorg and support information. */
-#live_news, #supportVersionsTable {
+#live_news, #support_info {
 	width: 70%;
 }
-#supportVersionsTable {
+#support_info {
 	width: 30%;
 	padding-left: 6px;
 }
@@ -140,16 +140,16 @@ body#chrome #quick_search form input {
 	height: 12em;
 	overflow: auto;
 }
-#smfAnnouncements dt {
+#smf_news dt {
 	padding: 4px 6px 2px 6px;
 	border-top: 1px solid #bf6900;
 }
-#smfAnnouncements dt a {
+#smf_news dt a {
 	color: #bf6900;
 	font-weight: bold;
 	display: block;
 }
-#smfAnnouncements dd {
+#smf_news dd {
 	margin: 0;
 	padding: 6px 12px;
 	border-top: double #ddd;
@@ -347,11 +347,11 @@ tr[id^="operation_"] .table_grid {
 }
 
 /* Styles for the file permissions section. */
-.filepermissions {
+.file_permissions {
 	font-size: 0.8em;
 	white-space: nowrap;
 }
-.fperm {
+.perms_status {
 	display: block;
 	width: 35%;
 	text-align: center;

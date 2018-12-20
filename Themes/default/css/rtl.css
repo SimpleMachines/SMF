@@ -603,7 +603,7 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 }
 
 /* admin home */
-#smfAnnouncements dd {
+#smf_news dd {
 	padding: 0;
 	margin: 0 1.5em 1em 0;
 }

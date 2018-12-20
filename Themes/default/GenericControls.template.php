@@ -236,7 +236,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			{
 				$lang = (isset($txt['lang_recaptcha']) ? $txt['lang_recaptcha'] : $txt['lang_dictionary']);
 				echo '
-				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
+				<div class="google_recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
 				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=' . $lang . '"></script>';
 			}

@@ -1015,14 +1015,14 @@ function template_quickreply()
 	global $context, $modSettings, $scripturl, $options, $txt;
 
 	echo '
-		<a id="quickreply"></a>
-		<div class="tborder" id="quickreplybox">
+		<a id="quickreply_anchor"></a>
+		<div class="tborder" id="quickreply">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['quick_reply'], '
 				</h3>
 			</div>
-			<div id="quickReplyOptions">
+			<div id="quickreply_options">
 				<div class="roundframe">';
 
 	// Are we hiding the full editor?
@@ -1115,8 +1115,8 @@ function template_quickreply()
 	echo '
 					</form>
 				</div><!-- .roundframe -->
-			</div><!-- #quickReplyOptions -->
-		</div><!-- #quickreplybox -->
+			</div><!-- #quickreply_options -->
+		</div><!-- #quickreply -->
 		<br class="clear">';
 
 	// Draft autosave available and the user has it enabled?
@@ -1148,16 +1148,16 @@ function template_quickreply()
 				iStart: ', $context['start'], ',
 				sScriptUrl: smf_scripturl,
 				sImagesUrl: smf_images_url,
-				sContainerId: "quickReplyOptions",
+				sContainerId: "quickreply_options",
 				sImageId: "quickReplyExpand",
 				sClassCollapsed: "toggle_up",
 				sClassExpanded: "toggle_down",
-				sJumpAnchor: "quickreply",
+				sJumpAnchor: "quickreply_anchor",
 				bIsFull: true
 			});
 			var oEditorID = "', $context['post_box_name'], '";
 			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
-			var oJumpAnchor = "quickreply";
+			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }
 

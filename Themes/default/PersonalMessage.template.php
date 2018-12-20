@@ -836,7 +836,7 @@ function template_search()
 					</h3>
 				</div>
 				<div id="advanced_panel_div">
-					<ul id="searchLabelsExpand">';
+					<ul id="search_labels">';
 
 		foreach ($context['search_labels'] as $label)
 			echo '
@@ -1131,12 +1131,12 @@ function template_send()
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-				<div id="postDraftOptionsHeader" class="title_bar">
+				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
 						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 					</h4>
 				</div>
-				<div id="postDraftOptions">
+				<div id="post_draft_options">
 					<dl class="settings">
 						<dt><strong>', $txt['subject'], '</strong></dt>
 						<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
@@ -1280,7 +1280,7 @@ function template_send()
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: true,
 				aSwappableContainers: [
-					\'postDraftOptions\',
+					\'post_draft_options\',
 				],
 				aSwapImages: [
 					{

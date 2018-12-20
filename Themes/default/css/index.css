@@ -473,7 +473,7 @@ strong[id^='child_list_']::after {
 .pagelinks .button {
 	padding: 0 5px;
 }
-.navPages {
+.nav_page {
 	padding: 0 1px;
 }
 .expand_pages {
@@ -2487,7 +2487,7 @@ dl.stats {
 #personal_messages .pm_inline_time {
 	display: none;
 }
-#searchLabelsExpand li {
+#search_labels li {
 	padding: 4px 6px;
 }
 #manrules div.righttext {
@@ -2919,7 +2919,7 @@ span.postby {
 #info_center .sub_bar:first-child {
 	border-top: none;
 }
-#upshrinkHeaderIC {
+#upshrink_stats {
 	margin-top: 4px;
 }
 #ic_recentposts {
@@ -2958,18 +2958,18 @@ span.postby {
 #ic_recentposts .windowbg {
 	background: none;
 }
-#upshrinkHeaderIC p.inline {
+#upshrink_stats p.inline {
 	border: none;
 	margin: 0;
 	padding: 2px 29px;
 	line-height: 1.6em;
 	font-size: 0.9em;
 }
-#upshrinkHeaderIC p.inline span {
+#upshrink_stats p.inline span {
 	margin: 0;
 	padding: 4px 0 0 0;
 }
-#upshrinkHeaderIC span.membergroups {
+#upshrink_stats span.membergroups {
 	display: block;
 }
 
@@ -3293,10 +3293,10 @@ img.smiley {
 	text-transform: capitalize;
 }
 /* Styles for the quick reply area. */
-#quickreplybox {
+#quickreply {
 	clear: both;
 }
-#quickReplyOptions .roundframe {
+#quickreply_options .roundframe {
 	margin: 0;
 	padding: 8px 10% 12px 10%;
 	border-top-left-radius: 0;
@@ -3341,16 +3341,16 @@ ul.post_options li {
 	width: 49%;
 	float: left;
 }
-#postAdditionalOptionsHeader {
+#post_additional_options_header {
 	margin-top: 0.5em;
 }
-#postAdditionalOptions {
+#post_additional_options {
 	overflow: hidden;
 }
-#postAdditionalOptions .progress_bar {
+#post_additional_options .progress_bar {
 	height: 22px;
 }
-#postMoreOptions, #postAttachment, #postAttachment2 {
+#post_settings, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
@@ -3368,23 +3368,23 @@ ul.post_options li {
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
 }
-#postDraftOptions {
+#post_draft_options {
 	background: #fdfdfd;
 	border: 1px solid #aaa;
 	border-left: 1px solid #bbb;
 	border-top: none;
 	border-radius: 0 0 4px 4px;
 }
-#postDraftOptions .settings dd, #postDraftOptions .settings dt {
+#post_draft_options .settings dd, #post_draft_options .settings dt {
 	width: 50%;
 	border-top: 1px solid #e4e4e4;
 	padding: 5px 10px;
 	margin: 0;
 }
-#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child {
+#post_draft_options .settings dd:first-of-type, #post_draft_options .settings dt:first-child {
 	border-top: none; /* Some people are OCD, like me. :P */
 }
-#postDraftOptions .settings strong {
+#post_draft_options .settings strong {
 	color: #555;
 }
 #post_confirm_strip /* < That may be deprecated. */, #shortcuts {
@@ -3802,30 +3802,30 @@ h3.profile_hd {
 	justify-content: space-between;
 	align-items: center;
 }
-#au-previews div.descbox > div,
-#au-previews div.errorbox > div,
-#au-previews div.infobox > div {
+#attachment_previews div.descbox > div,
+#attachment_previews div.errorbox > div,
+#attachment_previews div.infobox > div {
 	padding: 10px;
 }
-#au-previews .attach-preview {
+#attachment_previews .attach-preview {
 	flex: 0 0 auto;
 	width: 170px;
 }
-#au-previews .attach-info {
+#attachment_previews .attachment_info {
 	flex: 1 1 auto;
 	width: 250px;
 }
-#au-previews .attach-ui {
+#attachment_previews .attach-ui {
 	min-height: 36px;
 }
 input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attach-info .progress_bar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all {
 	display: none;
 }
-.attach-info .progress_bar {
+.attachment_info .progress_bar {
 	margin: 6px 0;
 }
 .attached_BBC_width_height label {
@@ -3836,17 +3836,17 @@ input[name="attachBBC"] {
 	margin: 10px 1em 0 0;
 	display: inline-block;
 }
-.attach-info input[type="number"] {
+.attachment_info input[type="number"] {
 	width: 5em;
 }
-#attachUpload {
+#attachment_upload {
 	min-height: 50px;
 }
-#total-progress {
+#total_progress {
 	width: 50%;
 	display: none;
 }
-#maxFiles_progress, #maxFiles_progress_text {
+#max_files_progress, #max_files_progress_text {
 	display: none;
 }
 
@@ -3887,7 +3887,7 @@ input[name="attachBBC"] {
 }
 
 /* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
-.g-recaptcha {
+.google_recaptcha {
 	display: inline-block;
 }
 

@@ -1528,7 +1528,7 @@ function template_file_permissions()
 	<form action="', $scripturl, '?action=admin;area=packages;sa=perms;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="fperm floatright">', $txt['package_file_perms_new_status'], '</span>
+				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="perms_status floatright">', $txt['package_file_perms_new_status'], '</span>
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -1536,11 +1536,11 @@ function template_file_permissions()
 				<tr class="title_bar">
 					<th class="lefttext" width="30%">', $txt['package_file_perms_name'], '</th>
 					<th width="30%" class="lefttext">', $txt['package_file_perms_status'], '</th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_read'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_write'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_execute'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_custom'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_read'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_write'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_execute'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_custom'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_no_change'], '</span></th>
 				</tr>
 			</thead>
 			<tbody>';
