@@ -116,7 +116,7 @@ function template_find_members()
 		foreach ($context['results'] as $result)
 			echo '
 					<li class="windowbg">
-						<a href="', $result['href'], '" target="_blank" rel="noopener"> <span class="generic_icons profile_sm"></span>
+						<a href="', $result['href'], '" target="_blank" rel="noopener"> <span class="main_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
 

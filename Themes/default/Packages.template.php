@@ -187,7 +187,7 @@ function template_view_package()
 					echo '
 								<tr class="windowbg">
 									<td class="smalltext" style="width: 5%;">
-										<a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="generic_icons package_ops"></span></a>
+										<a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="main_icons package_ops"></span></a>
 									</td>
 									<td class="smalltext" style="width: 5%;">', $operation_num, '.</td>
 									<td class="smalltext" style="width: 20%;">', $txt[$operation_text], '</td>
@@ -279,7 +279,7 @@ function template_view_package()
 							echo '
 								<tr class="windowbg">
 									<td width="0"></td>
-									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="generic_icons package_ops"></span></a></td>
+									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
 									<td width="30" class="smalltext">', $operation_num, '.</td>
 									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
 									<td width="50%" class="smalltext">', $operation['action'], '</td>
@@ -1406,7 +1406,7 @@ function template_file_permissions()
 						linkData.onclick = dynamicExpandFolder;
 
 						var folderImage = document.createElement("span");
-						folderImage.className = "generic_icons folder";
+						folderImage.className = "main_icons folder";
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
@@ -1554,7 +1554,7 @@ function template_file_permissions()
 
 		if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 			echo '
-							<span class="generic_icons folder"></span>';
+							<span class="main_icons folder"></span>';
 
 		echo '
 							', $name, '
@@ -1679,7 +1679,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 				echo '
-						<span class="generic_icons folder"></span>';
+						<span class="main_icons folder"></span>';
 
 			echo '
 						', $name, '

@@ -64,7 +64,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu, #topic_container .moderation .generic_icons {
+	.generic_menu, #topic_container .moderation .main_icons {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -428,7 +428,7 @@
 		max-height: 300px;
 	}
 	img.icon, #forumposts .catbg img,
-	#topic_container .moderation .generic_icons {
+	#topic_container .moderation .main_icons {
 		display: none;
 	}
 	.keyinfo h5 .modified {

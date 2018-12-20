@@ -233,23 +233,23 @@ function template_main()
 
 			if ($topic['is_watched'])
 				echo '
-								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
+								<span class="main_icons watch" title="', $txt['watching_this_topic'], '"></span>';
 
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock"></span>';
+								<span class="main_icons lock"></span>';
 
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky"></span>';
+								<span class="main_icons sticky"></span>';
 
 			if ($topic['is_redirect'])
 				echo '
-								<span class="generic_icons move"></span>';
+								<span class="main_icons move"></span>';
 
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll"></span>';
+								<span class="main_icons poll"></span>';
 
 			echo '
 							</div>';
@@ -288,19 +288,19 @@ function template_main()
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
 					if ($topic['quick_mod']['remove'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 						echo '<br>';
 
 					if ($topic['quick_mod']['sticky'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 					if ($topic['quick_mod']['move'])
-						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', $txt['move_topic'], '"></span></a>';
 				}
 				echo '
 					</div><!-- .moderation -->';
@@ -403,7 +403,7 @@ function template_main()
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
 			<div class="popup_heading">', $txt['mobile_action'], '
-				<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
 			', template_button_strip($context['normal_buttons']), '
 		</div>
@@ -426,12 +426,12 @@ function template_topic_legend()
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
-				' . ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
+				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
 				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
-				<span class="generic_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
-				<span class="generic_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
+				<span class="main_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))

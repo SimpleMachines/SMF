@@ -1631,361 +1631,361 @@ tr.windowbg td, .table_grid tr td {
 }
 /* Some lovely generic icons.
 ------------------------------------------------- */
-.generic_icons::before {
+.main_icons::before {
 	content: '';
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/icons/generic_icons_sprite.png) no-repeat -5px -5px / 260px auto;
+	background: url(../images/icons/main_icons_sprite.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
 /* Load better icons for higher resolution screens */
 @media screen and (min-resolution: 160dpi) {
-	.generic_icons::before {
-		background-image: url(../images/icons/generic_icons_sprite_hd.png);
+	.main_icons::before {
+		background-image: url(../images/icons/main_icons_sprite_hd.png);
 	}
 }
 
 /* Small fix for topics */
-.quickbuttons span.generic_icons {
+.quickbuttons span.main_icons {
 	margin: -3px 3px 0 1px;
 }
-.quickbuttons span.generic_icons.quote,
-.quickbuttons span.generic_icons.quote_selected {
+.quickbuttons span.main_icons.quote,
+.quickbuttons span.main_icons.quote_selected {
 	margin: -8px 3px 0 0;
 }
 
-.generic_icons.gender_None::before {
+.main_icons.gender_None::before {
 	background: none;
 }
 
-.generic_icons.gender_0::before {
+.main_icons.gender_0::before {
 	display: none;
 }
 
 /* This is a small fix for dropmenu icons */
-.dropmenu .generic_icons::before, #profile_menu .generic_icons::before, .dropmenu img {
+.dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
 	margin: -3px 8px 0 0;
 	vertical-align: middle;
 }
 
 /* Top row */
-.generic_icons.help::before {
+.main_icons.help::before {
 	background-position: -5px -5px;
 }
-.generic_icons.search::before, .generic_icons.engines::before {
+.main_icons.search::before, .main_icons.engines::before {
 	background-position: -31px -5px;
 }
-.generic_icons.quick_edit_button::before, .generic_icons.modify_button::before {
+.main_icons.quick_edit_button::before, .main_icons.modify_button::before {
 	background-position: -57px -5px;
 }
-.generic_icons.check::before {
+.main_icons.check::before {
 	background-position: -83px -5px;
 }
-.generic_icons.invalid::before {
+.main_icons.invalid::before {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_2::before {
+.main_icons.gender_2::before {
 	background-position: -135px -5px;
 }
-.generic_icons.watch::before {
+.main_icons.watch::before {
 	background-position: -239px -5px;
 }
 /* 2nd row */
-.generic_icons.move::before, .generic_icons.next_page::before {
+.main_icons.move::before, .main_icons.next_page::before {
 	background-position: -5px -31px;
 }
-.generic_icons.general::before, .generic_icons.boards::before, .generic_icons.topics_views::before {
+.main_icons.general::before, .main_icons.boards::before, .main_icons.topics_views::before {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_1::before {
+.main_icons.gender_1::before {
 	background-position: -57px -31px;
 }
-.generic_icons.features::before {
+.main_icons.features::before {
 	background-position: -83px -31px;
 }
-.generic_icons.posters::before {
+.main_icons.posters::before {
 	background-position: -109px -31px;
 }
-.generic_icons.replies::before, .generic_icons.topics_replies::before {
+.main_icons.replies::before, .main_icons.topics_replies::before {
 	background-position: -135px -31px;
 }
-.generic_icons.history::before, .generic_icons.time_online::before, .generic_icons.scheduled::before {
+.main_icons.history::before, .main_icons.time_online::before, .main_icons.scheduled::before {
 	background-position: -161px -31px;
 }
-.generic_icons.views::before {
+.main_icons.views::before {
 	background-position: -187px -31px;
 }
-.generic_icons.last_post::before {
+.main_icons.last_post::before {
 	background-position: -213px -31px;
 }
-.generic_icons.starters::before, .generic_icons.people::before, .generic_icons.membergroups::before, .generic_icons.mlist::before {
+.main_icons.starters::before, .main_icons.people::before, .main_icons.membergroups::before, .main_icons.mlist::before {
 	background-position: -239px -31px;
 }
 /* 3rd Street Saints */
-.generic_icons.poll::before {
+.main_icons.poll::before {
 	background-position: -5px -57px;
 }
-.generic_icons.previous_page::before {
+.main_icons.previous_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.inbox::before {
+.main_icons.inbox::before {
 	background-position: -57px -57px;
 }
-.generic_icons.www::before {
+.main_icons.www::before {
 	background-position: -83px -57px;
 }
-.generic_icons.exit::before, .generic_icons.logout::before {
+.main_icons.exit::before, .main_icons.logout::before {
 	background-position: -109px -57px;
 }
-.generic_icons.switch::before {
+.main_icons.switch::before {
 	background-position: -135px -57px;
 }
-.generic_icons.replied::before, .generic_icons.send::before {
+.main_icons.replied::before, .main_icons.send::before {
 	background-position: -161px -57px;
 }
-.generic_icons.im_on::before {
+.main_icons.im_on::before {
 	background-position: -187px -57px;
 }
-.generic_icons.im_off::before {
+.main_icons.im_off::before {
 	background-position: -213px -57px;
 }
-.generic_icons.split_desel::before {
+.main_icons.split_desel::before {
 	background-position: -239px -57px;
 }
 /* 4th Row */
-.generic_icons.split_sel::before {
+.main_icons.split_sel::before {
 	background-position: -5px -83px;
 }
-.generic_icons.mail::before {
+.main_icons.mail::before {
 	background-position: -31px -83px;
 }
-.generic_icons.warning_mute::before {
+.main_icons.warning_mute::before {
 	background-position: -57px -83px;
 }
-.generic_icons.alerts::before, .generic_icons.warn_button::before,
-.generic_icons.warning_moderate::before {
+.main_icons.alerts::before, .main_icons.warn_button::before,
+.main_icons.warning_moderate::before {
 	background-position: -83px -83px;
 }
-.generic_icons.mail_new::before {
+.main_icons.mail_new::before {
 	background-position: -109px -83px;
 }
-.generic_icons.drafts::before,
-.generic_icons.reply_button::before,
-.generic_icons.reply_all_button::before {
+.main_icons.drafts::before,
+.main_icons.reply_button::before,
+.main_icons.reply_all_button::before {
 	background-position: -135px -83px;
 }
-.generic_icons.warning_watch::before {
+.main_icons.warning_watch::before {
 	background-position: -161px -83px;
 }
-.generic_icons.calendar_export::before {
+.main_icons.calendar_export::before {
 	background-position: -187px -83px;
 }
-.generic_icons.calendar::before {
+.main_icons.calendar::before {
 	background-position: -213px -83px;
 }
-.generic_icons.calendar_modify::before {
+.main_icons.calendar_modify::before {
 	background-position: -239px -83px;
 }
 /* 5th Row */
-.generic_icons.plus::before {
+.main_icons.plus::before {
 	background-position: -5px -109px;
 }
-.generic_icons.warning::before, .generic_icons.moderate::before {
+.main_icons.warning::before, .main_icons.moderate::before {
 	background-position: -31px -109px;
 }
-.generic_icons.themes::before {
+.main_icons.themes::before {
 	background-position: -57px -109px;
 }
-.generic_icons.support::before {
+.main_icons.support::before {
 	background-position: -83px -109px;
 }
-.generic_icons.liked_users::before, .generic_icons.liked_messages::before, .generic_icons.like::before {
+.main_icons.liked_users::before, .main_icons.liked_messages::before, .main_icons.like::before {
 	background-position: -109px -109px;
 }
-.generic_icons.unlike::before {
+.main_icons.unlike::before {
 	background-position: -135px -109px;
 }
-.generic_icons.current_theme::before {
+.main_icons.current_theme::before {
 	background-position: -161px -109px;
 }
-.generic_icons.stats::before {
+.main_icons.stats::before {
 	background-position: -187px -109px;
 }
-.generic_icons.right_arrow::before {
+.main_icons.right_arrow::before {
 	background-position: -213px -109px;
 }
-.generic_icons.left_arrow::before {
+.main_icons.left_arrow::before {
 	background-position: -239px -109px;
 }
 /* 6th Row */
-.generic_icons.smiley::before {
+.main_icons.smiley::before {
 	background-position: -5px -135px;
 }
-.generic_icons.server::before {
+.main_icons.server::before {
 	background-position: -31px -135px;
 }
-.generic_icons.ban::before, .generic_icons.ignore::before {
+.main_icons.ban::before, .main_icons.ignore::before {
 	background-position: -57px -135px;
 }
 
-.generic_icons.boards::before {
+.main_icons.boards::before {
 	background-position: -83px -135px;
 }
-.generic_icons.regcenter::before {
+.main_icons.regcenter::before {
 	background-position: -109px -135px;
 }
-.generic_icons.posts::before {
+.main_icons.posts::before {
 	background-position: -135px -135px;
 }
-.generic_icons.sort_down::before {
+.main_icons.sort_down::before {
 	background-position: -161px -135px;
 }
-.generic_icons.change_menu2::before, .generic_icons.sent::before {
+.main_icons.change_menu2::before, .main_icons.sent::before {
 	background-position: -187px -135px;
 }
-.generic_icons.post_moderation_moderate::before {
+.main_icons.post_moderation_moderate::before {
 	background-position: -213px -135px;
 }
-.generic_icons.sort_up::before {
+.main_icons.sort_up::before {
 	background-position: -239px -135px;
 }
 /* 7th Row */
-.generic_icons.post_moderation_deny::before {
+.main_icons.post_moderation_deny::before {
 	background-position: -5px -161px;
 }
-.generic_icons.post_moderation_attach::before {
+.main_icons.post_moderation_attach::before {
 	background-position: -31px -161px;
 }
-.generic_icons.post_moderation_allow::before {
+.main_icons.post_moderation_allow::before {
 	background-position: -57px -161px;
 }
-.generic_icons.personal_message::before {
+.main_icons.personal_message::before {
 	background-position: -83px -161px;
 }
-.generic_icons.permissions::before, .generic_icons.signup::before {
+.main_icons.permissions::before, .main_icons.signup::before {
 	background-position: -109px -161px;
 }
-.generic_icons.paid::before {
+.main_icons.paid::before {
 	background-position: -135px -161px;
 }
-.generic_icons.packages::before {
+.main_icons.packages::before {
 	background-position: -161px -161px;
 }
-.generic_icons.filter::before {
+.main_icons.filter::before {
 	background-position: -187px -161px;
 	margin: 0 5px 0 0;
 }
-.generic_icons.change_menu::before {
+.main_icons.change_menu::before {
 	background-position: -213px -161px;
 }
-.generic_icons.package_ops::before {
+.main_icons.package_ops::before {
 	background-position: -239px -161px;
 }
 /* 8th Row */
-.generic_icons.reports::before {
+.main_icons.reports::before {
 	background-position: -5px -187px;
 }
-.generic_icons.news::before {
+.main_icons.news::before {
 	background-position: -31px -187px;
 }
-.generic_icons.delete::before, .generic_icons.hide_popup::before, .generic_icons.prune::before, .generic_icons.remove_button::before {
+.main_icons.delete::before, .main_icons.hide_popup::before, .main_icons.prune::before, .main_icons.remove_button::before {
 	background-position: -57px -187px;
 }
-.generic_icons.modifications::before {
+.main_icons.modifications::before {
 	background-position: -83px -187px;
 }
-.generic_icons.maintain::before, .generic_icons.admin::before {
+.main_icons.maintain::before, .main_icons.admin::before {
 	background-position: -109px -187px;
 }
-.generic_icons.administration::before, .generic_icons.home::before {
+.main_icons.administration::before, .main_icons.home::before {
 	background-position: -135px -187px;
 }
-.generic_icons.frenemy::before {
+.main_icons.frenemy::before {
 	background-position: -161px -187px;
 }
-.generic_icons.attachment::before {
+.main_icons.attachment::before {
 	background-position: -187px -187px;
 }
-.generic_icons.lock::before, .generic_icons.security::before {
+.main_icons.lock::before, .main_icons.security::before {
 	background-position: -213px -187px;
 }
-.generic_icons.error::before, .generic_icons.disable::before {
+.main_icons.error::before, .main_icons.disable::before {
 	background-position: -239px -187px;
 }
 /* 9th Row */
-.generic_icons.languages::before {
+.main_icons.languages::before {
 	background-position: -5px -213px;
 }
-.generic_icons.members_request::before {
+.main_icons.members_request::before {
 	background-position: -31px -213px;
 }
-.generic_icons.members_delete::before {
+.main_icons.members_delete::before {
 	background-position: -57px -213px;
 }
-.generic_icons.members::before {
+.main_icons.members::before {
 	background-position: -83px -213px;
 }
-.generic_icons.members_watched::before {
+.main_icons.members_watched::before {
 	background-position: -109px -213px;
 }
-.generic_icons.sticky::before {
+.main_icons.sticky::before {
 	background-position: -135px -213px;
 }
-.generic_icons.corefeatures::before, .generic_icons.settings::before, .generic_icons.manrules::before, .generic_icons.manlabels::before {
+.main_icons.corefeatures::before, .main_icons.settings::before, .main_icons.manrules::before, .main_icons.manlabels::before {
 	background-position: -161px -213px;
 }
-.generic_icons.calendar::before {
+.main_icons.calendar::before {
 	background-position: -187px -213px;
 }
-.generic_icons.logs::before {
+.main_icons.logs::before {
 	background-position: -213px -213px;
 }
-.generic_icons.valid::before {
+.main_icons.valid::before {
 	background-position: -239px -213px;
 }
 /* 10th Row */
-.generic_icons.approve::before, .generic_icons.enable::before,
-.generic_icons.approve_button::before,
-.generic_icons.read_button::before {
+.main_icons.approve::before, .main_icons.enable::before,
+.main_icons.approve_button::before,
+.main_icons.read_button::before {
 	background-position: -5px -239px;
 }
-.generic_icons.close::before {
+.main_icons.close::before {
 	background-position: -31px -239px;
 }
-.generic_icons.details::before {
+.main_icons.details::before {
 	background-position: -57px -239px;
 }
-.generic_icons.merge::before {
+.main_icons.merge::before {
 	background-position: -83px -239px;
 }
-.generic_icons.folder::before {
+.main_icons.folder::before {
 	background-position: -109px -239px;
 }
-.generic_icons.restore_button::before {
+.main_icons.restore_button::before {
 	background-position: -135px -239px;
 }
-.generic_icons.split_button::before {
+.main_icons.split_button::before {
 	background-position: -161px -239px;
 }
-.generic_icons.unapprove_button::before,
-.generic_icons.unread_button::before {
+.main_icons.unapprove_button::before,
+.main_icons.unread_button::before {
 	background-position: -187px -239px;
 }
-.generic_icons.quote::before, .generic_icons.quote_selected::before {
+.main_icons.quote::before, .main_icons.quote_selected::before {
 	background-position: -213px -239px;
 }
-.generic_icons.notify_button::before {
+.main_icons.notify_button::before {
 	background-position: -239px -239px;
 }
 
-.generic_icons.select_above::before {
+.main_icons.select_above::before {
 	background-position: -161px -5px;
 }
-.generic_icons.select_here::before {
+.main_icons.select_here::before {
 	background-position: -187px -5px;
 }
-.generic_icons.select_below::before {
+.main_icons.select_below::before {
 	background-position: -213px -5px;
 }
 /* Styles for (fatal) errors.
@@ -1998,7 +1998,7 @@ tr.windowbg td, .table_grid tr td {
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
-	background: url(../images/icons/generic_icons_sprite.png) no-repeat -57px -83px;
+	background: url(../images/icons/main_icons_sprite.png) no-repeat -57px -83px;
 	left: 10px;
 	content: '';
 	position: absolute;
@@ -2691,7 +2691,7 @@ dl.addrules dt.floatleft {
 	top: 0;
 	padding: 0;
 }
-.generic_icons.hide_popup {
+.main_icons.hide_popup {
 	float: right;
 }
 .popup_heading .icon {
@@ -3485,7 +3485,7 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .generic_icons::before, h3.catbg .icon {
+h3.catbg .main_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -3734,15 +3734,15 @@ h3.profile_hd {
 	overflow-wrap: break-word;
 }
 
-#reported_posts .generic_icons,
-#reported_members .generic_icons {
+#reported_posts .main_icons,
+#reported_members .main_icons {
 	margin: -3px 1px 0 0;
 }
 #reported_posts .quickbuttons li a,
 #reported_members .quickbuttons li a {
 	background: none;
 }
-#modcenter .generic_icons {
+#modcenter .main_icons {
 	margin: -3px -3px 0 0;
 }
 

@@ -409,7 +409,7 @@ function EditSmileySets()
 				'data' => array(
 					'function' => function($rowData)
 					{
-						return $rowData['selected'] ? '<span class="generic_icons valid"></span>' : '';
+						return $rowData['selected'] ? '<span class="main_icons valid"></span>' : '';
 					},
 					'class' => 'centercol',
 				),

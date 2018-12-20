@@ -591,11 +591,11 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// This defines the formatting for the page indexes used throughout the forum.
 		$settings['page_index'] = array(
 			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
-			'previous_page' => '<span class="generic_icons previous_page"></span>',
+			'previous_page' => '<span class="main_icons previous_page"></span>',
 			'current_page' => '<span class="current_page">%1$d</span> ',
 			'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
 			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-			'next_page' => '<span class="generic_icons next_page"></span>',
+			'next_page' => '<span class="main_icons next_page"></span>',
 			'extra_after' => '',
 		);
 	}
@@ -3398,7 +3398,7 @@ function setupThemeContext($forceload = false)
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
 				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
-				icon_class: \'generic_icons mail_new\'
+				icon_class: \'main_icons mail_new\'
 			});
 		});');
 
@@ -4300,7 +4300,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
- * @param string $name The name of the button (should be a generic_icons class or the name of an image)
+ * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
  * @param string $label The $txt string to use as the label
  * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
@@ -4318,7 +4318,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 	if (!$settings['use_image_buttons'])
 		return $txt[$alt];
 	elseif (!empty($settings['use_buttons']))
-		return '<span class="generic_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
+		return '<span class="main_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
 	else
 		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
 }
@@ -4567,9 +4567,9 @@ function setupMenuContext()
 				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
 					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
 				elseif (isset($button['icon']))
-					$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+					$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
 				else
-					$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
+					$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}

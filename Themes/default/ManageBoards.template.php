@@ -56,7 +56,7 @@ function template_main()
 
 		if (!empty($category['move_link']))
 			echo '
-					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="generic_icons select_above"></span></a></li>';
+					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="main_icons select_above"></span></a></li>';
 
 		$recycle_board = '<a href="' . $scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . $settings['images_url'] . '/post/recycled.png" alt="' . $txt['recycle_board'] . '" title="' . $txt['recycle_board'] . '"></a>';
 		$redirect_board = '<img src="' . $settings['images_url'] . '/new_redirect.png" alt="' . $txt['redirect_board_desc'] . '" title="' . $txt['redirect_board_desc'] . '">';
@@ -81,7 +81,7 @@ function template_main()
 
 				foreach ($board['move_links'] as $link)
 					echo '
-						<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><span class="generic_icons select_', $link['class'], '" title="', $link['label'], '"></span></a>';
+						<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><span class="main_icons select_', $link['class'], '" title="', $link['label'], '"></span></a>';
 
 				echo '
 					</li>';

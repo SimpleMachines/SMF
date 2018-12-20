@@ -428,7 +428,7 @@ function determineActions($urls, $preferred_prefix = false)
 				$error_message = str_replace('"', '&quot;', $actions['error']);
 
 			if (!empty($error_message))
-				$data[$k] .= ' <span class="generic_icons error" title="' . $error_message . '"></span>';
+				$data[$k] .= ' <span class="main_icons error" title="' . $error_message . '"></span>';
 		}
 
 		// Maybe the action is integrated into another system?

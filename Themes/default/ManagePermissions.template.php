@@ -69,7 +69,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a> ' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . $txt['help'] . '"></span></a> ' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
@@ -122,7 +122,7 @@ function template_permission_index()
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings">
 						<dt>
-							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 							', $txt['permissions_apply_pre_defined'], ':
 						</dt>
 						<dd>
@@ -592,7 +592,7 @@ function template_modify_group_display($type)
 					echo '
 						<tr class="windowbg">
 							<td>
-								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
+								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">', $permission['name'], '</td><td>';
 
@@ -787,9 +787,9 @@ function template_postmod_permissions()
 							<div class="padding">
 								<ul class="floatleft smalltext block">
 									<strong>', $txt['permissions_post_moderation_legend'], ':</strong>
-									<li><span class="generic_icons post_moderation_allow"></span>', $txt['permissions_post_moderation_allow'], '</li>
-									<li><span class="generic_icons post_moderation_moderate"></span>', $txt['permissions_post_moderation_moderate'], '</li>
-									<li><span class="generic_icons post_moderation_deny"></span>', $txt['permissions_post_moderation_disallow'], '</li>
+									<li><span class="main_icons post_moderation_allow"></span>', $txt['permissions_post_moderation_allow'], '</li>
+									<li><span class="main_icons post_moderation_moderate"></span>', $txt['permissions_post_moderation_moderate'], '</li>
+									<li><span class="main_icons post_moderation_deny"></span>', $txt['permissions_post_moderation_disallow'], '</li>
 								</ul>
 								<p class="righttext floatright block">
 									<br><br><br>
@@ -832,21 +832,21 @@ function template_postmod_permissions()
 										<th class="quarter_table">
 											', $txt['permissions_post_moderation_group'], '
 										</th>
-										<th><span class="generic_icons post_moderation_allow"></span></th>
-										<th><span class="generic_icons post_moderation_moderate"></span></th>
-										<th><span class="generic_icons post_moderation_deny"></span></th>
-										<th><span class="generic_icons post_moderation_allow"></span></th>
-										<th><span class="generic_icons post_moderation_moderate"></span></th>
-										<th><span class="generic_icons post_moderation_deny"></span></th>
-										<th><span class="generic_icons post_moderation_allow"></span></th>
-										<th><span class="generic_icons post_moderation_moderate"></span></th>
-										<th><span class="generic_icons post_moderation_deny"></span></th>';
+										<th><span class="main_icons post_moderation_allow"></span></th>
+										<th><span class="main_icons post_moderation_moderate"></span></th>
+										<th><span class="main_icons post_moderation_deny"></span></th>
+										<th><span class="main_icons post_moderation_allow"></span></th>
+										<th><span class="main_icons post_moderation_moderate"></span></th>
+										<th><span class="main_icons post_moderation_deny"></span></th>
+										<th><span class="main_icons post_moderation_allow"></span></th>
+										<th><span class="main_icons post_moderation_moderate"></span></th>
+										<th><span class="main_icons post_moderation_deny"></span></th>';
 
 		if ($modSettings['attachmentEnable'] == 1)
 			echo '
-										<th><span class="generic_icons post_moderation_allow"></span></th>
-										<th><span class="generic_icons post_moderation_moderate"></span></th>
-										<th><span class="generic_icons post_moderation_deny"></span></th>';
+										<th><span class="main_icons post_moderation_allow"></span></th>
+										<th><span class="main_icons post_moderation_moderate"></span></th>
+										<th><span class="main_icons post_moderation_deny"></span></th>';
 
 		echo '
 									</tr>

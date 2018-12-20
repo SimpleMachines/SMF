@@ -35,7 +35,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
+				<span class="main_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -301,7 +301,7 @@ function template_results()
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 		echo '
 				</span>
-				<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
+				<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -345,11 +345,11 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
@@ -357,11 +357,11 @@ function template_results()
 
 						if ($topic['quick_mod']['sticky'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 						if ($topic['quick_mod']['move'])
 							echo '
-					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
+					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="main_icons move" title="', $txt['move_topic'], '"></span></a>';
 					}
 
 					echo '
@@ -421,7 +421,7 @@ function template_results()
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
+			<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 		</h3>
 	</div>
 	<div class="pagesection">

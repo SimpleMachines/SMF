@@ -568,7 +568,7 @@ function template_main()
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
 				<li id="post_modify">
-					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="generic_icons quote"></span>' . $txt['quote'] . '</a>
+					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . $txt['quote'] . '</a>
 				</li>
 			</ul>';
 
@@ -692,8 +692,8 @@ function template_main()
 			if ($context['can_quote'])
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
 
 			echo '

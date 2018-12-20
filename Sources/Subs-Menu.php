@@ -145,10 +145,10 @@ function createMenu($menuData, $menuOptions = array())
 								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 							}
 							else
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] . '"></span>';
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area['icon'] . '"></span>';
 						}
 						else
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area_id . '"></span>';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area_id . '"></span>';
 
 						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
 						{
