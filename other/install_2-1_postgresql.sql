@@ -6,10 +6,6 @@
 # Some taken from http://www.xach.com/aolserver/mysql-functions.sql and http://pgfoundry.org/projects/mysqlcompat/.
 # IP Regex in inet_aton from https://www.mkyong.com/database/regular-expression-in-postgresql/.
 
-CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
-	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
 	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
