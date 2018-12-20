@@ -2711,8 +2711,12 @@ where (FIND_IN_SET(0, b.deny_member_groups) != 0);
 ---#
 
 /******************************************************************************/
---- Add new functions
+--- FROM_UNIXTIME fix
 /******************************************************************************/
+---# Drop the old int version
+DROP FUNCTION IF EXISTS FROM_UNIXTIME(int);
+---#
+
 ---# Add FROM_UNIXTIME for bigint
 CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
 	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
