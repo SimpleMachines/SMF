@@ -329,7 +329,7 @@ You can approve or reject this attachment from the link below which will take yo
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
 $txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this post on the link below:
+You can approve or reject this post by using the link below:
 {LINK}
 
 {REGARDS}';
@@ -343,7 +343,7 @@ You can approve or reject this post on the link below:
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
 $txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this topic on the link below:
+You can approve or reject this topic by using the link below:
 {LINK}
 
 {REGARDS}';
@@ -364,7 +364,7 @@ $txt['request_membership_body'] = '{RECPNAME},
 
 {REASON}
 
-You can approve or reject this application on the link below:
+You can approve or reject this application by using the link below:
 
 {MODLINK}
 
