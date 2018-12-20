@@ -56,7 +56,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -595,11 +595,11 @@ function ModifyGeneralSecuritySettings($return_config = false)
 
 		// Password strength.
 		array(
-			'select', 
-			'password_strength', 
+			'select',
+			'password_strength',
 			array(
-				$txt['setting_password_strength_low'], 
-				$txt['setting_password_strength_medium'], 
+				$txt['setting_password_strength_low'],
+				$txt['setting_password_strength_medium'],
 				$txt['setting_password_strength_high']
 			)
 		),
@@ -611,25 +611,25 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		'',
 
 		array(
-			'select', 
-			'frame_security', 
+			'select',
+			'frame_security',
 			array(
-				'SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 
-				'DENY' => $txt['setting_frame_security_DENY'], 
+				'SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'],
+				'DENY' => $txt['setting_frame_security_DENY'],
 				'DISABLE' => $txt['setting_frame_security_DISABLE']
 			)
 		),
 		'',
 
 		array(
-			'select', 
-			'proxy_ip_header', 
+			'select',
+			'proxy_ip_header',
 			array(
-				'disabled' => $txt['setting_proxy_ip_header_disabled'], 
-				'autodetect' => $txt['setting_proxy_ip_header_autodetect'], 
-				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR', 
-				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP', 
-				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP', 
+				'disabled' => $txt['setting_proxy_ip_header_disabled'],
+				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
+				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR',
+				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP',
+				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP',
 				'CF-Connecting-IP' => 'CF-Connecting-IP'
 			)
 		),

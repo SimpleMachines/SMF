@@ -8,12 +8,12 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 4');
-define('SMF_LANG_VERSION', '2.1 Beta 4');
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_LANG_VERSION', '2.1 RC1');
 
 /**
  * The minimum required PHP version.
@@ -3620,7 +3620,7 @@ function template_upgrade_above()
 	echo '
 					</ul>
 				</div><!-- #main_steps -->
-				
+
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
 						<h3>', $txt['upgrade_overall_progress'], '</h3>
@@ -3770,7 +3770,7 @@ function template_welcome_message()
 
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-				
+
 				<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">

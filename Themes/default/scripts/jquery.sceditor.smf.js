@@ -6,7 +6,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 (function ($) {
@@ -719,7 +719,7 @@ sceditor.formats.bbcode.set(
 
 			/*
 			 * This fixes GH Bug #2845
-			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]". 
+			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]".
 			*/
 			if (attr_author == '' && attrs.defaultattr != '')
 				attr_author = attrs.defaultattr;

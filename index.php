@@ -17,11 +17,11 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 $software_year = '2018';
-$forum_version = 'SMF 2.1 Beta 4';
+$forum_version = 'SMF 2.1 RC1';
 
 // Get everything started up...
 define('SMF', 1);

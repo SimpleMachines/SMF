@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -51,7 +51,7 @@ function getBoardIndex($boardIndexOptions)
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
 	if ($boardIndexOptions['parent_id'] != 0 && $smcFunc['db_cte_support']())
 		$result_boards = $smcFunc['db_query']('', '
-			WITH RECURSIVE 
+			WITH RECURSIVE
 				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
 			as
 			(
@@ -367,7 +367,7 @@ function getBoardIndex($boardIndexOptions)
 			&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
 			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
 
-		// Set the last post in the root board 
+		// Set the last post in the root board
 		if (!$isChild && !empty($row_board['poster_time'])
 			&& (empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
 				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
@@ -390,7 +390,7 @@ function getBoardIndex($boardIndexOptions)
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
 	link, href, subject, start (where they should go for the first unread post.),
-	and member. (which has id, name, link, href, username in it.) 
+	and member. (which has id, name, link, href, username in it.)
 	timeformat is a pricy call do it only for thos how get shown */
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -559,7 +559,7 @@ function ConvertEntities()
 		if ($db_type == 'postgresql')
 			$request = $smcFunc['db_query']('', '
 				SELECT column_name "Field", data_type "Type"
-				FROM information_schema.columns 
+				FROM information_schema.columns
 				WHERE table_name = {string:cur_table}
 					AND (data_type = \'character varying\' or data_type = \'text\')',
 				array(
