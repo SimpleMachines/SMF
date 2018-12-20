@@ -147,21 +147,14 @@ function template_credits()
 
 		foreach ($section['groups'] as $group)
 		{
-			if (isset($group['title']))
-				echo '
+			echo '
 				<dt>
-					<strong>', $group['title'], '</strong>
+					', isset($group['title']) ? '<strong>' . $group['title'] . '</strong>' : '', '
 				</dt>
 				<dd>';
 
-			// Try to make this read nicely.
-			if (count($group['members']) <= 2)
-				echo implode(' ' . $txt['credits_and'] . ' ', $group['members']);
-			else
-			{
-				$last_peep = array_pop($group['members']);
-				echo implode(', ', $group['members']), ' ', $txt['credits_and'], ' ', $last_peep;
-			}
+			$names = sentence_list($group['members']);
+			echo sprintf($txt['credits_list'], $names);
 
 			echo '
 				</dd>';
