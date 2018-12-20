@@ -329,8 +329,7 @@ You can approve or reject this attachment from the link below which will take yo
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
 $txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this post by clicking the link below:
-
+You can approve or reject this post on the link below:
 {LINK}
 
 {REGARDS}';
@@ -344,8 +343,7 @@ You can approve or reject this post by clicking the link below:
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
 $txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this topic by clicking the link below:
-
+You can approve or reject this topic on the link below:
 {LINK}
 
 {REGARDS}';
@@ -366,7 +364,7 @@ $txt['request_membership_body'] = '{RECPNAME},
 
 {REASON}
 
-You can approve or reject this application by clicking the link below:
+You can approve or reject this application on the link below:
 
 {MODLINK}
 
@@ -891,7 +889,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body
@@ -910,7 +910,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_tolist
@@ -928,7 +930,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body_tolist
@@ -948,7 +952,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: msg_quote
