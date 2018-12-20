@@ -163,6 +163,24 @@
 ---#
 
 /******************************************************************************/
+--- add find_in_set function
+/******************************************************************************/
+---# add find_in_set function
+---{
+	upgrade_query("
+CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
+	SELECT i AS result
+	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
+	WHERE  (string_to_array($2,'',''))[i] = $1
+		UNION ALL
+	SELECT 0
+	LIMIT 1'
+LANGUAGE 'sql';
+");
+---}
+---#
+
+/******************************************************************************/
 --- Fixing dates...
 /******************************************************************************/
 ---# Updating old values
@@ -181,6 +199,9 @@ WHERE EXTRACT(YEAR FROM event_date) < 1004;
 UPDATE {$db_prefix}log_spider_stats
 SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
 WHERE EXTRACT(YEAR FROM stat_date) < 1004;
+
+ALTER TABLE {$db_prefix}log_spider_stats
+ALTER stat_date SET DEFAULT '1004-01-01';
 
 UPDATE {$db_prefix}members
 SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
@@ -212,6 +233,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	ip2 inet,
 	PRIMARY KEY (id_login)
 );
+
+CREATE INDEX {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
+CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 ---#
 
 ---# Copying the current package backup setting...
@@ -1059,6 +1083,11 @@ upgrade_query("
 	ALTER TABLE {$db_prefix}membergroups
 	RENAME stars TO icons");
 ---}
+---#
+
+---# set default membergroup icons
+ALTER TABLE {$db_prefix}membergroups
+ALTER icons SET DEFAULT '';
 ---#
 
 ---# Renaming default theme...
@@ -2180,6 +2209,9 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ---# Changing url column size in log_spider_hits from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
 ALTER url TYPE varchar(1024);
+
+ALTER TABLE {$db_prefix}log_spider_hits
+ALTER url SET DEFAULT '';
 ---#
 
 ---# Changing url column in log_online from text to varchar(1024)
@@ -2708,6 +2740,266 @@ where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
 INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
 FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Correct schema diff
+/******************************************************************************/
+
+---# log_subscribed
+ALTER TABLE {$db_prefix}log_subscribed
+ALTER pending_details DROP DEFAULT;
+---#
+
+---# mail_queue
+ALTER TABLE {$db_prefix}mail_queue
+ALTER recipient SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}mail_queue
+ALTER subject SET DEFAULT '';
+---#
+
+---# members
+ALTER TABLE {$db_prefix}members
+ALTER lngfile SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER real_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER pm_ignore_list SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER email_address SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER personal_text SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_title SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_url SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER avatar SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER usertitle SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER secret_question SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER additional_groups SET DEFAULT '';
+---#
+
+---# messages
+ALTER TABLE {$db_prefix}messages
+ALTER subject SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_email SET DEFAULT '';
+---#
+
+---# package_servers
+ALTER TABLE {$db_prefix}package_servers
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}package_servers
+ALTER url SET DEFAULT '';
+---#
+
+---# permission_profiles
+ALTER TABLE {$db_prefix}permission_profiles
+ALTER profile_name SET DEFAULT '';
+---#
+
+---# personal_messages
+ALTER TABLE {$db_prefix}personal_messages
+ALTER subject SET DEFAULT '';
+---#
+
+---# polls
+ALTER TABLE {$db_prefix}polls
+ALTER question SET DEFAULT '';
+---#
+
+---# poll_choices
+ALTER TABLE {$db_prefix}poll_choices
+ALTER label SET DEFAULT '';
+---#
+
+---# settings
+ALTER TABLE {$db_prefix}settings
+ALTER variable SET DEFAULT '';
+---#
+
+---# sessions
+ALTER TABLE {$db_prefix}sessions
+ALTER session_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}sessions
+ALTER last_update SET DEFAULT 0;
+---#
+
+---# spiders
+ALTER TABLE {$db_prefix}spiders
+ALTER spider_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER user_agent SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER ip_info SET DEFAULT '';
+---#
+
+---# subscriptions
+ALTER TABLE {$db_prefix}subscriptions
+ALTER id_subscribe TYPE int;
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER description SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER length SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER add_groups SET DEFAULT '';
+---#
+
+---# themes
+ALTER TABLE {$db_prefix}themes
+ALTER variable SET DEFAULT '';
+---#
+
+---# admin_info_files
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER path SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER parameters SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filetype SET DEFAULT '';
+---#
+
+---# attachments
+ALTER TABLE {$db_prefix}attachments
+ALTER filename SET DEFAULT '';
+---#
+
+---# ban_items
+ALTER TABLE {$db_prefix}ban_items
+ALTER hostname SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}ban_items
+ALTER email_address SET DEFAULT '';
+---#
+
+---# boards
+ALTER TABLE {$db_prefix}boards
+ALTER name SET DEFAULT '';
+---#
+
+---# categories
+ALTER TABLE {$db_prefix}categories
+ALTER name SET DEFAULT '';
+---#
+
+---# custom_fields
+ALTER TABLE {$db_prefix}custom_fields
+ALTER field_desc SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER mask SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER default_value SET DEFAULT '';
+---#
+
+---# log_activity
+ALTER TABLE {$db_prefix}log_activity
+ALTER date SET DEFAULT '1004-01-01';
+---#
+
+---# log_banned
+ALTER TABLE {$db_prefix}log_banned
+ALTER email SET DEFAULT '';
+---#
+
+---# log_comments
+ALTER TABLE {$db_prefix}log_comments
+ALTER recipient_name SET DEFAULT '';
+---#
+
+---# log_digest
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_topic SET DEFAULT 0;
+
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_msg SET DEFAULT 0;
+---#
+
+---# log_errors
+ALTER TABLE {$db_prefix}log_errors
+ALTER file SET DEFAULT '';
+---#
+
+---# log_member_notices
+ALTER TABLE {$db_prefix}log_member_notices
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_online
+ALTER TABLE {$db_prefix}log_online
+ALTER url SET DEFAULT '';
+---#
+
+---# log_packages
+ALTER TABLE {$db_prefix}log_packages
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER package_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER version SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER themes_installed SET DEFAULT '';
+---#
+
+---# log_reported
+ALTER TABLE {$db_prefix}log_reported
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_reported_comments
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER comment SET DEFAULT '';
+---#
+
+---# log_actions
+CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
 ---#
 
 /******************************************************************************/
