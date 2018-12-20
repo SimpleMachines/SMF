@@ -10,6 +10,10 @@ CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
 	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
+LANGUAGE 'sql';
+
 CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
 	SELECT i AS result
 	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
