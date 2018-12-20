@@ -52,7 +52,6 @@ function template_main()
 		</div><!-- #calendar -->';
 }
 
-
 /**
  * Display a list of upcoming events, birthdays, and holidays.
  *
@@ -758,7 +757,7 @@ function template_calendar_top($calendar_data)
 	}
 	else
 	{
-		echo'
+		echo '
 			<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
 				<select name="month" id="input_month">';
 
@@ -782,7 +781,7 @@ function template_calendar_top($calendar_data)
 			</form>';
 	}
 
-	echo'
+	echo '
 		</div><!-- .calendar_top -->';
 }
 
@@ -1169,7 +1168,7 @@ function template_omfg()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
-		echo '
+			echo '
 				if (', $t, ' >= ', $i, ')
 				{
 					turnon.push("', $t, '_', $i, '");

@@ -76,7 +76,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' : 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
@@ -320,7 +320,7 @@ class Attachments
 		// Create an empty session var to keep track of all the files we attached.
 		$SESSION['already_attached'] = array();
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
 			$attachmentOptions = array(
 				'post' => $this->_msg,
@@ -410,7 +410,7 @@ class Attachments
 			// Gotta urlencode the filename.
 			if ($this->_attachResults)
 				foreach ($this->_attachResults as $k => $v)
-					$this->_attachResults[$k]['name'] =  urlencode($this->_attachResults[$k]['name']);
+					$this->_attachResults[$k]['name'] = urlencode($this->_attachResults[$k]['name']);
 
 			$this->_response = array(
 				'files' => $this->_attachResults ? $this->_attachResults : false,
@@ -437,7 +437,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('content-type: application/json; charset='. $context['character_set'] .'');
+		header('content-type: application/json; charset=' . $context['character_set'] . '');
 
 		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
 

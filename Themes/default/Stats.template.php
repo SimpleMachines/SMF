@@ -110,7 +110,7 @@ function template_main()
 						<div class="bar" style="width: ', $item['percent'], '%;"></div>';
 			else
 				echo '
-						<div class="bar empty"></div>';			
+						<div class="bar empty"></div>';
 
 			echo '
 						<span>', $item['num'], '</span>

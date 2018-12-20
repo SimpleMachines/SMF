@@ -78,7 +78,7 @@ class custom_search extends search_api
 			case 'postCreated':
 			case 'postModified':
 				$return = true;
-			break;
+				break;
 
 			// All other methods, too bad dunno you.
 			default:

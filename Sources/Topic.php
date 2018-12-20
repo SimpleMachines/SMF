@@ -26,7 +26,7 @@ if (!defined('SMF'))
  *  - logs the action to the moderator log.
  *  - returns to the topic after it is done.
  *  - it is accessed via ?action=lock.
-*/
+ */
 function LockTopic()
 {
 	global $topic, $user_info, $sourcedir, $board, $smcFunc;

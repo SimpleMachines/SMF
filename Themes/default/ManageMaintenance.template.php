@@ -11,7 +11,7 @@
  */
 
 /**
- * Tempalte for the database maintenance tasks.
+ * Template for the database maintenance tasks.
  */
 function template_maintain_database()
 {

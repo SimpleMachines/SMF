@@ -25,6 +25,7 @@ if (!defined('SMF'))
  * It jumps to the correct post depending on a number/time/IS_MSG passed.
  * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
  * It is accessed by ?topic=id_topic.START.
+ *
  * @return void
  */
 function Display()
@@ -169,7 +170,7 @@ function Display()
 			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
-			$topic_parameters
+		$topic_parameters
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
@@ -915,14 +916,14 @@ function Display()
 		if ($start_char === 'C')
 			$limit_seek = $limit;
 		else
-			$limit_seek  = $limit + 1;
+			$limit_seek = $limit + 1;
 
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
-			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
@@ -989,7 +990,7 @@ function Display()
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
 			array(
@@ -1685,6 +1686,7 @@ function Download()
 
 /**
  * A sort function for putting unapproved attachments first.
+ *
  * @param array $a An array of info about one attachment
  * @param array $b An array of info about a second attachment
  * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't

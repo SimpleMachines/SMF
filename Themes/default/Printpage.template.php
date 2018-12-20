@@ -131,7 +131,7 @@ function template_print_above()
 }
 
 /**
- * The main page. This shows the relevent info in a printer-friendly format
+ * The main page. This shows the relevant info in a printer-friendly format
  */
 function template_main()
 {
