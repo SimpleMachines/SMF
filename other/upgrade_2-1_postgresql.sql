@@ -3001,3 +3001,16 @@ ALTER comment SET DEFAULT '';
 ---# log_actions
 CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
 ---#
+
+/******************************************************************************/
+--- FROM_UNIXTIME fix
+/******************************************************************************/
+---# Drop the old int version
+DROP FUNCTION IF EXISTS FROM_UNIXTIME(int);
+---#
+
+---# Add FROM_UNIXTIME for bigint
+CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
+LANGUAGE 'sql';
+---#

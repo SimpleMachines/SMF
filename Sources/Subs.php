@@ -6689,4 +6689,74 @@ function send_http_status($code, $status = '')
 		header($protocol . ' ' . $code . ' ' . (!empty($status) ? $status : $statuses[$code]));
 }
 
+/**
+ * Concatenates an array of strings into a grammatically correct sentence list
+ *
+ * Uses formats defined in the language files to build the list appropropriately
+ * for the currently loaded language.
+ *
+ * @param array $list An array of strings to concatenate.
+ * @return string The localized sentence list.
+ */
+function sentence_list($list)
+{
+	global $txt;
+
+	// Make sure the bare necessities are defined
+	if (empty($txt['sentence_list_format']['n']))
+		$txt['sentence_list_format']['n'] = '{series}';
+	if (!isset($txt['sentence_list_separator']))
+		$txt['sentence_list_separator'] = ', ';
+	if (!isset($txt['sentence_list_separator_alt']))
+		$txt['sentence_list_separator_alt'] = '; ';
+
+	// Which format should we use?
+	if (isset($txt['sentence_list_format'][count($list)]))
+		$format = $txt['sentence_list_format'][count($list)];
+	else
+		$format = $txt['sentence_list_format']['n'];
+
+	// Do we want the normal separator or the alternate?
+	$separator = $txt['sentence_list_separator'];
+	foreach ($list as $item)
+	{
+		if (strpos($item, $separator) !== false)
+		{
+			$separator = $txt['sentence_list_separator_alt'];
+			$format = strtr($format, trim($txt['sentence_list_separator']), trim($separator));
+			break;
+		}
+	}
+
+	$replacements = array();
+
+	// Special handling for the last items on the list
+	$i = 0;
+	while (empty($done))
+	{
+		if (strpos($format, '{'. --$i . '}') !== false)
+			$replacements['{'. $i . '}'] = array_pop($list);
+		else
+			$done = true;
+	}
+	unset($done);
+
+	// Special handling for the first items on the list
+	$i = 0;
+	while (empty($done))
+	{
+		if (strpos($format, '{'. ++$i . '}') !== false)
+			$replacements['{'. $i . '}'] = array_shift($list);
+		else
+			$done = true;
+	}
+	unset($done);
+
+	// Whatever is left
+	$replacements['{series}'] = implode($separator, $list);
+
+	// Do the deed
+	return strtr($format, $replacements);
+}
+
 ?>
