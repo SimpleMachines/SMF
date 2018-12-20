@@ -3887,7 +3887,7 @@ input[name="attachBBC"] {
 }
 
 /* Make the reCAPTCHA dialog centered to match the positioning of the built-in verification */
-.google_recaptcha {
+.g-recaptcha {
 	display: inline-block;
 }
 

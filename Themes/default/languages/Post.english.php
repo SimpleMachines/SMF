@@ -64,7 +64,7 @@ $txt['enter_comment'] = 'Enter comment';
 // Use numeric entities in the below two strings.
 $txt['reported_post'] = 'Reported post';
 $txt['reported_to_mod_by'] = 'by';
-$txt['submit_report'] = 'Submit';
+$txt['report_submit'] = 'Submit';
 // Use numeric entities in the below four strings.
 $txt['report_following_post'] = 'The following post, "%1$s" by';
 $txt['reported_by'] = 'has been reported by';

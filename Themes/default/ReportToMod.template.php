@@ -87,7 +87,7 @@ function template_main()
 					</dd>
 				</dl>
 				<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', $txt['submit_report'], '" class="button">
+				<input type="submit" name="save" value="', $txt['report_submit'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>
