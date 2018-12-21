@@ -2,7 +2,7 @@
 
 /**
  * This taks handles notifying someone that a user has
- * requeted to join a group they moderate.
+ * requested to join a group they moderate.
  *
  * Simple Machines Forum (SMF)
  *

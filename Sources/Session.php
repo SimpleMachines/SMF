@@ -169,7 +169,7 @@ function sessionWrite($session_id, $data)
 			$db_options['port'] = $db_port;
 
 		if (!empty($db_mb4))
-		$db_options['db_mb4'] = $db_mb4;
+			$db_options['db_mb4'] = $db_mb4;
 
 		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
 

@@ -167,9 +167,9 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
+		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
-			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
+			alert(' . JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
@@ -430,7 +430,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
+			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
 			'input_validate' => function(&$value) use ($cur_profile)
@@ -703,13 +703,13 @@ function setupProfileContext($fields)
 	addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
-	'. (!empty($context['require_password']) ? '
+	' . (!empty($context['require_password']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert('. (JavaScriptEscape($txt['required_security_reasons'])) . ');
+			alert(' . (JavaScriptEscape($txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -1021,7 +1021,7 @@ function makeThemeChanges($memID, $id_theme)
 				$val = max(0, min($val, 50));
 			// Only let admins and owners change the censor.
 			elseif ($opt == 'allow_no_censored' && !$user_info['is_admin'] && !$context['user']['is_owner'])
-					continue;
+				continue;
 
 			$themeSetArray[] = array($memID, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 			$erase_options[] = $opt;
@@ -1257,7 +1257,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1285,13 +1285,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('','
+			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}themes
 				WHERE id_theme = {int:id_theme} AND
-						variable = {string:variable} AND
-						id_member = {int:id_member}',
+					variable = {string:variable} AND
+					id_member = {int:id_member}',
 				$deletes
-				);
+			);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1796,7 +1796,7 @@ function getAvatars($directory, $level)
 				'name' => '[' . $smcFunc['htmlspecialchars'](str_replace('_', ' ', $line)) . ']',
 				'is_dir' => true,
 				'files' => $tmp
-		);
+			);
 		unset($tmp);
 	}
 
@@ -1953,8 +1953,8 @@ function alert_configuration($memID)
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
-			'buddy_request'  => array('alert' => 'yes', 'email' => 'never'),
-			'birthday'  => array('alert' => 'yes', 'email' => 'yes'),
+			'buddy_request' => array('alert' => 'yes', 'email' => 'never'),
+			'birthday' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
@@ -2274,7 +2274,7 @@ function alert_count($memID, $unread = false)
 		SELECT id_alert, extra
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
-			'.($unread ? '
+			' . ($unread ? '
 			AND is_read = 0' : ''),
 		array(
 			'id_member' => $memID,
@@ -2289,18 +2289,21 @@ function alert_count($memID, $unread = false)
 	{
 		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 
-		// Only add to possible boards ones that are not empty and that we haven't set before.
-		if (!empty($alerts[$row['id_alert']]['board']) && !isset($possible_boards[$alerts[$row['id_alert']]['board']]))
-			$possible_boards[$alerts[$row['id_alert']]['board']] = $alerts[$row['id_alert']]['board'];
+		if (!empty($alerts[$row['id_alert']]['board']))
+			$possible_boards[] = $alerts[$row['id_alert']]['board'];
 	}
 	$smcFunc['db_free_result']($request);
 
+	$possible_boards = array_unique($possible_boards);
+
 	// If this isn't the current user, get their boards.
-	if (isset($user_info) && $user_info['id'] != $memID)
+	if (!isset($user_info) || $user_info['id'] != $memID)
 	{
 		$query_see_board = build_query_board($memID);
 		$query_see_board = $query_see_board['query_see_board'];
 	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	// Find only the boards they can see.
 	if (!empty($possible_boards))
@@ -2308,11 +2311,10 @@ function alert_count($memID, $unread = false)
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board
 			FROM {db_prefix}boards AS b
-			WHERE ' . (!empty($query_see_board) ? '{raw:query_see_board}' : '{query_see_board}') . '
+			WHERE ' . $query_see_board . '
 				AND id_board IN ({array_int:boards})',
 			array(
-				'boards' => array_keys($possible_boards),
-				'query_see_board' => $query_see_board
+				'boards' => $possible_boards,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -2322,8 +2324,8 @@ function alert_count($memID, $unread = false)
 
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $extra)
-		if (!isset($boards[$extra['board']]))
-			unset($alerts[$id_alert]);		
+		if (isset($extra['board']) && !isset($boards[$extra['board']]))
+			unset($alerts[$id_alert]);
 
 	return count($alerts);
 }
@@ -2824,7 +2826,7 @@ function ignoreboards($memID)
 	// Find all the boards this user is allowed to see.
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
-			'. (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
+			' . (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
@@ -3216,6 +3218,7 @@ function profileSaveGroups(&$value)
 
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
+ *
  * @todo argh, the avatar here. Take this out of here!
  *
  * @param string &$value What kind of avatar we're expecting. Can be 'none', 'server_stored', 'gravatar', 'external' or 'upload'
@@ -3582,7 +3585,8 @@ function profileValidateSignature(&$value)
 			{
 				foreach ($matches[0] as $key => $image)
 				{
-					$width = -1; $height = -1;
+					$width = -1;
+					$height = -1;
 
 					// Does it have predefined restraints? Width first.
 					if ($matches[6][$key])
@@ -4203,10 +4207,12 @@ function tfadisable($memID)
 					'groups' => $groups,
 				)
 			);
-			// They belong to a membergroup that requires tfa.
-			if (!empty($smcFunc['db_num_rows']($request)))
-				fatal_lang_error('cannot_disable_tfa2', false);
+			$tfa_required_groups = $smcFunc['db_num_rows']($request);
 			$smcFunc['db_free_result']($request);
+
+			// They belong to a membergroup that requires tfa.
+			if (!empty($tfa_required_groups))
+				fatal_lang_error('cannot_disable_tfa2', false);
 		}
 	}
 	else
