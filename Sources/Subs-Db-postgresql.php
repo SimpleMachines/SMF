@@ -968,21 +968,35 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global $db_prefix, $db_connection;
+	global $db_prefix, $db_connection, $db_persist;
 	static $pg_error_data_prep;
 
 	// without database we can't do anything
 	if (empty($db_connection))
 		return;
 
-	if (empty($pg_error_data_prep))
-		$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+	if(empty($db_persist))
+	{ // without pooling
+		if (empty($pg_error_data_prep))
+			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+				'INSERT INTO ' . $db_prefix . 'log_errors
+					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
+			);
+
+		pg_execute($db_connection, 'smf_log_errors', $error_array);
+	}
+	else
+	{ //with pooling
+		$pg_error_data_prep = pg_prepare($db_connection, '',
 			'INSERT INTO ' . $db_prefix . 'log_errors
 				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
 			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
 		);
 
-	pg_execute($db_connection, 'smf_log_errors', $error_array);
+		pg_execute($db_connection, '', $error_array);
+	}
+
 }
 
 /**
