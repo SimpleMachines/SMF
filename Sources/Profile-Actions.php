@@ -258,7 +258,6 @@ function issueWarning($memID)
 			$context['post_errors'][] = $txt[$error];
 	}
 
-
 	$context['page_title'] = $txt['profile_issue_warning'];
 
 	// Let's use a generic list to get all the current warnings
@@ -340,7 +339,7 @@ function issueWarning($memID)
 						if (!empty($warning['id_notice']))
 							$ret .= '
 						<div class="floatright">
-							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>
+							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>
 						</div>';
 
 						return $ret;

@@ -16,7 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-
 /**
  * Main dispatcher, the entrance point for all 'Manage Membergroup' actions.
  * It forwards to a function based on the given subaction, default being subaction 'index', or, without manage_membergroup
@@ -26,7 +25,7 @@ if (!defined('SMF'))
  *
  * @uses ManageMembergroups template.
  * @uses ManageMembers language file.
-*/
+ */
 function ModifyMembergroups()
 {
 	global $context, $txt, $sourcedir;
@@ -758,9 +757,11 @@ function EditMembergroup()
 				$accesses = array();
 				$request = $smcFunc['db_query']('', '
 					SELECT id_board
-					FROM {db_prefix}boards');
+					FROM {db_prefix}boards'
+				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$accesses[(int) $row['id_board']] = 'allow';
+
 				$smcFunc['db_free_result']($request);
 			}
 
@@ -1208,7 +1209,7 @@ function ModifyMembergroupsettings()
 
 	// Only one thing here!
 	$config_vars = array(
-			array('permissions', 'manage_membergroups'),
+		array('permissions', 'manage_membergroups'),
 	);
 
 	call_integration_hook('integrate_modify_membergroup_settings', array(&$config_vars));

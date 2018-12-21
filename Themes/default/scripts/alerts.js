@@ -2,97 +2,97 @@ var pingTime = 10000;
 
 var updateAlerts = function ()
 {
-    var unreadAlerts;
+	var unreadAlerts;
 
-    // Prevent multiple notifications across browsers
-    if (typeof localStorage != 'undefined')
-    {
-        unreadAlerts = localStorage.getItem('alertsCounter');
+	// Prevent multiple notifications across browsers
+	if (typeof localStorage != 'undefined')
+	{
+		unreadAlerts = localStorage.getItem('alertsCounter');
 
-        if (unreadAlerts !== parseInt(unreadAlerts))
-            return true;
+		if (unreadAlerts !== parseInt(unreadAlerts))
+			return true;
 
-        if ($('.amt:first').is(':visible'))
-            $('.amt:first').text(unreadAlerts);
-        else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
-            $('#alerts_menu_top').append(' <span class="amt">' + unreadAlerts + '</span>');
+		if ($('.amt:first').is(':visible'))
+			$('.amt:first').text(unreadAlerts);
+		else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+			$('#alerts_menu_top').append(' <span class="amt">' + unreadAlerts + '</span>');
 
-        if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
-        {
-            setTimeout(updateAlerts, 1000);
-            return true;
-        }
-        localStorage.setItem('alertsPoll', +(new Date()));
-    }
-    else
-        unreadAlerts = $('.amt:first').text() ? $('.amt:first').text() : 0;
+		if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
+		{
+			setTimeout(updateAlerts, 1000);
+			return true;
+		}
+		localStorage.setItem('alertsPoll', +(new Date()));
+	}
+	else
+		unreadAlerts = $('.amt:first').text() ? $('.amt:first').text() : 0;
 
-    unreadAlerts = parseInt(unreadAlerts);
+	unreadAlerts = parseInt(unreadAlerts);
 
-    $.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts + ';u=' + smf_member_id, function (data)
-    {
-        var alerts = $(data).find('.unread');
-        if (alerts.length == 0)
-            return true;
+	$.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts + ';u=' + smf_member_id, function (data)
+	{
+		var alerts = $(data).find('.unread');
+		if (alerts.length == 0)
+			return true;
 
-        unreadAlerts += alerts.length;
+		unreadAlerts += alerts.length;
 
-        if (unreadAlerts !== parseInt(unreadAlerts))
-            return true;
+		if (unreadAlerts !== parseInt(unreadAlerts))
+			return true;
 
-        if (typeof localStorage != 'undefined')
-            localStorage.setItem('alertsCounter', unreadAlerts);
+		if (typeof localStorage != 'undefined')
+			localStorage.setItem('alertsCounter', unreadAlerts);
 
-        if ($('.amt:first').is(':visible'))
-            $('.amt:first').text(unreadAlerts);
-        else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
-            $('#alerts_menu_top').append('<span class="amt">' + unreadAlerts + '</span>');
+		if ($('.amt:first').is(':visible'))
+			$('.amt:first').text(unreadAlerts);
+		else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+			$('#alerts_menu_top').append('<span class="amt">' + unreadAlerts + '</span>');
 
-        $.each(alerts, function(index, item)
-        {
-            var notification = notify.createNotification(new_alert_title, {
-                body: $(item).find('div.details:first > span').text(),
-                icon: smf_images_url + '/blank.png'
-            });
+		$.each(alerts, function(index, item)
+		{
+			var notification = notify.createNotification(new_alert_title, {
+				body: $(item).find('div.details:first > span').text(),
+				icon: smf_images_url + '/blank.png'
+			});
 
-            notification.click(function()
-            {
-                window.focus();
-                if (!$('#alerts_menu').is(':visible'))
-                    $('#alerts_menu_top').click();
-            });
+			notification.click(function()
+			{
+				window.focus();
+				if (!$('#alerts_menu').is(':visible'))
+					$('#alerts_menu_top').click();
+			});
 
-            if (alert_timeout > 0)
-                setTimeout(function()
-                {
-                    notification.close();
-                }, alert_timeout);
-        });
-    });
+			if (alert_timeout > 0)
+				setTimeout(function()
+				{
+					notification.close();
+				}, alert_timeout);
+		});
+	});
 
-    setTimeout(updateAlerts, pingTime);
+	setTimeout(updateAlerts, pingTime);
 }
 
 $(function ()
 {
-    var permission = notify.permissionLevel();
-    if (permission == notify.PERMISSION_DEFAULT)
-    {
-        $('#alerts_menu_top').click(function()
-        {
-            window.notify.requestPermission(function()
-            {
-                if (notify.permissionLevel() == notify.PERMISSION_GRANTED)
-                    updateAlerts();
-            });
-        });
-    }
-    else if (permission == notify.PERMISSION_GRANTED)
-    {
-        setTimeout(updateAlerts, pingTime);
-        if (typeof localStorage != 'undefined')
-            localStorage.setItem('alertsCounter', parseInt($('.amt:first').text() ? $('.amt:first').text() : 0));
-    }
+	var permission = notify.permissionLevel();
+	if (permission == notify.PERMISSION_DEFAULT)
+	{
+		$('#alerts_menu_top').click(function()
+		{
+			window.notify.requestPermission(function()
+			{
+				if (notify.permissionLevel() == notify.PERMISSION_GRANTED)
+					updateAlerts();
+			});
+		});
+	}
+	else if (permission == notify.PERMISSION_GRANTED)
+	{
+		setTimeout(updateAlerts, pingTime);
+		if (typeof localStorage != 'undefined')
+			localStorage.setItem('alertsCounter', parseInt($('.amt:first').text() ? $('.amt:first').text() : 0));
+	}
 });
 
 /**
