@@ -48,17 +48,17 @@ function template_recent()
 		// If they *can* reply?
 		if ($post['can_reply'])
 			echo '
-				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 		// If they *can* quote?
 		if ($post['can_quote'])
 			echo '
-				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 		// How about... even... remove it entirely?!
 		if ($post['can_delete'])
 			echo '
-				<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
+				<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove'], '</a></li>';
 
 		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 			echo '
@@ -107,13 +107,13 @@ function template_unread()
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
 					<div class="info">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="board_stats centertext">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] == 'replies' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] == 'replies' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] == 'replies' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] == 'replies' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
-						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] == 'last_post' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] == 'last_post' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] == 'last_post' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] == 'last_post' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>';
 
 		// Show a "select all" box for quick moderation?
@@ -143,15 +143,15 @@ function template_unread()
 
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock"></span>';
+								<span class="main_icons lock"></span>';
 
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky"></span>';
+								<span class="main_icons sticky"></span>';
 
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll"></span>';
+								<span class="main_icons poll"></span>';
 
 			echo '
 							</div>';
@@ -258,13 +258,13 @@ function template_replies()
 				<div id="topic_header" class="title_bar">
 					<div class="board_icon"></div>
 					<div class="info">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="board_stats centertext">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] === 'replies' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] === 'replies' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] === 'replies' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] === 'replies' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
-						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] === 'last_post' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] === 'last_post' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] === 'last_post' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] === 'last_post' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>';
 
 		// Show a "select all" box for quick moderation?
@@ -294,15 +294,15 @@ function template_replies()
 
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock"></span>';
+								<span class="main_icons lock"></span>';
 
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky"></span>';
+								<span class="main_icons sticky"></span>';
 
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll"></span>';
+								<span class="main_icons poll"></span>';
 
 			echo '
 							</div>';

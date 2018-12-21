@@ -169,7 +169,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
 		'',
-		array('enable_sm_stats', $txt['sm_state_setting'], 'db', 'check', null, 'enable_sm_stats'),
+		array('enable_sm_stats', $txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));

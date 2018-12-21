@@ -287,7 +287,7 @@ function determineActions($urls, $preferred_prefix = false)
 		'setcensor' => array('moderate_forum'),
 		'setreserve' => array('moderate_forum'),
 		'stats' => array('view_stats'),
-		'viewErrorLog' => array('admin_forum'),
+		'viewerrorlog' => array('admin_forum'),
 		'viewmembers' => array('moderate_forum'),
 	);
 	call_integration_hook('who_allowed', array(&$allowedActions));
@@ -428,7 +428,7 @@ function determineActions($urls, $preferred_prefix = false)
 				$error_message = str_replace('"', '&quot;', $actions['error']);
 
 			if (!empty($error_message))
-				$data[$k] .= ' <span class="generic_icons error" title="' . $error_message . '"></span>';
+				$data[$k] .= ' <span class="main_icons error" title="' . $error_message . '"></span>';
 		}
 
 		// Maybe the action is integrated into another system?

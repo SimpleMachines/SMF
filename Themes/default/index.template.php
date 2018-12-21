@@ -62,11 +62,11 @@ function template_init()
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
-		'previous_page' => '<span class="generic_icons previous_page"></span>',
+		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
-		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-		'next_page' => '<span class="generic_icons next_page"></span>',
+		'next_page' => '<span class="main_icons next_page"></span>',
 		'extra_after' => '',
 	);
 
@@ -346,7 +346,7 @@ function template_body_above()
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">
 							<div class="popup_heading">', $txt['mobile_user_menu'], '
-								<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 							</div>
 							', template_menu(), '
 						</div>

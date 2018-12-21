@@ -64,7 +64,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu, #topic_container .moderation .generic_icons {
+	.generic_menu, #topic_container .moderation .main_icons {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -191,7 +191,7 @@
 	.subject_title input {
 		width: 90%;
 	}
-	#quickReplyOptions .roundframe {
+	#quickreply_options .roundframe {
 		padding: 8px 10px 12px 10px;
 	}
 
@@ -205,7 +205,7 @@
 	img#icons {
 		margin: 0 0 0 5px;
 	}
-	#quickReplyOptions #postmodify {
+	#quickreply_options #postmodify {
 		width: 100%;
 	}
 	/* Poll */
@@ -259,7 +259,7 @@
 		margin: 0 !important;
 		width: 100% !important;
 	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+	#upshrink_stats p.inline, #upshrink_stats p.last {
 		padding: 5px !important;
 	}
 	th.recentboard, th.recenttime,
@@ -326,7 +326,7 @@
 		display: none;
 	}
 	/* Admin */
-	#live_news, #supportVersionsTable {
+	#live_news, #support_info {
 		width: 100% !important;
 		padding: 0 !important;
 		margin: 0 0 5px 0;
@@ -428,7 +428,7 @@
 		max-height: 300px;
 	}
 	img.icon, #forumposts .catbg img,
-	#topic_container .moderation .generic_icons {
+	#topic_container .moderation .main_icons {
 		display: none;
 	}
 	.keyinfo h5 .modified {
@@ -440,7 +440,7 @@
 		margin: 0 !important;
 		width: 100% !important;
 	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+	#upshrink_stats p.inline, #upshrink_stats p.last {
 		padding: 5px !important;
 	}
 

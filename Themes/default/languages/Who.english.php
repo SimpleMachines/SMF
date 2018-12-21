@@ -11,7 +11,7 @@ $txt['who_unknown'] = '<em>Unknown Action</em>';
 $txt['who_user'] = 'User';
 $txt['who_time'] = 'Time';
 $txt['who_action'] = 'Action';
-$txt['who_show1'] = 'Show ';
+$txt['who_show'] = 'Show ';
 $txt['who_show_members_only'] = 'Members only';
 $txt['who_show_guests_only'] = 'Guests only';
 $txt['who_show_spiders_only'] = 'Spiders only';
@@ -111,7 +111,7 @@ $txt['whoallow_repairboards'] = 'Repairing the database tables.';
 $txt['whoallow_search'] = '<a href="' . $scripturl . '?action=search">Searching</a> the forum.';
 $txt['whoallow_search2'] = 'Viewing the results of a search.';
 $txt['whoallow_stats'] = 'Viewing the <a href="' . $scripturl . '?action=stats">forum stats</a>.';
-$txt['whoallow_viewErrorLog'] = 'Viewing the error log.';
+$txt['whoallow_viewerrorlog'] = 'Viewing the error log.';
 $txt['whoallow_viewmembers'] = 'Viewing a list of members.';
 
 $txt['who_topic'] = 'Viewing the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';

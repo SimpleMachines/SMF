@@ -100,10 +100,10 @@ function template_show_upcoming_list($grid_name)
 						<strong class="event_title">', $event['link'], '</strong>';
 
 				if ($event['can_edit'])
-					echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
+					echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
 
 				if ($event['can_export'])
-					echo ' <a href="' . $event['export_href'] . '"><span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+					echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
 
 				echo '
 						<br>';
@@ -470,14 +470,14 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								if ($event['can_edit'])
 									echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 
 								// Exporting!
 								if ($event['can_export'])
 									echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 
 								echo '
@@ -654,14 +654,14 @@ function template_show_week_grid($grid_name)
 						if (!empty($event['can_edit']))
 							echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 
 						// Can we export? Sweet.
 						if (!empty($event['can_export']))
 							echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 
 						echo '

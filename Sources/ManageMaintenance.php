@@ -1920,7 +1920,7 @@ function list_integration_hooks()
 					'function' => function($data) use ($txt)
 					{
 						// Show a nice icon to indicate this is an instance.
-						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
+						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']))
 							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
@@ -1959,7 +1959,7 @@ function list_integration_hooks()
 						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
 						$change_status['after'] = '</a>';
 
-						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
+						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
 				),
@@ -1975,9 +1975,9 @@ function list_integration_hooks()
 				'value' => $txt['hooks_disable_instructions'] . '<br>
 					' . $txt['hooks_disable_legend'] . ':
 				<ul style="list-style: none;">
-					<li><span class="generic_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><span class="generic_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><span class="generic_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
+					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
+					<li><span class="main_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
+					<li><span class="main_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
 				</ul>'
 			),
 		),
@@ -1994,7 +1994,7 @@ function list_integration_hooks()
 				if (!$data['hook_exists'])
 					return '
 					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
-						<span class="generic_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
+						<span class="main_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
 					</a>';
 			},
 			'class' => 'centertext',

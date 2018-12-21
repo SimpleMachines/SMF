@@ -30,7 +30,7 @@ function template_generic_menu_dropdown_above()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', $txt['mobile_user_menu'], '
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_generic_menu($menu_context), '
 				</div>
@@ -215,7 +215,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
 				echo '
-								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
+								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}

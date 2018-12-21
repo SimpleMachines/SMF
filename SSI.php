@@ -1403,7 +1403,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
 	// If mods want to do somthing with this list of polls, let them do that now.
 	call_integration_hook('integrate_ssi_recentPoll', array(&$return, $topPollInstead));
@@ -1572,7 +1572,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($sOptions), $row['max_votes'])) : '';
 
 	// If mods want to do somthing with this poll, let them do that now.
 	call_integration_hook('integrate_ssi_showPoll', array(&$return));

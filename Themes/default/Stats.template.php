@@ -25,7 +25,7 @@ function template_main()
 		<div class="roundframe">
 			<div class="title_bar">
 				<h4 class="titlebg">
-					<span class="generic_icons general"></span> ', $txt['general_stats'], '
+					<span class="main_icons general"></span> ', $txt['general_stats'], '
 				</h4>
 			</div>
 			<dl class="stats half_content">
@@ -92,7 +92,7 @@ function template_main()
 			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="generic_icons ', $name, '"></span> ', $txt['top_' . $name], '
+						<span class="main_icons ', $name, '"></span> ', $txt['top_' . $name], '
 					</h4>
 				</div>
 				<dl class="stats">';
@@ -127,7 +127,7 @@ function template_main()
 		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons history"></span>', $txt['forum_history'], '
+				<span class="main_icons history"></span>', $txt['forum_history'], '
 			</h3>
 		</div>';
 
