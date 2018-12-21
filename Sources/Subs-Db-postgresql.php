@@ -975,6 +975,9 @@ function smf_db_error_insert($error_array)
 	if (empty($db_connection))
 		return;
 
+	if (filter_var($error_array[2], FILTER_VALIDATE_IP) === false)
+		$error_array[2] = null;
+
 	if(empty($db_persist))
 	{ // without pooling
 		if (empty($pg_error_data_prep))
