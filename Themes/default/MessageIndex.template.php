@@ -35,26 +35,26 @@ function template_main()
 		foreach ($context['boards'] as $board)
 		{
 			echo '
-			<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
-				<div class="board_icon">
-					', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
-				</div>
-				<div class="info">
-					', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
-				</div><!-- .info -->';
+		<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+			<div class="board_icon">
+				', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
+			</div>
+			<div class="info">
+				', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
+			</div><!-- .info -->';
 
 			// Show some basic information about the number of posts, etc.
 			echo '
-				<div class="board_stats">
-					', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
-				</div>';
+			<div class="board_stats">
+				', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
+			</div>';
 				
 			// Show the last post if there is one.
 			if(!empty($board['last_post']['id']))
 				echo '
-				<div class="lastpost lpr_border">
-					', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
-				</div>';
+			<div class="lastpost lpr_border">
+				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+			</div>';
 
 			// Won't somebody think of the children!
 			if (function_exists('template_bi_' . $board['type'] . '_children'))
@@ -63,7 +63,7 @@ function template_main()
 				template_bi_board_children($board);
 
 				echo '
-			</div><!-- #board_[id] -->';
+		</div><!-- #board_[id] -->';
 		}
 
 		echo '
