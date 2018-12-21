@@ -293,9 +293,11 @@ if (!function_exists('template_button_strip'))
 	function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
 	{
 	}
+
 	function template_menu()
 	{
 	}
+
 	function theme_linktree()
 	{
 	}

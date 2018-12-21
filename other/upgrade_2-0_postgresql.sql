@@ -4,7 +4,7 @@
 --- Adding Open ID support.
 /******************************************************************************/
 
----# Adding Open ID Assocation table...
+---# Adding Open ID Association table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}openid_assoc (
 	server_url text NOT NULL,
 	handle varchar(255) NOT NULL,
@@ -235,7 +235,7 @@ $smcFunc['db_insert']('ignore',
 	'{db_prefix}themes',
 	array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-255'),
 	array(1, 'forum_width', '90%'),
-	array('id_theme', 'variable', 'value')
+	array('id_theme', 'variable')
 );
 ---}
 ---#
@@ -785,7 +785,7 @@ $smcFunc['db_remove_index']($db_prefix . 'log_activity', $db_prefix . 'log_activ
 // Don't do this if we've done this already.
 if (empty($modSettings['dont_repeat_buddylists']))
 {
-	// Make sure the pm_receive_from column has the right default value - early adoptors might have a '0' set here.
+	// Make sure the pm_receive_from column has the right default value - early adopters might have a '0' set here.
 	upgrade_query("
 		ALTER TABLE {$db_prefix}members
 		ALTER COLUMN pm_receive_from SET DEFAULT '1'");

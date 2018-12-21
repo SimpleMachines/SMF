@@ -56,8 +56,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 	echo '
 			});';
 
-		// Now for backward compatibility let's collect few infos in the good ol' style
-		echo '
+	// Now for backward compatibility let's collect few infos in the good ol' style
+	echo '
 			var oEditorHandle_', $editor_id, ' = new smc_Editor({
 				sUniqueId: ', JavaScriptEscape($editor_id), ',
 				sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
@@ -238,7 +238,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
-				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl='.$lang.'"></script>';
+				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=' . $lang . '"></script>';
 			}
 		}
 		else

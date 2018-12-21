@@ -151,7 +151,7 @@ function template_maintenance()
 			echo '
 						<option value="', $id, '">', $dir, '</option>';
 	else
-			echo '
+		echo '
 						<option value="0" disabled>', $txt['attachment_transfer_no_base'], '</option>';
 
 	echo '
