@@ -616,6 +616,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList() in TaskLog().
+ *
  * @return int The number of log entries
  */
 function list_getNumTaskLogEntries()

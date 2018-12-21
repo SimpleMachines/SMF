@@ -97,6 +97,9 @@ abstract class Minify
     {
         $content = $this->execute($path);
 
+        // These are not the droids you're looking for
+        $content = "/* Any changes to this file will be overwritten. To change the content\nof this file, edit the source files from which it was compiled. */\n" . $content;
+
         // save to path
         if ($path !== null) {
             $this->save($content, $path);

@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc;
+	global $modSettings, $boardurl, $sc, $smcFunc;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -53,7 +53,7 @@ function loadSession()
 		// This is here to stop people from using bad junky PHPSESSIDs.
 		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
 		{
-			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
+			$session_id = md5(md5('smf_sess_' . time()) . $smcFunc['random_int']());
 			$_REQUEST[session_name()] = $session_id;
 			$_GET[session_name()] = $session_id;
 			$_POST[session_name()] = $session_id;
@@ -85,8 +85,8 @@ function loadSession()
 	// Set the randomly generated code.
 	if (!isset($_SESSION['session_var']))
 	{
-		$_SESSION['session_value'] = md5(session_id() . mt_rand());
-		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(mt_rand() . session_id() . mt_rand())), 0, mt_rand(7, 12));
+		$_SESSION['session_value'] = md5(session_id() . $smcFunc['random_int']());
+		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1($smcFunc['random_int']() . session_id() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));
 	}
 	$sc = $_SESSION['session_value'];
 }
@@ -169,7 +169,7 @@ function sessionWrite($session_id, $data)
 			$db_options['port'] = $db_port;
 
 		if (!empty($db_mb4))
-		$db_options['db_mb4'] = $db_mb4;
+			$db_options['db_mb4'] = $db_mb4;
 
 		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
 

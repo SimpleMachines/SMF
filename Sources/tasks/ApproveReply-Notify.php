@@ -1,6 +1,7 @@
 <?php
 /**
- * This file contains background notification code for any create post action
+ * This file contains background notification code for members to
+ * reply to posts made by moderators in their own unapproved topics.
  *
  * Simple Machines Forum (SMF)
  *
@@ -18,7 +19,7 @@
 class ApproveReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts.
 	 * @return bool Always returns true.
 	 */
 	public function execute()
@@ -56,7 +57,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 		{
 			$pref = !empty($prefs[$member]['unapproved_reply']) ? $prefs[$member]['unapproved_reply'] : 0;
 
-			if ($pref & 0x02)
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
 				require_once($sourcedir . '/Subs-Post.php');
@@ -73,7 +74,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
-			if ($pref & 0x01)
+			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),

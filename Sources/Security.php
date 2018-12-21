@@ -716,14 +716,14 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
  */
 function checkConfirm($action)
 {
-	global $modSettings;
+	global $modSettings, $smcFunc;
 
 	if (isset($_GET['confirm']) && isset($_SESSION['confirm_' . $action]) && md5($_GET['confirm'] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['confirm_' . $action])
 		return true;
 
 	else
 	{
-		$token = md5(mt_rand() . session_id() . (string) microtime() . $modSettings['rand_seed']);
+		$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed']);
 		$_SESSION['confirm_' . $action] = md5($token . $_SERVER['HTTP_USER_AGENT']);
 
 		return $token;
@@ -739,10 +739,10 @@ function checkConfirm($action)
  */
 function createToken($action, $type = 'post')
 {
-	global $modSettings, $context;
+	global $modSettings, $context, $smcFunc;
 
-	$token = md5(mt_rand() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
-	$token_var = substr(preg_replace('~^\d+~', '', md5(mt_rand() . (string) microtime() . mt_rand())), 0, mt_rand(7, 12));
+	$token = md5($smcFunc['random_int']() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
+	$token_var = substr(preg_replace('~^\d+~', '', md5($smcFunc['random_int']() . (string) microtime() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));
 
 	$_SESSION['token'][$type . '-' . $action] = array($token_var, md5($token . $_SERVER['HTTP_USER_AGENT']), time(), $token);
 
@@ -903,7 +903,7 @@ function allowedTo($permission, $boards = null, $any = false)
 		return true;
 
 	// You're never allowed to do something if your data hasn't been loaded yet!
-	if (empty($user_info))
+	if (empty($user_info) || !isset($user_info['permissions']))
 		return false;
 
 	// Administrators are supermen :P.
@@ -1160,7 +1160,6 @@ function spamProtection($error_type, $only_return_result = false)
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
 
-
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
@@ -1266,7 +1265,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 else
 	exit;
 
-?'. '>');
+?' . '>');
 			fclose($fh);
 		}
 		$errors[] = 'index-php_cannot_create_file';
@@ -1279,11 +1278,11 @@ else
 }
 
 /**
-* This sets the X-Frame-Options header.
-*
-* @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
-* @since 2.1
-*/
+ * This sets the X-Frame-Options header.
+ *
+ * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+ * @since 2.1
+ */
 function frameOptionsHeader($override = null)
 {
 	global $modSettings;

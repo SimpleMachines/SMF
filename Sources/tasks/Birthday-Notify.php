@@ -87,7 +87,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 						'REALNAME' => $member['name'],
 					);
 
-					if ($pref & 0x01)
+					if ($pref & self::RECEIVE_NOTIFY_ALERT)
 					{
 						$alertdata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						// For the alerts, we need to replace \n line breaks with <br> line breaks.
@@ -105,7 +105,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 						updateMemberData($member_id, array('alerts' => '+'));
 					}
 
-					if ($pref & 0x02)
+					if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 					{
 						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);

@@ -2150,7 +2150,7 @@ WHERE id_pm_head = 0;
 --- Adding Open ID support.
 /******************************************************************************/
 
----# Adding Open ID Assocation table...
+---# Adding Open ID Association table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}openid_assoc (
 	server_url text NOT NULL,
 	handle varchar(255) NOT NULL default '',
@@ -2635,7 +2635,7 @@ ADD COLUMN pm_receive_from tinyint(4) unsigned NOT NULL default '1';
 // Don't do this if we've done this already.
 if (empty($modSettings['dont_repeat_buddylists']))
 {
-	// Make sure the pm_receive_from column has the right default value - early adoptors might have a '0' set here.
+	// Make sure the pm_receive_from column has the right default value - early adopters might have a '0' set here.
 	upgrade_query("
 		ALTER TABLE {$db_prefix}members
 		CHANGE pm_receive_from pm_receive_from tinyint(3) unsigned NOT NULL default '1'");
@@ -2770,8 +2770,10 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 	// Don't do anything if this theme is already uninstalled
 	if (smf_mysql_num_rows($theme_request) == 1)
 	{
-		$id_theme = mysql_result($theme_request, 0);
-		mysql_free_result($theme_request);
+		$row = smf_mysql_fetch_row($theme_request);
+		$id_theme = $row[0];
+		smf_mysql_free_result($theme_request);
+		unset($row);
 
 		$known_themes = explode(', ', $modSettings['knownThemes']);
 

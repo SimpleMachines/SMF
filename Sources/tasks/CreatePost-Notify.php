@@ -18,12 +18,6 @@
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-	 * Constants for receiving email notfications.
-	*/
-	const RECEIVE_NOTIFY_EMAIL = 0x02;
-	const RECEIVE_NOTIFY_ALERT = 0x01;
-
-	/**
 	 * Constants for reply types.
 	*/
 	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;
@@ -180,7 +174,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				if (!empty($prefs[$member]['msg_receive_body']))
 					$message_type .= '_body';
 			}
-			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
+			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
 			else
 				continue;
 

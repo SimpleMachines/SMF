@@ -39,8 +39,8 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 
 		// So now we find out who wants what.
 		$alert_bits = array(
-			'alert' => 0x01,
-			'email' => 0x02,
+			'alert' => self::RECEIVE_NOTIFY_ALERT,
+			'email' => self::RECEIVE_NOTIFY_EMAIL,
 		);
 		$notifies = array();
 
