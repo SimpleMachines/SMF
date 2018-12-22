@@ -367,22 +367,23 @@ function reloadSettings()
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 
-	// Define a list of old BBC tags no longer parsed
+	// Define a list of deprecated BBC tags
+	// Even when enabled, they'll only work in old posts and not new ones
 	$context['legacy_bbc'] = array(
-		'br',
-		'tt',
-		'flash',
+		'acronym',
 		'bdo',
 		'black',
-		'white',
-		'red',
-		'green',
 		'blue',
-		'acronym',
+		'br',
+		'flash',
 		'ftp',
 		'glow',
+		'green',
 		'move',
+		'red',
 		'shadow',
+		'tt',
+		'white',
 	);
 
 	// Call pre load integration functions.
