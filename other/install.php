@@ -1560,7 +1560,10 @@ function AdminAccount()
 		}
 		elseif ($_POST['username'] != '')
 		{
-			$incontext['member_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+            if (!is_callable('random_int'))
+                require_once('Sources/random_compat/lib/random.php');
+
+			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
