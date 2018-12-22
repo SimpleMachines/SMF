@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors Holds any errors found while tyring to post
+ * @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {
@@ -101,7 +101,8 @@ function Post($post_errors = array())
 			WHERE id_msg = {int:msg}',
 			array(
 				'msg' => (int) $_REQUEST['msg'],
-		));
+			)
+		);
 		if ($smcFunc['db_num_rows']($request) != 1)
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
 		else
@@ -290,8 +291,8 @@ function Post($post_errors = array())
 			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 		$js_time_string = str_replace(
-			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
-			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
+			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r', '%R', '%S', '%T', '%X'),
+			array('H', 'G', 'h', 'g', 'i', 'A', 'a', 'h:i:s A', 'H:i', 's', 'H:i:s', 'H:i:s'),
 			$time_string
 		);
 
@@ -394,11 +395,11 @@ function Post($post_errors = array())
 		timeClass: "time_input",
 		dateClass: "date_input",
 		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+			var utc = new Date($(el).datepicker("getDate"));
+			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
 		},
 		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
 		}
 	});
 	', true);
@@ -1269,54 +1270,57 @@ function Post($post_errors = array())
 		foreach ($context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({
-		name: '. JavaScriptEscape($mock['name']) . ',
-		size: '. $mock['size'] . ',
-		attachID: '. $mock['attachID'] . ',
-		approved: '. $mock['approved'] . ',
-		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
-		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
+		name: ' . JavaScriptEscape($mock['name']) . ',
+		size: ' . $mock['size'] . ',
+		attachID: ' . $mock['attachID'] . ',
+		approved: ' . $mock['approved'] . ',
+		type: ' . JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
+		thumbID: ' . (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
 	});');
 	}
 
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.' . $smcFunc['htmltrim']($val); } , explode(',', $context['allowed_extensions'])));
+		$acceptedFiles = implode(',', array_map(function($val) use ($smcFunc)
+		{
+			return '.' . $smcFunc['htmltrim']($val);
+		}, explode(',', $context['allowed_extensions'])));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
 		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');
 		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
-			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) . ',
-			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) . ',
-			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) . ',
-			genericError: '. JavaScriptEscape($txt['attach_php_error']) . ',
-			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) . ',
-			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) . ',
-			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) . ',
-			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) . ',
-			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) . ',
-			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) . ',
-			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) . ',
-			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) . ',
-			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
-			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
-			acceptedFiles: '. JavaScriptEscape($acceptedFiles) . ',
-			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
-			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
-			maxFileAmount: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
+			dictDefaultMessage : ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
+			dictFallbackMessage : ' . JavaScriptEscape($txt['attach_drop_zone_no']) . ',
+			dictCancelUpload : ' . JavaScriptEscape($txt['modify_cancel']) . ',
+			genericError: ' . JavaScriptEscape($txt['attach_php_error']) . ',
+			text_attachLeft: ' . JavaScriptEscape($txt['attachments_left']) . ',
+			text_deleteAttach: ' . JavaScriptEscape($txt['attached_file_delete']) . ',
+			text_attachDeleted: ' . JavaScriptEscape($txt['attached_file_deleted']) . ',
+			text_insertBBC: ' . JavaScriptEscape($txt['attached_insert_bbc']) . ',
+			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
+			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
+			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			text_max_size_progress: ' . JavaScriptEscape($txt['attach_max_size_progress']) . ',
+			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
+			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
+			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
+			acceptedFiles: ' . JavaScriptEscape($acceptedFiles) . ',
+			thumbnailWidth: ' . (!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
+			thumbnailHeight: ' . (!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
+			limitMultiFileUploadSize:' . round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
+			maxFileAmount: ' . (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
 			maxTotalSize: ' . (!empty($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] : '0') . ',
-			maxFileSize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
+			maxFileSize: ' . (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
 		});
 	});', true);
 	}
 
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
-	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
 	// Now let's set up the fields for the posting form header...
 	$context['posting_fields'] = array();
@@ -1422,7 +1426,6 @@ function Post($post_errors = array())
 			'selected' => $icon['value'] == $context['icon'],
 		);
 	}
-
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
@@ -2039,7 +2042,7 @@ function Post2()
 		if (!empty($context['we_are_history']))
 			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
 			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;

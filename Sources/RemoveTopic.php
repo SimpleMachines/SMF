@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -558,7 +558,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	);
 
 	// Maybe there's a mod that wants to delete topic related data of its own
- 	call_integration_hook('integrate_remove_topics', array($topics));
+	call_integration_hook('integrate_remove_topics', array($topics));
 
 	// Update the totals...
 	updateStats('message');
@@ -609,6 +609,7 @@ function removeMessage($message, $decreasePostCount = true)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		return false;
+
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -1492,6 +1493,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 
 /**
  * Try to determine if the topic has already been deleted by another user.
+ *
  * @return bool False if it can't be deleted (recycling not enabled or no recycling board set), true if we've confirmed it can be deleted. Dies with an error if it's already been deleted.
  */
 function removeDeleteConcurrence()

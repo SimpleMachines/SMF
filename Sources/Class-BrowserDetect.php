@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -101,9 +101,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is Opera or not
-	* @return boolean Whether or not this is Opera
-	*/
+	 * Determine if the browser is Opera or not
+	 *
+	 * @return boolean Whether or not this is Opera
+	 */
 	function isOpera()
 	{
 		if (!isset($this->_browsers['is_opera']))
@@ -112,9 +113,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is IE or not
-	* @return boolean true Whether or not the browser is IE
-	*/
+	 * Determine if the browser is IE or not
+	 *
+	 * @return boolean true Whether or not the browser is IE
+	 */
 	function isIe()
 	{
 		// I'm IE, Yes I'm the real IE; All you other IEs are just imitating.
@@ -124,9 +126,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is IE11 or not
-	* @return boolean Whether or not the browser is IE11
-	*/
+	 * Determine if the browser is IE11 or not
+	 *
+	 * @return boolean Whether or not the browser is IE11
+	 */
 	function isIe11()
 	{
 		// IE11 is a bit different than earlier versions
@@ -134,12 +137,13 @@ class browser_detector
 		if (!isset($this->_browsers['is_ie11']))
 			$this->_browsers['is_ie11'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== false && $this->isGecko();
 		return $this->_browsers['is_ie11'];
- 	}
+	}
 
 	/**
-	* Determine if the browser is Edge or not
-	* @return boolean Whether or not the browser is Edge
-	*/
+	 * Determine if the browser is Edge or not
+	 *
+	 * @return boolean Whether or not the browser is Edge
+	 */
 	function isEdge()
 	{
 		if (!isset($this->_browsers['is_edge']))
@@ -148,9 +152,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is a Webkit based one or not
-	* @return boolean Whether or not this is a Webkit-based browser
-	*/
+	 * Determine if the browser is a Webkit based one or not
+	 *
+	 * @return boolean Whether or not this is a Webkit-based browser
+	 */
 	function isWebkit()
 	{
 		if (!isset($this->_browsers['is_webkit']))
@@ -159,9 +164,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is Firefox or one of its variants
-	* @return boolean Whether or not this is Firefox (or one of its variants)
-	*/
+	 * Determine if the browser is Firefox or one of its variants
+	 *
+	 * @return boolean Whether or not this is Firefox (or one of its variants)
+	 */
 	function isFirefox()
 	{
 		if (!isset($this->_browsers['is_firefox']))
@@ -170,9 +176,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is WebTv or not
-	* @return boolean Whether or not this is WebTV
-	*/
+	 * Determine if the browser is WebTv or not
+	 *
+	 * @return boolean Whether or not this is WebTV
+	 */
 	function isWebTv()
 	{
 		if (!isset($this->_browsers['is_web_tv']))
@@ -181,9 +188,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is konqueror or not
-	* @return boolean Whether or not this is Konqueror
-	*/
+	 * Determine if the browser is konqueror or not
+	 *
+	 * @return boolean Whether or not this is Konqueror
+	 */
 	function isKonqueror()
 	{
 		if (!isset($this->_browsers['is_konqueror']))
@@ -192,9 +200,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is Gecko or not
-	* @return boolean Whether or not this is a Gecko-based browser
-	*/
+	 * Determine if the browser is Gecko or not
+	 *
+	 * @return boolean Whether or not this is a Gecko-based browser
+	 */
 	function isGecko()
 	{
 		if (!isset($this->_browsers['is_gecko']))
@@ -203,9 +212,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is Opera Mini or not
-	* @return boolean Whether or not this is Opera Mini
-	*/
+	 * Determine if the browser is Opera Mini or not
+	 *
+	 * @return boolean Whether or not this is Opera Mini
+	 */
 	function isOperaMini()
 	{
 		if (!isset($this->_browsers['is_opera_mini']))
@@ -216,9 +226,10 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is Opera Mobile or not
-	* @return boolean Whether or not this is Opera Mobile
-	*/
+	 * Determine if the browser is Opera Mobile or not
+	 *
+	 * @return boolean Whether or not this is Opera Mobile
+	 */
 	function isOperaMobi()
 	{
 		if (!isset($this->_browsers['is_opera_mobi']))
@@ -429,7 +440,7 @@ class browser_detector
 			'is_android' => false,
 			'is_chrome' => false,
 			'is_safari' => false,
-			'is_gecko'  => false,
+			'is_gecko' => false,
 			'is_edge' => false,
 			'is_ie8' => false,
 			'is_ie7' => false,

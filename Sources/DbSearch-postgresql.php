@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -38,12 +38,12 @@ function db_search_init()
 	$version = $smcFunc['db_get_version']();
 	// if we got a Beta Version
 	if (stripos($version, 'beta') !== false)
-		$version = substr($version, 0, stripos($version, 'beta')).'.0';
+		$version = substr($version, 0, stripos($version, 'beta')) . '.0';
 	// or RC
 	if (stripos($version, 'rc') !== false)
-		$version = substr($version, 0, stripos($version, 'rc')).'.0';
+		$version = substr($version, 0, stripos($version, 'rc')) . '.0';
 
-	if (version_compare($version,'9.5.0','>='))
+	if (version_compare($version, '9.5.0', '>='))
 		$smcFunc['db_support_ignore'] = true;
 }
 
@@ -55,7 +55,7 @@ function db_search_init()
  */
 function smf_db_search_support($search_type)
 {
-	$supported_types = array('custom','fulltext');
+	$supported_types = array('custom', 'fulltext');
 
 	return in_array($search_type, $supported_types);
 }
@@ -99,9 +99,10 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 	if (preg_match('~^\s*INSERT\sIGNORE~i', $db_string) != 0)
 	{
 		$db_string = preg_replace('~^\s*INSERT\sIGNORE~i', 'INSERT', $db_string);
-		if ($smcFunc['db_support_ignore']){
+		if ($smcFunc['db_support_ignore'])
+		{
 			//pg style "INSERT INTO.... ON CONFLICT DO NOTHING"
-			$db_string = $db_string.' ON CONFLICT DO NOTHING';
+			$db_string = $db_string . ' ON CONFLICT DO NOTHING';
 		}
 		else
 		{
@@ -146,8 +147,8 @@ function smf_db_create_word_search($size)
 }
 
 /**
-* Return the language for the textsearch index
-*/
+ * Return the language for the textsearch index
+ */
 function smf_db_search_language()
 {
 	global $smcFunc, $modSettings;
@@ -158,10 +159,10 @@ function smf_db_search_language()
 		$language_ftx = $modSettings['search_language'];
 	else
 	{
-		$request = $smcFunc['db_query']('','
+		$request = $smcFunc['db_query']('', '
 			SELECT cfgname FROM pg_ts_config WHERE oid = current_setting({string:default_language})::regconfig',
 			array(
-			'default_language' => 'default_text_search_config'
+				'default_language' => 'default_text_search_config'
 			)
 		);
 

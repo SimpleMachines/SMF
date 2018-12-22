@@ -1,14 +1,14 @@
 <?php
-// Version: 2.1 Beta 4; ManageMaintenance
+// Version: 2.1 RC1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
 $txt['repair_missing_messages'] = 'Topic #%1$d contains no (actual) messages.';
-$txt['repair_stats_topics_1'] = 'Topic #%1$d has the first message ID %2$d, which is incorrect.';
-$txt['repair_stats_topics_2'] = 'Topic #%1$d has the last message ID %2$d, which is incorrect.';
-$txt['repair_stats_topics_3'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
-$txt['repair_stats_topics_4'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
-$txt['repair_stats_topics_5'] = 'Topic #%1$d has the wrong approval flag set.';
+$txt['repair_topic_wrong_first_id'] = 'Topic #%1$d has the first message ID %2$d, which is incorrect.';
+$txt['repair_topic_wrong_last_id'] = 'Topic #%1$d has the last message ID %2$d, which is incorrect.';
+$txt['repair_topic_wrong_replies'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
+$txt['repair_topic_wrong_unapproved_number'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
+$txt['repair_topic_wrong_approval'] = 'Topic #%1$d has the wrong approval flag set.';
 $txt['repair_missing_boards'] = 'Topic #%1$d is in board #%2$d, which is missing.';
 $txt['repair_missing_categories'] = 'Board #%1$d is in category #%2$d, which is missing.';
 $txt['repair_missing_posters'] = 'Message #%1$d was posted by member #%2$d, who is now missing.';
@@ -137,7 +137,7 @@ $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
 $txt['errortype_paidsubs'] = 'Paid Subs';
 $txt['errortype_paidsubs_desc'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
 $txt['errortype_backup'] = 'Backups';
-$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the proceedure failed.';
+$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the procedure failed.';
 $txt['errortype_login'] = 'Logins';
 $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute force attempts.';
 

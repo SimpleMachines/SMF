@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -71,6 +71,7 @@ interface search_api_interface
 
 	/**
 	 * Callback when a post is created
+	 *
 	 * @see createPost()
 	 *
 	 * @access public
@@ -83,6 +84,7 @@ interface search_api_interface
 
 	/**
 	 * Callback when a post is modified
+	 *
 	 * @see modifyPost()
 	 *
 	 * @access public
@@ -143,12 +145,12 @@ abstract class search_api implements search_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 4';
+	public $version_compatible = 'SMF 2.1 RC1';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 4';
+	public $min_smf_version = 'SMF 2.1 RC1';
 
 	/**
 	 * @var bool Whether or not it's supported
@@ -164,12 +166,12 @@ abstract class search_api implements search_api_interface
 		{
 			case 'postRemoved':
 				return true;
-			break;
+				break;
 
 			// All other methods, too bad dunno you.
 			default:
 				return false;
-			break;
+				break;
 		}
 	}
 
@@ -223,7 +225,7 @@ abstract class search_api implements search_api_interface
 
 		global $smcFunc;
 
-		$result = $smcFunc['db_query']('','
+		$result = $smcFunc['db_query']('', '
 			SELECT DISTINCT id_search
 			FROM {db_prefix}log_search_results
 			WHERE id_msg = {int:id_msg}',
@@ -239,7 +241,7 @@ abstract class search_api implements search_api_interface
 		if (count($id_searchs) < 1)
 			return;
 
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_search_results
 			WHERE id_search in ({array_int:id_searchs})',
 			array(
@@ -247,7 +249,7 @@ abstract class search_api implements search_api_interface
 			)
 		);
 
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_search_topics
 			WHERE id_search in ({array_int:id_searchs})',
 			array(
@@ -255,7 +257,7 @@ abstract class search_api implements search_api_interface
 			)
 		);
 
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_search_messages
 			WHERE id_search in ({array_int:id_searchs})',
 			array(

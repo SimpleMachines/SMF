@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; index
+// Version: 2.1 RC1; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -198,7 +198,7 @@ $txt['search_on'] = 'on';
 $txt['search'] = 'Search';
 $txt['all'] = 'All';
 $txt['search_entireforum'] = 'Entire forum';
-$txt['search_thisbrd'] = 'This board';
+$txt['search_thisboard'] = 'This board';
 $txt['search_thistopic'] = 'This topic';
 $txt['search_members'] = 'Members';
 
@@ -299,7 +299,7 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['post_becomesUnapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
+$txt['post_becomes_unapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -592,7 +592,7 @@ $txt['select_item_check'] = 'Please select at least one item in the list';
 $txt['tables_optimized'] = 'Database tables optimized';
 
 $txt['add_poll'] = 'Add poll';
-$txt['poll_options6'] = 'You may only select up to %1$s options.';
+$txt['poll_options_limit'] = 'You may only select up to %1$s options.';
 $txt['poll_remove'] = 'Remove Poll';
 $txt['poll_remove_warn'] = 'Are you sure you want to remove this poll from the topic?';
 $txt['poll_results_expire'] = 'Results will be shown when voting has closed';
@@ -714,12 +714,12 @@ $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
-$txt['totalTimeLogged2'] = ' days, ';
-$txt['totalTimeLogged3'] = ' hours and ';
-$txt['totalTimeLogged4'] = ' minutes.';
-$txt['totalTimeLogged5'] = 'd ';
-$txt['totalTimeLogged6'] = 'h ';
-$txt['totalTimeLogged7'] = 'm';
+$txt['total_time_logged_days'] = ' days, ';
+$txt['total_time_logged_hours'] = ' hours and ';
+$txt['total_time_logged_minutes'] = ' minutes.';
+$txt['total_time_logged_d'] = 'd ';
+$txt['total_time_logged_h'] = 'h ';
+$txt['total_time_logged_m'] = 'm';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
 
@@ -802,7 +802,7 @@ $txt['activate_changed_email_title'] = 'Email Address Changed';
 $txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
 $txt['modSettings_title'] = 'Features and Options';
 $txt['package'] = 'Package Manager';
-$txt['errlog'] = 'Error Log';
+$txt['errorlog'] = 'Error Log';
 $txt['edit_permissions'] = 'Permissions';
 $txt['mc_unapproved_attachments'] = 'Unapproved Attachments';
 $txt['mc_unapproved_poststopics'] = 'Unapproved Posts and Topics';
@@ -895,5 +895,21 @@ $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
 $txt['mobile_user_menu'] = 'Mobile Main Menu';
+
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie")
+// Feel free to add or remove entries here as necessary for your language
+// Examples:
+// 	$txt['sentence_list_format'][2] specifies a format for a list with two items
+// 	$txt['sentence_list_format']['n'] specifies the default format
+// Notes on placeholders:
+// 	{1} = first item in the list, {2} = second item, etc.
+// 	{-1} = last item in the list, {-2} = second last item, etc.
+// 	{series} = concatenated string of the rest of the items in the list
+$txt['sentence_list_format'][1] = '{1}';
+$txt['sentence_list_format'][2] = '{1} and {-1}';
+$txt['sentence_list_format']['n'] = '{series}, and {-1}';
+// Separators used to build lists in a sentence
+$txt['sentence_list_separator'] = ', ';
+$txt['sentence_list_separator_alt'] = '; ';
 
 ?>

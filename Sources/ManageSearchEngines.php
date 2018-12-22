@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -325,6 +325,7 @@ function ViewSpiders()
 
 /**
  * Callback function for createList()
+ *
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
@@ -355,6 +356,7 @@ function list_getSpiders($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ *
  * @return int The number of known spiders
  */
 function list_getNumSpiders()
@@ -427,7 +429,6 @@ function EditSpider()
 				),
 				array('id_spider')
 			);
-
 
 		cache_put_data('spider_search', null);
 		recacheSpiderNames();
@@ -694,8 +695,8 @@ function SpiderLogs()
 
 			// Delete the entires.
 			$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_spider_hits
-			WHERE log_time < {int:delete_period}',
+				DELETE FROM {db_prefix}log_spider_hits
+				WHERE log_time < {int:delete_period}',
 				array(
 					'delete_period' => $deleteTime,
 				)
@@ -705,7 +706,7 @@ function SpiderLogs()
 		{
 			// Deleting all of them
 			$smcFunc['db_query']('', '
-			TRUNCATE TABLE {db_prefix}log_spider_hits',
+				TRUNCATE TABLE {db_prefix}log_spider_hits',
 				array()
 			);
 		}
@@ -845,6 +846,7 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ *
  * @return int The number of spider log entries
  */
 function list_getNumSpiderLogs()

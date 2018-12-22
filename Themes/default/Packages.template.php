@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -187,7 +187,7 @@ function template_view_package()
 					echo '
 								<tr class="windowbg">
 									<td class="smalltext" style="width: 5%;">
-										<a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="generic_icons package_ops"></span></a>
+										<a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="main_icons package_ops"></span></a>
 									</td>
 									<td class="smalltext" style="width: 5%;">', $operation_num, '.</td>
 									<td class="smalltext" style="width: 20%;">', $txt[$operation_text], '</td>
@@ -273,13 +273,13 @@ function template_view_package()
 						$operation_num = 1;
 						foreach ($action['operations'] as $operation)
 						{
-							// Determine the possition text.
+							// Determine the position text.
 							$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 							echo '
 								<tr class="windowbg">
 									<td width="0"></td>
-									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="generic_icons package_ops"></span></a></td>
+									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
 									<td width="30" class="smalltext">', $operation_num, '.</td>
 									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
 									<td width="50%" class="smalltext">', $operation['action'], '</td>
@@ -651,7 +651,7 @@ function template_browse()
 		{
 			var default_version = "', $context['default_version'], '";
 			$("#ve").find("option").filter(function(index) {
-    			return default_version === $(this).text();
+				return default_version === $(this).text();
 			}).attr("selected", "selected");
 			return false;
 		}
@@ -1406,7 +1406,7 @@ function template_file_permissions()
 						linkData.onclick = dynamicExpandFolder;
 
 						var folderImage = document.createElement("span");
-						folderImage.className = "generic_icons folder";
+						folderImage.className = "main_icons folder";
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
@@ -1528,7 +1528,7 @@ function template_file_permissions()
 	<form action="', $scripturl, '?action=admin;area=packages;sa=perms;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="fperm floatright">', $txt['package_file_perms_new_status'], '</span>
+				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="perms_status floatright">', $txt['package_file_perms_new_status'], '</span>
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -1536,11 +1536,11 @@ function template_file_permissions()
 				<tr class="title_bar">
 					<th class="lefttext" width="30%">', $txt['package_file_perms_name'], '</th>
 					<th width="30%" class="lefttext">', $txt['package_file_perms_status'], '</th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_read'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_write'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_execute'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_custom'], '</span></th>
-					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_read'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_write'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_execute'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_custom'], '</span></th>
+					<th width="8%"><span class="file_permissions">', $txt['package_file_perms_status_no_change'], '</span></th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -1554,7 +1554,7 @@ function template_file_permissions()
 
 		if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 			echo '
-							<span class="generic_icons folder"></span>';
+							<span class="main_icons folder"></span>';
 
 		echo '
 							', $name, '
@@ -1679,7 +1679,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 				echo '
-						<span class="generic_icons folder"></span>';
+						<span class="main_icons folder"></span>';
 
 			echo '
 						', $name, '

@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * Our Cache API class
+ *
  * @package cacheAPI
  */
 class memcached_cache extends cache_api
@@ -53,7 +54,7 @@ class memcached_cache extends cache_api
 		$currentServers = $this->memcached->getServerList();
 		foreach ($servers as $server)
 		{
-			if (strpos($server,'/') !== false)
+			if (strpos($server, '/') !== false)
 				$tempServer = array($server, 0);
 			else
 			{

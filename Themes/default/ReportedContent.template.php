@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -103,14 +103,13 @@ function template_reported_posts()
 
 	echo '
 			<div class="floatright">', !$context['view_closed'] ? '
-				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
+				<input type="hidden" name="' . $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
 				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
 }
-
 
 /**
  * A block to show the current top reported posts.
@@ -451,7 +450,7 @@ function template_reported_members()
 			echo '
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
-			echo '
+		echo '
 			</ul>
 		</div><!-- .generic_list_wrapper -->';
 	}

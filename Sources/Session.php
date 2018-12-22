@@ -14,7 +14,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -169,7 +169,7 @@ function sessionWrite($session_id, $data)
 			$db_options['port'] = $db_port;
 
 		if (!empty($db_mb4))
-		$db_options['db_mb4'] = $db_mb4;
+			$db_options['db_mb4'] = $db_mb4;
 
 		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
 

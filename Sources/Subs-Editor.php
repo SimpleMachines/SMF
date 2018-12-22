@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -236,7 +236,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/b]';
 								$replacement .= '[b]';
 							}
-						break;
+							break;
 
 						case 'text-decoration':
 							if ($style_value == 'underline')
@@ -249,7 +249,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/s]';
 								$replacement .= '[s]';
 							}
-						break;
+							break;
 
 						case 'text-align':
 							if ($style_value == 'left')
@@ -267,7 +267,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/right]';
 								$replacement .= '[right]';
 							}
-						break;
+							break;
 
 						case 'font-style':
 							if ($style_value == 'italic')
@@ -275,12 +275,12 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/i]';
 								$replacement .= '[i]';
 							}
-						break;
+							break;
 
 						case 'color':
 							$curCloseTags .= '[/color]';
 							$replacement .= '[color=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-size':
 							// Sometimes people put decimals where decimals should not be.
@@ -289,7 +289,7 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/size]';
 							$replacement .= '[size=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-family':
 							// Only get the first freaking font if there's a list!
@@ -298,19 +298,19 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/font]';
 							$replacement .= '[font=' . strtr($style_value, array("'" => '')) . ']';
-						break;
+							break;
 
 						// This is a hack for images with dimensions embedded.
 						case 'width':
 						case 'height':
 							if (preg_match('~[1-9]\d*~i', $style_value, $dimension) === 1)
 								$extra_attr .= ' ' . $style_type . '="' . $dimension[0] . '"';
-						break;
+							break;
 
 						case 'list-style-type':
 							if (preg_match('~none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha~i', $style_value, $listType) === 1)
 								$extra_attr .= ' listtype="' . $listType[0] . '"';
-						break;
+							break;
 					}
 				}
 
@@ -534,7 +534,7 @@ function html_to_bbc($text)
 							$parts[$i + 2] = '[list' . ($listType === null ? '' : ' type=' . $listType) . ']' . "\n";
 							$parts[$i + 3] = '';
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -569,7 +569,7 @@ function html_to_bbc($text)
 							}
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -620,7 +620,7 @@ function html_to_bbc($text)
 								$parts[$i + 3] = '';
 							}
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -644,7 +644,7 @@ function html_to_bbc($text)
 							$inList = true;
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -868,7 +868,7 @@ function html_to_bbc($text)
 		{
 			return "[hr]";
 		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function()
+		'~<blockquote(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "&lt;blockquote&gt;";
 		},
@@ -1112,7 +1112,8 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function ($a, $b) {
+	uksort($valid_tags, function($a, $b)
+	{
 		return strlen($a) < strlen($b) ? 1 : -1;
 	});
 
@@ -1524,6 +1525,7 @@ function getMessageIcons($board_id)
 
 /**
  * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
+ *
  * @param array $editorOptions Various options for the editor
  */
 function create_control_richedit($editorOptions)
@@ -1615,137 +1617,137 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $editortxt['Bold'],
+				'description' => $editortxt['bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $editortxt['Italic'],
+				'description' => $editortxt['italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $editortxt['Underline']
+				'description' => $editortxt['underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $editortxt['Strikethrough']
+				'description' => $editortxt['strikethrough']
 			),
 			array(
 				'code' => 'superscript',
-				'description' => $editortxt['Superscript']
+				'description' => $editortxt['superscript']
 			),
 			array(
 				'code' => 'subscript',
-				'description' => $editortxt['Subscript']
+				'description' => $editortxt['subscript']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $editortxt['Preformatted Text']
+				'description' => $editortxt['preformatted_text']
 			),
 			array(
 				'code' => 'left',
-				'description' => $editortxt['Align left']
+				'description' => $editortxt['align_left']
 			),
 			array(
 				'code' => 'center',
-				'description' => $editortxt['Center']
+				'description' => $editortxt['center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $editortxt['Align right']
+				'description' => $editortxt['align_right']
 			),
 			array(
 				'code' => 'justify',
-				'description' => $editortxt['Justify']
+				'description' => $editortxt['justify']
 			),
 			array(),
 			array(
 				'code' => 'font',
-				'description' => $editortxt['Font Name']
+				'description' => $editortxt['font_name']
 			),
 			array(
 				'code' => 'size',
-				'description' => $editortxt['Font Size']
+				'description' => $editortxt['font_size']
 			),
 			array(
 				'code' => 'color',
-				'description' => $editortxt['Font Color']
+				'description' => $editortxt['font_color']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'removeformat',
-				'description' => $editortxt['Remove Formatting'],
+				'description' => $editortxt['remove_formatting'],
 			);
 		}
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
-				'description' => $editortxt['Float left']
+				'description' => $editortxt['float_left']
 			),
 			array(
 				'code' => 'floatright',
-				'description' => $editortxt['Float right']
+				'description' => $editortxt['float_right']
 			),
 			array(),
 			array(
 				'code' => 'flash',
-				'description' => $editortxt['Flash']
+				'description' => $editortxt['flash']
 			),
 			array(
 				'code' => 'youtube',
-				'description' => $editortxt['Insert a YouTube video']
+				'description' => $editortxt['insert_youtube_video']
 			),
 			array(
 				'code' => 'image',
-				'description' => $editortxt['Insert an image']
+				'description' => $editortxt['insert_image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $editortxt['Insert a link']
+				'description' => $editortxt['insert_link']
 			),
 			array(
 				'code' => 'email',
-				'description' => $editortxt['Insert an email']
+				'description' => $editortxt['insert_email']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $editortxt['Insert a table']
+				'description' => $editortxt['insert_table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $editortxt['Code']
+				'description' => $editortxt['code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $editortxt['Insert a Quote']
+				'description' => $editortxt['insert_quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $editortxt['Bullet list']
+				'description' => $editortxt['bullet_list']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $editortxt['Numbered list']
+				'description' => $editortxt['numbered_list']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $editortxt['Insert a horizontal rule']
+				'description' => $editortxt['insert_horizontal_rule']
 			),
 			array(),
 			array(
 				'code' => 'maximize',
-				'description' => $editortxt['Maximize']
+				'description' => $editortxt['maximize']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'source',
-				'description' => $editortxt['View source'],
+				'description' => $editortxt['view_source'],
 			);
 		}
 
@@ -1979,17 +1981,17 @@ function create_control_richedit($editorOptions)
 		}
 
 		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		array_walk_recursive($context['smileys'], function (&$filename, $key)
-			{
-				global $context, $user_info, $modSettings;
-				if ($key == 'filename')
-					// Need to use the default if user selection is disabled
-					if (empty($modSettings['smiley_sets_enable']))
-						$filename .= $context['user']['smiley_set_default_ext'];
-					else
-						$filename .= $user_info['smiley_set_ext'];
+		array_walk_recursive($context['smileys'], function(&$filename, $key)
+		{
+			global $context, $user_info, $modSettings;
+			if ($key == 'filename')
+				// Need to use the default if user selection is disabled
+				if (empty($modSettings['smiley_sets_enable']))
+					$filename .= $context['user']['smiley_set_default_ext'];
+				else
+					$filename .= $user_info['smiley_set_ext'];
 
-			}
+		}
 		);
 	}
 
@@ -2073,6 +2075,7 @@ function create_control_richedit($editorOptions)
 
 /**
  * Create a anti-bot verification control?
+ *
  * @param array &$verificationOptions Options for the verification control
  * @param bool $do_test Whether to check to see if the user entered the code correctly
  * @return bool|array False if there's nothing to show, true if everything went well or an array containing error indicators if the test failed
@@ -2300,8 +2303,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			$possible_langs = array();
 			if (isset($_SESSION['language']))
 				$possible_langs[] = strtr($_SESSION['language'], array('-utf8' => ''));
-			if (!empty($user_info['language']));
-			$possible_langs[] = $user_info['language'];
+			if (!empty($user_info['language']))
+				$possible_langs[] = $user_info['language'];
+
 			$possible_langs[] = $language;
 
 			$questionIDs = array();
@@ -2368,6 +2372,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 /**
  * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+ *
  * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
  * @return void|bool Returns whether the callback function is registered if $checkRegistered isn't null
  */
@@ -2470,8 +2475,7 @@ function AutoSuggest_Search_MemberGroups()
 		WHERE {raw:group_name} LIKE {string:search}
 			AND min_posts = {int:min_posts}
 			AND id_group NOT IN ({array_int:invalid_groups})
-			AND hidden != {int:hidden}
-		',
+			AND hidden != {int:hidden}',
 		array(
 			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,

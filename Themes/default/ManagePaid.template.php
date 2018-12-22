@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -24,7 +24,7 @@ function template_modify_subscription()
 		echo '
 		<div class="noticebox">', $txt['paid_mod_edit_note'], '</div>';
 
-		echo '
+	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_' . $context['action_type'] . '_subscription'], '</h3>
 		</div>

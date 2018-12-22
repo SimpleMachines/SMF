@@ -13,12 +13,14 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
-namespace {
+namespace
+{
 
-	if (!defined('PASSWORD_DEFAULT')) {
+	if (!defined('PASSWORD_DEFAULT'))
+	{
 
 		define('PASSWORD_BCRYPT', 1);
 		define('PASSWORD_DEFAULT', PASSWORD_BCRYPT);
@@ -34,31 +36,39 @@ namespace {
 		 *
 		 * @return string|false The hashed password, or false on error.
 		 */
-		function password_hash($password, $algo, array $options = array()) {
+		function password_hash($password, $algo, array $options = array())
+		{
 			global $smcFunc;
 
-			if (!function_exists('crypt')) {
+			if (!function_exists('crypt'))
+			{
 				trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
 				return null;
 			}
-			if (!is_string($password)) {
+			if (!is_string($password))
+			{
 				trigger_error("password_hash(): Password must be a string", E_USER_WARNING);
 				return null;
 			}
-			if (!is_int($algo)) {
+			if (!is_int($algo))
+			{
 				trigger_error("password_hash() expects parameter 2 to be long, " . gettype($algo) . " given", E_USER_WARNING);
 				return null;
 			}
-			if (PasswordCompat\binary\_strlen($password) > 72) {
+			if (PasswordCompat\binary\_strlen($password) > 72)
+			{
 				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
-			switch ($algo) {
+			switch ($algo)
+			{
 				case PASSWORD_BCRYPT:
 					// Note that this is a C constant, but not exposed to PHP, so we don't define it here.
 					$cost = 10;
-					if (isset($options['cost'])) {
+					if (isset($options['cost']))
+					{
 						$cost = $options['cost'];
-						if ($cost < 4 || $cost > 31) {
+						if ($cost < 4 || $cost > 31)
+						{
 							trigger_error(sprintf("password_hash(): Invalid bcrypt cost parameter specified: %d", $cost), E_USER_WARNING);
 							return null;
 						}
@@ -76,8 +86,10 @@ namespace {
 					return null;
 			}
 			$salt_requires_encoding = false;
-			if (isset($options['salt'])) {
-				switch (gettype($options['salt'])) {
+			if (isset($options['salt']))
+			{
+				switch (gettype($options['salt']))
+				{
 					case 'NULL':
 					case 'boolean':
 					case 'integer':
@@ -86,7 +98,8 @@ namespace {
 						$salt = (string) $options['salt'];
 						break;
 					case 'object':
-						if (method_exists($options['salt'], '__tostring')) {
+						if (method_exists($options['salt'], '__tostring'))
+						{
 							$salt = (string) $options['salt'];
 							break;
 						}
@@ -96,51 +109,70 @@ namespace {
 						trigger_error('password_hash(): Non-string salt parameter supplied', E_USER_WARNING);
 						return null;
 				}
-				if (PasswordCompat\binary\_strlen($salt) < $required_salt_len) {
+				if (PasswordCompat\binary\_strlen($salt) < $required_salt_len)
+				{
 					trigger_error(sprintf("password_hash(): Provided salt is too short: %d expecting %d", PasswordCompat\binary\_strlen($salt), $required_salt_len), E_USER_WARNING);
 					return null;
-				} elseif (0 == preg_match('#^[a-zA-Z0-9./]+$#D', $salt)) {
+				}
+				elseif (0 == preg_match('#^[a-zA-Z0-9./]+$#D', $salt))
+				{
 					$salt_requires_encoding = true;
 				}
-			} else {
+			}
+			else
+			{
 				$buffer = '';
 				$buffer_valid = false;
-				if (function_exists('random_bytes')) {
+				if (function_exists('random_bytes'))
+				{
 					$buffer = random_bytes($raw_salt_len);
-					if ($buffer) {
+					if ($buffer)
+					{
 						$buffer_valid = true;
 					}
 				}
-				if (!$buffer_valid && function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
+				if (!$buffer_valid && function_exists('mcrypt_create_iv') && !defined('PHALANGER'))
+				{
 					$buffer = mcrypt_create_iv($raw_salt_len, MCRYPT_DEV_URANDOM);
-					if ($buffer) {
+					if ($buffer)
+					{
 						$buffer_valid = true;
 					}
 				}
-				if (!$buffer_valid && function_exists('openssl_random_pseudo_bytes')) {
+				if (!$buffer_valid && function_exists('openssl_random_pseudo_bytes'))
+				{
 					$buffer = openssl_random_pseudo_bytes($raw_salt_len);
-					if ($buffer) {
+					if ($buffer)
+					{
 						$buffer_valid = true;
 					}
 				}
-				if (!$buffer_valid && @is_readable('/dev/urandom')) {
+				if (!$buffer_valid && @is_readable('/dev/urandom'))
+				{
 					$f = fopen('/dev/urandom', 'r');
 					$read = PasswordCompat\binary\_strlen($buffer);
-					while ($read < $raw_salt_len) {
+					while ($read < $raw_salt_len)
+					{
 						$buffer .= fread($f, $raw_salt_len - $read);
 						$read = PasswordCompat\binary\_strlen($buffer);
 					}
 					fclose($f);
-					if ($read >= $raw_salt_len) {
+					if ($read >= $raw_salt_len)
+					{
 						$buffer_valid = true;
 					}
 				}
-				if (!$buffer_valid || PasswordCompat\binary\_strlen($buffer) < $raw_salt_len) {
+				if (!$buffer_valid || PasswordCompat\binary\_strlen($buffer) < $raw_salt_len)
+				{
 					$bl = PasswordCompat\binary\_strlen($buffer);
-					for ($i = 0; $i < $raw_salt_len; $i++) {
-						if ($i < $bl) {
+					for ($i = 0; $i < $raw_salt_len; $i++)
+					{
+						if ($i < $bl)
+						{
 							$buffer[$i] = $buffer[$i] ^ chr($smcFunc['random_int'](0, 255));
-						} else {
+						}
+						else
+						{
 							$buffer .= chr($smcFunc['random_int'](0, 255));
 						}
 					}
@@ -148,7 +180,8 @@ namespace {
 				$salt = $buffer;
 				$salt_requires_encoding = true;
 			}
-			if ($salt_requires_encoding) {
+			if ($salt_requires_encoding)
+			{
 				// encode string with the Base64 variant used by crypt
 				$base64_digits =
 					'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -164,7 +197,8 @@ namespace {
 
 			$ret = crypt($password, $hash);
 
-			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != $resultLength) {
+			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != $resultLength)
+			{
 				return false;
 			}
 
@@ -187,13 +221,15 @@ namespace {
 		 *
 		 * @return array The array of information about the hash.
 		 */
-		function password_get_info($hash) {
+		function password_get_info($hash)
+		{
 			$return = array(
 				'algo' => 0,
 				'algoName' => 'unknown',
 				'options' => array(),
 			);
-			if (PasswordCompat\binary\_substr($hash, 0, 4) == '$2y$' && PasswordCompat\binary\_strlen($hash) == 60) {
+			if (PasswordCompat\binary\_substr($hash, 0, 4) == '$2y$' && PasswordCompat\binary\_strlen($hash) == 60)
+			{
 				$return['algo'] = PASSWORD_BCRYPT;
 				$return['algoName'] = 'bcrypt';
 				list($cost) = sscanf($hash, "$2y$%d$");
@@ -213,15 +249,19 @@ namespace {
 		 *
 		 * @return boolean True if the password needs to be rehashed.
 		 */
-		function password_needs_rehash($hash, $algo, array $options = array()) {
+		function password_needs_rehash($hash, $algo, array $options = array())
+		{
 			$info = password_get_info($hash);
-			if ($info['algo'] != $algo) {
+			if ($info['algo'] != $algo)
+			{
 				return true;
 			}
-			switch ($algo) {
+			switch ($algo)
+			{
 				case PASSWORD_BCRYPT:
 					$cost = isset($options['cost']) ? $options['cost'] : 10;
-					if ($cost != $info['options']['cost']) {
+					if ($cost != $info['options']['cost'])
+					{
 						return true;
 					}
 					break;
@@ -237,21 +277,26 @@ namespace {
 		 *
 		 * @return boolean If the password matches the hash
 		 */
-		function password_verify($password, $hash) {
-			if (!function_exists('crypt')) {
+		function password_verify($password, $hash)
+		{
+			if (!function_exists('crypt'))
+			{
 				trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
 				return false;
 			}
-			if (PasswordCompat\binary\_strlen($password) > 72) {
+			if (PasswordCompat\binary\_strlen($password) > 72)
+			{
 				$password = PasswordCompat\binary\_substr($password, 0, 72);
 			}
 			$ret = crypt($password, $hash);
-			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != PasswordCompat\binary\_strlen($hash) || PasswordCompat\binary\_strlen($ret) <= 13) {
+			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != PasswordCompat\binary\_strlen($hash) || PasswordCompat\binary\_strlen($ret) <= 13)
+			{
 				return false;
 			}
 
 			$status = 0;
-			for ($i = 0; $i < PasswordCompat\binary\_strlen($ret); $i++) {
+			for ($i = 0; $i < PasswordCompat\binary\_strlen($ret); $i++)
+			{
 				$status |= (ord($ret[$i]) ^ ord($hash[$i]));
 			}
 
@@ -260,7 +305,8 @@ namespace {
 	}
 }
 
-namespace PasswordCompat\binary {
+namespace PasswordCompat\binary
+{
 	/**
 	 * Count the number of bytes in a string
 	 *
@@ -273,8 +319,10 @@ namespace PasswordCompat\binary {
 	 * @internal
 	 * @return int The number of bytes
 	 */
-	function _strlen($binary_string) {
-		if (function_exists('mb_strlen')) {
+	function _strlen($binary_string)
+	{
+		if (function_exists('mb_strlen'))
+		{
 			return mb_strlen($binary_string, '8bit');
 		}
 		return strlen($binary_string);
@@ -292,8 +340,10 @@ namespace PasswordCompat\binary {
 	 * @internal
 	 * @return string The substring
 	 */
-	function _substr($binary_string, $start, $length) {
-		if (function_exists('mb_substr')) {
+	function _substr($binary_string, $start, $length)
+	{
+		if (function_exists('mb_substr'))
+		{
 			return mb_substr($binary_string, $start, $length, '8bit');
 		}
 		return substr($binary_string, $start, $length);

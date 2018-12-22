@@ -9,7 +9,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -17,6 +17,7 @@ if (!defined('SMF'))
 
 /**
  * This is the controlling delegator
+ *
  * @uses Profile language files and Reminder template
  */
 function RemindMe()
@@ -33,8 +34,8 @@ function RemindMe()
 	$subActions = array(
 		'picktype' => 'RemindPick',
 		'secret2' => 'SecretAnswer2',
-		'setpassword' =>'setPassword',
-		'setpassword2' =>'setPassword2'
+		'setpassword' => 'setPassword',
+		'setpassword2' => 'setPassword2'
 	);
 
 	// Any subaction?  If none, fall through to the main template, which will ask for one.

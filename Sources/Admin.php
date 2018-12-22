@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -178,7 +178,7 @@ function AdminMain()
 					'icon' => 'boards',
 					'permission' => array('manage_boards'),
 					'subsections' => array(
-						'main' => array($txt['boardsEdit']),
+						'main' => array($txt['boards_edit']),
 						'newcat' => array($txt['mboards_new_cat']),
 						'settings' => array($txt['settings'], 'admin_forum'),
 					),
@@ -419,7 +419,7 @@ function AdminMain()
 					'function' => 'AdminLogs',
 					'icon' => 'logs',
 					'subsections' => array(
-						'errorlog' => array($txt['errlog'], 'admin_forum', 'enabled' => !empty($modSettings['enableErrorLogging']), 'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
+						'errorlog' => array($txt['errorlog'], 'admin_forum', 'enabled' => !empty($modSettings['enableErrorLogging']), 'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
 						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => !empty($modSettings['adminlog_enabled'])),
 						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => !empty($modSettings['modlog_enabled'])),
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
@@ -506,7 +506,7 @@ function AdminMain()
  *  manage_boards, edit_news, or send_mail permission.
  *  It uses the index administrative area.
  *  It can be found by going to ?action=admin.
-*/
+ */
 function AdminHome()
 {
 	global $sourcedir, $forum_version, $txt, $scripturl, $context, $user_info;
@@ -554,7 +554,7 @@ function AdminHome()
 			'title' => $txt['admin_center'],
 			'help' => '',
 			'description' => '<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
-						' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
+				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
 		);
 
 	// Lastly, fill in the blanks in the support resources paragraphs.
@@ -767,7 +767,7 @@ function AdminSearchInternal()
 	foreach ($settings_search as $setting_area)
 	{
 		// Get a list of their variables.
-		$config_vars = $setting_area[0](true);
+		$config_vars = call_user_func($setting_area[0], true);
 
 		foreach ($config_vars as $var)
 			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch', 'desc')))
@@ -916,7 +916,7 @@ function AdminLogs()
 		'tabs' => array(
 			'errorlog' => array(
 				'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-				'description' => sprintf($txt['errlog_desc'], $txt['remove']),
+				'description' => sprintf($txt['errorlog_desc'], $txt['remove']),
 			),
 			'adminlog' => array(
 				'description' => $txt['admin_log_desc'],

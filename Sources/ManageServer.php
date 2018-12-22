@@ -56,7 +56,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -169,7 +169,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
 		'',
-		array('enable_sm_stats', $txt['sm_state_setting'], 'db', 'check', null, 'enable_sm_stats'),
+		array('enable_sm_stats', $txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -301,9 +301,9 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 	// First, get a list of theme URLs...
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
-		  FROM {db_prefix}themes
-		 WHERE variable in ({string:themeurl}, {string:imagesurl})
-		   AND id_member = {int:zero}',
+		FROM {db_prefix}themes
+		WHERE variable in ({string:themeurl}, {string:imagesurl})
+			AND id_member = {int:zero}',
 		array(
 			'themeurl' => 'theme_url',
 			'imagesurl' => 'images_url',
@@ -320,12 +320,13 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 				$newval = strtr($row['value'], array('http://' => 'https://'));
 			else
 				$newval = strtr($row['value'], array('https://' => 'http://'));
+
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}themes
-				   SET value = {string:theme_val}
-				 WHERE variable = {string:theme_var}
-				   AND id_theme = {string:theme_id}
-				   AND id_member = {int:zero}',
+				SET value = {string:theme_val}
+				WHERE variable = {string:theme_var}
+					AND id_theme = {string:theme_id}
+					AND id_member = {int:zero}',
 				array(
 					'theme_val' => $newval,
 					'theme_var' => $row['variable'],
@@ -405,13 +406,12 @@ function ModifyDatabaseSettings($return_config = false)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$fts_language[$row['cfgname']] = $row['cfgname'];
 
-		$config_vars = array_merge ($config_vars, array(
+		$config_vars = array_merge($config_vars, array(
 				'',
 				array('search_language', $txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch')
 			)
 		);
 	}
-
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
 
@@ -580,27 +580,60 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	global $txt, $scripturl, $context;
 
 	$config_vars = array(
-			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'failed_login_threshold'),
+		array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
 		'',
-			array('check', 'securityDisable'),
-			array('check', 'securityDisable_moderate'),
+
+		array('check', 'securityDisable'),
+		array('check', 'securityDisable_moderate'),
 		'',
-			// Reactive on email, and approve on delete
-			array('check', 'send_validation_onChange'),
-			array('check', 'approveAccountDeletion'),
+
+		// Reactive on email, and approve on delete
+		array('check', 'send_validation_onChange'),
+		array('check', 'approveAccountDeletion'),
 		'',
-			// Password strength.
-			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
-			array('check', 'enable_password_conversion'),
+
+		// Password strength.
+		array(
+			'select',
+			'password_strength',
+			array(
+				$txt['setting_password_strength_low'],
+				$txt['setting_password_strength_medium'],
+				$txt['setting_password_strength_high']
+			)
+		),
+		array('check', 'enable_password_conversion'),
 		'',
-			// Reporting of personal messages?
-			array('check', 'enableReportPM'),
+
+		// Reporting of personal messages?
+		array('check', 'enableReportPM'),
 		'',
-			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
+
+		array(
+			'select',
+			'frame_security',
+			array(
+				'SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'],
+				'DENY' => $txt['setting_frame_security_DENY'],
+				'DISABLE' => $txt['setting_frame_security_DISABLE']
+			)
+		),
 		'',
-			array('select', 'proxy_ip_header', array('disabled' => $txt['setting_proxy_ip_header_disabled'], 'autodetect' => $txt['setting_proxy_ip_header_autodetect'], 'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP', 'CF-Connecting-IP' => 'CF-Connecting-IP')),
-			array('text', 'proxy_ip_servers'),
+
+		array(
+			'select',
+			'proxy_ip_header',
+			array(
+				'disabled' => $txt['setting_proxy_ip_header_disabled'],
+				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
+				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR',
+				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP',
+				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP',
+				'CF-Connecting-IP' => 'CF-Connecting-IP'
+			)
+		),
+		array('text', 'proxy_ip_servers'),
 	);
 
 	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
@@ -937,6 +970,7 @@ function prepareServerSettingsContext(&$config_vars)
 
 /**
  * Helper function, it sets up the context for database settings.
+ *
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars An array of configuration variables
@@ -1136,7 +1170,8 @@ function prepareDBSettingContext(&$config_vars)
 		$context['bbc_columns'] = array();
 		$tagsPerColumn = ceil($totalTags / $numColumns);
 
-		$col = 0; $i = 0;
+		$col = 0;
+		$i = 0;
 		foreach ($bbcTags as $tag)
 		{
 			if ($i % $tagsPerColumn == 0 && $i != 0)
@@ -1156,7 +1191,7 @@ function prepareDBSettingContext(&$config_vars)
 		foreach ($bbcChoice as $bbc)
 		{
 			$context['bbc_sections'][$bbc] = array(
-				'title' => isset($txt['bbc_title_' . $bbc]) ? $txt['bbc_title_' . $bbc] : $txt['bbcTagsToUse_select'],
+				'title' => isset($txt['bbc_title_' . $bbc]) ? $txt['bbc_title_' . $bbc] : $txt['enabled_bbc_select'],
 				'disabled' => empty($modSettings['bbc_disabled_' . $bbc]) ? array() : $modSettings['bbc_disabled_' . $bbc],
 				'all_selected' => empty($modSettings['bbc_disabled_' . $bbc]),
 			);
@@ -1305,6 +1340,7 @@ function saveSettings(&$config_vars)
 
 /**
  * Helper function for saving database settings.
+ *
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars An array of configuration variables
@@ -1348,6 +1384,7 @@ function saveDBSettings(&$config_vars)
 				$request = $smcFunc['db_query']('', '
 					SELECT id_board
 					FROM {db_prefix}boards');
+
 				while ($row = $smcFunc['db_fetch_row']($request))
 					$board_list[$row[0]] = true;
 

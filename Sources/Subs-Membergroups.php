@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -23,6 +23,7 @@ if (!defined('SMF'))
  * Has protection against deletion of protected membergroups.
  * Deletes the permissions linked to the membergroup.
  * Takes members out of the deleted membergroups.
+ *
  * @param int|array $groups The ID of the group to delete or an array of IDs of groups to delete
  * @return bool|string True for success, otherwise an identifier as to reason for failure
  */
@@ -239,6 +240,7 @@ function deleteMembergroups($groups)
  * Requires the manage_membergroups permission.
  * Function includes a protection against removing from implicit groups.
  * Non-admins are not able to remove members from the admin group.
+ *
  * @param int|array $members The ID of a member or an array of member IDs
  * @param null|array The groups to remove the member(s) from. If null, the specified members are stripped from all their membergroups.
  * @param bool $permissionCheckDone Whether we've already checked permissions prior to calling this function

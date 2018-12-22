@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -18,6 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Create a menu.
+ *
  * @param array $menuData An array of menu data
  * @param array $menuOptions An array of menu options
  * @return boolean|array False if nothing to show or an array of info about the selected menu item
@@ -144,10 +145,10 @@ function createMenu($menuData, $menuOptions = array())
 								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 							}
 							else
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] . '"></span>';
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area['icon'] . '"></span>';
 						}
 						else
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area_id . '"></span>';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area_id . '"></span>';
 
 						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
 						{
@@ -318,6 +319,7 @@ function createMenu($menuData, $menuOptions = array())
 
 /**
  * Delete a menu.
+ *
  * @param string $menu_id The ID of the menu to destroy or 'last' for the most recent one
  * @return bool|void False if the menu doesn't exist, nothing otherwise
  */

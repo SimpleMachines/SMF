@@ -13,7 +13,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -253,14 +253,15 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 
 		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
 		set_error_handler(function($errno, $errstr, $errfile, $errline)
+		{
+			// error was suppressed with the @-operator
+			if (0 === error_reporting())
 			{
-				// error was suppressed with the @-operator
-				if (0 === error_reporting()) {
-					return false;
-				}
-				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
-					log_error($errstr, 'general', $errfile, $errline);
+				return false;
 			}
+			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
+				log_error($errstr, 'general', $errfile, $errline);
+		}
 		);
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
 		restore_error_handler();
@@ -269,58 +270,58 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 
 		// go though each file in the archive
 		foreach ($iterator as $file_info)
+		{
+			$i = $iterator->getSubPathname();
+			// If this is a file, and it doesn't exist.... happy days!
+			if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
+				$write_this = true;
+			// If the file exists, we may not want to overwrite it.
+			elseif (substr($i, -1) != '/')
+				$write_this = $overwrite;
+			else
+				$write_this = false;
+
+			// Get the actual compressed data.
+			if (!$file_info->isDir())
+				$file_data = file_get_contents($file_info);
+			elseif ($destination !== null && !$single_file)
 			{
-				$i = $iterator->getSubPathname();
-				// If this is a file, and it doesn't exist.... happy days!
-				if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
-					$write_this = true;
-				// If the file exists, we may not want to overwrite it.
-				elseif (substr($i, -1) != '/')
-					$write_this = $overwrite;
-				else
-					$write_this = false;
-
-				// Get the actual compressed data.
-				if (!$file_info->isDir())
-					$file_data = file_get_contents($file_info);
-				elseif ($destination !== null && !$single_file)
-				{
-					// Folder... create.
-					if (!file_exists($destination . '/' . $i))
-						mktree($destination . '/' . $i, 0777);
-					$file_data = null;
-				}
-				else
-					$file_data = null;
-
-				// Okay!  We can write this file, looks good from here...
-				if ($write_this && $destination !== null)
-				{
-					if (!$single_file && !is_dir($destination . '/' . dirname($i)))
-						mktree($destination . '/' . dirname($i), 0777);
-
-					// If we're looking for a specific file, and this is it... ka-bam, baby.
-					if ($single_file && ($destination == $i || $destination == '*/' . basename($i)))
-						return $file_data;
-					// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
-					elseif ($single_file)
-						continue;
-					// Don't really want this?
-					elseif ($files_to_extract !== null && !in_array($i, $files_to_extract))
-						continue;
-
-					package_put_contents($destination . '/' . $i, $file_data);
-				}
-
-				if (substr($i, -1, 1) != '/')
-					$return[] = array(
-						'filename' => $i,
-						'md5' => md5($file_data),
-						'preview' => substr($file_data, 0, 100),
-						'size' => strlen($file_data),
-						'skipped' => false
-					);
+				// Folder... create.
+				if (!file_exists($destination . '/' . $i))
+					mktree($destination . '/' . $i, 0777);
+				$file_data = null;
 			}
+			else
+				$file_data = null;
+
+			// Okay!  We can write this file, looks good from here...
+			if ($write_this && $destination !== null)
+			{
+				if (!$single_file && !is_dir($destination . '/' . dirname($i)))
+					mktree($destination . '/' . dirname($i), 0777);
+
+				// If we're looking for a specific file, and this is it... ka-bam, baby.
+				if ($single_file && ($destination == $i || $destination == '*/' . basename($i)))
+					return $file_data;
+				// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
+				elseif ($single_file)
+					continue;
+				// Don't really want this?
+				elseif ($files_to_extract !== null && !in_array($i, $files_to_extract))
+					continue;
+
+				package_put_contents($destination . '/' . $i, $file_data);
+			}
+
+			if (substr($i, -1, 1) != '/')
+				$return[] = array(
+					'filename' => $i,
+					'md5' => md5($file_data),
+					'preview' => substr($file_data, 0, 100),
+					'size' => strlen($file_data),
+					'skipped' => false
+				);
+		}
 
 		if ($destination !== null && !$single_file)
 			package_flush_cache();
@@ -463,6 +464,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 /**
  * Checks the existence of a remote file since file_exists() does not do remote.
  * will return false if the file is "moved permanently" or similar.
+ *
  * @param string $url The URL to parse
  * @return bool Whether the specified URL exists
  */
@@ -2313,7 +2315,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 						'type' => 'replace',
 						'filename' => $working_file,
 						'search' => $actual_operation['searches'][$i]['preg_search'],
-						'replace' =>  $actual_operation['searches'][$i]['preg_replace'],
+						'replace' => $actual_operation['searches'][$i]['preg_replace'],
 						'search_original' => $actual_operation['searches'][$i]['search'],
 						'replace_original' => $actual_operation['searches'][$i]['add'],
 						'position' => $search['position'],
@@ -2994,6 +2996,7 @@ function package_crypt($pass)
 
 /**
  * Creates a backup of forum files prior to modifying them
+ *
  * @param string $id The name of the backup
  * @return bool True if it worked, false if it didn't
  */

@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -190,7 +190,6 @@ function template_summary()
 				echo '
 					<span>', $field['output_html'], '</span>';
 
-
 	echo '
 					<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span>
 				</h4>
@@ -220,12 +219,12 @@ function template_summary()
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
-				<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
+				<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="main_icons mail" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields as icons?
 	if (!empty($context['print_custom_fields']['icons']))
@@ -401,7 +400,7 @@ function template_summary()
 	if ($context['can_see_ip'])
 	{
 		if (!empty($context['member']['ip']))
-		echo '
+			echo '
 				<dt>', $txt['ip'], ': </dt>
 				<dd><a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['member']['ip'], ';u=', $context['member']['id'], '">', $context['member']['ip'], '</a></dd>';
 
@@ -459,7 +458,7 @@ function template_summary()
 		$fields = '';
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
-				$fields .=  '
+				$fields .= '
 					<li>' . $field['output_html'] . '</li>';
 
 		if (!empty($fields))
@@ -527,17 +526,17 @@ function template_showPosts()
 			// If they *can* reply?
 			if ($post['can_reply'])
 				echo '
-					<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+					<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 			// If they *can* quote?
 			if ($post['can_quote'])
 				echo '
-					<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+					<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			// How about... even... remove it entirely?!
 			if ($post['can_delete'])
 				echo '
-					<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';profile;u=', $context['member']['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
+					<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';profile;u=', $context['member']['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove'], '</a></li>';
 
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
@@ -609,16 +608,16 @@ function template_showAlerts()
 				<tr class="windowbg">
 					<td class="alert_text">
 						', $alert['text'], '
-						<span class="alert_inline_time"><span class="generic_icons time_online"></span> ', $alert['time'], '</span>
+						<span class="alert_inline_time"><span class="main_icons time_online"></span> ', $alert['time'], '</span>
 					</td>
 					<td class="alert_time">', $alert['time'], '</td>
 					<td class="alert_buttons">
 						<ul class="quickbuttons">
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['delete'], '</a></li>
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>';
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['delete'], '</a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>';
 
-					if ($context['showCheckboxes'])
-						echo '
+			if ($context['showCheckboxes'])
+				echo '
 							<li><input type="checkbox" name="mark[', $id, ']" value="', $id, '"></li>';
 
 			echo '
@@ -647,11 +646,11 @@ function template_showAlerts()
 					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">
 				</div>';
 
-	echo '
+		echo '
 			</div>';
 
-	if ($context['showCheckboxes'])
-		echo '
+		if ($context['showCheckboxes'])
+			echo '
 		</form>';
 	}
 }
@@ -693,11 +692,11 @@ function template_showDrafts()
 
 			if (!empty($draft['sticky']))
 				echo '
-					<span class="generic_icons sticky" title="', $txt['sticky_topic'], '"></span>';
+					<span class="main_icons sticky" title="', $txt['sticky_topic'], '"></span>';
 
 			if (!empty($draft['locked']))
 				echo '
-					<span class="generic_icons lock" title="', $txt['locked_topic'], '"></span>';
+					<span class="main_icons lock" title="', $txt['locked_topic'], '"></span>';
 
 			echo '
 				</h5>
@@ -708,8 +707,8 @@ function template_showDrafts()
 			</div>
 			<div class="floatright">
 				<ul class="quickbuttons">
-						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '"><span class="generic_icons reply_button"></span>', $txt['draft_edit'], '</a></li>
-						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
+						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '"><span class="main_icons reply_button"></span>', $txt['draft_edit'], '</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
 				</ul>
 			</div><!-- .floatright -->
 		</div><!-- .windowbg -->';
@@ -742,7 +741,7 @@ function template_editBuddies()
 	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons people icon"></span> ', $txt['editBuddies'], '
+				<span class="main_icons people icon"></span> ', $txt['editBuddies'], '
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -757,7 +756,7 @@ function template_editBuddies()
 
 	if (!empty($context['custom_pf']))
 		foreach ($context['custom_pf'] as $column)
-				echo '
+			echo '
 					<th scope="col" class="buddy_custom_fields">', $column['label'], '</th>';
 
 	echo '
@@ -775,7 +774,7 @@ function template_editBuddies()
 					</td>
 				</tr>';
 
-		// Now loop through each buddy showing info on each.
+	// Now loop through each buddy showing info on each.
 	else
 	{
 		foreach ($context['buddies'] as $buddy)
@@ -790,7 +789,7 @@ function template_editBuddies()
 			if ($buddy['show_email'])
 				echo '
 					<td class="buddy_email centertext">
-						<a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>
+						<a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="main_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>
 					</td>';
 
 			// Show the custom profile fields for this user.
@@ -801,7 +800,7 @@ function template_editBuddies()
 
 			echo '
 					<td class="centertext buddy_remove">
-						<a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a>
+						<a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons delete" title="', $txt['buddy_remove'], '"></span></a>
 					</td>
 				</tr>';
 		}
@@ -911,11 +910,11 @@ function template_editIgnoreList()
 		if ($context['can_moderate_forum'])
 			echo '
 					<td class="centertext buddy_email">
-						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>
+						<a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="main_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>
 					</td>';
 		echo '
 					<td class="centertext buddy_remove">
-						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a>
+						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons delete" title="', $txt['ignore_remove'], '"></span></a>
 					</td>
 				</tr>';
 	}
@@ -938,7 +937,7 @@ function template_editIgnoreList()
 				</dt>
 				<dd>
 					<input type="text" name="new_ignore" id="new_ignore" size="30">
-                    <input type="submit" value="', $txt['ignore_add_button'], '" class="button">
+					<input type="submit" value="', $txt['ignore_add_button'], '" class="button">
 				</dd>
 			</dl>
 		</div>';
@@ -1145,7 +1144,7 @@ function template_showPermissions()
 	else
 	{
 		echo '
-		<div class="information">',$txt['showPermissions_help'], '</div>
+		<div class="information">', $txt['showPermissions_help'], '</div>
 		<div id="permissions" class="flow_hidden">';
 
 		if (!empty($context['no_access_boards']))
@@ -1276,7 +1275,7 @@ function template_showPermissions()
 		else
 			echo '
 			<p class="windowbg">', $txt['showPermissions_none_board'], '</p>';
-	echo '
+		echo '
 		</div><!-- #permissions -->';
 	}
 }
@@ -1316,7 +1315,7 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<span class="generic_icons history"></span> ', $txt['statPanel_activityTime'], '
+					<span class="main_icons history"></span> ', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>';
 
@@ -1356,7 +1355,7 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoards'], '
+						<span class="main_icons replies"></span> ', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>';
 
@@ -1390,7 +1389,7 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoardsActivity'], '
+						<span class="main_icons replies"></span> ', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>';
 
@@ -1447,15 +1446,15 @@ function template_edit_options()
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
 
-		// Don't say "Profile" if this isn't the profile...
-		if (!empty($context['profile_header_text']))
-			echo '
+	// Don't say "Profile" if this isn't the profile...
+	if (!empty($context['profile_header_text']))
+		echo '
 					', $context['profile_header_text'];
-		else
-			echo '
+	else
+		echo '
 					', $txt['profile'];
 
-		echo '
+	echo '
 				</h3>
 			</div>';
 
@@ -1533,7 +1532,6 @@ function template_edit_options()
 				else
 					$type = $field['type'];
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
-
 
 				echo '
 						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
@@ -1814,7 +1812,7 @@ function template_profile_theme_settings()
 						<input type="number"', $min . $max . $step;
 			}
 			elseif (isset($setting['type']) && $setting['type'] == 'url')
-				echo'
+				echo '
 						<input type="url"';
 
 			else
@@ -1944,7 +1942,7 @@ function template_alert_configuration()
 			echo '
 				<tr class="windowbg">
 					<td>
-						', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
+						', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 					</td>';
 
 			foreach ($context['alert_bits'] as $type => $bitmask)
@@ -2087,19 +2085,19 @@ function template_groupMembership()
 			echo '
 				<div class="windowbg" id="primdiv_', $group['id'], '">';
 
-				if ($context['can_edit_primary'])
-					echo '
+			if ($context['can_edit_primary'])
+				echo '
 					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', '>';
 
-				echo '
+			echo '
 					<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>';
 
-				// Can they leave their group?
-				if ($group['can_leave'])
-					echo '
+			// Can they leave their group?
+			if ($group['can_leave'])
+				echo '
 					<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
 
-				echo '
+			echo '
 				</div><!-- .windowbg -->';
 		}
 
@@ -2182,10 +2180,10 @@ function template_groupMembership()
  */
 function template_ignoreboards()
 {
-    global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
-    // The main containing header.
-    echo '
+	// The main containing header.
+	echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
@@ -2197,34 +2195,34 @@ function template_ignoreboards()
 			<div class="flow_hidden boardslist">
 				<ul>';
 
-    foreach ($context['categories'] as $category)
-    {
-        echo '
+	foreach ($context['categories'] as $category)
+	{
+		echo '
 					<li>
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
-            			<ul>';
+						<ul>';
 
-        foreach ($category['boards'] as $board)
-        {
-            echo '
+		foreach ($category['boards'] as $board)
+		{
+			echo '
 							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
 							</li>';
-        }
+		}
 
-        echo '
+		echo '
 						</ul>
 					</li>';
-    }
+	}
 
-    echo '
+	echo '
 				</ul>
-    		</div><!-- .flow_hidden boardslist -->';
+			</div><!-- .flow_hidden boardslist -->';
 
-    // Show the standard "Save Settings" profile button.
-    template_profile_save();
+	// Show the standard "Save Settings" profile button.
+	template_profile_save();
 
-    echo '
+	echo '
 		</div><!-- .windowbg -->
 	</form>
 	<br>';
@@ -2700,7 +2698,7 @@ function template_profile_group_manage()
 	echo '
 							<dt>
 								<strong>', $txt['primary_membergroup'], ': </strong><br>
-								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
+								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
 							</dt>
 							<dd>
 								<select name="id_group" ', ($context['user']['is_owner'] && $context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . $txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
@@ -3038,7 +3036,7 @@ function template_profile_timeformat_modify()
 	echo '
 							<dt>
 								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br>
-								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 								<span class="smalltext">
 									<label for="time_format">', $txt['date_format'], '</label>
 								</span>
@@ -3166,7 +3164,7 @@ function template_tfasetup()
 					<div class="floatright tfa_qrcode">
 						<div id="qrcode"></div>
 						<script type="text/javascript">
-							new QRCode(document.getElementById("qrcode"), "' , $context['tfa_qr_url'],'");
+							new QRCode(document.getElementById("qrcode"), "', $context['tfa_qr_url'], '");
 						</script>
 					</div>';
 
@@ -3258,7 +3256,7 @@ function template_profile_tfa()
 
 	else
 		echo '
-								', sprintf($txt['tfa_profile_enabled'], !empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=tfadisable');
+								', sprintf($txt['tfa_profile_enabled'], (!empty($modSettings['force_ssl']) ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=profile;u=' . $context['id_member'] . ';area=tfadisable');
 
 	echo '
 							</dd>';

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -18,6 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Get a list of versions that are currently installed on the server.
+ *
  * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'xcache', 'apc', 'php' or 'server'
  * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
  */
@@ -446,6 +447,7 @@ function updateDbLastError($time)
 	file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
 	@touch($boarddir . '/' . 'Settings.php');
 }
+
 /**
  * Saves the admin's current preferences to the database.
  */
@@ -464,7 +466,7 @@ function updateAdminPreferences()
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}themes
 		WHERE id_theme != {int:default_theme}
-		AND variable = {string:admin_preferences}',
+			AND variable = {string:admin_preferences}',
 		array(
 			'default_theme' => 1,
 			'admin_preferences' => 'admin_preferences',

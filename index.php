@@ -17,11 +17,11 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 $software_year = '2018';
-$forum_version = 'SMF 2.1 Beta 4';
+$forum_version = 'SMF 2.1 RC1';
 
 // Get everything started up...
 define('SMF', 1);
@@ -155,6 +155,7 @@ obExit(null, null, true);
 /**
  * The main dispatcher.
  * This delegates to each area.
+ *
  * @return array|string|void An array containing the file to include and name of function to call, the name of a function to call or dies with a fatal_lang_error if we couldn't find anything to do.
  */
 function smf_main()

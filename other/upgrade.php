@@ -8,21 +8,23 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 4');
-define('SMF_LANG_VERSION', '2.1 Beta 4');
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_LANG_VERSION', '2.1 RC1');
 
 /**
  * The minimum required PHP version.
+ *
  * @var string
  */
 $GLOBALS['required_php_version'] = '5.4.0';
 
 /**
  * A list of supported database systems.
+ *
  * @var array
  */
 $databases = array(
@@ -45,24 +47,28 @@ $databases = array(
 
 /**
  * The maximum time a single substep may take, in seconds.
+ *
  * @var int
  */
 $timeLimitThreshold = 3;
 
 /**
  * The current path to the upgrade.php file.
+ *
  * @var string
  */
 $upgrade_path = dirname(__FILE__);
 
 /**
  * The URL of the current page.
+ *
  * @var string
  */
 $upgradeurl = $_SERVER['PHP_SELF'];
 
 /**
  * Flag to disable the required administrator login.
+ *
  * @var bool
  */
 $disable_security = false;
@@ -70,6 +76,7 @@ $disable_security = false;
 /**
  * The amount of seconds allowed between logins.
  * If the first user to login is inactive for this amount of seconds, a second login is allowed.
+ *
  * @var int
  */
 $upcontext['inactive_timeout'] = 10;
@@ -85,7 +92,6 @@ global $txt;
 // Initialize everything and load the language files.
 initialize_inputs();
 load_lang_file();
-
 
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
@@ -295,7 +301,8 @@ foreach ($upcontext['steps'] as $num => $step)
 		// Call the step and if it returns false that means pause!
 		if (function_exists($step[2]) && $step[2]() === false)
 			break;
-		elseif (function_exists($step[2])) {
+		elseif (function_exists($step[2]))
+		{
 			//Start each new step with this unset, so the 'normal' template is called first
 			unset($_GET['xml']);
 			//Clear out warnings at the start of each step
@@ -523,8 +530,8 @@ function redirectLocation($location, $addForm = true)
 		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(json_encode($upcontext['upgrade_status'])) . $location;
 	}
 
-	while (@ob_end_clean());
-	header('location: ' . strtr($location, array('&amp;' => '&')));
+	while (@ob_end_clean())
+		header('location: ' . strtr($location, array('&amp;' => '&')));
 
 	// Exit - saving status as we go.
 	upgradeExit(true);
@@ -588,10 +595,10 @@ function loadEssentialData()
 			// Add in the port if needed
 			if (!empty($db_port))
 				$options['port'] = $db_port;
-			
+
 			if (!empty($db_mb4))
 				$options['db_mb4'] = $db_mb4;
-			
+
 			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 		}
 		else
@@ -604,12 +611,12 @@ function loadEssentialData()
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
-			SET NAMES {string:db_character_set}',
-			array(
-				'db_error_skip' => true,
-				'db_character_set' => $db_character_set,
-			)
-		);
+				SET NAMES {string:db_character_set}',
+				array(
+					'db_error_skip' => true,
+					'db_character_set' => $db_character_set,
+				)
+			);
 
 		// Load the modSettings data...
 		$request = $smcFunc['db_query']('', '
@@ -851,13 +858,13 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			'. sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) .'<br>
+			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) . '<br>
 			<ul>
-				<li>'. $txt['upgrade_boarddir'] .'  ' . $boarddir . '</li>
-				<li>'. $txt['upgrade_sourcedir'] .'  ' . $boarddir . '</li>
-				<li>'. $txt['upgrade_cachedir'] .'  ' . $cachedir_temp . '</li>
+				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
+				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
+				<li>' . $txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
 			</ul>
-			'. $txt['upgrade_incorrect_settings'] .'';
+			' . $txt['upgrade_incorrect_settings'] . '';
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
@@ -918,7 +925,7 @@ function checkLogin()
 			if ($oldDB)
 				$request = $smcFunc['db_query']('', '
 					SELECT id_member, memberName AS member_name, passwd, id_group,
-					additionalGroups AS additional_groups, lngfile
+						additionalGroups AS additional_groups, lngfile
 					FROM {db_prefix}members
 					WHERE memberName = {string:member_name}',
 					array(
@@ -1016,7 +1023,11 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = $smcFunc['random_int'](0, 60000);
+
+			if (!is_callable('random_int'))
+				require_once('Sources/random_compat/random.php');
+
+			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
@@ -1507,7 +1518,6 @@ function DatabaseChanges()
 	return false;
 }
 
-
 // Delete the damn thing!
 function DeleteUpgrade()
 {
@@ -1805,7 +1815,7 @@ function parse_sql($filename)
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
 	set_error_handler(
-		function ($errno, $errstr, $errfile, $errline) use ($support_js)
+		function($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
 			if ($support_js)
 				return true;
@@ -2133,13 +2143,13 @@ function upgrade_query($string, $unbuffered = false)
 
 	// Otherwise we have to display this somewhere appropriate if possible.
 	$upcontext['forced_error_message'] = '
-			<strong>'. $txt['upgrade_unsuccessful'] .'</strong><br>
+			<strong>' . $txt['upgrade_unsuccessful'] . '</strong><br>
 
 			<div style="margin: 2ex;">
-				'. $txt['upgrade_thisquery'] .'
+				' . $txt['upgrade_thisquery'] . '
 				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
-				'. $txt['upgrade_causerror'] .'
+				' . $txt['upgrade_causerror'] . '
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
 			</div>
 
@@ -2363,7 +2373,8 @@ function checkChange(&$change)
 				'table' => $change['table'],
 				'old_name' => $temp[1],
 				'new_name' => $temp[2],
-		));
+			)
+		);
 		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
 		if ($smcFunc['db_num_rows'] != 1)
 			return;
@@ -2379,7 +2390,8 @@ function checkChange(&$change)
 			FROM {db_prefix}{raw:table}',
 			array(
 				'table' => $change['table'],
-		));
+			)
+		);
 		// Mayday!
 		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
 		if ($smcFunc['db_num_rows'] == 0)
@@ -2496,10 +2508,10 @@ function cmdStep0()
 			echo 'SMF Command-line Upgrader
 Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
-    --language=LANG         Reset the forum\'s language to LANG.
-    --no-maintenance        Don\'t put the forum into maintenance mode.
-    --debug                 Output debugging information.
-    --backup                Create backups of tables with "backup_" prefix.';
+	--language=LANG         Reset the forum\'s language to LANG.
+	--no-maintenance        Don\'t put the forum into maintenance mode.
+	--debug                 Output debugging information.
+	--backup                Create backups of tables with "backup_" prefix.';
 			echo "\n";
 			exit;
 		}
@@ -2720,9 +2732,9 @@ function ConvertUtf8()
 			$upcontext['dropping_index'] = true;
 
 			$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}messages
-			DROP INDEX ' . implode(',
-			DROP INDEX ', $upcontext['fulltext_index']),
+				ALTER TABLE {db_prefix}messages
+				DROP INDEX ' . implode(',
+				DROP INDEX ', $upcontext['fulltext_index']),
 				array(
 					'db_error_skip' => true,
 				)
@@ -2921,7 +2933,8 @@ function ConvertUtf8()
 		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
 		// Make sure we're ready & have painted the template before proceeding
-		if ($support_js && !isset($_GET['xml'])) {
+		if ($support_js && !isset($_GET['xml']))
+		{
 			$_GET['substep'] = 0;
 			return false;
 		}
@@ -2974,7 +2987,8 @@ function ConvertUtf8()
 						list($charset) = explode('_', $collation);
 
 						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-						if ($charset != 'utf8') {
+						if ($charset != 'utf8')
+						{
 							if (!isset($table_charsets[$charset]))
 								$table_charsets[$charset] = array();
 
@@ -3105,7 +3119,7 @@ function ConvertUtf8()
 
 		if ($upcontext['dropping_index'] && $command_line)
 		{
-			echo "\n" . '', $txt['upgrade_fulltext_error'] ,'';
+			echo "\n" . '', $txt['upgrade_fulltext_error'], '';
 			flush();
 		}
 	}
@@ -3236,9 +3250,9 @@ function serialize_to_json()
 				$query = $smcFunc['db_query']('', '
 					SELECT id_member, id_theme, value FROM {db_prefix}themes
 					WHERE variable = {string:admin_prefs}',
-						array(
-							'admin_prefs' => 'admin_preferences'
-						)
+					array(
+						'admin_prefs' => 'admin_preferences'
+					)
 				);
 
 				if ($smcFunc['db_num_rows']($query) != 0)
@@ -3426,7 +3440,7 @@ EOT;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                        Templates are below this point
+						Templates are below this point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 // This is what is displayed if there's any chmod to be done. If not it returns nothing...
@@ -3449,7 +3463,7 @@ function template_chmod()
 	{
 		echo '
 		<div class="error">
-			<p>', $txt['upgrade_writable_files'] ,'</p>
+			<p>', $txt['upgrade_writable_files'], '</p>
 			<ul class="error_content">
 				<li>' . implode('</li>
 				<li>', $upcontext['chmod']['files']) . '</li>
@@ -3610,7 +3624,7 @@ function template_upgrade_above()
 	echo '
 					</ul>
 				</div><!-- #main_steps -->
-				
+
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
 						<h3>', $txt['upgrade_overall_progress'], '</h3>
@@ -3760,7 +3774,7 @@ function template_welcome_message()
 
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-				
+
 				<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
@@ -3815,16 +3829,16 @@ function template_welcome_message()
 					<div class="errorbox">
 						<h3>', $txt['upgrade_warning'], '</h3>
 						<p>', sprintf($txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
-						<p>', sprintf($txt[$agoTxt],  $ago_seconds, $ago_minutes, $ago_hours), '</p>
+						<p>', sprintf($txt[$agoTxt], $ago_seconds, $ago_minutes, $ago_hours), '</p>
 						<p>', sprintf($txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
 
 		if ($updated < 600)
 			echo '
-						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'],' ', $txt['upgrade_run_script2'], '</p>';
+						<p>', $txt['upgrade_run_script'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_run_script2'], '</p>';
 
 		if ($updated > $upcontext['inactive_timeout'])
 			echo '
-						<p>',$txt['upgrade_run'], '</p>';
+						<p>', $txt['upgrade_run'], '</p>';
 		else
 			echo '
 						<p>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!'), '</p>';
@@ -3929,7 +3943,7 @@ function template_upgrade_options()
 	if (!empty($upcontext['upgrade_options_warning']))
 		echo '
 				<div class="errorbox">
-					<h3>', $txt['upgrade_warning'] ,'</h3>
+					<h3>', $txt['upgrade_warning'], '</h3>
 					', $upcontext['upgrade_options_warning'], '
 				</div>';
 
@@ -3942,12 +3956,12 @@ function template_upgrade_options()
 					</li>
 					<li>
 						<input type="checkbox" name="maint" id="maint" value="1" checked>
-						<label for="maint">', $txt['upgrade_maintenace'], '</label>
+						<label for="maint">', $txt['upgrade_maintenance'], '</label>
 						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
 						<div id="mainmess" class="hidden">
 							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
 							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
-							<strong class="smalltext">', $txt['upgrade_maintenace_message'], ' </strong><br>
+							<strong class="smalltext">', $txt['upgrade_maintenance_message'], ' </strong><br>
 							<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 						</div>
 					</li>
@@ -3957,7 +3971,7 @@ function template_upgrade_options()
 					</li>
 					<li>
 						<input type="checkbox" name="empty_error" id="empty_error" value="1">
-						<label for="empty_error">', $txt['upgrade_empty_errlog'], '</label>
+						<label for="empty_error">', $txt['upgrade_empty_errorlog'], '</label>
 					</li>';
 
 	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))
@@ -3975,7 +3989,7 @@ function template_upgrade_options()
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 						</label>
 					</li>
-          <li>
+		  <li>
 							<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
 							<label for="migrateSettings">
 								', $txt['upgrade_migrate_settings_file'], '
@@ -3999,7 +4013,7 @@ function template_backup_database()
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>', sprintf($txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']) ,'</strong>
+					<strong>', sprintf($txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']), '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
@@ -4231,11 +4245,11 @@ function template_database_changes()
 									document.getElementById("error_block").classList.remove("hidden");
 									setInnerHTML(document.getElementById("error_message"), "Error retrieving information on step: " + (sDebugName == "" ? sLastString : sDebugName));';
 
-	if ($is_debug)
-		echo '
+		if ($is_debug)
+			echo '
 									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span class="red">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
 
-	echo '
+		echo '
 								}
 								else
 								{
@@ -4254,11 +4268,11 @@ function template_database_changes()
 									document.getElementById("error_block").classList.remove("hidden");
 									setInnerHTML(document.getElementById("error_message"), "', $txt['upgrade_loop'], '" + sDebugName);';
 
-	if ($is_debug)
-		echo '
+		if ($is_debug)
+			echo '
 									setOuterHTML(document.getElementById(\'debuginfo\'), \'<span class="red">failed<\' + \'/span><span id="debuginfo"><\' + \'/span>\');';
 
-	echo '
+		echo '
 								}
 							}
 							retryCount = 0;
@@ -4695,7 +4709,7 @@ function template_upgrade_complete()
 					</script>
 					<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
-	// Show Upgrade time in debug mode when we completed the upgrade process totatly
+	// Show Upgrade time in debug mode when we completed the upgrade process totally
 	if ($is_debug)
 	{
 		$active = time() - $upcontext['started'];
@@ -4751,7 +4765,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		array(
 			'table' => $targetTable,
 			'name' => $oldCol,
-	));
+		)
+	);
 	if ($smcFunc['db_num_rows']($request) !== 1)
 	{
 		$smcFunc['db_free_result']($request);
@@ -4781,9 +4796,11 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 				'table_name' => $targetTable,
 				'empty' => '',
 				'limit' => $limit,
-		));
+			)
+		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$arIp[] = $row[$oldCol];
+
 		$smcFunc['db_free_result']($request);
 
 		// Special case, null ip could keep us in a loop.
@@ -4841,7 +4858,8 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 						WHERE ' . $oldCol . ' = {string:ip}',
 						array(
 							'ip' => $ip
-					));
+						)
+					);
 				}
 			}
 			else
@@ -4900,7 +4918,7 @@ function upgradeGetColumnInfo($targetTable, $column)
  *
  * @param array $config_vars An array of one or more variables to update
  *
- * @return void We either succesfully update the Settings file, or throw a error here.
+ * @return void We either successfully update the Settings file, or throw a error here.
  */
 function migrateSettingsFile($changes)
 {
@@ -5107,7 +5125,7 @@ function migrateSettingsFile($changes)
 		'$image_proxy_secret = \'smfisawesome\';',
 		'',
 		'/**',
-		' * Maximum file size (in KB) for indiviudal files',
+		' * Maximum file size (in KB) for individual files',
 		' * @var int',
 		' */',
 		'$image_proxy_maxsize = 5192;',
@@ -5317,7 +5335,7 @@ function migrateSettingsFile($changes)
  *
  * @param array $config_vars An array of one or more variables to update
  *
- * @return void We either succesfully update the Settings file, or throw a error here.
+ * @return void We either successfully update the Settings file, or throw a error here.
  */
 
 function detectSettingsFileMigrationNeeded()
@@ -5339,7 +5357,7 @@ function detectSettingsFileMigrationNeeded()
 	if (preg_match('~\$GLOBALS\[~im', $file_contents))
 		return false;
 
-	// If these are not set, it makes us a canidate to migrate.
+	// If these are not set, it makes us a candidate to migrate.
 	if (!isset($packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled))
 		return true;
 

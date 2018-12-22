@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * PostgreSQL Cache API class
+ *
  * @package cacheAPI
  */
 class postgres_cache extends cache_api
@@ -50,7 +51,7 @@ class postgres_cache extends cache_api
 		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
 
 		if (pg_affected_rows($result) === 0)
-			pg_query($db_connection, 'CREATE UNLOGGED TABLE ' . $db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');			
+			pg_query($db_connection, 'CREATE UNLOGGED TABLE ' . $db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');
 	}
 
 	/**
@@ -99,7 +100,7 @@ class postgres_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global  $db_prefix, $db_connection;
+		global $db_prefix, $db_connection;
 
 		if (!isset($value))
 			$value = '';
@@ -127,10 +128,10 @@ class postgres_cache extends cache_api
 	{
 		global $smcFunc;
 
-		$smcFunc['db_query']('',
-				'TRUNCATE TABLE {db_prefix}cache',
-				array()
-			);
+		$smcFunc['db_query']('', '
+			TRUNCATE TABLE {db_prefix}cache',
+			array()
+		);
 
 		return true;
 	}
@@ -144,7 +145,7 @@ class postgres_cache extends cache_api
 
 		return $smcFunc['db_server_info']();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -155,41 +156,41 @@ class postgres_cache extends cache_api
 		$this->retrieveData();
 		$this->deleteTempTable();
 	}
-	
+
 	/**
 	 * Create the temp table of valid data.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function createTempTable()
 	{
 		global $db_connection, $db_prefix;
-		
-		pg_query($db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $db_prefix . 'cache_tmp AS SELECT * FROM ' . $db_prefix . 'cache WHERE ttl >= ' . time() );
+
+		pg_query($db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $db_prefix . 'cache_tmp AS SELECT * FROM ' . $db_prefix . 'cache WHERE ttl >= ' . time());
 	}
-	
+
 	/**
 	 * Delete the temp table.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function deleteTempTable()
 	{
 		global $db_connection, $db_prefix;
-		
+
 		pg_query($db_connection, 'DROP TABLE IF EXISTS ' . $db_prefix . 'cache_tmp');
 	}
-	
+
 	/**
 	 * Retrieve the valid data from temp table.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function retrieveData()
 	{
 		global $db_connection, $db_prefix;
-		
-		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM '. $db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
+
+		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM ' . $db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}
 }
 

@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 //------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ function template_main()
 					</dd>
 				</dl>
 				<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', $txt['rtm10'], '" class="button">
+				<input type="submit" name="save" value="', $txt['report_submit'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>

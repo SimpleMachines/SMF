@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -1160,7 +1160,6 @@ function spamProtection($error_type, $only_return_result = false)
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
 
-
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
@@ -1266,7 +1265,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 else
 	exit;
 
-?'. '>');
+?' . '>');
 			fclose($fh);
 		}
 		$errors[] = 'index-php_cannot_create_file';
@@ -1279,11 +1278,11 @@ else
 }
 
 /**
-* This sets the X-Frame-Options header.
-*
-* @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
-* @since 2.1
-*/
+ * This sets the X-Frame-Options header.
+ *
+ * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+ * @since 2.1
+ */
 function frameOptionsHeader($override = null)
 {
 	global $modSettings;

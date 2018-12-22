@@ -2,6 +2,7 @@
 
 /**
  * This file contains all the functions used for the ban center.
+ *
  * @todo refactor as controller-model
  *
  * Simple Machines Forum (SMF)
@@ -11,7 +12,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -283,11 +284,11 @@ function BanList()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("'. $txt['select_item_check'] .'");
+				return alert("' . $txt['select_item_check'] . '");
 			}
 
 
-			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
 		});',
 	);
 
@@ -486,7 +487,7 @@ function BanEdit()
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl	. '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
@@ -506,11 +507,11 @@ function BanEdit()
 			if (removeItems == 0)
 			{
 				e.preventDefault();
-				return alert("'. $txt['select_item_check'] .'");
+				return alert("' . $txt['select_item_check'] . '");
 			}
 
 
-			return confirm("'. $txt['ban_remove_selected_confirm'] .'");
+			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
 		});',
 			);
 			createList($listOptions);
@@ -788,6 +789,7 @@ function banLoadAdditionalIPsMember($member_id)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$message_ips[] = inet_dtop($row['poster_ip']);
+
 	$smcFunc['db_free_result']($request);
 
 	return $message_ips;
@@ -813,7 +815,8 @@ function banLoadAdditionalIPsError($member_id)
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-	    $error_ips[] = inet_dtop($row['ip']);
+		$error_ips[] = inet_dtop($row['ip']);
+
 	$smcFunc['db_free_result']($request);
 
 	return $error_ips;
@@ -1826,7 +1829,7 @@ function BanBrowseTriggers()
 			{
 				return range2ip(
 					$rowData['ip_low']
-				,
+					,
 					$rowData['ip_high']
 				);
 			},
@@ -2159,6 +2162,7 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 
 /**
  * This returns the total count of ban log entries. Callback for $listOptions['get_count'] in BanLog().
+ *
  * @return int The total number of ban log entries.
  */
 function list_getNumBanLogEntries()
@@ -2195,9 +2199,9 @@ function range2ip($low, $high)
 
 	if ($low == '255.255.255.255') return 'unknown';
 	if ($low == $high)
-	    return $low;
+		return $low;
 	else
-	    return $low . '-' . $high;
+		return $low . '-' . $high;
 }
 
 /**
@@ -2213,12 +2217,10 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 {
 	global $smcFunc, $scripturl;
 
-
 	$values = array(
 		'ip_low' => $ip_array['low'],
 		'ip_high' => $ip_array['high']
 	);
-
 
 	$request = $smcFunc['db_query']('', '
 		SELECT bg.id_ban_group, bg.name

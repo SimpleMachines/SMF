@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -131,7 +131,7 @@ function template_print_above()
 }
 
 /**
- * The main page. This shows the relevent info in a printer-friendly format
+ * The main page. This shows the relevant info in a printer-friendly format
  */
 function template_main()
 {

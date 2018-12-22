@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -22,37 +22,37 @@ if (!defined('SMF'))
 class Likes
 {
 	/**
-	 *@var boolean Know if a request comes from an ajax call or not, depends on $_GET['js'] been set.
+	 * @var boolean Know if a request comes from an ajax call or not, depends on $_GET['js'] been set.
 	 */
 	protected $_js = false;
 
 	/**
-	 *@var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
+	 * @var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
 	 */
 	protected $_error = false;
 
 	/**
-	 *@var string The unique type to like, needs to be unique and it needs to be no longer than 6 characters, only numbers and letters are allowed.
+	 * @var string The unique type to like, needs to be unique and it needs to be no longer than 6 characters, only numbers and letters are allowed.
 	 */
 	protected $_type = '';
 
 	/**
-	 *@var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
+	 * @var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
 	 */
 	protected $_extra = false;
 
 	/**
-	 *@var integer a valid ID to identify your like content.
+	 * @var integer a valid ID to identify your like content.
 	 */
 	protected $_content = 0;
 
 	/**
-	 *@var integer The number of times your content has been liked.
+	 * @var integer The number of times your content has been liked.
 	 */
 	protected $_numLikes = 0;
 
 	/**
-	 *@var boolean If the current user has already liked this content.
+	 * @var boolean If the current user has already liked this content.
 	 */
 	protected $_alreadyLiked = false;
 
@@ -159,6 +159,7 @@ class Likes
 	 *
 	 * A simple getter for all protected properties.
 	 * Accessed from index.php?action=likes
+	 *
 	 * @param string $property The name of the property to get.
 	 * @return mixed Either return the property or false if there isn't a property with that name.
 	 */
@@ -258,8 +259,8 @@ class Likes
 		}
 
 		// Does the user can like this? Viewing a list of likes doesn't require this permission.
-			if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
-				return $this->_error = $this->_validLikes['can_like'];
+		if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
+			return $this->_error = $this->_validLikes['can_like'];
 	}
 
 	/**

@@ -12,7 +12,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -262,7 +262,7 @@ function ModifyProfile($post_errors = array())
 					'sc' => 'post',
 					'password' => true,
 					'enabled' => !empty($modSettings['tfa_mode']),
-					'hidden' => isset($_REQUEST['area']) && $_REQUEST['area'] != 'tfadisable',
+					'hidden' => !isset($_REQUEST['area']) || $_REQUEST['area'] != 'tfadisable',
 					'permission' => array(
 						'own' => array('profile_password_own'),
 						'any' => array('profile_password_any'),
@@ -749,7 +749,6 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-
 	// Get the right callable.
 	$call = call_helper($profile_include_data['function'], true);
 
@@ -930,7 +929,7 @@ function loadCustomFields($memID, $area = 'summary')
 		{
 			$value = $smcFunc['htmlspecialchars']($_POST['customfield'][$row['col_name']]);
 			if (in_array($row['field_type'], array('select', 'radio')))
-					$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
+				$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
 		}
 
 		// Don't show the "disabled" option for the "gender" field if we are on the "summary" area.

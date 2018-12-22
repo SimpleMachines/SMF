@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -132,7 +132,7 @@ function deleteMembers($users, $check_not_admin = false)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}messages
 		SET id_member = {int:guest_id}' . (!empty($modSettings['deleteMembersRemovesEmail']) ? ',
-		poster_email = {string:blank_email}' : '') . '
+			poster_email = {string:blank_email}' : '') . '
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'guest_id' => 0,
@@ -586,7 +586,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'member_name' => $regOptions['username'],
 		'email_address' => $regOptions['email'],
 		'passwd' => hash_password($regOptions['username'], $regOptions['password']),
-		'password_salt' => substr(md5($smcFunc['random_int']()), 0, 4) ,
+		'password_salt' => substr(md5($smcFunc['random_int']()), 0, 4),
 		'posts' => 0,
 		'date_registered' => time(),
 		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $user_info['ip'],
@@ -676,7 +676,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'time_offset',
 	);
 	$knownInets = array(
-		'member_ip','member_ip2',
+		'member_ip', 'member_ip2',
 	);
 
 	// Call an optional function to validate the users' input.
@@ -834,7 +834,6 @@ function registerMember(&$regOptions, $return_errors = false)
 	return $memberID;
 }
 
-
 /**
  * Check if a name is in the reserved words list.
  * (name, current member id, name/username?.)
@@ -904,7 +903,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
 
 	//when we got no wildcard we can use equal -> fast
-	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=' );
+	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=');
 
 	// Make sure they don't want someone else's name.
 	$request = $smcFunc['db_query']('', '
@@ -1238,7 +1237,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	}
 
 	// Allow mods with their own post tables to reattribute posts as well :)
- 	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
+	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
 
 	return $updated;
 }
@@ -1273,7 +1272,7 @@ function BuddyListToggle()
 		$user_info['buddies'][] = $userReceiver;
 
 		// And add a nice alert. Don't abuse though!
-		if ((cache_get_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, 86400)) == null)
+		if ((cache_get_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, 86400)) == null)
 		{
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
@@ -1288,7 +1287,7 @@ function BuddyListToggle()
 			);
 
 			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
-			cache_put_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, '1', 86400);
+			cache_put_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, '1', 86400);
 		}
 	}
 
@@ -1503,6 +1502,7 @@ function populateDuplicateMembers(&$members)
 
 /**
  * Generate a random validation code.
+ *
  * @todo Err. Whatcha doin' here.
  *
  * @return string A random validation code

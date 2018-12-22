@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * View a summary.
+ *
  * @param int $memID The ID of the member
  */
 function summary($memID)
@@ -213,7 +214,7 @@ function summary($memID)
 }
 
 /**
- * Fetch the alerts a user currently has.
+ * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member
  * @param bool $all Whether to fetch all alerts or just unread ones
@@ -226,8 +227,14 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
-	$query_see_board = build_query_board($memID);
-	$query_see_board = $query_see_board['query_see_board'];
+	// If this isn't the current user, get their boards.
+	if (!isset($user_info) || $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -341,7 +348,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	{
 		if (!empty($alert['text']))
 			continue;
+
 		if (isset($alert['extra']['board']))
+		{
 			if ($boards[$alert['extra']['board']] == $txt['board_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -349,7 +358,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
+		}
+
 		if (isset($alert['extra']['topic']))
+		{
 			if ($alert['extra']['topic'] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -357,7 +369,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
+		}
+
 		if ($alert['content_type'] == 'msg')
+		{
 			if ($msgs[$alert['content_id']] == $txt['topic_na'])
 			{
 				unset($alerts[$id_alert]);
@@ -365,6 +380,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+		}
+
 		if ($alert['content_type'] == 'profile')
 			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
 
@@ -394,7 +411,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 }
 
 /**
- * Shows all alerts for this user
+ * Shows all alerts for a member
  *
  * @param int $memID The ID of the member
  */
@@ -480,7 +497,8 @@ function showAlerts($memID)
 }
 
 /**
- * Show all posts by the current user
+ * Show all posts by a member
+ *
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
@@ -834,7 +852,7 @@ function showPosts($memID)
 }
 
 /**
- * Show all the attachments of a user.
+ * Show all the attachments belonging to a member.
  *
  * @param int $memID The ID of the member
  */
@@ -958,7 +976,7 @@ function showAttachments($memID)
 }
 
 /**
- * Get a list of attachments for this user. Callback for the list in showAttachments()
+ * Get a list of attachments for a member. Callback for the list in showAttachments()
  *
  * @param int $start Which item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show on each page
@@ -1019,7 +1037,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 }
 
 /**
- * Gets the total number of attachments for the user
+ * Gets the total number of attachments for a member
  *
  * @param array $boardsAllowed An array of the IDs of the boards they can see
  * @param int $memID The ID of the member
@@ -1289,7 +1307,7 @@ function statPanel($memID)
 	// General user statistics.
 	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['totalTimeLogged2'] : '') . ($timeHours > 0 ? $timeHours . $txt['totalTimeLogged3'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged4'];
+	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . $txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_minutes'];
 	$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
@@ -1480,7 +1498,7 @@ function statPanel($memID)
 	);
 
 	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
+	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
 }
 
 /**
@@ -1945,15 +1963,15 @@ function TrackIP($memID = 0)
 	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
+	$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
 	$fields = array(
-			'ip_address_low' => $context['ip']['low'],
-			'ip_address_high' => $context['ip']['high'],
-		);
+		'ip_address_low' => $context['ip']['low'],
+		'ip_address_high' => $context['ip']['high'],
+	);
 
 	$ip_var = $context['ip'];
 
-	if ($context['ip']['low'] !==  $context['ip']['high'])
+	if ($context['ip']['low'] !== $context['ip']['high'])
 		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];

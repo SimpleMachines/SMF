@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -20,6 +20,7 @@ if (!defined('SMF'))
  * Redirect to the user help ;).
  * It loads information needed for the help section.
  * It is accessed by ?action=help.
+ *
  * @uses Help template and Manual language file.
  */
 function ShowHelp()
@@ -121,6 +122,7 @@ function HelpRules()
  * It uses the help parameter to decide what string to display and where to get
  * the string from. ($helptxt or $txt?)
  * It is accessed via ?action=helpadmin;help=?.
+ *
  * @uses ManagePermissions language file, if the help starts with permissionhelp.
  * @uses Help template, popup sub template, no layers.
  */
@@ -144,7 +146,7 @@ function ShowAdminHelp()
 	loadTemplate('Help');
 
 	// Allow mods to load their own language file here
- 	call_integration_hook('integrate_helpadmin');
+	call_integration_hook('integrate_helpadmin');
 
 	// Set the page title to something relevant.
 	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];
