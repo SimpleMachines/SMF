@@ -88,7 +88,6 @@ $txt['attachmentdir_files_current'] = 'Total files in current attachment directo
 $txt['attachment_space'] = 'Total space available';
 $txt['attachment_files'] = 'Total files remaining';
 
-$txt['attachment_log'] = 'Attachment Log';
 $txt['attachment_remove_old'] = 'Remove attachments older than';
 $txt['attachment_remove_size'] = 'Remove attachments larger than';
 $txt['attachment_name'] = 'Attachment name';
@@ -306,7 +305,6 @@ $txt['permitgroups_restrict'] = 'Restrictive';
 $txt['permitgroups_standard'] = 'Standard';
 $txt['permitgroups_moderator'] = 'Moderator';
 $txt['permitgroups_maintenance'] = 'Maintenance';
-$txt['permitgroups_inherit'] = 'Inherit';
 
 $txt['confirm_delete_attachments_all'] = 'Are you sure you want to delete all attachments?';
 $txt['confirm_delete_attachments'] = 'Are you sure you want to delete the selected attachments?';
@@ -371,7 +369,6 @@ $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Pl
 $txt['attachments_no_write'] = 'This directory has been created but is not writable. Please attempt to do so using a FTP client or your site file manager.';
 $txt['attach_dir_duplicate_msg'] = 'Unable to add. This directory already exists.';
 $txt['attach_dir_exists_msg'] = 'Unable to move. A directory already exists at that path.';
-$txt['attach_dir_base_dupe_msg'] = 'Unable to add. This base directory has already been created.';
 $txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or your site file manager and retry.';
 $txt['attach_dir_no_rename'] = 'Unable to move or rename. Please verify that the path is correct or that this directory does not contain any sub-directories.';
 $txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or your site file manager.';
@@ -390,7 +387,6 @@ $txt['attach_current_size'] = 'Size (KB)';
 $txt['attach_num_files'] = 'Files';
 $txt['attach_dir_status'] = 'Status';
 $txt['attach_add_path'] = 'Add Path';
-$txt['attach_path_current_bad'] = 'Invalid current attachment path.';
 $txt['attachmentDirFileLimit'] = 'Maximum number of files per directory';
 
 $txt['attach_base_paths'] = 'Base directory paths';
@@ -433,7 +429,6 @@ $txt['attachment_transfer_no_dir'] = 'Either the source directory or one of the 
 $txt['attachment_transfer_same_dir'] = 'You cannot select the same directory as both the source and target.';
 $txt['attachment_transfer_progress'] = 'Please wait. Transfer in progress.';
 
-$txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
 $txt['avatar_directory_wrong'] = 'The Avatars directory is not valid. This will cause several issues with your forum.';
 $txt['avatar_url'] = 'Avatars URL';
@@ -575,7 +570,6 @@ $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
 $txt['autoLinkUrls'] = 'Automatically link posted URLs';
 $txt['disabledBBC'] = 'Enabled BBC tags';
-$txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
 
