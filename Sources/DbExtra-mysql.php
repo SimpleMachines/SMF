@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -37,6 +37,7 @@ function db_extra_init()
 
 /**
  * Backup $table to $backup_table.
+ *
  * @param string $table The name of the table to backup
  * @param string $backup_table The name of the backup table for this table
  * @return resource -the request handle to the table creation query
@@ -61,7 +62,8 @@ function smf_db_backup_table($table, $backup_table)
 		array(
 			'backup_table' => $backup_table,
 			'table' => $table
-	));
+		)
+	);
 	// If this failed, we go old school.
 	if ($result)
 	{
@@ -72,7 +74,8 @@ function smf_db_backup_table($table, $backup_table)
 			array(
 				'backup_table' => $backup_table,
 				'table' => $table
-			));
+			)
+		);
 
 		// Old school or no school?
 		if ($request)
@@ -170,6 +173,7 @@ function smf_db_backup_table($table, $backup_table)
 
 /**
  * This function optimizes a table.
+ *
  * @param string $table The table to be optimized
  * @return int How much space was gained
  */
@@ -181,31 +185,31 @@ function smf_db_optimize_table($table)
 
 	// Get how much overhead there is.
 	$request = $smcFunc['db_query']('', '
-			SHOW TABLE STATUS LIKE {string:table_name}',
-			array(
-				'table_name' => str_replace('_', '\_', $table),
-			)
-		);
+		SHOW TABLE STATUS LIKE {string:table_name}',
+		array(
+			'table_name' => str_replace('_', '\_', $table),
+		)
+	);
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
 	$data_before = isset($row['Data_free']) ? $row['Data_free'] : 0;
 	$request = $smcFunc['db_query']('', '
-			OPTIMIZE TABLE `{raw:table}`',
-			array(
-				'table' => $table,
-			)
-		);
+		OPTIMIZE TABLE `{raw:table}`',
+		array(
+			'table' => $table,
+		)
+	);
 	if (!$request)
 		return -1;
 
 	// How much left?
 	$request = $smcFunc['db_query']('', '
-			SHOW TABLE STATUS LIKE {string:table}',
-			array(
-				'table' => str_replace('_', '\_', $table),
-			)
-		);
+		SHOW TABLE STATUS LIKE {string:table}',
+		array(
+			'table' => str_replace('_', '\_', $table),
+		)
+	);
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -249,6 +253,7 @@ function smf_db_list_tables($db = false, $filter = false)
 
 /**
  * Dumps the schema (CREATE) for a table.
+ *
  * @todo why is this needed for?
  * @param string $tableName The name of the table
  * @return string The "CREATE TABLE" SQL string for this table
@@ -360,7 +365,8 @@ function smf_db_table_sql($tableName)
 
 /**
  *  Get the version number.
- *  @return string The version
+ *
+ * @return string The version
  */
 function smf_db_get_version()
 {
@@ -386,7 +392,7 @@ function smf_db_get_version()
  * Figures out if we are using MySQL, Percona or MariaDB
  *
  * @return string The database engine we are using
-*/
+ */
 function smf_db_get_vendor()
 {
 	global $smcFunc;
@@ -417,7 +423,7 @@ function smf_db_get_vendor()
  * Figures out if persistent connection is allowed
  *
  * @return boolean
-*/
+ */
 function smf_db_allow_persistent()
 {
 	$value = ini_get('mysqli.allow_persistent');

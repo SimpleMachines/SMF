@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  *  - logs the action to the moderator log.
  *  - returns to the topic after it is done.
  *  - it is accessed via ?action=lock.
-*/
+ */
 function LockTopic()
 {
 	global $topic, $user_info, $sourcedir, $board, $smcFunc;

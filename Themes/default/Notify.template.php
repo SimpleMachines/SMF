@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -20,7 +20,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons mail icon"></span>
+				<span class="main_icons mail icon"></span>
 				', $txt['notify'], '
 			</h3>
 		</div>
@@ -42,7 +42,7 @@ function template_notify_board()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons mail icon"></span>
+				<span class="main_icons mail icon"></span>
 				', $txt['notify'], '
 			</h3>
 		</div>

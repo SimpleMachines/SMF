@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -26,6 +26,7 @@ if (!defined('SMF'))
  * It uses the main sub template in the Calendar template.
  * It goes to the month and year passed in 'month' and 'year' by get or post.
  * It is accessed through ?action=calendar.
+ *
  * @return void
  */
 function CalendarMain()
@@ -294,8 +295,8 @@ function CalendarPost()
 		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
 
 	$js_time_string = str_replace(
-		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
-		array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
+		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r', '%R', '%S', '%T', '%X'),
+		array('H', 'G', 'h', 'g', 'i', 'A', 'a', 'h:i:s A', 'H:i', 's', 'H:i:s', 'H:i:s'),
 		$time_string
 	);
 
@@ -516,11 +517,11 @@ function CalendarPost()
 		timeClass: "time_input",
 		dateClass: "date_input",
 		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+			var utc = new Date($(el).datepicker("getDate"));
+			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
 		},
 		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
 		}
 	});
 	', true);
@@ -654,8 +655,8 @@ function clock()
 
 	$context['page_title'] = 'Anyone know what time it is?';
 	$context['linktree'][] = array(
-			'url' => $scripturl . '?action=clock',
-			'name' => 'Clock',
+		'url' => $scripturl . '?action=clock',
+		'name' => 'Clock',
 	);
 	$context['robot_no_index'] = true;
 
@@ -692,47 +693,47 @@ function clock()
 				64 => false,
 				32 => false,
 				16 => false,
-				8  => false,
-				4  => false,
-				2  => false,
-				1  => false
+				8 => false,
+				4 => false,
+				2 => false,
+				1 => false
 			),
 			'month' => array(
-				8  => false,
-				4  => false,
-				2  => false,
-				1  => false
+				8 => false,
+				4 => false,
+				2 => false,
+				1 => false
 			),
 			'day' => array(
 				16 => false,
-				4  => false,
-				8  => false,
-				2  => false,
-				1  => false
+				4 => false,
+				8 => false,
+				2 => false,
+				1 => false
 			),
 			'hour' => array(
 				32 => false,
 				16 => false,
-				8  => false,
-				4  => false,
-				2  => false,
-				1  => false
+				8 => false,
+				4 => false,
+				2 => false,
+				1 => false
 			),
 			'min' => array(
 				32 => false,
 				16 => false,
-				8  => false,
-				4  => false,
-				2  => false,
-				1  => false
+				8 => false,
+				4 => false,
+				2 => false,
+				1 => false
 			),
 			'sec' => array(
 				32 => false,
 				16 => false,
-				8  => false,
-				4  => false,
-				2  => false,
-				1  => false
+				8 => false,
+				4 => false,
+				2 => false,
+				1 => false
 			),
 		);
 

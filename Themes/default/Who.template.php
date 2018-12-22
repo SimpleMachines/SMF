@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -28,7 +28,7 @@ function template_main()
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', $context['page_index'], '</div>
 					<div class="selectbox floatright" id="upper_show">
-						', $txt['who_show1'], '
+						', $txt['who_show'], '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
 	foreach ($context['show_methods'] as $value => $label)
@@ -44,8 +44,8 @@ function template_main()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="lefttext" style="width: 40%;"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=user', $context['sort_direction'] != 'down' && $context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], $context['sort_by'] == 'user' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-							<th scope="col" class="lefttext time" style="width: 10%;"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=time', $context['sort_direction'] == 'down' && $context['sort_by'] == 'time' ? ';asc' : '', '" rel="nofollow">', $txt['who_time'], $context['sort_by'] == 'time' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
+							<th scope="col" class="lefttext" style="width: 40%;"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=user', $context['sort_direction'] != 'down' && $context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], $context['sort_by'] == 'user' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
+							<th scope="col" class="lefttext time" style="width: 10%;"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=time', $context['sort_direction'] == 'down' && $context['sort_by'] == 'time' ? ';asc' : '', '" rel="nofollow">', $txt['who_time'], $context['sort_by'] == 'time' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
 							<th scope="col" class="lefttext half_table">', $txt['who_action'], '</th>
 						</tr>
 					</thead>
@@ -95,7 +95,7 @@ function template_main()
 				<div class="pagesection" id="lower_pagesection">
 					<div class="pagelinks floatleft" id="lower_pagelinks">', $context['page_index'], '</div>
 					<div class="selectbox floatright">
-						', $txt['who_show1'], '
+						', $txt['who_show'], '
 						<select name="show" onchange="document.forms.whoFilter.submit();">';
 
 	foreach ($context['show_methods'] as $value => $label)
@@ -147,21 +147,14 @@ function template_credits()
 
 		foreach ($section['groups'] as $group)
 		{
-			if (isset($group['title']))
-				echo '
+			echo '
 				<dt>
-					<strong>', $group['title'], '</strong>
+					', isset($group['title']) ? '<strong>' . $group['title'] . '</strong>' : '', '
 				</dt>
 				<dd>';
 
-			// Try to make this read nicely.
-			if (count($group['members']) <= 2)
-				echo implode(' ' . $txt['credits_and'] . ' ', $group['members']);
-			else
-			{
-				$last_peep = array_pop($group['members']);
-				echo implode(', ', $group['members']), ' ', $txt['credits_and'], ' ', $last_peep;
-			}
+			$names = sentence_list($group['members']);
+			echo sprintf($txt['credits_list'], $names);
 
 			echo '
 				</dd>';

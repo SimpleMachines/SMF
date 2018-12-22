@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -199,6 +199,7 @@ function MoveTopic2()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
+
 	list ($pcounter, $board_name, $subject) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -553,7 +554,7 @@ function moveTopics($topics, $toBoard)
 			SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})
-				and approved = {int:not_approved}',
+				AND approved = {int:not_approved}',
 			array(
 				'topics' => $topics,
 				'not_approved' => 0,
@@ -562,6 +563,7 @@ function moveTopics($topics, $toBoard)
 		$approval_msgs = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$approval_msgs[] = $row['id_msg'];
+
 		$smcFunc['db_free_result']($request);
 
 		// Empty the approval queue for these, as we're going to approve them next.

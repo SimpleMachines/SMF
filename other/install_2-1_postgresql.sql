@@ -6,8 +6,8 @@
 # Some taken from http://www.xach.com/aolserver/mysql-functions.sql and http://pgfoundry.org/projects/mysqlcompat/.
 # IP Regex in inet_aton from https://www.mkyong.com/database/regular-expression-in-postgresql/.
 
-CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
-  'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
+CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
@@ -38,27 +38,27 @@ CREATE OR REPLACE FUNCTION FIND_IN_SET(needle smallint, haystack text) RETURNS i
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION add_num_text (text, integer) RETURNS text AS
-  'SELECT CAST ((CAST($1 AS integer) + $2) AS text) AS result'
+	'SELECT CAST ((CAST($1 AS integer) + $2) AS text) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION YEAR (timestamp) RETURNS integer AS
-  'SELECT CAST (EXTRACT(YEAR FROM $1) AS integer) AS result'
+	'SELECT CAST (EXTRACT(YEAR FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION MONTH (timestamp) RETURNS integer AS
-  'SELECT CAST (EXTRACT(MONTH FROM $1) AS integer) AS result'
+	'SELECT CAST (EXTRACT(MONTH FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION day(date) RETURNS integer AS
-  'SELECT EXTRACT(DAY FROM DATE($1))::integer AS result'
+	'SELECT EXTRACT(DAY FROM DATE($1))::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION DAYOFMONTH (timestamp) RETURNS integer AS
-  'SELECT CAST (EXTRACT(DAY FROM $1) AS integer) AS result'
+	'SELECT CAST (EXTRACT(DAY FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION HOUR (timestamp) RETURNS integer AS
-  'SELECT CAST (EXTRACT(HOUR FROM $1) AS integer) AS result'
+	'SELECT CAST (EXTRACT(HOUR FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS '
@@ -69,19 +69,19 @@ CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS '
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
-  'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
+	'SELECT DATE_PART(''DAY'', $1 - ''0001-01-01bc'')::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION INSTR (text, text) RETURNS integer AS
-  'SELECT POSITION($2 in $1) AS result'
+	'SELECT POSITION($2 in $1) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION bool_not_eq_int (boolean, integer) RETURNS boolean AS
-  'SELECT CAST($1 AS integer) != $2 AS result'
+	'SELECT CAST($1 AS integer) != $2 AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
-    SELECT to_char($1, ''MM-DD'');'
+		SELECT to_char($1, ''MM-DD'');'
 LANGUAGE 'sql' IMMUTABLE STRICT;
 
 #
@@ -102,13 +102,13 @@ CREATE SEQUENCE {$db_prefix}admin_info_files_seq START WITH 8;
 #
 
 CREATE TABLE {$db_prefix}admin_info_files (
-  id_file smallint DEFAULT nextval('{$db_prefix}admin_info_files_seq'),
-  filename varchar(255) NOT NULL DEFAULT '',
-  path varchar(255) NOT NULL DEFAULT '',
-  parameters varchar(255) NOT NULL DEFAULT '',
-  data text NOT NULL,
-  filetype varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_file)
+	id_file smallint DEFAULT nextval('{$db_prefix}admin_info_files_seq'),
+	filename varchar(255) NOT NULL DEFAULT '',
+	path varchar(255) NOT NULL DEFAULT '',
+	parameters varchar(255) NOT NULL DEFAULT '',
+	data text NOT NULL,
+	filetype varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_file)
 );
 
 #
@@ -122,9 +122,9 @@ CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_fil
 #
 
 CREATE TABLE {$db_prefix}approval_queue (
-  id_msg bigint NOT NULL DEFAULT '0',
-  id_attach bigint NOT NULL DEFAULT '0',
-  id_event smallint NOT NULL DEFAULT '0'
+	id_msg bigint NOT NULL DEFAULT '0',
+	id_attach bigint NOT NULL DEFAULT '0',
+	id_event smallint NOT NULL DEFAULT '0'
 );
 
 #
@@ -138,22 +138,22 @@ CREATE SEQUENCE {$db_prefix}attachments_seq;
 #
 
 CREATE TABLE {$db_prefix}attachments (
-  id_attach bigint DEFAULT nextval('{$db_prefix}attachments_seq'),
-  id_thumb bigint NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  id_folder smallint NOT NULL DEFAULT '1',
-  attachment_type smallint NOT NULL DEFAULT '0',
-  filename varchar(255) NOT NULL DEFAULT '',
-  file_hash varchar(40) NOT NULL DEFAULT '',
-  fileext varchar(8) NOT NULL DEFAULT '',
-  size int NOT NULL DEFAULT '0',
-  downloads int NOT NULL DEFAULT '0',
-  width int NOT NULL DEFAULT '0',
-  height int NOT NULL DEFAULT '0',
-  mime_type varchar(128) NOT NULL DEFAULT '',
-  approved smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_attach)
+	id_attach bigint DEFAULT nextval('{$db_prefix}attachments_seq'),
+	id_thumb bigint NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_folder smallint NOT NULL DEFAULT '1',
+	attachment_type smallint NOT NULL DEFAULT '0',
+	filename varchar(255) NOT NULL DEFAULT '',
+	file_hash varchar(40) NOT NULL DEFAULT '',
+	fileext varchar(8) NOT NULL DEFAULT '',
+	size int NOT NULL DEFAULT '0',
+	downloads int NOT NULL DEFAULT '0',
+	width int NOT NULL DEFAULT '0',
+	height int NOT NULL DEFAULT '0',
+	mime_type varchar(128) NOT NULL DEFAULT '',
+	approved smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_attach)
 );
 
 #
@@ -175,12 +175,12 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 #
 
 CREATE TABLE {$db_prefix}background_tasks (
-  id_task bigint DEFAULT nextval('{$db_prefix}background_tasks_seq'),
-  task_file varchar(255) NOT NULL DEFAULT '',
-  task_class varchar(255) NOT NULL DEFAULT '',
-  task_data text NOT NULL,
-  claimed_time int NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_task)
+	id_task bigint DEFAULT nextval('{$db_prefix}background_tasks_seq'),
+	task_file varchar(255) NOT NULL DEFAULT '',
+	task_class varchar(255) NOT NULL DEFAULT '',
+	task_data text NOT NULL,
+	claimed_time int NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_task)
 );
 
 #
@@ -194,17 +194,17 @@ CREATE SEQUENCE {$db_prefix}ban_groups_seq;
 #
 
 CREATE TABLE {$db_prefix}ban_groups (
-  id_ban_group int DEFAULT nextval('{$db_prefix}ban_groups_seq'),
-  name varchar(20) NOT NULL DEFAULT '',
-  ban_time bigint NOT NULL DEFAULT '0',
-  expire_time bigint,
-  cannot_access smallint NOT NULL DEFAULT '0',
-  cannot_register smallint NOT NULL DEFAULT '0',
-  cannot_post smallint NOT NULL DEFAULT '0',
-  cannot_login smallint NOT NULL DEFAULT '0',
-  reason varchar(255) NOT NULL,
-  notes text NOT NULL,
-  PRIMARY KEY (id_ban_group)
+	id_ban_group int DEFAULT nextval('{$db_prefix}ban_groups_seq'),
+	name varchar(20) NOT NULL DEFAULT '',
+	ban_time bigint NOT NULL DEFAULT '0',
+	expire_time bigint,
+	cannot_access smallint NOT NULL DEFAULT '0',
+	cannot_register smallint NOT NULL DEFAULT '0',
+	cannot_post smallint NOT NULL DEFAULT '0',
+	cannot_login smallint NOT NULL DEFAULT '0',
+	reason varchar(255) NOT NULL,
+	notes text NOT NULL,
+	PRIMARY KEY (id_ban_group)
 );
 
 #
@@ -218,15 +218,15 @@ CREATE SEQUENCE {$db_prefix}ban_items_seq;
 #
 
 CREATE TABLE {$db_prefix}ban_items (
-  id_ban int DEFAULT nextval('{$db_prefix}ban_items_seq'),
-  id_ban_group smallint NOT NULL DEFAULT '0',
-  ip_low inet,
-  ip_high inet,
-  hostname varchar(255) NOT NULL DEFAULT '',
-  email_address varchar(255) NOT NULL DEFAULT '',
-  id_member int NOT NULL DEFAULT '0',
-  hits bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_ban)
+	id_ban int DEFAULT nextval('{$db_prefix}ban_items_seq'),
+	id_ban_group smallint NOT NULL DEFAULT '0',
+	ip_low inet,
+	ip_high inet,
+	hostname varchar(255) NOT NULL DEFAULT '',
+	email_address varchar(255) NOT NULL DEFAULT '',
+	id_member int NOT NULL DEFAULT '0',
+	hits bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_ban)
 );
 
 #
@@ -241,11 +241,11 @@ CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip
 #
 
 CREATE TABLE {$db_prefix}board_permissions (
-  id_group smallint NOT NULL DEFAULT '0',
-  id_profile smallint NOT NULL DEFAULT '0',
-  permission varchar(30) NOT NULL DEFAULT '',
-  add_deny smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_group, id_profile, permission)
+	id_group smallint NOT NULL DEFAULT '0',
+	id_profile smallint NOT NULL DEFAULT '0',
+	permission varchar(30) NOT NULL DEFAULT '',
+	add_deny smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_group, id_profile, permission)
 );
 
 #
@@ -259,27 +259,27 @@ CREATE SEQUENCE {$db_prefix}boards_seq START WITH 2;
 #
 
 CREATE TABLE {$db_prefix}boards (
-  id_board smallint DEFAULT nextval('{$db_prefix}boards_seq'),
-  id_cat smallint NOT NULL DEFAULT '0',
-  child_level smallint NOT NULL DEFAULT '0',
-  id_parent smallint NOT NULL DEFAULT '0',
-  board_order smallint NOT NULL DEFAULT '0',
-  id_last_msg bigint NOT NULL DEFAULT '0',
-  id_msg_updated bigint NOT NULL DEFAULT '0',
-  member_groups varchar(255) NOT NULL DEFAULT '-1,0',
-  id_profile smallint NOT NULL DEFAULT '1',
-  name varchar(255) NOT NULL DEFAULT '',
-  description text NOT NULL,
-  num_topics int NOT NULL DEFAULT '0',
-  num_posts int NOT NULL DEFAULT '0',
-  count_posts smallint NOT NULL DEFAULT '0',
-  id_theme smallint NOT NULL DEFAULT '0',
-  override_theme smallint NOT NULL DEFAULT '0',
-  unapproved_posts smallint NOT NULL DEFAULT '0',
-  unapproved_topics smallint NOT NULL DEFAULT '0',
-  redirect varchar(255) NOT NULL DEFAULT '',
-  deny_member_groups varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_board)
+	id_board smallint DEFAULT nextval('{$db_prefix}boards_seq'),
+	id_cat smallint NOT NULL DEFAULT '0',
+	child_level smallint NOT NULL DEFAULT '0',
+	id_parent smallint NOT NULL DEFAULT '0',
+	board_order smallint NOT NULL DEFAULT '0',
+	id_last_msg bigint NOT NULL DEFAULT '0',
+	id_msg_updated bigint NOT NULL DEFAULT '0',
+	member_groups varchar(255) NOT NULL DEFAULT '-1,0',
+	id_profile smallint NOT NULL DEFAULT '1',
+	name varchar(255) NOT NULL DEFAULT '',
+	description text NOT NULL,
+	num_topics int NOT NULL DEFAULT '0',
+	num_posts int NOT NULL DEFAULT '0',
+	count_posts smallint NOT NULL DEFAULT '0',
+	id_theme smallint NOT NULL DEFAULT '0',
+	override_theme smallint NOT NULL DEFAULT '0',
+	unapproved_posts smallint NOT NULL DEFAULT '0',
+	unapproved_topics smallint NOT NULL DEFAULT '0',
+	redirect varchar(255) NOT NULL DEFAULT '',
+	deny_member_groups varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_board)
 );
 
 #
@@ -297,10 +297,10 @@ CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_grou
 
 CREATE TABLE {$db_prefix}board_permissions_view
 (
-    id_group smallint NOT NULL DEFAULT '0',
-    id_board smallint NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+		id_group smallint NOT NULL DEFAULT '0',
+		id_board smallint NOT NULL,
+		deny smallint NOT NULL,
+		PRIMARY KEY (id_group, id_board, deny)
 );
 
 #
@@ -314,18 +314,18 @@ CREATE SEQUENCE {$db_prefix}calendar_seq;
 #
 
 CREATE TABLE {$db_prefix}calendar (
-  id_event smallint DEFAULT nextval('{$db_prefix}calendar_seq'),
-  start_date date NOT NULL DEFAULT '1004-01-01',
-  end_date date NOT NULL DEFAULT '1004-01-01',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  title varchar(255) NOT NULL DEFAULT '',
-  id_member int NOT NULL DEFAULT '0',
-  start_time time,
-  end_time time,
-  timezone varchar(80),
-  location VARCHAR(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_event)
+	id_event smallint DEFAULT nextval('{$db_prefix}calendar_seq'),
+	start_date date NOT NULL DEFAULT '1004-01-01',
+	end_date date NOT NULL DEFAULT '1004-01-01',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	title varchar(255) NOT NULL DEFAULT '',
+	id_member int NOT NULL DEFAULT '0',
+	start_time time,
+	end_time time,
+	timezone varchar(80),
+	location VARCHAR(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_event)
 );
 
 #
@@ -347,10 +347,10 @@ CREATE SEQUENCE {$db_prefix}calendar_holidays_seq;
 #
 
 CREATE TABLE {$db_prefix}calendar_holidays (
-  id_holiday smallint DEFAULT nextval('{$db_prefix}calendar_holidays_seq'),
-  event_date date NOT NULL DEFAULT '1004-01-01',
-  title varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_holiday)
+	id_holiday smallint DEFAULT nextval('{$db_prefix}calendar_holidays_seq'),
+	event_date date NOT NULL DEFAULT '1004-01-01',
+	title varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_holiday)
 );
 
 #
@@ -370,12 +370,12 @@ CREATE SEQUENCE {$db_prefix}categories_seq START WITH 2;
 #
 
 CREATE TABLE {$db_prefix}categories (
-  id_cat smallint DEFAULT nextval('{$db_prefix}categories_seq'),
-  cat_order smallint NOT NULL DEFAULT '0',
-  name varchar(255) NOT NULL DEFAULT '',
-  description text NOT NULL,
-  can_collapse smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_cat)
+	id_cat smallint DEFAULT nextval('{$db_prefix}categories_seq'),
+	cat_order smallint NOT NULL DEFAULT '0',
+	name varchar(255) NOT NULL DEFAULT '',
+	description text NOT NULL,
+	can_collapse smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_cat)
 );
 
 #
@@ -389,27 +389,27 @@ CREATE SEQUENCE {$db_prefix}custom_fields_seq;
 #
 
 CREATE TABLE {$db_prefix}custom_fields (
-  id_field smallint DEFAULT nextval('{$db_prefix}custom_fields_seq'),
-  col_name varchar(12) NOT NULL DEFAULT '',
-  field_name varchar(40) NOT NULL DEFAULT '',
-  field_desc varchar(255) NOT NULL DEFAULT '',
-  field_type varchar(8) NOT NULL DEFAULT 'text',
-  field_length smallint NOT NULL DEFAULT '255',
-  field_options text NOT NULL,
-  field_order smallint NOT NULL DEFAULT '0',
-  mask varchar(255) NOT NULL DEFAULT '',
-  show_reg smallint NOT NULL DEFAULT '0',
-  show_display smallint NOT NULL DEFAULT '0',
-  show_mlist smallint NOT NULL DEFAULT '0',
-  show_profile varchar(20) NOT NULL DEFAULT 'forumprofile',
-  private smallint NOT NULL DEFAULT '0',
-  active smallint NOT NULL DEFAULT '1',
-  bbc smallint NOT NULL DEFAULT '0',
-  can_search smallint NOT NULL DEFAULT '0',
-  default_value varchar(255) NOT NULL DEFAULT '',
-  enclose text NOT NULL,
-  placement smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_field)
+	id_field smallint DEFAULT nextval('{$db_prefix}custom_fields_seq'),
+	col_name varchar(12) NOT NULL DEFAULT '',
+	field_name varchar(40) NOT NULL DEFAULT '',
+	field_desc varchar(255) NOT NULL DEFAULT '',
+	field_type varchar(8) NOT NULL DEFAULT 'text',
+	field_length smallint NOT NULL DEFAULT '255',
+	field_options text NOT NULL,
+	field_order smallint NOT NULL DEFAULT '0',
+	mask varchar(255) NOT NULL DEFAULT '',
+	show_reg smallint NOT NULL DEFAULT '0',
+	show_display smallint NOT NULL DEFAULT '0',
+	show_mlist smallint NOT NULL DEFAULT '0',
+	show_profile varchar(20) NOT NULL DEFAULT 'forumprofile',
+	private smallint NOT NULL DEFAULT '0',
+	active smallint NOT NULL DEFAULT '1',
+	bbc smallint NOT NULL DEFAULT '0',
+	can_search smallint NOT NULL DEFAULT '0',
+	default_value varchar(255) NOT NULL DEFAULT '',
+	enclose text NOT NULL,
+	placement smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_field)
 );
 
 #
@@ -423,9 +423,9 @@ CREATE UNIQUE INDEX {$db_prefix}custom_fields_col_name ON {$db_prefix}custom_fie
 #
 
 CREATE TABLE {$db_prefix}group_moderators (
-  id_group smallint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_group, id_member)
+	id_group smallint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_group, id_member)
 );
 
 #
@@ -439,17 +439,17 @@ CREATE SEQUENCE {$db_prefix}log_actions_seq;
 #
 
 CREATE TABLE {$db_prefix}log_actions (
-  id_action bigint DEFAULT nextval('{$db_prefix}log_actions_seq'),
-  id_log smallint NOT NULL DEFAULT '1',
-  log_time bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  ip inet,
-  action varchar(30) NOT NULL DEFAULT '',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_action)
+	id_action bigint DEFAULT nextval('{$db_prefix}log_actions_seq'),
+	id_log smallint NOT NULL DEFAULT '1',
+	log_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	ip inet,
+	action varchar(30) NOT NULL DEFAULT '',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	extra text NOT NULL,
+	PRIMARY KEY (id_action)
 );
 
 #
@@ -468,13 +468,13 @@ CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions 
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-  date date NOT NULL DEFAULT '1004-01-01',
-  hits int NOT NULL DEFAULT '0',
-  topics smallint NOT NULL DEFAULT '0',
-  posts smallint NOT NULL DEFAULT '0',
-  registers smallint NOT NULL DEFAULT '0',
-  most_on smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (date)
+	date date NOT NULL DEFAULT '1004-01-01',
+	hits int NOT NULL DEFAULT '0',
+	topics smallint NOT NULL DEFAULT '0',
+	posts smallint NOT NULL DEFAULT '0',
+	registers smallint NOT NULL DEFAULT '0',
+	most_on smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (date)
 );
 
 #
@@ -488,12 +488,12 @@ CREATE SEQUENCE {$db_prefix}log_banned_seq;
 #
 
 CREATE TABLE {$db_prefix}log_banned (
-  id_ban_log int DEFAULT nextval('{$db_prefix}log_banned_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  ip inet,
-  email varchar(255) NOT NULL DEFAULT '',
-  log_time bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_ban_log)
+	id_ban_log int DEFAULT nextval('{$db_prefix}log_banned_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	ip inet,
+	email varchar(255) NOT NULL DEFAULT '',
+	log_time bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_ban_log)
 );
 
 #
@@ -507,10 +507,10 @@ CREATE INDEX {$db_prefix}log_banned_log_time ON {$db_prefix}log_banned (log_time
 #
 
 CREATE TABLE {$db_prefix}log_boards (
-  id_member int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, id_board)
+	id_member int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, id_board)
 );
 
 #
@@ -524,17 +524,17 @@ CREATE SEQUENCE {$db_prefix}log_comments_seq;
 #
 
 CREATE TABLE {$db_prefix}log_comments (
-  id_comment int DEFAULT nextval('{$db_prefix}log_comments_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  member_name varchar(80) NOT NULL DEFAULT '',
-  comment_type varchar(8) NOT NULL DEFAULT 'warning',
-  id_recipient int NOT NULL DEFAULT '0',
-  recipient_name varchar(255) NOT NULL DEFAULT '',
-  log_time bigint NOT NULL DEFAULT '0',
-  id_notice int NOT NULL DEFAULT '0',
-  counter smallint NOT NULL DEFAULT '0',
-  body text NOT NULL,
-  PRIMARY KEY (id_comment)
+	id_comment int DEFAULT nextval('{$db_prefix}log_comments_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	member_name varchar(80) NOT NULL DEFAULT '',
+	comment_type varchar(8) NOT NULL DEFAULT 'warning',
+	id_recipient int NOT NULL DEFAULT '0',
+	recipient_name varchar(255) NOT NULL DEFAULT '',
+	log_time bigint NOT NULL DEFAULT '0',
+	id_notice int NOT NULL DEFAULT '0',
+	counter smallint NOT NULL DEFAULT '0',
+	body text NOT NULL,
+	PRIMARY KEY (id_comment)
 );
 
 #
@@ -550,11 +550,11 @@ CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (
 #
 
 CREATE TABLE {$db_prefix}log_digest (
-  id_topic int NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  note_type varchar(10) NOT NULL DEFAULT 'post',
-  daily smallint NOT NULL DEFAULT '0',
-  exclude int NOT NULL DEFAULT '0'
+	id_topic int NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	note_type varchar(10) NOT NULL DEFAULT 'post',
+	daily smallint NOT NULL DEFAULT '0',
+	exclude int NOT NULL DEFAULT '0'
 );
 
 #
@@ -568,18 +568,18 @@ CREATE SEQUENCE {$db_prefix}log_errors_seq;
 #
 
 CREATE TABLE {$db_prefix}log_errors (
-  id_error int DEFAULT nextval('{$db_prefix}log_errors_seq'),
-  log_time bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  ip inet,
-  url text NOT NULL,
-  message text NOT NULL,
-  session varchar(128) NOT NULL DEFAULT '                                                                ',
-  error_type varchar(15) NOT NULL DEFAULT 'general',
-  file varchar(255) NOT NULL DEFAULT '',
-  line int NOT NULL DEFAULT '0',
-  backtrace text NOT NULL DEFAULT '',
-  PRIMARY KEY (id_error)
+	id_error int DEFAULT nextval('{$db_prefix}log_errors_seq'),
+	log_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	ip inet,
+	url text NOT NULL,
+	message text NOT NULL,
+	session varchar(128) NOT NULL DEFAULT '                                                                ',
+	error_type varchar(15) NOT NULL DEFAULT 'general',
+	file varchar(255) NOT NULL DEFAULT '',
+	line int NOT NULL DEFAULT '0',
+	backtrace text NOT NULL DEFAULT '',
+	PRIMARY KEY (id_error)
 );
 
 #
@@ -595,10 +595,10 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}log_floodcontrol (
-  ip inet,
-  log_time bigint NOT NULL DEFAULT '0',
-  log_type varchar(8) NOT NULL DEFAULT 'post',
-  PRIMARY KEY (ip, log_type)
+	ip inet,
+	log_time bigint NOT NULL DEFAULT '0',
+	log_type varchar(8) NOT NULL DEFAULT 'post',
+	PRIMARY KEY (ip, log_type)
 );
 
 #
@@ -612,17 +612,17 @@ CREATE SEQUENCE {$db_prefix}log_group_requests_seq;
 #
 
 CREATE TABLE {$db_prefix}log_group_requests (
-  id_request int DEFAULT nextval('{$db_prefix}log_group_requests_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  id_group smallint NOT NULL DEFAULT '0',
-  time_applied bigint NOT NULL DEFAULT '0',
-  reason text NOT NULL,
-  status smallint NOT NULL DEFAULT '0',
-  id_member_acted int NOT NULL DEFAULT '0',
-  member_name_acted varchar(255) NOT NULL DEFAULT '',
-  time_acted bigint NOT NULL DEFAULT '0',
-  act_reason text NOT NULL,
-  PRIMARY KEY (id_request)
+	id_request int DEFAULT nextval('{$db_prefix}log_group_requests_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	id_group smallint NOT NULL DEFAULT '0',
+	time_applied bigint NOT NULL DEFAULT '0',
+	reason text NOT NULL,
+	status smallint NOT NULL DEFAULT '0',
+	id_member_acted int NOT NULL DEFAULT '0',
+	member_name_acted varchar(255) NOT NULL DEFAULT '',
+	time_acted bigint NOT NULL DEFAULT '0',
+	act_reason text NOT NULL,
+	PRIMARY KEY (id_request)
 );
 
 #
@@ -636,10 +636,10 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 #
 
 CREATE TABLE {$db_prefix}log_mark_read (
-  id_member int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, id_board)
+	id_member int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, id_board)
 );
 
 #
@@ -653,10 +653,10 @@ CREATE SEQUENCE {$db_prefix}log_member_notices_seq;
 #
 
 CREATE TABLE {$db_prefix}log_member_notices (
-  id_notice int DEFAULT nextval('{$db_prefix}log_member_notices_seq'),
-  subject varchar(255) NOT NULL DEFAULT '',
-  body text NOT NULL,
-  PRIMARY KEY (id_notice)
+	id_notice int DEFAULT nextval('{$db_prefix}log_member_notices_seq'),
+	subject varchar(255) NOT NULL DEFAULT '',
+	body text NOT NULL,
+	PRIMARY KEY (id_notice)
 );
 
 #
@@ -664,11 +664,11 @@ CREATE TABLE {$db_prefix}log_member_notices (
 #
 
 CREATE TABLE {$db_prefix}log_notify (
-  id_member int NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  sent smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, id_topic, id_board)
+	id_member int NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	sent smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, id_topic, id_board)
 );
 
 #
@@ -682,13 +682,13 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}log_online (
-  session varchar(128) NOT NULL DEFAULT '',
-  log_time bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  id_spider smallint NOT NULL DEFAULT '0',
-  ip inet,
-  url varchar(2048) NOT NULL DEFAULT '',
-  PRIMARY KEY (session)
+	session varchar(128) NOT NULL DEFAULT '',
+	log_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_spider smallint NOT NULL DEFAULT '0',
+	ip inet,
+	url varchar(2048) NOT NULL DEFAULT '',
+	PRIMARY KEY (session)
 );
 
 #
@@ -709,23 +709,23 @@ CREATE SEQUENCE {$db_prefix}log_packages_seq;
 #
 
 CREATE TABLE {$db_prefix}log_packages (
-  id_install int DEFAULT nextval('{$db_prefix}log_packages_seq'),
-  filename varchar(255) NOT NULL DEFAULT '',
-  package_id varchar(255) NOT NULL DEFAULT '',
-  name varchar(255) NOT NULL DEFAULT '',
-  version varchar(255) NOT NULL DEFAULT '',
-  id_member_installed int NOT NULL DEFAULT '0',
-  member_installed varchar(255) NOT NULL,
-  time_installed int NOT NULL DEFAULT '0',
-  id_member_removed int NOT NULL DEFAULT '0',
-  member_removed varchar(255) NOT NULL,
-  time_removed int NOT NULL DEFAULT '0',
-  install_state smallint NOT NULL DEFAULT '1',
-  failed_steps text NOT NULL,
-  themes_installed varchar(255) NOT NULL DEFAULT '',
-  db_changes text NOT NULL,
-  credits text NOT NULL,
-  PRIMARY KEY (id_install)
+	id_install int DEFAULT nextval('{$db_prefix}log_packages_seq'),
+	filename varchar(255) NOT NULL DEFAULT '',
+	package_id varchar(255) NOT NULL DEFAULT '',
+	name varchar(255) NOT NULL DEFAULT '',
+	version varchar(255) NOT NULL DEFAULT '',
+	id_member_installed int NOT NULL DEFAULT '0',
+	member_installed varchar(255) NOT NULL,
+	time_installed int NOT NULL DEFAULT '0',
+	id_member_removed int NOT NULL DEFAULT '0',
+	member_removed varchar(255) NOT NULL,
+	time_removed int NOT NULL DEFAULT '0',
+	install_state smallint NOT NULL DEFAULT '1',
+	failed_steps text NOT NULL,
+	themes_installed varchar(255) NOT NULL DEFAULT '',
+	db_changes text NOT NULL,
+	credits text NOT NULL,
+	PRIMARY KEY (id_install)
 );
 
 #
@@ -739,9 +739,9 @@ CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (file
 #
 
 CREATE TABLE {$db_prefix}log_polls (
-  id_poll int NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  id_choice smallint NOT NULL DEFAULT '0'
+	id_poll int NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_choice smallint NOT NULL DEFAULT '0'
 );
 
 #
@@ -761,20 +761,20 @@ CREATE SEQUENCE {$db_prefix}log_reported_seq;
 #
 
 CREATE TABLE {$db_prefix}log_reported (
-  id_report int DEFAULT nextval('{$db_prefix}log_reported_seq'),
-  id_msg bigint NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  membername varchar(255) NOT NULL DEFAULT '',
-  subject varchar(255) NOT NULL DEFAULT '',
-  body text NOT NULL,
-  time_started int NOT NULL DEFAULT '0',
-  time_updated int NOT NULL DEFAULT '0',
-  num_reports int NOT NULL DEFAULT '0',
-  closed smallint NOT NULL DEFAULT '0',
-  ignore_all smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_report)
+	id_report int DEFAULT nextval('{$db_prefix}log_reported_seq'),
+	id_msg bigint NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	membername varchar(255) NOT NULL DEFAULT '',
+	subject varchar(255) NOT NULL DEFAULT '',
+	body text NOT NULL,
+	time_started int NOT NULL DEFAULT '0',
+	time_updated int NOT NULL DEFAULT '0',
+	num_reports int NOT NULL DEFAULT '0',
+	closed smallint NOT NULL DEFAULT '0',
+	ignore_all smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_report)
 );
 
 #
@@ -798,14 +798,14 @@ CREATE SEQUENCE {$db_prefix}log_reported_comments_seq;
 #
 
 CREATE TABLE {$db_prefix}log_reported_comments (
-  id_comment int DEFAULT nextval('{$db_prefix}log_reported_comments_seq'),
-  id_report int NOT NULL DEFAULT '0',
-  id_member int NOT NULL,
-  membername varchar(255) NOT NULL DEFAULT '',
-  member_ip inet,
-  comment varchar(255) NOT NULL DEFAULT '',
-  time_sent int NOT NULL,
-  PRIMARY KEY (id_comment)
+	id_comment int DEFAULT nextval('{$db_prefix}log_reported_comments_seq'),
+	id_report int NOT NULL DEFAULT '0',
+	id_member int NOT NULL,
+	membername varchar(255) NOT NULL DEFAULT '',
+	member_ip inet,
+	comment varchar(255) NOT NULL DEFAULT '',
+	time_sent int NOT NULL,
+	PRIMARY KEY (id_comment)
 );
 
 #
@@ -827,11 +827,11 @@ CREATE SEQUENCE {$db_prefix}log_scheduled_tasks_seq;
 #
 
 CREATE TABLE {$db_prefix}log_scheduled_tasks (
-  id_log int DEFAULT nextval('{$db_prefix}log_scheduled_tasks_seq'),
-  id_task smallint NOT NULL DEFAULT '0',
-  time_run int NOT NULL DEFAULT '0',
-  time_taken float NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_log)
+	id_log int DEFAULT nextval('{$db_prefix}log_scheduled_tasks_seq'),
+	id_task smallint NOT NULL DEFAULT '0',
+	time_run int NOT NULL DEFAULT '0',
+	time_taken float NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_log)
 );
 
 #
@@ -839,9 +839,9 @@ CREATE TABLE {$db_prefix}log_scheduled_tasks (
 #
 
 CREATE TABLE {$db_prefix}log_search_messages (
-  id_search smallint NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_search, id_msg)
+	id_search smallint NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_search, id_msg)
 );
 
 #
@@ -849,12 +849,12 @@ CREATE TABLE {$db_prefix}log_search_messages (
 #
 
 CREATE TABLE {$db_prefix}log_search_results (
-  id_search smallint NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  relevance smallint NOT NULL DEFAULT '0',
-  num_matches smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_search, id_topic)
+	id_search smallint NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	relevance smallint NOT NULL DEFAULT '0',
+	num_matches smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_search, id_topic)
 );
 
 #
@@ -862,9 +862,9 @@ CREATE TABLE {$db_prefix}log_search_results (
 #
 
 CREATE TABLE {$db_prefix}log_search_subjects (
-  word varchar(20) NOT NULL DEFAULT '',
-  id_topic int NOT NULL DEFAULT '0',
-  PRIMARY KEY (word, id_topic)
+	word varchar(20) NOT NULL DEFAULT '',
+	id_topic int NOT NULL DEFAULT '0',
+	PRIMARY KEY (word, id_topic)
 );
 
 #
@@ -878,9 +878,9 @@ CREATE INDEX {$db_prefix}log_search_subjects_id_topic ON {$db_prefix}log_search_
 #
 
 CREATE TABLE {$db_prefix}log_search_topics (
-  id_search smallint NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_search, id_topic)
+	id_search smallint NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_search, id_topic)
 );
 
 #
@@ -894,12 +894,12 @@ CREATE SEQUENCE {$db_prefix}log_spider_hits_seq;
 #
 
 CREATE TABLE {$db_prefix}log_spider_hits (
-  id_hit bigint DEFAULT nextval('{$db_prefix}log_spider_hits_seq'),
-  id_spider smallint NOT NULL DEFAULT '0',
-  log_time bigint NOT NULL DEFAULT '0',
-  url varchar(1024) NOT NULL DEFAULT '',
-  processed smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_hit)
+	id_hit bigint DEFAULT nextval('{$db_prefix}log_spider_hits_seq'),
+	id_spider smallint NOT NULL DEFAULT '0',
+	log_time bigint NOT NULL DEFAULT '0',
+	url varchar(1024) NOT NULL DEFAULT '',
+	processed smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_hit)
 );
 
 #
@@ -915,11 +915,11 @@ CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hit
 #
 
 CREATE TABLE {$db_prefix}log_spider_stats (
-  id_spider smallint NOT NULL DEFAULT '0',
-  page_hits smallint NOT NULL DEFAULT '0',
-  last_seen bigint NOT NULL DEFAULT '0',
-  stat_date date NOT NULL DEFAULT '1004-01-01',
-  PRIMARY KEY (stat_date, id_spider)
+	id_spider smallint NOT NULL DEFAULT '0',
+	page_hits smallint NOT NULL DEFAULT '0',
+	last_seen bigint NOT NULL DEFAULT '0',
+	stat_date date NOT NULL DEFAULT '1004-01-01',
+	PRIMARY KEY (stat_date, id_spider)
 );
 
 #
@@ -933,18 +933,18 @@ CREATE SEQUENCE {$db_prefix}log_subscribed_seq;
 #
 
 CREATE TABLE {$db_prefix}log_subscribed (
-  id_sublog bigint DEFAULT nextval('{$db_prefix}log_subscribed_seq'),
-  id_subscribe smallint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  old_id_group int NOT NULL DEFAULT '0',
-  start_time int NOT NULL DEFAULT '0',
-  end_time int NOT NULL DEFAULT '0',
-  payments_pending smallint NOT NULL DEFAULT '0',
-  status smallint NOT NULL DEFAULT '0',
-  pending_details text NOT NULL,
-  reminder_sent smallint NOT NULL DEFAULT '0',
-  vendor_ref varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_sublog)
+	id_sublog bigint DEFAULT nextval('{$db_prefix}log_subscribed_seq'),
+	id_subscribe smallint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	old_id_group int NOT NULL DEFAULT '0',
+	start_time int NOT NULL DEFAULT '0',
+	end_time int NOT NULL DEFAULT '0',
+	payments_pending smallint NOT NULL DEFAULT '0',
+	status smallint NOT NULL DEFAULT '0',
+	pending_details text NOT NULL,
+	reminder_sent smallint NOT NULL DEFAULT '0',
+	vendor_ref varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_sublog)
 );
 
 #
@@ -963,11 +963,11 @@ CREATE INDEX {$db_prefix}log_subscribed_id_member ON {$db_prefix}log_subscribed 
 #
 
 CREATE TABLE {$db_prefix}log_topics (
-  id_member int NOT NULL DEFAULT '0',
-  id_topic int NOT NULL DEFAULT '0',
-  id_msg bigint NOT NULL DEFAULT '0',
-  unwatched int NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, id_topic)
+	id_member int NOT NULL DEFAULT '0',
+	id_topic int NOT NULL DEFAULT '0',
+	id_msg bigint NOT NULL DEFAULT '0',
+	unwatched int NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, id_topic)
 );
 
 #
@@ -987,16 +987,16 @@ CREATE SEQUENCE {$db_prefix}mail_queue_seq;
 #
 
 CREATE TABLE {$db_prefix}mail_queue (
-  id_mail bigint DEFAULT nextval('{$db_prefix}mail_queue_seq'),
-  time_sent int NOT NULL DEFAULT '0',
-  recipient varchar(255) NOT NULL DEFAULT '',
-  body text NOT NULL,
-  subject varchar(255) NOT NULL DEFAULT '',
-  headers text NOT NULL,
-  send_html smallint NOT NULL DEFAULT '0',
-  priority smallint NOT NULL DEFAULT '1',
-  private smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_mail)
+	id_mail bigint DEFAULT nextval('{$db_prefix}mail_queue_seq'),
+	time_sent int NOT NULL DEFAULT '0',
+	recipient varchar(255) NOT NULL DEFAULT '',
+	body text NOT NULL,
+	subject varchar(255) NOT NULL DEFAULT '',
+	headers text NOT NULL,
+	send_html smallint NOT NULL DEFAULT '0',
+	priority smallint NOT NULL DEFAULT '1',
+	private smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_mail)
 );
 
 #
@@ -1017,18 +1017,18 @@ CREATE SEQUENCE {$db_prefix}membergroups_seq START WITH 9;
 #
 
 CREATE TABLE {$db_prefix}membergroups (
-  id_group smallint DEFAULT nextval('{$db_prefix}membergroups_seq'),
-  group_name varchar(80) NOT NULL DEFAULT '',
-  description text NOT NULL,
-  online_color varchar(20) NOT NULL DEFAULT '',
-  min_posts int NOT NULL DEFAULT '-1',
-  max_messages smallint NOT NULL DEFAULT '0',
-  icons varchar(255) NOT NULL DEFAULT '',
-  group_type smallint NOT NULL DEFAULT '0',
-  hidden smallint NOT NULL DEFAULT '0',
-  id_parent smallint NOT NULL DEFAULT '-2',
-  tfa_required smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_group)
+	id_group smallint DEFAULT nextval('{$db_prefix}membergroups_seq'),
+	group_name varchar(80) NOT NULL DEFAULT '',
+	description text NOT NULL,
+	online_color varchar(20) NOT NULL DEFAULT '',
+	min_posts int NOT NULL DEFAULT '-1',
+	max_messages smallint NOT NULL DEFAULT '0',
+	icons varchar(255) NOT NULL DEFAULT '',
+	group_type smallint NOT NULL DEFAULT '0',
+	hidden smallint NOT NULL DEFAULT '0',
+	id_parent smallint NOT NULL DEFAULT '-2',
+	tfa_required smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_group)
 );
 
 #
@@ -1048,55 +1048,55 @@ CREATE SEQUENCE {$db_prefix}members_seq;
 #
 
 CREATE TABLE {$db_prefix}members (
-  id_member int DEFAULT nextval('{$db_prefix}members_seq'),
-  member_name varchar(80) NOT NULL DEFAULT '',
-  date_registered bigint NOT NULL DEFAULT '0',
-  posts int NOT NULL DEFAULT '0',
-  id_group smallint NOT NULL DEFAULT '0',
-  lngfile varchar(255) NOT NULL DEFAULT '',
-  last_login bigint NOT NULL DEFAULT '0',
-  real_name varchar(255) NOT NULL  DEFAULT '',
-  instant_messages smallint NOT NULL DEFAULT 0,
-  unread_messages smallint NOT NULL DEFAULT 0,
-  new_pm smallint NOT NULL DEFAULT '0',
-  alerts bigint NOT NULL DEFAULT '0',
-  buddy_list text NOT NULL,
-  pm_ignore_list varchar(255) NOT NULL DEFAULT '',
-  pm_prefs int NOT NULL DEFAULT '0',
-  mod_prefs varchar(20) NOT NULL DEFAULT '',
-  passwd varchar(64) NOT NULL DEFAULT '',
-  email_address varchar(255) NOT NULL DEFAULT '',
-  personal_text varchar(255) NOT NULL DEFAULT '',
-  birthdate date NOT NULL DEFAULT '1004-01-01',
-  website_title varchar(255) NOT NULL DEFAULT '',
-  website_url varchar(255) NOT NULL DEFAULT '',
-  show_online smallint NOT NULL DEFAULT '1',
-  time_format varchar(80) NOT NULL DEFAULT '',
-  signature text NOT NULL,
-  time_offset float NOT NULL DEFAULT '0',
-  avatar varchar(255) NOT NULL DEFAULT '',
-  usertitle varchar(255) NOT NULL DEFAULT '',
-  member_ip inet,
-  member_ip2 inet,
-  secret_question varchar(255) NOT NULL DEFAULT '',
-  secret_answer varchar(64) NOT NULL DEFAULT '',
-  id_theme smallint NOT NULL DEFAULT '0',
-  is_activated smallint NOT NULL DEFAULT '1',
-  validation_code varchar(10) NOT NULL DEFAULT '',
-  id_msg_last_visit int NOT NULL DEFAULT '0',
-  additional_groups varchar(255) NOT NULL DEFAULT '',
-  smiley_set varchar(48) NOT NULL DEFAULT '',
-  id_post_group smallint NOT NULL DEFAULT '0',
-  total_time_logged_in bigint NOT NULL DEFAULT '0',
-  password_salt varchar(255) NOT NULL DEFAULT '',
-  ignore_boards text NOT NULL,
-  warning smallint NOT NULL DEFAULT '0',
-  passwd_flood varchar(12) NOT NULL DEFAULT '',
-  pm_receive_from smallint NOT NULL DEFAULT '1',
-  timezone varchar(80) NOT NULL DEFAULT 'UTC',
-  tfa_secret varchar(24) NOT NULL DEFAULT '',
-  tfa_backup varchar(64) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_member)
+	id_member int DEFAULT nextval('{$db_prefix}members_seq'),
+	member_name varchar(80) NOT NULL DEFAULT '',
+	date_registered bigint NOT NULL DEFAULT '0',
+	posts int NOT NULL DEFAULT '0',
+	id_group smallint NOT NULL DEFAULT '0',
+	lngfile varchar(255) NOT NULL DEFAULT '',
+	last_login bigint NOT NULL DEFAULT '0',
+	real_name varchar(255) NOT NULL  DEFAULT '',
+	instant_messages smallint NOT NULL DEFAULT 0,
+	unread_messages smallint NOT NULL DEFAULT 0,
+	new_pm smallint NOT NULL DEFAULT '0',
+	alerts bigint NOT NULL DEFAULT '0',
+	buddy_list text NOT NULL,
+	pm_ignore_list varchar(255) NOT NULL DEFAULT '',
+	pm_prefs int NOT NULL DEFAULT '0',
+	mod_prefs varchar(20) NOT NULL DEFAULT '',
+	passwd varchar(64) NOT NULL DEFAULT '',
+	email_address varchar(255) NOT NULL DEFAULT '',
+	personal_text varchar(255) NOT NULL DEFAULT '',
+	birthdate date NOT NULL DEFAULT '1004-01-01',
+	website_title varchar(255) NOT NULL DEFAULT '',
+	website_url varchar(255) NOT NULL DEFAULT '',
+	show_online smallint NOT NULL DEFAULT '1',
+	time_format varchar(80) NOT NULL DEFAULT '',
+	signature text NOT NULL,
+	time_offset float NOT NULL DEFAULT '0',
+	avatar varchar(255) NOT NULL DEFAULT '',
+	usertitle varchar(255) NOT NULL DEFAULT '',
+	member_ip inet,
+	member_ip2 inet,
+	secret_question varchar(255) NOT NULL DEFAULT '',
+	secret_answer varchar(64) NOT NULL DEFAULT '',
+	id_theme smallint NOT NULL DEFAULT '0',
+	is_activated smallint NOT NULL DEFAULT '1',
+	validation_code varchar(10) NOT NULL DEFAULT '',
+	id_msg_last_visit int NOT NULL DEFAULT '0',
+	additional_groups varchar(255) NOT NULL DEFAULT '',
+	smiley_set varchar(48) NOT NULL DEFAULT '',
+	id_post_group smallint NOT NULL DEFAULT '0',
+	total_time_logged_in bigint NOT NULL DEFAULT '0',
+	password_salt varchar(255) NOT NULL DEFAULT '',
+	ignore_boards text NOT NULL,
+	warning smallint NOT NULL DEFAULT '0',
+	passwd_flood varchar(12) NOT NULL DEFAULT '',
+	pm_receive_from smallint NOT NULL DEFAULT '1',
+	timezone varchar(80) NOT NULL DEFAULT 'UTC',
+	tfa_secret varchar(24) NOT NULL DEFAULT '',
+	tfa_backup varchar(64) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_member)
 );
 
 #
@@ -1132,12 +1132,12 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 #
 
 CREATE TABLE {$db_prefix}member_logins (
-  id_login int DEFAULT nextval('{$db_prefix}member_logins_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  time int NOT NULL DEFAULT '0',
-  ip inet,
-  ip2 inet,
-  PRIMARY KEY (id_login)
+	id_login int DEFAULT nextval('{$db_prefix}member_logins_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	time int NOT NULL DEFAULT '0',
+	ip inet,
+	ip2 inet,
+	PRIMARY KEY (id_login)
 );
 
 #
@@ -1158,12 +1158,12 @@ CREATE SEQUENCE {$db_prefix}message_icons_seq;
 #
 
 CREATE TABLE {$db_prefix}message_icons (
-  id_icon smallint DEFAULT nextval('{$db_prefix}message_icons_seq'),
-  title varchar(80) NOT NULL DEFAULT '',
-  filename varchar(80) NOT NULL DEFAULT '',
-  id_board smallint NOT NULL DEFAULT '0',
-  icon_order smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_icon)
+	id_icon smallint DEFAULT nextval('{$db_prefix}message_icons_seq'),
+	title varchar(80) NOT NULL DEFAULT '',
+	filename varchar(80) NOT NULL DEFAULT '',
+	id_board smallint NOT NULL DEFAULT '0',
+	icon_order smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_icon)
 );
 
 #
@@ -1183,25 +1183,25 @@ CREATE SEQUENCE {$db_prefix}messages_seq START WITH 2;
 #
 
 CREATE TABLE {$db_prefix}messages (
-  id_msg bigint DEFAULT nextval('{$db_prefix}messages_seq'),
-  id_topic int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  poster_time bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  id_msg_modified int NOT NULL DEFAULT '0',
-  subject varchar(255) NOT NULL DEFAULT '',
-  poster_name varchar(255) NOT NULL DEFAULT '',
-  poster_email varchar(255) NOT NULL DEFAULT '',
-  poster_ip inet,
-  smileys_enabled smallint NOT NULL DEFAULT '1',
-  modified_time int NOT NULL DEFAULT '0',
-  modified_name varchar(255) NOT NULL,
-  modified_reason varchar(255) NOT NULL DEFAULT '',
-  body text NOT NULL,
-  icon varchar(16) NOT NULL DEFAULT 'xx',
-  approved smallint NOT NULL DEFAULT '1',
-  likes smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_msg)
+	id_msg bigint DEFAULT nextval('{$db_prefix}messages_seq'),
+	id_topic int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	poster_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_msg_modified int NOT NULL DEFAULT '0',
+	subject varchar(255) NOT NULL DEFAULT '',
+	poster_name varchar(255) NOT NULL DEFAULT '',
+	poster_email varchar(255) NOT NULL DEFAULT '',
+	poster_ip inet,
+	smileys_enabled smallint NOT NULL DEFAULT '1',
+	modified_time int NOT NULL DEFAULT '0',
+	modified_name varchar(255) NOT NULL,
+	modified_reason varchar(255) NOT NULL DEFAULT '',
+	body text NOT NULL,
+	icon varchar(16) NOT NULL DEFAULT 'xx',
+	approved smallint NOT NULL DEFAULT '1',
+	likes smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_msg)
 );
 
 #
@@ -1223,9 +1223,9 @@ CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 #
 
 CREATE TABLE {$db_prefix}moderators (
-  id_board smallint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_board, id_member)
+	id_board smallint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_board, id_member)
 );
 
 #
@@ -1233,9 +1233,9 @@ CREATE TABLE {$db_prefix}moderators (
 #
 
 CREATE TABLE {$db_prefix}moderator_groups (
-  id_board smallint NOT NULL DEFAULT '0',
-  id_group smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_board, id_group)
+	id_board smallint NOT NULL DEFAULT '0',
+	id_group smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_board, id_group)
 );
 
 #
@@ -1249,10 +1249,10 @@ CREATE SEQUENCE {$db_prefix}package_servers_seq;
 #
 
 CREATE TABLE {$db_prefix}package_servers (
-  id_server smallint DEFAULT nextval('{$db_prefix}package_servers_seq'),
-  name varchar(255) NOT NULL DEFAULT '',
-  url varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_server)
+	id_server smallint DEFAULT nextval('{$db_prefix}package_servers_seq'),
+	name varchar(255) NOT NULL DEFAULT '',
+	url varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_server)
 );
 
 
@@ -1267,9 +1267,9 @@ CREATE SEQUENCE {$db_prefix}permission_profiles_seq START WITH 5;
 #
 
 CREATE TABLE {$db_prefix}permission_profiles (
-  id_profile smallint DEFAULT nextval('{$db_prefix}permission_profiles_seq'),
-  profile_name varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_profile)
+	id_profile smallint DEFAULT nextval('{$db_prefix}permission_profiles_seq'),
+	profile_name varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_profile)
 );
 
 #
@@ -1277,10 +1277,10 @@ CREATE TABLE {$db_prefix}permission_profiles (
 #
 
 CREATE TABLE {$db_prefix}permissions (
-  id_group smallint NOT NULL DEFAULT '0',
-  permission varchar(30) NOT NULL DEFAULT '',
-  add_deny smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_group, permission)
+	id_group smallint NOT NULL DEFAULT '0',
+	permission varchar(30) NOT NULL DEFAULT '',
+	add_deny smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_group, permission)
 );
 
 #
@@ -1294,15 +1294,15 @@ CREATE SEQUENCE {$db_prefix}personal_messages_seq;
 #
 
 CREATE TABLE {$db_prefix}personal_messages (
-  id_pm bigint DEFAULT nextval('{$db_prefix}personal_messages_seq'),
-  id_pm_head bigint NOT NULL DEFAULT '0',
-  id_member_from int NOT NULL DEFAULT '0',
-  deleted_by_sender smallint NOT NULL DEFAULT '0',
-  from_name varchar(255) NOT NULL,
-  msgtime bigint NOT NULL DEFAULT '0',
-  subject varchar(255) NOT NULL DEFAULT '',
-  body text NOT NULL,
-  PRIMARY KEY (id_pm)
+	id_pm bigint DEFAULT nextval('{$db_prefix}personal_messages_seq'),
+	id_pm_head bigint NOT NULL DEFAULT '0',
+	id_member_from int NOT NULL DEFAULT '0',
+	deleted_by_sender smallint NOT NULL DEFAULT '0',
+	from_name varchar(255) NOT NULL,
+	msgtime bigint NOT NULL DEFAULT '0',
+	subject varchar(255) NOT NULL DEFAULT '',
+	body text NOT NULL,
+	PRIMARY KEY (id_pm)
 );
 
 #
@@ -1324,10 +1324,10 @@ CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 #
 
 CREATE TABLE {$db_prefix}pm_labels (
-  id_label bigint NOT NULL DEFAULT nextval('{$db_prefix}pm_labels_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  name varchar(30) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_label)
+	id_label bigint NOT NULL DEFAULT nextval('{$db_prefix}pm_labels_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	name varchar(30) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_label)
 );
 
 #
@@ -1335,9 +1335,9 @@ CREATE TABLE {$db_prefix}pm_labels (
 #
 
 CREATE TABLE {$db_prefix}pm_labeled_messages (
-  id_label bigint NOT NULL DEFAULT '0',
-  id_pm bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_label, id_pm)
+	id_label bigint NOT NULL DEFAULT '0',
+	id_pm bigint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_label, id_pm)
 );
 
 #
@@ -1345,14 +1345,14 @@ CREATE TABLE {$db_prefix}pm_labeled_messages (
 #
 
 CREATE TABLE {$db_prefix}pm_recipients (
-  id_pm bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  bcc smallint NOT NULL DEFAULT '0',
-  is_read smallint NOT NULL DEFAULT '0',
-  is_new smallint NOT NULL DEFAULT '0',
-  deleted smallint NOT NULL DEFAULT '0',
-  in_inbox smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_pm, id_member)
+	id_pm bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	bcc smallint NOT NULL DEFAULT '0',
+	is_read smallint NOT NULL DEFAULT '0',
+	is_new smallint NOT NULL DEFAULT '0',
+	deleted smallint NOT NULL DEFAULT '0',
+	in_inbox smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_pm, id_member)
 );
 
 #
@@ -1372,14 +1372,14 @@ CREATE SEQUENCE {$db_prefix}pm_rules_seq;
 #
 
 CREATE TABLE {$db_prefix}pm_rules (
-  id_rule bigint DEFAULT nextval('{$db_prefix}pm_rules_seq'),
-  id_member int NOT NULL DEFAULT '0',
-  rule_name varchar(60) NOT NULL,
-  criteria text NOT NULL,
-  actions text NOT NULL,
-  delete_pm smallint NOT NULL DEFAULT '0',
-  is_or smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_rule)
+	id_rule bigint DEFAULT nextval('{$db_prefix}pm_rules_seq'),
+	id_member int NOT NULL DEFAULT '0',
+	rule_name varchar(60) NOT NULL,
+	criteria text NOT NULL,
+	actions text NOT NULL,
+	delete_pm smallint NOT NULL DEFAULT '0',
+	is_or smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_rule)
 );
 
 #
@@ -1400,19 +1400,19 @@ CREATE SEQUENCE {$db_prefix}polls_seq;
 #
 
 CREATE TABLE {$db_prefix}polls (
-  id_poll int DEFAULT nextval('{$db_prefix}polls_seq'),
-  question varchar(255) NOT NULL DEFAULT '',
-  voting_locked smallint NOT NULL DEFAULT '0',
-  max_votes smallint NOT NULL DEFAULT '1',
-  expire_time int NOT NULL DEFAULT '0',
-  hide_results smallint NOT NULL DEFAULT '0',
-  change_vote smallint NOT NULL DEFAULT '0',
-  guest_vote smallint NOT NULL DEFAULT '0',
-  num_guest_voters int NOT NULL DEFAULT '0',
-  reset_poll int NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  poster_name varchar(255) NOT NULL,
-  PRIMARY KEY (id_poll)
+	id_poll int DEFAULT nextval('{$db_prefix}polls_seq'),
+	question varchar(255) NOT NULL DEFAULT '',
+	voting_locked smallint NOT NULL DEFAULT '0',
+	max_votes smallint NOT NULL DEFAULT '1',
+	expire_time int NOT NULL DEFAULT '0',
+	hide_results smallint NOT NULL DEFAULT '0',
+	change_vote smallint NOT NULL DEFAULT '0',
+	guest_vote smallint NOT NULL DEFAULT '0',
+	num_guest_voters int NOT NULL DEFAULT '0',
+	reset_poll int NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	poster_name varchar(255) NOT NULL,
+	PRIMARY KEY (id_poll)
 );
 
 #
@@ -1420,11 +1420,11 @@ CREATE TABLE {$db_prefix}polls (
 #
 
 CREATE TABLE {$db_prefix}poll_choices (
-  id_poll int NOT NULL DEFAULT '0',
-  id_choice smallint NOT NULL DEFAULT '0',
-  label varchar(255) NOT NULL  DEFAULT '',
-  votes smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_poll, id_choice)
+	id_poll int NOT NULL DEFAULT '0',
+	id_choice smallint NOT NULL DEFAULT '0',
+	label varchar(255) NOT NULL  DEFAULT '',
+	votes smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_poll, id_choice)
 );
 
 #
@@ -1438,11 +1438,11 @@ CREATE SEQUENCE {$db_prefix}qanda_seq;
 #
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
-  lngfile varchar(255) NOT NULL DEFAULT '',
-  question varchar(255) NOT NULL DEFAULT '',
-  answers text NOT NULL,
-  PRIMARY KEY (id_question)
+	id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
+	lngfile varchar(255) NOT NULL DEFAULT '',
+	question varchar(255) NOT NULL DEFAULT '',
+	answers text NOT NULL,
+	PRIMARY KEY (id_question)
 );
 
 #
@@ -1462,15 +1462,15 @@ CREATE SEQUENCE {$db_prefix}scheduled_tasks_seq START WITH 14;
 #
 
 CREATE TABLE {$db_prefix}scheduled_tasks (
-  id_task smallint DEFAULT nextval('{$db_prefix}scheduled_tasks_seq'),
-  next_time int NOT NULL DEFAULT '0',
-  time_offset int NOT NULL DEFAULT '0',
-  time_regularity smallint NOT NULL DEFAULT '0',
-  time_unit varchar(1) NOT NULL DEFAULT 'h',
-  disabled smallint NOT NULL DEFAULT '0',
-  task varchar(24) NOT NULL DEFAULT '',
-  callable varchar(60) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_task)
+	id_task smallint DEFAULT nextval('{$db_prefix}scheduled_tasks_seq'),
+	next_time int NOT NULL DEFAULT '0',
+	time_offset int NOT NULL DEFAULT '0',
+	time_regularity smallint NOT NULL DEFAULT '0',
+	time_unit varchar(1) NOT NULL DEFAULT 'h',
+	disabled smallint NOT NULL DEFAULT '0',
+	task varchar(24) NOT NULL DEFAULT '',
+	callable varchar(60) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_task)
 );
 
 #
@@ -1486,9 +1486,9 @@ CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_ta
 #
 
 CREATE TABLE {$db_prefix}settings (
-  variable varchar(255) NOT NULL DEFAULT '',
-  value text NOT NULL,
-  PRIMARY KEY (variable)
+	variable varchar(255) NOT NULL DEFAULT '',
+	value text NOT NULL,
+	PRIMARY KEY (variable)
 );
 
 #
@@ -1496,10 +1496,10 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE UNLOGGED TABLE {$db_prefix}sessions (
-  session_id varchar(128) NOT NULL DEFAULT '',
-  last_update bigint NOT NULL DEFAULT '0',
-  data text NOT NULL,
-  PRIMARY KEY (session_id)
+	session_id varchar(128) NOT NULL DEFAULT '',
+	last_update bigint NOT NULL DEFAULT '0',
+	data text NOT NULL,
+	PRIMARY KEY (session_id)
 );
 
 #
@@ -1513,14 +1513,14 @@ CREATE SEQUENCE {$db_prefix}smileys_seq;
 #
 
 CREATE TABLE {$db_prefix}smileys (
-  id_smiley smallint DEFAULT nextval('{$db_prefix}smileys_seq'),
-  code varchar(30) NOT NULL DEFAULT '',
-  filename varchar(48) NOT NULL DEFAULT '',
-  description varchar(80) NOT NULL DEFAULT '',
-  smiley_row smallint NOT NULL DEFAULT '0',
-  smiley_order smallint NOT NULL DEFAULT '0',
-  hidden smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_smiley)
+	id_smiley smallint DEFAULT nextval('{$db_prefix}smileys_seq'),
+	code varchar(30) NOT NULL DEFAULT '',
+	filename varchar(48) NOT NULL DEFAULT '',
+	description varchar(80) NOT NULL DEFAULT '',
+	smiley_row smallint NOT NULL DEFAULT '0',
+	smiley_order smallint NOT NULL DEFAULT '0',
+	hidden smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_smiley)
 );
 
 #
@@ -1534,11 +1534,11 @@ CREATE SEQUENCE {$db_prefix}spiders_seq;
 #
 
 CREATE TABLE {$db_prefix}spiders (
-  id_spider smallint NOT NULL DEFAULT nextval('{$db_prefix}spiders_seq'),
-  spider_name varchar(255) NOT NULL DEFAULT '',
-  user_agent varchar(255) NOT NULL DEFAULT '',
-  ip_info varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_spider)
+	id_spider smallint NOT NULL DEFAULT nextval('{$db_prefix}spiders_seq'),
+	spider_name varchar(255) NOT NULL DEFAULT '',
+	user_agent varchar(255) NOT NULL DEFAULT '',
+	ip_info varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_spider)
 );
 
 #
@@ -1552,19 +1552,19 @@ CREATE SEQUENCE {$db_prefix}subscriptions_seq;
 #
 
 CREATE TABLE {$db_prefix}subscriptions(
-  id_subscribe int NOT NULL DEFAULT nextval('{$db_prefix}subscriptions_seq'),
-  name varchar(60) NOT NULL DEFAULT '',
-  description varchar(255) NOT NULL DEFAULT '',
-  cost text NOT NULL,
-  length varchar(6) NOT NULL DEFAULT '',
-  id_group int NOT NULL DEFAULT '0',
-  add_groups varchar(40) NOT NULL DEFAULT '',
-  active smallint NOT NULL DEFAULT '1',
-  repeatable smallint NOT NULL DEFAULT '0',
-  allow_partial smallint NOT NULL DEFAULT '0',
-  reminder smallint NOT NULL DEFAULT '0',
-  email_complete text NOT NULL,
-  PRIMARY KEY (id_subscribe)
+	id_subscribe int NOT NULL DEFAULT nextval('{$db_prefix}subscriptions_seq'),
+	name varchar(60) NOT NULL DEFAULT '',
+	description varchar(255) NOT NULL DEFAULT '',
+	cost text NOT NULL,
+	length varchar(6) NOT NULL DEFAULT '',
+	id_group int NOT NULL DEFAULT '0',
+	add_groups varchar(40) NOT NULL DEFAULT '',
+	active smallint NOT NULL DEFAULT '1',
+	repeatable smallint NOT NULL DEFAULT '0',
+	allow_partial smallint NOT NULL DEFAULT '0',
+	reminder smallint NOT NULL DEFAULT '0',
+	email_complete text NOT NULL,
+	PRIMARY KEY (id_subscribe)
 );
 
 #
@@ -1578,11 +1578,11 @@ CREATE INDEX {$db_prefix}subscriptions_active ON {$db_prefix}subscriptions (acti
 #
 
 CREATE TABLE {$db_prefix}themes (
-  id_member int DEFAULT '0',
-  id_theme smallint  DEFAULT '1',
-  variable varchar(255) DEFAULT '',
-  value text NOT NULL,
-  PRIMARY KEY (id_theme, id_member, variable)
+	id_member int DEFAULT '0',
+	id_theme smallint  DEFAULT '1',
+	variable varchar(255) DEFAULT '',
+	value text NOT NULL,
+	PRIMARY KEY (id_theme, id_member, variable)
 );
 
 #
@@ -1602,24 +1602,24 @@ CREATE SEQUENCE {$db_prefix}topics_seq START WITH 2;
 #
 
 CREATE TABLE {$db_prefix}topics (
-  id_topic int DEFAULT nextval('{$db_prefix}topics_seq'),
-  is_sticky smallint NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_first_msg int NOT NULL DEFAULT '0',
-  id_last_msg bigint NOT NULL DEFAULT '0',
-  id_member_started int NOT NULL DEFAULT '0',
-  id_member_updated int NOT NULL DEFAULT '0',
-  id_poll int NOT NULL DEFAULT '0',
-  id_previous_board smallint NOT NULL DEFAULT '0',
-  id_previous_topic int NOT NULL DEFAULT '0',
-  num_replies bigint NOT NULL DEFAULT '0',
-  num_views bigint NOT NULL DEFAULT '0',
-  locked smallint NOT NULL DEFAULT '0',
-  redirect_expires int NOT NULL DEFAULT '0',
-  id_redirect_topic bigint NOT NULL DEFAULT '0',
-  unapproved_posts smallint NOT NULL DEFAULT '0',
-  approved smallint NOT NULL DEFAULT '1',
-  PRIMARY KEY (id_topic)
+	id_topic int DEFAULT nextval('{$db_prefix}topics_seq'),
+	is_sticky smallint NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_first_msg int NOT NULL DEFAULT '0',
+	id_last_msg bigint NOT NULL DEFAULT '0',
+	id_member_started int NOT NULL DEFAULT '0',
+	id_member_updated int NOT NULL DEFAULT '0',
+	id_poll int NOT NULL DEFAULT '0',
+	id_previous_board smallint NOT NULL DEFAULT '0',
+	id_previous_topic int NOT NULL DEFAULT '0',
+	num_replies bigint NOT NULL DEFAULT '0',
+	num_views bigint NOT NULL DEFAULT '0',
+	locked smallint NOT NULL DEFAULT '0',
+	redirect_expires int NOT NULL DEFAULT '0',
+	id_redirect_topic bigint NOT NULL DEFAULT '0',
+	unapproved_posts smallint NOT NULL DEFAULT '0',
+	approved smallint NOT NULL DEFAULT '1',
+	PRIMARY KEY (id_topic)
 );
 
 #
@@ -1646,17 +1646,17 @@ CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 #
 
 CREATE TABLE {$db_prefix}user_alerts (
-  id_alert bigint DEFAULT nextval('{$db_prefix}user_alerts_seq'),
-  alert_time bigint NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  id_member_started bigint NOT NULL DEFAULT '0',
-  member_name varchar(255) NOT NULL DEFAULT '',
-  content_type varchar(255) NOT NULL DEFAULT '',
-  content_id bigint NOT NULL DEFAULT '0',
-  content_action varchar(255) NOT NULL DEFAULT '',
-  is_read bigint NOT NULL DEFAULT '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert)
+	id_alert bigint DEFAULT nextval('{$db_prefix}user_alerts_seq'),
+	alert_time bigint NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	id_member_started bigint NOT NULL DEFAULT '0',
+	member_name varchar(255) NOT NULL DEFAULT '',
+	content_type varchar(255) NOT NULL DEFAULT '',
+	content_id bigint NOT NULL DEFAULT '0',
+	content_action varchar(255) NOT NULL DEFAULT '',
+	is_read bigint NOT NULL DEFAULT '0',
+	extra text NOT NULL,
+	PRIMARY KEY (id_alert)
 );
 
 #
@@ -1671,10 +1671,10 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 #
 
 CREATE TABLE {$db_prefix}user_alerts_prefs (
-  id_member int NOT NULL DEFAULT '0',
-  alert_pref varchar(32) NOT NULL DEFAULT '',
-  alert_value smallint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, alert_pref)
+	id_member int NOT NULL DEFAULT '0',
+	alert_pref varchar(32) NOT NULL DEFAULT '',
+	alert_value smallint NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, alert_pref)
 );
 
 #
@@ -1688,21 +1688,21 @@ CREATE SEQUENCE {$db_prefix}user_drafts_seq;
 #
 
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft bigint DEFAULT nextval('{$db_prefix}user_drafts_seq'),
-  id_topic int NOT NULL DEFAULT '0',
-  id_board smallint NOT NULL DEFAULT '0',
-  id_reply bigint NOT NULL DEFAULT '0',
-  type smallint NOT NULL DEFAULT '0',
-  poster_time int NOT NULL DEFAULT '0',
-  id_member int NOT NULL DEFAULT '0',
-  subject varchar(255) NOT NULL DEFAULT '',
-  smileys_enabled smallint NOT NULL DEFAULT '1',
-  body text NOT NULL,
-  icon varchar(16) NOT NULL DEFAULT 'xx',
-  locked smallint NOT NULL DEFAULT '0',
-  is_sticky smallint NOT NULL DEFAULT '0',
-  to_list varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_draft)
+	id_draft bigint DEFAULT nextval('{$db_prefix}user_drafts_seq'),
+	id_topic int NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL DEFAULT '0',
+	id_reply bigint NOT NULL DEFAULT '0',
+	type smallint NOT NULL DEFAULT '0',
+	poster_time int NOT NULL DEFAULT '0',
+	id_member int NOT NULL DEFAULT '0',
+	subject varchar(255) NOT NULL DEFAULT '',
+	smileys_enabled smallint NOT NULL DEFAULT '1',
+	body text NOT NULL,
+	icon varchar(16) NOT NULL DEFAULT 'xx',
+	locked smallint NOT NULL DEFAULT '0',
+	is_sticky smallint NOT NULL DEFAULT '0',
+	to_list varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_draft)
 );
 
 #
@@ -1716,11 +1716,11 @@ CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts
 #
 
 CREATE TABLE {$db_prefix}user_likes (
-  id_member int NOT NULL DEFAULT '0',
-  content_type char(6) DEFAULT '',
-  content_id int NOT NULL DEFAULT '0',
-  like_time int NOT NULL DEFAULT '0',
-  PRIMARY KEY (content_id, content_type, id_member)
+	id_member int NOT NULL DEFAULT '0',
+	content_type char(6) DEFAULT '',
+	content_id int NOT NULL DEFAULT '0',
+	like_time int NOT NULL DEFAULT '0',
+	PRIMARY KEY (content_id, content_type, id_member)
 );
 
 #
@@ -1734,12 +1734,12 @@ CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 # Table structure for `mentions`
 #
 CREATE TABLE {$db_prefix}mentions (
-  content_id int DEFAULT '0',
-  content_type varchar(10) DEFAULT '',
-  id_mentioned int DEFAULT 0,
-  id_member int NOT NULL DEFAULT 0,
-  time int NOT NULL DEFAULT 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned)
+	content_id int DEFAULT '0',
+	content_type varchar(10) DEFAULT '',
+	id_mentioned int DEFAULT 0,
+	id_member int NOT NULL DEFAULT 0,
+	time int NOT NULL DEFAULT 0,
+	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
 #
@@ -2242,9 +2242,8 @@ INSERT INTO {$db_prefix}custom_fields
 	(col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement)
 VALUES ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 	('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-	('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 	('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-	('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+	('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
 
@@ -2379,7 +2378,6 @@ VALUES (-1, 'search_posts'),
 INSERT INTO {$db_prefix}scheduled_tasks
 	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(1, 0, 0, 2, 'h', 0, 'approval_notification', ''),
 	(3, 0, 60, 1, 'd', 0, 'daily_maintenance', ''),
 	(5, 0, 0, 1, 'd', 0, 'daily_digest', ''),
 	(6, 0, 0, 1, 'w', 0, 'weekly_digest', ''),
@@ -2598,7 +2596,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('tfa_mode', '1'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
-	('displayFields', '[{"col_name":"cust_icq","title":"ICQ","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_yahoo","title":"Yahoo! Messenger","type":"text","order":"3","bbc":"0","placement":"1","enclose":"<a class=\\"yim\\" href=\\"\\/\\/edit.yahoo.com\\/config\\/send_webmesg?.target={INPUT}\\" target=\\"_blank\\" title=\\"Yahoo! Messenger - {INPUT}\\"><img src=\\"{IMAGES_URL}\\/yahoo.png\\" alt=\\"Yahoo! Messenger - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"4","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"5","bbc":"0","placement":"1","enclose":"<span class=\\" generic_icons gender_{KEY}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0",,"options":["None","Male","Female"]}]'),
+	('displayFields', '[{"col_name":"cust_icq","title":"ICQ","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},"mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"4","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"5","bbc":"0","placement":"1","enclose":"<span class=\\" main_icons gender_{KEY}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0",,"options":["None","Male","Female"]}]'),
 	('minimize_files', '1'),
 	('securityDisable_moderate', '1');
 # --------------------------------------------------------
@@ -2706,6 +2704,7 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
 	(0, 'msg_report_reply', 1),
+	(0, 'unapproved_attachment', 1),
 	(0, 'unapproved_reply', 3),
 	(0, 'topic_notify', 1),
 	(0, 'board_notify', 1),

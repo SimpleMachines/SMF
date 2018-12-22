@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -20,6 +20,7 @@ if (!defined('SMF'))
  * This is the main function for the languages area.
  * It dispatches the requests.
  * Loads the ManageLanguages template. (sub-actions will use it)
+ *
  * @todo lazy loading.
  *
  * @uses ManageSettings language file
@@ -592,7 +593,8 @@ function ModifyLanguages()
 			'editlang' => array(
 				'header' => array(
 					'value' => '',
-				),'data' => array(
+				),
+				'data' => array(
 					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', $scripturl, $rowData['id'], $txt['edit']);
@@ -626,10 +628,10 @@ function ModifyLanguages()
 	// Display a warning if we cannot edit the default setting.
 	if (!is_writable($boarddir . '/Settings.php'))
 		$listOptions['additional_rows'][] = array(
-				'position' => 'after_title',
-				'value' => $txt['language_settings_writable'],
-				'class' => 'smalltext alert',
-			);
+			'position' => 'after_title',
+			'value' => $txt['language_settings_writable'],
+			'class' => 'smalltext alert',
+		);
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
@@ -641,6 +643,7 @@ function ModifyLanguages()
 /**
  * How many languages?
  * Callback for the list in ManageLanguageSettings().
+ *
  * @return int The number of available languages
  */
 function list_getNumLanguages()
@@ -653,6 +656,7 @@ function list_getNumLanguages()
  * Callback for $listOptions['get_items']['function'] in ManageLanguageSettings.
  * Determines which languages are available by looking for the "index.{language}.php" file.
  * Also figures out how many users are using a particular language.
+ *
  * @return array An array of information about currenty installed languages
  */
 function list_getLanguages()
@@ -1246,7 +1250,6 @@ function ModifyLanguage()
 						unset($add_strings[$entryKey]);
 				}
 
-
 				// Do we need to save?
 				if ($save_cache['enabled'])
 				{
@@ -1269,7 +1272,7 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
 					);
 				}
 			}
@@ -1291,7 +1294,7 @@ function ModifyLanguage()
 					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
 					);
 				}
 
@@ -1301,7 +1304,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n",
 					);
 				}
 
@@ -1329,7 +1332,7 @@ function ModifyLanguage()
 					// And we know what to save now!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
 					);
 				}
 				// Remove this entry only if it is allowed
@@ -1338,7 +1341,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n",
 					);
 				}
 
@@ -1369,8 +1372,8 @@ function ModifyLanguage()
 						continue;
 
 					$final_saves[$string_key] = array(
-						'find' => "\s*\?".'>$',
-						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+						'find' => "\s*\?" . '>$',
+						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?" . '>',
 						'is_regex' => true,
 					);
 				}
@@ -1387,8 +1390,8 @@ function ModifyLanguage()
 						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
 
 						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
-							'find' => "\s*\?".'>$',
-							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'find' => "\s*\?" . '>$',
+							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?" . '>',
 							'is_regex' => true,
 						);
 					}
@@ -1527,6 +1530,7 @@ function ModifyLanguage()
 
 /**
  * This function cleans language entries to/from display.
+ *
  * @todo This function could be two functions?
  *
  * @param string $string The language string

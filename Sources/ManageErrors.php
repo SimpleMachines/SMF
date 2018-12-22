@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -318,7 +318,7 @@ function ViewErrorLog()
 		$context['error_types']['all']['is_last'] = true;
 
 	// And this is pretty basic ;).
-	$context['page_title'] = $txt['errlog'];
+	$context['page_title'] = $txt['errorlog'];
 	$context['has_filter'] = isset($filter);
 	$context['sub_template'] = 'error_log';
 
@@ -444,14 +444,14 @@ function ViewBacktrace()
 	isAllowedTo('admin_forum');
 
 	$id_error = (int) $_REQUEST['backtrace'];
-	$request = $smcFunc['db_query']('',
-			'SELECT backtrace, error_type, message, file, line, url
-				FROM {db_prefix}log_errors
-				WHERE id_error = {int:id_error}',
-			array(
-				'id_error' => $id_error,
-				)
-			);
+	$request = $smcFunc['db_query']('', '
+		SELECT backtrace, error_type, message, file, line, url
+		FROM {db_prefix}log_errors
+		WHERE id_error = {int:id_error}',
+		array(
+			'id_error' => $id_error,
+		)
+	);
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -122,13 +122,13 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		// This is a sad day... drop the table? If not, return false (error) by default.
 		if ($if_exists == 'overwrite')
 			$smcFunc['db_drop_table']($table_name);
-		else if ($if_exists == 'update')
+		elseif ($if_exists == 'update')
 		{
 			$smcFunc['db_transaction']('begin');
 			$db_trans = true;
-			$smcFunc['db_drop_table']($table_name.'_old');
-			$smcFunc['db_query']('','
-				RENAME TABLE '. $table_name .' TO ' . $table_name . '_old',
+			$smcFunc['db_drop_table']($table_name . '_old');
+			$smcFunc['db_query']('', '
+				RENAME TABLE ' . $table_name . ' TO ' . $table_name . '_old',
 				array(
 					'security_override' => true,
 				)
@@ -202,15 +202,15 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	{
 		$same_col = array();
 
-		$request = $smcFunc['db_query']('','
+		$request = $smcFunc['db_query']('', '
 			SELECT count(*), column_name
 			FROM information_schema.columns
 			WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
 			GROUP BY column_name
 			HAVING count(*) > 1',
-			array (
+			array(
 				'table1' => $table_name,
-				'table2' => $table_name.'_old',
+				'table2' => $table_name . '_old',
 				'schema' => $db_name,
 			)
 		);
@@ -220,11 +220,11 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			$same_col[] = $row['column_name'];
 		}
 
-		$smcFunc['db_query']('','
-			INSERT INTO ' . $table_name .'('
+		$smcFunc['db_query']('', '
+			INSERT INTO ' . $table_name . '('
 			. implode($same_col, ',') .
 			')
-			SELECT '. implode($same_col, ',') . '
+			SELECT ' . implode($same_col, ',') . '
 			FROM ' . $table_name . '_old',
 			array()
 		);
@@ -313,7 +313,8 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	// Now add the thing!
 	$query = '
 		ALTER TABLE ' . $table_name . '
-		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key');
+		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'
+	);
 	$smcFunc['db_query']('', $query,
 		array(
 			'security_override' => true,

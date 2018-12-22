@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -188,6 +188,7 @@ function GroupList()
  * It allows to add and remove members from the selected membergroup.
  * It allows sorting on several columns.
  * It redirects to itself.
+ *
  * @uses ManageMembergroups template, group_members sub template.
  * @todo: use createList
  */
@@ -756,7 +757,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 			elseif ($row['status'] == 2)
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
 
-				$reason .= ' (' . timeformat($row['time_acted']) . ')';
+			$reason .= ' (' . timeformat($row['time_acted']) . ')';
 			if (!empty($row['act_reason']))
 				$reason .= '<br><br>' . censorText($row['act_reason']);
 		}

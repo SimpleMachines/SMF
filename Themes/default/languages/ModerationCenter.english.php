@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ModerationCenter
+// Version: 2.1 RC1; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -164,7 +164,6 @@ $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
 $txt['mc_no_settings'] = 'There are no settings to display.';
 
-$txt['mc_prefs_notify_approval'] = 'Notify of items awaiting approval';
 $txt['mc_logoff'] = 'End Moderator Session';
 
 // Use entities in the below string.

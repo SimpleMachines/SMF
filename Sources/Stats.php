@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -312,6 +312,7 @@ function DisplayStats()
 	);
 	$context['stats_blocks']['topics_replies'] = array();
 	$max_num_replies = 1;
+
 	while ($row_topic_reply = $smcFunc['db_fetch_assoc']($topic_reply_result))
 	{
 		censorText($row_topic_reply['subject']);
@@ -440,8 +441,7 @@ function DisplayStats()
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:member_list})
-		LIMIT 10',
+		WHERE id_member IN ({array_int:member_list})',
 		array(
 			'member_list' => array_keys($members),
 		)
@@ -451,6 +451,10 @@ function DisplayStats()
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
 		$i = array_search($row_members['id_member'], array_keys($members));
+		// skip all not top 10
+		if ($i >= 10)
+			continue;
+
 		$context['stats_blocks']['starters'][$i] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
@@ -499,10 +503,10 @@ function DisplayStats()
 		// Figure out which things to show... (days, hours, minutes, etc.)
 		$timelogged = '';
 		if ($timeDays > 0)
-			$timelogged .= $timeDays . $txt['totalTimeLogged5'];
+			$timelogged .= $timeDays . $txt['total_time_logged_d'];
 		if ($timeHours > 0)
-			$timelogged .= $timeHours . $txt['totalTimeLogged6'];
-		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged7'];
+			$timelogged .= $timeHours . $txt['total_time_logged_h'];
+		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_m'];
 
 		$context['stats_blocks']['time_online'][] = array(
 			'id' => $row_members['id_member'],
@@ -536,7 +540,7 @@ function DisplayStats()
 			FROM {db_prefix}messages as m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . ')
+					AND b.id_board != {int:recycle_board}' : '') . ')
 			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
@@ -556,7 +560,7 @@ function DisplayStats()
 				'subject' => $row_liked_message['subject'],
 				'num' => $row_liked_message['likes'],
 				'href' => $scripturl . '?msg=' . $row_liked_message['id_msg'],
-				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
+				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] . '">' . $row_liked_message['subject'] . '</a>'
 			);
 
 			if ($max_liked_message < $row_liked_message['likes'])
@@ -709,6 +713,7 @@ function DisplayStats()
 /**
  * Loads the statistics on a daily basis in $context.
  * called by DisplayStats().
+ *
  * @param string $condition_string An SQL condition string
  * @param array $condition_parameters Parameters for $condition_string
  */

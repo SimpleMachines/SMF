@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -165,7 +165,7 @@ function ShowXmlFeed()
 		$smcFunc['db_free_result']($request);
 
 		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
-		$feed_meta['source'] .= '?board=' . $board . '.0' ;
+		$feed_meta['source'] .= '?board=' . $board . '.0';
 
 		$query_this_board = 'b.id_board = ' . $board;
 
@@ -194,7 +194,7 @@ function ShowXmlFeed()
 	);
 
 	// Easy adding of sub actions
- 	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
+	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
 
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
@@ -389,7 +389,10 @@ function ShowXmlFeed()
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function ($e) { return ($e['tag'] == 'link'); });
+			$link = array_filter($item['content'], function($e)
+			{
+				return ($e['tag'] == 'link');
+			});
 			$link = array_pop($link);
 
 			echo '
@@ -421,7 +424,7 @@ function ShowXmlFeed()
 
 		echo '
 </smf:xml-feed>';
-}
+	}
 
 	obExit(false);
 }
@@ -446,9 +449,9 @@ function fix_possible_url($val)
 		return $val;
 
 	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
-		{
-			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
-		}, $val);
+	{
+		return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+	}, $val);
 	return $val;
 }
 
@@ -627,6 +630,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 /**
  * Retrieve the list of members from database.
  * The array will be generated to match the format.
+ *
  * @todo get the list of members from Subs-Members.
  *
  * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
@@ -767,6 +771,7 @@ function getXmlMembers($xml_format)
  * Get the latest topics information from a specific board,
  * to display later.
  * The returned array will be generated to match the xml_format.
+ *
  * @todo does not belong here
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'.
@@ -867,9 +872,10 @@ function getXmlNews($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
+				uasort($loaded_attachments, function($a, $b)
+				{
 					if ($a['filesize'] == $b['filesize'])
-					        return 0;
+						return 0;
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}
@@ -1163,6 +1169,7 @@ function getXmlNews($xml_format)
 /**
  * Get the recent topics to display.
  * The returned array will be generated to match the xml_format.
+ *
  * @todo does not belong here.
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'
@@ -1283,9 +1290,11 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
+				uasort($loaded_attachments, function($a, $b)
+				{
 					if ($a['filesize'] == $b['filesize'])
-					        return 0;
+						return 0;
+
 					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
 				});
 			}
@@ -1609,6 +1618,7 @@ function getXmlRecent($xml_format)
 /**
  * Get the profile information for member into an array,
  * which will be generated to match the xml_format.
+ *
  * @todo refactor.
  *
  * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'smf'

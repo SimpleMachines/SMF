@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * Our Cache API class
+ *
  * @package cacheAPI
  */
 class memcache_cache extends cache_api
@@ -61,7 +62,7 @@ class memcache_cache extends cache_api
 			$server = trim($servers[array_rand($servers)]);
 
 			// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
-			if (strpos($server,'/') !== false)
+			if (strpos($server, '/') !== false)
 				$host = $server;
 			else
 			{

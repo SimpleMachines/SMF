@@ -13,15 +13,15 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
-
 /**
  * Define the old SMF sha1 function. Uses mhash if available
+ *
  * @param string $str The string
  * @return string The sha1 hashed version of $str
  */
@@ -44,6 +44,7 @@ function sha1_smf($str)
 
 /**
  * This is the core SHA-1 calculation routine, used by sha1().
+ *
  * @param string $x
  * @param int $len
  * @return string
@@ -95,6 +96,7 @@ function sha1_core($x, $len)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $t
  * @param int $b
  * @param int $c
@@ -115,6 +117,7 @@ function sha1_ft($t, $b, $c, $d)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $t
  * @return int 1518500249, 1859775393, -1894007588 or -899497514 depending on the value of $t
  */
@@ -125,6 +128,7 @@ function sha1_kt($t)
 
 /**
  * Helper function for the core SHA-1 calculation
+ *
  * @param int $num
  * @param int $cnt
  * @return int
@@ -144,6 +148,7 @@ function sha1_rol($num, $cnt)
  * Available since: (PHP 5)
  * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
  * otherwise the returned value is a 40-character hexadecimal number.
+ *
  * @param string $text The text to hash
  * @return string The sha1 hash of $text
  */
@@ -156,6 +161,7 @@ function sha1_raw($text)
  * Compatibility function.
  * crc32 doesn't work as expected on 64-bit functions - make our own.
  * https://php.net/crc32#79567
+ *
  * @param string $number
  * @return string The crc32 polynomial of $number
  */

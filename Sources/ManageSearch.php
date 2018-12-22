@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -92,14 +92,15 @@ function EditSearchSettings($return_config = false)
 
 	// What are we editing anyway?
 	$config_vars = array(
-			// Permission...
-			array('permissions', 'search_posts'),
-			// Some simple settings.
-			array('int', 'search_results_per_page'),
-			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
+		// Permission...
+		array('permissions', 'search_posts'),
+		// Some simple settings.
+		array('int', 'search_results_per_page'),
+		array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
 		'',
-			// Some limitations.
-			array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc'], 6, 'postinput' => $txt['seconds']),
+
+		// Some limitations.
+		array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc'], 6, 'postinput' => $txt['seconds']),
 	);
 
 	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
@@ -223,7 +224,8 @@ function EditSearchMethod()
 		checkSession('get');
 		validateToken('admin-msm', 'get');
 
-		if ($db_type == 'postgresql') {
+		if ($db_type == 'postgresql')
+		{
 			$smcFunc['db_query']('', '
 				DROP INDEX IF EXISTS {db_prefix}messages_ftx',
 				array(
@@ -403,14 +405,14 @@ function EditSearchMethod()
 				pg_relation_size(quote_ident(t.tablename)::text) AS table_size,
 				pg_relation_size(quote_ident(indexrelname)::text) AS index_size
 			FROM pg_tables t
-			LEFT OUTER JOIN pg_class c ON t.tablename=c.relname
-			LEFT OUTER JOIN
-				( SELECT c.relname AS ctablename, ipg.relname AS indexname, indexrelname FROM pg_index x
+				LEFT OUTER JOIN pg_class c ON t.tablename=c.relname
+				LEFT OUTER JOIN
+					(SELECT c.relname AS ctablename, ipg.relname AS indexname, indexrelname FROM pg_index x
 						JOIN pg_class c ON c.oid = x.indrelid
 						JOIN pg_class ipg ON ipg.oid = x.indexrelid
-						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid )
-				AS foo
-				ON t.tablename = foo.ctablename
+						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid)
+					AS foo
+					ON t.tablename = foo.ctablename
 			WHERE t.schemaname= {string:schema} and (
 				indexname = {string:messages_ftx} OR indexname = {string:log_search_words} )',
 			array(
@@ -787,18 +789,19 @@ function detectFulltextIndex()
 	// We need this for db_get_version
 	db_extend();
 
-	if ($smcFunc['db_title'] == 'PostgreSQL') {
+	if ($smcFunc['db_title'] == 'PostgreSQL')
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				indexname
 			FROM pg_tables t
-			LEFT OUTER JOIN
-				( SELECT c.relname AS ctablename, ipg.relname AS indexname, indexrelname FROM pg_index x
+				LEFT OUTER JOIN
+					(SELECT c.relname AS ctablename, ipg.relname AS indexname, indexrelname FROM pg_index x
 						JOIN pg_class c ON c.oid = x.indrelid
 						JOIN pg_class ipg ON ipg.oid = x.indexrelid
-						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid )
-				AS foo
-				ON t.tablename = foo.ctablename
+						JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid)
+					AS foo
+					ON t.tablename = foo.ctablename
 			WHERE t.schemaname= {string:schema} and indexname = {string:messages_ftx}',
 			array(
 				'schema' => 'public',
@@ -820,8 +823,8 @@ function detectFulltextIndex()
 		if ($request !== false || $smcFunc['db_num_rows']($request) != 0)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-			if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
-				$context['fulltext_index'][] = $row['Key_name'];
+				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT'))
+					$context['fulltext_index'][] = $row['Key_name'];
 			$smcFunc['db_free_result']($request);
 
 			if (is_array($context['fulltext_index']))
@@ -830,28 +833,29 @@ function detectFulltextIndex()
 
 		if (preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) !== 0)
 			$request = $smcFunc['db_query']('', '
-			SHOW TABLE STATUS
-			FROM {string:database_name}
-			LIKE {string:table_name}',
-			array(
-				'database_name' => '`' . strtr($match[1], array('`' => '')) . '`',
-				'table_name' => str_replace('_', '\_', $match[2]) . 'messages',
-			)
+				SHOW TABLE STATUS
+				FROM {string:database_name}
+				LIKE {string:table_name}',
+				array(
+					'database_name' => '`' . strtr($match[1], array('`' => '')) . '`',
+					'table_name' => str_replace('_', '\_', $match[2]) . 'messages',
+				)
 			);
 		else
 			$request = $smcFunc['db_query']('', '
-			SHOW TABLE STATUS
-			LIKE {string:table_name}',
-			array(
-				'table_name' => str_replace('_', '\_', $db_prefix) . 'messages',
-			)
+				SHOW TABLE STATUS
+				LIKE {string:table_name}',
+				array(
+					'table_name' => str_replace('_', '\_', $db_prefix) . 'messages',
+				)
 			);
 
 		if ($request !== false)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'](), '5.6.4', '>=')))
-				$context['cannot_create_fulltext'] = true;
+				if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'](), '5.6.4', '>=')))
+					$context['cannot_create_fulltext'] = true;
+
 			$smcFunc['db_free_result']($request);
 		}
 	}

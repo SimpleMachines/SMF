@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -213,7 +213,7 @@ function PackageInstallTest()
 		ORDER BY time_installed DESC
 		LIMIT 1',
 		array(
-			'not_installed'	=> 0,
+			'not_installed' => 0,
 			'current_package' => $packageInfo['id'],
 		)
 	);
@@ -425,8 +425,8 @@ function PackageInstallTest()
 						}
 						else
 						{
-								$context['actions'][$actual_filename]['failed'] |= $failed;
-								$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
+							$context['actions'][$actual_filename]['failed'] |= $failed;
+							$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
 						}
 					}
 					elseif ($mod_action['type'] == 'skipping')
@@ -559,7 +559,7 @@ function PackageInstallTest()
 					ORDER BY time_installed DESC
 					LIMIT 1',
 					array(
-						'not_installed'	=> 0,
+						'not_installed' => 0,
 						'current_package' => $action['id'],
 					)
 				);
@@ -856,8 +856,10 @@ function PackageInstall()
 	);
 	$theme_paths = array();
 	$themes_installed = array(1);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$theme_paths[$row['id_theme']][$row['variable']] = $row['value'];
+
 	$smcFunc['db_free_result']($request);
 
 	// Are there any theme copying that we want to take place?
@@ -911,7 +913,7 @@ function PackageInstall()
 		ORDER BY time_installed DESC
 		LIMIT 1',
 		array(
-			'not_installed'	=> 0,
+			'not_installed' => 0,
 			'current_package' => $packageInfo['id'],
 		)
 	);
@@ -1144,6 +1146,7 @@ function PackageInstall()
 						return 0;
 					return $a[0] == 'remove_table' ? -1 : 1;
 				}
+
 				usort($db_package_log, 'sort_table_first');
 				foreach ($db_package_log as $k => $log)
 				{
@@ -2099,9 +2102,9 @@ function PackagePermissions()
 		// @todo Should we suggest non-current directories be read only?
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
 			$context['file_tree'][strtr($dir, array('\\' => '/'))] = array(
-			'type' => 'dir',
-			'writable_on' => 'restrictive',
-		);
+				'type' => 'dir',
+				'writable_on' => 'restrictive',
+			);
 	}
 	elseif (substr($modSettings['attachmentUploadDir'], 0, strlen($boarddir)) != $boarddir)
 	{

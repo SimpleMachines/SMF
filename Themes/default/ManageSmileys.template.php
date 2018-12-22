@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -338,7 +338,7 @@ function template_setorder()
 		{
 			if (!empty($context['move_smiley']))
 				echo '
-			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $row[0]['row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
+			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $row[0]['row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 
 			foreach ($row as $smiley)
 			{
@@ -348,7 +348,7 @@ function template_setorder()
 				else
 					echo '
 			<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $smiley['filename'], '" alt="', $smiley['description'], '" ', $smiley['selected'] ? 'class="selected_item"' : '', '>
-			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
+			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';after=', $smiley['id'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '" title="', $txt['smileys_move_here'], '"><span class="main_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 			}
 
 			echo '
@@ -356,7 +356,7 @@ function template_setorder()
 		}
 		if (!empty($context['move_smiley']))
 			echo '
-			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $location['last_row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
+			<a href="', $scripturl, '?action=admin;area=smileys;sa=setorder;location=', $location['id'], ';source=', $context['move_smiley'], ';row=', $location['last_row'], ';reorder=1;', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons select_below" title="', $txt['smileys_move_here'], '"></span></a>';
 		echo '
 		</div><!-- .windowbg -->
 		<input type="hidden" name="reorder" value="1">

@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -98,9 +98,9 @@ function BoardIndex()
 	$context['show_stats'] = allowedTo('view_stats') && !empty($modSettings['trackStats']);
 	if ($settings['show_stats_index'])
 		$context['info_center'][] = array(
-				'tpl' => 'stats',
-				'txt' => 'forum_stats',
-			);
+			'tpl' => 'stats',
+			'txt' => 'forum_stats',
+		);
 
 	// Now the online stuff
 	require_once($sourcedir . '/Subs-MembersOnline.php');
@@ -113,9 +113,9 @@ function BoardIndex()
 	$context['show_buddies'] = !empty($user_info['buddies']);
 	$context['show_who'] = allowedTo('who_view') && !empty($modSettings['who_enabled']);
 	$context['info_center'][] = array(
-				'tpl' => 'online',
-				'txt' => 'online_users',
-			);
+		'tpl' => 'online',
+		'txt' => 'online_users',
+	);
 
 	// Track most online statistics? (Subs-MembersOnline.php)
 	if (!empty($modSettings['trackStats']))

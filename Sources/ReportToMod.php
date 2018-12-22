@@ -9,7 +9,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -89,9 +89,9 @@ function ReportToModerator()
 		);
 		if ($smcFunc['db_num_rows']($result) == 0)
 			fatal_lang_error('no_board', false);
+
 		list ($_REQUEST['msg'], $member, $starter) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
-
 
 		// This is here so that the user could, in theory, be redirected back to the topic.
 		$context['start'] = $_REQUEST['start'];

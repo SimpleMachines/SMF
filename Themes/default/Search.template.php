@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -35,7 +35,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
+				<span class="main_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -101,7 +101,7 @@ function template_main()
 					$txt['search_post_age'], ':
 				</dt>
 				<dd>
-					<label for="minage">',$txt['search_between'], ' </label>
+					<label for="minage">', $txt['search_between'], ' </label>
 					<input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4">
 					<label for="maxage"> ', $txt['search_and'], ' </label>
 					<input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4"> ', $txt['days_word'], '
@@ -301,7 +301,7 @@ function template_results()
 					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
 		echo '
 				</span>
-				<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
+				<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 			</h3>
 		</div>';
 
@@ -322,14 +322,14 @@ function template_results()
 			echo '
 		<div class="', $topic['css_class'], '">';
 
-		foreach ($topic['matches'] as $message)
-		{
-			echo '
+			foreach ($topic['matches'] as $message)
+			{
+				echo '
 			<div class="block">
 				<span class="floatleft half_content">
 					<div class="counter">', $message['counter'], '</div>
 					<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-					<span class="smalltext">&#171;&nbsp;',$txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+					<span class="smalltext">&#171;&nbsp;', $txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
 				</span>';
 
 				if (!empty($options['display_quick_mod']))
@@ -345,11 +345,11 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
@@ -357,18 +357,18 @@ function template_results()
 
 						if ($topic['quick_mod']['sticky'])
 							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 						if ($topic['quick_mod']['move'])
 							echo '
-					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
+					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="main_icons move" title="', $txt['move_topic'], '"></span></a>';
 					}
 
 					echo '
 				</span><!-- .floatright -->';
 				}
 
-			echo '
+				echo '
 			</div><!-- .block -->';
 
 				if ($message['body_highlighted'] != '')
@@ -411,7 +411,6 @@ function template_results()
 		</div><!-- .quick_actions -->';
 		}
 
-
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 			echo '
 		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
@@ -422,7 +421,7 @@ function template_results()
 		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="generic_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
+			<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
 		</h3>
 	</div>
 	<div class="pagesection">
@@ -448,7 +447,7 @@ function template_results()
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
-			echo '
+				echo '
 		<br class="clear">
 	</div><!-- $topic[css_class] -->';
 			}

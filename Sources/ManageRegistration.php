@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -137,7 +137,6 @@ function AdminRegister()
 			$context['registration_done'] = sprintf($txt['admin_register_done'], $context['new_member']['link']);
 		}
 	}
-
 
 	// Load the assignable member groups.
 	if (allowedTo('manage_membergroups'))
@@ -298,14 +297,15 @@ function ModifyRegistrationSettings($return_config = false)
 	require_once($sourcedir . '/ManageServer.php');
 
 	$config_vars = array(
-			array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
-			array('check', 'send_welcomeEmail'),
+		array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
+		array('check', 'send_welcomeEmail'),
 		'',
-			array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
-			array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
-			array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
-			array('text', 'coppaFax'),
-			array('text', 'coppaPhone'),
+
+		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
+		array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
+		array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
+		array('text', 'coppaFax'),
+		array('text', 'coppaPhone'),
 	);
 
 	call_integration_hook('integrate_modify_registration_settings', array(&$config_vars));

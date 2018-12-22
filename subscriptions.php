@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // Start things rolling by getting SMF alive...
@@ -68,7 +68,7 @@ foreach ($gatewayHandles as $gateway)
 if (empty($txnType))
 	generateSubscriptionError($txt['paid_unknown_transaction_type']);
 
-// Get the subscription and member ID amoungst others...
+// Get the subscription and member ID, amongst others...
 @list($subscription_id, $member_id) = $gatewayClass->precheck();
 
 // Integer these just in case.

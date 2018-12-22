@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -139,7 +139,7 @@ function ViewQuery()
 		if ($query_id == $q && $is_select_query)
 		{
 			$result = $smcFunc['db_query']('', '
-				EXPLAIN '.($smcFunc['db_title'] == 'PostgreSQL' ? 'ANALYZE ' : '') . $select,
+				EXPLAIN ' . ($smcFunc['db_title'] == 'PostgreSQL' ? 'ANALYZE ' : '') . $select,
 				array(
 				)
 			);

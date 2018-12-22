@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -616,6 +616,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList() in TaskLog().
+ *
  * @return int The number of log entries
  */
 function list_getNumTaskLogEntries()

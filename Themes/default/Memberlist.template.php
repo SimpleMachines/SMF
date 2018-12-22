@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -51,7 +51,7 @@ function template_main()
 		if ($column['selected'])
 			echo '
 						<th scope="col" class="', $key, isset($column['class']) ? ' ' . $column['class'] : '', ' selected" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . '>
-							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="generic_icons sort_' . $context['sort_direction'] . '"></span></th>';
+							<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . '</a><span class="main_icons sort_' . $context['sort_direction'] . '"></span></th>';
 
 		// This is just some column... show the link and be done with it.
 		else
@@ -79,7 +79,7 @@ function template_main()
 
 			if (!isset($context['disabled_fields']['website']))
 				echo '
-						<td class="website_url centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+						<td class="website_url centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" rel="noopener"><span class="main_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 			// Group and date.
 			echo '
@@ -106,7 +106,7 @@ function template_main()
 			if (!empty($context['custom_profile_fields']['columns']))
 				foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 					echo '
-						<td class="' , $key , ' centertext">', $member['options'][$key], '</td>';
+						<td class="', $key, ' centertext">', $member['options'][$key], '</td>';
 
 			echo '
 					</tr>';
@@ -157,7 +157,7 @@ function template_search()
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					<span class="generic_icons filter"></span>', $txt['mlist_search'], '
+					<span class="main_icons filter"></span>', $txt['mlist_search'], '
 				</h3>
 			</div>
 			<div id="advanced_search" class="roundframe">

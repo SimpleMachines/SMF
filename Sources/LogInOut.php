@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,8 @@ if (!defined('SMF'))
  *  in their username and password.)
  *  It caches the referring URL in $_SESSION['login_url'].
  *  It is accessed from ?action=login.
- *  @uses Login template and language file with the login sub-template.
+ *
+ * @uses Login template and language file with the login sub-template.
  */
 function Login()
 {
@@ -116,7 +117,7 @@ function Login2()
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
 
-		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
 		// Preserve the 2FA cookie?
@@ -230,7 +231,6 @@ function Login2()
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
 	}
 
-
 	// Are we using any sort of integration to validate the login?
 	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['passwrd']) ? $_POST['passwrd'] : null, $modSettings['cookieTime'])), true))
 	{
@@ -256,7 +256,7 @@ function Login2()
 
 		$request = $smcFunc['db_query']('', '
 			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			passwd_flood, tfa_secret
+				passwd_flood, tfa_secret
 			FROM {db_prefix}members
 			WHERE email_address = {string:user_name}
 			LIMIT 1',
@@ -361,7 +361,7 @@ function Login2()
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
 			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
-			$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+			$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 
 			// Update the password and set up the hash.
 			updateMemberData($user_settings['id_member'], array('passwd' => $user_settings['passwd'], 'password_salt' => $user_settings['password_salt'], 'passwd_flood' => ''));
@@ -398,7 +398,7 @@ function Login2()
 	// Correct password, but they've got no salt; fix it!
 	if ($user_settings['password_salt'] == '')
 	{
-		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
+		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
 		updateMemberData($user_settings['id_member'], array('password_salt' => $user_settings['password_salt']));
 	}
 
@@ -679,7 +679,7 @@ function Logout($internal = false, $redirect = true)
 	setLoginCookie(-3600, 0);
 
 	// And some other housekeeping while we're at it.
-	$salt = substr(md5(mt_rand()), 0, 4);
+	$salt = substr(md5($smcFunc['random_int']()), 0, 4);
 	if (!empty($user_info['id']))
 		updateMemberData($user_info['id'], array('password_salt' => $salt));
 

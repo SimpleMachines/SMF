@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -30,7 +30,7 @@ function template_generic_menu_dropdown_above()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', $txt['mobile_user_menu'], '
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
+					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_generic_menu($menu_context), '
 				</div>
@@ -51,7 +51,7 @@ function template_generic_menu_dropdown_above()
 
 	// It's possible that some pages have their own tabs they wanna force...
 // 	if (!empty($context['tabs']))
-		template_generic_menu_tabs($menu_context);
+	template_generic_menu_tabs($menu_context);
 }
 
 /**
@@ -92,7 +92,7 @@ function template_generic_menu(&$menu_context)
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
-					$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
+				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
 			if (!empty($area['subsections']))
@@ -175,7 +175,7 @@ function template_generic_menu_tabs(&$menu_context)
 				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 					$tab_context['tabs'][$id]['url'] = $tab['url'];
 
-				// Any additional paramaters for the url?
+				// Any additional parameters for the url?
 				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
 
@@ -215,7 +215,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
 				echo '
-								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
+								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}

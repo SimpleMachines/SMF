@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -194,48 +194,48 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 			$ends_today = (date_format($cal_date, 'Y-m-d') == $end_date_string);
 
 			$eventProperties = array(
-					'id' => $row['id_event'],
-					'title' => $row['title'],
-					'year' => $start['year'],
-					'month' => $start['month'],
-					'day' => $start['day'],
-					'hour' => !$allday ? $start['hour'] : null,
-					'minute' => !$allday ? $start['minute'] : null,
-					'second' => !$allday ? $start['second'] : null,
-					'start_date' => $row['start_date'],
-					'start_date_local' => $start['date_local'],
-					'start_date_orig' => $start['date_orig'],
-					'start_time' => !$allday ? $row['start_time'] : null,
-					'start_time_local' => !$allday ? $start['time_local'] : null,
-					'start_time_orig' => !$allday ? $start['time_orig'] : null,
-					'start_timestamp' => $start['timestamp'],
-					'start_datetime' => $start['datetime'],
-					'start_iso_gmdate' => $start['iso_gmdate'],
-					'end_year' => $end['year'],
-					'end_month' => $end['month'],
-					'end_day' => $end['day'],
-					'end_hour' => !$allday ? $end['hour'] : null,
-					'end_minute' => !$allday ? $end['minute'] : null,
-					'end_second' => !$allday ? $end['second'] : null,
-					'end_date' => $row['end_date'],
-					'end_date_local' => $end['date_local'],
-					'end_date_orig' => $end['date_orig'],
-					'end_time' => !$allday ? $row['end_time'] : null,
-					'end_time_local' => !$allday ? $end['time_local'] : null,
-					'end_time_orig' => !$allday ? $end['time_orig'] : null,
-					'end_timestamp' => $end['timestamp'],
-					'end_datetime' => $end['datetime'],
-					'end_iso_gmdate' => $end['iso_gmdate'],
-					'allday' => $allday,
-					'tz' => !$allday ? $tz : null,
-					'tz_abbrev' => !$allday ? $tz_abbrev : null,
-					'span' => $span,
-					'is_last' => false,
-					'id_board' => $row['id_board'],
-					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
-					'starts_today' => $starts_today,
-					'ends_today' => $ends_today,
-					'location' => $row['location'],
+				'id' => $row['id_event'],
+				'title' => $row['title'],
+				'year' => $start['year'],
+				'month' => $start['month'],
+				'day' => $start['day'],
+				'hour' => !$allday ? $start['hour'] : null,
+				'minute' => !$allday ? $start['minute'] : null,
+				'second' => !$allday ? $start['second'] : null,
+				'start_date' => $row['start_date'],
+				'start_date_local' => $start['date_local'],
+				'start_date_orig' => $start['date_orig'],
+				'start_time' => !$allday ? $row['start_time'] : null,
+				'start_time_local' => !$allday ? $start['time_local'] : null,
+				'start_time_orig' => !$allday ? $start['time_orig'] : null,
+				'start_timestamp' => $start['timestamp'],
+				'start_datetime' => $start['datetime'],
+				'start_iso_gmdate' => $start['iso_gmdate'],
+				'end_year' => $end['year'],
+				'end_month' => $end['month'],
+				'end_day' => $end['day'],
+				'end_hour' => !$allday ? $end['hour'] : null,
+				'end_minute' => !$allday ? $end['minute'] : null,
+				'end_second' => !$allday ? $end['second'] : null,
+				'end_date' => $row['end_date'],
+				'end_date_local' => $end['date_local'],
+				'end_date_orig' => $end['date_orig'],
+				'end_time' => !$allday ? $row['end_time'] : null,
+				'end_time_local' => !$allday ? $end['time_local'] : null,
+				'end_time_orig' => !$allday ? $end['time_orig'] : null,
+				'end_timestamp' => $end['timestamp'],
+				'end_datetime' => $end['datetime'],
+				'end_iso_gmdate' => $end['iso_gmdate'],
+				'allday' => $allday,
+				'tz' => !$allday ? $tz : null,
+				'tz_abbrev' => !$allday ? $tz_abbrev : null,
+				'span' => $span,
+				'is_last' => false,
+				'id_board' => $row['id_board'],
+				'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
+				'starts_today' => $starts_today,
+				'ends_today' => $ends_today,
+				'location' => $row['location'],
 			);
 
 			// If we're using permissions (calendar pages?) then just ouput normal contextual style information.
@@ -378,6 +378,7 @@ function canLinkEvent()
  * Returns date information about 'today' relative to the users time offset.
  * returns an array with the current date, day, month, and year.
  * takes the users time offset into account.
+ *
  * @return array An array of info about today, based on forum time. Has 'day', 'month', 'year' and 'date' (in YYYY-MM-DD format)
  */
 function getTodayInfo()
@@ -392,6 +393,7 @@ function getTodayInfo()
 
 /**
  * Provides information (link, month, year) about the previous and next month.
+ *
  * @param int $month The month to display
  * @param int $year The year
  * @param array $calendarOptions An array of calendar options
@@ -529,6 +531,7 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 
 /**
  * Returns the information needed to show a calendar for the given week.
+ *
  * @param int $month The month
  * @param int $year The year
  * @param int $day The day
@@ -642,9 +645,9 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 	return $calendarGrid;
 }
 
-
 /**
  * Returns the information needed to show a list of upcoming events, birthdays, and holidays on the calendar.
+ *
  * @param int $start_date The start of a date range
  * @param int $end_date The end of a date range
  * @param array $calendarOptions An array of calendar options
@@ -762,6 +765,7 @@ function cache_getOffsetIndependentEvents($eventOptions)
  * cache callback function used to retrieve the upcoming birthdays, holidays, and events within the given period, taking into account the users time offset.
  * Called from the BoardIndex to display the current day's events on the board index
  * used by the board index and SSI to show the upcoming events.
+ *
  * @param array $eventOptions An array of event options.
  * @return array An array containing the info that was cached as well as a few other relevant things
  */

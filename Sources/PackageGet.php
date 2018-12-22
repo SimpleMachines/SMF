@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -181,14 +181,14 @@ function PackageServers()
 		{
 			collapsedDiv.show(\'slow\');
 			icon.removeClass(\'toggle_down\').addClass(\'toggle_up\');
-			icon.prop(\'title\', '. JavaScriptEscape($txt['hide']) .');
+			icon.prop(\'title\', ' . JavaScriptEscape($txt['hide']) . ');
 		}
 
 		else
 		{
 			collapsedDiv.hide(\'slow\');
 			icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
-			icon.prop(\'title\', '. JavaScriptEscape($txt['show']) .');
+			icon.prop(\'title\', ' . JavaScriptEscape($txt['show']) . ');
 		}
 	});', true);
 }
@@ -641,7 +641,7 @@ function PackageUpload()
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
-	$allowext = array('.zip','.tgz','.gz');
+	$allowext = array('.zip', '.tgz', '.gz');
 	// @todo Use FTP if the Packages directory is not writable.
 
 	// Check the file was even sent!
@@ -653,13 +653,13 @@ function PackageUpload()
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
 	$extension = substr(strrchr(strtolower($_FILES['package']['name']), '.'), 0);
-	if(!in_array($extension, $allowext))
+	if (!in_array($extension, $allowext))
 	{
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
 	}
 
 	// We only need the filename...
-	$extension = ($extension == '.gz') ? '.tar.gz' : $extension ;
+	$extension = ($extension == '.gz') ? '.tar.gz' : $extension;
 	$packageName = time() . $extension;
 
 	// Setup the destination and throw an error if the file is already there!
