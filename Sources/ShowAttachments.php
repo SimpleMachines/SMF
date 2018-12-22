@@ -149,10 +149,8 @@ function showAttachment()
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
 		$filePath = pathinfo($file['filePath']);
-		// when the file got no exentsion
-		$filePath['extension'] = empty($filePath['extension']) ? '' : $filePath['extension'];
 
-		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
+		$file['filePath'] = !file_exists($file['filePath']) && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
 		$file['etag'] = '"' . md5_file($file['filePath']) . '"';
 
 		// now get the thumbfile!
