@@ -1025,7 +1025,7 @@ function checkLogin()
 			}
 
 			if (!is_callable('random_int'))
-				require_once('Sources/random_compat/lib/random.php');
+				require_once('Sources/random_compat/random.php');
 
 			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.

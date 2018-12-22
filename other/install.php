@@ -1561,7 +1561,7 @@ function AdminAccount()
 		elseif ($_POST['username'] != '')
 		{
 			if (!is_callable('random_int'))
-				require_once('Sources/random_compat/lib/random.php');
+				require_once('Sources/random_compat/random.php');
 
 			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 

@@ -227,7 +227,7 @@ function reloadSettings()
 
 			// Oh, wouldn't it be great if I *was* crazy? Then the world would be okay.
 			if (!is_callable('random_int'))
-				require_once($sourcedir . '/random_compat/lib/random.php');
+				require_once($sourcedir . '/random_compat/random.php');
 
 			return random_int($min, $max);
 		},
