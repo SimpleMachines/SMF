@@ -79,15 +79,15 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => 'LENGTH(mem.website_url) > 0 ASC, COALESCE(mem.website_url, 1=1) DESC, mem.website_url DESC',
-				'up' => 'LENGTH(mem.website_url) > 0 DESC, COALESCE(mem.website_url, 1=1) ASC, mem.website_url ASC'
+				'down' => 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'up' => 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
 			'label' => $txt['position'],
 			'sort' => array(
-				'down' => 'COALESCE(mg.group_name, 1=1) DESC, mg.group_name DESC',
-				'up' => 'COALESCE(mg.group_name, 1=1) ASC, mg.group_name ASC'
+				'down' => 'mg.group_name is null, mg.group_name DESC',
+				'up' => 'mg.group_name is not null, mg.group_name ASC'
 			),
 		),
 		'registered' => array(
