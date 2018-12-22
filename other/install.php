@@ -303,7 +303,7 @@ function load_lang_file()
 			body {
 				font-family: sans-serif;
 				max-width: 700px; }
-		
+
 			h1 {
 				font-size: 14pt; }
 
@@ -1560,8 +1560,8 @@ function AdminAccount()
 		}
 		elseif ($_POST['username'] != '')
 		{
-            if (!is_callable('random_int'))
-                require_once('Sources/random_compat/lib/random.php');
+			if (!is_callable('random_int'))
+				require_once('Sources/random_compat/lib/random.php');
 
 			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 
