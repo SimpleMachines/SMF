@@ -1023,7 +1023,11 @@ function checkLogin()
 				$upcontext['user']['id'] = 1;
 				$upcontext['user']['name'] = 'Administrator';
 			}
-			$upcontext['user']['pass'] = $smcFunc['random_int'](0, 60000);
+
+			if (!is_callable('random_int'))
+				require_once('Sources/random_compat/lib/random.php');
+
+			$upcontext['user']['pass'] = random_int(0, 60000);
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
@@ -3620,7 +3624,7 @@ function template_upgrade_above()
 	echo '
 					</ul>
 				</div><!-- #main_steps -->
-				
+
 				<div id="install_progress">
 					<div id="progress_bar" class="progress_bar progress_green">
 						<h3>', $txt['upgrade_overall_progress'], '</h3>
@@ -3770,7 +3774,7 @@ function template_welcome_message()
 
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-				
+
 				<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">

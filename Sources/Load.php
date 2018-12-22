@@ -225,8 +225,9 @@ function reloadSettings()
 		{
 			global $sourcedir;
 
-			if (!function_exists('random_int'))
-				require_once($sourcedir . '/Subs-Compat.php');
+			// Oh, wouldn't it be great if I *was* crazy? Then the world would be okay.
+			if (!is_callable('random_int'))
+				require_once($sourcedir . '/random_compat/lib/random.php');
 
 			return random_int($min, $max);
 		},
