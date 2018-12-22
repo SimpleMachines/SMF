@@ -27,7 +27,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -1013,7 +1013,7 @@ function PickTheme()
 				// Remove any custom variants.
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}themes
-					WHERE 
+					WHERE
 						variable = {string:theme_variant}
 						AND id_member = {int:id_member}',
 					array(

@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -175,19 +175,19 @@ function ModifyBasicSettings($return_config = false)
 
 		// Jquery source
 		array(
-			'select', 
-			'jquery_source', 
+			'select',
+			'jquery_source',
 			array(
-				'auto' => $txt['jquery_auto'], 
-				'local' => $txt['jquery_local'], 
-				'cdn' => $txt['jquery_cdn'], 
+				'auto' => $txt['jquery_auto'],
+				'local' => $txt['jquery_local'],
+				'cdn' => $txt['jquery_cdn'],
 				'custom' => $txt['jquery_custom']
-			), 
+			),
 			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
 		),
 		array(
-			'text', 
-			'jquery_custom', 
+			'text',
+			'jquery_custom',
 			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
 		),
 		'',
@@ -204,13 +204,13 @@ function ModifyBasicSettings($return_config = false)
 		// Number formatting, timezones.
 		array('text', 'time_format'),
 		array(
-			'float', 
-			'time_offset', 
-			'subtext' => $txt['setting_time_offset_note'], 
-			6, 
-			'postinput' => $txt['hours'], 
-			'step' => 0.25, 
-			'min' => -23.5, 
+			'float',
+			'time_offset',
+			'subtext' => $txt['setting_time_offset_note'],
+			6,
+			'postinput' => $txt['hours'],
+			'step' => 0.25,
+			'min' => -23.5,
 			'max' => 23.5
 		),
 		'default_timezone' => array('select', 'default_timezone', array()),
@@ -366,9 +366,9 @@ function ModifyLayoutSettings($return_config = false)
 		// Pagination stuff.
 		array('check', 'compactTopicPagesEnable'),
 		array(
-			'int', 
-			'compactTopicPagesContiguous', 
-			null, 
+			'int',
+			'compactTopicPagesContiguous',
+			null,
 			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
 		),
 		array('int', 'defaultMaxMembers'),
@@ -515,28 +515,28 @@ function ModifyWarningSettings($return_config = false)
 			'',
 
 			array(
-				'int', 
-				'warning_watch', 
+				'int',
+				'warning_watch',
 				'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']
 			),
 			'moderate' => array(
-				'int', 
-				'warning_moderate', 
+				'int',
+				'warning_moderate',
 				'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']
 			),
 			array(
-				'int', 
-				'warning_mute', 
+				'int',
+				'warning_mute',
 				'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']
 			),
 			'rem1' => array(
-				'int', 
-				'user_limit', 
+				'int',
+				'user_limit',
 				'subtext' => $txt['setting_user_limit_note']
 			),
 			'rem2' => array(
-				'int', 
-				'warning_decrement', 
+				'int',
+				'warning_decrement',
 				'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']
 			),
 			array('permissions', 'view_warning'),
@@ -646,14 +646,14 @@ function ModifyAntispamSettings($return_config = false)
 		array('check', 'search_enable_captcha'),
 		// This, my friend, is a cheat :p
 		'guest_verify' => array(
-			'check', 
-			'guests_require_captcha', 
+			'check',
+			'guests_require_captcha',
 			'subtext' => $txt['setting_guests_require_captcha_desc']
 		),
 		array(
-			'int', 
-			'posts_require_captcha', 
-			'subtext' => $txt['posts_require_captcha_desc'], 
+			'int',
+			'posts_require_captcha',
+			'subtext' => $txt['posts_require_captcha_desc'],
 			'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'
 		),
 		'',
@@ -666,17 +666,17 @@ function ModifyAntispamSettings($return_config = false)
 		array('title', 'configure_verification_means'),
 		array('desc', 'configure_verification_means_desc'),
 		'vv' => array(
-			'select', 
-			'visual_verification_type', 
+			'select',
+			'visual_verification_type',
 			array(
-				$txt['setting_image_verification_off'], 
-				$txt['setting_image_verification_vsimple'], 
-				$txt['setting_image_verification_simple'], 
-				$txt['setting_image_verification_medium'], 
-				$txt['setting_image_verification_high'], 
+				$txt['setting_image_verification_off'],
+				$txt['setting_image_verification_vsimple'],
+				$txt['setting_image_verification_simple'],
+				$txt['setting_image_verification_medium'],
+				$txt['setting_image_verification_high'],
 				$txt['setting_image_verification_extreme']
-			), 
-			'subtext' => $txt['setting_visual_verification_type_desc'], 
+			),
+			'subtext' => $txt['setting_visual_verification_type_desc'],
 			'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''
 		),
 		// reCAPTCHA

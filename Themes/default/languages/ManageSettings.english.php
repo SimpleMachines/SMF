@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManageSettings
+// Version: 2.1 RC1; ManageSettings
 
 global $scripturl;
 

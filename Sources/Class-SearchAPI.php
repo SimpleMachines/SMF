@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -145,12 +145,12 @@ abstract class search_api implements search_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 4';
+	public $version_compatible = 'SMF 2.1 RC1';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 4';
+	public $min_smf_version = 'SMF 2.1 RC1';
 
 	/**
 	 * @var bool Whether or not it's supported

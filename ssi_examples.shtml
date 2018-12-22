@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> &lt;&lt; :: SMF SSI.php 2.1 Beta 4 :: &gt;&gt; </title>
+		<title> &lt;&lt; :: SMF SSI.php 2.1 RC1 :: &gt;&gt; </title>
 	</head>
 	<body style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt;">
 			<h1>SMF SSI.php Functions</h1>
-			Current Version 2.1 Beta 4<br>
+			Current Version 2.1 RC1<br>
 			<br>
 			This file is used to demonstrate the capabilities of SSI.php using SHTML include functions.<br>
 			The examples the include tag, then the results of it. Examples are separated by horizontal rules.<br>
