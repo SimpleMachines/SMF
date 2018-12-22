@@ -1748,7 +1748,7 @@ function DeleteInstall()
 
 	// Disable the legacy BBC by default for new installs
 	updateSettings(array(
-		'disabledBBC' => implode(',', $context['legacy_bbc']);
+		'disabledBBC' => implode(',', $context['legacy_bbc']),
 	));
 
 	// Some final context for the template.
