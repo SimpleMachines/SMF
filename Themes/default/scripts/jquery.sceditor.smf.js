@@ -408,9 +408,9 @@ sceditor.formats.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + element.width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -466,9 +466,9 @@ sceditor.formats.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + $(element).width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + $(element).height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 			if (element.attr('title'))
