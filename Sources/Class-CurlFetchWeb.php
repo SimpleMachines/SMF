@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -94,12 +94,12 @@ class curl_fetch_web_data
 	public $headers;
 
 	/**
-	* Start the curl object
-	* - allow for user override values
-	*
-	* @param array $options An array of cURL options
-	* @param int $max_redirect Maximum number of redirects
-	*/
+	 * Start the curl object
+	 * - allow for user override values
+	 *
+	 * @param array $options An array of cURL options
+	 * @param int $max_redirect Maximum number of redirects
+	 */
 	public function __construct($options = array(), $max_redirect = 3)
 	{
 		// Initialize class variables
@@ -108,16 +108,16 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Main calling function,
-	*  - will request the page data from a given $url
-	*  - optionally will post data to the page form if post data is supplied
-	*  - passed arrays will be converted to a post string joined with &'s
-	*  - calls set_options to set the curl opts array values based on the defaults and user input
-	*
-	* @param string $url the site we are going to fetch
-	* @param array $post_data any post data as form name => value
-	* @return object An instance of the curl_fetch_web_data class
-	*/
+	 * Main calling function,
+	 *  - will request the page data from a given $url
+	 *  - optionally will post data to the page form if post data is supplied
+	 *  - passed arrays will be converted to a post string joined with &'s
+	 *  - calls set_options to set the curl opts array values based on the defaults and user input
+	 *
+	 * @param string $url the site we are going to fetch
+	 * @param array $post_data any post data as form name => value
+	 * @return object An instance of the curl_fetch_web_data class
+	 */
 	public function get_url_data($url, $post_data = array())
 	{
 		// POSTing some data perhaps?
@@ -134,14 +134,14 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Makes the actual cURL call
-	*  - stores responses (url, code, error, headers, body) in the response array
-	*  - detects 301, 302, 307 codes and will redirect to the given response header location
-	*
-	* @param string $url The site to fetch
-	* @param bool $redirect Whether or not this was a redirect request
-	* @return void|bool Sets various properties of the class or returns false if the URL isn't specified
-	*/
+	 * Makes the actual cURL call
+	 *  - stores responses (url, code, error, headers, body) in the response array
+	 *  - detects 301, 302, 307 codes and will redirect to the given response header location
+	 *
+	 * @param string $url The site to fetch
+	 * @param bool $redirect Whether or not this was a redirect request
+	 * @return void|bool Sets various properties of the class or returns false if the URL isn't specified
+	 */
 	private function curl_request($url, $redirect = false)
 	{
 		// we do have a url I hope
@@ -193,17 +193,17 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Used if being redirected to ensure we have a fully qualified address
-	*
-	* @param string $last_url The URL we went to
-	* @param string $new_url The URL we were redirected to
-	* @return string The new URL that was in the HTTP header
-	*/
+	 * Used if being redirected to ensure we have a fully qualified address
+	 *
+	 * @param string $last_url The URL we went to
+	 * @param string $new_url The URL we were redirected to
+	 * @return string The new URL that was in the HTTP header
+	 */
 	private function get_redirect_url($last_url = '', $new_url = '')
 	{
 		// Get the elements for these urls
 		$last_url_parse = parse_url($last_url);
-		$new_url_parse  = parse_url($new_url);
+		$new_url_parse = parse_url($new_url);
 
 		// redirect headers are often incomplete or relative so we need to make sure they are fully qualified
 		$new_url_parse['scheme'] = isset($new_url_parse['scheme']) ? $new_url_parse['scheme'] : $last_url_parse['scheme'];
@@ -216,13 +216,13 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Used to return the results to the calling program
-	*  - called as ->result() will return the full final array
-	*  - called as ->result('body') to just return the page source of the result
-	*
-	* @param string $area Used to return an area such as body, header, error
-	* @return string The response
-	*/
+	 * Used to return the results to the calling program
+	 *  - called as ->result() will return the full final array
+	 *  - called as ->result('body') to just return the page source of the result
+	 *
+	 * @param string $area Used to return an area such as body, header, error
+	 * @return string The response
+	 */
 	public function result($area = '')
 	{
 		$max_result = count($this->response) - 1;
@@ -235,13 +235,13 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Will return all results from all loops (redirects)
-	*  - Can be called as ->result_raw(x) where x is a specific loop results.
-	*  - Call as ->result_raw() for everything.
-	*
-	* @param string $response_number Which response we want to get
-	* @return array|string The entire response array or just the specified response
-	*/
+	 * Will return all results from all loops (redirects)
+	 *  - Can be called as ->result_raw(x) where x is a specific loop results.
+	 *  - Call as ->result_raw() for everything.
+	 *
+	 * @param string $response_number Which response we want to get
+	 * @return array|string The entire response array or just the specified response
+	 */
 	public function result_raw($response_number = '')
 	{
 		if (!is_numeric($response_number))
@@ -254,13 +254,13 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Takes supplied POST data and url encodes it
-	*  - forms the date (for post) in to a string var=xyz&var2=abc&var3=123
-	*  - drops vars with @ since we don't support sending files (uploading)
-	*
-	* @param array|string $post_data The raw POST data
-	* @return string A string of post data
-	*/
+	 * Takes supplied POST data and url encodes it
+	 *  - forms the date (for post) in to a string var=xyz&var2=abc&var3=123
+	 *  - drops vars with @ since we don't support sending files (uploading)
+	 *
+	 * @param array|string $post_data The raw POST data
+	 * @return string A string of post data
+	 */
 	private function build_post_data($post_data)
 	{
 		if (is_array($post_data))
@@ -278,11 +278,12 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Sets the final cURL options for the current call
-	*  - overwrites our default values with user supplied ones or appends new user ones to what we have
-	*  - sets the callback function now that $this is existing
-	* @return void
-	*/
+	 * Sets the final cURL options for the current call
+	 *  - overwrites our default values with user supplied ones or appends new user ones to what we have
+	 *  - sets the callback function now that $this is existing
+	 *
+	 * @return void
+	 */
 	private function set_options()
 	{
 		// Callback to parse the returned headers, if any
@@ -307,12 +308,12 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Called to initiate a redirect from a 301, 302 or 307 header
-	*  - resets the cURL options for the loop, sets the referrer flag
-	*
-	* @param string $target_url The URL we want to redirect to
-	* @param string $referer_url The URL that we're redirecting from
-	*/
+	 * Called to initiate a redirect from a 301, 302 or 307 header
+	 *  - resets the cURL options for the loop, sets the referrer flag
+	 *
+	 * @param string $target_url The URL we want to redirect to
+	 * @param string $referer_url The URL that we're redirecting from
+	 */
 	private function redirect($target_url, $referer_url)
 	{
 		// no no I last saw that over there ... really, 301, 302, 307
@@ -322,13 +323,13 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Callback function to parse returned headers
-	*  - lowercases everything to make it consistent
-	*
-	* @param type $cr Not sure what this is used for?
-	* @param string $header The header
-	* @return int The length of the header
-	*/
+	 * Callback function to parse returned headers
+	 *  - lowercases everything to make it consistent
+	 *
+	 * @param type $cr Not sure what this is used for?
+	 * @param string $header The header
+	 * @return int The length of the header
+	 */
 	private function header_callback($cr, $header)
 	{
 		$_header = trim($header);

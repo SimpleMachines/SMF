@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -933,7 +933,7 @@ function SendMailing($clean_only = false)
 				}
 			}
 			if (!empty($queryBuild))
-			$sendQuery .= implode(' OR ', $queryBuild);
+				$sendQuery .= implode(' OR ', $queryBuild);
 		}
 		if (!empty($context['recipients']['members']))
 		{
@@ -1033,7 +1033,6 @@ function SendMailing($clean_only = false)
 		}
 	}
 
-
 	$context['start'] = $context['start'] + $num_at_once;
 	if (empty($context['recipients']['emails']) && ($context['start'] >= $context['total_members']))
 	{
@@ -1067,14 +1066,15 @@ function ModifyNewsSettings($return_config = false)
 
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'edit_news', 'help' => ''),
-			array('permissions', 'send_mail'),
+		// Inline permissions.
+		array('permissions', 'edit_news', 'help' => ''),
+		array('permissions', 'send_mail'),
 		'',
-			// Just the remaining settings.
-			array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
-			array('int', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
-			array('check', 'xmlnews_attachments', 'subtext' => $txt['xmlnews_attachments_note']),
+
+		// Just the remaining settings.
+		array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
+		array('int', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
+		array('check', 'xmlnews_attachments', 'subtext' => $txt['xmlnews_attachments_note']),
 	);
 
 	call_integration_hook('integrate_modify_news_settings', array(&$config_vars));

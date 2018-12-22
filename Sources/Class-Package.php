@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -34,6 +34,7 @@ class xmlArray
 
 	/**
 	 * holds trim level textual data
+	 *
 	 * @var bool Holds trim level textual data
 	 */
 	public $trim;
@@ -79,6 +80,7 @@ class xmlArray
 	 * Get the root element's name.
 	 * Example use:
 	 *  echo $element->name();
+	 *
 	 * @return string The root element's name
 	 */
 	public function name()
@@ -92,6 +94,7 @@ class xmlArray
 	 * unless get_elements is true.
 	 * Example use:
 	 *  $data = $xml->fetch('html/head/title');
+	 *
 	 * @param string $path The path to the element to fetch
 	 * @param bool $get_elements Whether to include elements
 	 * @return string The value or attribute of the specified element
@@ -131,6 +134,7 @@ class xmlArray
 	 * or return_set is true.
 	 * Example use:
 	 *  $element = $xml->path('html/body');
+	 *
 	 * @param $path string The path to the element to get
 	 * @param $return_full bool Whether to return the full result set
 	 * @return xmlArray, a new xmlArray.
@@ -232,6 +236,7 @@ class xmlArray
 	 * Count the number of occurrences of a path.
 	 * Example use:
 	 *  echo $xml->count('html/head/meta');
+	 *
 	 * @param string $path The path to search for.
 	 * @return int The number of elements the path matches.
 	 */
@@ -257,6 +262,7 @@ class xmlArray
 	 * of elements, an array of xmlArray's is returned for use with foreach.
 	 * Example use:
 	 *  foreach ($xml->set('html/body/p') as $p)
+	 *
 	 * @param $path string The path to search for.
 	 * @return xmlArray[] An array of xmlArray objects
 	 */
@@ -286,6 +292,7 @@ class xmlArray
 	 * Create an xml file from an xmlArray, the specified path if any.
 	 * Example use:
 	 *  echo $this->create_xml();
+	 *
 	 * @param string $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
@@ -793,7 +800,7 @@ class ftp_connection
 		if (!$this->connection)
 		{
 			$this->error = 'bad_server';
-            		$this->last_message = 'Invalid Server';
+			$this->last_message = 'Invalid Server';
 			return;
 		}
 
@@ -801,7 +808,7 @@ class ftp_connection
 		if (!$this->check_response(220))
 		{
 			$this->error = 'bad_response';
-		        $this->last_message = 'Bad Response';
+			$this->last_message = 'Bad Response';
 			return;
 		}
 

@@ -20,11 +20,12 @@ namespace TOTP;
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
  * Class Auth
+ *
  * @package TOTP
  */
 class Auth
@@ -64,7 +65,8 @@ class Auth
 	{
 		$this->buildLookup();
 
-		if ($initKey !== null) {
+		if ($initKey !== null)
+		{
 			$this->setInitKey($initKey);
 		}
 	}
@@ -83,6 +85,7 @@ class Auth
 
 	/**
 	 * Get the current "range" value
+	 *
 	 * @return integer Range value
 	 */
 	public function getRange()
@@ -98,7 +101,8 @@ class Auth
 	 */
 	public function setRange($range)
 	{
-		if (!is_numeric($range)) {
+		if (!is_numeric($range))
+		{
 			throw new \InvalidArgumentException('Invalid window range');
 		}
 		$this->range = $range;
@@ -114,7 +118,8 @@ class Auth
 	 */
 	public function setInitKey($key)
 	{
-		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false) {
+		if (preg_match('/^[' . implode('', array_keys($this->getLookup())) . ']+$/', $key) == false)
+		{
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 		$this->initKey = $key;
@@ -140,7 +145,8 @@ class Auth
 	 */
 	public function setLookup($lookup)
 	{
-		if (!is_array($lookup)) {
+		if (!is_array($lookup))
+		{
 			throw new \InvalidArgumentException('Lookup value must be an array');
 		}
 		$this->lookup = $lookup;
@@ -176,7 +182,8 @@ class Auth
 	 */
 	public function setRefresh($seconds)
 	{
-		if (!is_numeric($seconds)) {
+		if (!is_numeric($seconds))
+		{
 			throw new \InvalidArgumentException('Seconds must be numeric');
 		}
 		$this->refreshSeconds = $seconds;
@@ -217,7 +224,8 @@ class Auth
 	 */
 	public function validateCode($code, $initKey = null, $timestamp = null, $range = null)
 	{
-		if (strlen($code) !== $this->getCodeLength()) {
+		if (strlen($code) !== $this->getCodeLength())
+		{
 			throw new \InvalidArgumentException('Incorrect code length');
 		}
 
@@ -227,8 +235,10 @@ class Auth
 
 		$binary = $this->base32_decode($initKey);
 
-		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++) {
-			if ($this->generateOneTime($binary, $time) == $code) {
+		for ($time = ($timestamp - $range); $time <= ($timestamp + $range); $time++)
+		{
+			if ($this->generateOneTime($binary, $time) == $code)
+			{
 				return true;
 			}
 		}
@@ -271,7 +281,8 @@ class Auth
 		$lookup = implode('', array_keys($this->getLookup()));
 		$code = '';
 
-		for ($i = 0; $i < $length; $i++) {
+		for ($i = 0; $i < $length; $i++)
+		{
 			$code .= $lookup[$smcFunc['random_int'](0, strlen($lookup) - 1)];
 		}
 
@@ -317,7 +328,8 @@ class Auth
 	{
 		$lookup = $this->getLookup();
 
-		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false) {
+		if (preg_match('/^[' . implode('', array_keys($lookup)) . ']+$/', $hash) == false)
+		{
 			throw new \InvalidArgumentException('Invalid base32 hash!');
 		}
 
@@ -326,12 +338,14 @@ class Auth
 		$length = 0;
 		$binary = '';
 
-		for ($i = 0; $i < strlen($hash); $i++) {
+		for ($i = 0; $i < strlen($hash); $i++)
+		{
 			$buffer = $buffer << 5;
 			$buffer += $lookup[$hash[$i]];
 			$length += 5;
 
-			if ($length >= 8) {
+			if ($length >= 8)
+			{
 				$length -= 8;
 				$binary .= chr(($buffer & (0xFF << $length)) >> $length);
 			}

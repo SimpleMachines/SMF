@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -32,7 +32,7 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups,
-				mem.pm_ignore_list
+					mem.pm_ignore_list
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)

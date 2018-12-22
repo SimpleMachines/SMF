@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -111,14 +111,14 @@ function template_set_password()
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
+							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="generic_icons invalid"></span>
+							<span id="smf_autov_pwverify_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
 				</dl>
@@ -169,14 +169,14 @@ function template_ask()
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
+							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
+							<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
 						</span>
 					</dd>
 				</dl>

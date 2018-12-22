@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -97,15 +97,63 @@ function ModifySubscriptionSettings($return_config = false)
 
 		// These are all the default settings.
 		$config_vars = array(
-				array('check', 'paid_enabled'),
+			array(
+				'check',
+				'paid_enabled'
+			),
 			'',
-				array('select', 'paid_email', array(0 => $txt['paid_email_no'], 1 => $txt['paid_email_error'], 2 => $txt['paid_email_all']), 'subtext' => $txt['paid_email_desc']),
-				array('email', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
+
+			array(
+				'select',
+				'paid_email',
+				array(
+					0 => $txt['paid_email_no'],
+					1 => $txt['paid_email_error'],
+					2 => $txt['paid_email_all']
+				),
+				'subtext' => $txt['paid_email_desc']
+			),
+			array(
+				'email',
+				'paid_email_to',
+				'subtext' => $txt['paid_email_to_desc'],
+				'size' => 60
+			),
 			'',
-				'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'cad' => $txt['cad'], 'aud' => $txt['aud'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
-				array('text', 'paid_currency_code', 'subtext' => $txt['paid_currency_code_desc'], 'size' => 5, 'force_div_id' => 'custom_currency_code_div'),
-				array('text', 'paid_currency_symbol', 'subtext' => $txt['paid_currency_symbol_desc'], 'size' => 8, 'force_div_id' => 'custom_currency_symbol_div'),
-				array('check', 'paidsubs_test', 'subtext' => $txt['paidsubs_test_desc'], 'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'),
+
+			'dummy_currency' => array(
+				'select',
+				'paid_currency',
+				array(
+					'usd' => $txt['usd'],
+					'eur' => $txt['eur'],
+					'gbp' => $txt['gbp'],
+					'cad' => $txt['cad'],
+					'aud' => $txt['aud'],
+					'other' => $txt['other']
+				),
+				'javascript' => 'onchange="toggleOther();"'
+			),
+			array(
+				'text',
+				'paid_currency_code',
+				'subtext' => $txt['paid_currency_code_desc'],
+				'size' => 5,
+				'force_div_id' => 'custom_currency_code_div'
+			),
+			array(
+				'text',
+				'paid_currency_symbol',
+				'subtext' => $txt['paid_currency_symbol_desc'],
+				'size' => 8,
+				'force_div_id' => 'custom_currency_symbol_div'
+			),
+			array(
+				'check',
+				'paidsubs_test',
+				'subtext' => $txt['paidsubs_test_desc'],
+				'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'
+			),
 		);
 
 		// Now load all the other gateway settings.
@@ -948,6 +996,7 @@ function ViewSubscribedUsers()
 
 /**
  * Returns how many people are subscribed to a paid subscription.
+ *
  * @todo refactor away
  *
  * @param int $id_sub The ID of the subscription
@@ -980,6 +1029,7 @@ function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = arr
 
 /**
  * Return the subscribed users list, for the given parameters.
+ *
  * @todo refactor outta here
  *
  * @param int $start The item to start with (for pagination purposes)
@@ -1129,7 +1179,7 @@ function ModifyUserSubscription()
 					'{db_prefix}log_subscribed',
 					array(
 						'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-						'end_time' => 'int', 'status' => 'int','pending_details' => 'string-65534'
+						'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string-65534'
 					),
 					array(
 						$context['sub_id'], $id_member, $id_group, $starttime,

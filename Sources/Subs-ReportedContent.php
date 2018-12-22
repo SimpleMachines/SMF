@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -51,7 +51,7 @@ function updateReport($action, $value, $report_id)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
 		SET  {raw:action} = {string:value}
-		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') .'
+		' . (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
 			' . $board_query,
 		array(
 			'action' => $action,
@@ -99,7 +99,7 @@ function updateReport($action, $value, $report_id)
 			)
 		);
 
-		while($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$extra[$row['id_report']] = array(
 				'report' => $row['id_report'],
 				'member' => $row['id_member'],
@@ -132,7 +132,6 @@ function updateReport($action, $value, $report_id)
  *
  * @param int $closed 1 for counting closed reports, 0 for open ones.
  * @return integer How many reports.
-
  */
 function countReports($closed = 0)
 {
@@ -363,7 +362,7 @@ function recountOpenReports($type)
 		WHERE closed = {int:not_closed}
 			AND ignore_all = {int:not_ignored}
 			AND id_board' . ($type == 'members' ? '' : '!') . '= {int:not_a_reported_post}'
-		 	. $bq,
+			. $bq,
 		array(
 			'not_closed' => 0,
 			'not_ignored' => 0,
@@ -402,8 +401,8 @@ function getReportDetails($report_id)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT lr.id_report, lr.id_member,
-					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-					COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
+				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+				COALESCE(mem.real_name, lr.membername) AS user_name, COALESCE(mem.id_member, 0) AS id_user
 			FROM {db_prefix}log_reported AS lr
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
 			WHERE lr.id_report = {int:id_report}
@@ -592,7 +591,7 @@ function saveModComment($report_id, $data)
 	{
 		$prefix = 'Member';
 		$data = array(
-		 	'report_id' => $report_id,
+			'report_id' => $report_id,
 			'user_id' => $report['id_user'],
 			'user_name' => $report['user_name'],
 			'sender_id' => $context['user']['id'],

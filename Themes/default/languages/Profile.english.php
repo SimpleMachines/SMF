@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Profile
+// Version: 2.1 RC1; Profile
 
 global $scripturl, $context;
 
@@ -166,7 +166,6 @@ $txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets 
 $txt['alert_group_paidsubs'] = 'Paid Subscriptions';
 $txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
-
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';

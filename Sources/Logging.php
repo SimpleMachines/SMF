@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -18,26 +18,27 @@ if (!defined('SMF'))
 
 /**
  * Truncate the GET array to a specified length
+ *
  * @param array $arr The array to truncate
  * @param int $max_length The upperbound on the length
  *
  * @return array The truncated array
  */
-function truncateArray($arr, $max_length=1900)
+function truncateArray($arr, $max_length = 1900)
 {
 	$curr_length = 0;
 	foreach ($arr as $key => $value)
 		if (is_array($value))
 			foreach ($value as $key2 => $value2)
-				$curr_length += strlen ($value2);
+				$curr_length += strlen($value2);
 		else
-			$curr_length += strlen ($value);
+			$curr_length += strlen($value);
 	if ($curr_length <= $max_length)
 		return $arr;
 	else
 	{
 		// Truncate each element's value to a reasonable length
-		$param_max = floor($max_length/count($arr));
+		$param_max = floor($max_length / count($arr));
 		foreach ($arr as $key => &$value)
 			if (is_array($value))
 				foreach ($value as $key2 => &$value2)
@@ -207,7 +208,7 @@ function logLastDatabaseError()
 	if (filemtime($cachedir . '/db_last_error.php') === $last_db_error_change)
 	{
 		// Write the change
-		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+		$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
 		$written_bytes = file_put_contents($cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 		// survey says ...
@@ -280,7 +281,7 @@ function displayDebug()
 	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br>
 	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br>
 	', $txt['debug_hooks'], empty($context['debug']['hooks']) ? 0 : count($context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', $context['debug']['hooks']), '</em></span>)', '<br>
-	',(isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">'. $txt['debug_show'] .'</a><span id="debug_instances" style="display: none;"><em>'. implode('</em>, <em>', array_keys($context['debug']['instances'])) .'</em></span>)'. '<br>') : ''),'
+	', (isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . $txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys($context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
 
 	if (function_exists('memory_get_peak_usage'))
@@ -422,6 +423,7 @@ function trackStats($stats = array())
 /**
  * This function logs an action in the respective log. (database log)
  * You should use {@link logActions()} instead.
+ *
  * @example logAction('remove', array('starter' => $id_member_started));
  *
  * @param string $action The action to log
@@ -507,7 +509,8 @@ function logActions($logs)
 				array(
 					'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
 					'reported' => !empty($msg_id) ? $msg_id : $topic_id,
-			));
+				)
+			);
 
 			// Alright, if we get any result back, update open reports.
 			if ($smcFunc['db_num_rows']($request) > 0)
@@ -548,7 +551,7 @@ function logActions($logs)
 			$memID = $log['extra']['member_affected'];
 		else
 			$memID = $user_info['id'];
-		
+
 		if (isset($user_info['ip']))
 			$memIP = $user_info['ip'];
 		else

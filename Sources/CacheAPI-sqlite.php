@@ -8,7 +8,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * SQLite Cache API class
+ *
  * @package cacheAPI
  */
 class sqlite_cache extends cache_api
@@ -105,14 +106,14 @@ class sqlite_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
-		if($type == 'expired')
-			$query = 'DELETE FROM cache WHERE ttl >= ' . time().';';
+		if ($type == 'expired')
+			$query = 'DELETE FROM cache WHERE ttl >= ' . time() . ';';
 		else
 			$query = 'DELETE FROM cache;';
 
 		$result = $this->cacheDB->exec($query);
 
-		$query	= 'VACUUM;';
+		$query = 'VACUUM;';
 		$this->cacheDB->exec($query);
 
 		return $result;
@@ -153,7 +154,7 @@ class sqlite_cache extends cache_api
 
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
-			if(is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
+			if (is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
 				$this->cachedir = $cachedir;
 			else
 				$this->cachedir = $cachedir_sqlite;

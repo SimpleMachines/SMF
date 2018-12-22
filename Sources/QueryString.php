@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -418,7 +418,6 @@ function expandIPv6($addr, $strict_check = true)
 		return false;
 }
 
-
 /**
  * Detect if a IP is in a CIDR address
  * - returns true or false
@@ -426,35 +425,36 @@ function expandIPv6($addr, $strict_check = true)
  * @param string $ip_address IP address to check
  * @param string $cidr_address CIDR address to verify
  * @return bool Whether the IP matches the CIDR
-*/
+ */
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
-    list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
-	
+	list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
+
 	//v6?
 	if ((strpos($cidr_network, ':') !== false))
 	{
 		if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
-				return false;
+			return false;
 
 		$ip_address = inet_pton($ip_address);
 		$cidr_network = inet_pton($cidr_network);
 		$binMask = str_repeat("f", $cidr_subnetmask / 4);
-		switch ($cidr_subnetmask % 4) {
-		  case 0:
-			break;
-		  case 1:
-			$binMask .= "8";
-			break;
-		  case 2:
-			$binMask .= "c";
-			break;
-		  case 3:
-			$binMask .= "e";
-			break;
+		switch ($cidr_subnetmask % 4)
+		{
+			case 0:
+				break;
+			case 1:
+				$binMask .= "8";
+				break;
+			case 2:
+				$binMask .= "c";
+				break;
+			case 3:
+				$binMask .= "e";
+				break;
 		}
 		$binMask = str_pad($binMask, 32, '0');
-		$binMask = pack("H*" , $binMask);
+		$binMask = pack("H*", $binMask);
 
 		return ($ip_address & $binMask) == $cidr_network;
 	}
@@ -539,6 +539,7 @@ function urldecode__recursive($var, $level = 0)
 
 	return $new_var;
 }
+
 /**
  * Unescapes any array or variable.  Uses two underscores to guard against overloading.
  * What it does:
@@ -696,12 +697,14 @@ function ob_sessrewrite($buffer)
 		if (defined('SID') && SID != '')
 			$buffer = preg_replace_callback('~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~', function($m)
 			{
-				global $scripturl; return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
+				global $scripturl;
+				return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
 			}, $buffer);
 		else
 			$buffer = preg_replace_callback('~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~', function($m)
 			{
-				global $scripturl; return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
+				global $scripturl;
+				return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
 			}, $buffer);
 	}
 

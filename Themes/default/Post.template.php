@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -119,7 +119,7 @@ function template_main()
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
-	echo '
+		echo '
 					<div class="errorbox">
 						', $txt['topic_locked_no_reply'], '
 					</div>';
@@ -317,27 +317,27 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader">
+					<div id="post_additional_options_header">
 						<strong><a href="#" id="postMoreExpandLink"> ', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
 					</div>';
 
 	echo '
-					<div id="postAdditionalOptions">';
+					<div id="post_additional_options">';
 
 	// Display the checkboxes for all the standard options - if they are available to the user!
 	echo '
-						<div id="postMoreOptions" class="smalltext">
+						<div id="post_settings" class="smalltext">
 							<ul class="post_options">
 								', $context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . ($context['notify'] || !empty($options['auto_notify']) || $context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . $txt['notify_replies'] . '</label></li>' : '', '
 								', $context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . $context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . ($context['locked'] ? ' checked' : '') . ' value="1"> ' . $txt['lock_topic'] . '</label></li>' : '', '
 								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . ($context['back_to_topic'] || !empty($options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . $txt['back_to_topic'] . '</label></li>
-								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after'] . '</label></li>' : '', '
+								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after_posting'] . '</label></li>' : '', '
 								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', $context['use_smileys'] ? '' : ' checked', ' value="NS"> ', $txt['dont_use_smileys'], '</label></li>', '
-								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after2'] . '</label></li>' : '', '
+								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after_posting'] . '</label></li>' : '', '
 								', $context['can_announce'] && $context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty($context['announce']) ? ' checked' : '') . '> ' . $txt['announce_topic'] . '</label></li>' : '', '
 								', $context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . ($context['show_approval'] === 2 ? ' checked' : '') . '> ' . $txt['approve_this_post'] . '</label></li>' : '', '
 							</ul>
-						</div><!-- #postMoreOptions -->';
+						</div><!-- #post_settings -->';
 
 	// If this post already has attachments on it - give information about them.
 	if (!empty($context['current_attachments']))
@@ -372,12 +372,12 @@ function template_main()
 	{
 		// Print dropzone UI.
 		echo '
-						<div class="files" id="au-previews">
+						<div class="files" id="attachment_previews">
 							<div id="au-template">
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
 								</div>
-								<div class="attach-info">
+								<div class="attachment_info">
 									<div>
 										<span class="name" data-dz-name></span>
 										<span class="error" data-dz-errormessage></span>
@@ -388,11 +388,11 @@ function template_main()
 										<input type="text" name="attachBBC" value="" readonly>
 										<div class="attached_BBC_width_height">
 											<div class="attached_BBC_width">
-												<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+												<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
 												<input type="number" name="attached_BBC_width" min="0" value="" placeholder="auto">
 											</div>
 											<div class="attached_BBC_height">
-												<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+												<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
 												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
 											</div>
 										</div>
@@ -401,16 +401,16 @@ function template_main()
 										<div class="bar"></div>
 									</div>
 									<div class="attach-ui">
-										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
-										<a class="button upload">', $txt['upload'] ,'</a>
+										<a data-dz-remove class="button cancel">', $txt['modify_cancel'], '</a>
+										<a class="button upload">', $txt['upload'], '</a>
 									</div>
-								</div><!-- .attach-info -->
+								</div><!-- .attachment_info -->
 							</div><!-- #au-template -->
-						</div><!-- #au-previews -->
-						<div id ="maxFiles_progress" class="maxFiles_progress progress_bar">
+						</div><!-- #attachment_previews -->
+						<div id ="max_files_progress" class="max_files_progress progress_bar">
 							<div class="bar"></div>
 						</div>
-						<div id ="maxFiles_progress_text"></div>';
+						<div id ="max_files_progress_text"></div>';
 
 		echo '
 						<dl id="postAttachment2">
@@ -418,12 +418,12 @@ function template_main()
 								', $txt['attach'], ':
 							</dt>
 							<dd class="smalltext fallback">
-								<div id="attachUpload" class="descbox">
-									<h5>', $txt['attach_drop_zone'] ,'</h5>
-									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
-									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
-									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
-									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+								<div id="attachment_upload" class="descbox">
+									<h5>', $txt['attach_drop_zone'], '</h5>
+									<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
+									<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
+									<a class="button fileinput-button">', $txt['attach_add'], '</a>
+									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
 									</div>
 									<div class="fallback">
@@ -454,7 +454,7 @@ function template_main()
 										</script>
 										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
 									</div><!-- .fallback -->
-								</div><!-- #attachUpload -->';
+								</div><!-- #attachment_upload -->';
 
 		echo '
 							</dd>';
@@ -488,18 +488,18 @@ function template_main()
 	}
 
 	echo '
-					</div><!-- #postAdditionalOptions -->';
+					</div><!-- #post_additional_options -->';
 
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-					<div id="postDraftOptionsHeader" class="title_bar">
+					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
 							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 						</h4>
 					</div>
-					<div id="postDraftOptions">
+					<div id="post_draft_options">
 						<dl class="settings">
 							<dt><strong>', $txt['subject'], '</strong></dt>
 							<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
@@ -532,7 +532,7 @@ function template_main()
 	// Option to delete an event if user is editing one.
 	if ($context['make_event'] && !$context['event']['new'])
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button you_sure">';
+						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'], '" class="button you_sure">';
 
 	echo '
 					</span>
@@ -568,13 +568,13 @@ function template_main()
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
 				<li id="post_modify">
-					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="generic_icons quote"></span>' . $txt['quote'] . '</a>
+					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . $txt['quote'] . '</a>
 				</li>
 			</ul>';
 
 	$newPostsHTML .= '
 			<br class="clear">
-			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] .  '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
 			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>
 		</div>';
 
@@ -616,7 +616,7 @@ function template_main()
 					document.getElementById(\'additional_options\').value = \'1\';
 				},
 				aSwappableContainers: [
-					\'postAdditionalOptions\',
+					\'post_additional_options\',
 				],
 				aSwapImages: [
 					{
@@ -641,7 +641,7 @@ function template_main()
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: true,
 				aSwappableContainers: [
-					\'postDraftOptions\',
+					\'post_draft_options\',
 				],
 				aSwapImages: [
 					{
@@ -660,7 +660,7 @@ function template_main()
 			});';
 
 	echo '
-			var oEditorID = "', $context['post_box_name'] ,'";
+			var oEditorID = "', $context['post_box_name'], '";
 			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 		</script>';
 
@@ -692,8 +692,8 @@ function template_main()
 			if ($context['can_quote'])
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
 
 			echo '
@@ -777,7 +777,7 @@ function template_spellcheck()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
 		<style>
 			body, td {
 				font-size: small;
@@ -807,8 +807,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		</script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'] ,'"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
 		<script>
 			', $context['spell_js'], '
 		</script>
@@ -852,7 +852,7 @@ function template_quotefast()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '
@@ -1012,11 +1012,10 @@ function template_post_header()
 	if (empty($context['posting_fields']['subject']) || !is_array($context['posting_fields']['subject']))
 	{
 		$context['posting_fields']['subject'] = array(
-				'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
-				'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
-			);
+			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
+			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+		);
 	}
-
 
 	// THEME AUTHORS: Above this line is a great place to make customizations to the posting_fields array
 

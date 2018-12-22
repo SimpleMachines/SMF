@@ -12,7 +12,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -199,7 +199,6 @@ function Register($reg_errors = array())
 	else
 		$context['visual_verification'] = false;
 
-
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
 		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
@@ -364,7 +363,7 @@ function Register2()
 
 		// Only set it if you can and if we are sure it is good
 		if ($canEditDisplayName && $smcFunc['htmltrim']($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
-				$possible_strings[] = 'real_name';
+			$possible_strings[] = 'real_name';
 	}
 
 	// Handle a string as a birthdate...

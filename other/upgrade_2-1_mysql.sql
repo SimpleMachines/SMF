@@ -173,9 +173,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -423,7 +424,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -599,9 +601,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -672,7 +674,8 @@ if (!empty($member_groups))
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_board, member_groups
-		FROM {db_prefix}boards');
+		FROM {db_prefix}boards'
+	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$current_groups = explode(',', $row['member_groups']);
@@ -690,7 +693,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
+				WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -988,9 +991,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1046,7 +1049,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1347,7 +1350,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1406,7 +1410,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -1831,7 +1836,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -1841,7 +1846,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
@@ -2021,17 +2026,17 @@ ADD COLUMN ip_high varbinary(16);
 ---# Convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
-        )
-    ),
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+		)
+	),
 ip_high =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
-        )
-    )
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+		)
+	)
 where ip_low1 > 0;
 ---#
 
@@ -2643,10 +2648,10 @@ ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group SMALLINT NOT NULL DEFAULT '0',
-    id_board SMALLINT UNSIGNED NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group SMALLINT NOT NULL DEFAULT '0',
+	id_board SMALLINT UNSIGNED NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
 
 TRUNCATE {$db_prefix}board_permissions_view;

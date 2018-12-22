@@ -12,7 +12,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -20,6 +20,7 @@ if (!defined('SMF'))
 
 /**
  * This helps organize things...
+ *
  * @todo this should be a simple dispatcher....
  */
 function MessageMain()
@@ -687,27 +688,27 @@ function MessageFolder()
 		}
 
 		$request = $smcFunc['db_query']('', '
-				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
+			SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
+			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
 					AND pmr.id_member = {int:current_member}
 					AND pmr.deleted = {int:deleted_by}
 					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ('
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
-				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
-					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
-					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
-				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'deleted_by' => 0,
-					'sort' => $_GET['sort'],
-					'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
-				)
+			WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
+				AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
+				AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
+			GROUP BY pm.id_pm_head' . ($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
+			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
+			LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
+			array(
+				'current_member' => $user_info['id'],
+				'deleted_by' => 0,
+				'sort' => $_GET['sort'],
+				'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
+				'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
+			)
 		);
 	}
 	// This is kinda simple!
@@ -790,7 +791,7 @@ function MessageFolder()
 					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				WHERE pm.id_pm_head = {int:id_pm_head}
 					AND ((pm.id_member_from = {int:current_member} AND pm.deleted_by_sender = {int:not_deleted})
-						OR (pmr.id_member = {int:current_member} AND pmr.deleted = {int:not_deleted}))
+					OR (pmr.id_member = {int:current_member} AND pmr.deleted = {int:not_deleted}))
 				ORDER BY pm.id_pm',
 				array(
 					'current_member' => $user_info['id'],
@@ -2148,6 +2149,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		{
 			if ($error_type == 'long_message')
 				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], $modSettings['max_messageLength']);
+
 			$context['post_error']['messages'][] = $txt['error_' . $error_type];
 		}
 
@@ -2489,6 +2491,7 @@ function MessagePost2()
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
 }
+
 /**
  * This function performs all additional stuff...
  */
@@ -2666,7 +2669,7 @@ function MessageActionsApply()
 				// How many labels do you have?
 				list ($num_labels) = $smcFunc['db_fetch_assoc']($request2);
 
-				if ($num_labels > 0);
+				if ($num_labels > 0)
 					$context['can_remove_inbox'] = true;
 
 				$smcFunc['db_free_result']($request2);
@@ -2681,7 +2684,7 @@ function MessageActionsApply()
 				// If this label is in the list and we're not adding it, remove it
 				if (array_key_exists($to_label[$row['id_pm']], $labels) && $type !== 'add')
 					unset($labels[$to_label[$row['id_pm']]]);
-				else if ($type !== 'rem')
+				elseif ($type !== 'rem')
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 
@@ -2961,7 +2964,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		$get_labels = $smcFunc['db_query']('', '
 			SELECT pml.id_label
 			FROM {db_prefix}pm_labels AS l
-			INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+				INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 			WHERE l.id_member IN ({array_int:member_list})' . $where,
 			array(
 				'member_list' => $owner,
@@ -3389,7 +3392,7 @@ function ManageLabels()
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}pm_rules
 					WHERE id_rule IN ({array_int:rule_list})
-							AND id_member = {int:current_member}',
+						AND id_member = {int:current_member}',
 					array(
 						'current_member' => $user_info['id'],
 						'rule_list' => $rule_changes,
@@ -3948,6 +3951,7 @@ function ApplyRules($all_messages = false)
 							// Get a basic pot started!
 							if (!isset($actions['labels'][$row['id_pm']]))
 								$actions['labels'][$row['id_pm']] = array();
+
 							$actions['labels'][$row['id_pm']][] = $ruleAction['v'];
 						}
 					}
@@ -4088,19 +4092,19 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 	{
 		case 'inbox':
 			return !empty($validationResult['valid_for_inbox']);
-		break;
+			break;
 
 		case 'outbox':
 			return !empty($validationResult['valid_for_outbox']);
-		break;
+			break;
 
 		case 'in_or_outbox':
 			return !empty($validationResult['valid_for_inbox']) || !empty($validationResult['valid_for_outbox']);
-		break;
+			break;
 
 		default:
 			trigger_error('Undefined validation type given', E_USER_ERROR);
-		break;
+			break;
 	}
 }
 

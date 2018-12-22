@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 ########## Maintenance ##########
@@ -18,18 +18,21 @@
  * The maintenance "mode"
  * Set to 1 to enable Maintenance Mode, 2 to make the forum untouchable. (you'll have to make it 0 again manually!)
  * 0 is default and disables maintenance mode.
+ *
  * @var int 0, 1, 2
  * @global int $maintenance
  */
 $maintenance = 0;
 /**
  * Title for the Maintenance Mode message.
+ *
  * @var string
  * @global int $mtitle
  */
 $mtitle = 'Maintenance Mode';
 /**
  * Description of why the forum is in maintenance mode.
+ *
  * @var string
  * @global string $mmessage
  */
@@ -38,26 +41,31 @@ $mmessage = 'Okay faithful users...we\'re attempting to restore an older backup 
 ########## Forum Info ##########
 /**
  * The name of your forum.
+ *
  * @var string
  */
 $mbname = 'My Community';
 /**
  * The default language file set for the forum.
+ *
  * @var string
  */
 $language = 'english';
 /**
  * URL to your forum's folder. (without the trailing /!)
+ *
  * @var string
  */
 $boardurl = 'http://127.0.0.1/smf';
 /**
  * Email address to send emails from. (like noreply@yourdomain.com.)
+ *
  * @var string
  */
 $webmaster_email = 'noreply@myserver.com';
 /**
  * Name of the cookie to set for authentication.
+ *
  * @var string
  */
 $cookiename = 'SMFCookie11';
@@ -66,47 +74,56 @@ $cookiename = 'SMFCookie11';
 /**
  * The database type
  * Default options: mysql, postgresql
+ *
  * @var string
  */
 $db_type = 'mysql';
 /**
  * The server to connect to (or a Unix socket)
+ *
  * @var string
  */
 $db_server = 'localhost';
 /**
  * The database name
+ *
  * @var string
  */
 $db_name = 'smf';
 /**
  * Database username
+ *
  * @var string
  */
 $db_user = 'root';
 /**
  * Database password
+ *
  * @var string
  */
 $db_passwd = '';
 /**
  * Database user for when connecting with SSI
+ *
  * @var string
  */
 $ssi_db_user = '';
 /**
  * Database password for when connecting with SSI
+ *
  * @var string
  */
 $ssi_db_passwd = '';
 /**
  * A prefix to put in front of your table names.
  * This helps to prevent conflicts
+ *
  * @var string
  */
 $db_prefix = 'smf_';
 /**
  * Use a persistent database connection
+ *
  * @var int|bool
  */
 $db_persist = 0;
@@ -118,6 +135,7 @@ $db_error_send = 0;
 /**
  * Override the default behavior of the database layer for mb4 handling
  * null keep the default behavior untouched
+ *
  * @var null|bool
  */
 $db_mb4 = null;
@@ -127,22 +145,26 @@ $db_mb4 = null;
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
  * proper detection of apc, memcached, output_cache, smf, or xcache
  * (you can add more with a mod).
+ *
  * @var string
  */
 $cache_accelerator = '';
 /**
  * The level at which you would like to cache. Between 0 (off) through 3 (cache a lot).
+ *
  * @var int
  */
 $cache_enable = 0;
 /**
  * This is only used for memcache / memcached. Should be a string of 'server:port,server:port'
+ *
  * @var array
  */
 $cache_memcached = '';
 /**
  * This is only for the 'smf' file cache system. It is the path to the cache directory.
  * It is also recommended that you place this in /tmp/ if you are going to use this.
+ *
  * @var string
  */
 $cachedir = dirname(__FILE__) . '/cache';
@@ -151,18 +173,21 @@ $cachedir = dirname(__FILE__) . '/cache';
 # This is done entirely in Settings.php to avoid loading the DB while serving the images
 /**
  * Whether the proxy is enabled or not
+ *
  * @var bool
  */
 $image_proxy_enabled = true;
 
 /**
  * Secret key to be used by the proxy
+ *
  * @var string
  */
 $image_proxy_secret = 'smfisawesome';
 
 /**
- * Maximum file size (in KB) for indiviudal files
+ * Maximum file size (in KB) for individual files
+ *
  * @var int
  */
 $image_proxy_maxsize = 5192;
@@ -171,21 +196,25 @@ $image_proxy_maxsize = 5192;
 # Note: These directories do not have to be changed unless you move things.
 /**
  * The absolute path to the forum's folder. (not just '.'!)
+ *
  * @var string
  */
 $boarddir = dirname(__FILE__);
 /**
  * Path to the Sources directory.
+ *
  * @var string
  */
 $sourcedir = dirname(__FILE__) . '/Sources';
 /**
  * Path to the Packages directory.
+ *
  * @var string
  */
 $packagesdir = dirname(__FILE__) . '/Packages';
 /**
  * Path to the tasks directory.
+ *
  * @var string
  */
 $tasksdir = $sourcedir . '/tasks';
@@ -222,7 +251,8 @@ if (file_exists(dirname(__FILE__) . '/install.php'))
 	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
 		$secure = true;
 
-	header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php'); exit;
+	header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
+	exit;
 }
 
 ?>

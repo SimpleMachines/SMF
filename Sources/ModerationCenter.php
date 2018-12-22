@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -896,6 +896,7 @@ function ReportedMembers()
 
 /**
  * Act as an entrace for all group related activity.
+ *
  * @todo As for most things in this file, this needs to be moved somewhere appropriate?
  */
 function ModerateGroups()
@@ -1133,12 +1134,12 @@ function ViewWatchedUsers()
 		),
 		'additional_rows' => array(
 			$context['view_posts'] ?
-			array(
-				'position' => 'bottom_of_list',
-				'value' => '
+				array(
+					'position' => 'bottom_of_list',
+					'value' => '
 					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button">',
-				'class' => 'floatright',
-			) : array(),
+					'class' => 'floatright',
+				) : array(),
 		),
 	);
 
@@ -1167,6 +1168,7 @@ function ViewWatchedUsers()
 
 /**
  * Callback for createList().
+ *
  * @param string $approve_query Not used here
  * @return int The number of users on the watch list
  */
@@ -1305,12 +1307,12 @@ function list_getWatchedUserPostsCount($approve_query)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			WHERE mem.warning >= {int:warning_watch}
-				AND {query_see_board}
-				' . $approve_query,
+		FROM {db_prefix}messages AS m
+			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+		WHERE mem.warning >= {int:warning_watch}
+			AND {query_see_board}
+			' . $approve_query,
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
 		)
@@ -1532,7 +1534,7 @@ function ViewWarningLog()
 
 						if (!empty($rowData['id_notice']))
 							$output .= '
-								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
+								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . $txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
 						return $output;
 					},
 				),
@@ -1576,6 +1578,7 @@ function ViewWarningLog()
 
 /**
  * Callback for createList().
+ *
  * @return int The total number of warnings that have been issued
  */
 function list_getWarningCount()
@@ -1794,9 +1797,10 @@ function ViewWarningTemplates()
 }
 
 /**
-  * Callback for createList().
-  * @return int The total number of warning templates
-  */
+ * Callback for createList().
+ *
+ * @return int The total number of warning templates
+ */
 function list_getWarningTemplateCount()
 {
 	global $smcFunc, $user_info;
@@ -1999,6 +2003,7 @@ function ModifyWarningTemplate()
 			$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
 			$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
 			$context['template_data']['personal'] = !empty($_POST['make_personal']);
+
 			if (empty($_POST['template_title']))
 				$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
 			if (empty($_POST['template_body']))

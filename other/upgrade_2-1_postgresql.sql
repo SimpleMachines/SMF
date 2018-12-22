@@ -163,6 +163,24 @@
 ---#
 
 /******************************************************************************/
+--- add find_in_set function
+/******************************************************************************/
+---# add find_in_set function
+---{
+	upgrade_query("
+CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
+	SELECT i AS result
+	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
+	WHERE  (string_to_array($2,'',''))[i] = $1
+		UNION ALL
+	SELECT 0
+	LIMIT 1'
+LANGUAGE 'sql';
+");
+---}
+---#
+
+/******************************************************************************/
 --- Fixing dates...
 /******************************************************************************/
 ---# Updating old values
@@ -181,6 +199,9 @@ WHERE EXTRACT(YEAR FROM event_date) < 1004;
 UPDATE {$db_prefix}log_spider_stats
 SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
 WHERE EXTRACT(YEAR FROM stat_date) < 1004;
+
+ALTER TABLE {$db_prefix}log_spider_stats
+ALTER stat_date SET DEFAULT '1004-01-01';
 
 UPDATE {$db_prefix}members
 SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
@@ -212,6 +233,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	ip2 inet,
 	PRIMARY KEY (id_login)
 );
+
+CREATE INDEX {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
+CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 ---#
 
 ---# Copying the current package backup setting...
@@ -336,9 +360,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -565,7 +590,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -767,9 +793,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -865,7 +891,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
+				WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -1059,6 +1085,11 @@ upgrade_query("
 ---}
 ---#
 
+---# set default membergroup icons
+ALTER TABLE {$db_prefix}membergroups
+ALTER icons SET DEFAULT '';
+---#
+
 ---# Renaming default theme...
 UPDATE {$db_prefix}themes
 SET value = 'SMF Default Theme - Curve2'
@@ -1175,9 +1206,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1235,7 +1266,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1519,7 +1550,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1579,7 +1611,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -2048,7 +2081,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -2058,7 +2091,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
@@ -2176,6 +2209,9 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ---# Changing url column size in log_spider_hits from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
 ALTER url TYPE varchar(1024);
+
+ALTER TABLE {$db_prefix}log_spider_hits
+ALTER url SET DEFAULT '';
 ---#
 
 ---# Changing url column in log_online from text to varchar(1024)
@@ -2533,7 +2569,7 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---{
 upgrade_query("
 	CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
-    SELECT to_char($1, ''MM-DD'');'
+	SELECT to_char($1, ''MM-DD'');'
 	LANGUAGE 'sql' IMMUTABLE STRICT;"
 );
 ---}
@@ -2661,10 +2697,10 @@ ADD COLUMN backtrace text NOT NULL default '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group smallint NOT NULL DEFAULT '0',
-    id_board smallint NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group smallint NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 );
 
 TRUNCATE {$db_prefix}board_permissions_view;
@@ -2704,4 +2740,277 @@ where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
 INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
 FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Correct schema diff
+/******************************************************************************/
+
+---# log_subscribed
+ALTER TABLE {$db_prefix}log_subscribed
+ALTER pending_details DROP DEFAULT;
+---#
+
+---# mail_queue
+ALTER TABLE {$db_prefix}mail_queue
+ALTER recipient SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}mail_queue
+ALTER subject SET DEFAULT '';
+---#
+
+---# members
+ALTER TABLE {$db_prefix}members
+ALTER lngfile SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER real_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER pm_ignore_list SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER email_address SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER personal_text SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_title SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_url SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER avatar SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER usertitle SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER secret_question SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER additional_groups SET DEFAULT '';
+---#
+
+---# messages
+ALTER TABLE {$db_prefix}messages
+ALTER subject SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_email SET DEFAULT '';
+---#
+
+---# package_servers
+ALTER TABLE {$db_prefix}package_servers
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}package_servers
+ALTER url SET DEFAULT '';
+---#
+
+---# permission_profiles
+ALTER TABLE {$db_prefix}permission_profiles
+ALTER profile_name SET DEFAULT '';
+---#
+
+---# personal_messages
+ALTER TABLE {$db_prefix}personal_messages
+ALTER subject SET DEFAULT '';
+---#
+
+---# polls
+ALTER TABLE {$db_prefix}polls
+ALTER question SET DEFAULT '';
+---#
+
+---# poll_choices
+ALTER TABLE {$db_prefix}poll_choices
+ALTER label SET DEFAULT '';
+---#
+
+---# settings
+ALTER TABLE {$db_prefix}settings
+ALTER variable SET DEFAULT '';
+---#
+
+---# sessions
+ALTER TABLE {$db_prefix}sessions
+ALTER session_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}sessions
+ALTER last_update SET DEFAULT 0;
+---#
+
+---# spiders
+ALTER TABLE {$db_prefix}spiders
+ALTER spider_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER user_agent SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER ip_info SET DEFAULT '';
+---#
+
+---# subscriptions
+ALTER TABLE {$db_prefix}subscriptions
+ALTER id_subscribe TYPE int;
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER description SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER length SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER add_groups SET DEFAULT '';
+---#
+
+---# themes
+ALTER TABLE {$db_prefix}themes
+ALTER variable SET DEFAULT '';
+---#
+
+---# admin_info_files
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER path SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER parameters SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filetype SET DEFAULT '';
+---#
+
+---# attachments
+ALTER TABLE {$db_prefix}attachments
+ALTER filename SET DEFAULT '';
+---#
+
+---# ban_items
+ALTER TABLE {$db_prefix}ban_items
+ALTER hostname SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}ban_items
+ALTER email_address SET DEFAULT '';
+---#
+
+---# boards
+ALTER TABLE {$db_prefix}boards
+ALTER name SET DEFAULT '';
+---#
+
+---# categories
+ALTER TABLE {$db_prefix}categories
+ALTER name SET DEFAULT '';
+---#
+
+---# custom_fields
+ALTER TABLE {$db_prefix}custom_fields
+ALTER field_desc SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER mask SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER default_value SET DEFAULT '';
+---#
+
+---# log_activity
+ALTER TABLE {$db_prefix}log_activity
+ALTER date SET DEFAULT '1004-01-01';
+---#
+
+---# log_banned
+ALTER TABLE {$db_prefix}log_banned
+ALTER email SET DEFAULT '';
+---#
+
+---# log_comments
+ALTER TABLE {$db_prefix}log_comments
+ALTER recipient_name SET DEFAULT '';
+---#
+
+---# log_digest
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_topic SET DEFAULT 0;
+
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_msg SET DEFAULT 0;
+---#
+
+---# log_errors
+ALTER TABLE {$db_prefix}log_errors
+ALTER file SET DEFAULT '';
+---#
+
+---# log_member_notices
+ALTER TABLE {$db_prefix}log_member_notices
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_online
+ALTER TABLE {$db_prefix}log_online
+ALTER url SET DEFAULT '';
+---#
+
+---# log_packages
+ALTER TABLE {$db_prefix}log_packages
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER package_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER version SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER themes_installed SET DEFAULT '';
+---#
+
+---# log_reported
+ALTER TABLE {$db_prefix}log_reported
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_reported_comments
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER comment SET DEFAULT '';
+---#
+
+---# log_actions
+CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
+---#
+
+/******************************************************************************/
+--- FROM_UNIXTIME fix
+/******************************************************************************/
+---# Drop the old int version
+DROP FUNCTION IF EXISTS FROM_UNIXTIME(int);
+---#
+
+---# Add FROM_UNIXTIME for bigint
+CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
+LANGUAGE 'sql';
 ---#

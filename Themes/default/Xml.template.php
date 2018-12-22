@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -293,9 +293,11 @@ if (!function_exists('template_button_strip'))
 	function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
 	{
 	}
+
 	function template_menu()
 	{
 	}
+
 	function theme_linktree()
 	{
 	}

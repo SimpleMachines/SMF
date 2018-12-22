@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -72,7 +72,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-		<table class="table_grid" ', !empty($list_id) ? 'id="'.$list_id.'"' : '', ' ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+		<table class="table_grid" ', !empty($list_id) ? 'id="' . $list_id . '"' : '', ' ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
@@ -85,8 +85,8 @@ function template_show_list($list_id = null)
 		// Loop through each column and add a table header.
 		foreach ($cur_list['headers'] as $col_header)
 			echo '
-					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '" class="' , $col_header['id'], empty($col_header['class']) ? '' : ' '.$col_header['class'] , '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>
-						', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '
+					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '" class="', $col_header['id'], empty($col_header['class']) ? '' : ' ' . $col_header['class'], '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>
+						', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="main_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '
 					</th>';
 
 		echo '
@@ -117,7 +117,7 @@ function template_show_list($list_id = null)
 			if (!empty($row['data']))
 				foreach ($row['data'] as $row_id => $row_data)
 					echo '
-					<td class="', $row_id, empty($row_data['class']) ? '' : ' ' . $row_data['class'] .'', '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>
+					<td class="', $row_id, empty($row_data['class']) ? '' : ' ' . $row_data['class'] . '', '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>
 						', $row_data['value'], '
 					</td>';
 

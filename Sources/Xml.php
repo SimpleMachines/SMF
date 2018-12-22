@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -24,7 +24,7 @@ function XMLhttpMain()
 	loadTemplate('Xml');
 
 	$subActions = array(
-		'jumpto' =>  'GetJumpTo',
+		'jumpto' => 'GetJumpTo',
 		'messageicons' => 'ListMessageIcons',
 		'previews' => 'RetrievePreview',
 	);
@@ -80,6 +80,7 @@ function ListMessageIcons()
 /**
  * Handles retrieving previews of news items, newsletters, signatures and warnings.
  * Calls the appropriate function based on $_POST['item']
+ *
  * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
  */
 function RetrievePreview()
@@ -213,19 +214,19 @@ function sig_preview()
 		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
 
 	$context['xml_data']['signatures'] = array(
-			'identifier' => 'signature',
-			'children' => array()
-		);
+		'identifier' => 'signature',
+		'children' => array()
+	);
 	if (isset($current_signature))
 		$context['xml_data']['signatures']['children'][] = array(
-					'value' => $current_signature,
-					'attributes' => array('type' => 'current'),
-				);
+			'value' => $current_signature,
+			'attributes' => array('type' => 'current'),
+		);
 	if (isset($preview_signature))
 		$context['xml_data']['signatures']['children'][] = array(
-					'value' => $preview_signature,
-					'attributes' => array('type' => 'preview'),
-				);
+			'value' => $preview_signature,
+			'attributes' => array('type' => 'preview'),
+		);
 	if (!empty($errors))
 		$context['xml_data']['errors'] = array(
 			'identifier' => 'error',
@@ -270,13 +271,13 @@ function warning_preview()
 				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
 			// Add in few replacements.
 			/**
-			* These are the defaults:
-			* - {MEMBER} - Member Name. => current user for review
-			* - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
-			* - {FORUMNAME} - Forum Name.
-			* - {SCRIPTURL} - Web address of forum.
-			* - {REGARDS} - Standard email sign-off.
-			*/
+			 * These are the defaults:
+			 * - {MEMBER} - Member Name. => current user for review
+			 * - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
+			 * - {FORUMNAME} - Forum Name.
+			 * - {SCRIPTURL} - Web address of forum.
+			 * - {REGARDS} - Standard email sign-off.
+			 */
 			$find = array(
 				'{MEMBER}',
 				'{FORUMNAME}',

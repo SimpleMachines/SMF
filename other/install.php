@@ -8,10 +8,10 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 4';
+$GLOBALS['current_smf_version'] = '2.1 RC1';
 $GLOBALS['db_script_version'] = '2-1';
 
 $GLOBALS['required_php_version'] = '5.4.0';
@@ -36,7 +36,8 @@ $databases = array(
 		'default_password' => 'mysql.default_password',
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
-		'utf8_support' => function() {
+		'utf8_support' => function()
+		{
 			return true;
 		},
 		'utf8_version' => '5.0.22',
@@ -44,7 +45,8 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => function(&$value) {
+		'validate_prefix' => function(&$value)
+		{
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
 		},
@@ -58,7 +60,8 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'utf8_support' => function() {
+		'utf8_support' => function()
+		{
 			$request = pg_query('SHOW SERVER_ENCODING');
 
 			list ($charcode) = pg_fetch_row($request);
@@ -70,7 +73,8 @@ $databases = array(
 		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
-		'validate_prefix' => function(&$value) {
+		'validate_prefix' => function(&$value)
+		{
 			global $txt;
 
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
@@ -299,7 +303,7 @@ function load_lang_file()
 			body {
 				font-family: sans-serif;
 				max-width: 700px; }
-		
+
 			h1 {
 				font-size: 14pt; }
 
@@ -840,7 +844,7 @@ function DatabaseSettings()
 		// Add in the port if needed
 		if (!empty($db_port))
 			$options['port'] = $db_port;
-		
+
 		if (!empty($db_mb4))
 			$options['db_mb4'] = $db_mb4;
 
@@ -940,12 +944,12 @@ function ForumSettings()
 	// What host and port are we on?
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
-		$secure = false;
+	$secure = false;
 
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-			$secure = true;
-		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-			$secure = true;
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		$secure = true;
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		$secure = true;
 
 	// Now, to put what we've learned together... and add a path.
 	$incontext['detected_url'] = 'http' . ($secure ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
@@ -963,13 +967,15 @@ function ForumSettings()
 
 	// If redirect in effect, force ssl ON
 	require_once(dirname(__FILE__) . '/Sources/Subs.php');
-	if (https_redirect_active($incontext['detected_url'])) {
+	if (https_redirect_active($incontext['detected_url']))
+	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = true;
 		$_POST['force_ssl'] = true;
 	}
 	// If no cert, make sure ssl stays OFF
-	if (!ssl_cert_found($incontext['detected_url'])) {
+	if (!ssl_cert_found($incontext['detected_url']))
+	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = false;
 	}
@@ -1438,13 +1444,14 @@ function AdminAccount()
 	reloadSettings();
 
 	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string) {
-			global $sourcedir;
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
-			return utf8_strtolower($string);
-		};
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
+	{
+		global $sourcedir;
+		if (function_exists('mb_strtolower'))
+			return mb_strtolower($string, 'UTF-8');
+		require_once($sourcedir . '/Subs-Charset.php');
+		return utf8_strtolower($string);
+	};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1553,7 +1560,10 @@ function AdminAccount()
 		}
 		elseif ($_POST['username'] != '')
 		{
-			$incontext['member_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+			if (!is_callable('random_int'))
+				require_once('Sources/random_compat/random.php');
+
+			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
@@ -1696,7 +1706,8 @@ function DeleteInstall()
 
 	// This function is needed to do the updateStats('subject') call.
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string){
+		function($string)
+		{
 			global $sourcedir;
 			if (function_exists('mb_strtolower'))
 				return mb_strtolower($string, 'UTF-8');
@@ -1762,10 +1773,10 @@ function updateSettingsFile($vars)
 	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
 	{
 		// Remove the redirect...
-		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 9]) == '}')
+		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 10]) == '}')
 		{
 			// Set the ten lines to nothing.
-			for ($j=0; $j < 10; $j++)
+			for ($j = 0; $j < 11; $j++)
 				$settingsArray[$i++] = '';
 
 			continue;
@@ -2179,11 +2190,11 @@ function template_database_settings()
 			<dd>
 				<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
 
-	foreach ($incontext['supported_databases'] as $key => $db)
+		foreach ($incontext['supported_databases'] as $key => $db)
 			echo '
 					<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
 
-	echo '
+		echo '
 				</select>
 				<div class="smalltext">', $txt['db_settings_type_info'], '</div>
 			</dd>';

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -807,29 +807,29 @@ function ModifyMembergroup()
 					else
 						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'deny' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
 
-						// Keep the last value if it's hidden.
-						if ($perm['hidden'] || $permissionArray['hidden'])
+					// Keep the last value if it's hidden.
+					if ($perm['hidden'] || $permissionArray['hidden'])
+					{
+						if ($perm['has_own_any'])
 						{
-							if ($perm['has_own_any'])
-							{
-								$context['hidden_perms'][] = array(
-									$permissionType,
-									$perm['own']['id'],
-									$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
-								);
-								$context['hidden_perms'][] = array(
-									$permissionType,
-									$perm['any']['id'],
-									$curPerm['any']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['any']['select'],
-								);
-							}
-							else
-								$context['hidden_perms'][] = array(
-									$permissionType,
-									$perm['id'],
-									$curPerm['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['select'],
-								);
+							$context['hidden_perms'][] = array(
+								$permissionType,
+								$perm['own']['id'],
+								$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
+							);
+							$context['hidden_perms'][] = array(
+								$permissionType,
+								$perm['any']['id'],
+								$curPerm['any']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['any']['select'],
+							);
 						}
+						else
+							$context['hidden_perms'][] = array(
+								$permissionType,
+								$perm['id'],
+								$curPerm['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['select'],
+							);
+					}
 				}
 			}
 		}
@@ -948,6 +948,7 @@ function ModifyMembergroup2()
 	{
 		foreach ($givePerms['board'] as $k => $v)
 			$givePerms['board'][$k][] = $profileid;
+
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}board_permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int', 'id_profile' => 'int'),
@@ -978,12 +979,13 @@ function GeneralPermissionSettings($return_config = false)
 	// All the setting variables
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'manage_permissions'),
+		// Inline permissions.
+		array('permissions', 'manage_permissions'),
 		'',
-			// A few useful settings
-			array('check', 'permission_enable_deny', 0, $txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
-			array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
+
+		// A few useful settings
+		array('check', 'permission_enable_deny', 0, $txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'),
+		array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 	);
 
 	call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
@@ -1082,6 +1084,7 @@ function GeneralPermissionSettings($return_config = false)
 
 /**
  * Set the permission level for a specific profile, group, or group for a profile.
+ *
  * @internal
  *
  * @param string $level The level ('restrict', 'standard', etc.)
@@ -1395,11 +1398,11 @@ function setPermissionLevel($level, $group, $profile = 'null')
 			$boardInserts[] = array($profile, 0, $permission);
 
 		$smcFunc['db_insert']('insert',
-				'{db_prefix}board_permissions',
-				array('id_profile' => 'int', 'id_group' => 'int', 'permission' => 'string'),
-				$boardInserts,
-				array('id_profile', 'id_group')
-			);
+			'{db_prefix}board_permissions',
+			array('id_profile' => 'int', 'id_group' => 'int', 'permission' => 'string'),
+			$boardInserts,
+			array('id_profile', 'id_group')
+		);
 	}
 	// $profile and $group are both null!
 	else
@@ -1408,6 +1411,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 
 /**
  * Load permissions into $context['permissions'].
+ *
  * @internal
  */
 function loadAllPermissions()
@@ -1684,6 +1688,7 @@ function loadAllPermissions()
  * Initialize a form with inline permissions settings.
  * It loads a context variables for each permission.
  * This function is used by several settings screens to set specific permissions.
+ *
  * @internal
  *
  * @param array $permissions The permissions to display inline
@@ -1812,6 +1817,7 @@ function theme_inline_permissions($permission)
 
 /**
  * Save the permissions of a form containing inline permissions.
+ *
  * @internal
  *
  * @param array $permissions The permissions to save
@@ -1848,7 +1854,7 @@ function save_inline_permissions($permissions)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE permission IN ({array_string:permissions})
-		' . (empty($context['illegal_permissions']) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+			' . (empty($context['illegal_permissions']) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 		array(
 			'illegal_permissions' => !empty($context['illegal_permissions']) ? $context['illegal_permissions'] : array(),
 			'permissions' => $permissions,
@@ -2205,7 +2211,7 @@ function loadIllegalPermissions()
 /**
  * Loads the permissions that can not be given to guests.
  * Stores the permissions in $context['non_guest_permissions'].
-*/
+ */
 function loadIllegalGuestPermissions()
 {
 	global $context;

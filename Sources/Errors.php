@@ -12,7 +12,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -45,7 +45,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$backtrace = debug_backtrace();
 
 	// are we in a loop?
-	if($error_call > 2)
+	if ($error_call > 2)
 	{
 		var_dump($backtrace);
 		die('Error loop.');
@@ -155,6 +155,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 /**
  * An irrecoverable error. This function stops execution and displays an error message.
  * It logs the error message if $log is specified.
+ *
  * @param string $error The error message
  * @param string $log = 'general' What type of error to log this as (false to not log it))
  * @param int $status The HTTP status code associated with this error
@@ -234,6 +235,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
+ *
  * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
@@ -311,6 +313,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 /**
  * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
+ *
  * @uses Errors template, fatal_error sub template.
  *
  * @param string $error_message The error message
@@ -504,7 +507,6 @@ function set_fatal_error_headers()
 	header('retry-after: 3600');
 }
 
-
 /**
  * Small utility function for fatal error pages.
  * Used by fatal_error(), fatal_lang_error()
@@ -549,7 +551,7 @@ function log_error_online($error, $sprintf = array())
 		$url['error'] = $error;
 		// Url field got a max length of 1024 in db
 		if (strlen($url['error']) > 500)
-			$url['error'] = substr($url['error'],0,500);
+			$url['error'] = substr($url['error'], 0, 500);
 
 		if (!empty($sprintf))
 			$url['error_params'] = $sprintf;

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -225,8 +225,9 @@ function reloadSettings()
 		{
 			global $sourcedir;
 
-			if (!function_exists('random_int'))
-				require_once($sourcedir . '/Subs-Compat.php');
+			// Oh, wouldn't it be great if I *was* crazy? Then the world would be okay.
+			if (!is_callable('random_int'))
+				require_once($sourcedir . '/random_compat/random.php');
 
 			return random_int($min, $max);
 		},
@@ -1715,9 +1716,10 @@ function detectBrowser()
  * Are we using this browser?
  *
  * Wrapper function for detectBrowser
+ *
  * @param string $browser The browser we are checking for.
  * @return bool Whether or not the current browser is what we're looking for
-*/
+ */
 function isBrowser($browser)
 {
 	global $context;
@@ -1778,12 +1780,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 		else
 			$id_theme = (int) $id_theme;
 	}
-		
+
 	// Allow mod authors the option to override the theme id for custom page themes
 	call_integration_hook('integrate_pre_load_theme', array(&$id_theme));
 
 	// We already load the basic stuff?
-	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme )
+	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme)
 	{
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
@@ -1808,7 +1810,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN (-1, 0, {int:id_member})' : ' = {int:id_member}') . '
-					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)') .'
+					AND id_theme' . ($id_theme == 1 ? ' = {int:id_theme}' : ' IN ({int:id_theme}, 1)') . '
 				ORDER BY id_theme asc',
 				array(
 					'id_theme' => $id_theme,
@@ -1867,7 +1869,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		if ($settings['theme_dir'] != $settings['default_theme_dir'])
 			$settings['template_dirs'][] = $settings['default_theme_dir'];
 	}
-
 
 	if (!$initialize)
 		return;
@@ -2047,7 +2048,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!isset($context['javascript_vars']))
 		$context['javascript_vars'] = array();
 
-	$context['login_url'] =  $scripturl . '?action=login2';
+	$context['login_url'] = $scripturl . '?action=login2';
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';
 	$context['session_var'] = $_SESSION['session_var'];
 	$context['session_id'] = $_SESSION['session_value'];
@@ -2117,8 +2118,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions, &$extraParams, &$xmlActions));
 
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) ||
-	(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
-	(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
+		(isset($simpleAreas[$context['current_action']]) && isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas[$context['current_action']])) ||
+		(isset($simpleSubActions[$context['current_action']]) && in_array($context['current_subaction'], $simpleSubActions[$context['current_action']]));
 
 	// See if theres any extra param to check.
 	$requiresXML = false;
@@ -2327,7 +2328,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		{
 			if (!empty($element['groups']) &&
 				(count(array_intersect($user_info['groups'], $element['groups'])) == 0 ||
-				(!empty($modSettings['deny_boards_access']) && count(array_intersect($user_info['groups'], $element['deny_groups'])) != 0)))
+					(!empty($modSettings['deny_boards_access']) && count(array_intersect($user_info['groups'], $element['deny_groups'])) != 0)))
 			{
 				$context['linktree'][$k]['name'] = $txt['restricted_board'];
 				$context['linktree'][$k]['extra_before'] = '<i>';
@@ -3100,7 +3101,6 @@ function template_include($filename, $once = false)
 	else
 		$templates[] = $filename;
 
-
 	$file_found = file_exists($filename);
 
 	if ($once && $file_found)
@@ -3322,7 +3322,7 @@ function loadDatabase()
  * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
-*/
+ */
 function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 {
 	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
@@ -3567,7 +3567,7 @@ function set_avatar_data($data = array())
 		if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
 			$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
 
-		else if (!empty($data['email']))
+		elseif (!empty($data['email']))
 			$image = get_gravatar_url($data['email']);
 	}
 
@@ -3601,7 +3601,7 @@ function set_avatar_data($data = array())
 		}
 
 		// Perhaps this user has an attachment as avatar...
-		else if (!empty($data['filename']))
+		elseif (!empty($data['filename']))
 			$image = $modSettings['custom_avatar_url'] . '/' . $data['filename'];
 
 		// Right... no avatar... use our default image.

@@ -10,7 +10,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -352,7 +352,7 @@ function ViewMemberlist()
 			// INET.
 			elseif ($param_info['type'] == 'inet')
 			{
-				if(count($search_params[$param_name]) === 1)
+				if (count($search_params[$param_name]) === 1)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
 					$where_params[$param_name] = $search_params[$param_name][0];
@@ -360,10 +360,10 @@ function ViewMemberlist()
 				elseif (count($search_params[$param_name]) === 2)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
-					$where_params[$param_name.'_low'] = $search_params[$param_name]['low'];
-					$where_params[$param_name.'_high'] = $search_params[$param_name]['high'];
+					$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
+					$where_params[$param_name . '_high'] = $search_params[$param_name]['high'];
 				}
-				
+
 			}
 			elseif ($param_info['type'] != 'groups')
 			{
@@ -1005,7 +1005,7 @@ function MembersAwaitingActivation()
 	if (!empty($context['show_filter']) && !empty($context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_'.$context['current_filter']])) ? $txt['admin_browse_filter_type_'.$context['current_filter']] : $context['available_filters'][0]['desc']),
+			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_' . $context['current_filter']])) ? $txt['admin_browse_filter_type_' . $context['current_filter']] : $context['available_filters'][0]['desc']),
 			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 

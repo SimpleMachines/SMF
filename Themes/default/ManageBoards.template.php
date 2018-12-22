@@ -7,7 +7,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -21,7 +21,7 @@ function template_main()
 	echo '
 	<div id="manage_boards">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['boardsEdit'], '</h3>
+			<h3 class="catbg">', $txt['boards_edit'], '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -45,7 +45,7 @@ function template_main()
 		echo '
 			<div class="sub_bar">
 				<h3 class="subbg">
-					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['catModify'], '</a>
+					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['cat_modify'], '</a>
 				</h3>
 			</div>';
 
@@ -56,7 +56,7 @@ function template_main()
 
 		if (!empty($category['move_link']))
 			echo '
-					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="generic_icons select_above"></span></a></li>';
+					<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="main_icons select_above"></span></a></li>';
 
 		$recycle_board = '<a href="' . $scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . $settings['images_url'] . '/post/recycled.png" alt="' . $txt['recycle_board'] . '" title="' . $txt['recycle_board'] . '"></a>';
 		$redirect_board = '<img src="' . $settings['images_url'] . '/new_redirect.png" alt="' . $txt['redirect_board_desc'] . '" title="' . $txt['redirect_board_desc'] . '">';
@@ -81,7 +81,7 @@ function template_main()
 
 				foreach ($board['move_links'] as $link)
 					echo '
-						<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><span class="generic_icons select_', $link['class'], '" title="', $link['label'], '"></span></a>';
+						<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><span class="main_icons select_', $link['class'], '" title="', $link['label'], '"></span></a>';
 
 				echo '
 					</li>';
@@ -102,7 +102,7 @@ function template_main()
 }
 
 /**
- * Tempalte for editing/adding a category on the forum.
+ * Template for editing/adding a category on the forum.
  */
 function template_modify_category()
 {
@@ -115,7 +115,7 @@ function template_modify_category()
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
+					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['cat_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -188,7 +188,7 @@ function template_modify_category()
 	else
 		echo '
 				<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button">
-				<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['catConfirm'], '" class="button you_sure">';
+				<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" data-confirm="', $txt['cat_delete_confirm'], '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
@@ -271,7 +271,7 @@ function template_modify_board()
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boardsEdit'], '
+					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boards_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -599,7 +599,7 @@ function template_modify_board()
 
 	if (!isset($context['board']['is_new']) && empty($context['board']['is_recycle']))
 		echo '
-				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['boardConfirm'], '" class="button you_sure">';
+				<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" data-confirm="', $txt['board_delete_confirm'], '" class="button you_sure">';
 	echo '
 			</div><!-- .windowbg -->
 		</form>
@@ -652,7 +652,7 @@ function template_modify_board()
 					sItemName: ', JavaScriptEscape($group_name), '
 				}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
 
-		echo '
+	echo '
 			]
 		});
 	</script>';
@@ -667,12 +667,12 @@ function template_modify_board()
 			var nonDefaultTheme = document.getElementById("boardtheme").value == 0 ? false : true;
 
 			// What to show?
-			
-			if(redirectEnabled || !nonDefaultTheme) 
-				document.getElementById("override_theme_div").classList.add(\'hidden\'); 
-			else 
+
+			if(redirectEnabled || !nonDefaultTheme)
+				document.getElementById("override_theme_div").classList.add(\'hidden\');
+			else
 				document.getElementById("override_theme_div").classList.remove(\'hidden\');
-			
+
 			if(redirectEnabled) {
 				document.getElementById("board_theme_div").classList.add(\'hidden\');
 				document.getElementById("count_posts_div").classList.add(\'hidden\');
@@ -686,14 +686,14 @@ function template_modify_board()
 		echo '
 			if(redirectEnabled)
 				document.getElementById("redirect_address_div").classList.remove(\'hidden\');
-			else 
+			else
 				document.getElementById("redirect_address_div").classList.add(\'hidden\');';
 
 		if ($context['board']['redirect'])
 			echo '
 			if(redirectEnabled)
 				document.getElementById("reset_redirect_div").classList.remove(\'hidden\');
-			else 
+			else
 				document.getElementById("reset_redirect_div").classList.add(\'hidden\');';
 	}
 

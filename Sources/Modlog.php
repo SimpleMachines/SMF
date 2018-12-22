@@ -11,7 +11,7 @@
  * @copyright 2018 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -88,7 +88,7 @@ function ViewModlog()
 
 	// Do the column stuff!
 	$sort_types = array(
-		'action' =>'lm.action',
+		'action' => 'lm.action',
 		'time' => 'lm.log_time',
 		'member' => 'mem.real_name',
 		'group' => 'mg.group_name',
@@ -255,7 +255,7 @@ function ViewModlog()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($entry)
+					'function' => function($entry)
 					{
 						return '<input type="checkbox" name="delete[]" value="' . $entry['id'] . '"' . ($entry['editable'] ? '' : ' disabled') . '>';
 					},
@@ -336,7 +336,7 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
 		WHERE id_log = {int:log_type}
 			AND {raw:modlog_query}'
 			. (!empty($query_string) ? '
-				AND ' . $query_string : ''),
+			AND ' . $query_string : ''),
 		array_merge($query_params, array(
 			'reg_group_id' => 0,
 			'log_type' => $log_type,
@@ -381,10 +381,10 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:reg_group_id} THEN mem.id_post_group ELSE mem.id_group END)
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = lm.id_board)
 			LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = lm.id_topic)
-			WHERE id_log = {int:log_type}
-				AND {raw:modlog_query}'
+		WHERE id_log = {int:log_type}
+			AND {raw:modlog_query}'
 			. (!empty($query_string) ? '
-				AND ' . $query_string : '') . '
+			AND ' . $query_string : '') . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($query_params, array(
@@ -644,7 +644,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];
 		$entries[$k]['action_text'] = preg_replace_callback('~\{([A-Za-z\d_]+)\}~i',
-			function ($matches) use ($entries, $k)
+			function($matches) use ($entries, $k)
 			{
 				return isset($entries[$k]['extra'][$matches[1]]) ? $entries[$k]['extra'][$matches[1]] : '';
 			}, $entries[$k]['action_text']);
