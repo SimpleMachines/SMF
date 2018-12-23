@@ -830,9 +830,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$count2 = count($indexed_columns);
 				for ($x = 0; $x < $count2; $x++)
 				{
-					$where_string += key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
+					$where_string .= key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
 					if (($x + 1) < $count2)
-						$where_string += ' AND ';
+						$where_string .= ' AND ';
 				}
 
 				$request = $smcFunc['db_query']('', '
