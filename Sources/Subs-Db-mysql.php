@@ -819,7 +819,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			$new_id = $smcFunc['db_insert_id']();
 
 			// the inserted value was new
-			if ($last_id != $new_id)
+			if ($old_id != $new_id)
 			{
 				$ai = $new_id;
 			}
