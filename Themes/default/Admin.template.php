@@ -121,7 +121,7 @@ function template_admin()
 									%message%
 								</dd>
 							'), ',
-							sAnnouncementContainerId: \'smf_news\',
+							sAnnouncementContainerId: \'smfAnnouncements\',
 
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',
