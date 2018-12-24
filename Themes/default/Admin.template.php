@@ -33,7 +33,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smf_news">', $txt['smf_news_cant_connect'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
