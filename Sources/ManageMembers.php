@@ -738,7 +738,7 @@ function MembersAwaitingActivation()
 			);
 		else
 			$context['allowed_actions'] = array(
-				'ok' => $txt['admin_browse_w_approve'],
+				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
 				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
 				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
 				'reject' => $txt['admin_browse_w_reject'],
@@ -778,6 +778,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_delete'] . '";
 			else
 				message = "' . $txt['admin_browse_w_reject'] . '";';
+
 	// Otherwise a nice standard message.
 	else
 		$javascript .= '
@@ -789,6 +790,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_remind'] . '";
 			else
 				message = "' . ($context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+
 	$javascript .= '
 			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
 				document.forms.postForm.submit();

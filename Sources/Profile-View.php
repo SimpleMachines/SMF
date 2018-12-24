@@ -122,7 +122,7 @@ function summary($memID)
 		$context['token_check'] = 'profile-aa' . $memID;
 		createToken($context['token_check'], 'get');
 
-		$context['activate_link'] = $scripturl . '?action=profile;save;area=activateaccount;u=' . $context['id_member'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
+		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
