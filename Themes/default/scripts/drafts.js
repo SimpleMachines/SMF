@@ -196,7 +196,7 @@ smf_DraftAutoSave.prototype.onDraftDone = function (XMLDoc)
 smf_DraftAutoSave.prototype.draftGetRecipient = function (sField)
 {
 	var oRecipient = document.forms.postmodify.elements[sField];
-	var aRecipient = []
+	var aRecipient = [];
 
 	if (typeof(oRecipient) != 'undefined')
 	{
