@@ -111,7 +111,7 @@
 				<ul>
 					<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
 					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher.  The following directives are required to be set correctly in php.ini:
+						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.4.0 or higher.  The following directives are required to be set correctly in php.ini:
 						<ul>
 							<li>the engine directive must be On.</li>
 							<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
@@ -122,12 +122,13 @@
 					</li>
 					<li>Any of the following database systems
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.3 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.0 or higher.</li>
+							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.22/5.1.10 or higher.</li>
+							<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 5.1.10 or higher.</li>
+							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.4 or higher.</li>
 						</ul>
 					</li>
 					<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
-					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX.</li>
+					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, CREATE, DROP, TRUNCATE and INDEX.</li>
 					<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
 				</ul><br />
 				<h2 id="recommendations">Recommendations for best performance</h2>
@@ -136,7 +137,7 @@
 					<li>the <a href="http://aspell.net/" target="_blank" rel="noopener">GNU Aspell</a> 0.50 or higher and <a href="https://ftp.gnu.org/gnu/aspell/dict/" target="_blank" rel="noopener">its dictionaries</a> for spell checking functionality.</li>
 					<li><a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> 2.0.0 or higher with <a href="https://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank" rel="noopener">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
 					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher, with the following set in php.ini:
+						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 7.0.0 or higher, with the following set in php.ini:
 						<ul>
 							<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank" rel="noopener">max_input_time</a> directive is set to a value of at least 30.</li>
 							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank" rel="noopener">post_max_size</a> and <a href="https://php.net/configuration.directives#ini.upload-max-filesize" target="_blank" rel="noopener">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
@@ -149,8 +150,9 @@
 					</li>
 					<li>Any of the following database systems
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.3.3 or higher.</li>
+							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 8.0 or higher.</li>
+							<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 10.2 or higher.</li>
+							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.5 or higher.</li>
 						</ul>
 					</li>
 					<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
@@ -264,7 +266,7 @@
 				<ul>
 					<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
 					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher.  The following directives are required to be set correctly in php.ini:
+						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.4.0 or higher.  The following directives are required to be set correctly in php.ini:
 						<ul>
 							<li>the engine directive must be On.</li>
 							<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
@@ -275,12 +277,13 @@
 					</li>
 					<li>Any of the following database systems
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.3 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.0 or higher.</li>
+							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.22/5.1.10 or higher.</li>
+							<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 5.1.10 or higher.</li>
+							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.4 or higher.</li>
 						</ul>
 					</li>
 					<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
-					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX.</li>
+					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, CREATE, DROP, TRUNCATE and INDEX.</li>
 					<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
 				</ul>
 				<p>Recommendations for best performance:</p>
@@ -302,8 +305,9 @@
 					</li>
 					<li>Any of the following database systems
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.3.3 or higher.</li>
+							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 8.0 or higher.</li>
+							<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 10.2 or higher.</li>
+							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.5 or higher.</li>
 						</ul>
 					</li>
 					<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
