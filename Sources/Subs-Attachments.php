@@ -1142,7 +1142,7 @@ function getAttachsByMsg($msgID = 0)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc, $context;
 
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
