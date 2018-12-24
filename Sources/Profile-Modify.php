@@ -1355,7 +1355,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl, $settings;
+	global $txt, $scripturl, $settings, $modSettings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
