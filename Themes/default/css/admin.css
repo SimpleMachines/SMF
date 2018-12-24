@@ -624,6 +624,8 @@ h3.grid_header {
 #error_log span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
 	display: block;
+	white-space: pre-wrap;
+	font: 86%/150% "Courier", "Inconsolata", "Apercu Mono", "Nitti", "Monaco";
 }
 
 /* Styles for the Report generation */
