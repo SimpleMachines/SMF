@@ -2031,8 +2031,9 @@ function parse_sql($filename)
 
 function upgrade_query($string, $unbuffered = false)
 {
-	global $db_connection, $db_server, $db_user, $db_passwd, $db_type, $command_line, $upcontext, $upgradeurl, $modSettings;
-	global $db_name, $db_unbuffered, $smcFunc;
+	global $db_connection, $db_server, $db_user, $db_passwd, $db_type;
+	global $command_line, $upcontext, $upgradeurl, $modSettings;
+	global $db_name, $db_unbuffered, $smcFunc, $txt;
 
 	// Get the query result - working around some SMF specific security - just this once!
 	$modSettings['disableQueryCheck'] = true;
