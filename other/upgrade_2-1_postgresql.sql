@@ -3153,9 +3153,9 @@ VALUES ('Mother''s Day', '2010-05-09'),
 	('Autumnal Equinox', '2029-09-22'),
 	('Autumnal Equinox', '2030-09-22');
 
-	INSERT INTO {$db_prefix}calendar_holidays
-		(title, event_date)
-	VALUES ('Thanksgiving', '2010-11-25'),
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Thanksgiving', '2010-11-25'),
 	('Thanksgiving', '2011-11-24'),
 	('Thanksgiving', '2012-11-22'),
 	('Thanksgiving', '2013-11-28'),
