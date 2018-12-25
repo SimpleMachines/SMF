@@ -186,7 +186,7 @@
 		margin: 0;
 		width: 100%;
 	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+	#upshrink_stats p.inline, #upshrink_stats p.last {
 		padding: 5px;
 	}
 
@@ -204,7 +204,7 @@
 	.moderation a {
 		padding: 3px;
 	}
-	#topic_container .moderation .generic_icons {
+	#topic_container .moderation .main_icons {
 		display: none;
 	}
 	/* Unread */
@@ -268,14 +268,14 @@
 	/* PersonalMessages */
 	#personal_messages .pm_time, #personal_messages .pm_from_to {
 		display: none;
-	} 
+	}
 	#personal_messages .pm_inline_time {
 		display: block;
 	}
 	/* Alerts Page */
 	#alerts .alert_inline_time {
 		display: block;
-	} 
+	}
 	#alerts .alert_time {
 		display: none;
 	}
@@ -383,7 +383,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: rgba(40,64,80,0.5);
+		background: rgba(40, 64, 80, 0.5);
 		z-index: 5;
 	}
 	#main_menu .popup_heading, #genericmenu .popup_heading {
@@ -396,7 +396,7 @@
 		position: relative;
 		z-index: 99;
 		width: 90%;
-		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 		border: 1px solid #777;
 		border-radius: 7px 7px 3px 3px;
 		min-height: 285px !important;
@@ -543,7 +543,7 @@
 	.subject_title input {
 		width: 90%;
 	}
-	#quickReplyOptions .roundframe {
+	#quickreply_options .roundframe {
 		padding: 8px 10px 12px 10px;
 	}
 
@@ -557,7 +557,7 @@
 	img#icons {
 		margin: 0 0 0 5px;
 	}
-	#quickReplyOptions #postmodify {
+	#quickreply_options #postmodify {
 		width: 100%;
 	}
 	/* Poll */
@@ -657,7 +657,7 @@
 		display: none;
 	}
 	/* Admin */
-	#live_news, #supportVersionsTable {
+	#live_news, #support_info {
 		width: 100%;
 		padding: 0;
 		margin: 0 0 5px 0;
@@ -716,7 +716,7 @@
 		display: none;
 	}
 	tr[id^="list_mail_queue_"] td:first-of-type,
-	tr[id^="list_mail_queue_"] td:last-of-type	{
+	tr[id^="list_mail_queue_"] td:last-of-type {
 		display: table-cell;
 	}
 	.msearch_details {
