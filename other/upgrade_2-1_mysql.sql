@@ -2693,10 +2693,15 @@ FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
 ---#
 
----# Updating calendar holidays...
+/******************************************************************************/
+--- Update holidays
+/******************************************************************************/
+---# Delete all the dates that usually change every year
 DELETE FROM calendar_holidays WHERE title in
 ('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox', 'Thanksgiving', 'Memorial Day', 'Labor Day')
+---#
 
+---# Insert the updated dates
 INSERT INTO {$db_prefix}calendar_holidays
 	(title, event_date)
 VALUES ('Mother''s Day', '2010-05-09'),
