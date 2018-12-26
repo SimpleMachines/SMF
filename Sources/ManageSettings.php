@@ -1805,51 +1805,43 @@ function EditCustomProfiles()
 		);
 		$fields = array();
 		$new_sort = array();
-		
+
 		while($row = $smcFunc['db_fetch_assoc']($request))
-				$fields[$row['id_field']] = $row['field_order'];
+				$fields[] = $row['id_field'];
 		$smcFunc['db_free_result']($request);
 
+		$idx = array_search($context['fid'], $fields);
 
-		if ($_GET['move'] == 'up' && count($fields) -1 > $context['fid'] )
+		if ($_GET['move'] == 'down' && count($fields) - 1 > $idx )
 		{
-			if( count($fields) -1 > $context['fid'] ) {
-				$new_sort = array_slice($fields ,0 ,$context['fid'] ,true);
-				$new_sort[] = $fields[$context['fid'] + 1];
-				$new_sort[] = $fields[$context['fid']];
-				$new_sort += array_slice($fields ,$context['fid'] + 2 ,count($fields) ,true);
-			}
+				$new_sort = array_slice($fields ,0 ,$idx ,true);
+				$new_sort[] = $fields[$idx + 1];
+				$new_sort[] = $fields[$idx];
+				$new_sort += array_slice($fields ,$idx + 2 ,count($fields) ,true);
 		}
-		elseif ($context['fid'] > 0 and $context['fid'] < count($fields))
+		elseif ($context['fid'] > 0 and $idx < count($fields))
 		{
-				$new_sort = array_slice($fields ,0 ,($context['fid'] - 1) ,true);
-				$new_sort[] = $fields[$context['fid']];
-				$new_sort[] = $fields[$context['fid'] - 1];
-				$new_sort += array_slice($fields ,($context['fid'] + 1) ,count($fields) ,true);
+				$new_sort = array_slice($fields ,0 ,($idx - 1) ,true);
+				$new_sort[] = $fields[$idx];
+				$new_sort[] = $fields[$idx - 1];
+				$new_sort += array_slice($fields ,($idx + 1) ,count($fields) ,true);
 		}
 		else
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
-		
-/*
-		// All good, proceed.
+
+		$sql_update = 'CASE ';
+		foreach ($new_sort as $orderKey => $PKid)
+		{
+			$sql_update .= 'WHEN id_field = ' . $PKid . ' THEN ' . ($orderKey + 1) . ' ';
+		}
+		$sql_update .= 'END';
+
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:old_order}
-			WHERE field_order = {int:new_order}',
-			array(
-				'new_order' => $new_order,
-				'old_order' => $context['field']['order'],
-			)
+			SET field_order = ' . $sql_update,
+				array()
 		);
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:new_order}
-			WHERE id_field = {int:id_field}',
-			array(
-				'new_order' => $new_order,
-				'id_field' => $context['fid'],
-			)
-		);*/
+
 		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
 	}
 
