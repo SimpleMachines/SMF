@@ -1494,7 +1494,7 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData) use ($context, $txt, $scripturl)
 					{
-						$return = '<p class="centertext bold_text">' . $rowData['field_order'] . '<br>';
+						$return = '<p class="centertext bold_text">';
 
 						if ($rowData['field_order'] > 1)
 							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
