@@ -59,7 +59,7 @@ smf_AdminIndex.prototype.setAnnouncements = function ()
 
 	var sMessages = '';
 	for (var i = 0; i < window.smfAnnouncements.length; i++)
-		sMessages += this.opt.sAnnouncementMessageTemplate.replace('%href%', window.smfAnnouncements[i].href).replace('%subject%', window.smfAnnouncements[i].subject).replace('%time%', window.smf_news[i].time).replace('%message%', window.smf_news[i].message);
+		sMessages += this.opt.sAnnouncementMessageTemplate.replace('%href%', window.smfAnnouncements[i].href).replace('%subject%', window.smfAnnouncements[i].subject).replace('%time%', window.smfAnnouncements[i].time).replace('%message%', window.smfAnnouncements[i].message);
 
 	setInnerHTML(document.getElementById(this.opt.sAnnouncementContainerId), this.opt.sAnnouncementTemplate.replace('%content%', sMessages));
 }
