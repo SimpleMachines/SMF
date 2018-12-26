@@ -1100,7 +1100,7 @@ function ModifyLanguage()
 
 		$entries = array();
 		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), preg_replace('~\s*(\$forum_copyright[^\n]*)~', '', file_get_contents($current_file))) as $blob)
 		{
 			// Comment lines at the end of the blob can make terrible messes
 			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
