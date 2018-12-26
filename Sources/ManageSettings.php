@@ -1712,7 +1712,7 @@ function EditCustomProfiles()
 	// We need this for both moving and saving so put it right here.
 	$order_count = custFieldsMaxOrder();
 
-	if ($context['fid'])
+	if ($context['fid'] && !isset($_GET['move']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
@@ -1794,15 +1794,43 @@ function EditCustomProfiles()
 		);
 
 	// Are we moving it?
-	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	if ($context['fid'] && isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
 	{
-		// Down is the new up.
-		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				id_field, field_order
+			FROM {db_prefix}custom_fields
+			ORDER BY field_order',
+				array()
+		);
+		$fields = array();
+		$new_sort = array();
+		
+		while($row = $smcFunc['db_fetch_assoc']($request))
+				$fields[$row['id_field']] = $row['field_order'];
+		$smcFunc['db_free_result']($request);
 
-		// Is this a valid position?
-		if ($new_order <= 0 || $new_order > $order_count)
+
+		if ($_GET['move'] == 'up' && count($fields) -1 > $context['fid'] )
+		{
+			if( count($fields) -1 > $context['fid'] ) {
+				$new_sort = array_slice($fields ,0 ,$context['fid'] ,true);
+				$new_sort[] = $fields[$context['fid'] + 1];
+				$new_sort[] = $fields[$context['fid']];
+				$new_sort += array_slice($fields ,$context['fid'] + 2 ,count($fields) ,true);
+			}
+		}
+		elseif ($context['fid'] > 0 and $context['fid'] < count($fields))
+		{
+				$new_sort = array_slice($fields ,0 ,($context['fid'] - 1) ,true);
+				$new_sort[] = $fields[$context['fid']];
+				$new_sort[] = $fields[$context['fid'] - 1];
+				$new_sort += array_slice($fields ,($context['fid'] + 1) ,count($fields) ,true);
+		}
+		else
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
-
+		
+/*
 		// All good, proceed.
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
@@ -1821,7 +1849,7 @@ function EditCustomProfiles()
 				'new_order' => $new_order,
 				'id_field' => $context['fid'],
 			)
-		);
+		);*/
 		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
 	}
 
