@@ -837,7 +837,7 @@ function ModifyLanguage()
 	$lang_dirs = array();
 
 	// There are different kinds of strings
-	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails');
 	$additional_string_types = array();
 
 	// Some files allow the admin to add and/or remove certain types of strings
@@ -1083,6 +1083,7 @@ function ModifyLanguage()
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_groups = array(
 			'Timezones' => array('txt' => 'txt_for_timezones'),
+			'EmailTemplates' => array('txt' => 'txt_for_email_templates', 'txtBirthdayEmails' => 'txt_for_email_templates'),
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
