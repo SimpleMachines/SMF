@@ -3018,15 +3018,26 @@ LANGUAGE 'sql';
 /******************************************************************************/
 --- Update holidays
 /******************************************************************************/
----# Delete all the dates that usually change every year
+---# Delete all the dates
 DELETE FROM calendar_holidays WHERE title in
-('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox', 'Thanksgiving', 'Memorial Day', 'Labor Day')
+('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
+	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
+	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
+	'Veterans Day', 'Groundhog Day', 'D-Day')
 ---#
 
 ---# Insert the updated dates
 INSERT INTO {$db_prefix}calendar_holidays
 	(title, event_date)
-VALUES ('Mother''s Day', '2010-05-09'),
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
+	('Mother''s Day', '2010-05-09'),
 	('Mother''s Day', '2011-05-08'),
 	('Mother''s Day', '2012-05-13'),
 	('Mother''s Day', '2013-05-12'),
@@ -3155,7 +3166,12 @@ VALUES ('Mother''s Day', '2010-05-09'),
 
 INSERT INTO {$db_prefix}calendar_holidays
 	(title, event_date)
-VALUES ('Thanksgiving', '2010-11-25'),
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
+	('Thanksgiving', '2010-11-25'),
 	('Thanksgiving', '2011-11-24'),
 	('Thanksgiving', '2012-11-22'),
 	('Thanksgiving', '2013-11-28'),
@@ -3217,5 +3233,6 @@ VALUES ('Thanksgiving', '2010-11-25'),
 	('Labor Day', '2027-09-06'),
 	('Labor Day', '2028-09-04'),
 	('Labor Day', '2029-09-03'),
-	('Labor Day', '2030-09-02');
+	('Labor Day', '2030-09-02'),
+	('D-Day', '1004-06-06');
 ---#

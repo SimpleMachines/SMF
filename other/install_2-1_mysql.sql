@@ -1558,14 +1558,14 @@ VALUES (-1,1,0), (0,1,0), (2,1,0);
 
 INSERT INTO {$db_prefix}calendar_holidays
 	(title, event_date)
-VALUES ('New Year''s', '0004-01-01'),
-	('Christmas', '0004-12-25'),
-	('Valentine''s Day', '0004-02-14'),
-	('St. Patrick''s Day', '0004-03-17'),
-	('April Fools', '0004-04-01'),
-	('Earth Day', '0004-04-22'),
-	('United Nations Day', '0004-10-24'),
-	('Halloween', '0004-10-31'),
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
 	('Mother''s Day', '2010-05-09'),
 	('Mother''s Day', '2011-05-08'),
 	('Mother''s Day', '2012-05-13'),
@@ -1695,11 +1695,11 @@ VALUES ('New Year''s', '0004-01-01'),
 
 INSERT INTO {$db_prefix}calendar_holidays
 	(title, event_date)
-VALUES ('Independence Day', '0004-07-04'),
-	('Cinco de Mayo', '0004-05-05'),
-	('Flag Day', '0004-06-14'),
-	('Veterans Day', '0004-11-11'),
-	('Groundhog Day', '0004-02-02'),
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
 	('Thanksgiving', '2010-11-25'),
 	('Thanksgiving', '2011-11-24'),
 	('Thanksgiving', '2012-11-22'),
@@ -1763,7 +1763,7 @@ VALUES ('Independence Day', '0004-07-04'),
 	('Labor Day', '2028-09-04'),
 	('Labor Day', '2029-09-03'),
 	('Labor Day', '2030-09-02'),
-	('D-Day', '0004-06-06');
+	('D-Day', '1004-06-06');
 # --------------------------------------------------------
 
 #
