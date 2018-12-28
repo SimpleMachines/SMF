@@ -1090,7 +1090,7 @@ function getAttachMsgInfo($attachID)
  */
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $user_info;
 	static $attached = array();
 
 	if (!isset($attached[$msgID]))
