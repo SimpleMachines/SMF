@@ -540,8 +540,9 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type, $db_port;
-	global $db_mb4, $modSettings, $sourcedir, $smcFunc;
+	global $db_server, $db_user, $db_passwd, $db_name, $db_connection,
+	global $db_prefix, $db_character_set, $db_type, $db_port;
+	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt;
 
 	error_reporting(E_ALL);
 	define('SMF', 1);
@@ -608,7 +609,10 @@ function loadEssentialData()
 
 		// Oh dear god!!
 		if ($db_connection === null)
-			die('Unable to connect to database - please check username and password are correct in Settings.php');
+		{
+			$err_msg = isset($txt['error_db_connect_settings']) ? $txt['error_db_connect_settings'] : 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
+			die($err_msg);
+		}
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
@@ -634,7 +638,8 @@ function loadEssentialData()
 	}
 	else
 	{
-		return throw_error('Cannot find ' . $sourcedir . '/Subs-Db-' . $db_type . '.php' . '. Please check you have uploaded all source files and have the correct paths set.');
+		$err_mg = isset($txt['error_sourcefile_missing']) ? sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php' : 'Unable to find the Sources/Subs-Db-' . $db_type . '.php file. Please make sure it was uploaded properly, and then try again.';
+		return throw_error($err_msg);
 	}
 
 	require_once($sourcedir . '/Subs.php');
