@@ -792,7 +792,7 @@ function ModifyAntispamSettings($return_config = false)
 		{
 			// If we had some questions for this language before, but don't now, delete everything from that language.
 			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
-				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
+				$changes['delete'] = array_merge($changes['delete'], $context['qa_by_lang'][$lang_id]);
 
 			// Now step through and see if any existing questions no longer exist.
 			if (!empty($context['qa_by_lang'][$lang_id]))
