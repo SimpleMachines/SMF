@@ -4942,7 +4942,7 @@ function migrateSettingsFile($changes)
 		'db_user' => 'string_fatal',
 		'db_passwd' => 'string_fatal',
 		'ssi_db_user' => 'string',
-		'ssi_db_user' => 'string',
+		'ssi_db_passwd' => 'string',
 		'db_prefix' => 'string_fatal',
 		'db_persist' => 'int',
 		'db_error_send' => 'int',
