@@ -540,7 +540,7 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $db_server, $db_user, $db_passwd, $db_name, $db_connection,
+	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
 	global $db_prefix, $db_character_set, $db_type, $db_port;
 	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt;
 
@@ -638,7 +638,7 @@ function loadEssentialData()
 	}
 	else
 	{
-		$err_mg = isset($txt['error_sourcefile_missing']) ? sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php' : 'Unable to find the Sources/Subs-Db-' . $db_type . '.php file. Please make sure it was uploaded properly, and then try again.';
+		$err_mg = isset($txt['error_sourcefile_missing']) ? sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php') : 'Unable to find the Sources/Subs-Db-' . $db_type . '.php file. Please make sure it was uploaded properly, and then try again.';
 		return throw_error($err_msg);
 	}
 
