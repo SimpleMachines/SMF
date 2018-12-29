@@ -1,4 +1,4 @@
-dist: xenial
+dist: trusty
 sudo: required
 
 language: php
@@ -15,7 +15,7 @@ php:
 matrix:
   include:
     - php: hhvm
-      dist: xenial
+      dist: trusty
 
 script:
   - sudo add-apt-repository ppa:git-core/ppa -y
