@@ -89,10 +89,6 @@ require_once($upgrade_path . '/upgrade-helper.php');
 
 global $txt;
 
-// Initialize everything and load the language files.
-initialize_inputs();
-load_lang_file();
-
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = array(
@@ -134,7 +130,12 @@ require_once($upgrade_path . '/Settings.php');
 
 // We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
 if (isset($language))
-	$language = str_ireplace('-utf8', '', $language);
+	$language = str_ireplace('-utf8', '', basename($language, '.lng'));
+
+// Sanitization is important
+$_GET['lang'] = isset($_GET['lang']) ? preg_replace('~[^\w-]~', '', $_GET['lang']) : '';
+if ($_GET['lang'] == '')
+	unset($_GET['lang']);
 
 // Are we logged in?
 if (isset($upgradeData))
@@ -166,6 +167,9 @@ if (empty($upcontext['updated']))
 		'updated' => $upcontext['updated'],
 	);
 }
+
+// Try to load the language file... or at least define a few necessary strings for now.
+load_lang_file();
 
 // Load up some essential data...
 loadEssentialData();
@@ -231,8 +235,6 @@ if (httpsOn())
 	$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
 
 $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC1') && !empty($modSettings['totalMessages']) && $modSettings['totalMessages'] > 75000;
-// Default title...
-$upcontext['page_title'] = $txt['updating_smf_installation'];
 
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
@@ -248,10 +250,6 @@ if (isset($_GET['data']))
 	// Only set this if the upgrader status says so.
 	if (empty($is_debug))
 		$is_debug = $upcontext['upgrade_status']['debug'];
-
-	// Load the language.
-	if (file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
-		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
 }
 // Set the defaults.
 else
@@ -268,6 +266,12 @@ else
 	);
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 }
+
+// Now that we have the necessary info, make sure we loaded the right language file.
+load_lang_file();
+
+// Default title...
+$upcontext['page_title'] = $txt['updating_smf_installation'];
 
 // If this isn't the first stage see whether they are logging in and resuming.
 if ($upcontext['current_step'] != 0 || !empty($upcontext['user']['step']))
@@ -425,26 +429,86 @@ function upgradeExit($fallThrough = false)
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $incontext, $user_info;
+	global $txt, $upcontext, $language;
 
-	$incontext['detected_languages'] = array();
+	static $lang_dir = '', $detected_languages = array(), $loaded_langfile = '';
 
-	// Make sure the languages directory actually exists.
-	if (file_exists(dirname(__FILE__) . '/Themes/default/languages'))
+	// Do we know where to look for the language files, or shall we just guess for now?
+	$temp = isset($modSettings['theme_dir']) ? $modSettings['theme_dir'] . '/languages' : dirname(__FILE__) . '/Themes/default/languages';
+
+	if ($lang_dir != $temp)
 	{
-		// Find all the "Install" language files in the directory.
-		$dir = dir(dirname(__FILE__) . '/Themes/default/languages');
-		while ($entry = $dir->read())
+		$lang_dir = $temp;
+		$detected_languages = array();
+	}
+
+	// Override the language file?
+	if (isset($upcontext['language']))
+		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
+	elseif (isset($_GET['lang']))
+		$_SESSION['upgrader_langfile'] = 'Install.' . $_GET['lang'] . '.php';
+	elseif (isset($language))
+		$_SESSION['upgrader_langfile'] = 'Install.' . $language . '.php';
+
+	// Avoid pointless repetition
+	if (isset($_SESSION['upgrader_langfile']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_langfile'])
+		return;
+
+	// Now try to find the language files
+	if (empty($detected_languages))
+	{
+		// Make sure the languages directory actually exists.
+		if (file_exists($lang_dir))
 		{
-			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
-				$incontext['detected_languages'][$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+			// Find all the "Install" language files in the directory.
+			$dir = dir($lang_dir);
+			while ($entry = $dir->read())
+			{
+				if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
+					$detected_languages[$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+			}
+			$dir->close();
 		}
-		$dir->close();
+		// Our guess was wrong, but that's fine. We'll try again after $modSettings['theme_dir'] is defined.
+		elseif (!isset($modSettings['theme_dir']))
+		{
+			// Define a few essential strings for now.
+			$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
+			$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
+
+			$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
+			$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
+
+			return;
+		}
 	}
 
 	// Didn't find any, show an error message!
-	if (empty($incontext['detected_languages']))
+	if (empty($detected_languages))
 	{
+		$from = explode('/', $_SERVER['PHP_SELF']);
+		$to = explode('/', $lang_dir);
+		$relPath = $to;
+
+		foreach($from as $depth => $dir)
+		{
+			if ($dir === $to[$depth])
+				array_shift($relPath);
+			else
+			{
+				$remaining = count($from) - $depth;
+				if ($remaining > 1)
+				{
+					$padLength = (count($relPath) + $remaining - 1) * -1;
+					$relPath = array_pad($relPath, $padLength, '..');
+					break;
+				}
+				else
+					$relPath[0] = './' . $relPath[0];
+			}
+		}
+		$relPath = implode(DIRECTORY_SEPARATOR, $relPath);
+
 		// Let's not cache this message, eh?
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -471,47 +535,35 @@ function load_lang_file()
 				<body>
 					<h1>A critical error has occurred.</h1>
 						<p>This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:</p>
-						<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+						<div class="directory">', $relPath, '</div>
 						<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
-						<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
+						<p>If that doesn\'t help, please make sure this upgrade.php file is in the same place as the Themes folder.</p>
 						<p>If you continue to get this error message, feel free to <a href="https://support.simplemachines.org/">look to us for support</a>.</p>
 				</body>
 			</html>';
 		die;
 	}
 
-	// Override the language file?
-	if (isset($_GET['lang_file']))
-		$_SESSION['installer_temp_lang'] = $_GET['lang_file'];
-	elseif (isset($GLOBALS['HTTP_GET_VARS']['lang_file']))
-		$_SESSION['installer_temp_lang'] = $GLOBALS['HTTP_GET_VARS']['lang_file'];
-
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
+	if (!isset($_SESSION['upgrader_langfile']) || preg_match('~[^\w.-]~', $_SESSION['upgrader_langfile']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_langfile']))
 	{
 		// Use the first one...
-		list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		list ($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
-			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1)
+			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
-		// For backup we load the english at first -> second language overwrite the english one
-		if (count($incontext['detected_languages']) > 1)
-			require_once(dirname(__FILE__) . '/Themes/default/languages/Install.english.php');
+		// For backup we load English at first, then the second language will overwrite it.
+		if (count($detected_languages) > 1)
+			require_once($lang_dir . '/Install.english.php');
 	}
 
 	// And now include the actual language file itself.
-	require_once(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']);
+	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile']);
 
-	// Which language did we load? Assume that he likes his language.
-	preg_match('~^Install\.(.+[^-utf8])\.php$~', $_SESSION['installer_temp_lang'], $matches);
-	if (empty($matches[1]))
-		$matches = [
-			0 => 'nothing',
-			1 => 'english',
-		];
-	$user_info['language'] = $matches[1];
+	// Remember what we've done
+	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_langfile'];
 }
 
 // Used to direct the user to another location.
@@ -744,12 +796,6 @@ function WelcomeLogin()
 
 	// We don't need "-utf8" files anymore...
 	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language']);
-
-	// This needs to exist!
-	if (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
-		return throw_error('The upgrader could not find the &quot;Install&quot; language file for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
-	else
-		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
 
 	if (!$check)
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
@@ -1049,7 +1095,7 @@ function checkLogin()
 					$upcontext['upgrade_status']['lang'] = $upcontext['language'];
 
 					// Include the file.
-					require_once($modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php');
+					load_lang_file();
 				}
 			}
 
