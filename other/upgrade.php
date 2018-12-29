@@ -81,12 +81,6 @@ $disable_security = false;
  */
 $upcontext['inactive_timeout'] = 10;
 
-// The helper is crucial. Include it first thing.
-if (!file_exists($upgrade_path . '/upgrade-helper.php'))
-	die('upgrade-helper.php not found where it was expected: ' . $upgrade_path . '/upgrade-helper.php! Make sure you have uploaded ALL files from the upgrade package. The upgrader cannot continue.');
-
-require_once($upgrade_path . '/upgrade-helper.php');
-
 global $txt;
 
 // All the steps in detail.
@@ -125,8 +119,14 @@ if (php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 else
 	$command_line = false;
 
-// Load this now just because we can.
-require_once($upgrade_path . '/Settings.php');
+// We can't do anything without these files.
+foreach (array('upgrade-helper.php', 'Settings.php') as $required_file)
+{
+	if (!file_exists($upgrade_path . '/' . $required_file))
+		die($required_file . ' was not found where it was expected: ' . $upgrade_path . '/' . $required_file . '! Make sure you have uploaded ALL files from the upgrade package to your forum\'s root directory. The upgrader cannot continue.');
+
+	require_once($upgrade_path . '/' . $required_file);
+}
 
 // We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
 if (isset($language))
