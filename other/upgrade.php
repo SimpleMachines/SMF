@@ -133,7 +133,8 @@ if (isset($language))
 	$language = str_ireplace('-utf8', '', basename($language, '.lng'));
 
 // Sanitization is important
-$_GET['lang'] = isset($_GET['lang']) ? preg_replace('~[^\w-]~', '', $_GET['lang']) : '';
+$_GET['lang'] = isset($_GET['lang']) ? str_ireplace('-utf8', '', $_GET['lang']) : '';
+$_GET['lang'] = preg_replace('~[^\w-]~', '', $_GET['lang']);
 if ($_GET['lang'] == '')
 	unset($_GET['lang']);
 
@@ -464,6 +465,10 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 			while ($entry = $dir->read())
 			{
+				// Skip any old '-utf8' language files that might be lying around
+				if (strpos($entry, '-utf8') !== false)
+					continue;
+
 				if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php')
 					$detected_languages[$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
 			}
