@@ -96,13 +96,13 @@ load_lang_file();
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = array(
-	0 => array(1, $txt['upgrade_step_login'], 'WelcomeLogin', 2),
-	1 => array(2, $txt['upgrade_step_options'], 'UpgradeOptions', 2),
-	2 => array(3, $txt['upgrade_step_backup'], 'BackupDatabase', 10),
-	3 => array(4, $txt['upgrade_step_database'], 'DatabaseChanges', 50),
-	4 => array(5, $txt['upgrade_step_convertutf'], 'ConvertUtf8', 20),
-	5 => array(6, $txt['upgrade_step_convertjson'], 'serialize_to_json', 10),
-	6 => array(7, $txt['upgrade_step_delete'], 'DeleteUpgrade', 1),
+	0 => array(1, 'upgrade_step_login', 'WelcomeLogin', 2),
+	1 => array(2, 'upgrade_step_options', 'UpgradeOptions', 2),
+	2 => array(3, 'upgrade_step_backup', 'BackupDatabase', 10),
+	3 => array(4, 'upgrade_step_database', 'DatabaseChanges', 50),
+	4 => array(5, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
+	5 => array(6, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	6 => array(7, 'upgrade_step_delete', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -351,7 +351,7 @@ function upgradeExit($fallThrough = false)
 			if (function_exists('debug_print_backtrace'))
 				debug_print_backtrace();
 
-			echo "\n" . 'Error: Unexpected call to use the ' . (isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '') . ' template. Please copy and paste all the text above and visit the SMF support forum to tell the Developers that they\'ve made a boo boo; they\'ll get you up and running again.';
+			printf($txt['error_unexpected_template_call'], isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '');
 			flush();
 			die();
 		}
@@ -387,7 +387,7 @@ function upgradeExit($fallThrough = false)
 			if (is_callable('template_' . $upcontext['sub_template']))
 				call_user_func('template_' . $upcontext['sub_template']);
 			else
-				die('Upgrade aborted!  Invalid template: template_' . $upcontext['sub_template']);
+				die(sprintf($txt['error_invalid_template'], $upcontext['sub_template']));
 		}
 
 		// Was there an error?
@@ -609,10 +609,7 @@ function loadEssentialData()
 
 		// Oh dear god!!
 		if ($db_connection === null)
-		{
-			$err_msg = isset($txt['error_db_connect_settings']) ? $txt['error_db_connect_settings'] : 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-			die($err_msg);
-		}
+			die($txt['error_db_connect_settings']);
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
@@ -637,10 +634,7 @@ function loadEssentialData()
 		$smcFunc['db_free_result']($request);
 	}
 	else
-	{
-		$err_mg = isset($txt['error_sourcefile_missing']) ? sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php') : 'Unable to find the Sources/Subs-Db-' . $db_type . '.php file. Please make sure it was uploaded properly, and then try again.';
-		return throw_error($err_msg);
-	}
+		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php'));
 
 	require_once($sourcedir . '/Subs.php');
 
@@ -759,14 +753,14 @@ function WelcomeLogin()
 
 	if (!$check)
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
-		return throw_error('The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.');
+		return throw_error($txt['error_upgrade_files_missing']);
 
 	// Do they meet the install requirements?
 	if (!php_version_check())
-		return throw_error('Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\'s minimum installations requirements.<br><br>Please ask your host to upgrade.');
+		return throw_error($txt['error_php_too_low']);
 
 	if (!db_version_check())
-		return throw_error('Your ' . $databases[$db_type]['name'] . ' version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.');
+		return throw_error(sprintf($txt['error_db_too_low'], $databases[$db_type]['name']));
 
 	// Do some checks to make sure they have proper privileges
 	db_extend('packages');
@@ -782,13 +776,13 @@ function WelcomeLogin()
 
 	// Sorry... we need CREATE, ALTER and DROP
 	if (!$create || !$alter || !$drop)
-		return throw_error('The ' . $databases[$db_type]['name'] . ' user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.');
+		return throw_error(sprintf($txt['error_db_privileges'], $databases[$db_type]['name']));
 
 	// Do a quick version spot check.
 	$temp = substr(@implode('', @file($boarddir . '/index.php')), 0, 4096);
 	preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $temp, $match);
 	if (empty($match[1]) || (trim($match[1]) != SMF_VERSION))
-		return throw_error('The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.');
+		return throw_error($txt['error_upgrade_old_files']);
 
 	// What absolutely needs to be writable?
 	$writable_files = array(
@@ -815,7 +809,7 @@ function WelcomeLogin()
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir))
-		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
+		return throw_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
@@ -833,17 +827,17 @@ function WelcomeLogin()
 		@mkdir($cachedir_temp);
 
 	if (!file_exists($cachedir_temp))
-		return throw_error('The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.');
+		return throw_error($txt['error_cache_not_found']);
 
 	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($_GET['lang']))
-		return throw_error('The upgrader was unable to find language files for the language specified in Settings.php.<br>SMF will not work without the primary language files installed.<br><br>Please either install them, or <a href="' . $upgradeurl . '?step=0;lang=english">use english instead</a>.');
+		return throw_error(sprintf($txt['error_lang_index_missing'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
 	{
 		$temp = substr(@implode('', @file($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
 		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION)
-			return throw_error('The upgrader found some old or outdated language files, for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?skiplang">SKIP</a>] [<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
+			return throw_error(sprintf($txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
 	}
 
 	if (!makeFilesWritable($writable_files))
@@ -851,7 +845,7 @@ function WelcomeLogin()
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
 	if (isset($modSettings['agreement']) && (!is_writable($boarddir) || file_exists($boarddir . '/agreement.txt')) && !is_writable($boarddir . '/agreement.txt'))
-		return throw_error('The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.');
+		return throw_error($txt['error_agreement_not_writable']);
 
 	// Upgrade the agreement.
 	elseif (isset($modSettings['agreement']))
@@ -1017,7 +1011,7 @@ function checkLogin()
 						)
 					);
 					if ($smcFunc['db_num_rows']($request) == 0)
-						return throw_error('You need to be an admin to perform an upgrade!');
+						return throw_error($txt['error_not_admin']);
 					$smcFunc['db_free_result']($request);
 				}
 
@@ -1045,9 +1039,9 @@ function checkLogin()
 				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION)
-					$upcontext['upgrade_options_warning'] = 'The language files for your selected language, ' . $user_language . ', have not been updated to the latest version. Upgrade will continue with the forum default, ' . $upcontext['language'] . '.';
-				elseif (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . basename($user_language, '.lng') . '.php'))
-					$upcontext['upgrade_options_warning'] = 'The language files for your selected language, ' . $user_language . ', have not been uploaded/updated as the &quot;Install&quot; language file is missing. Upgrade will continue with the forum default, ' . $upcontext['language'] . '.';
+					$upcontext['upgrade_options_warning'] = sprintf($txt['warning_lang_old'], $user_language, $upcontext['language']);
+				elseif (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php'))
+					$upcontext['upgrade_options_warning'] = sprintf($txt['warning_lang_missing'], $user_language, $upcontext['language']);
 				else
 				{
 					// Set this as the new language.
@@ -1241,8 +1235,8 @@ function UpgradeOptions()
 		}
 		else
 		{
-			$changes['mtitle'] = '\'Upgrading the forum...\'';
-			$changes['mmessage'] = '\'Don\\\'t worry, we will be back shortly with an updated forum.  It will only be a minute ;).\'';
+			$changes['mtitle'] = '\'' . addslashes($txt['mtitle']) . '\'';
+			$changes['mmessage'] = '\'' . addslashes($txt['mmessage']) . '\'';
 		}
 	}
 
@@ -2161,7 +2155,7 @@ function upgrade_query($string, $unbuffered = false)
 			</div>
 
 			<form action="' . $upgradeurl . $query_string . '" method="post">
-				<input type="submit" value="Try again" class="button">
+				<input type="submit" value="' . $txt['upgrade_respondtime_clickhere'] . '" class="button">
 			</form>
 		</div>';
 
@@ -3626,7 +3620,7 @@ function template_upgrade_above()
 
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
-						<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
+						<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $txt[$step[1]], '</li>';
 
 	echo '
 					</ul>
@@ -3996,11 +3990,11 @@ function template_upgrade_options()
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 						</label>
 					</li>
-		  <li>
-							<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
-							<label for="migrateSettings">
-								', $txt['upgrade_migrate_settings_file'], '
-							</label>
+					<li>
+						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
+						<label for="migrateSettings">
+							', $txt['upgrade_migrate_settings_file'], '
+						</label>
 					</li>
 				</ul>
 				<input type="hidden" name="upcont" value="1">';
@@ -5205,7 +5199,7 @@ function migrateSettingsFile($changes)
 
 		// Well this isn't good.  Do we fix it or bail?
 		if (is_null($original) && $setType != 'null' && strpos('fatal', $setType) > -1)
-			return throw_error('The upgrader could not copy a setting (' . $setVar . ') from your Settings file.  Unable to migrate your Settings file to a new version.');
+			return throw_error(sprintf($txt['error_settings_migration_no_var'], $setVar));
 	}
 
 	// Finally, merge the changes with the new ones.
@@ -5283,7 +5277,7 @@ function migrateSettingsFile($changes)
 
 	// Sanity error checking: the file needs to be at least 12 lines.
 	if (count($settingsArray) < 12)
-		return throw_error('The upgrader could not process your Settings file for updates.  Unable to migrate your Settings file to a new version.');
+		return throw_error($txt['error_settings_migration_too_short']);
 
 	// Try to avoid a few pitfalls:
 	//  - like a possible race condition,
@@ -5304,7 +5298,7 @@ function migrateSettingsFile($changes)
 		// Oops. Low disk space, perhaps. Don't mess with Settings.php then.
 		// No means no. :P
 		if ($written_bytes !== 4)
-			return throw_error('The upgrader could not write a test file, perhaps not enough storage?  Unable to migrate your Settings file to a new version.');
+			return throw_error($txt['error_settings_migration_write_failed']);
 	}
 
 	// Protect me from what I want! :P
@@ -5325,7 +5319,7 @@ function migrateSettingsFile($changes)
 			if (file_exists($boarddir . '/Settings_bak.php'))
 				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
 
-			return throw_error('The upgrader detected a bad Settings file and reverted the changes.  Unable to migrate your Settings file to a new version.');
+			return throw_error($txt['error_settings_migration_general']);
 		}
 	}
 
