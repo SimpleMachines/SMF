@@ -2607,12 +2607,12 @@ upgrade_query("
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column_upgr($filtered, 1))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column($filtered, 1))) . "'
 	WHERE variable = 'smiley_sets_exts'");
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column_upgr($filtered, 0))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column($filtered, 0))) . "'
 	WHERE variable = 'smiley_sets_names'");
 
 // Set new default if the old one doesnt exist
