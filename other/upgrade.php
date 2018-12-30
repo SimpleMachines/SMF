@@ -133,10 +133,11 @@ if (isset($language))
 	$language = str_ireplace('-utf8', '', basename($language, '.lng'));
 
 // Figure out a valid language request (if any)
-if (isset($_GET['lang']))
+// Can't use $_GET until it's been cleaned in loadEssentialData()
+if (isset($_SERVER['QUERY_STRING']) && preg_match('~\blang=([^;]+)~', $_SERVER['QUERY_STRING'], $matches))
 {
-	$upcontext['lang'] = str_ireplace('-utf8', '', preg_replace('~[^\w-]~', '', $_GET['lang']));
-	if ($upcontext['lang'] == '')
+	$upcontext['lang'] = str_ireplace('-utf8', '', preg_replace('~[^\w-]~', '', $matches[1]));
+	if ($upcontext['lang'] === '')
 		unset($upcontext['lang']);
 }
 
