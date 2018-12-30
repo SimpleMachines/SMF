@@ -551,20 +551,20 @@ function load_lang_file()
 		die;
 	}
 
-	// Make sure it exists, if it doesn't reset it.
+	// Make sure it exists. If it doesn't, reset it.
 	if (!isset($_SESSION['upgrader_langfile']) || preg_match('~[^\w.-]~', $_SESSION['upgrader_langfile']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_langfile']))
 	{
 		// Use the first one...
 		list ($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
-		// If we have english and some other language, use the other language.  We Americans hate english :P.
+		// If we have English and some other language, use the other language.
 		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1)
 			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
-
-		// For backup we load English at first, then the second language will overwrite it.
-		if (count($detected_languages) > 1)
-			require_once($lang_dir . '/Install.english.php');
 	}
+
+	// For backup we load English at first, then the second language will overwrite it.
+	if ($_SESSION['upgrader_langfile'] != 'Install.english.php')
+		require_once($lang_dir . '/Install.english.php');
 
 	// And now include the actual language file itself.
 	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile']);
