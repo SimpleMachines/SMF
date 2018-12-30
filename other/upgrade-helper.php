@@ -419,3 +419,24 @@ function smf_mysql_real_escape_string($string)
 	global $db_connection;
 	mysqli_real_escape_string($db_connection, $string);
 }
+
+/**
+ * Substitute for array_column() for use in php 5.4
+ *
+ * @param $array to search
+ * @param $col to select
+ * @param $index to use as index if specified
+ * @return array of values of specified $col from $array
+ */
+function array_column_upgr($array, $col, $index = NULL)
+{
+	$output = array();
+	foreach($array AS $row)
+	{
+		if ($index === NULL)
+			$output[] = $row[$col];
+		else
+			$output[$row[$index]] = $row[$col];
+	}
+	return $output;
+}
