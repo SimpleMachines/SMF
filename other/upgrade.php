@@ -882,8 +882,8 @@ function WelcomeLogin()
 	if (!file_exists($cachedir_temp))
 		return throw_error($txt['error_cache_not_found']);
 
-	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($upcontext['lang']))
-		return throw_error(sprintf($txt['error_lang_index_missing'], $upgradeurl));
+	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
+		return throw_error(sprintf($txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
 	{
 		$temp = substr(@implode('', @file($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
@@ -2645,7 +2645,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!is_writable($cachedir_temp . '/db_last_error.php'))
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 
-	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($upcontext['lang']))
+	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
 		print_error('Error: Unable to find language files!', true);
 	else
 	{
