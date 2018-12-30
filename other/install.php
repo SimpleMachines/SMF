@@ -1504,7 +1504,7 @@ function AdminAccount()
 		}
 		if (!file_exists($sourcedir . '/Subs.php'))
 		{
-			$incontext['error'] = $txt['error_subs_missing'];
+			$incontext['error'] = sprintf($txt['error_sourcefile_missing'], 'Subs.php');
 			return false;
 		}
 
