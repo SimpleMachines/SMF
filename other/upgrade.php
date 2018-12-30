@@ -132,11 +132,13 @@ foreach (array('upgrade-helper.php', 'Settings.php') as $required_file)
 if (isset($language))
 	$language = str_ireplace('-utf8', '', basename($language, '.lng'));
 
-// Sanitization is important
-$_GET['lang'] = isset($_GET['lang']) ? str_ireplace('-utf8', '', $_GET['lang']) : '';
-$_GET['lang'] = preg_replace('~[^\w-]~', '', $_GET['lang']);
-if ($_GET['lang'] == '')
-	unset($_GET['lang']);
+// Figure out a valid language request (if any)
+if (isset($_GET['lang']))
+{
+	$upcontext['lang'] = str_ireplace('-utf8', '', preg_replace('~[^\w-]~', '', $_GET['lang']));
+	if ($upcontext['lang'] == '')
+		unset($upcontext['lang']);
+}
 
 // Are we logged in?
 if (isset($upgradeData))
@@ -259,7 +261,7 @@ else
 	$upcontext['rid'] = mt_rand(0, 5000);
 	$upcontext['upgrade_status'] = array(
 		'curstep' => 0,
-		'lang' => isset($_GET['lang']) ? $_GET['lang'] : basename($language, '.lng'),
+		'lang' => isset($upcontext['lang']) ? $upcontext['lang'] : basename($language, '.lng'),
 		'rid' => $upcontext['rid'],
 		'pass' => 0,
 		'debug' => 0,
@@ -446,8 +448,8 @@ function load_lang_file()
 	// Override the language file?
 	if (isset($upcontext['language']))
 		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
-	elseif (isset($_GET['lang']))
-		$_SESSION['upgrader_langfile'] = 'Install.' . $_GET['lang'] . '.php';
+	elseif (isset($upcontext['lang']))
+		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['lang'] . '.php';
 	elseif (isset($language))
 		$_SESSION['upgrader_langfile'] = 'Install.' . $language . '.php';
 
@@ -880,7 +882,7 @@ function WelcomeLogin()
 	if (!file_exists($cachedir_temp))
 		return throw_error($txt['error_cache_not_found']);
 
-	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($_GET['lang']))
+	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($upcontext['lang']))
 		return throw_error(sprintf($txt['error_lang_index_missing'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
 	{
@@ -1270,8 +1272,8 @@ function UpgradeOptions()
 		updateSettings(array('force_ssl' => '1'));
 
 	// If we're overriding the language follow it through.
-	if (isset($_GET['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $_GET['lang'] . '.php'))
-		$changes['language'] = '\'' . $_GET['lang'] . '\'';
+	if (isset($upcontext['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['lang'] . '.php'))
+		$changes['language'] = '\'' . $upcontext['lang'] . '\'';
 
 	if (!empty($_POST['maint']))
 	{
@@ -2544,7 +2546,7 @@ function cmdStep0()
 	foreach ($_SERVER['argv'] as $i => $arg)
 	{
 		if (preg_match('~^--language=(.+)$~', $arg, $match) != 0)
-			$_GET['lang'] = $match[1];
+			$upcontext['lang'] = $match[1];
 		elseif (preg_match('~^--path=(.+)$~', $arg) != 0)
 			continue;
 		elseif ($arg == '--no-maintenance')
@@ -2643,7 +2645,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!is_writable($cachedir_temp . '/db_last_error.php'))
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 
-	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($_GET['lang']))
+	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php') && !isset($modSettings['smfVersion']) && !isset($upcontext['lang']))
 		print_error('Error: Unable to find language files!', true);
 	else
 	{
