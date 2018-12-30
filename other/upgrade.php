@@ -133,13 +133,9 @@ if (isset($language))
 	$language = str_ireplace('-utf8', '', basename($language, '.lng'));
 
 // Figure out a valid language request (if any)
-// Can't use $_GET until it's been cleaned in loadEssentialData()
-if (isset($_SERVER['QUERY_STRING']) && preg_match('~\blang=([^;]+)~', $_SERVER['QUERY_STRING'], $matches))
-{
-	$upcontext['lang'] = str_ireplace('-utf8', '', preg_replace('~[^\w-]~', '', $matches[1]));
-	if ($upcontext['lang'] === '')
-		unset($upcontext['lang']);
-}
+// Can't use $_GET until it's been cleaned, so do this manually and VERY restrictively! This even strips off those '-utf8' bits that we don't want.
+if (isset($_SERVER['QUERY_STRING']) && preg_match('~\blang=(\w+)~', $_SERVER['QUERY_STRING'], $matches))
+	$upcontext['lang'] = $matches[1];
 
 // Are we logged in?
 if (isset($upgradeData))
