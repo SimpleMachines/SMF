@@ -122,6 +122,7 @@ function summary($memID)
 		$context['token_check'] = 'profile-aa' . $memID;
 		createToken($context['token_check'], 'get');
 
+		// Puerile comment
 		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
