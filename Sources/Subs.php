@@ -6326,6 +6326,12 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
 function ssl_cert_found($url)
 {
+	// This Check works only with PHP 5.6+
+	if (version_compare(PHP_VERSION, '5.6.0', '<'))
+	{
+		return true;
+	}
+
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
