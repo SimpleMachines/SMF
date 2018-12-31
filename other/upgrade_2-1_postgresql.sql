@@ -3019,11 +3019,11 @@ LANGUAGE 'sql';
 --- Update holidays
 /******************************************************************************/
 ---# Delete all the dates
-DELETE FROM calendar_holidays WHERE title in
+DELETE FROM {$db_prefix}calendar_holidays WHERE title in
 ('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
 	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
 	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
-	'Veterans Day', 'Groundhog Day', 'D-Day')
+	'Veterans Day', 'Groundhog Day', 'D-Day');
 ---#
 
 ---# Insert the updated dates

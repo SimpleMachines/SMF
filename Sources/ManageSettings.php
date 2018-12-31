@@ -754,7 +754,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
-	$(".qa_add_answer a").click(function() {
+	$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
 		var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
