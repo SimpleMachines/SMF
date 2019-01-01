@@ -2914,3 +2914,11 @@ VALUES ('Independence Day', '1004-07-04'),
 	('Labor Day', '2030-09-02'),
 	('D-Day', '1004-06-06');
 ---#
+
+/******************************************************************************/
+--- Add Attachments index
+/******************************************************************************/
+---# Create new index on Attachments
+CREATE INDEX idx_id_thumb ON {$db_prefix}attachments(id_thumb);
+---#
+
