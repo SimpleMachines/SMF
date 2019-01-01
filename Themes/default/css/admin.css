@@ -140,16 +140,16 @@ body#chrome #quick_search form input {
 	height: 12em;
 	overflow: auto;
 }
-#smf_news dt {
+#smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
 	border-top: 1px solid #bf6900;
 }
-#smf_news dt a {
+#smfAnnouncements dt a {
 	color: #bf6900;
 	font-weight: bold;
 	display: block;
 }
-#smf_news dd {
+#smfAnnouncements dd {
 	margin: 0;
 	padding: 6px 12px;
 	border-top: double #ddd;

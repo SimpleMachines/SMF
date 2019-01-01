@@ -181,6 +181,7 @@ $txt['error_windows_chmod'] = 'You\'re on a windows server, and some crucial fil
 $txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
 $txt['error_db_file'] = 'Cannot find database source script! Please check file %1$s is within your forum source directory.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
+$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
 $txt['error_db_too_low'] = 'The version of your database server is very old, and does not meet SMF\'s minimum requirements.<br><br>Please ask your host to either upgrade it or supply a new one, and if they won\'t, please try a different host.';
 $txt['error_db_database'] = 'The installer was unable to access the &quot;<em>%1$s</em>&quot; database. With some hosts, you have to create the database in your administration panel before SMF can use it. Some also add prefixes - like your username - to your database names.';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
@@ -192,7 +193,7 @@ $txt['error_user_settings_again_match'] = 'You typed in two completely different
 $txt['error_user_settings_no_password'] = 'Your password must be at least four characters long.';
 $txt['error_user_settings_taken'] = 'Sorry, a member is already registered with that username and/or email address.<br><br>A new account has not been created.';
 $txt['error_user_settings_query'] = 'A database error occurred while trying to create an administrator. This error was:';
-$txt['error_subs_missing'] = 'Unable to find the Sources/Subs.php file. Please make sure it was uploaded properly, and then try again.';
+$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
 $txt['error_db_alter_priv'] = 'The database account you specified does not have permission to ALTER, CREATE, and/or DROP tables in the database; this is necessary for SMF to function properly.';
 $txt['error_versions_do_not_match'] = 'The installer has detected another version of SMF already installed with the specified information. If you are trying to upgrade, you should use the upgrader, not the installer.<br><br>Otherwise, you may wish to use different information, or create a backup and then delete the data currently in the database.';
 $txt['error_mod_security'] = 'The installer has detected the mod_security module is installed on your web server. Mod_security will block submitted forms even before SMF gets a say in anything. SMF has a built-in security scanner that will work more effectively than mod_security and that won\'t block submitted forms.<br><br><a href="https://www.simplemachines.org/redirect/mod_security">More information about disabling mod_security</a>';
@@ -359,6 +360,30 @@ $txt['upgrade_success'] = 'Successful!';
 $txt['upgrade_loop'] = 'Upgrade script appears to be going into a loop - step: ';
 $txt['upgrade_repondtime'] = 'Server has not responded for %1$d seconds. It may be worth waiting a little longer before trying again.';
 $txt['upgrade_respondtime_clickhere'] = 'Click here to try again.';
+$txt['mtitle'] = 'Upgrading the forum...';
+$txt['mmessage'] = 'Don\'t worry, we will be back shortly with an updated forum.  It will only be a minute ;).';
+
+// Upgrader error messages
+$txt['error_unexpected_template_call'] = "\n" . 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug so they can fix it and get you up and running again.';
+$txt['error_invalid_template'] = 'Upgrade aborted!  Invalid template: template_%1$s';
+$txt['error_lang_index_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=english">try English instead</a>.';
+$txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';
+$txt['error_upgrade_old_files'] = 'The upgrader found some old or outdated files.<br><br>Please make certain you uploaded the new versions of all the files included in the package.';
+$txt['error_upgrade_old_lang_files'] = 'The upgrader found some old or outdated language files for the selected language, %1$s.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="%2$s?skiplang">SKIP</a>] [<a href="%2$s?lang=english">Try English</a>]';
+$txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\'s minimum installations requirements.<br><br>Please ask your host to upgrade.';
+$txt['error_db_too_low'] = 'Your %1$s version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.';
+$txt['error_db_privileges'] = 'The %1$s user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.';
+$txt['error_dir_not_writable'] = 'The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
+$txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
+$txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
+$txt['error_settings_migration_no_var'] = 'The upgrader could not copy a setting (%1$s) from your Settings file. Unable to migrate your Settings file to a new version.';
+$txt['error_settings_migration_too_short'] = 'The upgrader could not process your Settings file for updates. Unable to migrate your Settings file to a new version.';
+$txt['error_settings_migration_write_failed'] = 'The upgrader could not write a test file. Perhaps there is not enough disk space available? Unable to migrate your Settings file to a new version.';
+$txt['error_settings_migration_general'] = 'The upgrader detected a bad Settings file and reverted the changes. Unable to migrate your Settings file to a new version.';
+$txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
+
+$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
+$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
 
 // Page titles
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';

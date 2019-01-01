@@ -575,6 +575,7 @@ $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
 $txt['autoLinkUrls'] = 'Automatically link posted URLs';
 $txt['disabledBBC'] = 'Enabled BBC tags';
+$txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';

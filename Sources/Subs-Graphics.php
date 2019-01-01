@@ -87,9 +87,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	if ($success)
 	{
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
+		if (rename($destName . '.tmp', $destName))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 

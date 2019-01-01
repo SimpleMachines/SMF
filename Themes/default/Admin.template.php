@@ -33,7 +33,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smf_news">', $txt['smf_news_cant_connect'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
@@ -121,7 +121,7 @@ function template_admin()
 									%message%
 								</dd>
 							'), ',
-							sAnnouncementContainerId: \'smf_news\',
+							sAnnouncementContainerId: \'smfAnnouncements\',
 
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',
@@ -900,7 +900,7 @@ function template_show_settings()
 											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_columns'] as $bbcColumn)
+					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '

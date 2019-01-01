@@ -1692,10 +1692,6 @@ function create_control_richedit($editorOptions)
 			),
 			array(),
 			array(
-				'code' => 'flash',
-				'description' => $editortxt['flash']
-			),
-			array(
 				'code' => 'youtube',
 				'description' => $editortxt['insert_youtube_video']
 			),
