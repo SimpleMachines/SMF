@@ -50,7 +50,7 @@ CREATE TABLE {$db_prefix}attachments (
 	UNIQUE idx_id_member (id_member, id_attach),
 	INDEX idx_id_msg (id_msg),
 	INDEX idx_attachment_type (attachment_type),
-	INDEX id_thumb (id_thumb)
+	INDEX idx_id_thumb (id_thumb)
 ) ENGINE={$engine};
 
 #
