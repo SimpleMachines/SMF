@@ -6326,19 +6326,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
 function ssl_cert_found($url)
 {
-	// This Check works only with PHP 5.6+
-	if (version_compare(PHP_VERSION, '5.6.0', '<'))
-	{
-		return true;
-	}
-
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
+	if (version_compare(PHP_VERSION, '5.6.0', '>='))
+		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
+		
+	else if (extension_loaded('openssl')) // php below 5.6 needs openssl
+		$ssloptions = array("capture_peer_cert" => true);
+	else
+		return true; 
+
 	$result = false;
-	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$context = stream_context_create(array("ssl" => $ssloptions));
 	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 	if ($stream !== false)
 	{
