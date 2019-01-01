@@ -138,6 +138,9 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
 	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
 
+	// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
+	$message = preg_replace('~\[(/?)(\b' . implode("\b|\b", array_unique($context['legacy_bbc'])) . '\b)([^\]]*)\]~i', '&#91;$1$2$3&#93;', $message);
+
 	// Make sure all tags are lowercase.
 	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function($m)
 	{

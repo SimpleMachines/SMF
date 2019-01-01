@@ -900,7 +900,7 @@ function template_show_settings()
 											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_columns'] as $bbcColumn)
+					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '

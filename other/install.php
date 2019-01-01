@@ -1749,6 +1749,11 @@ function DeleteInstall()
 	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
 		updateSettings(array('db_mysql_group_by_fix' => '1'));
 
+	// Disable the legacy BBC by default for new installs
+	updateSettings(array(
+		'disabledBBC' => implode(',', $context['legacy_bbc']),
+	));
+
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
 	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(dirname(__FILE__)) || is_writable(__FILE__);

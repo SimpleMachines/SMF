@@ -296,16 +296,20 @@ function ModifyBBCSettings($return_config = false)
 	$config_vars = array(
 		// Main tweaks
 		array('check', 'enableBBC'),
-		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
+		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked); toggleBBCDisabled(\'legacyBBC\', !this.checked);'),
 		array('check', 'enablePostHTML'),
 		array('check', 'autoLinkUrls'),
 		'',
 
 		array('bbc', 'disabledBBC'),
+
+		// This one is actually pretend...
+		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
 	$context['settings_post_javascript'] = '
-		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
+		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
@@ -319,6 +323,9 @@ function ModifyBBCSettings($return_config = false)
 
 	// Make sure we check the right tags!
 	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+
+	// Legacy BBC are listed separately, but we use the same info in both cases
+	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -335,8 +342,22 @@ function ModifyBBCSettings($return_config = false)
 		elseif (!is_array($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
 
+		if (!isset($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array();
+		elseif (!is_array($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
+
+		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		// $modSettings['legacyBBC'] isn't really a thing...
+		unset($_POST['legacyBBC_enabledTags']);
+		$config_vars = array_filter($config_vars, function($config_var)
+		{
+			return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
+		});
 
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
