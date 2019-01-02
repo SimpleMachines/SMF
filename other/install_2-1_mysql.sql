@@ -49,7 +49,8 @@ CREATE TABLE {$db_prefix}attachments (
 	PRIMARY KEY (id_attach),
 	UNIQUE idx_id_member (id_member, id_attach),
 	INDEX idx_id_msg (id_msg),
-	INDEX idx_attachment_type (attachment_type)
+	INDEX idx_attachment_type (attachment_type),
+	INDEX idx_id_thumb (id_thumb)
 ) ENGINE={$engine};
 
 #
