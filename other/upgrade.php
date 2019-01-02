@@ -14,7 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC1');
 define('SMF_LANG_VERSION', '2.1 RC1');
-$GLOBALS['software_year'] = '2019';
+define('SMF_SOFTWARE_YEAR', '2019');
 
 /**
  * The minimum required PHP version.
@@ -3756,7 +3756,7 @@ function template_upgrade_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . $GLOBALS['software_year'] . ', Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>';
 
