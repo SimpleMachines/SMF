@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -14,6 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC1');
 define('SMF_LANG_VERSION', '2.1 RC1');
+$GLOBALS['software_year'] = '2019';
 
 /**
  * The minimum required PHP version.
@@ -3755,7 +3756,7 @@ function template_upgrade_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . $GLOBALS['software_year'] . ', Simple Machines</a></li>
 		</ul>
 	</div>';
 
