@@ -6357,18 +6357,19 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
 function ssl_cert_found($url)
 {
+	// This check won't work without OpenSSL
+	if (!extension_loaded('openssl'))
+		return true;
+
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
-	if (version_compare(PHP_VERSION, '5.6.0', '>='))
-		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
-		
-	else if (extension_loaded('openssl')) // php below 5.6 needs openssl
+	if (version_compare(PHP_VERSION, '5.6.0', '<'))
 		$ssloptions = array("capture_peer_cert" => true);
 	else
-		return true; 
+		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
 
 	$result = false;
 	$context = stream_context_create(array("ssl" => $ssloptions));
