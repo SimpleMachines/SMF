@@ -6509,8 +6509,8 @@ function build_query_board($userid)
 				SELECT bpv.id_board
 				FROM ' . $db_prefix . 'board_permissions_view AS bpv
 				WHERE bpv.id_group IN ('. implode(',', $groups) .')
-					AND bpv.id_board = b.id_board
 					AND bpv.deny = 0
+					AND bpv.id_board = b.id_board
 			)';
 
 		if (!empty($modSettings['deny_boards_access']))
@@ -6519,8 +6519,8 @@ function build_query_board($userid)
 				SELECT bpv.id_board
 				FROM ' . $db_prefix . 'board_permissions_view AS bpv
 				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
-					AND bpv.id_board = b.id_board
 					AND bpv.deny = 1
+					AND bpv.id_board = b.id_board
 			)';
 	}
 
