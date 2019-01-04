@@ -5,14 +5,15 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 RC1';
-$GLOBALS['db_script_version'] = '2-1';
+define('SMF_VERSION', '2.1 RC1');
+define('DB_SCRIPT_VERSION', '2-1');
+define('SMF_SOFTWARE_YEAR', '2019');
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -213,7 +214,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				$ftp->unlink('install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 
 			$ftp->close();
@@ -227,7 +228,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				@unlink(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				@unlink(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 		}
 
@@ -458,11 +459,11 @@ function Welcome()
 		if ($db['supported'])
 		{
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql'))
+			if (!file_exists(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 			else
 				$incontext['supported_databases'][] = $db;
@@ -1080,7 +1081,7 @@ function DatabasePopulation()
 		$smcFunc['db_free_result']($result);
 
 		// Do they match?  If so, this is just a refresh so charge on!
-		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != $GLOBALS['current_smf_version'])
+		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != SMF_VERSION)
 		{
 			$incontext['error'] = $txt['error_versions_do_not_match'];
 			return false;
@@ -1111,7 +1112,7 @@ function DatabasePopulation()
 		'{$boardurl}' => $boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
-		'{$smf_version}' => $GLOBALS['current_smf_version'],
+		'{$smf_version}' => SMF_VERSION,
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
@@ -1168,7 +1169,7 @@ function DatabasePopulation()
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
+	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
@@ -2017,7 +2018,7 @@ function template_install_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>
 </body>
@@ -2030,12 +2031,12 @@ function template_welcome_message()
 	global $incontext, $txt;
 
 	echo '
-	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
+	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
+		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">
 			<h3>', $txt['error_warning_notice'], '</h3>
-			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
+			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
 		</div>';
 
 	// Show the warnings, or not.

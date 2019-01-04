@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -6431,7 +6431,6 @@ function build_query_board($userid)
 	$query_part = array();
 	$groups = array();
 	$is_admin = false;
-	$deny_boards_access = !empty($modSettings['deny_boards_access']) ? $modSettings['deny_boards_access'] : null;
 	$mod_cache;
 	$ignoreboards;
 
@@ -6512,12 +6511,26 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = 'EXISTS (SELECT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) 
-				  AND bpv.id_board = b.id_board)' .
-				  ( !empty($deny_boards_access) ? ' 
-					AND NOT EXISTS (SELECT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') and bpv.deny = 1
-					AND bpv.id_board = b.id_board))' : '');
-	
+	{
+		$query_part['query_see_board'] = '
+			EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ('. implode(',', $groups) .')
+					AND bpv.deny = 0
+					AND bpv.id_board = b.id_board
+			)';
+
+		if (!empty($modSettings['deny_boards_access']))
+			$query_part['query_see_board'] .= '
+			AND NOT EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
+					AND bpv.deny = 1
+					AND bpv.id_board = b.id_board
+			)';
+	}
 
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
