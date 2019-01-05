@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -782,7 +782,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		smf_db_error_backtrace('Primary Key field missing in insert call',
 			'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
 
-	if (!$with_returning || $method != 'ingore')
+	if (!$with_returning || $method != 'ignore')
 	{
 		// Do the insert.
 		$smcFunc['db_query']('', '
@@ -819,7 +819,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			$new_id = $smcFunc['db_insert_id']();
 
 			// the inserted value was new
-			if ($last_id != $new_id)
+			if ($old_id != $new_id)
 			{
 				$ai = $new_id;
 			}
@@ -830,9 +830,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				$count2 = count($indexed_columns);
 				for ($x = 0; $x < $count2; $x++)
 				{
-					$where_string += key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
+					$where_string .= key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
 					if (($x + 1) < $count2)
-						$where_string += ' AND ';
+						$where_string .= ' AND ';
 				}
 
 				$request = $smcFunc['db_query']('', '

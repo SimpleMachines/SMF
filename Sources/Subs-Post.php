@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -137,6 +137,9 @@ function preparsecode(&$message, $previewing = false)
 	// Change the color specific tags to [color=the color].
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
 	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
+
+	// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
+	$message = preg_replace('~\[(/?)(\b' . implode("\b|\b", array_unique($context['legacy_bbc'])) . '\b)([^\]]*)\]~i', '&#91;$1$2$3&#93;', $message);
 
 	// Make sure all tags are lowercase.
 	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function($m)

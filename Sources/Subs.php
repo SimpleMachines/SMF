@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -1078,6 +1078,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			foreach ($temp as $tag)
 				$disabled[trim($tag)] = true;
+
+			if (in_array('color', $disabled))
+				$disabled = array_merge($disabled, array(
+					'black' => true,
+					'white' => true,
+					'red' => true,
+					'green' => true,
+					'blue' => true,
+					)
+				);
 		}
 
 		// The YouTube bbc needs this for its origin parameter
@@ -1179,11 +1189,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (and just an alias for [abbr] even when enabled)
 			array(
 				'tag' => 'acronym',
 				'type' => 'unparsed_equals',
-				'before' => '<acronym title="$1">',
-				'after' => '</acronym>',
+				'before' => '<abbr title="$1">',
+				'after' => '</abbr>',
 				'quoted' => 'optional',
 				'disabled_after' => ' ($1)',
 			),
@@ -1259,6 +1270,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<b>',
 				'after' => '</b>',
 			),
+			// Legacy (equivalent to [ltr] or [rtl])
 			array(
 				'tag' => 'bdo',
 				'type' => 'unparsed_equals',
@@ -1267,20 +1279,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '(rtl|ltr)\]',
 				'block_level' => true,
 			),
+			// Legacy (alias of [color=black])
 			array(
 				'tag' => 'black',
 				'before' => '<span style="color: black;" class="bbc_color">',
 				'after' => '</span>',
 			),
+			// Legacy (alias of [color=blue])
 			array(
 				'tag' => 'blue',
 				'before' => '<span style="color: blue;" class="bbc_color">',
 				'after' => '</span>',
 			),
+			// Legacy (same as typing an actual line break character)
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
-				'content' => '<br />',
+				'content' => '<br>',
 			),
 			array(
 				'tag' => 'center',
@@ -1388,6 +1403,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (and just a link even when not disabled)
+			array(
+				'tag' => 'flash',
+				'type' => 'unparsed_commas_content',
+				'test' => '\d+,\d+\]',
+				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data[0] = '//' . ltrim($data[0], ':/');
+				},
+			),
 			array(
 				'tag' => 'float',
 				'type' => 'unparsed_equals',
@@ -1408,27 +1436,30 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'trim' => 'outside',
 				'block_level' => true,
 			),
+			// Legacy (alias of [url] with an FTP URL)
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
+				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br />' => ''));
-
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
+					$data = strtr($data, array('<br>' => ''));
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = 'ftp://' . ltrim($data, ':/');
 				},
 			),
+			// Legacy (alias of [url] with an FTP URL)
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_equals',
-				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
+				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = 'ftp://' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1440,6 +1471,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="font-family: $1;" class="bbc_font">',
 				'after' => '</span>',
 			),
+			// Legacy (one of those things that should not be done)
 			array(
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
@@ -1447,6 +1479,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="text-shadow: $1 1px 1px 1px">',
 				'after' => '</span>',
 			),
+			// Legacy (alias of [color=green])
 			array(
 				'tag' => 'green',
 				'before' => '<span style="color: green;" class="bbc_color">',
@@ -1623,6 +1656,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention" data-mention="$1">@',
 				'after' => '</a>',
 			),
+			// Legacy (horrible memories of the 1990s)
 			array(
 				'tag' => 'move',
 				'before' => '<marquee>',
@@ -1707,6 +1741,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'trim' => 'both',
 				'block_level' => true,
 			),
+			// Legacy (alias of [color=red])
 			array(
 				'tag' => 'red',
 				'before' => '<span style="color: red;" class="bbc_color">',
@@ -1729,6 +1764,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<s>',
 				'after' => '</s>',
 			),
+			// Legacy (never a good idea)
 			array(
 				'tag' => 'shadow',
 				'type' => 'unparsed_commas',
@@ -1824,10 +1860,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_before' => '',
 				'disabled_after' => '',
 			),
+			// Legacy (the <tt> element is dead)
 			array(
 				'tag' => 'tt',
-				'before' => '<tt class="bbc_tt">',
-				'after' => '</tt>',
+				'before' => '<span class="monospace">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'u',
@@ -1861,6 +1898,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (alias of [color=white])
 			array(
 				'tag' => 'white',
 				'before' => '<span style="color: white;" class="bbc_color">',
@@ -1883,14 +1921,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'img',
 			'html',
 		);
-
-		// Handle legacy bbc codes.
-		foreach ($context['legacy_bbc'] as $bbc)
-			$codes[] = array(
-				'tag' => $bbc,
-				'before' => '',
-				'after' => '',
-			);
 
 		// Let mods add new BBC without hassle.
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
@@ -1994,7 +2024,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if (!isset($_GET['images']))
 			$disabled['img'] = true;
 
-		// @todo Interface/setting to add more?
+		// Maybe some custom BBC need to be disabled for printing.
+		call_integration_hook('integrate_bbc_print', array(&$disabled));
 	}
 
 	$open_tags = array();
@@ -6326,13 +6357,22 @@ function build_regex($strings, $delim = null, $returnArray = false)
  */
 function ssl_cert_found($url)
 {
+	// This check won't work without OpenSSL
+	if (!extension_loaded('openssl'))
+		return true;
+
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
+	if (version_compare(PHP_VERSION, '5.6.0', '<'))
+		$ssloptions = array("capture_peer_cert" => true);
+	else
+		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
+
 	$result = false;
-	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$context = stream_context_create(array("ssl" => $ssloptions));
 	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 	if ($stream !== false)
 	{
@@ -6392,7 +6432,6 @@ function build_query_board($userid)
 	$query_part = array();
 	$groups = array();
 	$is_admin = false;
-	$deny_boards_access = !empty($modSettings['deny_boards_access']) ? $modSettings['deny_boards_access'] : null;
 	$mod_cache;
 	$ignoreboards;
 
@@ -6473,9 +6512,26 @@ function build_query_board($userid)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( ' . implode(',', $groups) . ') AND bpv.deny = 0) '
-			. (!empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( ' . implode(',', $groups) . ') and bpv.deny = 1)' : '')
-			. ' AND bpv.id_board = b.id_board)';
+	{
+		$query_part['query_see_board'] = '
+			EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ('. implode(',', $groups) .')
+					AND bpv.deny = 0
+					AND bpv.id_board = b.id_board
+			)';
+
+		if (!empty($modSettings['deny_boards_access']))
+			$query_part['query_see_board'] .= '
+			AND NOT EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
+					AND bpv.deny = 1
+					AND bpv.id_board = b.id_board
+			)';
+	}
 
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also

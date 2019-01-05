@@ -74,6 +74,11 @@ textarea {
 	font-size: 1em;
 }
 
+/* Use a consistent monospace font everywhere */
+.monospace, .bbc_code, .phpcode, pre {
+	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
+}
+
 .sceditor-container textarea, .sceditor-container textarea:focus {
 	box-shadow: none;
 }
@@ -325,7 +330,6 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
 	font-size: 0.75em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;

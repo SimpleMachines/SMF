@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -366,24 +366,18 @@ function reloadSettings()
 	);
 
 	// Define a list of allowed tags for descriptions.
-	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+	$context['description_allowed_tags'] = array(
+		'abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img',
+		'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub',
+		'sup', 'table', 'td', 'tr', 'u', 'url',
+	);
 
-	// Define a list of old BBC tags no longer parsed
+	// Define a list of deprecated BBC tags
+	// Even when enabled, they'll only work in old posts and not new ones
 	$context['legacy_bbc'] = array(
-		'br',
-		'tt',
-		'flash',
-		'bdo',
-		'black',
-		'white',
-		'red',
-		'green',
-		'blue',
-		'acronym',
-		'ftp',
-		'glow',
-		'move',
-		'shadow',
+		'acronym', 'bdo', 'black', 'blue', 'br', 'flash', 'ftp', 'glow',
+		'green', 'move', 'red', 'shadow', 'tt', 'white',
+
 	);
 
 	// Call pre load integration functions.

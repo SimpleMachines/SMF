@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -1090,7 +1090,7 @@ function getAttachMsgInfo($attachID)
  */
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $user_info;
 	static $attached = array();
 
 	if (!isset($attached[$msgID]))
@@ -1142,7 +1142,7 @@ function getAttachsByMsg($msgID = 0)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc, $context;
 
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();

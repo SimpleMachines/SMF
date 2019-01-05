@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -296,16 +296,20 @@ function ModifyBBCSettings($return_config = false)
 	$config_vars = array(
 		// Main tweaks
 		array('check', 'enableBBC'),
-		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
+		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked); toggleBBCDisabled(\'legacyBBC\', !this.checked);'),
 		array('check', 'enablePostHTML'),
 		array('check', 'autoLinkUrls'),
 		'',
 
 		array('bbc', 'disabledBBC'),
+
+		// This one is actually pretend...
+		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
 	$context['settings_post_javascript'] = '
-		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
+		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
@@ -319,6 +323,9 @@ function ModifyBBCSettings($return_config = false)
 
 	// Make sure we check the right tags!
 	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+
+	// Legacy BBC are listed separately, but we use the same info in both cases
+	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -335,8 +342,22 @@ function ModifyBBCSettings($return_config = false)
 		elseif (!is_array($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
 
+		if (!isset($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array();
+		elseif (!is_array($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
+
+		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		// $modSettings['legacyBBC'] isn't really a thing...
+		unset($_POST['legacyBBC_enabledTags']);
+		$config_vars = array_filter($config_vars, function($config_var)
+		{
+			return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
+		});
 
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
@@ -754,7 +775,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
-	$(".qa_add_answer a").click(function() {
+	$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
 		var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
@@ -792,7 +813,7 @@ function ModifyAntispamSettings($return_config = false)
 		{
 			// If we had some questions for this language before, but don't now, delete everything from that language.
 			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
-				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
+				$changes['delete'] = array_merge($changes['delete'], $context['qa_by_lang'][$lang_id]);
 
 			// Now step through and see if any existing questions no longer exist.
 			if (!empty($context['qa_by_lang'][$lang_id]))

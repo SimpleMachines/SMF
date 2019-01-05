@@ -53,7 +53,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -1161,40 +1161,44 @@ function prepareDBSettingContext(&$config_vars)
 			$bbcTags[] = $tag['tag'];
 
 		$bbcTags = array_unique($bbcTags);
-		$totalTags = count($bbcTags);
 
 		// The number of columns we want to show the BBC tags in.
 		$numColumns = isset($context['num_bbc_columns']) ? $context['num_bbc_columns'] : 3;
 
-		// Start working out the context stuff.
-		$context['bbc_columns'] = array();
-		$tagsPerColumn = ceil($totalTags / $numColumns);
-
-		$col = 0;
-		$i = 0;
-		foreach ($bbcTags as $tag)
-		{
-			if ($i % $tagsPerColumn == 0 && $i != 0)
-				$col++;
-
-			$context['bbc_columns'][$col][] = array(
-				'tag' => $tag,
-				// @todo  'tag_' . ?
-				'show_help' => isset($helptxt[$tag]),
-			);
-
-			$i++;
-		}
-
 		// Now put whatever BBC options we may have into context too!
 		$context['bbc_sections'] = array();
-		foreach ($bbcChoice as $bbc)
+		foreach ($bbcChoice as $bbcSection)
 		{
-			$context['bbc_sections'][$bbc] = array(
-				'title' => isset($txt['bbc_title_' . $bbc]) ? $txt['bbc_title_' . $bbc] : $txt['enabled_bbc_select'],
-				'disabled' => empty($modSettings['bbc_disabled_' . $bbc]) ? array() : $modSettings['bbc_disabled_' . $bbc],
-				'all_selected' => empty($modSettings['bbc_disabled_' . $bbc]),
+			$context['bbc_sections'][$bbcSection] = array(
+				'title' => isset($txt['bbc_title_' . $bbcSection]) ? $txt['bbc_title_' . $bbcSection] : $txt['enabled_bbc_select'],
+				'disabled' => empty($modSettings['bbc_disabled_' . $bbcSection]) ? array() : $modSettings['bbc_disabled_' . $bbcSection],
+				'all_selected' => empty($modSettings['bbc_disabled_' . $bbcSection]),
+				'columns' => array(),
 			);
+
+			if ($bbcSection == 'legacyBBC')
+				$sectionTags = array_intersect($context['legacy_bbc'], $bbcTags);
+			else
+				$sectionTags = array_diff($bbcTags, $context['legacy_bbc']);
+
+			$totalTags = count($sectionTags);
+			$tagsPerColumn = ceil($totalTags / $numColumns);
+
+			$col = 0;
+			$i = 0;
+			foreach ($sectionTags as $tag)
+			{
+				if ($i % $tagsPerColumn == 0 && $i != 0)
+					$col++;
+
+				$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
+					'tag' => $tag,
+					// @todo  'tag_' . ?
+					'show_help' => isset($helptxt[$tag]),
+				);
+
+				$i++;
+			}
 		}
 	}
 
