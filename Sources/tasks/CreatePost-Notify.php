@@ -99,6 +99,22 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		$smcFunc['db_free_result']($request);
 
+		// Modified post
+		if ($type == 'edit')
+		{
+			// Filter out members who have already been notified about this post's topic
+			$unnotified = array_filter($watched, function ($member)
+			{
+				return empty($member['sent']);
+			});
+			$members = array_intersect($members, array_keys($unnotified));
+			$quotedMembers = array_intersect_key($quotedMembers, $unnotified);
+			$msgOptions['mentioned_members'] = array_intersect_key($msgOptions['mentioned_members'], $unnotified);
+
+			// Notifications about modified posts only go to members who were mentioned or quoted
+			$watched = array();
+		}
+
 		if (empty($members))
 			return true;
 
