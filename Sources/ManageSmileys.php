@@ -702,8 +702,8 @@ function AddSmiley()
 					fatal_lang_error('smileys_upload_error_blank');
 
 				if (empty($newName))
-					$newName = basename($_FILES[$name]['name']);
-				elseif (basename($_FILES[$name]['name']) != $newName)
+					$newName = pathinfo($_FILES[$name]['name'], PATHINFO_FILENAME);
+				elseif (pathinfo($_FILES[$name]['name'], PATHINFO_FILENAME) != $newName)
 					fatal_lang_error('smileys_upload_error_name');
 			}
 
