@@ -2546,7 +2546,6 @@ DROP INDEX id_board;
 UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.gif', '')
 WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
 ---#
 
@@ -2554,7 +2553,6 @@ WHERE
 UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.png', '')
 WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.png';
 ---#
 
