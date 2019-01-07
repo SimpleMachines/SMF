@@ -415,7 +415,6 @@ function EditSmileySets()
 				),
 				'sort' => array(
 					'default' => 'selected DESC',
-					'reverse' => 'selected',
 				),
 			),
 			'name' => array(
