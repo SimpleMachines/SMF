@@ -54,6 +54,9 @@ function preparsecode(&$message, $previewing = false)
 	while (substr($message, 0, 8) == '[/quote]')
 		$message = substr($message, 8);
 
+	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
+
 	// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
 	$in_tag = false;
 	$had_tag = false;
@@ -268,6 +271,9 @@ function un_preparsecode($message)
 	{
 		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 	}, $message);
+
+	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 	// Attempt to un-parse the time to something less awful.
 	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function($m)

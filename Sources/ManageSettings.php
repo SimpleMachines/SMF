@@ -327,6 +327,13 @@ function ModifyBBCSettings($return_config = false)
 	// Legacy BBC are listed separately, but we use the same info in both cases
 	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
 
+	$extra = '';
+	if (isset($_REQUEST['cowsay']))
+	{
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$extra = ';cowsay';
+	}
+
 	// Saving?
 	if (isset($_GET['save']))
 	{
@@ -363,10 +370,10 @@ function ModifyBBCSettings($return_config = false)
 
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=bbc');
+		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc';
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
 	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
