@@ -709,7 +709,8 @@ function AddSmiley()
 
 			foreach ($context['smiley_sets'] as $i => $set)
 			{
-				$set['name'] = un_htmlspecialchars($set['name']);
+				// Name must be treated differently; it's used within a variable name & php converted spaces & periods to underscores
+				$set['name'] = strtr(un_htmlspecialchars($set['name']), ' .', '__');
 				$set['path'] = un_htmlspecialchars($set['path']);
 
 				if (!isset($_FILES['individual_' . $set['name']]['name']) || $_FILES['individual_' . $set['name']]['name'] == '')
