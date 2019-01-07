@@ -391,12 +391,12 @@ function updateMemberData($members, $data)
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, false) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
 			else
-				$val = alert_count($members, false);
+				$val = alert_count($members, true);
 		}
 		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
