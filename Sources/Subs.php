@@ -1022,7 +1022,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled;
+	static $disabled, $param_regexes = array();
 
 	// Don't waste cycles
 	if ($message === '')
@@ -2305,9 +2305,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos >= strlen($message) - 1)
 			break;
 
-		$tags = strtolower($message[$pos + 1]);
+		$tag_character = strtolower($message[$pos + 1]);
 
-		if ($tags == '/' && !empty($open_tags))
+		if ($tag_character == '/' && !empty($open_tags))
 		{
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
@@ -2418,12 +2418,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// No tags for this character, so just keep going (fastest possible course.)
-		if (!isset($bbc_codes[$tags]))
+		if (!isset($bbc_codes[$tag_character]))
 			continue;
 
 		$inside = empty($open_tags) ? null : $open_tags[count($open_tags) - 1];
 		$tag = null;
-		foreach ($bbc_codes[$tags] as $possible)
+		foreach ($bbc_codes[$tag_character] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
 
@@ -2503,9 +2503,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
-				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				$regex_key = $smcFunc['json_encode']($possible['parameters']);
+				if (!isset($params_regexes[$regex_key]))
+				{
+					$params_regexes[$regex_key] = '';
+
+					foreach ($possible['parameters'] as $p => $info)
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				}
 
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
@@ -2522,10 +2527,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 
-					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+					$match = preg_match('~^' . $params_regexes[$regex_key] . '$~i', implode(' ', $given_params), $matches) !== 0;
 
 					if ($match)
-						$blob_counter = count($blobs) + 1;
+						break;
 				}
 
 				// Didn't match our parameter list, try the next possible.
