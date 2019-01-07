@@ -340,7 +340,7 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	resize: vertical;
+	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -351,6 +351,10 @@ blockquote cite::before {
 /* For links to change the code stuff... */
 .codeoperation {
 	font-weight: normal;
+}
+/* Expand code bbc */
+.expand_code {
+	max-height: unset;
 }
 /* Let's get a bit more flexibility in font sizes for quotes and code. */
 /* We just need to stop em compounding when elements are nested. */
