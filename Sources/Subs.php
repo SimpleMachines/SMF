@@ -2443,7 +2443,18 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Do we want parameters?
 			elseif (!empty($possible['parameters']))
 			{
-				if ($next_c != ' ')
+				// Are all the parameters optional?
+				$param_required = false;
+				foreach ($possible['parameters'] as $param)
+				{
+					if (empty($param['optional']))
+					{
+						$param_required = true;
+						break;
+					}
+				}
+
+				if ($param_required && $next_c != ' ')
 					continue;
 			}
 			elseif (isset($possible['type']))
