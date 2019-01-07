@@ -1022,7 +1022,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled, $param_regexes = array();
+	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
 	if ($message === '')
@@ -2030,13 +2030,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 
-	$alltags = array();
-	foreach ($bbc_codes as $section)
+	if (!empty($parse_tags))
 	{
-		foreach ($section as $code)
-			$alltags[] = $code['tag'];
+		$real_alltags_regex = $alltags_regex;
+		$alltags_regex = '';
 	}
-	$alltags_regex = '\b' . implode("\b|\b", array_unique(array_merge($alltags, $itemcodes)) . '\b';
+	if (empty($alltags_regex))
+	{
+		$alltags = array();
+		foreach ($bbc_codes as $section)
+		{
+			foreach ($section as $code)
+				$alltags[] = $code['tag'];
+		}
+		$alltags_regex = '\b' . build_regex(array_unique(array_merge($alltags, $itemcodes))) . '\b';
+	}
 
 	$pos = -1;
 	while ($pos !== false)
@@ -2923,6 +2931,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			$bbc_codes = $temp_bbc;
 			unset($temp_bbc);
+		}
+
+		if (empty($real_alltags_regex))
+			$alltags_regex = '';
+		else
+		{
+			$alltags_regex = $real_alltags_regex;
+			unset($real_alltags_regex);
 		}
 	}
 
