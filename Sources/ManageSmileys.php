@@ -778,7 +778,7 @@ function AddSmiley()
 				'code' => 'string-30', 'filename' => 'string-48', 'description' => 'string-80', 'hidden' => 'int', 'smiley_order' => 'int',
 			),
 			array(
-				$_POST['smiley_code'], $_POST['smiley_filename'], $_POST['smiley_description'], $_POST['smiley_location'], $smiley_order,
+				$_POST['smiley_code'], pathinfo($_POST['smiley_filename'], PATHINFO_FILENAME), $_POST['smiley_description'], $_POST['smiley_location'], $smiley_order,
 			),
 			array('id_smiley')
 		);
