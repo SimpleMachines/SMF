@@ -277,7 +277,7 @@ function un_preparsecode($message)
 		$message = str_replace(array_keys($code_tags), array_values($code_tags), $message);
 
 	// Change breaks back to \n's and &nsbp; back to spaces.
-	return preg_replace('~<br( /)?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
+	return preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
 }
 
 /**
