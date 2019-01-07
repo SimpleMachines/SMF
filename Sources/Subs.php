@@ -2036,7 +2036,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		foreach ($section as $code)
 			$alltags[] = $code['tag'];
 	}
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+	$alltags_regex = '\b' . implode("\b|\b", array_unique(array_merge($alltags, $itemcodes)) . '\b';
 
 	$pos = -1;
 	while ($pos !== false)
