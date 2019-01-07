@@ -2271,7 +2271,7 @@ function alert_count($memID, $unread = false)
 
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, extra
+		SELECT id_alert, content_id, content_type, extra
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2284,12 +2284,23 @@ function alert_count($memID, $unread = false)
 	// First we dump alerts and possible boards information out.
 	$alerts = array();
 	$boards = array();
+	$topics = array();
+	$msgs = array();
 	$possible_boards = array();
+	$possible_topics = array();
+	$possible_msgs = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 
-		if (!empty($alerts[$row['id_alert']]['board']))
+		if ($row['content_type'] == 'msg')
+		{
+			$possible_msgs[] = $row['content_id'];
+			$alerts[$row['id_alert']]['msg'] = $row['content_id'];
+		}
+		elseif (isset($alerts[$row['id_alert']]['topic']))
+			$possible_topics[] = $alerts[$row['id_alert']]['topic'];
+		elseif (isset($alerts[$row['id_alert']]['board']))
 			$possible_boards[] = $alerts[$row['id_alert']]['board'];
 	}
 	$smcFunc['db_free_result']($request);
@@ -2305,7 +2316,48 @@ function alert_count($memID, $unread = false)
 	else
 		$query_see_board = '{query_see_board}';
 
-	// Find only the boards they can see.
+	// We want only the stuff they can see.
+	if (!empty($possible_msgs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, m.id_topic, b.id_board
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$msgs[] = $row['id_msg'];
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic, b.id_board
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
 	if (!empty($possible_boards))
 	{
 		$request = $smcFunc['db_query']('', '
@@ -2318,14 +2370,22 @@ function alert_count($memID, $unread = false)
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[$row['id_board']] = $row['id_board'];
+			$boards[] = $row['id_board'];
+
+		$smcFunc['db_free_result']($request);
 	}
-	unset($possible_boards);
+	unset($possible_msgs, $possible_topics, $possible_boards);
 
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $extra)
-		if (isset($extra['board']) && !isset($boards[$extra['board']]))
+	{
+		if (isset($extra['msg']) && !in_array($extra['msg'], $msgs))
 			unset($alerts[$id_alert]);
+		elseif (isset($extra['topic']) && !in_array($extra['topic'], $topics))
+			unset($alerts[$id_alert]);
+		elseif (isset($extra['board']) && !in_array($extra['board'], $boards))
+			unset($alerts[$id_alert]);
+	}
 
 	return count($alerts);
 }
