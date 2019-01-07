@@ -415,6 +415,7 @@ function EditSmileySets()
 				),
 				'sort' => array(
 					'default' => 'selected DESC',
+					'reverse' => 'selected',
 				),
 			),
 			'name' => array(
@@ -733,6 +734,10 @@ function AddSmiley()
 				// Make sure they aren't trying to upload a nasty file - for their own good here!
 				if (in_array(strtolower($destName), $disabledFiles))
 					fatal_lang_error('smileys_upload_error_illegal');
+
+				// Only allow an upload of the proper extension for the set
+				if (pathinfo($_FILES['individual_' . $set['name']]['name'], PATHINFO_EXTENSION) != str_replace('.', '', $set['ext']))
+					fatal_lang_error('smileys_upload_error_exts');
 
 				// If the file exists - ignore it.
 				$smileyLocation = $context['smileys_dir'] . '/' . $set['path'] . '/' . $destName;

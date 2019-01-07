@@ -276,6 +276,7 @@ $txt['smileys_upload_error'] = 'Failed to upload file.';
 $txt['smileys_upload_error_blank'] = 'All smiley sets must have an image.';
 $txt['smileys_upload_error_name'] = 'All smileys must have the same filename.';
 $txt['smileys_upload_error_illegal'] = 'Illegal Type.';
+$txt['smileys_upload_error_exts'] = 'Cannot mix file types within a smiley set.';
 
 $txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configure to be non-zero. Please report this error to an administrator.';
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
