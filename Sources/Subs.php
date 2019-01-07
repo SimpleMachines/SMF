@@ -1291,7 +1291,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="color: blue;" class="bbc_color">',
 				'after' => '</span>',
 			),
-			// Legacy (same as typing an actual line break character)
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
