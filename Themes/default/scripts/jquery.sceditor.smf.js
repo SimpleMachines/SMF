@@ -731,22 +731,24 @@ sceditor.formats.bbcode.set(
 	}
 );
 
-sceditor.formats.bbcode.set('font', {
-	format: function (element, content) {
-		var element = $(element);
-		var font;
+sceditor.formats.bbcode.set(
+	'font', {
+		format: function (element, content) {
+			var element = $(element);
+			var font;
 
-		// Get the raw font value from the DOM
-		if (!element.is('font') || !(font = element.attr('face'))) {
-			font = element.css('font-family');
+			// Get the raw font value from the DOM
+			if (!element.is('font') || !(font = element.attr('face'))) {
+				font = element.css('font-family');
+			}
+
+			// Strip all quotes
+			font = font.replace(/['"]/g, '');
+
+			return '[font=' + font + ']' + content + '[/font]';
 		}
-
-		// Strip all quotes
-		font = font.replace(/['"]/g, '');
-
-		return '[font=' + font + ']' + content + '[/font]';
-	}
-});
+}
+);
 
 sceditor.formats.bbcode.set(
 	'member', {
