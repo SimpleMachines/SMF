@@ -387,6 +387,82 @@ sceditor.formats.bbcode.set(
 );
 
 sceditor.formats.bbcode.set(
+	'li', {
+		tags: {
+			li: null
+		},
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		format: '[li]{0}[/li]',
+		html: '<li>{0}</li>'
+	},
+);
+sceditor.formats.bbcode.set(
+	'*', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li>{0}</li>',
+		format: '[*]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'@', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li>{0}</li>',
+		format: '[@]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'+', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[+]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'x', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[x]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'#', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[#]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'o', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[o]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'O', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[O]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'0', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[0]{0}',
+	}
+);
+
+sceditor.formats.bbcode.set(
 	'img', {
 		tags: {
 			img: {
