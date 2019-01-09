@@ -216,7 +216,7 @@ function preparsecode(&$message, $previewing = false)
 
 		$tags = array();
 		foreach (($codes = parse_bbc(false)) as $code)
-			if (!in_array($code['tag'], $allowed_empty) && !empty($code['type']) && $code['type'] != 'closed')
+			if (!in_array($code['tag'], $allowed_empty))
 				$tags[] = $code['tag'];
 
 		$tags_regex = build_regex($tags, '~');
