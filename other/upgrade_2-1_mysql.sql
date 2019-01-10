@@ -2542,46 +2542,30 @@ DROP INDEX id_board;
 /******************************************************************************/
 --- Update smileys
 /******************************************************************************/
----# Remove hardcoded gif extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.gif', '')
-WHERE
-	filename LIKE '%.gif';
----#
-
----# Remove hardcoded png extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.png', '')
-WHERE
-	filename LIKE '%.png';
----#
-
----# Adding new extensions setting...
----{
-if (!isset($modSettings['smiley_sets_exts']))
-	upgrade_query("
-		INSERT INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('smiley_sets_exts', '')");
----}
+---# Adding the new `smiley_files` table
+CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
+(
+	id_smiley SMALLINT NOT NULL DEFAULT '0',
+	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+	filename VARCHAR(48) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_smiley, smiley_set, filename)
+) ENGINE=MyISAM;
 ---#
 
 ---# Cleaning up unused smiley sets and adding the lovely new ones
 ---{
 // Start with the prior values...
 $dirs = explode(',', $modSettings['smiley_sets_known']);
-$setexts = empty($modSettings['smiley_sets_exts']) ? array() : explode(',', $modSettings['smiley_sets_exts']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
 // Build combined pairs of folders and names; bypass default which is not used anymore
-// If extensions not provided, assume its an old 2.0 one, i.e., a .gif
 $combined = array();
 foreach ($dirs AS $ix => $dir)
+{
 	if (!empty($setnames[$ix]) && $dir != 'default')
-	{
-		$combined[$dir] = array($setnames[$ix], empty($setexts[$ix]) ? '.gif' : $setexts[$ix]);
-	}
+		$combined[$dir] = array($setnames[$ix], '.gif');
+}
+
 
 // Add our lovely new 2.1 smiley sets if not already there
 $combined['fugue'] = array($txt['default_fugue_smileyset_name'], '.png');
@@ -2593,9 +2577,12 @@ $combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], '.gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
-foreach ($combined AS $dir => $attrs)
+$default_replacements = array();
+foreach ($combined as $dir => $attrs)
+{
 	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
-		$filtered[$dir] = $attrs;
+		$filtered[$dir] = $attrs[0];
+}
 
 // Update the Settings Table...
 upgrade_query("
@@ -2605,13 +2592,39 @@ upgrade_query("
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column($filtered, 1))) . "'
-	WHERE variable = 'smiley_sets_exts'");
-
-upgrade_query("
-	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column($filtered, 0))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
+
+// Populate the smiley_files table...
+$inserts = array();
+
+$request = upgrade_query("
+	SELECT id_smiley, filename
+	FROM {$db_prefix}smileys");
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	$pathinfo = pathinfo($row['filename']);
+
+	foreach ($filtered as $set => $attrs)
+	{
+		// The default smileys in 2.1 use PNG files
+		if (in_array($set, array('fugue', 'alienine')) || empty($pathinfo['extension']))
+			$pathinfo['extension'] = 'png';
+
+		$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $pathinfo['extension']);
+	}
+}
+$smcFunc['db_free_result']($request);
+
+if (!empty($inserts))
+{
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}smiley_files',
+		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		$inserts,
+		array('id_smiley', 'smiley_set', 'filename')
+	);
+}
 
 // Set new default if the old one doesnt exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
@@ -2620,7 +2633,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 	if (array_key_exists('fugue', $filtered))
 		$newdefault = 'fugue';
 	elseif (!empty($filtered))
-		$newdefault = array_keys($filtered)[0];
+		$newdefault = reset(array_keys($filtered));
 	else
 		$newdefault = '';
 	upgrade_query("
@@ -2630,6 +2643,11 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 }
 
 ---}
+---#
+
+---# Drop obsolete filename column from smileys table
+ALTER TABLE {$db_prefix}smileys
+DROP COLUMN filename;
 ---#
 
 /******************************************************************************/

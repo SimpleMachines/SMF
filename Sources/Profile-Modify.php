@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -458,11 +458,26 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc, $settings)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
+
+				$filenames = '';
+				$result = $smcFunc['db_query']('', '
+					SELECT f.filename
+					FROM {db_prefix}smiley_files AS f
+						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
+					WHERE s.code = {string:smiley}',
+					array(
+						'smiley' => ':)',
+					)
+				);
+				if ($smcFunc['db_num_rows']($result) !== 0)
+					list ($filenames) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
+
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
 					$context['smiley_sets'][$i] = array(
@@ -471,9 +486,25 @@ function loadProfileFields($force_reload = false)
 						'selected' => $set == $context['member']['smiley_set']['id']
 					);
 
+					if ($set === 'none')
+						$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+					elseif ($set === '')
+					{
+						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'];
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $default_set, $filenames[$default_set]));
+					}
+					else
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $set, $filenames[$set]));
+
 					if ($context['smiley_sets'][$i]['selected'])
+					{
 						$context['member']['smiley_set']['name'] = $set_names[$i];
+						$context['member']['smiley_set']['preview'] = $context['smiley_sets'][$i]['preview'];
+					}
+
+					$context['smiley_sets'][$i]['preview'] = $smcFunc['htmlspecialchars']($context['smiley_sets'][$i]['preview']);
 				}
+
 				return true;
 			},
 			'input_validate' => function(&$value)

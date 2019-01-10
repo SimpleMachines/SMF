@@ -1852,110 +1852,29 @@ function create_control_richedit($editorOptions)
 			'popup' => array(),
 		);
 
-		// Load smileys - don't bother to run a query if we're not using the database's ones anyhow.
-		if (empty($modSettings['smiley_enable']) && $user_info['smiley_set'] != 'none')
-			$context['smileys']['postform'][] = array(
-				'smileys' => array(
-					array(
-						'code' => ':)',
-						'filename' => 'smiley',
-						'description' => $txt['icon_smiley'],
-					),
-					array(
-						'code' => ';)',
-						'filename' => 'wink',
-						'description' => $txt['icon_wink'],
-					),
-					array(
-						'code' => ':D',
-						'filename' => 'cheesy',
-						'description' => $txt['icon_cheesy'],
-					),
-					array(
-						'code' => ';D',
-						'filename' => 'grin',
-						'description' => $txt['icon_grin']
-					),
-					array(
-						'code' => '>:(',
-						'filename' => 'angry',
-						'description' => $txt['icon_angry'],
-					),
-					array(
-						'code' => ':(',
-						'filename' => 'sad',
-						'description' => $txt['icon_sad'],
-					),
-					array(
-						'code' => ':o',
-						'filename' => 'shocked',
-						'description' => $txt['icon_shocked'],
-					),
-					array(
-						'code' => '8)',
-						'filename' => 'cool',
-						'description' => $txt['icon_cool'],
-					),
-					array(
-						'code' => '???',
-						'filename' => 'huh',
-						'description' => $txt['icon_huh'],
-					),
-					array(
-						'code' => '::)',
-						'filename' => 'rolleyes',
-						'description' => $txt['icon_rolleyes'],
-					),
-					array(
-						'code' => ':P',
-						'filename' => 'tongue',
-						'description' => $txt['icon_tongue'],
-					),
-					array(
-						'code' => ':-[',
-						'filename' => 'embarrassed',
-						'description' => $txt['icon_embarrassed'],
-					),
-					array(
-						'code' => ':-X',
-						'filename' => 'lipsrsealed',
-						'description' => $txt['icon_lips'],
-					),
-					array(
-						'code' => ':-\\',
-						'filename' => 'undecided',
-						'description' => $txt['icon_undecided'],
-					),
-					array(
-						'code' => ':-*',
-						'filename' => 'kiss',
-						'description' => $txt['icon_kiss'],
-					),
-					array(
-						'code' => ':\'(',
-						'filename' => 'cry',
-						'description' => $txt['icon_cry'],
-						'isLast' => true,
-					),
-				),
-				'isLast' => true,
-			);
-		elseif ($user_info['smiley_set'] != 'none')
+		if ($user_info['smiley_set'] != 'none')
 		{
-			if (($temp = cache_get_data('posting_smileys', 480)) == null)
+			// Cache for longer when customized smiley codes aren't enabled
+			$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+			if (($temp = cache_get_data('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT code, filename, description, smiley_row, hidden
-					FROM {db_prefix}smileys
-					WHERE hidden IN (0, 2)
-					ORDER BY smiley_row, smiley_order',
+					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
+					FROM {db_prefix}smileys AS s
+						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+					WHERE s.hidden IN (0, 2)
+						AND f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+						AND s.code IN {array_string:default_codes}' : '') . '
+					ORDER BY s.smiley_row, s.smiley_order',
 					array(
+						'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+						'smiley_set' => $user_info['smiley_set'],
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
-					$row['filename'] = $smcFunc['htmlspecialchars']($row['filename']);
-					$row['description'] = $smcFunc['htmlspecialchars']($row['description']);
+					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? $smcFunc['htmlspecialchars']($txt['icon_' . strtolower($row['description'])]) : $smcFunc['htmlspecialchars']($row['description']);
 
 					$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
@@ -1970,25 +1889,11 @@ function create_control_richedit($editorOptions)
 						$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				cache_put_data('posting_smileys', $context['smileys'], 480);
+				cache_put_data('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
 			}
 			else
 				$context['smileys'] = $temp;
 		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		array_walk_recursive($context['smileys'], function(&$filename, $key)
-		{
-			global $context, $user_info, $modSettings;
-			if ($key == 'filename')
-				// Need to use the default if user selection is disabled
-				if (empty($modSettings['smiley_sets_enable']))
-					$filename .= $context['user']['smiley_set_default_ext'];
-				else
-					$filename .= $user_info['smiley_set_ext'];
-
-		}
-		);
 	}
 
 	// Set a flag so the sub template knows what to do...

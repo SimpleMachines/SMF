@@ -50,18 +50,6 @@ function template_modifyset()
 					<input type="text" name="smiley_sets_name" id="smiley_sets_name" value="', $context['current_set']['name'], '">
 				</dd>
 				<dt>
-					<strong><label for="smiley_sets_ext">', $txt['smiley_sets_ext'], '</label>: </strong>
-				</dt>
-				<dd>
-					<select name="smiley_sets_ext" id="smiley_sets_ext">
-						<option value=".png"', $context['current_set']['ext'] == '.png' ? 'selected' : '', '>.png</option>
-						<option value=".gif"', $context['current_set']['ext'] == '.gif' ? 'selected' : '', '>.gif</option>
-						<option value=".jpg"', $context['current_set']['ext'] == '.jpg' ? 'selected' : '', '>.jpg</option>
-						<option value=".jpeg"', $context['current_set']['ext'] == '.jpeg' ? 'selected' : '', '>.jpeg</option>
-						<option value=".svg"', $context['current_set']['ext'] == '.svg' ? 'selected' : '', '>.svg</option>
-					</select>
-				</dd>
-				<dt>
 					<strong><label for="smiley_sets_path">', $txt['smiley_sets_url'], '</label>: </strong>
 				</dt>
 				<dd>
@@ -126,10 +114,8 @@ function template_modifysmiley()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', $txt['smiley_preview'], ': </strong>
-				</dt>
-				<dd>
-					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'] . $context['user']['smiley_set_default_ext'], '" id="preview" alt=""> ', $txt['smiley_preview_using'], ': <select id="set" onchange="updatePreview();">';
+					<strong>', $txt['smiley_preview_using_set'], ': </strong>
+					<select id="set" onchange="updatePreview($(\'#smiley_filename_\' + $(\'#set\').val()).val(), $(\'#set\').val());">';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
@@ -137,33 +123,50 @@ function template_modifysmiley()
 
 	echo '
 					</select>
+				</dt>
+				<dd>
+					<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['current_smiley']['filename'], '" id="preview" alt="">
 				</dd>
+				<dt>
+					<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
+				</dt>';
+
+	if (empty($context['filenames']))
+	{
+		echo '
+				<dd>
+					<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '">
+				</dd>';
+	}
+	else
+	{
+		foreach ($context['smiley_sets'] as $set => $smiley_set)
+		{
+			echo '
+				<dt>
+					', $smiley_set['name'], '
+				</dt>
+				<dd>
+					<select name="smiley_filename[', $set, ']" id="smiley_filename_', $set, '" onchange="$(\'#set\').val(\'', $set, '\');updatePreview($(\'#smiley_filename_\' + $(\'#set\').val()).val(), $(\'#set\').val());">';
+
+			foreach ($context['filenames'][$set] as $filename)
+				echo '
+						<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
+
+			echo '
+					</select>
+				</dd>';
+		}
+	}
+
+	echo '
+			</dl>
+			<dl class="settings">
 				<dt>
 					<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
 				</dt>
 				<dd>
 					<input type="text" name="smiley_code" id="smiley_code" value="', $context['current_smiley']['code'], '">
-				</dd>
-				<dt>
-					<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
-				</dt>
-				<dd>';
-
-	if (empty($context['filenames']))
-		echo '
-					<input type="text" name="smiley_filename" id="smiley_filename" value="', $context['current_smiley']['filename'], '">';
-	else
-	{
-		echo '
-					<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();">';
-
-		foreach ($context['filenames'] as $filename)
-			echo '
-						<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
-		echo '
-					</select>';
-	}
-	echo '
 				</dd>
 				<dt>
 					<strong><label for="smiley_description">', $txt['smileys_description'], '</label>: </strong>
@@ -221,17 +224,10 @@ function template_addsmiley()
 			<fieldset id="ex_settings">
 				<dl class="settings">
 					<dt>
-						<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['filenames'][0]['id'] . $context['user']['smiley_set_default_ext'], '" id="preview" alt="">
+						<strong><label for="preview">', $txt['smiley_preview'], '</label>: </strong>
 					</dt>
 					<dd>
-						', $txt['smiley_preview_using'], ': <select id="set" onchange="updatePreview();selectMethod(\'existing\');">';
-
-	foreach ($context['smiley_sets'] as $smiley_set)
-		echo '
-							<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
-
-	echo '
-						</select>
+						<img src="', $modSettings['smileys_url'], '/', $modSettings['smiley_sets_default'], '/', $context['filenames'][$context['selected_set']]['smiley']['id'], '" id="preview" alt="">
 					</dd>
 					<dt>
 						<strong><label for="smiley_filename">', $txt['smileys_filename'], '</label>: </strong>
@@ -244,11 +240,24 @@ function template_addsmiley()
 	else
 	{
 		echo '
-						<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();selectMethod(\'existing\');">';
+						<select name="smiley_filename" id="smiley_filename" onchange="updatePreview($(\'#smiley_filename\').val());selectMethod(\'existing\');">';
 
-		foreach ($context['filenames'] as $filename)
+		foreach ($context['smiley_sets'] as $smiley_set)
+		{
 			echo '
-							<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
+							<optgroup label="', $smiley_set['name'], '">';
+
+			if (!empty($context['filenames'][$smiley_set['path']]))
+			{
+				foreach ($context['filenames'][$smiley_set['path']] as $filename)
+					echo '
+								<option value="', $smiley_set['path'], '/', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
+			}
+
+			echo '
+							</optgroup>';
+		}
+
 		echo '
 						</select>';
 	}
@@ -258,20 +267,34 @@ function template_addsmiley()
 				</dl>
 			</fieldset>
 			<fieldset id="ul_settings" style="display: none;">
-
-			<dl id="uploadMore" class="settings">';
+				<dl class="settings">
+					<dt>
+						<strong><label for="sameall">', $txt['smileys_add_upload_all'], ':</label></strong>
+					</dt>
+					<dd>
+						<input type="checkbox" name="sameall" id="sameall" onclick="swapUploads(); selectMethod(\'upload\');">
+					</dd>
+					<dt>
+						<strong>', $txt['smileys_add_upload_choose'], ':</strong>
+					</dt>
+					<dt class="upload_sameall" style="display: none;">
+						', $txt['smileys_add_upload_choose_desc'], '
+					</dt>
+					<dd class="upload_sameall" style="display: none;">
+						<input type="file" name="uploadSmiley" id="uploadSmiley" disabled onchange="selectMethod(\'upload\');">
+					</dd>';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
-				<dt>
-					', sprintf($txt['smileys_add_upload_for'], '<strong>' . $smiley_set['name'] . '</strong>'), ':
-				</dt>
-				<dd>
-					<input type="file" name="individual_', $smiley_set['name'], '" onchange="selectMethod(\'upload\');">
-				</dd>';
+					<dt class="upload_more">
+						', sprintf($txt['smileys_add_upload_for'], '<strong>' . $smiley_set['name'] . '</strong>'), ':
+					</dt>
+					<dd class="upload_more">
+						<input type="file" name="individual_', $smiley_set['path'], '" onchange="selectMethod(\'upload\');">
+					</dd>';
 
 	echo '
-			</dl>
+				</dl>
 			</fieldset>
 		</div><!-- .windowbg -->
 		<div class="cat_bar">
