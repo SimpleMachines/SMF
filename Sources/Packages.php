@@ -1518,6 +1518,8 @@ function PackageBrowse()
 	// Current SMF version, which is selected by default
 	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
 
+	$context['emulation_versions'][] = $context['default_version'];
+
 	// Version we're currently emulating, if any
 	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
 }
