@@ -134,52 +134,30 @@ function html_to_bbc($text)
 	$text = preg_replace('~\\<\\!\\[CDATA\\[.*?\\]\\]\\>~i', '', $text);
 
 	// Do the smileys ultra first!
-	preg_match_all('~<img\s+[^<>]*?id="*smiley_\d+_([^<>]+?)[\s"/>]\s*[^<>]*?/*>(?:\s)?~i', $text, $matches);
+	preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $text, $matches);
 	if (!empty($matches[0]))
 	{
-		// Easy if it's not custom.
-		if (empty($modSettings['smiley_enable']))
+		// Get all our actual smiley codes
+		$request = $smcFunc['db_query']('', '
+			SELECT code
+			FROM {db_prefix}smileys
+			WHERE code IN ({array_string:smiley_codes})
+			ORDER BY LENGTH(code) DESC',
+			array(
+				'smiley_codes' => $smiley_codes,
+			)
+		);
+		$smiley_codes = $smcFunc['db_fetch_all']($request);
+		$smcFunc['db_free_result']($request);
+
+		foreach ($matches[1] as $k => $possible_code)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
-			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
+			$possible_code = un_htmlspecialchars($possible_code);
 
-			foreach ($matches[1] as $k => $file)
-			{
-				$found = array_search($file, $smileysto);
-				// Note the weirdness here is to stop double spaces between smileys.
-				if ($found)
-					$matches[1][$k] = '-[]-smf_smily_start#|#' . $smcFunc['htmlspecialchars']($smileysfrom[$found]) . '-[]-smf_smily_end#|#';
-				else
-					$matches[1][$k] = '';
-			}
-		}
-		else
-		{
-			// Load all the smileys.
-			$names = array();
-			foreach ($matches[1] as $file)
-				$names[] = $file;
-			$names = array_unique($names);
-
-			if (!empty($names))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT code, filename
-					FROM {db_prefix}smileys
-					WHERE filename IN ({array_string:smiley_filenames})',
-					array(
-						'smiley_filenames' => $names,
-					)
-				);
-				$mappings = array();
-				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$mappings[$row['filename']] = $smcFunc['htmlspecialchars']($row['code']);
-				$smcFunc['db_free_result']($request);
-
-				foreach ($matches[1] as $k => $file)
-					if (isset($mappings[$file]))
-						$matches[1][$k] = '-[]-smf_smily_start#|#' . $mappings[$file] . '-[]-smf_smily_end#|#';
-			}
+			if (in_array($possible_code, $smiley_codes))
+				$matches[1][$k] = '-[]-smf_smily_start#|#' . $possible_code . '-[]-smf_smily_end#|#';
+			else
+				$matches[1][$k] = $matches[0][$k];
 		}
 
 		// Replace the tags!
