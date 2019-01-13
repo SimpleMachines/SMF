@@ -464,9 +464,9 @@ function loadProfileFields($force_reload = false)
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
 
-				$filenames = '';
+				$filenames = array();
 				$result = $smcFunc['db_query']('', '
-					SELECT f.filename
+					SELECT f.filename, f.smiley_set
 					FROM {db_prefix}smiley_files AS f
 						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
 					WHERE s.code = {string:smiley}',
@@ -474,8 +474,8 @@ function loadProfileFields($force_reload = false)
 						'smiley' => ':)',
 					)
 				);
-				if ($smcFunc['db_num_rows']($result) !== 0)
-					list ($filenames) = $smcFunc['db_fetch_row']($result);
+				while ($row = $smcFunc['db_fetch_assoc']($result))
+					$filenames[$row['smiley_set']] = $row['filename'];
 				$smcFunc['db_free_result']($result);
 
 				foreach ($context['smiley_sets'] as $i => $set)
