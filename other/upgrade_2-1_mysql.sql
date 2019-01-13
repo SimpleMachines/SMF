@@ -2548,7 +2548,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
 	id_smiley SMALLINT NOT NULL DEFAULT '0',
 	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
 	filename VARCHAR(48) NOT NULL DEFAULT '',
-	PRIMARY KEY (id_smiley, smiley_set, filename)
+	PRIMARY KEY (id_smiley, smiley_set)
 ) ENGINE=MyISAM;
 ---#
 
@@ -2647,7 +2647,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 
 ---# Drop obsolete filename column from smileys table
 ALTER TABLE {$db_prefix}smileys
-DROP COLUMN filename;
+DROP COLUMN IF EXISTS filename;
 ---#
 
 /******************************************************************************/

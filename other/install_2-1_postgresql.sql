@@ -1529,10 +1529,10 @@ CREATE TABLE {$db_prefix}smileys (
 
 CREATE TABLE {$db_prefix}smiley_files
 (
-		id_smiley SMALLINT NOT NULL DEFAULT '0',
-		smiley_set VARCHAR(48) NOT NULL DEFAULT '',
-		filename VARCHAR(48) NOT NULL DEFAULT '',
-		PRIMARY KEY (id_smiley, smiley_set, filename)
+	id_smiley SMALLINT NOT NULL DEFAULT '0',
+	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+	filename VARCHAR(48) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_smiley, smiley_set)
 );
 
 #
