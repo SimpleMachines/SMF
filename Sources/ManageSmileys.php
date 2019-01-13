@@ -396,7 +396,7 @@ function EditSmileySets()
 		'title' => $txt['smiley_sets'],
 		'no_items_label' => $txt['smiley_sets_none'],
 		'base_href' => $scripturl . '?action=admin;area=smileys;sa=editsets',
-		'default_sort_col' => 'default',
+		'default_sort_col' => 'name',
 		'get_items' => array(
 			'function' => 'list_getSmileySets',
 		),
@@ -417,7 +417,8 @@ function EditSmileySets()
 					'class' => 'centercol',
 				),
 				'sort' => array(
-					'default' => 'selected DESC',
+					'default' => 'selected',
+					'reverse' => 'selected DESC',
 				),
 			),
 			'name' => array(
