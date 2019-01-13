@@ -485,7 +485,7 @@ function template_modify_group()
 
 	if (!empty($modSettings['permission_enable_deny']) && $context['group']['id'] != -1)
 		echo '
-			<div class="information">
+			<div class="noticebox">
 				', $txt['permissions_option_desc'], '
 			</div>';
 
