@@ -458,7 +458,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc, $settings)
+			'preload' => function() use ($modSettings, &$context, &$txt, $cur_profile, $smcFunc, $settings, $language)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
@@ -477,6 +477,32 @@ function loadProfileFields($force_reload = false)
 				while ($row = $smcFunc['db_fetch_assoc']($result))
 					$filenames[$row['smiley_set']] = $row['filename'];
 				$smcFunc['db_free_result']($result);
+
+				// In case any sets don't contain a ':)' smiley
+				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
+				foreach ($no_smiley_sets as $set)
+				{
+					$allowedTypes = array_merge($context['valid_image_types'], array('svg'));
+					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
+
+					// Just use some image or other
+					if (!empty($images))
+					{
+						$image = array_pop($images);
+						$filenames[$set] = pathinfo($image, PATHINFO_BASENAME);
+					}
+					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
+					else
+					{
+						loadLanguage('Errors', $language);
+						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
+
+						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
+							{
+								return $v != $set;
+							});
+					}
+				}
 
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
