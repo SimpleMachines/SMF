@@ -96,7 +96,7 @@ function template_view_package()
 	}
 
 	echo '
-		<form action="', !empty($context['post_url']) ? $context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', !empty($context['post_url']) ? $context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '" class="view_package">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $context['uninstalling'] ? $txt['package_uninstall_actions'] : $txt['package_install_actions'], ' &quot;', $context['package_name'], '&quot;
@@ -109,10 +109,10 @@ function template_view_package()
 		// This is really a special case so we're adding style inline
 		echo '
 			<div class="windowbg" style="margin: 0; border-radius: 0;">
-				<label for="do_db_changes"><input type="checkbox" name="do_db_changes" id="do_db_changes">', $txt['package_db_uninstall'], '</label> [<a href="#" onclick="return swap_database_changes();">', $txt['package_db_uninstall_details'], '</a>]
+				<label><input type="checkbox" name="do_db_changes">', $txt['package_db_uninstall'], '</label>
 				<div id="db_changes_div">
 					', $txt['package_db_uninstall_actions'], ':
-					<ul>';
+					<ul class="normallist smalltext">';
 
 		foreach ($context['database_changes'] as $change)
 			echo '
@@ -140,10 +140,10 @@ function template_view_package()
 				', $txt['perform_actions'], '
 			</div><!-- .information -->
 			<br>
-			<table class="table_grid">
+			<table class="full_width">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" width="20"></th>
+						<th scope="col"></th>
 						<th scope="col" width="30"></th>
 						<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
 						<th scope="col" class="lefttext" width="50%">', $txt['package_install_action'], '</th>
@@ -162,11 +162,11 @@ function template_view_package()
 
 			echo '
 					<tr class="windowbg">
-						<td style="width: 5%;">', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
-						<td style="width: 5%;">', $i++, '.</td>
-						<td style="width: 20%;">', $packageaction['type'], '</td>
+						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
+						<td style="width: 30px;">', $i++, '.</td>
+						<td style="width: 23%;">', $packageaction['type'], '</td>
 						<td style="width: 50%;">', $packageaction['action'], '</td>
-						<td style="width: 20%";>', $packageaction['description'], '</td>
+						<td style="width: 20%;">', $packageaction['description'], '</td>
 					</tr>';
 
 			// Is there water on the knee? Operation!
@@ -174,8 +174,8 @@ function template_view_package()
 			{
 				echo '
 					<tr id="operation_', $action_num, '">
-						<td colspan="5" class="windowbg">
-							<table class="table_grid">';
+						<td colspan="5">
+							<table class="full_width">';
 
 				// Show the operations.
 				$operation_num = 1;
@@ -186,13 +186,12 @@ function template_view_package()
 
 					echo '
 								<tr class="windowbg">
-									<td class="smalltext" style="width: 5%;">
-										<a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="main_icons package_ops"></span></a>
-									</td>
-									<td class="smalltext" style="width: 5%;">', $operation_num, '.</td>
-									<td class="smalltext" style="width: 20%;">', $txt[$operation_text], '</td>
-									<td class="smalltext" style="width: 50%;">', $operation['action'], '</td>
-									<td class="smalltext" style="width: 20%;">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+									<td></td>
+									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
+									<td width="30" class="smalltext">', $operation_num, '.</td>
+									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
+									<td width="50%" class="smalltext">', $operation['action'], '</td>
+									<td width="20%" class="smalltext">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
 								</tr>';
 
 					$operation_num++;
@@ -225,7 +224,7 @@ function template_view_package()
 				<div class="information">
 					', $txt['package_other_themes_desc'], '
 				</div>
-				<table class="table_grid">';
+				<table class="full_width">';
 
 			// Loop through each theme and display it's name, and then it's details.
 			foreach ($context['theme_actions'] as $id => $theme)
@@ -267,8 +266,8 @@ function template_view_package()
 					{
 						echo '
 					<tr id="operation_', $action_num, '">
-						<td colspan="5" class="windowbg">
-							<table width="100%">';
+						<td colspan="5">
+							<table class="full_width">';
 
 						$operation_num = 1;
 						foreach ($action['operations'] as $operation)
@@ -278,7 +277,7 @@ function template_view_package()
 
 							echo '
 								<tr class="windowbg">
-									<td width="0"></td>
+									<td></td>
 									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
 									<td width="30" class="smalltext">', $operation_num, '.</td>
 									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
@@ -330,15 +329,13 @@ function template_view_package()
 
 	// Toggle options.
 	echo '
-	<script>
-		var aOperationElements = new Array();';
+	<script>';
 
 	// Operations.
 	if (!empty($js_operations))
-	{
 		foreach ($js_operations as $key => $operation)
 			echo '
-		aOperationElements[', $key, '] = new smc_Toggle({
+		new smc_Toggle({
 			bToggleEnabled: true,
 			bNoAnimate: true,
 			bCurrentlyCollapsed: ', $operation ? 'false' : 'true', ',
@@ -355,14 +352,9 @@ function template_view_package()
 				}
 			]
 		});';
-	}
-
-	echo '
-	</script>';
 
 	// Get the currently selected item from a select list
 	echo '
-	<script>
 		function get_selected(id)
 		{
 			var aSelected = document.getElementById(id);
@@ -372,16 +364,14 @@ function template_view_package()
 					return aSelected.options[i].value;
 			}
 			return aSelected.options[0];
-		}
-	</script>';
+		}';
 
 	// And a bit more for database changes.
-	if (!empty($context['database_changes']))
+	if ($context['uninstalling'] && !empty($context['database_changes']))
 		echo '
-	<script>
-		var database_changes_area = document.getElementById(\'db_changes_div\');
-		var db_vis = false;
-		database_changes_area.classList.add(\'hidden\');
+		makeToggle(document.getElementById(\'db_changes_div\'), ', JavaScriptEscape($txt['package_db_uninstall_details']) , ');';
+
+	echo '
 	</script>';
 }
 

@@ -492,13 +492,6 @@ function updatePreview()
 	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value + extsarr[index];
 }
 
-function swap_database_changes()
-{
-	db_vis = !db_vis;
-	database_changes_area.style.display = db_vis ? "" : "none";
-	return false;
-}
-
 function testFTP()
 {
 	ajax_indicator(true);
