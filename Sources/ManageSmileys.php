@@ -524,7 +524,7 @@ function list_getSmileySets($start, $items_per_page, $sort)
 	foreach ($known_sets as $i => $set)
 	{
 		$cols['id'][] = $i;
-		$cols['selected'][] = $i;
+		$cols['selected'][] = $set == $modSettings['smiley_sets_default'];
 		$cols['path'][] = $set;
 		$cols['name'][] = $set_names[$i];
 	}
@@ -542,7 +542,7 @@ function list_getSmileySets($start, $items_per_page, $sort)
 			'id' => $id,
 			'path' => $cols['path'][$i],
 			'name' => $cols['name'][$i],
-			'selected' => $cols['path'][$i] == $modSettings['smiley_sets_default']
+			'selected' => $cols['selected'][$i],
 		);
 
 	return $smiley_sets;
