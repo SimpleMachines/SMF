@@ -2647,7 +2647,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 
 ---# Drop obsolete filename column from smileys table
 ALTER TABLE {$db_prefix}smileys
-DROP COLUMN IF EXISTS filename;
+DROP COLUMN filename;
 ---#
 
 /******************************************************************************/
