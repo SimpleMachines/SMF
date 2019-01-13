@@ -332,7 +332,8 @@ function EditSmileySets()
 				$dir = dir($modSettings['smileys_dir'] . '/' . $context['current_set']['path']);
 				while ($entry = $dir->read())
 				{
-					if (in_array(substr(strrchr($entry, '.'), 1), $allowedTypes))
+					$pathinfo = pathinfo($entry);
+					if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank')
 						$smileys[strtolower($entry)] = $entry;
 				}
 				$dir->close();
@@ -1842,7 +1843,8 @@ function ImportSmileys($smileyPath)
 	$dir = dir($modSettings['smileys_dir'] . '/' . $smileyPath);
 	while ($entry = $dir->read())
 	{
-		if (in_array(substr(strrchr($entry, '.'), 1), $allowedTypes))
+		$pathinfo = pathinfo($entry);
+		if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank')
 			$smileys[strtolower($entry)] = $entry;
 	}
 	$dir->close();
