@@ -2100,7 +2100,7 @@ function EditMessageIcons()
 					),
 				),
 			),
-			'tooltip' => array(
+			'description' => array(
 				'header' => array(
 					'value' => $txt['smileys_description'],
 				),
