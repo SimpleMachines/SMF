@@ -229,7 +229,7 @@ function PackageInstallTest()
 	$context['database_changes'] = array();
 	if (isset($packageInfo['uninstall']['database']))
 		$context['database_changes'][] = $txt['execute_database_changes'] . ' - ' . $packageInfo['uninstall']['database'];
-	elseif (!empty($db_changes))
+	if (!empty($db_changes))
 	{
 		foreach ($db_changes as $change)
 		{
