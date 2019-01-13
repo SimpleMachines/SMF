@@ -953,7 +953,7 @@ function EditSmileys()
 		elseif (isset($_POST['smiley']))
 		{
 			// Is it a delete?
-			if (!empty($_POST['deletesmiley']))
+			if (!empty($_POST['deletesmiley']) && $_POST['smiley'] == (int) $_POST['smiley'])
 			{
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}smileys
