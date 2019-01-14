@@ -1314,28 +1314,28 @@ function EditSmileys()
 		$context['selected_set'] = $modSettings['smiley_sets_default'];
 
 		$request = $smcFunc['db_query']('', '
-			SELECT s.id_smiley AS id, s.code, f.filename, s.description, s.hidden AS location, 0 AS is_new
+			SELECT s.id_smiley AS id, s.code, f.filename, f.smiley_set, s.description, s.hidden AS location
 			FROM {db_prefix}smileys AS s
 				JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
-			WHERE s.id_smiley = {int:current_smiley}
-				AND f.smiley_set = {string:smiley_set}',
+			WHERE s.id_smiley = {int:current_smiley}',
 			array(
 				'current_smiley' => (int) $_REQUEST['smiley'],
-				'smiley_set' => $context['selected_set'],
 			)
 		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if ($row['smiley_set'] == $context['selected_set'])
+				$context['current_smiley'] = $row;
 
-		if ($smcFunc['db_num_rows']($request) != 1)
-			fatal_lang_error('smiley_not_found');
-
-		$context['current_smiley'] = $smcFunc['db_fetch_assoc']($request);
-
+			$filenames[$row['smiley_set']] = $row['filename'];
+		}
 		$smcFunc['db_free_result']($request);
+
+		if (empty($context['current_smiley']))
+			fatal_lang_error('smiley_not_found');
 
 		$context['current_smiley']['code'] = $smcFunc['htmlspecialchars']($context['current_smiley']['code']);
 		$context['current_smiley']['description'] = $smcFunc['htmlspecialchars']($context['current_smiley']['description']);
-
-		$filename = $context['current_smiley']['filename'];
 		$context['current_smiley']['filename'] = $smcFunc['htmlspecialchars']($context['current_smiley']['filename']);
 
 		// Get all possible filenames for the smileys.
@@ -1344,18 +1344,18 @@ function EditSmileys()
 		{
 			foreach ($context['smiley_sets'] as $smiley_set)
 			{
-				if (!file_exists($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path'])))
+				$set_path = un_htmlspecialchars($smiley_set['path']);
+
+				if (!file_exists($context['smileys_dir'] . '/' . $set_path))
 					continue;
 
-				$dir = dir($context['smileys_dir'] . '/' . un_htmlspecialchars($smiley_set['path']));
+				$dir = dir($context['smileys_dir'] . '/' . $set_path);
 				while ($entry = $dir->read())
 				{
-					// Strip extension
-					$filename = pathinfo($entry, PATHINFO_FILENAME);
-					if (empty($context['filenames'][$smiley_set['path']][strtolower($filename)]) && in_array(substr(strrchr($entry, '.'), 1), $allowedTypes))
-						$context['filenames'][$smiley_set['path']][strtolower($filename)] = array(
+					if (empty($context['filenames'][$smiley_set['path']][$entry]) && in_array(pathinfo($entry, PATHINFO_EXTENSION), $allowedTypes))
+						$context['filenames'][$smiley_set['path']][$entry] = array(
 							'id' => $smcFunc['htmlspecialchars']($entry),
-							'selected' => $filename == $entry,
+							'selected' => strtolower($entry) == strtolower($filenames[$set_path]),
 						);
 				}
 				$dir->close();
