@@ -68,7 +68,6 @@ $txt['package_installed_key'] = 'Installed mods:';
 $txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found.';
 $txt['package_installed_warning2'] = 'You should uninstall the old version first to avoid problems, or ask the author to create an upgrade from your old version.';
 $txt['package_installed_warning3'] = 'Please remember to always make regular backups of your sources and database before installing mods, especially beta versions.';
-$txt['package_installed_extract'] = 'Extracting Package';
 $txt['package_installed_done'] = 'The package was installed successfully. You should now be able to use whatever functionality it adds or changes; or not be able to use functionality it removes.';
 $txt['package_installed_redirecting'] = 'Redirecting...';
 $txt['package_installed_redirect_go_now'] = 'Redirect Now';
