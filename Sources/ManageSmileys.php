@@ -902,7 +902,7 @@ function EditSmileys()
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
 
 	// Submitting a form?
-	if (isset($_POST['smiley_save']) || isset($_POST['smiley_action']))
+	if (isset($_POST['smiley_save']) || isset($_POST['smiley_action']) || isset($_POST['deletesmiley']))
 	{
 		checkSession();
 
@@ -970,7 +970,6 @@ function EditSmileys()
 						'current_smiley' => $_POST['smiley'],
 					)
 				);
-
 			}
 			// Otherwise an edit.
 			else
