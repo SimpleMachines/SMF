@@ -2595,21 +2595,9 @@ upgrade_query("
 	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
 
-// Does the filename column exist? (Need to check in case the upgrader has been run before)
-$request = $smcFunc['db_query']('', '
-	SHOW COLUMNS
-	FROM {db_prefix}smileys
-	LIKE {string:column}',
-	array(
-		'column' => 'filename',
-		'db_error_skip' => true,
-	)
-);
-$filename_column_exists = $smcFunc['db_num_rows']($request) == 1;
-$smcFunc['db_free_result']($request);
-
 // Populate the smiley_files table
-if (!empty($filename_column_exists))
+$smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
+if (in_array('filenames', $smileys_columns))
 {
 	$inserts = array();
 
