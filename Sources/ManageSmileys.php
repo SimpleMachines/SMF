@@ -649,35 +649,38 @@ function AddSmiley()
 				fatal_lang_error('smileys_upload_error_illegal');
 
 			// Check if the file already exists... and if not move it to EVERY smiley set directory.
-			$i = 0;
-			// Keep going until we find a set the file doesn't exist in. (or maybe it exists in all of them?)
-			while (isset($context['smiley_sets'][$i]) && file_exists($context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName))
-				$i++;
-
-			// Okay, we're going to put the smiley right here, since it's not there yet!
-			if (isset($context['smiley_sets'][$i]['path']))
+			$smileyLocation = null;
+			foreach ($context['smiley_sets'] as $i => $set)
 			{
-				$smileyLocation = $context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName;
-				move_uploaded_file($_FILES['uploadSmiley']['tmp_name'], $smileyLocation);
-				smf_chmod($smileyLocation, 0644);
-
-				// Now, we want to move it from there to all the other sets.
-				for ($n = count($context['smiley_sets']); $i < $n; $i++)
+				// Okay, we're going to put the smiley right here, since it's not there yet!
+				if (!file_exists($context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName))
 				{
-					$currentPath = $context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName;
-
-					// The file is already there!  Don't overwrite it!
-					if (file_exists($currentPath))
-						continue;
-
-					// Okay, so copy the first one we made to here.
-					copy($smileyLocation, $currentPath);
-					smf_chmod($currentPath, 0644);
+					$smileyLocation = $context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$i]['path']) . '/' . $destName;
+					move_uploaded_file($_FILES['uploadSmiley']['tmp_name'], $smileyLocation);
+					smf_chmod($smileyLocation, 0644);
+					break;
 				}
 			}
 
-			// Finally make sure it's saved correctly!
-			$filename_array[un_htmlspecialchars($context['smiley_sets'][$i]['path'])] = $destName;
+			// Now, we want to move it from there to all the other sets.
+			foreach ($context['smiley_sets'] as $j => $set)
+			{
+				$currentPath = $context['smileys_dir'] . '/' . un_htmlspecialchars($context['smiley_sets'][$j]['path']) . '/' . $destName;
+
+				// Copy the first one we made to here, unless it already exists there
+				if (!empty($smileyLocation) && !file_exists($currentPath))
+				{
+					copy($smileyLocation, $currentPath);
+					smf_chmod($currentPath, 0644);
+				}
+
+				// Double-check
+				if (!file_exists($currentPath))
+					fatal_lang_error('smiley_not_found');
+
+				// Finally make sure it's saved correctly!
+				$filename_array[un_htmlspecialchars($context['smiley_sets'][$j]['path'])] = $destName;
+			}
 		}
 		// What about uploading several files?
 		elseif ($_POST['method'] != 'existing')
@@ -699,22 +702,22 @@ function AddSmiley()
 				$set['name'] = un_htmlspecialchars($set['name']);
 				$set['path'] = un_htmlspecialchars($set['path']);
 
-				if (!isset($_FILES['individual_' . $set['name']]['name']) || $_FILES['individual_' . $set['name']]['name'] == '')
+				if (!isset($_FILES['individual_' . $set['path']]['name']) || $_FILES['individual_' . $set['path']]['name'] == '')
 					continue;
 
 				// Got one...
-				if (!is_uploaded_file($_FILES['individual_' . $set['name']]['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['individual_' . $set['name']]['tmp_name'])))
+				if (!is_uploaded_file($_FILES['individual_' . $set['path']]['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['individual_' . $set['path']]['tmp_name'])))
 					fatal_lang_error('smileys_upload_error');
 
 				// Sorry, no spaces, dots, or anything else but letters allowed.
-				$_FILES['individual_' . $set['name']]['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['individual_' . $set['name']]['name']);
+				$_FILES['individual_' . $set['path']]['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['individual_' . $set['path']]['name']);
 
 				// We only allow image files - it's THAT simple - no messing around here...
-				if (!in_array(strtolower(substr(strrchr($_FILES['individual_' . $set['name']]['name'], '.'), 1)), $allowedTypes))
+				if (!in_array(strtolower(substr(strrchr($_FILES['individual_' . $set['path']]['name'], '.'), 1)), $allowedTypes))
 					fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 
 				// We only need the filename...
-				$destName = basename($_FILES['individual_' . $set['name']]['name']);
+				$destName = basename($_FILES['individual_' . $set['path']]['name']);
 
 				// Make sure they aren't trying to upload a nasty file - for their own good here!
 				if (in_array(strtolower($destName), $disabledFiles))
@@ -722,12 +725,16 @@ function AddSmiley()
 
 				// If the file exists - ignore it.
 				$smileyLocation = $context['smileys_dir'] . '/' . $set['path'] . '/' . $destName;
-				if (file_exists($smileyLocation))
-					continue;
+				if (!file_exists($smileyLocation))
+				{
+					// Finally - move the image!
+					move_uploaded_file($_FILES['individual_' . $set['path']]['tmp_name'], $smileyLocation);
+					smf_chmod($smileyLocation, 0644);
+				}
 
-				// Finally - move the image!
-				move_uploaded_file($_FILES['individual_' . $set['name']]['tmp_name'], $smileyLocation);
-				smf_chmod($smileyLocation, 0644);
+				// Double-check
+				if (!file_exists($smileyLocation))
+					fatal_lang_error('smiley_not_found');
 
 				// Should always be saved correctly!
 				$filename_array[$set['path']] = $destName;
