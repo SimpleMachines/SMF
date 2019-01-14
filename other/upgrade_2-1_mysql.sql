@@ -2595,35 +2595,51 @@ upgrade_query("
 	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
 
-// Populate the smiley_files table...
-$inserts = array();
-
-$request = upgrade_query("
-	SELECT id_smiley, filename
-	FROM {$db_prefix}smileys");
-while ($row = $smcFunc['db_fetch_assoc']($request))
-{
-	$pathinfo = pathinfo($row['filename']);
-
-	foreach ($filtered as $set => $attrs)
-	{
-		// The default smileys in 2.1 use PNG files
-		if (in_array($set, array('fugue', 'alienine')) || empty($pathinfo['extension']))
-			$pathinfo['extension'] = 'png';
-
-		$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $pathinfo['extension']);
-	}
-}
+// Does the filename column exist? (Need to check in case the upgrader has been run before)
+$request = $smcFunc['db_query']('', '
+	SHOW COLUMNS
+	FROM {db_prefix}smileys
+	LIKE {string:column}',
+	array(
+		'column' => 'filename',
+		'db_error_skip' => true,
+	)
+);
+$filename_column_exists = $smcFunc['db_num_rows']($request) == 1;
 $smcFunc['db_free_result']($request);
 
-if (!empty($inserts))
+// Populate the smiley_files table
+if (!empty($filename_column_exists))
 {
-	$smcFunc['db_insert']('ignore',
-		'{db_prefix}smiley_files',
-		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
-		$inserts,
-		array('id_smiley', 'smiley_set', 'filename')
-	);
+	$inserts = array();
+
+	$request = upgrade_query("
+		SELECT id_smiley, filename
+		FROM {$db_prefix}smileys");
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$pathinfo = pathinfo($row['filename']);
+
+		foreach ($filtered as $set => $attrs)
+		{
+			// The default smileys in 2.1 use PNG files
+			if (in_array($set, array('fugue', 'alienine')) || empty($pathinfo['extension']))
+				$pathinfo['extension'] = 'png';
+
+			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $pathinfo['extension']);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}smiley_files',
+			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+			$inserts,
+			array('id_smiley', 'smiley_set', 'filename')
+		);
+	}
 }
 
 // Set new default if the old one doesnt exist
