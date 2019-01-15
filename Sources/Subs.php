@@ -1116,8 +1116,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				- quoted: true if the value should be quoted.
 				- validate: callback to evaluate on the data, which is $data.
 				- value: a string in which to replace $1 with the data.
-				  either it or validate may be used, not both.
+					Either value or validate may be used, not both.
 				- optional: true if the parameter is optional.
+				- default: a default value for missing optional parameters.
 
 			test: a regular expression to test immediately after the tag's
 			  '=', ' ' or ']'.  Typically, should have a \] at the end.
@@ -2564,7 +2565,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				foreach ($possible['parameters'] as $p => $info)
 				{
 					if (!isset($params['{' . $p . '}']))
-						$params['{' . $p . '}'] = '';
+						$params['{' . $p . '}'] = isset($info['default']) ? $info['default'] : '';
 				}
 
 				$tag = $possible;
