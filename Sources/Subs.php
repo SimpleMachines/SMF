@@ -2548,7 +2548,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				for ($i = 1, $n = count($matches); $i < $n; $i += 2)
 				{
 					$key = strtok(ltrim($matches[$i]), '=');
-					if (isset($possible['parameters'][$key]['value']))
+					if ($key === false)
+						continue;
+					elseif (isset($possible['parameters'][$key]['value']))
 						$params['{' . $key . '}'] = strtr($possible['parameters'][$key]['value'], array('$1' => $matches[$i + 1]));
 					elseif (isset($possible['parameters'][$key]['validate']))
 						$params['{' . $key . '}'] = $possible['parameters'][$key]['validate']($matches[$i + 1]);
