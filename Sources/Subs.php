@@ -2565,7 +2565,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				foreach ($possible['parameters'] as $p => $info)
 				{
 					if (!isset($params['{' . $p . '}']))
-						$params['{' . $p . '}'] = isset($info['default']) ? $info['default'] : '';
+					{
+						if (!isset($info['default']))
+							$params['{' . $p . '}'] = '';
+						elseif (isset($possible['parameters'][$p]['value']))
+							$params['{' . $p . '}'] = strtr($possible['parameters'][$p]['value'], array('$1' => $info['default']));
+						elseif (isset($possible['parameters'][$p]['validate']))
+							$params['{' . $p . '}'] = $possible['parameters'][$p]['validate']($info['default']);
+						else
+							$params['{' . $p . '}'] = $info['default'];
+					}
 				}
 
 				$tag = $possible;
