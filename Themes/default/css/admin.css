@@ -303,8 +303,7 @@ fieldset.admin_group .inactive {
 	padding: 6px 0;
 }
 
-/* Styles for the package manager.
-/* Haven't got here yet. :P */
+/* Styles for the package manager. */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
 }
@@ -329,9 +328,14 @@ pre.file_content {
 	width: 100%;
 	padding-bottom: 1em;
 }
-.view_package table {
+#view_package table {
 	border-collapse: collapse;
-} 
+}
+#view_package td[colspan="5"] {
+	border: none;
+	font-size: 0.9em;
+	padding: 0;
+}
 
 /* Styles for the file permissions section. */
 .file_permissions {

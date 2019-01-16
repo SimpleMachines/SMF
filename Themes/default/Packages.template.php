@@ -96,7 +96,7 @@ function template_view_package()
 	}
 
 	echo '
-		<form action="', !empty($context['post_url']) ? $context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '" class="view_package">
+		<form action="', !empty($context['post_url']) ? $context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '" id="view_package">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $context['uninstalling'] ? $txt['package_uninstall_actions'] : $txt['package_install_actions'], ' &quot;', $context['package_name'], '&quot;
@@ -140,7 +140,7 @@ function template_view_package()
 				', $txt['perform_actions'], '
 			</div><!-- .information -->
 			<br>
-			<table class="full_width">
+			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
 						<th scope="col"></th>
@@ -153,6 +153,7 @@ function template_view_package()
 				<tbody>';
 
 		$i = 1;
+		$j = 1;
 		$action_num = 1;
 		$js_operations = array();
 		foreach ($context['actions'] as $packageaction)
@@ -161,7 +162,7 @@ function template_view_package()
 			$js_operations[$action_num] = isset($packageaction['failed']) ? $packageaction['failed'] : 0;
 
 			echo '
-					<tr class="windowbg">
+					<tr class="bg ', $i % 2 == 0 ? 'even' : 'odd', '">
 						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
 						<td style="width: 30px;">', $i++, '.</td>
 						<td style="width: 23%;">', $packageaction['type'], '</td>
@@ -185,16 +186,17 @@ function template_view_package()
 					$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 					echo '
-								<tr class="windowbg">
-									<td></td>
-									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
-									<td width="30" class="smalltext">', $operation_num, '.</td>
-									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
-									<td width="50%" class="smalltext">', $operation['action'], '</td>
-									<td width="20%" class="smalltext">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+								<tr class="bg ', $operation_num % 2 == 0 ? 'even' : 'odd', '">
+									<td class="righttext">
+										<a href="', $scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
+											<span class="main_icons package_ops"></span>
+										</a>
+									</td>
+									<td width="30">', $operation_num++, '.</td>
+									<td width="23%">', $txt[$operation_text], '</td>
+									<td width="50%">', $operation['action'], '</td>
+									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
 								</tr>';
-
-					$operation_num++;
 				}
 
 				echo '
@@ -224,7 +226,7 @@ function template_view_package()
 				<div class="information">
 					', $txt['package_other_themes_desc'], '
 				</div>
-				<table class="full_width">';
+				<table class="table_grid">';
 
 			// Loop through each theme and display it's name, and then it's details.
 			foreach ($context['theme_actions'] as $id => $theme)
@@ -234,8 +236,7 @@ function template_view_package()
 
 				echo '
 					<tr class="title_bar">
-						<td></td>
-						<td>';
+						<td class="righttext" colspan="2">';
 
 				if (!empty($context['themes_locked']))
 					echo '
@@ -251,12 +252,12 @@ function template_view_package()
 				foreach ($theme['actions'] as $action)
 				{
 					echo '
-					<tr class="windowbg">
-						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
-						<td width="30">
-							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '"', (!empty($action['not_mod']) ? '' : ' disabled'), !empty($context['themes_locked']) ? ' checked' : '', '>
+					<tr class="bg ', $j++ % 2 == 0 ? 'even' : 'odd', '">
+						<td colspan="2">', isset($packageaction['operations']) ?
+							'<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '
+							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '"', (!empty($action['not_mod']) ? '' : ' disabled'), !empty($context['themes_locked']) ? ' checked' : '', ' class="floatright">
 						</td>
-						<td>', $action['type'], '</td>
+						<td width="23%">', $action['type'], '</td>
 						<td width="50%">', $action['action'], '</td>
 						<td width="20%"><strong>', $action['description'], '</strong></td>
 					</tr>';
@@ -276,15 +277,17 @@ function template_view_package()
 							$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 							echo '
-								<tr class="windowbg">
-									<td></td>
-									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="main_icons package_ops"></span></a></td>
-									<td width="30" class="smalltext">', $operation_num, '.</td>
-									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
-									<td width="50%" class="smalltext">', $operation['action'], '</td>
-									<td width="20%" class="smalltext">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+								<tr class="bg ', $operation_num % 2 == 0 ? 'even' : 'odd', '">
+									<td class="righttext">
+										<a href="', $scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
+											<span class="main_icons package_ops"></span>
+										</a>
+									</td>
+									<td width="30">', $operation_num++, '.</td>
+									<td width="23%">', $txt[$operation_text], '</td>
+									<td width="50%">', $operation['action'], '</td>
+									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
 								</tr>';
-							$operation_num++;
 						}
 
 						echo '
