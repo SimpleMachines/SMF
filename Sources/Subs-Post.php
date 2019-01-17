@@ -225,9 +225,9 @@ function preparsecode(&$message, $previewing = false)
 
 	// Restore white space entities
 	if (!$previewing)
-		$message = strtr($message, array('  ' => '&nbsp; ', "\n" => '<br>', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr($message, array('  ' => ' &nbsp;', "\n" => '<br>', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 	else
-		$message = strtr($message, array('  ' => '&nbsp; ', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr($message, array('  ' => ' &nbsp;', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
