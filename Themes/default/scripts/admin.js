@@ -498,7 +498,7 @@ function updatePreview(filename, filepath)
 		relative_url = "/" + filepath + "/" + filename;
 
 	// Make sure no sneaky people are trying to be sneaky
-	var regex = new RegExp("^/(" + smf_smiley_sets.split(",").join("|") + ")/[^.]+\.(" + smf_image_types.split(",").join("|") + "|svg)$");
+	var regex = new RegExp("^/(" + smf_smiley_sets.split(",").join("|") + ")/[^.]+\.(gif|png|jpg|jpeg|tiff|svg)$");
 	var is_valid = relative_url.match(regex);
 
 	if (is_valid !== null)

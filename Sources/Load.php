@@ -2225,7 +2225,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_theme_url' => '"' . $settings['theme_url'] . '"',
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
-		'smf_image_types' => '"' . implode(',', $context['valid_image_types']) . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
 		'smf_smiley_sets' => '"' . $modSettings['smiley_sets_known'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
