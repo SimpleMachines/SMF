@@ -2597,7 +2597,7 @@ upgrade_query("
 
 // Populate the smiley_files table
 $smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
-if (in_array('filenames', $smileys_columns))
+if (in_array('filename', $smileys_columns))
 {
 	$inserts = array();
 
