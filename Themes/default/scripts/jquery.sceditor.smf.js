@@ -459,6 +459,7 @@ sceditor.formats.bbcode.set(
 		format: function (element, content) {
 			var	element = $(element),
 				attribs = '',
+				attach_type,
 				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
@@ -470,17 +471,24 @@ sceditor.formats.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('data-type'))
-				attribs += " type=" + element.attr('data-type');
 
-			if (element.attr('title') && element.attr('data-type').indexOf("image") === 0)
+			var index;
+			for (index = 0; index < current_attachments.length; ++index) {
+				if (current_attachments[index]['attachID'] == id) {
+					attach_type = current_attachments[index]['type'];
+					break;
+				}
+			}
+
+			if (element.attr('title') && attach_type.indexOf("image") === 0)
 				content = element.attr('title');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
 		html: function (token, attrs, content) {
 			var parts,
-				attribs = '';
+				attribs = '',
+				attach_type;
 
 			// Handles SMF 2.1 final format
 			if (typeof attrs.id !== "undefined")
@@ -490,6 +498,14 @@ sceditor.formats.bbcode.set(
 				var id = content;
 				if (typeof attrs.name !== "undefined")
 					content = attrs.name;
+			}
+
+			var index;
+			for (index = 0; index < current_attachments.length; ++index) {
+				if (current_attachments[index]['attachID'] == id) {
+					attach_type = current_attachments[index]['type'];
+					break;
+				}
 			}
 
 			// If id is not an integer, bail out
@@ -502,20 +518,16 @@ sceditor.formats.bbcode.set(
 					attribs += ' height=' + attrs.height;
 				if (typeof attrs.alt !== "undefined")
 					attribs += ' alt=' + attrs.alt;
-				if (typeof attrs.type !== "undefined")
-					attribs += ' type=' + attrs.type;
 
 				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
 			attribs += ' data-attachment="' + id + '"'
-			if (typeof attrs.type !== "undefined")
-				attribs += ' data-type="' + attrs.type + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
 			// Is this an image?
-			if ((typeof attrs.type !== "undefined" && attrs.type.indexOf("image") === 0)) {
+			if ((typeof attach_type !== "undefined" && attach_type.indexOf("image") === 0)) {
 				attribs += ' title="' + content + '"';
 				if (typeof attrs.width !== "undefined")
 					attribs += ' width="' + attrs.width + '"';

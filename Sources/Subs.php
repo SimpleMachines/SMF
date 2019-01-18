@@ -1199,7 +1199,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'parameters' => array(
 					'id' => array('match' => '(\d+)'),
-					'type' => array('optional' => true),
 					'alt' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),

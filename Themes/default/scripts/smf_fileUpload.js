@@ -27,10 +27,9 @@ function smf_fileUpload(oOptions) {
 				bbcOptionalParams = {
 					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
 					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
-					type: ' type=' + mime_type,
 				};
 
-			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + bbcOptionalParams.type + ']' + (typeof file.name !== "undefined" ? file.name : '') + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? file.name : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
@@ -228,6 +227,17 @@ function smf_fileUpload(oOptions) {
 				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
 		};
 
+		// The editor needs this to know how to handle embedded attachements
+		file.addToCurrentAttachmentsList = function (file, response) {
+			current_attachments.push({
+				name: file.name,
+				size: file.size,
+				attachID: response.attachID,
+				type: file.type,
+				thumbID: (response.thumbID > 0 ? response.thumbID : response.attachID)
+			});
+		}
+
 		// Hookup the upload button.
 		_thisElement.find('.upload').on('click', function () {
 			myDropzone.enqueueFile(file);
@@ -356,6 +366,9 @@ function smf_fileUpload(oOptions) {
 
 		// Fire up the delete button.
 		file.deleteAttachment(_thisElement, response.attachID, file);
+
+		// Let the editor know about this attachment so it can handle the BBC correctly
+		file.addToCurrentAttachmentsList(file, response);
 	});
 
 	myDropzone.on('uploadprogress', function (file, progress, bytesSent) {
