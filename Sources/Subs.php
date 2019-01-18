@@ -2962,7 +2962,7 @@ function parsesmileys(&$message)
 				FROM {db_prefix}smileys AS s
 					JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 				WHERE f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
-					AND s.code IN {array_string:default_codes}' : '') . '
+					AND s.code IN ({array_string:default_codes})' : '') . '
 				ORDER BY LENGTH(s.code) DESC',
 				array(
 					'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
