@@ -2563,7 +2563,7 @@ $combined = array();
 foreach ($dirs AS $ix => $dir)
 {
 	if (!empty($setnames[$ix]) && $dir != 'default')
-		$combined[$dir] = array($setnames[$ix], 'gif');
+		$combined[$dir] = array($setnames[$ix], '');
 }
 
 
@@ -2610,14 +2610,16 @@ if (in_array('filename', $smileys_columns))
 
 		foreach ($filtered as $set => $dummy)
 		{
-			// If we set an explict extension for this set, use that.
-			if (isset($combined[$set]))
-				$pathinfo['extension'] = $combined[$set][1];
-			// Otherwise, if there is no extension, assume gif.
-			elseif (empty($pathinfo['extension']))
-				$pathinfo['extension'] = 'gif';
+			$ext = $pathinfo['extension'];
 
-			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $pathinfo['extension']);
+			// If we set an explict extension for this set, use that.
+			if (isset($combined[$set]) && !empty($combined[$set][1]))
+				$ext = $combined[$set][1];
+			// Otherwise, if there is no extension, assume gif.
+			elseif (empty($ext))
+				$ext = 'gif';
+
+			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
 		}
 	}
 	$smcFunc['db_free_result']($request);
