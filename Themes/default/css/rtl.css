@@ -40,10 +40,10 @@
 }
 
 /* the page navigation area */
-.generic_icons.move::before, .generic_icons.next_page::before {
+.main_icons.move::before, .main_icons.next_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.previous_page::before {
+.main_icons.previous_page::before {
 	background-position: -5px -31px;
 }
 
@@ -88,7 +88,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	padding-left: 9px;
 }
 
-
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 #main_menu {
@@ -107,7 +106,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	margin: -2em 3.1em 0 0;
 }
 /* This is a small fix for dropmenu icons */
-.dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
+.dropmenu .main_icons, #profile_menu .main_icons, .dropmenu img {
 	margin: 0 -4px 0 8px;
 }
 
@@ -293,7 +292,7 @@ ul.post_options {
 }
 ul.post_options li {
 	float: right;
-	margin: 0 2px ;
+	margin: 0 2px;
 }
 
 /* Styles for edit event section
@@ -314,7 +313,7 @@ ul.post_options li {
 #post_event ul.event_options {
 	padding: 0 .7em .7em 0;
 }
-#post_event #event_main select, #post_event ul.event_options li select, 
+#post_event #event_main select, #post_event ul.event_options li select,
 #post_event ul.event_options li input[type="checkbox"] {
 	margin: 0 0 0 1em;
 }
@@ -462,11 +461,11 @@ div#admin_menu {
 /* h3 HD Icons */
 h3.search_hd {
 	padding: 8px 45px 6px;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 h3.profile_hd {
 	padding: 8px 50px 8px 0;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 
 /* Activity by time */

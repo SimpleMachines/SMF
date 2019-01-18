@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Time zone descriptions
+// Version: 2.1 RC1; Time zone descriptions
 
 /**
  * This file defines custom descriptions for certain time zones to be used in
@@ -37,7 +37,7 @@
  * and (2) to place London first in the list of locations used as the
  * description string shown to the user in the select menu.
  *
- * The third secion uses this format:
+ * The third section uses this format:
  *
  *     $txt['America/Adak'] = 'Aleutian Islands';
  *

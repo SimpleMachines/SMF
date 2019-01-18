@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Who
+// Version: 2.1 RC1; Who
 
 global $scripturl, $context;
 
@@ -11,7 +11,7 @@ $txt['who_unknown'] = '<em>Unknown Action</em>';
 $txt['who_user'] = 'User';
 $txt['who_time'] = 'Time';
 $txt['who_action'] = 'Action';
-$txt['who_show1'] = 'Show ';
+$txt['who_show'] = 'Show ';
 $txt['who_show_members_only'] = 'Members only';
 $txt['who_show_guests_only'] = 'Guests only';
 $txt['who_show_spiders_only'] = 'Spiders only';
@@ -111,7 +111,7 @@ $txt['whoallow_repairboards'] = 'Repairing the database tables.';
 $txt['whoallow_search'] = '<a href="' . $scripturl . '?action=search">Searching</a> the forum.';
 $txt['whoallow_search2'] = 'Viewing the results of a search.';
 $txt['whoallow_stats'] = 'Viewing the <a href="' . $scripturl . '?action=stats">forum stats</a>.';
-$txt['whoallow_viewErrorLog'] = 'Viewing the error log.';
+$txt['whoallow_viewerrorlog'] = 'Viewing the error log.';
 $txt['whoallow_viewmembers'] = 'Viewing a list of members.';
 
 $txt['who_topic'] = 'Viewing the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
@@ -128,7 +128,7 @@ $txt['credits'] = 'Credits';
 $txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
 $txt['credits_team'] = 'The Team';
 $txt['credits_special'] = 'Special Thanks';
-$txt['credits_and'] = 'and';
+$txt['credits_list'] = '%1$s.';
 $txt['credits_anyone'] = 'And for anyone we may have missed, thank you!';
 $txt['credits_copyright'] = 'Copyright';
 $txt['credits_forum'] = 'Forum';
@@ -153,6 +153,7 @@ $txt['credits_groups_translation'] = 'English Translation';
 $txt['credits_groups_translators'] = 'Language Translators';
 $txt['credits_translators_message'] = 'Thank you for your efforts which make it possible for people all around the world to use SMF.';
 $txt['credits_groups_consultants'] = 'Consulting Developers';
+$txt['credits_code_contributors'] = 'everyone who <a href="https://github.com/SimpleMachines/SMF2.1/graphs/contributors">contributed on GitHub</a>';
 $txt['credits_groups_beta'] = 'Beta Testers';
 $txt['credits_beta_message'] = 'The invaluable few who tirelessly find bugs, provide feedback, and drive the developers crazier.';
 $txt['credits_groups_founder'] = 'Founding Father of SMF';

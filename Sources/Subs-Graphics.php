@@ -12,10 +12,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -87,9 +87,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	if ($success)
 	{
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
+		if (rename($destName . '.tmp', $destName))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 
@@ -271,10 +270,10 @@ function checkImagick()
  *
  * @return bool Whether or not the MagickWand extension is available.
  */
- function checkMagickWand()
- {
- 	return function_exists('newMagickWand');
- }
+function checkMagickWand()
+{
+	return function_exists('newMagickWand');
+}
 
 /**
  * See if we have enough memory to thumbnail an image
@@ -390,6 +389,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * If GD2 is present, it'll use it to achieve better quality.
  * It saves the new image to destination_filename, as preferred_format
  * if possible, default is jpeg.
+ *
  * @uses Imagemagick (IMagick or MagickWand extension) or GD
  *
  * @param resource $src_img The source image
@@ -523,7 +523,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 /**
  * Copy image.
  * Used when imagecopyresample() is not available.
-
+ *
  * @param resource $dst_img The destination image - a GD image resource
  * @param resource $src_img The source image - a GD image resource
  * @param int $dst_x The "x" coordinate of the destination image
@@ -758,7 +758,7 @@ if (!function_exists('imagecreatefrombmp'))
 
 /**
  * Writes a gif file to disk as a png file.
-
+ *
  * @param resource $gif A gif image resource
  * @param string $lpszFileName The name of the file
  * @param int $background_color The background color
@@ -1076,13 +1076,15 @@ function showCodeImage($code)
 				{
 					$x1 = mt_rand(0, $total_width);
 					$x2 = mt_rand(0, $total_width);
-					$y1 = 0; $y2 = $max_height;
+					$y1 = 0;
+					$y2 = $max_height;
 				}
 				else
 				{
 					$y1 = mt_rand(0, $max_height);
 					$y2 = mt_rand(0, $max_height);
-					$x1 = 0; $x2 = $total_width;
+					$x1 = 0;
+					$x2 = $total_width;
 				}
 				imagesetthickness($code_image, mt_rand(1, 2));
 				imageline($code_image, $x1, $y1, $x2, $y2, mt_rand(0, 1) ? $fg_color : $randomness_color);

@@ -173,9 +173,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -423,7 +424,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -599,9 +601,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -672,7 +674,8 @@ if (!empty($member_groups))
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_board, member_groups
-		FROM {db_prefix}boards');
+		FROM {db_prefix}boards'
+	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$current_groups = explode(',', $row['member_groups']);
@@ -690,7 +693,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
+				WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -988,9 +991,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1046,7 +1049,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1347,7 +1350,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1406,7 +1410,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -1831,7 +1836,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -1841,7 +1846,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
@@ -2021,17 +2026,17 @@ ADD COLUMN ip_high varbinary(16);
 ---# Convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
-        )
-    ),
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+		)
+	),
 ip_high =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
-        )
-    )
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+		)
+	)
 where ip_low1 > 0;
 ---#
 
@@ -2541,7 +2546,6 @@ DROP INDEX id_board;
 UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.gif', '')
 WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.gif';
 ---#
 
@@ -2549,7 +2553,6 @@ WHERE
 UPDATE {$db_prefix}smileys
 SET filename = REPLACE(filename, '.png', '')
 WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
 	filename LIKE '%.png';
 ---#
 
@@ -2643,10 +2646,10 @@ ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group SMALLINT NOT NULL DEFAULT '0',
-    id_board SMALLINT UNSIGNED NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group SMALLINT NOT NULL DEFAULT '0',
+	id_board SMALLINT UNSIGNED NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
 
 TRUNCATE {$db_prefix}board_permissions_view;
@@ -2686,5 +2689,234 @@ where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
 INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
 FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Update holidays
+/******************************************************************************/
+---# Delete all the dates
+DELETE FROM {$db_prefix}calendar_holidays WHERE title in
+('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
+	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
+	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
+	'Veterans Day', 'Groundhog Day', 'D-Day');
+---#
+
+---# Insert the updated dates
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
+	('Mother''s Day', '2010-05-09'),
+	('Mother''s Day', '2011-05-08'),
+	('Mother''s Day', '2012-05-13'),
+	('Mother''s Day', '2013-05-12'),
+	('Mother''s Day', '2014-05-11'),
+	('Mother''s Day', '2015-05-10'),
+	('Mother''s Day', '2016-05-08'),
+	('Mother''s Day', '2017-05-14'),
+	('Mother''s Day', '2018-05-13'),
+	('Mother''s Day', '2019-05-12'),
+	('Mother''s Day', '2020-05-10'),
+	('Mother''s Day', '2021-05-09'),
+	('Mother''s Day', '2022-05-08'),
+	('Mother''s Day', '2023-05-14'),
+	('Mother''s Day', '2024-05-12'),
+	('Mother''s Day', '2025-05-11'),
+	('Mother''s Day', '2026-05-10'),
+	('Mother''s Day', '2027-05-09'),
+	('Mother''s Day', '2028-05-14'),
+	('Mother''s Day', '2029-05-13'),
+	('Mother''s Day', '2030-05-12'),
+	('Father''s Day', '2010-06-20'),
+	('Father''s Day', '2011-06-19'),
+	('Father''s Day', '2012-06-17'),
+	('Father''s Day', '2013-06-16'),
+	('Father''s Day', '2014-06-15'),
+	('Father''s Day', '2015-06-21'),
+	('Father''s Day', '2016-06-19'),
+	('Father''s Day', '2017-06-18'),
+	('Father''s Day', '2018-06-17'),
+	('Father''s Day', '2019-06-16'),
+	('Father''s Day', '2020-06-21'),
+	('Father''s Day', '2021-06-20'),
+	('Father''s Day', '2022-06-19'),
+	('Father''s Day', '2023-06-18'),
+	('Father''s Day', '2024-06-16'),
+	('Father''s Day', '2025-06-15'),
+	('Father''s Day', '2026-06-21'),
+	('Father''s Day', '2027-06-20'),
+	('Father''s Day', '2028-06-18'),
+	('Father''s Day', '2029-06-17'),
+	('Father''s Day', '2030-06-16'),
+	('Summer Solstice', '2010-06-21'),
+	('Summer Solstice', '2011-06-21'),
+	('Summer Solstice', '2012-06-20'),
+	('Summer Solstice', '2013-06-21'),
+	('Summer Solstice', '2014-06-21'),
+	('Summer Solstice', '2015-06-21'),
+	('Summer Solstice', '2016-06-20'),
+	('Summer Solstice', '2017-06-20'),
+	('Summer Solstice', '2018-06-21'),
+	('Summer Solstice', '2019-06-21'),
+	('Summer Solstice', '2020-06-20'),
+	('Summer Solstice', '2021-06-21'),
+	('Summer Solstice', '2022-06-21'),
+	('Summer Solstice', '2023-06-21'),
+	('Summer Solstice', '2024-06-20'),
+	('Summer Solstice', '2025-06-21'),
+	('Summer Solstice', '2026-06-21'),
+	('Summer Solstice', '2027-06-21'),
+	('Summer Solstice', '2028-06-20'),
+	('Summer Solstice', '2029-06-21'),
+	('Summer Solstice', '2030-06-21'),
+	('Vernal Equinox', '2010-03-20'),
+	('Vernal Equinox', '2011-03-20'),
+	('Vernal Equinox', '2012-03-20'),
+	('Vernal Equinox', '2013-03-20'),
+	('Vernal Equinox', '2014-03-20'),
+	('Vernal Equinox', '2015-03-20'),
+	('Vernal Equinox', '2016-03-20'),
+	('Vernal Equinox', '2017-03-20'),
+	('Vernal Equinox', '2018-03-20'),
+	('Vernal Equinox', '2019-03-20'),
+	('Vernal Equinox', '2020-03-20'),
+	('Vernal Equinox', '2021-03-20'),
+	('Vernal Equinox', '2022-03-20'),
+	('Vernal Equinox', '2023-03-20'),
+	('Vernal Equinox', '2024-03-20'),
+	('Vernal Equinox', '2025-03-20'),
+	('Vernal Equinox', '2026-03-20'),
+	('Vernal Equinox', '2027-03-20'),
+	('Vernal Equinox', '2028-03-20'),
+	('Vernal Equinox', '2029-03-20'),
+	('Vernal Equinox', '2030-03-20'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-22'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-22'),
+	('Winter Solstice', '2020-12-21'),
+	('Winter Solstice', '2021-12-21'),
+	('Winter Solstice', '2022-12-21'),
+	('Winter Solstice', '2023-12-22'),
+	('Winter Solstice', '2024-12-21'),
+	('Winter Solstice', '2025-12-21'),
+	('Winter Solstice', '2026-12-21'),
+	('Winter Solstice', '2027-12-22'),
+	('Winter Solstice', '2028-12-21'),
+	('Winter Solstice', '2029-12-21'),
+	('Winter Solstice', '2030-12-21'),
+	('Autumnal Equinox', '2010-09-23'),
+	('Autumnal Equinox', '2011-09-23'),
+	('Autumnal Equinox', '2012-09-22'),
+	('Autumnal Equinox', '2013-09-22'),
+	('Autumnal Equinox', '2014-09-23'),
+	('Autumnal Equinox', '2015-09-23'),
+	('Autumnal Equinox', '2016-09-22'),
+	('Autumnal Equinox', '2017-09-22'),
+	('Autumnal Equinox', '2018-09-23'),
+	('Autumnal Equinox', '2019-09-23'),
+	('Autumnal Equinox', '2020-09-22'),
+	('Autumnal Equinox', '2021-09-22'),
+	('Autumnal Equinox', '2022-09-23'),
+	('Autumnal Equinox', '2023-09-23'),
+	('Autumnal Equinox', '2024-09-22'),
+	('Autumnal Equinox', '2025-09-22'),
+	('Autumnal Equinox', '2026-09-23'),
+	('Autumnal Equinox', '2027-09-23'),
+	('Autumnal Equinox', '2028-09-22'),
+	('Autumnal Equinox', '2029-09-22'),
+	('Autumnal Equinox', '2030-09-22');
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
+	('Thanksgiving', '2010-11-25'),
+	('Thanksgiving', '2011-11-24'),
+	('Thanksgiving', '2012-11-22'),
+	('Thanksgiving', '2013-11-28'),
+	('Thanksgiving', '2014-11-27'),
+	('Thanksgiving', '2015-11-26'),
+	('Thanksgiving', '2016-11-24'),
+	('Thanksgiving', '2017-11-23'),
+	('Thanksgiving', '2018-11-22'),
+	('Thanksgiving', '2019-11-28'),
+	('Thanksgiving', '2020-11-26'),
+	('Thanksgiving', '2021-11-25'),
+	('Thanksgiving', '2022-11-24'),
+	('Thanksgiving', '2023-11-23'),
+	('Thanksgiving', '2024-11-28'),
+	('Thanksgiving', '2025-11-27'),
+	('Thanksgiving', '2026-11-26'),
+	('Thanksgiving', '2027-11-25'),
+	('Thanksgiving', '2028-11-23'),
+	('Thanksgiving', '2029-11-22'),
+	('Thanksgiving', '2030-11-28'),
+	('Memorial Day', '2010-05-31'),
+	('Memorial Day', '2011-05-30'),
+	('Memorial Day', '2012-05-28'),
+	('Memorial Day', '2013-05-27'),
+	('Memorial Day', '2014-05-26'),
+	('Memorial Day', '2015-05-25'),
+	('Memorial Day', '2016-05-30'),
+	('Memorial Day', '2017-05-29'),
+	('Memorial Day', '2018-05-28'),
+	('Memorial Day', '2019-05-27'),
+	('Memorial Day', '2020-05-25'),
+	('Memorial Day', '2021-05-31'),
+	('Memorial Day', '2022-05-30'),
+	('Memorial Day', '2023-05-29'),
+	('Memorial Day', '2024-05-27'),
+	('Memorial Day', '2025-05-26'),
+	('Memorial Day', '2026-05-25'),
+	('Memorial Day', '2027-05-31'),
+	('Memorial Day', '2028-05-29'),
+	('Memorial Day', '2029-05-28'),
+	('Memorial Day', '2030-05-27'),
+	('Labor Day', '2010-09-06'),
+	('Labor Day', '2011-09-05'),
+	('Labor Day', '2012-09-03'),
+	('Labor Day', '2013-09-02'),
+	('Labor Day', '2014-09-01'),
+	('Labor Day', '2015-09-07'),
+	('Labor Day', '2016-09-05'),
+	('Labor Day', '2017-09-04'),
+	('Labor Day', '2018-09-03'),
+	('Labor Day', '2019-09-02'),
+	('Labor Day', '2020-09-07'),
+	('Labor Day', '2021-09-06'),
+	('Labor Day', '2022-09-05'),
+	('Labor Day', '2023-09-04'),
+	('Labor Day', '2024-09-02'),
+	('Labor Day', '2025-09-01'),
+	('Labor Day', '2026-09-07'),
+	('Labor Day', '2027-09-06'),
+	('Labor Day', '2028-09-04'),
+	('Labor Day', '2029-09-03'),
+	('Labor Day', '2030-09-02'),
+	('D-Day', '1004-06-06');
+---#
+
+/******************************************************************************/
+--- Add Attachments index
+/******************************************************************************/
+---# Create new index on Attachments
+CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
 

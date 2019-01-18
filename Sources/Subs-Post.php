@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -137,6 +137,9 @@ function preparsecode(&$message, $previewing = false)
 	// Change the color specific tags to [color=the color].
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
 	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
+
+	// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
+	$message = preg_replace('~\[(/?)(\b' . implode("\b|\b", array_unique($context['legacy_bbc'])) . '\b)([^\]]*)\]~i', '&#91;$1$2$3&#93;', $message);
 
 	// Make sure all tags are lowercase.
 	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function($m)
@@ -626,14 +629,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		foreach ($to_array as $to)
 		{
 			set_error_handler(function($errno, $errstr, $errfile, $errline)
+			{
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
 				{
-					// error was suppressed with the @-operator
-					if (0 === error_reporting()) {
-						return false;
-					}
-
-					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+					return false;
 				}
+
+				throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+			}
 			);
 			try
 			{
@@ -643,7 +647,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 					$mail_result = false;
 				}
 			}
-			catch(ErrorException $e)
+			catch (ErrorException $e)
 			{
 				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 				log_error(sprintf($txt['mail_send_unable'], $to));
@@ -1249,6 +1253,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 /**
  * Sends mail, like mail() but over SMTP.
  * It expects no slashes or entities.
+ *
  * @internal
  *
  * @param array $mail_to_array Array of strings (email addresses)
@@ -1425,6 +1430,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  * Parse a message to the SMTP server.
  * Sends the specified message to the server, and checks for the
  * expected response.
+ *
  * @internal
  *
  * @param string $message The message to send
@@ -2499,6 +2505,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 /**
  * Approve topics?
+ *
  * @todo shouldn't this be in topic
  *
  * @param array $topics Array of topic ids
@@ -2807,7 +2814,6 @@ function user_info_callback($matches)
 
 	return $use_ref ? $ref : $matches[0];
 }
-
 
 /**
  * spell_init()

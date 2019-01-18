@@ -124,10 +124,10 @@ body#chrome #quick_search form input {
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
 /* Live news from smorg and support information. */
-#live_news, #supportVersionsTable {
+#live_news, #support_info {
 	width: 70%;
 }
-#supportVersionsTable {
+#support_info {
 	width: 30%;
 	padding-left: 6px;
 }
@@ -185,7 +185,7 @@ fieldset.admin_group .inactive {
 	height: 32px;
 }
 .large_admin_menu_icon::before {
-	background: url(../images/icons/admin_sprite.png) no-repeat  -5px -47px;
+	background: url(../images/icons/admin_sprite.png) no-repeat -5px -47px;
 	margin: 0 auto;
 	display: block;
 	content: '';
@@ -347,11 +347,11 @@ tr[id^="operation_"] .table_grid {
 }
 
 /* Styles for the file permissions section. */
-.filepermissions {
+.file_permissions {
 	font-size: 0.8em;
 	white-space: nowrap;
 }
-.fperm {
+.perms_status {
 	display: block;
 	width: 35%;
 	text-align: center;
@@ -426,7 +426,8 @@ tr[id^="operation_"] .table_grid {
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
 }
-#manage_boards dl textarea, #manage_boards dl table{
+
+#manage_boards dl textarea, #manage_boards dl table {
 	margin: 0 0 8px 0;
 }
 #manage_boards span.post_group, #manage_boards span.regular_members {
@@ -437,7 +438,7 @@ tr[id^="operation_"] .table_grid {
 	margin: 2px 2px 0px 12px;
 }
 .select_all_box {
-	display:none;
+	display: none;
 }
 
 /* Styles for the manage members section. */
@@ -601,7 +602,7 @@ h3.grid_header {
 	vertical-align: middle;
 	margin: 0 8px 0 0;
 }
-#error_log .generic_icons::before {
+#error_log .main_icons::before {
 	margin: 0 5px 0 0;
 }
 #error_log .error_info {
@@ -681,7 +682,7 @@ h3.config_hd {
 }
 
 .move_smileys .selected_item {
-	border-color: #FFB42D;
+	border-color: #ffb42d;
 }
 
 /* Progress bars */

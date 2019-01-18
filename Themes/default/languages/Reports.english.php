@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Reports
+// Version: 2.1 RC1; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';

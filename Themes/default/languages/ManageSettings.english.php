@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManageSettings
+// Version: 2.1 RC1; ManageSettings
 
 global $scripturl;
 
@@ -117,7 +117,6 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
 $txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
-
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';

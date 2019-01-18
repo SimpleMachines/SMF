@@ -3,10 +3,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 (function ($) {
@@ -408,9 +408,9 @@ sceditor.formats.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + element.width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -466,9 +466,9 @@ sceditor.formats.bbcode.set(
 
 			attribs += " id=" + element.attr('data-attachment');
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + $(element).width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + $(element).height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
