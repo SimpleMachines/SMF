@@ -2577,7 +2577,6 @@ $combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
-$default_replacements = array();
 foreach ($combined as $dir => $attrs)
 {
 	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
