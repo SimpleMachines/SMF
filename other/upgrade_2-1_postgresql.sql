@@ -2612,17 +2612,17 @@ $combined = array();
 foreach ($dirs AS $ix => $dir)
 {
 	if (!empty($setnames[$ix]) && $dir != 'default')
-		$combined[$dir] = array($setnames[$ix], '.gif');
+		$combined[$dir] = array($setnames[$ix], 'gif');
 }
 
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = array($txt['default_fugue_smileyset_name'], '.png');
-$combined['alienine'] = array($txt['default_alienine_smileyset_name'], '.png');
+$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['aaron'] = array($txt['default_aaron_smileyset_name'], '.gif');
-$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], '.gif');
+$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
@@ -2657,11 +2657,14 @@ if (in_array('filename', $smileys_columns))
 	{
 		$pathinfo = pathinfo($row['filename']);
 
-		foreach ($filtered as $set => $attrs)
+		foreach ($filtered as $set => $dummy)
 		{
-			// The default smileys in 2.1 use PNG files
-			if (in_array($set, array('fugue', 'alienine')) || empty($pathinfo['extension']))
-				$pathinfo['extension'] = 'png';
+			// If we set an explict extension for this set, use that.
+			if (isset($combined[$set]))
+				$pathinfo['extension'] = $combined[$set][1];
+			// Otherwise, if there is no extension, assume gif.
+			elseif (empty($pathinfo['extension']))
+				$pathinfo['extension'] = 'gif';
 
 			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $pathinfo['extension']);
 		}
