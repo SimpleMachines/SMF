@@ -354,18 +354,18 @@ function smf_fileUpload(oOptions) {
 		// If there wasn't any error, change the current cover.
 		_thisElement.addClass('infobox').removeClass('descbox');
 
+		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+		// Fire up the delete button.
+		file.deleteAttachment(_thisElement, response.attachID, file);
+
 		// Append the BBC.
 		w = _thisElement.find('input[name="attached_BBC_width"]').val();
 		h = _thisElement.find('input[name="attached_BBC_height"]').val();
 		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response, w, h));
 
 		file.insertAttachment(_thisElement, response);
-
-		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-		// Fire up the delete button.
-		file.deleteAttachment(_thisElement, response.attachID, file);
 
 		// Let the editor know about this attachment so it can handle the BBC correctly
 		file.addToCurrentAttachmentsList(file, response);
@@ -402,18 +402,18 @@ function smf_fileUpload(oOptions) {
 			// Remove the 'upload' button.
 			_thisElement.find('.upload').fadeOutAndRemove('slow');
 
+			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+			// Fire up the delete button.
+			file.deleteAttachment(_thisElement, file.attachID, file);
+
 			// Append the BBC.
 			w = _thisElement.find('input[name="attached_BBC_width"]').val();
 			h = _thisElement.find('input[name="attached_BBC_height"]').val();
 			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
 
 			file.insertAttachment(_thisElement, file);
-
-			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-			// Fire up the delete button.
-			file.deleteAttachment(_thisElement, file.attachID, file);
 
 			// Need to count this towards the max limit.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
