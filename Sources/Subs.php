@@ -1253,67 +1253,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$data = $returnContext;
 				},
 			),
-			// Deprecated version from SMF 2.1 betas
-			array(
-				'tag' => 'attach',
-				'type' => 'unparsed_content',
-				'parameters' => array(
-					'name' => array('optional' => true),
-					'type' => array('optional' => true),
-					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
-					'width' => array('optional' => true, 'match' => '(\d+)'),
-					'height' => array('optional' => true, 'match' => '(\d+)'),
-				),
-				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
-				{
-					$returnContext = '';
-
-					// BBC or the entire attachments feature is disabled
-					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
-						return $data;
-
-					// Save the attach ID.
-					$attachID = $data;
-
-					// Kinda need this.
-					require_once($sourcedir . '/Subs-Attachments.php');
-
-					$currentAttachment = parseAttachBBC($attachID);
-
-					// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
-					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
-
-					if (!empty($currentAttachment['is_image']))
-					{
-						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
-						$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
-
-						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
-						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
-
-						if (empty($width) && empty($height))
-						{
-							$width = ' width="' . $currentAttachment['width'] . '"';
-							$height = ' height="' . $currentAttachment['height'] . '"';
-						}
-
-						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '" class="atc_img"></a>';
-						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
-					}
-
-					// No image. Show a link.
-					else
-						$returnContext .= $currentAttachment['link'];
-
-					// Gotta append what we just did.
-					$data = $returnContext;
-				},
-			),
 			array(
 				'tag' => 'b',
 				'before' => '<b>',
