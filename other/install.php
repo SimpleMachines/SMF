@@ -1417,7 +1417,7 @@ function DatabasePopulation()
 		'{db_prefix}smiley_files',
 		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
 		$smiley_inserts,
-		array('id_smiley', 'smiley_set', 'filename')
+		array('id_smiley', 'smiley_set')
 	);
 
 	// Let's optimize those new tables, but not on InnoDB, ok?
