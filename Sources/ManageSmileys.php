@@ -844,7 +844,7 @@ function AddSmiley()
 				'id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48',
 			),
 			$inserts,
-			array('id_smiley', 'smiley_set', 'filename')
+			array('id_smiley', 'smiley_set')
 		);
 
 		foreach ($context['smiley_sets'] as $smiley_set)
@@ -1065,7 +1065,7 @@ function EditSmileys()
 						'id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48',
 					),
 					$inserts,
-					array('id_smiley', 'smiley_set', 'filename')
+					array('id_smiley', 'smiley_set')
 				);
 			}
 		}
@@ -1922,7 +1922,7 @@ function ImportSmileys($smileyPath)
 				'id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48',
 			),
 			$inserts,
-			array('id_smiley', 'smiley_set', 'filename')
+			array('id_smiley', 'smiley_set')
 		);
 
 		foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
