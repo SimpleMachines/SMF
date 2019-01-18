@@ -352,17 +352,17 @@ function reloadSettings()
 		'<div>',
 	);
 
-	// These are the only valid image types for SMF, by default anyway.
+	// These are the only valid image types for SMF attachments, by default anyway.
+	// Note: The values are for image mime types, not file extensions.
 	$context['valid_image_types'] = array(
-		1 => 'gif',
-		2 => 'jpeg',
-		3 => 'png',
-		5 => 'psd',
-		6 => 'bmp',
-		7 => 'tiff',
-		8 => 'tiff',
-		9 => 'jpeg',
-		14 => 'iff'
+		IMAGETYPE_GIF => 'gif',
+		IMAGETYPE_JPEG => 'jpeg',
+		IMAGETYPE_PNG => 'png',
+		IMAGETYPE_PSD => 'psd',
+		IMAGETYPE_BMP => 'bmp',
+		IMAGETYPE_TIFF_II => 'tiff',
+		IMAGETYPE_TIFF_MM => 'tiff',
+		IMAGETYPE_IFF => 'iff'
 	);
 
 	// Define a list of allowed tags for descriptions.
