@@ -198,7 +198,7 @@ function EditSmileySets()
 	// Set the right tab to be selected.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsets';
 
-	$allowedTypes = array_merge($context['valid_image_types'], array('svg'));
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 
 	// They must've been submitted a form.
 	if (isset($_POST['smiley_save']))
@@ -585,7 +585,7 @@ function AddSmiley()
 		);
 
 	// Some useful arrays... types we allow - and ports we don't!
-	$allowedTypes = array_merge($context['valid_image_types'], array('svg'));
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 	$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
 
 	// This will hold the names of the added files for each set
@@ -907,7 +907,7 @@ function EditSmileys()
 	// Force the correct tab to be displayed.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
 
-	$allowedTypes = array_merge($context['valid_image_types'], array('svg'));
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
 
 	// Submitting a form?
@@ -1845,7 +1845,7 @@ function ImportSmileys($smileyPath)
 	if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir'] . '/' . $smileyPath))
 		fatal_lang_error('smiley_set_unable_to_import');
 
-	$allowedTypes = array_merge($context['valid_image_types'], array('svg'));
+	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 
 	$smileys = array();
 	$dir = dir($modSettings['smileys_dir'] . '/' . $smileyPath);
