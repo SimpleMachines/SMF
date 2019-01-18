@@ -641,7 +641,7 @@ function AddSmiley()
 			$_FILES['uploadSmiley']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['uploadSmiley']['name']);
 
 			// We only allow image files - it's THAT simple - no messing around here...
-			if (!in_array(strtolower(substr(strrchr($_FILES['uploadSmiley']['name'], '.'), 1)), $allowedTypes))
+			if (!in_array(strtolower(pathinfo($_FILES['uploadSmiley']['name'], PATHINFO_EXTENSION)), $allowedTypes))
 				fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 
 			// We only need the filename...
@@ -715,7 +715,7 @@ function AddSmiley()
 				$_FILES['individual_' . $set['raw_path']]['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['individual_' . $set['raw_path']]['name']);
 
 				// We only allow image files - it's THAT simple - no messing around here...
-				if (!in_array(strtolower(substr(strrchr($_FILES['individual_' . $set['raw_path']]['name'], '.'), 1)), $allowedTypes))
+				if (!in_array(strtolower(pathinfo($_FILES['individual_' . $set['raw_path']]['name'], PATHINFO_EXTENSION)), $allowedTypes))
 					fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 
 				// We only need the filename...
@@ -872,11 +872,11 @@ function AddSmiley()
 			while ($entry = $dir->read())
 			{
 				// Strip extension
-				$filename = pathinfo($entry, PATHINFO_FILENAME);
-				if (empty($context['filenames'][$smiley_set['path']][strtolower($filename)]) && in_array(substr(strrchr($entry, '.'), 1), $allowedTypes))
-					$context['filenames'][$smiley_set['path']][strtolower($filename)] = array(
+				$entry_info = pathinfo($entry);
+				if (empty($context['filenames'][$smiley_set['path']][strtolower($entry_info['filename'])]) && in_array(strtolower($entry_info['extension']), $allowedTypes))
+					$context['filenames'][$smiley_set['path']][strtolower($entry_info['filename'])] = array(
 						'id' => $smcFunc['htmlspecialchars']($entry),
-						'selected' => $filename == 'smiley' && $smiley_set['path'] == $context['selected_set'] ? : false,
+						'selected' => $entry_info['filename'] == 'smiley' && $smiley_set['path'] == $context['selected_set'],
 					);
 			}
 			$dir->close();
