@@ -2097,7 +2097,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						$placeholder = '[placeholder]' . ++$placeholders_counter . '[/placeholder]';
+						$placeholder = '<placeholder ' . ++$placeholders_counter . '>';
 						$placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
 
 						$replaces[$matches[0][$match]] = $placeholder;
@@ -2127,6 +2127,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				if (!$no_autolink_area)
 				{
+					// An &nbsp; right after a URL can break the autolinker
+					if (strpos($data, '&nbsp;') !== false)
+					{
+						$placeholders['<placeholder non-breaking-space>'] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => '<placeholder non-breaking-space>'));
+					}
+
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
