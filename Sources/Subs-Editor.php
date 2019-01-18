@@ -1843,7 +1843,7 @@ function create_control_richedit($editorOptions)
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 					WHERE s.hidden IN (0, 2)
 						AND f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
-						AND s.code IN {array_string:default_codes}' : '') . '
+						AND s.code IN ({array_string:default_codes})' : '') . '
 					ORDER BY s.smiley_row, s.smiley_order',
 					array(
 						'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
