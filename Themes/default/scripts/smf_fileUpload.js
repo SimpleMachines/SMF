@@ -29,7 +29,7 @@ function smf_fileUpload(oOptions) {
 					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
 				};
 
-			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? file.name : '') + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? decodeURIComponent(file.name.replace(/\+/g,' ')) : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
