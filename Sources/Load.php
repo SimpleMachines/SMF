@@ -375,7 +375,7 @@ function reloadSettings()
 	// Define a list of deprecated BBC tags
 	// Even when enabled, they'll only work in old posts and not new ones
 	$context['legacy_bbc'] = array(
-		'acronym', 'bdo', 'black', 'blue', 'br', 'flash', 'ftp', 'glow',
+		'acronym', 'bdo', 'black', 'blue', 'flash', 'ftp', 'glow',
 		'green', 'move', 'red', 'shadow', 'tt', 'white',
 
 	);

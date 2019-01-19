@@ -1022,7 +1022,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled;
+	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
 	if ($message === '')
@@ -1116,8 +1116,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				- quoted: true if the value should be quoted.
 				- validate: callback to evaluate on the data, which is $data.
 				- value: a string in which to replace $1 with the data.
-				  either it or validate may be used, not both.
+					Either value or validate may be used, not both.
 				- optional: true if the parameter is optional.
+				- default: a default value for missing optional parameters.
 
 			test: a regular expression to test immediately after the tag's
 			  '=', ' ' or ']'.  Typically, should have a \] at the end.
@@ -1289,7 +1290,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="color: blue;" class="bbc_color">',
 				'after' => '</span>',
 			),
-			// Legacy (same as typing an actual line break character)
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
@@ -2029,13 +2029,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 
-	$alltags = array();
-	foreach ($bbc_codes as $section)
+	if (!empty($parse_tags))
 	{
-		foreach ($section as $code)
-			$alltags[] = $code['tag'];
+		$real_alltags_regex = $alltags_regex;
+		$alltags_regex = '';
 	}
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+	if (empty($alltags_regex))
+	{
+		$alltags = array();
+		foreach ($bbc_codes as $section)
+		{
+			foreach ($section as $code)
+				$alltags[] = $code['tag'];
+		}
+		$alltags_regex = '(?>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys($itemcodes)) . ')';
+	}
 
 	$pos = -1;
 	while ($pos !== false)
@@ -2310,9 +2318,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos >= strlen($message) - 1)
 			break;
 
-		$tags = strtolower($message[$pos + 1]);
+		$tag_character = strtolower($message[$pos + 1]);
 
-		if ($tags == '/' && !empty($open_tags))
+		if ($tag_character == '/' && !empty($open_tags))
 		{
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
@@ -2423,12 +2431,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// No tags for this character, so just keep going (fastest possible course.)
-		if (!isset($bbc_codes[$tags]))
+		if (!isset($bbc_codes[$tag_character]))
 			continue;
 
 		$inside = empty($open_tags) ? null : $open_tags[count($open_tags) - 1];
 		$tag = null;
-		foreach ($bbc_codes[$tags] as $possible)
+		foreach ($bbc_codes[$tag_character] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
 
@@ -2508,9 +2516,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
-				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				$regex_key = $smcFunc['json_encode']($possible['parameters']);
+				if (!isset($params_regexes[$regex_key]))
+				{
+					$params_regexes[$regex_key] = '';
+
+					foreach ($possible['parameters'] as $p => $info)
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				}
 
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
@@ -2527,10 +2540,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 
-					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+					$match = preg_match('~^' . $params_regexes[$regex_key] . '$~i', implode(' ', $given_params), $matches) !== 0;
 
 					if ($match)
-						$blob_counter = count($blobs) + 1;
+						break;
 				}
 
 				// Didn't match our parameter list, try the next possible.
@@ -2541,7 +2554,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				for ($i = 1, $n = count($matches); $i < $n; $i += 2)
 				{
 					$key = strtok(ltrim($matches[$i]), '=');
-					if (isset($possible['parameters'][$key]['value']))
+					if ($key === false)
+						continue;
+					elseif (isset($possible['parameters'][$key]['value']))
 						$params['{' . $key . '}'] = strtr($possible['parameters'][$key]['value'], array('$1' => $matches[$i + 1]));
 					elseif (isset($possible['parameters'][$key]['validate']))
 						$params['{' . $key . '}'] = $possible['parameters'][$key]['validate']($matches[$i + 1]);
@@ -2555,7 +2570,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				foreach ($possible['parameters'] as $p => $info)
 				{
 					if (!isset($params['{' . $p . '}']))
-						$params['{' . $p . '}'] = '';
+					{
+						if (!isset($info['default']))
+							$params['{' . $p . '}'] = '';
+						elseif (isset($possible['parameters'][$p]['value']))
+							$params['{' . $p . '}'] = strtr($possible['parameters'][$p]['value'], array('$1' => $info['default']));
+						elseif (isset($possible['parameters'][$p]['validate']))
+							$params['{' . $p . '}'] = $possible['parameters'][$p]['validate']($info['default']);
+						else
+							$params['{' . $p . '}'] = $info['default'];
+					}
 				}
 
 				$tag = $possible;
@@ -2924,6 +2948,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			$bbc_codes = $temp_bbc;
 			unset($temp_bbc);
+		}
+
+		if (empty($real_alltags_regex))
+			$alltags_regex = '';
+		else
+		{
+			$alltags_regex = $real_alltags_regex;
+			unset($real_alltags_regex);
 		}
 	}
 
