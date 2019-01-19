@@ -324,4 +324,9 @@ $txt['auto_approve_topics'] = 'Post new topics, without requiring approval';
 $txt['auto_approve_replies'] = 'Post replies to topics, without requiring approval';
 $txt['auto_approve_attachments'] = 'Post attachments, without requiring approval';
 
+$txt['permissiongroup_bbc'] = 'BBCode';
+$txt['permissionname_bbc'] = 'Use the [%1$s] BBCode';
+$txt['permissionhelp_bbc_html'] = 'This permission allows a member to use the [html] BBCode to embed arbitrary HTML in posts, personal messages, etc.<br><br><strong>Embedding arbitrary HTML can break your site and create major security risks. <u>Do not grant this permission to anyone unless you completely trust them not to break your website!</u></strong>';
+$txt['permissionnote_bbc_html'] = 'Creates a security risk!';
+
 ?>

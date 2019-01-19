@@ -459,7 +459,7 @@ function SetQuickGroups()
 	// Clear out any cached authority.
 	updateSettings(array('settings_updated' => time()));
 
-	// No groups where selected.
+	// No groups were selected.
 	if (empty($_POST['group']))
 		redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 
@@ -999,9 +999,7 @@ function GeneralPermissionSettings($return_config = false)
 	// Needed for the inline permission functions, and the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
-	// Don't let guests have these permissions.
 	$context['post_url'] = $scripturl . '?action=admin;area=permissions;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -1187,6 +1185,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'manage_membergroups',
 		'manage_bans',
 		'admin_forum',
+		'bbc_html',
 		'manage_permissions',
 		'edit_news',
 		'calendar_edit_any',
@@ -1430,6 +1429,7 @@ function loadAllPermissions()
 			'profile',
 			'likes',
 			'mentions',
+			'bbc',
 		),
 		'board' => array(
 			'general_board',
@@ -1525,6 +1525,13 @@ function loadAllPermissions()
 		),
 	);
 
+	// Add the permissions for the restricted BBCodes
+	foreach ($context['restricted_bbc'] as $bbc)
+	{
+		$permissionList['membergroup']['bbc_' . $bbc] = array(false, 'bbc');
+		$txt['permissionname_bbc_' . $bbc] = sprintf($txt['permissionname_bbc'], $bbc);
+	}
+
 	// All permission groups that will be shown in the left column on classic view.
 	$leftPermissionGroups = array(
 		'general',
@@ -1608,6 +1615,10 @@ function loadAllPermissions()
 		{
 			// If this is a guest permission we don't do it if it's the guest group.
 			if (isset($context['group']['id']) && $context['group']['id'] == -1 && in_array($permission, $context['non_guest_permissions']))
+				continue;
+
+			// Regular members can't have the bbc_html permission, for safety's sake.
+			if (isset($context['group']['id']) && $context['group']['id'] < 1 && $permission == 'bbc_html')
 				continue;
 
 			// What groups will this permission be in?
@@ -1776,22 +1787,23 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	// Make sure we honor the "illegal guest permissions"
 	loadIllegalGuestPermissions();
 
+	// Are any of these permissions that guests can't have?
+	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
+	foreach ($non_guest_perms as $permission)
+		if (!isset($excluded_groups[$permission]) || !in_array(-1, $excluded_groups[$permission]))
+			$excluded_groups[$permission][] = -1;
+
 	// Some permissions cannot be given to certain groups. Remove the groups.
-	foreach ($excluded_groups as $group)
+	foreach ($permissions as $permission)
 	{
-		foreach ($permissions as $permission)
+		if (!isset($excluded_groups[$permission]))
+			continue;
+
+		foreach ($excluded_groups[$permission] as $group)
 		{
 			if (isset($context[$permission][$group]))
 				unset($context[$permission][$group]);
 		}
-	}
-
-	// Are any of these permissions that guests can't have?
-	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
-	foreach ($non_guest_perms as $permission)
-	{
-		if (isset($context[$permission][-1]))
-			unset($context[$permission][-1]);
 	}
 
 	// Create the token for the separate inline permission verification.
@@ -2199,7 +2211,10 @@ function loadIllegalPermissions()
 
 	$context['illegal_permissions'] = array();
 	if (!allowedTo('admin_forum'))
+	{
 		$context['illegal_permissions'][] = 'admin_forum';
+		$context['illegal_permissions'][] = 'bbc_html';
+	}
 	if (!allowedTo('manage_membergroups'))
 		$context['illegal_permissions'][] = 'manage_membergroups';
 	if (!allowedTo('manage_permissions'))
@@ -2271,6 +2286,9 @@ function loadIllegalGuestPermissions()
 		'send_mail',
 		'split_any',
 	);
+
+	foreach ($context['restricted_bbc'] as $bbc)
+		$context['non_guest_permissions'][] = 'bbc_' . $bbc;
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');
 }

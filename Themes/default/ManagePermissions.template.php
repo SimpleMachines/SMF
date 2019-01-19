@@ -594,7 +594,11 @@ function template_modify_group_display($type)
 							<td>
 								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 							</td>
-							<td class="lefttext full_width">', $permission['name'], '</td><td>';
+							<td class="lefttext full_width">
+								', $permission['name'], (!empty($permission['note']) ? '<br>
+								<strong class="smalltext">' . $permission['note'] . '</strong>' : ''), '
+							</td>
+							<td>';
 
 					if ($permission['has_own_any'])
 					{
