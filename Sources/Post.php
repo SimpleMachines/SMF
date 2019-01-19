@@ -1048,7 +1048,7 @@ function Post($post_errors = array())
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
 				$context['current_attachments'][$attachID] = array(
-					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
+					'name' => $smcFunc['htmlspecialchars']($attachment['name']),
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
 					'unchecked' => false,

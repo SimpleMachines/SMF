@@ -1209,15 +1209,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
 				'parameters' => array(
-					'name' => array('optional' => true),
-					'type' => array('optional' => true),
+					'id' => array('match' => '(\d+)'),
 					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
 				{
 					$returnContext = '';
 
@@ -1226,7 +1224,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = $data;
+					$attachID = $params['{id}'];
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1237,10 +1235,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']))
+					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
-						$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
+						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
 						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
@@ -1259,7 +1257,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// No image. Show a link.
 					else
-						$returnContext .= $currentAttachment['link'];
+						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
 
 					// Gotta append what we just did.
 					$data = $returnContext;

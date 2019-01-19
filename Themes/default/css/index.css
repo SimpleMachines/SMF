@@ -3821,6 +3821,8 @@ h3.profile_hd {
 }
 #attachment_previews .attach-ui {
 	min-height: 36px;
+	padding: 10px 0;
+	float: right;
 }
 input[name="attachBBC"] {
 	width: 100%;

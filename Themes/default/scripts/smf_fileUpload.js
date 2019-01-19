@@ -27,11 +27,9 @@ function smf_fileUpload(oOptions) {
 				bbcOptionalParams = {
 					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
 					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
-					name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
-					type: ' type=' + mime_type,
 				};
 
-			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type + ']' + file.attachID + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? decodeURIComponent(file.name.replace(/\+/g,' ')) : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
@@ -229,6 +227,17 @@ function smf_fileUpload(oOptions) {
 				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
 		};
 
+		// The editor needs this to know how to handle embedded attachements
+		file.addToCurrentAttachmentsList = function (file, response) {
+			current_attachments.push({
+				name: file.name,
+				size: file.size,
+				attachID: response.attachID,
+				type: file.type,
+				thumbID: (response.thumbID > 0 ? response.thumbID : response.attachID)
+			});
+		}
+
 		// Hookup the upload button.
 		_thisElement.find('.upload').on('click', function () {
 			myDropzone.enqueueFile(file);
@@ -345,6 +354,12 @@ function smf_fileUpload(oOptions) {
 		// If there wasn't any error, change the current cover.
 		_thisElement.addClass('infobox').removeClass('descbox');
 
+		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+		// Fire up the delete button.
+		file.deleteAttachment(_thisElement, response.attachID, file);
+
 		// Append the BBC.
 		w = _thisElement.find('input[name="attached_BBC_width"]').val();
 		h = _thisElement.find('input[name="attached_BBC_height"]').val();
@@ -352,11 +367,8 @@ function smf_fileUpload(oOptions) {
 
 		file.insertAttachment(_thisElement, response);
 
-		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-		// Fire up the delete button.
-		file.deleteAttachment(_thisElement, response.attachID, file);
+		// Let the editor know about this attachment so it can handle the BBC correctly
+		file.addToCurrentAttachmentsList(file, response);
 	});
 
 	myDropzone.on('uploadprogress', function (file, progress, bytesSent) {
@@ -390,18 +402,18 @@ function smf_fileUpload(oOptions) {
 			// Remove the 'upload' button.
 			_thisElement.find('.upload').fadeOutAndRemove('slow');
 
+			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+			// Fire up the delete button.
+			file.deleteAttachment(_thisElement, file.attachID, file);
+
 			// Append the BBC.
 			w = _thisElement.find('input[name="attached_BBC_width"]').val();
 			h = _thisElement.find('input[name="attached_BBC_height"]').val();
 			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
 
 			file.insertAttachment(_thisElement, file);
-
-			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-			// Fire up the delete button.
-			file.deleteAttachment(_thisElement, file.attachID, file);
 
 			// Need to count this towards the max limit.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
