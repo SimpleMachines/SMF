@@ -710,6 +710,9 @@ function GroupPermissionsReport()
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
 
+		if (strpos($row['permission'], 'bbc_') === 0)
+			$txt['group_perms_name_' . $row['permission']] = sprintf($txt['group_perms_name_bbc'], substr($row['permission'], 4));
+
 		// If this is a new permission flush the last row.
 		if ($row['permission'] != $lastPermission)
 		{
