@@ -975,9 +975,10 @@ function template_show_settings()
 								<dl class="settings">';
 			else
 				echo '
-									<dd>
+									<dt>
 										<strong>' . $config_var . '</strong>
-									</dd>';
+									</dt>
+									<dd></dd>';
 		}
 	}
 
