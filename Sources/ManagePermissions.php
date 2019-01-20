@@ -1819,7 +1819,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 			});
 
 		foreach ($permissions as $permission)
-			$context['permissions_excluded'][$permission][] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
+			$context['permissions_excluded'][$permission] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
 	}
 
 	// Some permissions cannot be given to certain groups. Remove the groups.
