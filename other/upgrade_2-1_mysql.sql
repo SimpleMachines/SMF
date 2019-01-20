@@ -2566,7 +2566,6 @@ foreach ($dirs AS $ix => $dir)
 		$combined[$dir] = array($setnames[$ix], '');
 }
 
-
 // Add our lovely new 2.1 smiley sets if not already there
 $combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
 $combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
@@ -2611,12 +2610,19 @@ if (in_array('filename', $smileys_columns))
 		{
 			$ext = $pathinfo['extension'];
 
-			// If we set an explict extension for this set, use that.
+			// If we have a default extension for this set, check if we can switch to it.
 			if (isset($combined[$set]) && !empty($combined[$set][1]))
-				$ext = $combined[$set][1];
-			// Otherwise, if there is no extension, assume gif.
+			{
+				if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
+					$ext = $combined[$set][1];
+			}
+			// In a custom set and no extension specified? Ugh...
 			elseif (empty($ext))
-				$ext = 'gif';
+			{
+				// Any files matching this name?
+				$found = glob($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$ext = !empty($found) ? pathinfo($found[0], PATHINFO_EXTENSION) : 'gif';
+			}
 
 			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
 		}
