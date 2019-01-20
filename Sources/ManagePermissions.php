@@ -431,6 +431,7 @@ function SetQuickGroups()
 
 	loadIllegalPermissions();
 	loadIllegalGuestPermissions();
+	loadIllegalBBCHtmlGroups();
 
 	// Make sure only one of the quick options was selected.
 	if ((!empty($_POST['predefined']) && ((isset($_POST['copy_from']) && $_POST['copy_from'] != 'empty') || !empty($_POST['permissions']))) || (!empty($_POST['copy_from']) && $_POST['copy_from'] != 'empty' && !empty($_POST['permissions'])))
@@ -1095,6 +1096,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 
 	loadIllegalPermissions();
 	loadIllegalGuestPermissions();
+	loadIllegalBBCHtmlGroups();
 
 	// Levels by group... restrict, standard, moderator, maintenance.
 	$groupLevels = array(
@@ -1524,6 +1526,10 @@ function loadAllPermissions()
 		),
 	);
 
+	// In case a mod screwed things up...
+	if (!in_array('html', $context['restricted_bbc']))
+		$context['restricted_bbc'][] = 'html';
+
 	// Add the permissions for the restricted BBCodes
 	foreach ($context['restricted_bbc'] as $bbc)
 	{
@@ -1543,6 +1549,9 @@ function loadAllPermissions()
 
 	// We need to know what permissions we can't give to guests.
 	loadIllegalGuestPermissions();
+
+	// We also need to know which groups can't be given the bbc_html permission.
+	loadIllegalBBCHtmlGroups();
 
 	// Some permissions are hidden if features are off.
 	$hiddenPermissions = array();
@@ -1787,6 +1796,10 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 
 	// Make sure we honor the "illegal guest permissions"
 	loadIllegalGuestPermissions();
+
+	// Only special people can have this permission
+	if (in_array('bbc_html', $permissions))
+		loadIllegalBBCHtmlGroups();
 
 	// Are any of these permissions that guests can't have?
 	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
@@ -2253,6 +2266,7 @@ function loadIllegalGuestPermissions()
 		'admin_forum',
 		'announce_topic',
 		'approve_posts',
+		'bbc_html',
 		'calendar_edit',
 		'delete',
 		'delete_replies',
@@ -2304,9 +2318,6 @@ function loadIllegalGuestPermissions()
 		'split_any',
 	);
 
-	foreach ($context['restricted_bbc'] as $bbc)
-		$context['non_guest_permissions'][] = 'bbc_' . $bbc;
-
 	call_integration_hook('integrate_load_illegal_guest_permissions');
 
 	// Also add this info to $context['permissions_excluded'] to make life easier for everyone
@@ -2315,6 +2326,48 @@ function loadIllegalGuestPermissions()
 		if (empty($context['permissions_excluded'][$permission]) || !in_array($permission, $context['permissions_excluded'][$permission]))
 			$context['permissions_excluded'][$permission][] = -1;
 	}
+}
+
+/**
+ * Loads a list of membergroups who cannot be granted the bbc_html permission.
+ * Stores the groups in $context['permissions_excluded']['bbc_html'].
+ */
+function loadIllegalBBCHtmlGroups()
+{
+	global $context, $smcFunc;
+
+	if (empty($context['permissions_excluded']['bbc_html']))
+		$context['permissions_excluded']['bbc_html'] = array(-1, 0);
+	else
+	{
+		// Just because you're paranoid doesn't mean they aren't after you.
+		$context['permissions_excluded']['bbc_html'] = array_filter((array) $context['permissions_excluded']['bbc_html'], function ($v)
+			{
+				return is_int($v) || is_string($v) && (string) intval($v) === $v;
+			});
+
+		$context['permissions_excluded']['bbc_html'] = array_unique(array_merge(array(-1, 0), $context['permissions_excluded']['bbc_html']));
+	}
+
+	$minimum_permissions = array('admin_forum', 'manage_membergroups', 'manage_permissions');
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group
+		FROM {db_prefix}membergroups
+		WHERE id_group NOT IN (1, COALESCE((
+			SELECT DISTINCT id_group
+			FROM {db_prefix}permissions
+			WHERE permission IN ({array_string:permissions})
+				AND add_deny = {int:add}
+		), 1))',
+		array(
+			'permissions' => $minimum_permissions,
+			'add' => 1,
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['permissions_excluded']['bbc_html'][] = $row['id_group'];
+	$smcFunc['db_free_result']($request);
 }
 
 /**

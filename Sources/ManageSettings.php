@@ -309,16 +309,10 @@ function ModifyBBCSettings($return_config = false)
 
 	// Permissions for restricted BBC
 	if (!empty($context['restricted_bbc']))
-	{
 		$config_vars[] = '';
-		foreach ($context['restricted_bbc'] as $bbc)
-		{
-			$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
-		}
 
-		// The rank and file cannot be trusted with this one
-		$context['permissions_excluded']['bbc_html'] = array(0);
-	}
+	foreach ($context['restricted_bbc'] as $bbc)
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
 
 	$context['settings_post_javascript'] = '
 		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
