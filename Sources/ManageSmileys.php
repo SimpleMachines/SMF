@@ -791,7 +791,7 @@ function AddSmiley()
 				}
 
 				// Double-check that everything went as expected
-				if (empty($basename) || !file_exists($basename))
+				if (empty($basename) || !file_exists($context['smileys_dir'] . '/' . $set . '/' . $basename))
 					fatal_lang_error('smiley_not_found');
 
 				// Okay, let's add this one
