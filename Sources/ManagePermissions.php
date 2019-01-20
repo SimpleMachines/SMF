@@ -515,7 +515,7 @@ function SetQuickGroups()
 					// No dodgy permissions please!
 					if (!empty($context['illegal_permissions']) && in_array($perm, $context['illegal_permissions']))
 						continue;
-					if ($group_id == -1 && in_array($perm, $context['non_guest_permissions']))
+					if (isset($context['permissions_excluded'][$perm]) && in_array($group_id, $context['permissions_excluded'][$perm]))
 						continue;
 
 					if ($group_id != 1 && $group_id != 3)
@@ -644,7 +644,7 @@ function SetQuickGroups()
 			$permChange = array();
 			foreach ($_POST['group'] as $groupID)
 			{
-				if ($groupID == -1 && in_array($permission, $context['non_guest_permissions']))
+				if (isset($context['permissions_excluded'][$permission]) && in_array($groupID, $context['permissions_excluded'][$permission]))
 					continue;
 
 				if ($permissionType == 'membergroup' && $groupID != 1 && $groupID != 3 && (empty($context['illegal_permissions']) || !in_array($permission, $context['illegal_permissions'])))
@@ -1254,13 +1254,12 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		if (!empty($context['illegal_permissions']) && in_array($permission, $context['illegal_permissions']))
 			unset($groupLevels['global'][$level][$k]);
 
-		if ($group == -1 && in_array($permission, $context['non_guest_permissions']))
+		if (isset($context['permissions_excluded'][$permission]) && in_array($group, $context['permissions_excluded'][$permission]))
 			unset($groupLevels['global'][$level][$k]);
 	}
-	if ($group == -1)
-		foreach ($groupLevels['board'][$level] as $k => $permission)
-			if (in_array($permission, $context['non_guest_permissions']))
-				unset($groupLevels['board'][$level][$k]);
+	foreach ($groupLevels['board'][$level] as $k => $permission)
+		if (isset($context['permissions_excluded'][$permission]) && in_array($group, $context['permissions_excluded'][$permission]))
+			unset($groupLevels['board'][$level][$k]);
 
 	// Reset all cached permissions.
 	updateSettings(array('settings_updated' => time()));
@@ -1613,12 +1612,8 @@ function loadAllPermissions()
 		);
 		foreach ($permissionList as $permission => $permissionArray)
 		{
-			// If this is a guest permission we don't do it if it's the guest group.
-			if (isset($context['group']['id']) && $context['group']['id'] == -1 && in_array($permission, $context['non_guest_permissions']))
-				continue;
-
-			// Regular members can't have the bbc_html permission, for safety's sake.
-			if (isset($context['group']['id']) && $context['group']['id'] < 1 && $permission == 'bbc_html')
+			// If this permission shouldn't be given to certain groups (e.g. guests), don't.
+			if (isset($context['group']['id']) && isset($context['permissions_excluded'][$permission]) && in_array($context['group']['id'], $context['permissions_excluded'][$permission]))
 				continue;
 
 			// What groups will this permission be in?
@@ -1697,8 +1692,14 @@ function loadAllPermissions()
 
 /**
  * Initialize a form with inline permissions settings.
- * It loads a context variables for each permission.
+ * It loads a context variable for each permission.
  * This function is used by several settings screens to set specific permissions.
+ *
+ * To exclude groups from the form for a given permission, add the group IDs as
+ * an array to $context['excluded_permissions'][$permission]. For backwards
+ * compatibility, it is also possible to pass group IDs in via the
+ * $excluded_groups parameter, which will exclude the groups from the forms for
+ * all of the permissions passed in via $permissions.
  *
  * @internal
  *
@@ -1790,16 +1791,31 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	// Are any of these permissions that guests can't have?
 	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
 	foreach ($non_guest_perms as $permission)
-		if (!isset($excluded_groups[$permission]) || !in_array(-1, $excluded_groups[$permission]))
-			$excluded_groups[$permission][] = -1;
+	{
+		if (!isset($context['permissions_excluded'][$permission]) || !in_array(-1, $context['permissions_excluded'][$permission]))
+			$context['permissions_excluded'][$permission][] = -1;
+	}
+
+	// Any explicitly excluded groups for this call?
+	if (!empty($excluded_groups))
+	{
+		// Make sure this is an array of integers
+		$excluded_groups = array_filter((array) $excluded_groups, function ($v)
+			{
+				return is_int($v) || is_string($v) && (string) intval($v) === $v;
+			});
+
+		foreach ($permissions as $permission)
+			$context['permissions_excluded'][$permission][] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
+	}
 
 	// Some permissions cannot be given to certain groups. Remove the groups.
 	foreach ($permissions as $permission)
 	{
-		if (!isset($excluded_groups[$permission]))
+		if (!isset($context['permissions_excluded'][$permission]))
 			continue;
 
-		foreach ($excluded_groups[$permission] as $group)
+		foreach ($context['permissions_excluded'][$permission] as $group)
 		{
 			if (isset($context[$permission][$group]))
 				unset($context[$permission][$group]);
@@ -2226,6 +2242,7 @@ function loadIllegalPermissions()
 /**
  * Loads the permissions that can not be given to guests.
  * Stores the permissions in $context['non_guest_permissions'].
+ * Also populates $context['permissions_excluded'] with the info.
  */
 function loadIllegalGuestPermissions()
 {
@@ -2291,6 +2308,13 @@ function loadIllegalGuestPermissions()
 		$context['non_guest_permissions'][] = 'bbc_' . $bbc;
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');
+
+	// Also add this info to $context['permissions_excluded'] to make life easier for everyone
+	foreach ($context['non_guest_permissions'] as $permission)
+	{
+		if (empty($context['permissions_excluded'][$permission]) || !in_array($permission, $context['permissions_excluded'][$permission]))
+			$context['permissions_excluded'][$permission][] = -1;
+	}
 }
 
 /**

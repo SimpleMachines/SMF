@@ -1142,7 +1142,7 @@ function prepareDBSettingContext(&$config_vars)
 	if (!empty($inlinePermissions) && allowedTo('manage_permissions'))
 	{
 		require_once($sourcedir . '/ManagePermissions.php');
-		init_inline_permissions($inlinePermissions, isset($context['permissions_excluded']) ? $context['permissions_excluded'] : array());
+		init_inline_permissions($inlinePermissions);
 	}
 
 	if ($board_list)
