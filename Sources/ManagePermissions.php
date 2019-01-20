@@ -1833,6 +1833,10 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 			if (isset($context[$permission][$group]))
 				unset($context[$permission][$group]);
 		}
+
+		// There's no point showing a form with nobody in it
+		if (empty($context[$permission]))
+			unset($context['config_vars'][$permission], $context[$permission]);
 	}
 
 	// Create the token for the separate inline permission verification.
