@@ -281,7 +281,7 @@ function template_addsmiley()
 						', $txt['smileys_add_upload_choose_desc'], '
 					</dt>
 					<dd class="upload_sameall" style="display: none;">
-						<input type="file" name="uploadSmiley" id="uploadSmiley" disabled required onchange="selectMethod(\'upload\');">
+						<input type="file" name="uploadSmiley" id="uploadSmiley" disabled onchange="selectMethod(\'upload\');">
 					</dd>';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
@@ -290,7 +290,7 @@ function template_addsmiley()
 						', sprintf($txt['smileys_add_upload_for'], '<strong>' . $smiley_set['name'] . '</strong>'), ':
 					</dt>
 					<dd class="upload_more">
-						<input type="file" name="individual_', $smiley_set['path'], '" required onchange="selectMethod(\'upload\');">
+						<input type="file" name="individual_', $smiley_set['path'], '" onchange="selectMethod(\'upload\');">
 					</dd>';
 
 	echo '
