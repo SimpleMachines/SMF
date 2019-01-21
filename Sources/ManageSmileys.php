@@ -215,7 +215,19 @@ function EditSmileySets()
 			{
 				// If this is the set you've marked as default, or the only one remaining, you can't delete it
 				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
+				{
+					// Delete this set's entries from the smiley_files table
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}smiley_files
+						WHERE smiley_set = {string:smiley_set}',
+						array(
+							'smiley_set' => $set_paths[$id],
+						)
+					);
+
+					// Remove this set from our lists
 					unset($set_paths[$id], $set_names[$id]);
+				}
 			}
 
 			// Shortcut... array_merge() on a single array resets the numeric keys
