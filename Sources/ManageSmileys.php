@@ -767,7 +767,7 @@ function AddSmiley()
 				unset($basename);
 
 				// Check whether any similarly named files exist in the other set's directory
-				$similar_files = glob($context['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$similar_files = glob($context['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.{' . implode(',', $allowedTypes) . '}', GLOB_BRACE);
 
 				// If there's a similarly named file already there, use it
 				if (!empty($similar_files))
@@ -1997,7 +1997,7 @@ function ImportSmileys($smileyPath)
 			if ($smileyPath != $set)
 			{
 				// Check whether any similarly named files exist in the other set's directory
-				$similar_files = glob($modSettings['smileys_dir'] . '/' . $set . '/' . pathinfo($smiley_file, PATHINFO_FILENAME) . '.*');
+				$similar_files = glob($modSettings['smileys_dir'] . '/' . $set . '/' . pathinfo($smiley_file, PATHINFO_FILENAME) . '.{' . implode(',', $allowedTypes) . '}', GLOB_BRACE);
 
 				// If there's a similarly named file already there, use it
 				if (!empty($similar_files))
