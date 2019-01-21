@@ -1846,35 +1846,130 @@ function ImportSmileys($smileyPath)
 		fatal_lang_error('smiley_set_unable_to_import');
 
 	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$known_sets = explode(',', $modSettings['smiley_sets_known']);
+	sort($known_sets);
 
+	// Get the smileys in the folder
 	$smileys = array();
 	$dir = dir($modSettings['smileys_dir'] . '/' . $smileyPath);
 	while ($entry = $dir->read())
 	{
 		$pathinfo = pathinfo($entry);
-		if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank')
-			$smileys[strtolower($entry)] = $entry;
+		if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank' && strlen($pathinfo['basename']) <= 48)
+			$smiley_files[strtolower($pathinfo['basename'])] = $pathinfo['basename'];
 	}
 	$dir->close();
 
-	// Exclude the smileys that are already in the database.
+	// Get the smileys that are already in the database.
+	$existing_smileys = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT filename
-		FROM {db_prefix}smiley_files
-		WHERE filename IN ({array_string:smiley_list})
-			AND smiley_set = {string:smiley_set}',
+		SELECT *
+		FROM {db_prefix}smiley_files',
 		array(
-			'smiley_list' => $smileys,
-			'smiley_set' => $smileyPath,
+			'smiley_list' => $smiley_files,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (isset($smileys[strtolower($row['filename'])]))
-			unset($smileys[strtolower($row['filename'])]);
-	}
+		$existing_smileys[$row['filename']][$row['id_smiley']][] = $row['smiley_set'];
 	$smcFunc['db_free_result']($request);
 
+	// Filter $smiley_files down to just the ones not already in the database.
+	$to_unset = array();
+	$to_fix = array();
+	foreach ($smiley_files as $key => $smiley_file)
+	{
+		// A brand new one
+		if (empty($existing_smileys[$smiley_file]))
+			continue;
+
+		// File is already being used for at least one smiley, so we have more work to do...
+		foreach ($existing_smileys[$smiley_file] as $existing_id => $existing_sets)
+		{
+			$to_unset[$key][$existing_id] = false;
+
+			sort($existing_sets);
+
+			// Already done
+			if ($existing_sets === $known_sets)
+				$to_unset[$key][$existing_id] = true;
+
+			// Used in some sets but not others
+			else
+			{
+				// Do the other sets have some other file already defined?
+				foreach ($existing_smileys as $file => $info)
+				{
+					foreach ($info as $info_id => $info_sets)
+					{
+						if ($existing_id == $info_id)
+							$existing_sets = array_unique(array_merge($existing_sets, $info_sets));
+					}
+				}
+				sort($existing_sets);
+
+				// If every set already has a file for this smiley, we can skip it
+				if ($known_sets == $existing_sets)
+					$to_unset[$key][$existing_id] = true;
+
+				// Need to add the file for these sets
+				else
+					$to_fix[$key][$existing_id] = array_diff($known_sets, $existing_sets);
+			}
+		}
+	}
+
+	// Fix any sets with missing files
+	// This part handles files for pre-existing smileys in a newly created smiley set
+	$inserts = array();
+	foreach ($to_fix as $key => $ids)
+	{
+		foreach ($ids as $id_smiley => $sets_missing)
+		{
+			// Find the file we need to copy to the other sets
+			if (file_exists($modSettings['smileys_dir'] . '/' . $smileyPath . '/' . $smiley_files[$key]))
+				$p = $smileyPath;
+			else
+			{
+				foreach (array_diff($known_sets, $sets_missing) as $set)
+				{
+					if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_files[$key]))
+					{
+						$p = $set;
+						break;
+					}
+				}
+			}
+
+			foreach ($sets_missing as $set)
+			{
+				if ($set !== $p)
+				{
+					// Copy the file into the set's folder
+					copy($modSettings['smileys_dir'] . '/' . $p . '/' . $smiley_files[$key], $modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_files[$key]);
+					smf_chmod($modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_files[$key], 0644);
+				}
+
+				// Double-check that everything went as expected
+				if (!file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_files[$key]))
+					continue;
+
+				// Update the database
+				$inserts[] = array($id_smiley, $set, $smiley_files[$key]);
+
+				// This isn't a new smiley
+				$to_unset[$key][$id_smiley] = true;
+			}
+		}
+	}
+
+	// Remove anything that isn't actually new from our list of files
+	foreach ($to_unset as $key => $ids)
+	{
+		if (array_reduce($ids, function ($carry, $item) { return $carry * $item; }, true) == true)
+			unset($smiley_files[$key]);
+	}
+
+	// New smileys go at the end of the list
 	$request = $smcFunc['db_query']('', '
 		SELECT MAX(smiley_order)
 		FROM {db_prefix}smileys
@@ -1888,34 +1983,77 @@ function ImportSmileys($smileyPath)
 	list ($smiley_order) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
+	// This part handles brand new smileys that don't exist in any set
 	$new_smileys = array();
-	foreach ($smileys as $smiley)
-		if (strlen($smiley) <= 48)
+	foreach ($smiley_files as $key => $smiley_file)
+	{
+		// Ensure every set has a file to use for the new smiley
+		foreach ($known_sets as $set)
 		{
-			$filename_array = array();
-			foreach ($modSettings['smiley_sets_known'] as $smiley_set)
-				$filename_array[$smiley_set] = $smiley;
+			unset($basename);
 
-			$new_smileys[] = array(':' . strtok($smiley, '.') . ':', strtok($smiley, '.'), 0, ++$smiley_order);
+			if ($smileyPath != $set)
+			{
+				// Check whether any similarly named files exist in the other set's directory
+				$similar_files = glob($modSettings['smileys_dir'] . '/' . $set . '/' . pathinfo($smiley_file, PATHINFO_FILENAME) . '.*');
+
+				// If there's a similarly named file already there, use it
+				if (!empty($similar_files))
+				{
+					// Prefer an exact match if there is one
+					foreach ($similar_files as $similar_file)
+					{
+						if (basename($similar_file) == $smiley_file)
+							$basename = $smiley_file;
+					}
+
+					// Same name, different extension
+					if (empty($basename))
+						$basename = basename(reset($similar_files));
+				}
+				// Otherwise, copy the image to the other set's directory
+				else
+				{
+					copy($modSettings['smileys_dir'] . '/' . $smileyPath . '/' . $smiley_file, $modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_file);
+					smf_chmod($modSettings['smileys_dir'] . '/' . $set . '/' . $smiley_file, 0644);
+
+					$basename = $smiley_file;
+				}
+
+				// Double-check that everything went as expected
+				if (empty($basename) || !file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $basename))
+					continue;
+			}
+			else
+				$basename = $smiley_file;
+
+			$new_smileys[$key]['files'][$set] = $basename;
 		}
 
-	if (!empty($new_smileys))
+		$new_smileys[$key]['info'] = array(':' . pathinfo($smiley_file, PATHINFO_FILENAME) . ':', pathinfo($smiley_file, PATHINFO_FILENAME), 0, ++$smiley_order);
+	}
+
+	// Add the info for any new smileys to the database
+	foreach ($new_smileys as $new_smiley)
 	{
 		$new_id_smiley = $smcFunc['db_insert']('',
 			'{db_prefix}smileys',
 			array(
 				'code' => 'string-30', 'description' => 'string-80', 'smiley_row' => 'int', 'smiley_order' => 'int',
 			),
-			$new_smileys,
+			$new_smiley['info'],
 			array('id_smiley'),
 			1
 		);
 
-		// Update filename info in the smiley_files table
-		$inserts = array();
-		foreach ($filename_array as $set => $filename)
+		// We'll also need to add filename info to the smiley_files table
+		foreach ($new_smiley['files'] as $set => $filename)
 			$inserts[] = array($new_id_smiley, $set, $filename);
+	}
 
+	// Finally, update the smiley_files table with all our new files
+	if (!empty($inserts))
+	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}smiley_files',
 			array(
@@ -1925,10 +2063,10 @@ function ImportSmileys($smileyPath)
 			array('id_smiley', 'smiley_set')
 		);
 
-		foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
+		foreach ($known_sets as $set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			cache_put_data('parsing_smileys_' . $set, null, 480);
+			cache_put_data('posting_smileys_' . $set, null, 480);
 		}
 	}
 }
