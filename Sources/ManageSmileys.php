@@ -1206,7 +1206,7 @@ function EditSmileys()
 							// Check if there are smileys missing in some sets.
 							$missing_sets = array();
 							foreach ($context['smiley_sets'] as $smiley_set)
-								if (!file_exists(sprintf('%1$s/%2$s/%3$s', $modSettings['smileys_dir'], $smiley_set['path'], $rowData['filename_array'][$smiley_set['path']])))
+								if (empty($rowData['filename_array'][$smiley_set['path']]) || !file_exists(sprintf('%1$s/%2$s/%3$s', $modSettings['smileys_dir'], $smiley_set['path'], $rowData['filename_array'][$smiley_set['path']])))
 									$missing_sets[] = $smiley_set['path'];
 
 							$description = $smcFunc['htmlspecialchars']($rowData['description']);
@@ -1345,6 +1345,7 @@ function EditSmileys()
 
 		// Get all possible filenames for the smileys.
 		$context['filenames'] = array();
+		$context['missing_sets'] = array();
 		if ($context['smileys_dir_found'])
 		{
 			foreach ($context['smiley_sets'] as $smiley_set)
@@ -1352,13 +1353,21 @@ function EditSmileys()
 				if (!file_exists($context['smileys_dir'] . '/' . $smiley_set['raw_path']))
 					continue;
 
+				// No file currently defined for this smiley in this set? That's no good.
+				if (!isset($filenames[$smiley_set['raw_path']]))
+				{
+					$context['missing_sets'][] = $smiley_set['raw_path'];
+					$context['filenames'][$smiley_set['path']][''] = array('id' => '', 'selected' => true, 'disabled' => true);
+				}
+
 				$dir = dir($context['smileys_dir'] . '/' . $smiley_set['raw_path']);
 				while ($entry = $dir->read())
 				{
 					if (empty($context['filenames'][$smiley_set['path']][$entry]) && in_array(pathinfo($entry, PATHINFO_EXTENSION), $allowedTypes))
 						$context['filenames'][$smiley_set['path']][$entry] = array(
 							'id' => $smcFunc['htmlspecialchars']($entry),
-							'selected' => strtolower($entry) == strtolower($filenames[$smiley_set['raw_path']]),
+							'selected' => isset($filenames[$smiley_set['raw_path']]) && strtolower($entry) == strtolower($filenames[$smiley_set['raw_path']]),
+							'disabled' => false,
 						);
 				}
 				$dir->close();
@@ -1882,7 +1891,7 @@ function ImportSmileys($smileyPath)
 		if (empty($existing_smileys[$smiley_file]))
 			continue;
 
-		// File is already being used for at least one smiley, so we have more work to do...
+		// A file with this name is already being used for at least one smiley, so we have more work to do...
 		foreach ($existing_smileys[$smiley_file] as $existing_id => $existing_sets)
 		{
 			$to_unset[$key][$existing_id] = false;
