@@ -764,6 +764,8 @@ function AddSmiley()
 			// Now ensure every set has a file to use for this smiley
 			foreach (explode(',', $modSettings['smiley_sets_known']) as $set)
 			{
+				unset($basename);
+
 				// Check whether any similarly named files exist in the other set's directory
 				$similar_files = glob($context['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
 
