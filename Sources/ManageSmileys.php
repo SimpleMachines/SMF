@@ -1865,11 +1865,9 @@ function ImportSmileys($smileyPath)
 	// Get the smileys that are already in the database.
 	$existing_smileys = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT *
+		SELECT id_smiley, smiley_set, filename
 		FROM {db_prefix}smiley_files',
-		array(
-			'smiley_list' => $smiley_files,
-		)
+		array()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$existing_smileys[$row['filename']][$row['id_smiley']][] = $row['smiley_set'];
