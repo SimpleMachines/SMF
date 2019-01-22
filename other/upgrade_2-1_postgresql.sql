@@ -2680,19 +2680,12 @@ if (in_array('filename', $smileys_columns))
 
 	if (!empty($inserts))
 	{
-		$results = $smcFunc['db_insert']('ignore',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}smiley_files',
 			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
 			$inserts,
-			array('id_smiley', 'smiley_set'),
-			2
+			array('id_smiley', 'smiley_set')
 		);
-
-		// Unless something went horrifically wrong, drop the defunct column
-		if (count($inserts) == count($results))
-			upgrade_query("
-				ALTER TABLE {$db_prefix}smileys
-				DROP COLUMN IF EXISTS filename;");
 	}
 }
 
@@ -2714,6 +2707,12 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 
 ---}
 ---#
+
+---# Drop obsolete filename column from smileys table
+ALTER TABLE {$db_prefix}smileys
+DROP COLUMN IF EXISTS filename;
+---#
+
 
 /******************************************************************************/
 --- Add backtrace to log_error
