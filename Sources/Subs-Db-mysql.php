@@ -827,10 +827,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			else
 			{
 				$where_string = '';
-				$count2 = count($indexed_columns);
+				$count2 = count($keys);
 				for ($x = 0; $x < $count2; $x++)
 				{
-					$where_string .= key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
+					$keyPos = array_search($keys[$x], array_keys($columns));
+					$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
 					if (($x + 1) < $count2)
 						$where_string .= ' AND ';
 				}
