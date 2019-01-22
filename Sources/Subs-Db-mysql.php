@@ -804,7 +804,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		$ai = 0;
 		for ($i = 0; $i < $count; $i++)
 		{
-			$old_id = $smcFunc['db_insert_id']();
+			$old_id = $smcFunc['db_insert_id']($table);
 
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
@@ -816,7 +816,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				),
 				$connection
 			);
-			$new_id = $smcFunc['db_insert_id']();
+			$new_id = $smcFunc['db_insert_id']($table);
 
 			// the inserted value was new
 			if ($old_id != $new_id)
