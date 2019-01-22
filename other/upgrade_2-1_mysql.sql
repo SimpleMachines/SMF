@@ -2635,7 +2635,7 @@ if (in_array('filename', $smileys_columns))
 			'{db_prefix}smiley_files',
 			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
 			$inserts,
-			array('id_smiley', 'smiley_set'),
+			array('id_smiley', 'smiley_set')
 		);
 
 		// Unless something went horrifically wrong, drop the defunct column
