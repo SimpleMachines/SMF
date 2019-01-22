@@ -1894,7 +1894,7 @@ function ImportSmileys($smileyPath, $create = false)
 		array()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$existing_smileys[$row['filename']][$row['id_smiley']][] = $row['smiley_set'];
+		$existing_smileys[pathinfo($row['filename'], PATHINFO_FILENAME)][$row['id_smiley']][] = $row['smiley_set'];
 	$smcFunc['db_free_result']($request);
 
 	// Filter $smiley_files down to just the ones not already in the database.
@@ -1902,12 +1902,14 @@ function ImportSmileys($smileyPath, $create = false)
 	$to_fix = array();
 	foreach ($smiley_files as $key => $smiley_file)
 	{
+		$smiley_name = pathinfo($smiley_file, PATHINFO_FILENAME);
+
 		// A brand new one
-		if (empty($existing_smileys[$smiley_file]))
+		if (empty($existing_smileys[$smiley_name]))
 			continue;
 
 		// A file with this name is already being used for at least one smiley, so we have more work to do...
-		foreach ($existing_smileys[$smiley_file] as $existing_id => $existing_sets)
+		foreach ($existing_smileys[$smiley_name] as $existing_id => $existing_sets)
 		{
 			$to_unset[$key][$existing_id] = false;
 
