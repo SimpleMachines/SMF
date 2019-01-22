@@ -281,9 +281,8 @@ function EditSmileySets()
 				));
 			}
 
-			// The user might have checked to also import smileys.
-			if (!empty($_POST['smiley_sets_import']))
-				ImportSmileys($_POST['smiley_sets_path']);
+			// Import, but only the ones that match existing smileys
+			ImportSmileys($_POST['smiley_sets_path'], false);
 		}
 
 		foreach ($set_paths as $smiley_set)
@@ -315,7 +314,7 @@ function EditSmileySets()
 
 		// Sanity check - then import.
 		if (isset($context['smiley_sets'][$_GET['set']]))
-			ImportSmileys(un_htmlspecialchars($context['smiley_sets'][$_GET['set']]['path']));
+			ImportSmileys(un_htmlspecialchars($context['smiley_sets'][$_GET['set']]['path']), true);
 
 		// Force the process to continue.
 		$context['sub_action'] = 'modifyset';
@@ -403,7 +402,10 @@ function EditSmileySets()
 
 	// In case we need to import smileys, we need to add the token in now.
 	if (isset($context['current_set']['import_url']))
+	{
 		$context['current_set']['import_url'] .= ';' . $context['admin-mss_token_var'] . '=' . $context['admin-mss_token'];
+		$context['smiley_set_unused_message'] = sprintf($txt['smiley_set_unused'], $scripturl . '?action=admin;area=smileys;sa=editsmileys', $scripturl . '?action=admin;area=smileys;sa=addsmiley', $context['current_set']['import_url']);
+	}
 
 	$listOptions = array(
 		'id' => 'smiley_set_list',
@@ -1860,8 +1862,9 @@ function InstallSmileySet()
  * A function to import new smileys from an existing directory into the database.
  *
  * @param string $smileyPath The path to the directory to import smileys from
+ * @param bool $create Whether or not to make brand new smileys for files that don't match any existing smileys
  */
-function ImportSmileys($smileyPath)
+function ImportSmileys($smileyPath, $create = false)
 {
 	global $modSettings, $smcFunc;
 
@@ -1989,6 +1992,10 @@ function ImportSmileys($smileyPath)
 		if (array_reduce($ids, function ($carry, $item) { return $carry * $item; }, true) == true)
 			unset($smiley_files[$key]);
 	}
+
+	// We only create brand new smileys if asked.
+	if (empty($create))
+		$smiley_files = array();
 
 	// New smileys go at the end of the list
 	$request = $smcFunc['db_query']('', '

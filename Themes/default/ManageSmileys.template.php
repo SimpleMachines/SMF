@@ -33,12 +33,21 @@ function template_modifyset()
 			</h3>
 		</div>';
 
-	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
-	if (!empty($context['current_set']['can_import']))
+	if ($context['current_set']['is_new'] && !empty($modSettings['smiley_enable']))
+	{
 		echo '
 		<div class="information noup">
-			', $context['current_set']['can_import'] == 1 ? sprintf($txt['smiley_set_import_single'], $context['current_set']['import_url']) : sprintf($txt['smiley_set_import_multiple'], $context['current_set']['can_import'], $context['current_set']['import_url']), '
+			', $txt['smiley_set_import_info'], '
 		</div>';
+	}
+	// If this is an existing set, and there are still un-added smileys - offer an import opportunity.
+	elseif (!empty($context['current_set']['can_import']))
+	{
+		echo '
+		<div class="information noup">
+			', $context['smiley_set_unused_message'], '
+		</div>';
+	}
 
 	echo '
 		<div class="windowbg noup">
@@ -77,19 +86,7 @@ function template_modifyset()
 				</dt>
 				<dd>
 					<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked' : '', '>
-				</dd>';
-
-	// If this is a new smiley set they have the option to import smileys already in the directory.
-	if ($context['current_set']['is_new'] && !empty($modSettings['smiley_enable']))
-		echo '
-				<dt>
-					<strong><label for="smiley_sets_import">', $txt['smiley_set_import_directory'], '</label>: </strong>
-				</dt>
-				<dd>
-					<input type="checkbox" name="smiley_sets_import" id="smiley_sets_import" value="1">
-				</dd>';
-
-	echo '
+				</dd>
 			</dl>
 			<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button">
 		</div><!-- .windowbg -->
