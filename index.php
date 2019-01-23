@@ -246,7 +246,7 @@ function smf_main()
 		if (!empty($modSettings['hitStats']))
 			trackStats(array('hits' => '+'));
 	}
-	unset($no_stat_actions, $no_stat_areas);
+	unset($no_stat_actions);
 
 	// Make sure that our scheduled tasks have been running as intended
 	check_cron();
