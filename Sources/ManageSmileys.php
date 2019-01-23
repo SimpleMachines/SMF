@@ -1346,7 +1346,8 @@ function EditSmileys()
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if ($row['smiley_set'] == $context['selected_set'])
+			// The empty() bit is for just in case the default set is missing this smiley
+			if ($row['smiley_set'] == $context['selected_set'] || empty($context['current_smiley']))
 				$context['current_smiley'] = $row;
 
 			$filenames[$row['smiley_set']] = $row['filename'];
