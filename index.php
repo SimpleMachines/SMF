@@ -208,7 +208,7 @@ function smf_main()
 
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions, &$no_stat_areas));
 
-	if (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], $no_stat_actions) || !isset($no_stat_areas[$_REQUEST['action']]) || !isset($_REQUEST['area']) || $no_stat_areas[$_REQUEST['action']] != $_REQUEST['area'])
+	if (empty($_REQUEST['action']) || (!in_array($_REQUEST['action'], $no_stat_actions) && (!isset($no_stat_areas[$_REQUEST['action']]) || !isset($_REQUEST['area']) || $no_stat_areas[$_REQUEST['action']] != $_REQUEST['area'])))
 	{
 		// Log this user as online.
 		writeLog();
@@ -217,7 +217,7 @@ function smf_main()
 		if (!empty($modSettings['hitStats']))
 			trackStats(array('hits' => '+'));
 	}
-	unset($no_stat_actions);
+	unset($no_stat_actions, $no_stat_areas);
 
 	// Make sure that our scheduled tasks have been running as intended
 	check_cron();
