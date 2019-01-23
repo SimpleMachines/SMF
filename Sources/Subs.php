@@ -1966,6 +1966,36 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => ' :-*</span>',
 			);
 		}
+		$codes[] = array(
+			'tag' => 'cowsay',
+			'parameters' => array(
+				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
+					{
+						static $css_added;
+
+						if (empty($css_added))
+						{
+							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2JvcmRlcjoxcHggc29saWQ7Ym9yZGVyLXJhZGl1czowLjVlbTtwYWRkaW5nOjFjaDttYXgtd2lkdGg6ODBjaDttaW4td2lkdGg6MTJjaDt9cHJlW2RhdGEtZV1bZGF0YS10XTo6YWZ0ZXJ7ZGlzcGxheTppbmxpbmUtYmxvY2s7bWFyZ2luLWxlZnQ6OGNoO21pbi13aWR0aDoyMGNoO2NvbnRlbnQ6J1w1QyAgIF5fX15cQSAgXDVDICAoJyBhdHRyKGRhdGEtZSkgJylcNUNfX19fX19fXEEgICAgKF9fKVw1QyAgICAgICAgKVw1Qy9cNUNcQSAgICAgJyBhdHRyKGRhdGEtdCkgJyB8fC0tLS13IHxcQSAgICAgICAgfHwgICAgIHx8Jzt9');
+
+							addInlineJavaScript('
+								$("head").append("<style>" + ' . JavaScriptEscape($css) . ' + "</style>");', true);
+
+							$css_added = true;
+						}
+
+						return $smcFunc['substr']($eyes . 'oo', 0, 2);
+					},
+				),
+				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
+					{
+						return $smcFunc['substr']($tongue . '  ', 0, 2);
+					},
+				),
+			),
+			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
+			'after' => '</div></pre>',
+			'block_level' => true,
+		);
 
 		foreach ($codes as $code)
 		{
@@ -2988,49 +3018,39 @@ function parsesmileys(&$message)
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
-		// Use the default smileys if it is disabled. (better for "portability" of smileys.)
-		if (empty($modSettings['smiley_enable']))
+		// Cache for longer when customized smiley codes aren't enabled
+		$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+		// Load the smileys in reverse order by length so they don't get parsed incorrectly.
+		if (($temp = cache_get_data('parsing_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
-			$smileysto = array('evil', 'cheesy', 'rolleyes', 'angry', 'laugh', 'smiley', 'wink', 'grin', 'sad', 'shocked', 'cool', 'tongue', 'huh', 'embarrassed', 'lipsrsealed', 'kiss', 'cry', 'undecided', 'azn', 'afro', 'police', 'angel');
-			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
+			$result = $smcFunc['db_query']('', '
+				SELECT s.code, f.filename, s.description
+				FROM {db_prefix}smileys AS s
+					JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+				WHERE f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+					AND s.code IN ({array_string:default_codes})' : '') . '
+				ORDER BY LENGTH(s.code) DESC',
+				array(
+					'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+					'smiley_set' => $user_info['smiley_set'],
+				)
+			);
+			$smileysfrom = array();
+			$smileysto = array();
+			$smileysdescs = array();
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+			{
+				$smileysfrom[] = $row['code'];
+				$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
+				$smileysdescs[] = !empty($txt['icon_' . strtolower($row['description'])]) ? $txt['icon_' . strtolower($row['description'])] : $row['description'];
+			}
+			$smcFunc['db_free_result']($result);
+
+			cache_put_data('parsing_smileys_' . $user_info['smiley_set'], array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 		}
 		else
-		{
-			// Load the smileys in reverse order by length so they don't get parsed wrong.
-			if (($temp = cache_get_data('parsing_smileys', 480)) == null)
-			{
-				$result = $smcFunc['db_query']('', '
-					SELECT code, filename, description
-					FROM {db_prefix}smileys
-					ORDER BY LENGTH(code) DESC',
-					array(
-					)
-				);
-				$smileysfrom = array();
-				$smileysto = array();
-				$smileysdescs = array();
-				while ($row = $smcFunc['db_fetch_assoc']($result))
-				{
-					$smileysfrom[] = $row['code'];
-					$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
-					$smileysdescs[] = $row['description'];
-				}
-				$smcFunc['db_free_result']($result);
-
-				cache_put_data('parsing_smileys', array($smileysfrom, $smileysto, $smileysdescs), 480);
-			}
-			else
-				list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
-		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		foreach ($smileysto AS $ix => $file)
-			// Need to use the default if user selection is disabled
-			if (empty($modSettings['smiley_sets_enable']))
-				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
-			else
-				$smileysto[$ix] = $file . $user_info['smiley_set_ext'];
+			list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -3067,8 +3087,7 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch,
-		function($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
 		}, $message);

@@ -42,17 +42,27 @@ function db_packages_init()
 	}
 
 	// We setup an array of SMF tables we can't do auto-remove on - in case a mod writer cocks it up!
-	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'background_tasks', 'ban_groups', 'ban_items',
-		'board_permissions', 'boards', 'calendar', 'calendar_holidays', 'categories',
-		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards', 'log_comments',
-		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read', 'log_member_notices',
-		'log_notify', 'log_online', 'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
-		'log_scheduled_tasks', 'log_search_messages', 'log_search_results', 'log_search_subjects',
-		'log_search_topics', 'log_spider_hits', 'log_spider_stats', 'log_subscribed', 'log_topics',
-		'mail_queue', 'membergroups', 'members', 'mentions', 'message_icons',
-		'messages', 'moderator_groups', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
-		'pm_labeled_messages', 'pm_labels', 'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
-		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts', 'user_alerts_prefs', 'user_drafts', 'user_likes');
+	$reservedTables = array(
+		'admin_info_files', 'approval_queue', 'attachments',
+		'background_tasks', 'ban_groups', 'ban_items', 'board_permissions',
+		'board_permissions_view', 'boards', 'calendar', 'calendar_holidays',
+		'categories', 'custom_fields', 'group_moderators', 'log_actions',
+		'log_activity', 'log_banned', 'log_boards', 'log_comments',
+		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests',
+		'log_mark_read', 'log_member_notices', 'log_notify', 'log_online',
+		'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
+		'log_scheduled_tasks', 'log_search_messages', 'log_search_results',
+		'log_search_subjects', 'log_search_topics', 'log_spider_hits',
+		'log_spider_stats', 'log_subscribed', 'log_topics', 'mail_queue',
+		'member_logins', 'membergroups', 'members', 'mentions',
+		'message_icons', 'messages', 'moderator_groups', 'moderators',
+		'package_servers', 'permission_profiles', 'permissions',
+		'personal_messages', 'pm_labeled_messages', 'pm_labels',
+		'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'qanda',
+		'scheduled_tasks', 'sessions', 'settings', 'smiley_files', 'smileys',
+		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts',
+		'user_alerts_prefs', 'user_drafts', 'user_likes',
+	);
 	foreach ($reservedTables as $k => $table_name)
 		$reservedTables[$k] = strtolower($db_prefix . $table_name);
 

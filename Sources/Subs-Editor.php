@@ -134,52 +134,30 @@ function html_to_bbc($text)
 	$text = preg_replace('~\\<\\!\\[CDATA\\[.*?\\]\\]\\>~i', '', $text);
 
 	// Do the smileys ultra first!
-	preg_match_all('~<img\s+[^<>]*?id="*smiley_\d+_([^<>]+?)[\s"/>]\s*[^<>]*?/*>(?:\s)?~i', $text, $matches);
+	preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $text, $matches);
 	if (!empty($matches[0]))
 	{
-		// Easy if it's not custom.
-		if (empty($modSettings['smiley_enable']))
+		// Get all our actual smiley codes
+		$request = $smcFunc['db_query']('', '
+			SELECT code
+			FROM {db_prefix}smileys
+			WHERE code IN ({array_string:smiley_codes})
+			ORDER BY LENGTH(code) DESC',
+			array(
+				'smiley_codes' => $smiley_codes,
+			)
+		);
+		$smiley_codes = $smcFunc['db_fetch_all']($request);
+		$smcFunc['db_free_result']($request);
+
+		foreach ($matches[1] as $k => $possible_code)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
-			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
+			$possible_code = un_htmlspecialchars($possible_code);
 
-			foreach ($matches[1] as $k => $file)
-			{
-				$found = array_search($file, $smileysto);
-				// Note the weirdness here is to stop double spaces between smileys.
-				if ($found)
-					$matches[1][$k] = '-[]-smf_smily_start#|#' . $smcFunc['htmlspecialchars']($smileysfrom[$found]) . '-[]-smf_smily_end#|#';
-				else
-					$matches[1][$k] = '';
-			}
-		}
-		else
-		{
-			// Load all the smileys.
-			$names = array();
-			foreach ($matches[1] as $file)
-				$names[] = $file;
-			$names = array_unique($names);
-
-			if (!empty($names))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT code, filename
-					FROM {db_prefix}smileys
-					WHERE filename IN ({array_string:smiley_filenames})',
-					array(
-						'smiley_filenames' => $names,
-					)
-				);
-				$mappings = array();
-				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$mappings[$row['filename']] = $smcFunc['htmlspecialchars']($row['code']);
-				$smcFunc['db_free_result']($request);
-
-				foreach ($matches[1] as $k => $file)
-					if (isset($mappings[$file]))
-						$matches[1][$k] = '-[]-smf_smily_start#|#' . $mappings[$file] . '-[]-smf_smily_end#|#';
-			}
+			if (in_array($possible_code, $smiley_codes))
+				$matches[1][$k] = '-[]-smf_smily_start#|#' . $possible_code . '-[]-smf_smily_end#|#';
+			else
+				$matches[1][$k] = $matches[0][$k];
 		}
 
 		// Replace the tags!
@@ -1852,110 +1830,29 @@ function create_control_richedit($editorOptions)
 			'popup' => array(),
 		);
 
-		// Load smileys - don't bother to run a query if we're not using the database's ones anyhow.
-		if (empty($modSettings['smiley_enable']) && $user_info['smiley_set'] != 'none')
-			$context['smileys']['postform'][] = array(
-				'smileys' => array(
-					array(
-						'code' => ':)',
-						'filename' => 'smiley',
-						'description' => $txt['icon_smiley'],
-					),
-					array(
-						'code' => ';)',
-						'filename' => 'wink',
-						'description' => $txt['icon_wink'],
-					),
-					array(
-						'code' => ':D',
-						'filename' => 'cheesy',
-						'description' => $txt['icon_cheesy'],
-					),
-					array(
-						'code' => ';D',
-						'filename' => 'grin',
-						'description' => $txt['icon_grin']
-					),
-					array(
-						'code' => '>:(',
-						'filename' => 'angry',
-						'description' => $txt['icon_angry'],
-					),
-					array(
-						'code' => ':(',
-						'filename' => 'sad',
-						'description' => $txt['icon_sad'],
-					),
-					array(
-						'code' => ':o',
-						'filename' => 'shocked',
-						'description' => $txt['icon_shocked'],
-					),
-					array(
-						'code' => '8)',
-						'filename' => 'cool',
-						'description' => $txt['icon_cool'],
-					),
-					array(
-						'code' => '???',
-						'filename' => 'huh',
-						'description' => $txt['icon_huh'],
-					),
-					array(
-						'code' => '::)',
-						'filename' => 'rolleyes',
-						'description' => $txt['icon_rolleyes'],
-					),
-					array(
-						'code' => ':P',
-						'filename' => 'tongue',
-						'description' => $txt['icon_tongue'],
-					),
-					array(
-						'code' => ':-[',
-						'filename' => 'embarrassed',
-						'description' => $txt['icon_embarrassed'],
-					),
-					array(
-						'code' => ':-X',
-						'filename' => 'lipsrsealed',
-						'description' => $txt['icon_lips'],
-					),
-					array(
-						'code' => ':-\\',
-						'filename' => 'undecided',
-						'description' => $txt['icon_undecided'],
-					),
-					array(
-						'code' => ':-*',
-						'filename' => 'kiss',
-						'description' => $txt['icon_kiss'],
-					),
-					array(
-						'code' => ':\'(',
-						'filename' => 'cry',
-						'description' => $txt['icon_cry'],
-						'isLast' => true,
-					),
-				),
-				'isLast' => true,
-			);
-		elseif ($user_info['smiley_set'] != 'none')
+		if ($user_info['smiley_set'] != 'none')
 		{
-			if (($temp = cache_get_data('posting_smileys', 480)) == null)
+			// Cache for longer when customized smiley codes aren't enabled
+			$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+			if (($temp = cache_get_data('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT code, filename, description, smiley_row, hidden
-					FROM {db_prefix}smileys
-					WHERE hidden IN (0, 2)
-					ORDER BY smiley_row, smiley_order',
+					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
+					FROM {db_prefix}smileys AS s
+						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+					WHERE s.hidden IN (0, 2)
+						AND f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+						AND s.code IN ({array_string:default_codes})' : '') . '
+					ORDER BY s.smiley_row, s.smiley_order',
 					array(
+						'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+						'smiley_set' => $user_info['smiley_set'],
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
-					$row['filename'] = $smcFunc['htmlspecialchars']($row['filename']);
-					$row['description'] = $smcFunc['htmlspecialchars']($row['description']);
+					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? $smcFunc['htmlspecialchars']($txt['icon_' . strtolower($row['description'])]) : $smcFunc['htmlspecialchars']($row['description']);
 
 					$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
@@ -1970,25 +1867,11 @@ function create_control_richedit($editorOptions)
 						$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				cache_put_data('posting_smileys', $context['smileys'], 480);
+				cache_put_data('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
 			}
 			else
 				$context['smileys'] = $temp;
 		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		array_walk_recursive($context['smileys'], function(&$filename, $key)
-		{
-			global $context, $user_info, $modSettings;
-			if ($key == 'filename')
-				// Need to use the default if user selection is disabled
-				if (empty($modSettings['smiley_sets_enable']))
-					$filename .= $context['user']['smiley_set_default_ext'];
-				else
-					$filename .= $user_info['smiley_set_ext'];
-
-		}
-		);
 	}
 
 	// Set a flag so the sub template knows what to do...
