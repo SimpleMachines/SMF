@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -458,11 +458,52 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, &$txt, $cur_profile, $smcFunc, $settings, $language)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
+
+				$filenames = array();
+				$result = $smcFunc['db_query']('', '
+					SELECT f.filename, f.smiley_set
+					FROM {db_prefix}smiley_files AS f
+						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
+					WHERE s.code = {string:smiley}',
+					array(
+						'smiley' => ':)',
+					)
+				);
+				while ($row = $smcFunc['db_fetch_assoc']($result))
+					$filenames[$row['smiley_set']] = $row['filename'];
+				$smcFunc['db_free_result']($result);
+
+				// In case any sets don't contain a ':)' smiley
+				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
+				foreach ($no_smiley_sets as $set)
+				{
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
+
+					// Just use some image or other
+					if (!empty($images))
+					{
+						$image = array_pop($images);
+						$filenames[$set] = pathinfo($image, PATHINFO_BASENAME);
+					}
+					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
+					else
+					{
+						loadLanguage('Errors', $language);
+						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
+
+						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
+							{
+								return $v != $set;
+							});
+					}
+				}
+
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
 					$context['smiley_sets'][$i] = array(
@@ -471,9 +512,25 @@ function loadProfileFields($force_reload = false)
 						'selected' => $set == $context['member']['smiley_set']['id']
 					);
 
+					if ($set === 'none')
+						$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+					elseif ($set === '')
+					{
+						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'];
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $default_set, $filenames[$default_set]));
+					}
+					else
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $set, $filenames[$set]));
+
 					if ($context['smiley_sets'][$i]['selected'])
+					{
 						$context['member']['smiley_set']['name'] = $set_names[$i];
+						$context['member']['smiley_set']['preview'] = $context['smiley_sets'][$i]['preview'];
+					}
+
+					$context['smiley_sets'][$i]['preview'] = $smcFunc['htmlspecialchars']($context['smiley_sets'][$i]['preview']);
 				}
+
 				return true;
 			},
 			'input_validate' => function(&$value)

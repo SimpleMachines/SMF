@@ -352,17 +352,17 @@ function reloadSettings()
 		'<div>',
 	);
 
-	// These are the only valid image types for SMF, by default anyway.
+	// These are the only valid image types for SMF attachments, by default anyway.
+	// Note: The values are for image mime types, not file extensions.
 	$context['valid_image_types'] = array(
-		1 => 'gif',
-		2 => 'jpeg',
-		3 => 'png',
-		5 => 'psd',
-		6 => 'bmp',
-		7 => 'tiff',
-		8 => 'tiff',
-		9 => 'jpeg',
-		14 => 'iff'
+		IMAGETYPE_GIF => 'gif',
+		IMAGETYPE_JPEG => 'jpeg',
+		IMAGETYPE_PNG => 'png',
+		IMAGETYPE_PSD => 'psd',
+		IMAGETYPE_BMP => 'bmp',
+		IMAGETYPE_TIFF_II => 'tiff',
+		IMAGETYPE_TIFF_MM => 'tiff',
+		IMAGETYPE_IFF => 'iff'
 	);
 
 	// Define a list of allowed tags for descriptions.
@@ -1986,14 +1986,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$smiley_sets_known = explode(',', $modSettings['smiley_sets_known']);
 		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], $smiley_sets_known) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
 		$context['user']['smiley_set'] = $user_info['smiley_set'];
-
-		// Determine current smiley set extension
-		$smiley_sets_exts = explode(',', $modSettings['smiley_sets_exts']);
-		$user_info['smiley_set_ext'] = $smiley_sets_exts[array_search($user_info['smiley_set'], $smiley_sets_known)];
-		$context['user']['smiley_set_ext'] = $user_info['smiley_set_ext'];
-
-		// Determine global default smiley set extension
-		$context['user']['smiley_set_default_ext'] = $smiley_sets_exts[array_search($modSettings['smiley_sets_default'], $smiley_sets_known)];
 	}
 	else
 	{
@@ -2234,9 +2226,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
+		'smf_smiley_sets' => '"' . $modSettings['smiley_sets_known'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
-		'smf_smiley_sets_exts' => '"' . $modSettings['smiley_sets_exts'] . '"',
-		'smf_smiley_sets_default_ext' => '"' . $context['user']['smiley_set_default_ext'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',

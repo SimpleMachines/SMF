@@ -1372,6 +1372,54 @@ function DatabasePopulation()
 		);
 	}
 
+	// Populate the smiley_files table.
+	// Can't just dump this data in the SQL file because we need to know the id for each smiley.
+	$smiley_filenames = array(
+		':)' => 'smiley',
+		';)' => 'wink',
+		':D' => 'cheesy',
+		';D' => 'grin',
+		'>:(' => 'angry',
+		':(' => 'sad',
+		':o' => 'shocked',
+		'8)' => 'cool',
+		'???' => 'huh',
+		'::)' => 'rolleyes',
+		':P' => 'tongue',
+		':-[' => 'embarrassed',
+		':-X' => 'lipsrsealed',
+		':-\\' => 'undecided',
+		':-*' => 'kiss',
+		':\'(' => 'cry',
+		'>:D' => 'evil',
+		'^-^' => 'azn',
+		'O0' => 'afro',
+		':))' => 'laugh',
+		'C:-)' => 'police',
+		'O:-)' => 'angel'
+	);
+	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
+
+	$smiley_inserts = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_smiley, code
+		FROM {db_prefix}smileys',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		foreach ($smiley_set_extensions as $set => $ext)
+			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
+	}
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}smiley_files',
+		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		$smiley_inserts,
+		array('id_smiley', 'smiley_set')
+	);
+
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{

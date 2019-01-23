@@ -3087,11 +3087,11 @@ function template_profile_smiley_pick()
 
 	foreach ($context['smiley_sets'] as $set)
 		echo '
-									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
+									<option data-preview="', $set['preview'], '" value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
 
 	echo '
 								</select>
-								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] . '/smiley' . $context['user']['smiley_set_ext'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) . '/smiley' . $context['user']['smiley_set_default_ext']) : $settings['images_url'] . '/blank.png', '" alt=":)">
+								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['preview'], '" alt=":)">
 							</dd>';
 }
 

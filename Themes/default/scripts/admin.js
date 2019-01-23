@@ -474,8 +474,11 @@ function switchType()
 
 function swapUploads()
 {
-	document.getElementById("uploadMore").style.display = document.getElementById("uploadSmiley").disabled ? "none" : "";
-	document.getElementById("uploadSmiley").disabled = !document.getElementById("uploadSmiley").disabled;
+	$('.upload_more').toggle();
+	$('.upload_more input').prop('disabled', function(i, v) { return !v; });
+
+	$('.upload_sameall').toggle();
+	$('.upload_sameall input').prop('disabled', function(i, v) { return !v; });
 }
 
 function selectMethod(element)
@@ -484,12 +487,22 @@ function selectMethod(element)
 	document.getElementById("method-upload").checked = element == "upload";
 }
 
-function updatePreview()
+function updatePreview(filename, filepath)
 {
 	var currentImage = document.getElementById("preview");
-	var index = document.getElementById("set").selectedIndex;
-	let extsarr = smf_smiley_sets_exts.split(",");
-	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value + extsarr[index];
+	var relative_url;
+
+	if (typeof filepath == 'undefined' || filepath == null || filepath == '')
+		relative_url = "/" + filename;
+	else
+		relative_url = "/" + filepath + "/" + filename;
+
+	// Make sure no sneaky people are trying to be sneaky
+	var regex = new RegExp("^/(" + smf_smiley_sets.split(",").join("|") + ")/[^.]+\.(gif|png|jpg|jpeg|tiff|svg)$");
+	var is_valid = relative_url.match(regex);
+
+	if (is_valid !== null)
+		currentImage.src = smf_smileys_url + relative_url;
 }
 
 function swap_database_changes()
