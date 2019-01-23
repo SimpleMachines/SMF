@@ -346,6 +346,8 @@ function EditSmileySets()
 				while ($entry = $dir->read())
 				{
 					$pathinfo = pathinfo($entry);
+					if (empty($pathinfo['filename']) || empty($pathinfo['extension']))
+						continue;
 					if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank')
 						$smileys[strtolower($entry)] = $entry;
 				}
@@ -887,8 +889,9 @@ function AddSmiley()
 			$dir = dir($context['smileys_dir'] . '/' . $smiley_set['raw_path']);
 			while ($entry = $dir->read())
 			{
-				// Strip extension
 				$entry_info = pathinfo($entry);
+				if (empty($entry_info['filename']) || empty($entry_info['extension']))
+					continue;
 				if (empty($context['filenames'][$smiley_set['path']][strtolower($entry_info['filename'])]) && in_array(strtolower($entry_info['extension']), $allowedTypes))
 					$context['filenames'][$smiley_set['path']][strtolower($entry_info['filename'])] = array(
 						'id' => $smcFunc['htmlspecialchars']($entry),
@@ -1881,6 +1884,8 @@ function ImportSmileys($smileyPath, $create = false)
 	while ($entry = $dir->read())
 	{
 		$pathinfo = pathinfo($entry);
+		if (empty($pathinfo['filename']) || empty($pathinfo['extension']))
+			continue;
 		if (in_array($pathinfo['extension'], $allowedTypes) && $pathinfo['filename'] != 'blank' && strlen($pathinfo['basename']) <= 48)
 			$smiley_files[strtolower($pathinfo['basename'])] = $pathinfo['basename'];
 	}
