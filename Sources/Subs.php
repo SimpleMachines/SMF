@@ -3087,8 +3087,7 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch,
-		function($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
 		}, $message);

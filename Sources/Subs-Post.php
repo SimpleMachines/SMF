@@ -121,7 +121,8 @@ function preparsecode(&$message, $previewing = false)
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
 		if (allowedTo('admin_forum'))
-			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m) {
+			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
+			{
 				return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
 			}, $message);
 

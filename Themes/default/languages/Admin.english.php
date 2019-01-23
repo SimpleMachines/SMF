@@ -735,5 +735,4 @@ $txt['notifications_desc'] = 'This page allows you to set the default notificati
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
 
-
 ?>

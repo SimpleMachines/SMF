@@ -1689,7 +1689,6 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$list[] = $row;
-
 		$smcFunc['db_free_result']($request);
 	}
 
