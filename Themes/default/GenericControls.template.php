@@ -244,9 +244,10 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 		else
 		{
 			// Where in the question array is this question?
-			$qIndex = $verify_context['show_visual'] ? $i - 1 : $i;
+			$qIndex = $verify_context['show_visual'] || $verify_context['can_recaptcha'] ? $i - 1 : $i;
 
-			echo '
+			if (isset($verify_context['questions'][$qIndex]))
+				echo '
 				<div class="smalltext">
 					', $verify_context['questions'][$qIndex]['q'], ':<br>
 					<input type="text" name="', $verify_id, '_vv[q][', $verify_context['questions'][$qIndex]['id'], ']" size="30" value="', $verify_context['questions'][$qIndex]['a'], '" ', $verify_context['questions'][$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' tabindex="', $context['tabindex']++, '" required>
