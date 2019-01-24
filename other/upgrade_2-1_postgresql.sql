@@ -1745,13 +1745,6 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 ---#
 
 /******************************************************************************/
---- Fixing log_online table
-/******************************************************************************/
----# Changing ip to bigint
-ALTER TABLE {$db_prefix}log_online ALTER ip TYPE bigint;
----#
-
-/******************************************************************************/
 --- Marking packages as uninstalled...
 /******************************************************************************/
 ---# Updating log_packages
