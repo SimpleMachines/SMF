@@ -3877,7 +3877,7 @@ function template_javascript($do_deferred = false)
 
 			else
 				echo '
-	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
 		}
 
 		foreach ($toMinify as $js_files)
@@ -3962,7 +3962,7 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'];
+			$normal[] = $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : '');
 	}
 
 	if (!empty($toMinify))

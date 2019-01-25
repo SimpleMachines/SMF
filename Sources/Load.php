@@ -2494,8 +2494,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.css?alp21 filenames
-	$has_seed = strpos($fileName, '.css?');
-	$id = empty($id) ? strtr(basename(str_replace('.css', '', $fileName)), '?', '_') : $id;
+	$id = empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id;
+	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
 	if (empty($params['external']))
@@ -2506,8 +2506,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			// Maybe the default theme has it?
 			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
 			{
-				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
-				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
+				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
 
 			else
@@ -2519,8 +2519,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
+			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName;
 		}
 	}
 
@@ -2602,8 +2602,8 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.js?alp21 filenames
-	$has_seed = strpos($fileName, '.js?');
-	$id = empty($id) ? strtr(basename(str_replace('.js', '', $fileName)), '?', '_') : $id;
+	$id = empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id;
+	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
 	if (empty($params['external']))
@@ -2614,8 +2614,8 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 			// Can't find it in this theme, how about the default?
 			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
 			{
-				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
-				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
+				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
 
 			else
@@ -2627,8 +2627,8 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
+			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName;
 		}
 	}
 
