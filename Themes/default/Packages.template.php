@@ -1290,10 +1290,10 @@ function template_view_operations()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['operation_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'], '">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $modSettings['browser_cache'], '"></script>
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $context['browser_cache'], '">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $context['browser_cache'], '"></script>
 	</head>
 	<body>
 		<div class="padding windowbg">

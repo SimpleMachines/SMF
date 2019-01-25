@@ -74,7 +74,7 @@ function reloadSettings()
 
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
 	// @todo Add code elsewhere to set $modSettings['browser_cache'] to the timestamp of the most recent modification time of any of the CSS and JS files.
-	$modSettings['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . (!empty($modSettings['browser_cache']) ? intval($modSettings['browser_cache']) : '0');
+	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . (!empty($modSettings['browser_cache']) ? intval($modSettings['browser_cache']) : '0');
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -2481,7 +2481,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
@@ -2589,7 +2589,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;

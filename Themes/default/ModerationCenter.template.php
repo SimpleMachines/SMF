@@ -525,7 +525,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 	</head>
 	<body>
 		<div class="cat_bar">
