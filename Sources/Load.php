@@ -22,7 +22,7 @@ if (!defined('SMF'))
 function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
-	global $cache_enable, $sourcedir, $context;
+	global $cache_enable, $sourcedir, $context, $forum_version;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -71,6 +71,10 @@ function reloadSettings()
 	}
 
 	$modSettings['cache_enable'] = $cache_enable;
+
+	// Used to force browsers to download fresh CSS and JavaScript when necessary
+	// @todo Add code elsewhere to set $modSettings['browser_cache'] to the timestamp of the most recent modification time of any of the CSS and JS files.
+	$modSettings['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . (!empty($modSettings['browser_cache']) ? intval($modSettings['browser_cache']) : '0');
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
