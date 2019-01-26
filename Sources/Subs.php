@@ -1010,7 +1010,7 @@ function permute($array)
  * - only parses smileys if smileys is true.
  * - does nothing if the enableBBC setting is off.
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
- *  -returns the modified message.
+ * - returns the modified message.
  *
  * @param string $message The message
  * @param bool $smileys Whether to parse smileys as well
@@ -2086,7 +2086,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos === false || $last_pos > $pos)
 			$pos = strlen($message) + 1;
 
-		// Can't have a one letter smiley, URL, or email! (sorry.)
+		// Can't have a one letter smiley, URL, or email! (Sorry.)
 		if ($last_pos < $pos - 1)
 		{
 			// Make sure the $last_pos is not negative.
@@ -2768,7 +2768,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))
 		{
-			// @todo Check for end tag first, so people can say "I like that [i] tag"?
 			$open_tags[] = $tag;
 			$message = substr($message, 0, $pos) . "\n" . $tag['before'] . "\n" . substr($message, $pos1);
 			$pos += strlen($tag['before']) - 1 + 2;
@@ -3928,7 +3927,6 @@ window.addEventListener("DOMContentLoaded", function() {';
 
 /**
  * Output the CSS files
- *
  */
 function template_css()
 {
@@ -4439,7 +4437,6 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
- *
  */
 function setupMenuContext()
 {
