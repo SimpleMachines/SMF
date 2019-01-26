@@ -2316,25 +2316,6 @@ ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- Update log_online ip with ipv6 support without converting
-/******************************************************************************/
----# Delete old column log banned ip
----{
-$doChange = true;
-$column_info = upgradeGetColumnInfo('{db_prefix}log_online', 'ip');
-if (stripos($column_info['type'], 'varbinary') !== false)
-	$doChange = false;
-
-if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;");
----}
----#
-
----# Add the new log banned ip
-ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
----#
-
-/******************************************************************************/
 --- Renaming the "profile_other" permission...
 /******************************************************************************/
 ---# Changing the "profile_other" permission to "profile_website"
