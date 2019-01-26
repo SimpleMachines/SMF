@@ -1975,7 +1975,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						if (empty($css_added))
 						{
-							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2JvcmRlcjoxcHggc29saWQ7Ym9yZGVyLXJhZGl1czowLjVlbTtwYWRkaW5nOjFjaDttYXgtd2lkdGg6ODBjaDttaW4td2lkdGg6MTJjaDt9cHJlW2RhdGEtZV1bZGF0YS10XTo6YWZ0ZXJ7ZGlzcGxheTppbmxpbmUtYmxvY2s7bWFyZ2luLWxlZnQ6OGNoO21pbi13aWR0aDoyMGNoO2NvbnRlbnQ6J1w1QyAgIF5fX15cQSAgXDVDICAoJyBhdHRyKGRhdGEtZSkgJylcNUNfX19fX19fXEEgICAgKF9fKVw1QyAgICAgICAgKVw1Qy9cNUNcQSAgICAgJyBhdHRyKGRhdGEtdCkgJyB8fC0tLS13IHxcQSAgICAgICAgfHwgICAgIHx8Jzt9');
+							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2JvcmRlcjoxcHggc29saWQ7Ym9yZGVyLXJhZGl1czowLjVlbTtwYWRkaW5nOjFjaDttYXgtd2lkdGg6ODBjaDttaW4td2lkdGg6MTJjaDt9cHJlW2RhdGEtZV1bZGF0YS10XTo6YWZ0ZXJ7ZGlzcGxheTppbmxpbmUtYmxvY2s7bWFyZ2luLWxlZnQ6OGNoO21pbi13aWR0aDoyMGNoO2RpcmVjdGlvbjpsdHI7Y29udGVudDonXDVDICAgXl9fXlxBICBcNUMgICgnIGF0dHIoZGF0YS1lKSAnKVw1Q19fX19fX19cQSAgICAoX18pXDVDICAgICAgICApXDVDL1w1Q1xBICAgICAnIGF0dHIoZGF0YS10KSAnIHx8LS0tLXcgfFxBICAgICAgICB8fCAgICAgfHwnO30=');
 
 							addInlineJavaScript('
 								$("head").append("<style>" + ' . JavaScriptEscape($css) . ' + "</style>");', true);
