@@ -3877,7 +3877,7 @@ function template_javascript($do_deferred = false)
 
 			else
 				echo '
-	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
 		}
 
 		foreach ($toMinify as $js_files)
@@ -3962,7 +3962,7 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'];
+			$normal[] = $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : '');
 	}
 
 	if (!empty($toMinify))
@@ -4026,7 +4026,7 @@ function custMinify($data, $type)
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_map(function($file)
 	{
-		return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']);
+		return implode('-', array($file['filePath'], (int) @filesize($file['filePath']), $file['mtime']));
 	}, $data)));
 
 	// Is this a deferred or asynchronous JavaScript file?
@@ -4077,14 +4077,7 @@ function custMinify($data, $type)
 
 	foreach ($data as $id => $file)
 	{
-		if (empty($file['filePath']))
-			$toAdd = false;
-		else
-		{
-			$seed = isset($file['options']['seed']) ? $file['options']['seed'] : '';
-			$tempFile = str_replace($seed, '', $file['filePath']);
-			$toAdd = file_exists($tempFile) ? $tempFile : false;
-		}
+		$toAdd = !empty($file['filePath']) && file_exists($file['filePath']) ? $file['filePath'] : false;
 
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
@@ -4122,13 +4115,14 @@ function custMinify($data, $type)
 }
 
 /**
- * Clears out old minimized CSS and JavaScript files
+ * Clears out old minimized CSS and JavaScript files and ensures $modSettings['browser_cache'] is up to date
  */
 function deleteAllMinified()
 {
-	global $smcFunc, $txt;
+	global $smcFunc, $txt, $modSettings;
 
 	$not_deleted = array();
+	$most_recent = 0;
 
 	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 	$request = $smcFunc['db_query']('', '
@@ -4143,15 +4137,23 @@ function deleteAllMinified()
 	{
 		foreach (array('css', 'js') as $type)
 		{
-			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified*.' . $type) as $filename)
+			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/*.' . $type) as $filename)
 			{
-				// Try to delete the file. Add it to our error list if it fails.
-				if (!@unlink($filename))
+				// We want to find the most recent mtime of non-minified files
+				if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false)
+					$most_recent = max($modSettings['browser_cache'], (int) @filemtime($filename));
+
+				// Try to delete minified files. Add them to our error list if that fails.
+				elseif (!@unlink($filename))
 					$not_deleted[] = $filename;
 			}
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	// This setting tracks the most recent modification time of any of our CSS and JS files
+	if ($most_recent > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $most_recent));
 
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))

@@ -3616,9 +3616,9 @@ function template_upgrade_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['upgrade_upgrade_utility'], '</title>
-	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
-	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
+	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>

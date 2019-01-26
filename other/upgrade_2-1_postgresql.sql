@@ -311,17 +311,6 @@ DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1') ON CONFLICT DO NOTHING;
 ---#
 
----# Adding new "browser_cache" setting
----{
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('browser_cache', '?beta21'),
-		array('variable')
-	);
----}
----#
-
 ---# Adding new "enable_ajax_alerts" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1') ON CONFLICT DO NOTHING;
 ---#

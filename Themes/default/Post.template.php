@@ -777,7 +777,7 @@ function template_spellcheck()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 		<style>
 			body, td {
 				font-size: small;
@@ -807,8 +807,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		</script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'], '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $context['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 		<script>
 			', $context['spell_js'], '
 		</script>
@@ -852,7 +852,7 @@ function template_quotefast()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '

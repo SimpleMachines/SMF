@@ -590,7 +590,7 @@ function DisplayAdminFile()
 		fatal_lang_error('no_access', false);
 
 	// Strip off the forum cache part or we won't find it...
-	$_REQUEST['filename'] = str_replace($modSettings['browser_cache'], '', $_REQUEST['filename']);
+	$_REQUEST['filename'] = str_replace($context['browser_cache'], '', $_REQUEST['filename']);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT data, filetype

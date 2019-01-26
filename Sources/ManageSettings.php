@@ -267,7 +267,7 @@ function ModifyBasicSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
-		if (empty($_POST['minimize_files']))
+		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != $modSettings['minimize_files'])
 			deleteAllMinified();
 
 		writeLog();
