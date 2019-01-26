@@ -456,24 +456,26 @@ INSERT IGNORE INTO {$db_prefix}spiders
 VALUES
 	(1, 'Google', 'googlebot', ''),
 	(2, 'Yahoo!', 'slurp', ''),
-	(3, 'MSN', 'msnbot', ''),
+	(3, 'Bing', 'bingbot', ''),
 	(4, 'Google (Mobile)', 'Googlebot-Mobile', ''),
 	(5, 'Google (Image)', 'Googlebot-Image', ''),
 	(6, 'Google (AdSense)', 'Mediapartners-Google', ''),
 	(7, 'Google (Adwords)', 'AdsBot-Google', ''),
 	(8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', ''),
 	(9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', ''),
-	(10, 'MSN (Mobile)', 'MSNBOT_Mobile', ''),
-	(11, 'MSN (Media)', 'msnbot-media', ''),
-	(12, 'Cuil', 'twiceler', ''),
-	(13, 'Ask', 'Teoma', ''),
-	(14, 'Baidu', 'Baiduspider', ''),
-	(15, 'Gigablast', 'Gigabot', ''),
-	(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
-	(17, 'Alexa', 'ia_archiver', ''),
-	(18, 'Omgili', 'omgilibot', ''),
-	(19, 'EntireWeb', 'Speedy Spider', ''),
-	(20, 'Yandex', 'yandex', '');
+	(10, 'Bing (Preview)', 'BingPreview', ''),
+	(11, 'Bing (Ads)', 'adidxbot', ''),
+	(12, 'Bing (MSNBot)', 'msnbot', ''),
+	(13, 'Bing (Media)', 'msnbot-media', ''),
+	(14, 'Cuil', 'twiceler', ''),
+	(15, 'Ask', 'Teoma', ''),
+	(16, 'Baidu', 'Baiduspider', ''),
+	(17, 'Gigablast', 'Gigabot', ''),
+	(18, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
+	(19, 'Alexa', 'ia_archiver', ''),
+	(20, 'Omgili', 'omgilibot', ''),
+	(21, 'EntireWeb', 'Speedy Spider', ''),
+	(22, 'Yandex', 'yandex', '');
 ---#
 
 ---# Removing a spider.
