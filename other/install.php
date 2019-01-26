@@ -1960,9 +1960,9 @@ function template_install_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['smf_installer'], '</title>
-	<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-	<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="Themes/default/css/index.css">
+	<link rel="stylesheet" href="Themes/default/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
