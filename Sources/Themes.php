@@ -1804,6 +1804,9 @@ function EditTheme()
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
 
+				// Nuke any minified files and update $modSettings['browser_cache']
+				deleteAllMinified();
+
 				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}
 		}

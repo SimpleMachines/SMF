@@ -73,8 +73,8 @@ function reloadSettings()
 	$modSettings['cache_enable'] = $cache_enable;
 
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
-	// @todo Add code elsewhere to set $modSettings['browser_cache'] to the timestamp of the most recent modification time of any of the CSS and JS files.
-	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . (!empty($modSettings['browser_cache']) ? intval($modSettings['browser_cache']) : '0');
+	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
+	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . $modSettings['browser_cache'];
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -2501,10 +2501,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/css/' . $fileName))
+		if (!empty($params['validate']) && ($mtime = @filemtime($settings[$themeRef . '_dir'] . '/css/' . $fileName)) === false)
 		{
 			// Maybe the default theme has it?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && ($mtime = @filemtime($settings['default_theme_dir'] . '/css/' . $fileName) !== false))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
@@ -2521,6 +2521,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
 			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName;
+			$mtime = @filemtime($filePath);
 		}
 	}
 
@@ -2531,6 +2532,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$filePath = $fileName;
 	}
 
+	$mtime = empty($mtime) ? 0 : $mtime;
+
 	// Add it to the array for use in the template
 	if (!empty($fileName))
 	{
@@ -2539,11 +2542,14 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			$params['order_pos']++;
 		$context['css_files_order'][$params['order_pos']] = $id;
 
-		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
 	}
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
+
+	if ($mtime > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $mtime));
 }
 
 /**
@@ -2609,10 +2615,10 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
+		if (!empty($params['validate']) && ($mtime = @filemtime($settings[$themeRef . '_dir'] . '/scripts/' . $fileName)) === false)
 		{
 			// Can't find it in this theme, how about the default?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && ($mtime = @filemtime($settings['default_theme_dir'] . '/scripts/' . $fileName)) !== false)
 			{
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
@@ -2629,6 +2635,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
 			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName;
+			$mtime = @filemtime($filePath);
 		}
 	}
 
@@ -2639,9 +2646,14 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$filePath = $fileName;
 	}
 
+	$mtime = empty($mtime) ? 0 : $mtime;
+
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
+
+	if ($mtime > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $mtime));
 }
 
 /**
