@@ -4026,7 +4026,7 @@ function custMinify($data, $type)
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_map(function($file)
 	{
-		return implode('-', array($file['filePath'], (int) @filesize($file['filePath']), $file['mtime']));
+		return $file['filePath'] . '-' . $file['mtime'];
 	}, $data)));
 
 	// Is this a deferred or asynchronous JavaScript file?
