@@ -22,7 +22,7 @@ if (!defined('SMF'))
 function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
-	global $cache_enable, $sourcedir, $context, $forum_version;
+	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -64,10 +64,26 @@ function reloadSettings()
 
 		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		{
+			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : $modSettings['attachmentUploadDir'];
+		}
 
 		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
+	}
+
+	// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
+	if (!defined('SMF_INSTALLING') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array('SMF ' => '', ' ' => '.'))), strtolower(strtr($forum_version, array('SMF ' => '', ' ' => '.'))), '!='))
+	{
+		// Wipe the cached $modSettings values so they don't interfere with anything later
+		cache_put_data('modSettings', null);
+
+		// Redirect to the upgrader if we can
+		if (file_exists($boarddir . '/upgrade.php'))
+			header('location: ' . $boardurl . '/upgrade.php');
+
+		die('SMF file version (' . strtr($forum_version, array('SMF ' => '')) . ') does not match SMF database version (' . strtr($modSettings['smfVersion'], array('SMF ' => '')) . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 	}
 
 	$modSettings['cache_enable'] = $cache_enable;
