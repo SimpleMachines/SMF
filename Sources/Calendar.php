@@ -539,7 +539,7 @@ function CalendarPost()
  */
 function iCalDownload()
 {
-	global $smcFunc, $sourcedir, $forum_version, $modSettings, $webmaster_email, $mbname;
+	global $smcFunc, $sourcedir, $modSettings, $webmaster_email, $mbname;
 
 	// You can't export if the calendar export feature is off.
 	if (empty($modSettings['cal_export']))
@@ -589,7 +589,7 @@ function iCalDownload()
 	$filecontents = '';
 	$filecontents .= 'BEGIN:VCALENDAR' . "\n";
 	$filecontents .= 'METHOD:PUBLISH' . "\n";
-	$filecontents .= 'PRODID:-//SimpleMachines//SMF ' . (empty($forum_version) ? 2.1 : strtr($forum_version, array('SMF ' => ''))) . '//EN' . "\n";
+	$filecontents .= 'PRODID:-//SimpleMachines//' . SMF_FULL_VERSION . '//EN' . "\n";
 	$filecontents .= 'VERSION:2.0' . "\n";
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
 	// @TODO - Should be the members email who created the event rather than $webmaster_email.

@@ -16,6 +16,9 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
 
 // We're going to want a few globals... these are all set later.
 global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;

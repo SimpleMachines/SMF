@@ -150,12 +150,12 @@
 		<br>
 		<br>
 		<span class="smalltext">
-			<a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a>
+			<a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2019, Simple Machines</a>
 		</span>
 		<br>
 		<br>
 		<span class="smalltext" style="color: #CCCCCC;">
-			*ssi_examples.shtml last modified on <!--#config timefmt="%m/%d/%y" --><!--#echo var="LAST_MODIFIED" -->
+			*ssi_examples.shtml last modified on <!--#config timefmt="%F" --><!--#echo var="LAST_MODIFIED" -->
 		</span>
 
 	</body>

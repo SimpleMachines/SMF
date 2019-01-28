@@ -12,6 +12,7 @@
  */
 
 define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_SOFTWARE_YEAR', '2019');
 define('SMF_INSTALLING', 1);
@@ -1657,7 +1658,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
+	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1785,13 +1786,12 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
 		$user_info['ip'] = $_SERVER['REMOTE_ADDR'];
 		$user_info['id'] = isset($incontext['member_id']) ? $incontext['member_id'] : 0;
-		logAction('install', array('version' => $forum_version), 'admin');
+		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 
 	// Disable the legacy BBC by default for new installs
@@ -2062,7 +2062,7 @@ function template_install_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">' . SMF_FULL_VERSION . ' &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>
 </body>
@@ -2075,7 +2075,7 @@ function template_welcome_message()
 	global $incontext, $txt;
 
 	echo '
-	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
+	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">
