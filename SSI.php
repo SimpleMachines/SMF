@@ -251,6 +251,52 @@ function ssi_shutdown()
 }
 
 /**
+ * Show the SMF version.
+ */
+function ssi_version($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_VERSION;
+	else
+		return SMF_VERSION;
+}
+
+/**
+ * Show the full SMF version string.
+ */
+function ssi_full_version($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_FULL_VERSION;
+	else
+		return SMF_FULL_VERSION;
+}
+
+/**
+ * Show the SMF software year.
+ */
+function ssi_software_year($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_SOFTWARE_YEAR;
+	else
+		return SMF_SOFTWARE_YEAR;
+}
+
+/**
+ * Show the forum copyright. Only used in our ssi_examples files.
+ */
+function ssi_copyright($output_method = 'echo')
+{
+	global $forum_copyright;
+
+	if ($output_method == 'echo')
+		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+	else
+		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+}
+
+/**
  * Display a welcome message, like: Hey, User, you have 0 messages, 0 are new.
  *
  * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
