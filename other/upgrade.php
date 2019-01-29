@@ -3390,7 +3390,8 @@ function serialize_to_json()
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
-								else
+								// If unserialize failed, it's better to leave the data alone than to overwrite it with an empty JSON value
+								elseif ($temp !== false)
 								{
 									$row[$col] = json_encode($temp);
 
