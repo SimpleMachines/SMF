@@ -1651,7 +1651,11 @@ tr.windowbg td, .table_grid tr td {
 }
 
 .quickbuttons .main_icons::before {
-	margin-right: 4px;
+	margin: 4px 0 0 -1px;
+}
+
+.quickbuttons .main_icons.quote::before {
+	margin-right: 2px;
 }
 
 .main_icons.gender_None::before {
