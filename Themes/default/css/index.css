@@ -1633,7 +1633,7 @@ tr.windowbg td, .table_grid tr td {
 .generic_menu {
 	margin: 5px 0;
 }
-/* Some lovely generic icons.
+/* Some lovely icons.
 ------------------------------------------------- */
 .main_icons::before {
 	content: '';
@@ -1650,13 +1650,8 @@ tr.windowbg td, .table_grid tr td {
 	}
 }
 
-/* Small fix for topics */
-.quickbuttons span.main_icons {
-	margin: -3px 3px 0 1px;
-}
-.quickbuttons span.main_icons.quote,
-.quickbuttons span.main_icons.quote_selected {
-	margin: -8px 3px 0 0;
+.quickbuttons .main_icons::before {
+	margin-right: 4px;
 }
 
 .main_icons.gender_None::before {
