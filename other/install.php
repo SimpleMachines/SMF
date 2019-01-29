@@ -14,6 +14,7 @@
 define('SMF_VERSION', '2.1 RC1');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_INSTALLING', 1);
 
 $GLOBALS['required_php_version'] = '5.4.0';
 

@@ -15,6 +15,7 @@
 define('SMF_VERSION', '2.1 RC1');
 define('SMF_LANG_VERSION', '2.1 RC1');
 define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_INSTALLING', 1);
 
 /**
  * The minimum required PHP version.
