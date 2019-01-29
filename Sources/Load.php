@@ -74,7 +74,7 @@ function reloadSettings()
 	}
 
 	// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
-	if (!defined('SMF_INSTALLING') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array('SMF ' => '', ' ' => '.'))), strtolower(strtr($forum_version, array('SMF ' => '', ' ' => '.'))), '!='))
+	if (!defined('SMF_INSTALLING') && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] !== 'packages') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array('SMF ' => '', ' ' => '.'))), strtolower(strtr($forum_version, array('SMF ' => '', ' ' => '.'))), '!='))
 	{
 		// Wipe the cached $modSettings values so they don't interfere with anything later
 		cache_put_data('modSettings', null);
