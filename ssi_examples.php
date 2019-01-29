@@ -525,7 +525,7 @@ function template_ssi_below()
 				<a href="#header" id="bot" class="go_up"></a>
 				<ul>
 					<li class="copyright">
-						<span class="smalltext">', SMF_FULL_VERSION, ' &copy; ', SMF_SOFTWARE_YEAR, ', <a href="https://www.simplemachines.org">Simple Machines Forum</a></span>
+						<span class="smalltext">', ssi_copyright(), '</span>
 					</li>
 				</ul>
 			</div>
