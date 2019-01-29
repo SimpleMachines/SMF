@@ -18,8 +18,8 @@ if (!defined('SMF'))
 
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
-	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 RC1',
+	// @todo Probably unnecessary now that we use a constant instead of global $forum_version
+	'forum_version' => SMF_FULL_VERSION,
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );

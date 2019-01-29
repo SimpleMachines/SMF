@@ -1007,7 +1007,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'code' && !empty($action['filename']))
 			{
 				// This is just here as reference for what is available.
-				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
+				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $smcFunc;
 
 				// Now include the file and be done with it ;).
 				if (file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']))
@@ -1035,7 +1035,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
 			{
 				// These can also be there for database changes.
-				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
+				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $smcFunc;
 				global $db_package_log;
 
 				// We'll likely want the package specific database functionality!
@@ -1354,11 +1354,11 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $scripturl, $context, $forum_version, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $context, $sourcedir, $smcFunc;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
-	$context['forum_version'] = $forum_version;
+	$context['forum_version'] = SMF_FULL_VERSION;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
 	call_integration_hook('integrate_modification_types');
@@ -1516,7 +1516,7 @@ function PackageBrowse()
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
-	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
+	$context['default_version'] = SMF_VERSION;
 
 	$context['emulation_versions'][] = $context['default_version'];
 
@@ -1537,7 +1537,7 @@ function PackageBrowse()
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
-	global $scripturl, $packagesdir, $context, $forum_version;
+	global $scripturl, $packagesdir, $context;
 	static $packages, $installed_mods;
 
 	// Start things up
@@ -1548,7 +1548,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (!@is_writable($packagesdir))
 		create_chmod_control(array($packagesdir), array('destination_url' => $scripturl . '?action=admin;area=packages', 'crash_on_error' => true));
 
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
 	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
@@ -1557,7 +1557,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	}
 	elseif (isset($_GET['version_emulate']))
 	{
-		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
+		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === SMF_FULL_VERSION) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
 		elseif ($_GET['version_emulate'] !== 0)
 			$_SESSION['version_emulate'] = strtr($_GET['version_emulate'], array('-' => ' ', '+' => ' ', 'SMF ' => ''));

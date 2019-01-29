@@ -543,7 +543,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $smcFunc, $forum_copyright, $forum_version, $software_year, $txt, $user_info;
+	global $context, $smcFunc, $forum_copyright, $txt, $user_info;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
@@ -843,7 +843,7 @@ function Credits($in_admin = false)
 	$context['credits_modifications'] = $mods;
 
 	$context['copyrights'] = array(
-		'smf' => sprintf($forum_copyright, $forum_version, $software_year),
+		'smf' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
 				'Some Mod by Thantos © 2010',

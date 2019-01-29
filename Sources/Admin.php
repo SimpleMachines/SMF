@@ -509,7 +509,7 @@ function AdminMain()
  */
 function AdminHome()
 {
-	global $sourcedir, $forum_version, $txt, $scripturl, $context, $user_info;
+	global $sourcedir, $txt, $scripturl, $context, $user_info;
 
 	// You have to be able to do at least one of the below to see this page.
 	isAllowedTo(array('admin_forum', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_boards', 'manage_smileys', 'manage_attachments'));
@@ -528,7 +528,7 @@ function AdminHome()
 
 	// This makes it easier to get the latest news with your time format.
 	$context['time_format'] = urlencode($user_info['time_format']);
-	$context['forum_version'] = $forum_version;
+	$context['forum_version'] = SMF_FULL_VERSION;
 
 	// Get a list of current server versions.
 	require_once($sourcedir . '/Subs-Admin.php');

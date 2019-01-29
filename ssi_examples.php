@@ -33,7 +33,7 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 template_ssi_above();
 ?>
 			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 RC1</p>
+			<p><strong>Current Version:</strong> <?php echo SMF_VERSION; ?></p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -415,8 +415,8 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 RC1 SSI.php Examples</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
+		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {
@@ -501,7 +501,7 @@ function template_ssi_above()
 	</head>
 	<body>
 		<div id="header">
-			<h1 class="forumtitle">SMF 2.1 RC1 SSI.php Examples</h1>
+			<h1 class="forumtitle">', SMF_FULL_VERSION, ' SSI.php Examples</h1>
 			<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">
@@ -525,7 +525,7 @@ function template_ssi_below()
 				<a href="#header" id="bot" class="go_up"></a>
 				<ul>
 					<li class="copyright">
-						<span class="smalltext"><a href="https://www.simplemachines.org">Simple Machines Forum</a></span>
+						<span class="smalltext">', ssi_copyright(), '</span>
 					</li>
 				</ul>
 			</div>

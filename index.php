@@ -20,11 +20,12 @@
  * @version 2.1 RC1
  */
 
-$software_year = '2019';
-$forum_version = 'SMF 2.1 RC1';
-
 // Get everything started up...
 define('SMF', 1);
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
+
 error_reporting(E_ALL);
 $time_start = microtime(true);
 

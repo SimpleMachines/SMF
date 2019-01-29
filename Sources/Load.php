@@ -74,7 +74,7 @@ function reloadSettings()
 	}
 
 	// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
-	if (!defined('SMF_INSTALLING') && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] !== 'packages') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array('SMF ' => '', ' ' => '.'))), strtolower(strtr($forum_version, array('SMF ' => '', ' ' => '.'))), '!='))
+	if (!defined('SMF_INSTALLING') && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] !== 'packages') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array(' ' => '.'))), strtolower(strtr(SMF_VERSION, array(' ' => '.'))), '!='))
 	{
 		// Wipe the cached $modSettings values so they don't interfere with anything later
 		cache_put_data('modSettings', null);
@@ -83,14 +83,14 @@ function reloadSettings()
 		if (file_exists($boarddir . '/upgrade.php'))
 			header('location: ' . $boardurl . '/upgrade.php');
 
-		die('SMF file version (' . strtr($forum_version, array('SMF ' => '')) . ') does not match SMF database version (' . strtr($modSettings['smfVersion'], array('SMF ' => '')) . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
+		die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . $modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 	}
 
 	$modSettings['cache_enable'] = $cache_enable;
 
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
 	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
-	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower($forum_version)) . '_' . $modSettings['browser_cache'];
+	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . $modSettings['browser_cache'];
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';

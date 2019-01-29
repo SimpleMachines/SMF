@@ -1140,7 +1140,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
  */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
-	global $packagesdir, $forum_version, $context, $temp_path, $language, $smcFunc;
+	global $packagesdir, $context, $temp_path, $language, $smcFunc;
 
 	// Mayday!  That action doesn't exist!!
 	if (empty($packageXML) || !$packageXML->exists($method))
@@ -1148,7 +1148,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 
 	// We haven't found the package script yet...
 	$script = false;
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 
 	// Emulation support...
 	if (!empty($_SESSION['version_emulate']))
