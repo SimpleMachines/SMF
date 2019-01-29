@@ -2308,18 +2308,42 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 --- update ban ip with ipv6 support
 /******************************************************************************/
 ---# add columns
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+---{
+$request = upgrade_query("
+	SELECT column_name
+	FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{$db_prefix}ban_items';
+");
+$upcontext['ban_items_columns'] = $smcFunc['db_fetch_all']($request);
+$smcFunc['db_free_result']($request);
+
+if (!in_array('ip_low', $upcontext['ban_items_columns']))
+	upgrade_query("
+		ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
+	");
+
+if (!in_array('ip_high', $upcontext['ban_items_columns']))
+	upgrade_query("
+		ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+	");
+---}
 ---#
 
 ---# convert data
-UPDATE {$db_prefix}ban_items
-SET ip_low = (ip_low1||'.'||ip_low2||'.'||ip_low3||'.'||ip_low4)::inet,
-	ip_high = (ip_high1||'.'||ip_high2||'.'||ip_high3||'.'||ip_high4)::inet
-WHERE ip_low1 > 0;
+---{
+if (in_array('ip_low1', $upcontext['ban_items_columns']))
+	upgrade_query("
+		UPDATE {$db_prefix}ban_items
+		SET ip_low = (ip_low1||'.'||ip_low2||'.'||ip_low3||'.'||ip_low4)::inet,
+			ip_high = (ip_high1||'.'||ip_high2||'.'||ip_high3||'.'||ip_high4)::inet
+		WHERE ip_low1 > 0;
+	");
+
+unset($upcontext['ban_items_columns']);
+---}
 ---#
 
 ---# index
+DROP INDEX IF EXISTS {$db_prefix}ban_items_id_ban_ip;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 ---#
 
