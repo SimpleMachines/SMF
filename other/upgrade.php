@@ -3899,7 +3899,7 @@ function template_welcome_message()
 	echo '
 					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
 					<h3>', $txt['upgrade_sec_login'], '</h3>
-					<dl class="settings">
+					<dl class="settings adminlogin">
 						<dt>
 							<label for="user"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_username'], '</label>
 						</dt>
