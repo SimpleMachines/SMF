@@ -120,10 +120,18 @@ h1.forumtitle {
 	line-height: 1.4em;
 }
 dl.settings dt, dl.settings dd {
-	float: left;
-	width: auto;
-	min-width: 15ch;
-	margin: 0 10px 10px 0;
+	width: 50%;
+}
+dl.settings.adminlogin dt {
+	width: 20ch;
+}
+dl.settings.adminlogin dd {
+	width: calc(100% - 20ch);
+}
+@media (max-width: 480px) {
+	dl.settings.adminlogin dt, dl.settings.adminlogin dd {
+		width: 100%;
+	}
 }
 /* [WIP] Warning: this next bit may cause trouble. */
 /* It's just to hide an empty div when the submits are not shown. */
