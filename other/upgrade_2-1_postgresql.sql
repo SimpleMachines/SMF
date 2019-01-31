@@ -728,6 +728,10 @@ upgrade_query("
 ---#
 
 ---# Adding new scheduled tasks
+DELETE FROM {$db_prefix}scheduled_tasks WHERE task IN ('remove_temp_attachments', 'remove_topic_redirect', 'remove_old_drafts');
+---#
+
+---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
@@ -825,6 +829,8 @@ upgrade_query("
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
 ---# Adding the boardindex_max_depth setting.
+DELETE FROM {$db_prefix}settings WHERE variable = 'boardindex_max_depth';
+
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
@@ -947,6 +953,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	alert_value smallint NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_member, alert_pref)
 );
+
+TRUNCATE TABLE {$db_prefix}user_alerts_prefs;
 
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
@@ -1092,6 +1100,8 @@ WHERE variable = 'newsfader_time';
 ---#
 
 ---# Adding the enableThemes setting.
+DELETE FROM {$db_prefix}settings WHERE variable = 'enableThemes';
+
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
@@ -1245,6 +1255,10 @@ ADD COLUMN field_order smallint NOT NULL default '0';
 ---# Adding new show_mlist column...
 ALTER TABLE {$db_prefix}custom_fields
 ADD COLUMN show_mlist smallint NOT NULL default '0';
+---#
+
+---# Delete fields
+DELETE FROM {$db_prefix}custom_fields WHERE col_name IN ('cust_icq', 'cust_skype', 'cust_loca', 'cust_gender');
 ---#
 
 ---# Insert fields
@@ -1419,20 +1433,18 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
+		$inserts[] = array($row['id_group'], $row['id_board'], 'post_draft', $row['add_deny']);
 	}
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts AS $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}board_permissions
-					(id_group, id_board, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('replace',
+			'{$db_prefix}board_permissions',
+			array('id_group' => 'int', 'id_board' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'id_profile', 'permission')
+		);
 	}
 
 	// Next we find people who can send PMs, and assume they can save pm_drafts as well
@@ -1443,26 +1455,27 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'pm_draft', $row['add_deny']);
 	}
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts AS $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'add_deny' => 'int', 'permission' => 'string'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 }
 ---}
+DELETE FROM {$db_prefix}settings WHERE variable IN ('drafts_autosave_enabled', 'drafts_show_saved_enabled' , 'drafts_keep_days');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
+
+DELETE FROM {$db_prefix}themes WHERE id_theme = 1 AND  variable = 'drafts_show_saved_enabled';
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
 ---#
 
@@ -1784,21 +1797,19 @@ $request = upgrade_query("
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'profile_password_own', $row['add_deny']);
 	}
 
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts as $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 ---}
 ---#
@@ -1814,26 +1825,23 @@ $request = upgrade_query("
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_website_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'profile_blurb_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_displayed_name_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_forum_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_website_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_signature_own', $row['add_deny']);
 	}
 
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts as $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert
-			);
-		}
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 ---}
 ---#
