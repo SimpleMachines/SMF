@@ -155,6 +155,8 @@ if (isset($upgradeData))
 	$upcontext['updated'] = $upcontext['user']['updated'];
 
 	$is_debug = !empty($upcontext['user']['debug']) ? true : false;
+
+	$upcontext['skipStep'] = !empty($upcontext['user']['skipStep']);
 }
 
 // Nothing sensible?
@@ -334,6 +336,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
+		$upcontext['user']['skipStep'] = !empty($upcontext['skipStep']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
@@ -1933,6 +1936,9 @@ function parse_sql($filename)
 
 			if ($type == ' ')
 			{
+				// Starting a new main step in our DB changes, so it's time to reset this
+				$upcontext['skipStep'] = false;
+
 				if (!$support_js && $do_current && $_GET['substep'] != 0 && $command_line)
 				{
 					echo ' Successful.', $endl;
@@ -1970,11 +1976,11 @@ function parse_sql($filename)
 					if (trim($line) == '---#' && $command_line)
 						echo ' done.', $endl;
 					elseif ($command_line)
-						echo ' +++ ', rtrim(substr($line, 4));
+						echo ' +++ ', !empty($upcontext['skipStep']) ? '(Skipping) ' : '', rtrim(substr($line, 4));
 					elseif (trim($line) != '---#')
 					{
 						if ($is_debug)
-							$upcontext['actioned_items'][] = htmlspecialchars(rtrim(substr($line, 4)));
+							$upcontext['actioned_items'][] = (!empty($upcontext['skipStep']) ? '(Skipping) ' : '') . htmlspecialchars(rtrim(substr($line, 4)));
 					}
 				}
 
@@ -1998,12 +2004,13 @@ function parse_sql($filename)
 			{
 				$current_type = 'sql';
 
-				if (!$do_current)
+				if (!$do_current || !empty($upcontext['skipStep']))
 				{
 					$current_data = '';
 					continue;
 				}
 
+				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
 				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
@@ -2024,7 +2031,7 @@ function parse_sql($filename)
 		{
 			if ((!$support_js || isset($_GET['xml'])))
 			{
-				if (!$do_current)
+				if (!$do_current || !empty($upcontext['skipStep']))
 				{
 					$current_data = '';
 					continue;
