@@ -1180,7 +1180,7 @@ foreach ($toMove as $move)
 	$image = explode('#', $move);
 	$image = $image[1];
 
-	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	// PHP wont suppress errors when running things from shell, so make sure it exists first...
 	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
@@ -2307,6 +2307,13 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
+$upcontext['skipStep'] = in_array('ip_low1', $table_columns);
+---}
+---#
+
 ---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
@@ -2345,6 +2352,14 @@ upgrade_query("
 /******************************************************************************/
 --- update log_action ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_actions', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert column
 ALTER TABLE {$db_prefix}log_actions
 	ALTER ip DROP not null,
@@ -2355,6 +2370,14 @@ ALTER TABLE {$db_prefix}log_actions
 /******************************************************************************/
 --- update log_banned ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_banned', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old column
 ALTER TABLE {$db_prefix}log_banned
 	ALTER ip DROP not null,
@@ -2365,11 +2388,33 @@ ALTER TABLE {$db_prefix}log_banned
 /******************************************************************************/
 --- update log_errors members ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_errors', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_errors
 	ALTER ip DROP not null,
 	ALTER ip DROP default,
 	ALTER ip TYPE inet USING migrate_inet(ip);
+---#
+
+/******************************************************************************/
+--- update log_errors members ip with ipv6 support
+/******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}members', 'member_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
+---#
 ALTER TABLE {$db_prefix}members
 	ALTER member_ip DROP not null,
 	ALTER member_ip DROP default,
@@ -2383,6 +2428,14 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- update messages poster_ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}messages', 'poster_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old column
 ALTER TABLE {$db_prefix}messages
 	ALTER poster_ip DROP not null,
@@ -2393,6 +2446,14 @@ ALTER TABLE {$db_prefix}messages
 /******************************************************************************/
 --- update log_floodcontrol ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_floodcontrol', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# drop pk
 TRUNCATE TABLE {$db_prefix}log_floodcontrol;
 ALTER TABLE {$db_prefix}log_floodcontrol DROP CONSTRAINT {$db_prefix}log_floodcontrol_pkey;
@@ -2412,6 +2473,14 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 /******************************************************************************/
 --- update log_online ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_online', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_online
 	ALTER ip DROP not null,
@@ -2422,6 +2491,14 @@ ALTER TABLE {$db_prefix}log_online
 /******************************************************************************/
 --- update log_reported_comments member_ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_reported_comments', 'member_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_reported_comments
 	ALTER member_ip DROP not null,
@@ -2432,6 +2509,14 @@ ALTER TABLE {$db_prefix}log_reported_comments
 /******************************************************************************/
 --- update member_logins ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}member_logins', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skipStep'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}member_logins
 	ALTER ip DROP not null,
@@ -2454,6 +2539,13 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 /******************************************************************************/
 --- Adding support for start and end times on calendar events
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
+$upcontext['skipStep'] = in_array('start_time', $table_columns);
+---}
+---#
+
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN start_time time,
@@ -2485,6 +2577,13 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 --- Adding location support for calendar events
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
+$upcontext['skipStep'] = in_array('location', $table_columns);
+---}
+---#
+
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
@@ -2699,6 +2798,13 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_errors');
+$upcontext['skipStep'] = in_array('backtrace', $table_columns);
+---}
+---#
+
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace text NOT NULL default '';
