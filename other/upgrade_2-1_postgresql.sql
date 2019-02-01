@@ -765,10 +765,6 @@ ADD COLUMN callable varchar(60) NOT NULL default '';
 ---#
 
 ---# Adding new scheduled tasks
-DELETE FROM {$db_prefix}scheduled_tasks WHERE task IN ('remove_temp_attachments', 'remove_topic_redirect', 'remove_old_drafts');
----#
-
----# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
@@ -869,9 +865,13 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
----# Adding the boardindex_max_depth setting.
-DELETE FROM {$db_prefix}settings WHERE variable = 'boardindex_max_depth';
+---# upgrade check
+---{
+$upcontext['skipStep'] = isset($modSettings['boardindex_max_depth']);
+---}
+---#
 
+---# Adding the boardindex_max_depth setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
@@ -1004,8 +1004,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	PRIMARY KEY (id_member, alert_pref)
 );
 
-TRUNCATE TABLE {$db_prefix}user_alerts_prefs;
-
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
@@ -1136,8 +1134,8 @@ $upcontext['skipStep'] = in_array('icons', $table_columns);
 ---#
 
 ---# Altering the membergroup stars to icons
-	ALTER TABLE {$db_prefix}membergroups
-	RENAME stars TO icons;
+ALTER TABLE {$db_prefix}membergroups
+RENAME stars TO icons;
 ---#
 
 ---# set default membergroup icons
@@ -1158,8 +1156,6 @@ WHERE variable = 'newsfader_time';
 ---#
 
 ---# Adding the enableThemes setting.
-DELETE FROM {$db_prefix}settings WHERE variable = 'enableThemes';
-
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
@@ -1320,10 +1316,6 @@ ADD COLUMN field_order smallint NOT NULL default '0';
 ---# Adding new show_mlist column...
 ALTER TABLE {$db_prefix}custom_fields
 ADD COLUMN show_mlist smallint NOT NULL default '0';
----#
-
----# Delete fields
-DELETE FROM {$db_prefix}custom_fields WHERE col_name IN ('cust_icq', 'cust_skype', 'cust_loca', 'cust_gender');
 ---#
 
 ---# Insert fields
@@ -1897,7 +1889,7 @@ $request = upgrade_query("
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('replace',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
