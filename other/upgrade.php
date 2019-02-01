@@ -164,6 +164,7 @@ if (empty($upcontext['updated']))
 {
 	$upcontext['started'] = time();
 	$upcontext['updated'] = 0;
+	$upcontext['skipStep'] = false;
 	$upcontext['user'] = array(
 		'id' => 0,
 		'name' => 'Guest',
@@ -1936,9 +1937,6 @@ function parse_sql($filename)
 
 			if ($type == ' ')
 			{
-				// Starting a new main step in our DB changes, so it's time to reset this
-				$upcontext['skipStep'] = false;
-
 				if (!$support_js && $do_current && $_GET['substep'] != 0 && $command_line)
 				{
 					echo ' Successful.', $endl;
@@ -1954,6 +1952,9 @@ function parse_sql($filename)
 					$upcontext['actioned_items'][] = $last_step;
 					if ($command_line)
 						echo ' * ';
+
+					// Starting a new main step in our DB changes, so it's time to reset this.
+					$upcontext['skipStep'] = false;
 				}
 			}
 			elseif ($type == '#')
@@ -1976,11 +1977,11 @@ function parse_sql($filename)
 					if (trim($line) == '---#' && $command_line)
 						echo ' done.', $endl;
 					elseif ($command_line)
-						echo ' +++ ', !empty($upcontext['skipStep']) ? '(Skipping) ' : '', rtrim(substr($line, 4));
+						echo ' +++ ', rtrim(substr($line, 4));
 					elseif (trim($line) != '---#')
 					{
 						if ($is_debug)
-							$upcontext['actioned_items'][] = (!empty($upcontext['skipStep']) ? '(Skipping) ' : '') . htmlspecialchars(rtrim(substr($line, 4)));
+							$upcontext['actioned_items'][] = $upcontext['current_debug_item_name'];
 					}
 				}
 
@@ -2007,11 +2008,16 @@ function parse_sql($filename)
 				if (!$do_current || !empty($upcontext['skipStep']))
 				{
 					$current_data = '';
+
+					// Avoid confusion when skipping something we normally would have done
+					if ($do_current)
+						$done_something = true;
+
 					continue;
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt; ' . $current_data) === false)
+				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)
@@ -2034,6 +2040,10 @@ function parse_sql($filename)
 				if (!$do_current || !empty($upcontext['skipStep']))
 				{
 					$current_data = '';
+
+					if ($do_current)
+						$done_something = true;
+
 					continue;
 				}
 
@@ -4283,6 +4293,7 @@ function template_database_changes()
 							var iSubStepProgress = -1;
 							var iDebugNum = 0;
 							var bIsComplete = 0;
+							var bSkipped = 0;
 							getData = "";
 
 							// We\'ve got something - so reset the timeout!
@@ -4349,6 +4360,7 @@ function template_database_changes()
 							iItemNum = oXMLDoc.getElementsByTagName("item")[0].getAttribute("num");
 							iDebugNum = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("num"));
 							bIsComplete = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("complete"));
+							bSkipped = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("skipped"));
 							iSubStepProgress = parseFloat(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("percent"));
 							sLastString = sDebugName + " (Item: " + iDebugNum + ")";
 
@@ -4445,7 +4457,9 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							}
 							iLastSubStepProgress = iSubStepProgress;
 
-							if (bIsComplete)
+							if (bIsComplete && bSkipped)
+								setOuterHTML(document.getElementById(\'debuginfo\'), \'skipped<br><span id="debuginfo"><\' + \'/span>\');
+							else if (bIsComplete)
 								setOuterHTML(document.getElementById(\'debuginfo\'), \'done<br><span id="debuginfo"><\' + \'/span>\');
 							else
 								setOuterHTML(document.getElementById(\'debuginfo\'), \'...<span id="debuginfo"><\' + \'/span>\');
@@ -4530,7 +4544,7 @@ function template_database_xml()
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
 	<item num="', $upcontext['current_item_num'], '">', $upcontext['current_item_name'], '</item>
-	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
+	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '" skipped="', empty($upcontext['skipStep']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
 
 	if (!empty($upcontext['error_message']))
 		echo '
