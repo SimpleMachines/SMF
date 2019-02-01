@@ -2436,7 +2436,7 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 ---# upgrade check
 ---{
 $table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
-$upcontext['skipStep'] = in_array('ip_low1', $table_columns);
+$upcontext['skipStep'] = !in_array('ip_low1', $table_columns);
 ---}
 ---#
 
