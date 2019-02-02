@@ -652,10 +652,12 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	$result = $smcFunc['db_query']('', '
-		SHOW FIELDS
-		FROM {raw:table_name}',
+		SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
+		FROM information_schema.columns
+		WHERE table_name = {string:table_name}
+		ORDER BY ordinal_position',
 		array(
-			'table_name' => substr($table_name, 0, 1) == '`' ? $table_name : '`' . $table_name . '`',
+			'table_name' => $table_name,
 		)
 	);
 	$columns = array();
