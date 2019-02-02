@@ -30,18 +30,8 @@ WHERE YEAR(birthdate) < 1004;
 ALTER TABLE {$db_prefix}calendar CHANGE start_date start_date date NOT NULL DEFAULT '1004-01-01';
 ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT '1004-01-01';
 ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
----#
-
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_spider_stats');
-$upcontext['skipStep'] = !in_array('state_date', $table_columns);
----}
----#
-
----# Changing default values
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
 ---#
 
 /******************************************************************************/

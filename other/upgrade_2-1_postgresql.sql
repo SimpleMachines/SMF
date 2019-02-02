@@ -212,18 +212,8 @@ WHERE EXTRACT(YEAR FROM birthdate) < 1004;
 ALTER TABLE {$db_prefix}calendar ALTER COLUMN start_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN stat_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
----#
-
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_spider_stats');
-$upcontext['skipStep'] = !in_array('state_date', $table_columns);
----}
----#
-
----# Changing default values
-ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN state_date SET DEFAULT '1004-01-01'::date;
 ---#
 
 /******************************************************************************/
