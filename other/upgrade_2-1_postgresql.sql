@@ -219,12 +219,6 @@ ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01':
 /******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}member_logins');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
 
 ---# Creating login history sequence.
 CREATE SEQUENCE {$db_prefix}member_logins_seq;
@@ -239,6 +233,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	ip2 inet,
 	PRIMARY KEY (id_login)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}member_logins_id_member;
+DROP INDEX IF EXISTS {$db_prefix}member_logins_time;
 
 CREATE INDEX {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
 CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
@@ -377,7 +374,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Disable Moderation Center Security if it doesn't exist
 ---{
 	if (!isset($modSettings['securityDisable_moderate']))
-		$smcFunc['db_insert']('insert',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
@@ -652,12 +649,6 @@ elseif (empty($modSettings['json_done']))
 /******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_group_requests');
-$upcontext['skipStep'] = in_array('act_reason', $table_columns);
----}
----#
 
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
@@ -724,12 +715,6 @@ upgrade_query("
 /******************************************************************************/
 --- Adding support for MOVED topics enhancements
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}topics');
-$upcontext['skipStep'] = in_array('redirect_expires', $table_columns);
----}
----#
 
 ---# Adding new columns to topics table
 ALTER TABLE {$db_prefix}topics
@@ -742,12 +727,6 @@ ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}scheduled_tasks');
-$upcontext['skipStep'] = in_array('callable', $table_columns);
----}
----#
 
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
@@ -758,15 +737,15 @@ ADD COLUMN callable varchar(60) NOT NULL default '';
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '');
+	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '');
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+	(0, 240, 1, 'd', 0, 'remove_old_drafts', '') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding a new task-related setting...
@@ -840,12 +819,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}boards');
-$upcontext['skipStep'] = in_array('deny_member_groups', $table_columns);
----}
----#
 
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
@@ -855,17 +828,12 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
----# upgrade check
----{
-$upcontext['skipStep'] = isset($modSettings['boardindex_max_depth']);
----}
----#
 
 ---# Adding the boardindex_max_depth setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('boardindex_max_depth', '1');
+	('boardindex_max_depth', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -931,12 +899,6 @@ if (!empty($member_groups))
 /******************************************************************************/
 --- Adding support for category descriptions
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}categories');
-$upcontext['skipStep'] = in_array('description', $table_columns);
----}
----#
 
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
@@ -982,6 +944,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	PRIMARY KEY (id_alert)
 );
 
+DROP INDEX IF EXISTS {$db_prefix}user_alerts_id_member;
+DROP INDEX IF EXISTS {$db_prefix}user_alerts_alert_time;
+
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
 CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 ---#
@@ -994,29 +959,29 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	PRIMARY KEY (id_member, alert_pref)
 );
 
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'topic_notify', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'board_notify', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_mention', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_attachment', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'topic_notify', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'board_notify', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_mention', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_attachment', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Upgrading post notification settings
@@ -1091,12 +1056,6 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_topics');
-$upcontext['skipStep'] = in_array('unwatched', $table_columns);
----}
----#
 
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
@@ -1109,19 +1068,13 @@ SET unwatched = 0;
 ---#
 
 ---# Fixing column name change...
-	ALTER TABLE {$db_prefix}log_topics
-	DROP COLUMN disregarded;
+ALTER TABLE {$db_prefix}log_topics
+DROP COLUMN disregarded;
 ---#
 
 /******************************************************************************/
 --- Name changes
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
-$upcontext['skipStep'] = in_array('icons', $table_columns);
----}
----#
 
 ---# Altering the membergroup stars to icons
 ALTER TABLE {$db_prefix}membergroups
@@ -1149,7 +1102,7 @@ WHERE variable = 'newsfader_time';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enableThemes', '1');
+	('enableThemes', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Setting "default" as the default...
@@ -1291,12 +1244,6 @@ $smcFunc['db_query']('', '
 /******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}custom_fields');
-$upcontext['skipStep'] = in_array('field_order', $table_columns);
----}
----#
 
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
@@ -1310,13 +1257,13 @@ ADD COLUMN show_mlist smallint NOT NULL default '0';
 
 ---# Insert fields
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1444,12 +1391,6 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}user_drafts');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
 
 ---# Creating drafts table.
 CREATE SEQUENCE {$db_prefix}user_drafts_seq;
@@ -1515,7 +1456,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('replace',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'add_deny' => 'int', 'permission' => 'string'),
 			$inserts,
@@ -1524,24 +1465,16 @@ if (@$modSettings['smfVersion'] < '2.1')
 	}
 }
 ---}
-DELETE FROM {$db_prefix}settings WHERE variable IN ('drafts_autosave_enabled', 'drafts_show_saved_enabled' , 'drafts_keep_days');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7') ON CONFLICT DO NOTHING;
 
-DELETE FROM {$db_prefix}themes WHERE id_theme = 1 AND  variable = 'drafts_show_saved_enabled';
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
 --- Adding support for likes
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}messages');
-$upcontext['skipStep'] = in_array('likes', $table_columns);
----}
----#
 
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
@@ -1551,6 +1484,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	like_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}user_likes_content;
+DROP INDEX IF EXISTS {$db_prefix}user_likes_liker;
 
 CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
 CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
@@ -1564,12 +1500,6 @@ ADD COLUMN likes smallint NOT NULL default '0';
 /******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}mentions');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
 
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS  {$db_prefix}mentions (
@@ -1580,6 +1510,9 @@ CREATE TABLE IF NOT EXISTS  {$db_prefix}mentions (
 	time int NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}mentions_content;
+DROP INDEX IF EXISTS {$db_prefix}mentions_mentionee;
 
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
 CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
@@ -1766,12 +1699,6 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}qanda');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
 
 ---# Creating qanda table
 CREATE SEQUENCE {$db_prefix}qanda_seq;
@@ -1786,6 +1713,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 ---#
 
 ---# Create index on qanda
+DROP INDEX IF EXISTS {$db_prefix}qanda_lngfile;
 CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 ---#
 
@@ -1911,7 +1839,7 @@ $request = upgrade_query("
 
 	if (!empty($inserts))
 	{
-		$smcFunc['db_insert']('replace',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}permissions',
 			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
 			$inserts,
@@ -1924,12 +1852,6 @@ $request = upgrade_query("
 /******************************************************************************/
 --- Upgrading PM labels...
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}pm_recipients');
-$upcontext['skipStep'] = in_array('in_inbox', $table_columns);
----}
----#
 
 ---# Creating pm_labels sequence...
 CREATE SEQUENCE {$db_prefix}pm_labels_seq;
@@ -2120,13 +2042,6 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 /******************************************************************************/
 --- Adding support for edit reasons
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}messages');
-$upcontext['skipStep'] = in_array('modified_reason', $table_columns);
----}
----#
-
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN modified_reason varchar(255) NOT NULL default '';
@@ -2204,12 +2119,6 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding timezone support
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}members');
-$upcontext['skipStep'] = in_array('timezone', $table_columns);
----}
----#
 
 ---# Adding the "timezone" column to the members table
 ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
@@ -2308,12 +2217,6 @@ ALTER url TYPE varchar(2048);
 /******************************************************************************/
 --- Adding support for 2FA
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}members');
-$upcontext['skipStep'] = in_array('tfa_secret', $table_columns);
----}
----#
 
 ---# Adding the secret column to members table
 ALTER TABLE {$db_prefix}members
@@ -2346,7 +2249,7 @@ ADD COLUMN tfa_required smallint NOT NULL default '0';
 --- optimization of members
 /******************************************************************************/
 
----# ADD INDEX to members
+---# DROP INDEX to members
 DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
 DROP INDEX IF EXISTS {$db_prefix}members_real_name_low;
 ---#
@@ -2423,12 +2326,6 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
-$upcontext['skipStep'] = !in_array('ip_low1', $table_columns);
----}
----#
 
 ---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
@@ -2443,6 +2340,7 @@ WHERE ip_low1 > 0;
 ---#
 
 ---# index
+DROP INDEX IF EXISTS {$db_prefix}ban_items_id_ban_ip;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 ---#
 
@@ -2655,12 +2553,6 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 /******************************************************************************/
 --- Adding support for start and end times on calendar events
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
-$upcontext['skipStep'] = in_array('start_time', $table_columns);
----}
----#
 
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
@@ -2693,12 +2585,6 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 --- Adding location support for calendar events
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
-$upcontext['skipStep'] = in_array('location', $table_columns);
----}
----#
 
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
@@ -2914,12 +2800,6 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_errors');
-$upcontext['skipStep'] = in_array('backtrace', $table_columns);
----}
----#
 
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
@@ -2938,6 +2818,16 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	PRIMARY KEY (id_group, id_board, deny)
 );
 
+---# upgrade check
+---{
+	// if one of source col is missing skip this step
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
+$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$upcontext['skipStep'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+---}
+---#
+
+---#
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 
