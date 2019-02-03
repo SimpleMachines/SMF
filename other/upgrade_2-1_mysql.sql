@@ -505,7 +505,6 @@ ADD COLUMN credits TEXT NOT NULL;
 /******************************************************************************/
 --- Adding more space for session ids
 /******************************************************************************/
-
 ---# Altering the session_id columns...
 ALTER TABLE {$db_prefix}log_online
 CHANGE `session` `session` VARCHAR(128) NOT NULL DEFAULT '';
@@ -2643,7 +2642,7 @@ ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
---- Update permissions system
+--- Update permissions system board_permissions_view
 /******************************************************************************/
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
@@ -2654,6 +2653,16 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
 
+---# upgrade check
+---{
+	// if one of source col is missing skip this step
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
+$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$upcontext['skipStep'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+---}
+---#
+
+---#
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 
