@@ -715,7 +715,6 @@ upgrade_query("
 /******************************************************************************/
 --- Adding support for MOVED topics enhancements
 /******************************************************************************/
-
 ---# Adding new columns to topics table
 ALTER TABLE {$db_prefix}topics
 ADD COLUMN redirect_expires int NOT NULL DEFAULT '0';
@@ -727,7 +726,6 @@ ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
-
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
 ADD COLUMN callable varchar(60) NOT NULL default '';
@@ -819,7 +817,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
-
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
 ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
@@ -828,7 +825,6 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
-
 ---# Adding the boardindex_max_depth setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
@@ -899,7 +895,6 @@ if (!empty($member_groups))
 /******************************************************************************/
 --- Adding support for category descriptions
 /******************************************************************************/
-
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
 ADD COLUMN description text;
@@ -1056,7 +1051,6 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
-
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
 ADD COLUMN unwatched int NOT NULL DEFAULT '0';
@@ -1075,7 +1069,6 @@ DROP COLUMN disregarded;
 /******************************************************************************/
 --- Name changes
 /******************************************************************************/
-
 ---# Altering the membergroup stars to icons
 ALTER TABLE {$db_prefix}membergroups
 RENAME stars TO icons;
@@ -1244,7 +1237,6 @@ $smcFunc['db_query']('', '
 /******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
-
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
 ADD COLUMN field_order smallint NOT NULL default '0';
@@ -1391,7 +1383,6 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
-
 ---# Creating drafts table.
 CREATE SEQUENCE {$db_prefix}user_drafts_seq;
 
@@ -1475,7 +1466,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 /******************************************************************************/
 --- Adding support for likes
 /******************************************************************************/
-
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	id_member int NOT NULL DEFAULT '0',
@@ -1500,7 +1490,6 @@ ADD COLUMN likes smallint NOT NULL default '0';
 /******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
-
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS  {$db_prefix}mentions (
 	content_id int DEFAULT '0',
@@ -1699,7 +1688,6 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
-
 ---# Creating qanda table
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
@@ -1852,7 +1840,6 @@ $request = upgrade_query("
 /******************************************************************************/
 --- Upgrading PM labels...
 /******************************************************************************/
-
 ---# Creating pm_labels sequence...
 CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 ---#
@@ -2119,7 +2106,6 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding timezone support
 /******************************************************************************/
-
 ---# Adding the "timezone" column to the members table
 ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 ---#
@@ -2217,7 +2203,6 @@ ALTER url TYPE varchar(2048);
 /******************************************************************************/
 --- Adding support for 2FA
 /******************************************************************************/
-
 ---# Adding the secret column to members table
 ALTER TABLE {$db_prefix}members
 ADD COLUMN tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
@@ -2248,7 +2233,6 @@ ADD COLUMN tfa_required smallint NOT NULL default '0';
 /******************************************************************************/
 --- optimization of members
 /******************************************************************************/
-
 ---# DROP INDEX to members
 DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
 DROP INDEX IF EXISTS {$db_prefix}members_real_name_low;
@@ -2313,7 +2297,6 @@ if(isset($pg_version))
 /******************************************************************************/
 --- remove redundant index
 /******************************************************************************/
-
 ---# duplicate to messages_current_topic
 DROP INDEX IF EXISTS {$db_prefix}messages_id_topic;
 DROP INDEX IF EXISTS {$db_prefix}messages_topic;
@@ -2326,7 +2309,6 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
-
 ---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
@@ -2553,7 +2535,6 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 /******************************************************************************/
 --- Adding support for start and end times on calendar events
 /******************************************************************************/
-
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN start_time time,
@@ -2585,7 +2566,6 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 --- Adding location support for calendar events
 /******************************************************************************/
-
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
@@ -2800,7 +2780,6 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
-
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace text NOT NULL default '';
@@ -2870,7 +2849,6 @@ where (FIND_IN_SET(0, b.deny_member_groups) != 0);
 /******************************************************************************/
 --- Correct schema diff
 /******************************************************************************/
-
 ---# log_subscribed
 ALTER TABLE {$db_prefix}log_subscribed
 ALTER pending_details DROP DEFAULT;
