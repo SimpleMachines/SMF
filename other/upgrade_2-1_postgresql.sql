@@ -667,13 +667,6 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 --- Adding support for <credits> tag in package manager
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_packages');
-$upcontext['skipStep'] = in_array('credits', $table_columns);
----}
----#
-
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN credits text NOT NULL;
@@ -910,13 +903,6 @@ ALTER COLUMN description SET NOT NULL;
 /******************************************************************************/
 --- Adding support for alerts
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}members');
-$upcontext['skipStep'] = in_array('alerts', $table_columns);
----}
----#
-
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
 ADD COLUMN alerts int NOT NULL default '0';

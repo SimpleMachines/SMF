@@ -37,13 +37,6 @@ ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT
 /******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}member_logins');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
-
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
@@ -486,13 +479,6 @@ elseif (empty($modSettings['json_done']))
 /******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_group_requests');
-$upcontext['skipStep'] = in_array('act_reason', $table_columns);
----}
----#
-
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -511,13 +497,6 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 --- Adding support for <credits> tag in package manager
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_packages');
-$upcontext['skipStep'] = in_array('credits', $table_columns);
----}
----#
-
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN credits TEXT NOT NULL;
@@ -541,13 +520,6 @@ CHANGE `session_id` `session_id` VARCHAR(128) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding support for MOVED topics enhancements
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}topics');
-$upcontext['skipStep'] = in_array('redirect_expires', $table_columns);
----}
----#
-
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
 ADD COLUMN redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -557,13 +529,6 @@ ADD COLUMN id_redirect_topic MEDIUMINT UNSIGNED NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}scheduled_tasks');
-$upcontext['skipStep'] = in_array('callable', $table_columns);
----}
----#
-
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
 ADD COLUMN callable VARCHAR(60) NOT NULL DEFAULT '';
@@ -659,12 +624,6 @@ ADD COLUMN deny_member_groups VARCHAR(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding setting for max depth of sub-boards to check for new posts, etc.
 /******************************************************************************/
----# upgrade check
----{
-$upcontext['skipStep'] = isset($modSettings['boardindex_max_depth']);
----}
----#
-
 ---# Adding the boardindex_max_depth setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
@@ -736,13 +695,6 @@ if (!empty($member_groups))
 /******************************************************************************/
 --- Adding support for category descriptions
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}categories');
-$upcontext['skipStep'] = in_array('description', $table_columns);
----}
----#
-
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
 ADD COLUMN description TEXT NOT NULL;
@@ -751,13 +703,6 @@ ADD COLUMN description TEXT NOT NULL;
 /******************************************************************************/
 --- Adding support for alerts
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}members');
-$upcontext['skipStep'] = in_array('alerts', $table_columns);
----}
----#
-
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
 ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
@@ -906,13 +851,6 @@ DROP COLUMN disregarded;
 /******************************************************************************/
 --- Fixing mail queue for long messages
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
-$upcontext['skipStep'] = in_array('icons', $table_columns);
----}
----#
-
 ---# Altering mil_queue table...
 ALTER TABLE {$db_prefix}mail_queue
 CHANGE body body mediumtext NOT NULL;
@@ -1083,13 +1021,6 @@ $smcFunc['db_query']('', '
 /******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}custom_fields');
-$upcontext['skipStep'] = in_array('field_order', $table_columns);
----}
----#
-
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
 ADD COLUMN field_order SMALLINT NOT NULL DEFAULT '0';
@@ -1258,13 +1189,6 @@ ALTER TABLE `{$db_prefix}members`
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}user_drafts');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
-
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
@@ -1346,13 +1270,6 @@ VALUES
 /******************************************************************************/
 --- Adding support for likes
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}messages');
-$upcontext['skipStep'] = in_array('likes', $table_columns);
----}
----#
-
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	id_member MEDIUMINT UNSIGNED DEFAULT '0',
@@ -1373,13 +1290,6 @@ ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 /******************************************************************************/
 --- Adding support for mentions
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}mentions');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
-
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 	content_id INT DEFAULT '0',
@@ -1551,13 +1461,6 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}qanda');
-$upcontext['skipStep'] = count($table_columns) > 0 ? true : false;
----}
----#
-
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
@@ -1703,13 +1606,6 @@ $request = upgrade_query("
 /******************************************************************************/
 --- Upgrading PM labels...
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}pm_recipients');
-$upcontext['skipStep'] = in_array('in_inbox', $table_columns);
----}
----#
-
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 	id_label INT(10) UNSIGNED AUTO_INCREMENT,
@@ -1895,13 +1791,6 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 /******************************************************************************/
 --- Adding support for edit reasons (May take a while)
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}messages');
-$upcontext['skipStep'] = in_array('modified_reason', $table_columns);
----}
----#
-
 ---# Adding "modified_reason" column to messages (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
@@ -1999,13 +1888,6 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 --- Adding timezone support
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}members');
-$upcontext['skipStep'] = in_array('timezone', $table_columns);
----}
----#
-
 ---# Adding the "timezone" column to the members table
 ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 ---#
@@ -2123,13 +2005,6 @@ DROP INDEX idx_id_board on {$db_prefix}topics;
 /******************************************************************************/
 --- Update ban ip with ipv6 support
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
-$upcontext['skipStep'] = !in_array('ip_low1', $table_columns);
----}
----#
-
 ---# Add columns to ban_items
 ALTER TABLE {$db_prefix}ban_items
 ADD COLUMN ip_low varbinary(16),
@@ -2446,13 +2321,6 @@ ALTER TABLE {$db_prefix}members DROP COLUMN pm_email_notify;
 /******************************************************************************/
 --- Adding support for start and end times on calendar events
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
-$upcontext['skipStep'] = in_array('start_time', $table_columns);
----}
----#
-
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN start_time time,
@@ -2484,13 +2352,6 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 --- Adding location support for calendar events
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}calendar');
-$upcontext['skipStep'] = in_array('location', $table_columns);
----}
----#
-
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
@@ -2776,13 +2637,6 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 --- Add backtrace to log_error
 /******************************************************************************/
----# upgrade check
----{
-$table_columns = $smcFunc['db_list_columns']('{db_prefix}log_errors');
-$upcontext['skipStep'] = in_array('backtrace', $table_columns);
----}
----#
-
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
