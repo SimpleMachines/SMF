@@ -2295,6 +2295,13 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
+$upcontext['skipStep'] = !in_array('ip_low', $table_columns);
+---}
+---#
+
 ---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
@@ -2310,6 +2317,18 @@ WHERE ip_low1 > 0;
 ---# index
 DROP INDEX IF EXISTS {$db_prefix}ban_items_id_ban_ip;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
+---#
+
+---# Dropping columns from ban_items
+ALTER TABLE {$db_prefix}ban_items
+DROP ip_low1,
+DROP ip_low2,
+DROP ip_low3,
+DROP ip_low4,
+DROP ip_high1,
+DROP ip_high2,
+DROP ip_high3,
+DROP ip_high4;
 ---#
 
 /******************************************************************************/
