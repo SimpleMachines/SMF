@@ -156,7 +156,7 @@ if (isset($upgradeData))
 
 	$is_debug = !empty($upcontext['user']['debug']) ? true : false;
 
-	$upcontext['skipStep'] = !empty($upcontext['user']['skipStep']);
+	$upcontext['skip_db_substeps'] = !empty($upcontext['user']['skip_db_substeps']);
 }
 
 // Nothing sensible?
@@ -164,7 +164,7 @@ if (empty($upcontext['updated']))
 {
 	$upcontext['started'] = time();
 	$upcontext['updated'] = 0;
-	$upcontext['skipStep'] = false;
+	$upcontext['skip_db_substeps'] = false;
 	$upcontext['user'] = array(
 		'id' => 0,
 		'name' => 'Guest',
@@ -337,7 +337,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
-		$upcontext['user']['skipStep'] = !empty($upcontext['skipStep']);
+		$upcontext['user']['skip_db_substeps'] = !empty($upcontext['skip_db_substeps']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
@@ -1954,7 +1954,7 @@ function parse_sql($filename)
 						echo ' * ';
 
 					// Starting a new main step in our DB changes, so it's time to reset this.
-					$upcontext['skipStep'] = false;
+					$upcontext['skip_db_substeps'] = false;
 				}
 			}
 			elseif ($type == '#')
@@ -2005,7 +2005,7 @@ function parse_sql($filename)
 			{
 				$current_type = 'sql';
 
-				if (!$do_current || !empty($upcontext['skipStep']))
+				if (!$do_current || !empty($upcontext['skip_db_substeps']))
 				{
 					$current_data = '';
 
@@ -2037,7 +2037,7 @@ function parse_sql($filename)
 		{
 			if ((!$support_js || isset($_GET['xml'])))
 			{
-				if (!$do_current || !empty($upcontext['skipStep']))
+				if (!$do_current || !empty($upcontext['skip_db_substeps']))
 				{
 					$current_data = '';
 
@@ -4544,7 +4544,7 @@ function template_database_xml()
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
 	<item num="', $upcontext['current_item_num'], '">', $upcontext['current_item_name'], '</item>
-	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '" skipped="', empty($upcontext['skipStep']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
+	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '" skipped="', empty($upcontext['skip_db_substeps']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
 
 	if (!empty($upcontext['error_message']))
 		echo '

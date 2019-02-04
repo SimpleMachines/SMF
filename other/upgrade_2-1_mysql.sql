@@ -2658,7 +2658,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	// if one of source col is missing skip this step
 $table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
 $table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
-$upcontext['skipStep'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+$upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
 ---}
 ---#
 
