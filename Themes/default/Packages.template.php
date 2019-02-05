@@ -392,37 +392,43 @@ function template_extract_package()
 {
 	global $context, $txt, $scripturl;
 
-	if (!empty($context['redirect_url']))
-		echo '
-	<script>
-		setTimeout("doRedirect();", ', empty($context['redirect_timeout']) ? '5000' : $context['redirect_timeout'], ');
-
-		function doRedirect()
-		{
-			window.location = "', $context['redirect_url'], '";
-		}
-	</script>';
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">';
 
 	if (empty($context['redirect_url']))
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $context['uninstalling'] ? $txt['uninstall'] : $txt['extracting'], '</h3>
-		</div>
-		<div class="information">', $txt['package_installed_extract'], '</div>';
+		echo $context['uninstalling'] ? $txt['uninstall'] : $txt['extracting'];
 	else
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['package_installed_redirecting'], '</h3>
-		</div>';
+		echo $txt['package_installed_redirecting'];
 
-	echo '
+	echo '</h3>
+		</div>
 		<div class="windowbg">';
 
 	// If we are going to redirect we have a slightly different agenda.
 	if (!empty($context['redirect_url']))
 		echo '
 			', $context['redirect_text'], '<br><br>
-			<a href="', $context['redirect_url'], '">', $txt['package_installed_redirect_go_now'], '</a> | <a href="', $scripturl, '?action=admin;area=packages;sa=browse">', $txt['package_installed_redirect_cancel'], '</a>';
+			<a href="', $context['redirect_url'], '">', $txt['package_installed_redirect_go_now'], '</a><span id="countdown" class="hidden"> (5) </span> | <a href="', $scripturl, '?action=admin;area=packages;sa=browse">', $txt['package_installed_redirect_cancel'], '</a>
+			<script>
+				var countdown = ', $context['redirect_timeout'], ';
+				var el = document.getElementById(\'countdown\');
+				var loop = setInterval(doCountdown, 1000);
+
+				function doCountdown()
+				{
+					countdown--;
+					el.textContent = " (" + countdown + ") ";
+
+					if (countdown == 0)
+					{
+						clearInterval(loop);
+						window.location = "', $context['redirect_url'], '";
+					}
+				}
+				el.classList.remove(\'hidden\');
+				el.value = " (" + countdown + ") ";
+			</script>';
 
 	elseif ($context['uninstalling'])
 		echo '
