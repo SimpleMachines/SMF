@@ -1577,6 +1577,23 @@ function updateActionDef(optNum)
 	}
 }
 
+function makeToggle(el, text)
+{
+	var t = document.createElement("a");
+	t.href = 'javascript:void(0);';
+	t.textContent = text;
+	t.className = 'toggle_down';
+	createEventListener(t);
+	t.addEventListener('click', function()
+	{
+		var d = this.nextSibling;
+		d.classList.toggle('hidden');
+		this.className = this.className == 'toggle_down' ? 'toggle_up' : 'toggle_down';
+	}, false);
+	el.classList.add('hidden');
+	el.parentNode.insertBefore(t, el);
+}
+
 function smc_resize(selector)
 {
 	var allElements = [];
@@ -1811,8 +1828,6 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	var captions = errors.getElementsByTagName('caption');
 	for (var i = 0, numCaptions = errors.getElementsByTagName('caption').length; i < numCaptions; i++)
 	{
-console.log(this.opts.sCaptionContainerID, captions[i], this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name')));
-
 		if (document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))))
 			document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))).className = captions[i].getAttribute('class');
 	}

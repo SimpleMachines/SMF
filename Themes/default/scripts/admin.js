@@ -505,13 +505,6 @@ function updatePreview(filename, filepath)
 		currentImage.src = smf_smileys_url + relative_url;
 }
 
-function swap_database_changes()
-{
-	db_vis = !db_vis;
-	database_changes_area.style.display = db_vis ? "" : "none";
-	return false;
-}
-
 function testFTP()
 {
 	ajax_indicator(true);
