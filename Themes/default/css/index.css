@@ -400,7 +400,7 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
-.postarea .bbc_img:hover {
+.postarea .bbc_img.resized:hover {
 	cursor: pointer;
 }
 .bbc_img.original_size {
