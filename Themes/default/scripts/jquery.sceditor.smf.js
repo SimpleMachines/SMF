@@ -394,8 +394,8 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
 		format: '[li]{0}[/li]',
-		html: '<li>{0}</li>'
-	},
+		html: '<li>{0}</li>',
+	}
 );
 sceditor.formats.bbcode.set(
 	'*', {
