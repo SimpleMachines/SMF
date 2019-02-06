@@ -228,7 +228,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
-	log_error_online($error, true, $sprintf);
+	log_error_online($error, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 
