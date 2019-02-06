@@ -228,8 +228,8 @@ function PackageInstallTest()
 
 	$context['database_changes'] = array();
 	if (isset($packageInfo['uninstall']['database']))
-		$context['database_changes'][] = $txt['execute_database_changes'] . ' - ' . $packageInfo['uninstall']['database'];
-	elseif (!empty($db_changes))
+		$context['database_changes'][] = sprintf($txt['package_db_code'], $packageInfo['uninstall']['database']);
+	if (!empty($db_changes))
 	{
 		foreach ($db_changes as $change)
 		{
@@ -507,7 +507,7 @@ function PackageInstallTest()
 				'action' => $smcFunc['htmlspecialchars']($action['filename']),
 			);
 		}
-		elseif ($action['type'] == 'database')
+		elseif ($action['type'] == 'database' && !$context['uninstalling'])
 		{
 			$thisAction = array(
 				'type' => $txt['execute_database_changes'],
