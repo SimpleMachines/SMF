@@ -1439,7 +1439,7 @@ function template_edit_options()
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
-			<div style="position:absolute; left:-3000px;">
+			<div style="height:0;overflow:hidden;">
 				<input type="text" id="autocompleteFakeName">
 				<input type="password" id="autocompleteFakePassword">
 			</div>
