@@ -75,7 +75,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre {
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
