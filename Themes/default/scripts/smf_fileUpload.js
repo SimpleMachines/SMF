@@ -79,7 +79,7 @@ function smf_fileUpload(oOptions) {
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
 
 				// Remove the file size from the total
-				myDropzone.options.currentUsedSize - file.size;
+				myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
