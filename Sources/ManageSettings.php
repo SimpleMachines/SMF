@@ -307,6 +307,13 @@ function ModifyBBCSettings($return_config = false)
 		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
+	// Permissions for restricted BBC
+	if (!empty($context['restricted_bbc']))
+		$config_vars[] = '';
+
+	foreach ($context['restricted_bbc'] as $bbc)
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
+
 	$context['settings_post_javascript'] = '
 		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
 		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';

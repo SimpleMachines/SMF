@@ -136,6 +136,7 @@ $txt['group_perms_name_profile_forum_own'] = 'Allow Forum own Profile edits';
 $txt['group_perms_name_profile_password_own'] = 'Change own password';
 $txt['group_perms_name_profile_signature_own'] = 'Edit own signature';
 $txt['group_perms_name_profile_website_own'] = 'Edit own website';
+$txt['group_perms_name_bbc'] = 'Use the [%1$s] BBCode';
 
 $txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 staff members.';
 $txt['report_staff_position'] = 'Position';

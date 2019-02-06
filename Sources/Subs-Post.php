@@ -30,7 +30,7 @@ function preparsecode(&$message, $previewing = false)
 {
 	global $user_info, $modSettings, $context, $sourcedir;
 
-	static $tags_regex, $legacy_bbc_regex;
+	static $tags_regex, $disallowed_tags_regex;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	if (empty($context['utf8']))
@@ -120,7 +120,7 @@ function preparsecode(&$message, $previewing = false)
 
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
-		if (allowedTo('admin_forum'))
+		if (allowedTo('bbc_html'))
 			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
 			{
 				return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
@@ -144,9 +144,26 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
 	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
 
-	// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
-	$legacy_bbc_regex = empty($legacy_bbc_regex) ? build_regex(array_unique($context['legacy_bbc']), '~') : $legacy_bbc_regex;
-	$message = preg_replace('~\[(/?)(' . $legacy_bbc_regex . ')\b([^\]]*)\]~i', '&#91;$1$2$3&#93;', $message);
+	// Neutralize any BBC tags this member isn't permitted to use.
+	if (empty($disallowed_tags_regex))
+	{
+		// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
+		$disallowed_bbc = $context['legacy_bbc'];
+
+		// Some BBC require permissions.
+		foreach ($context['restricted_bbc'] as $bbc)
+		{
+			// Skip html, since we handled it separately above.
+			if ($bbc === 'html')
+				continue;
+			if (!allowedTo('bbc_' . $bbc))
+				$disallowed_bbc[] = $bbc;
+		}
+
+		$disallowed_tags_regex = build_regex(array_unique($disallowed_bbc), '~');
+	}
+	if (!empty($disallowed_tags_regex))
+		$message = preg_replace('~\[(?=/?' . $disallowed_tags_regex . '\b)~i', '&#91;', $message);
 
 	// Make sure all tags are lowercase.
 	$message = preg_replace_callback('~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i', function($m)

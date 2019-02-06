@@ -2367,7 +2367,7 @@ function MessagePost2()
 		preparsecode($message);
 
 		// Make sure there's still some content left without the tags.
-		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($message, '[html]') === false))
+		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('bbc_html') || strpos($message, '[html]') === false))
 			$post_errors[] = 'no_message';
 	}
 

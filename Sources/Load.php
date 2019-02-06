@@ -397,7 +397,11 @@ function reloadSettings()
 	$context['legacy_bbc'] = array(
 		'acronym', 'bdo', 'black', 'blue', 'flash', 'ftp', 'glow',
 		'green', 'move', 'red', 'shadow', 'tt', 'white',
+	);
 
+	// Define a list of BBC tags that require permissions to use
+	$context['restricted_bbc'] = array(
+		'html',
 	);
 
 	// Call pre load integration functions.
