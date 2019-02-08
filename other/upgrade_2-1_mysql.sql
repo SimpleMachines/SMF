@@ -2931,3 +2931,26 @@ VALUES ('Independence Day', '1004-07-04'),
 CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
 
+/******************************************************************************/
+--- Fix members mods columns
+/******************************************************************************/
+---# make them nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' and  TABLE_NAME '" . $db_prefix . "members' and 
+			column_default is null and column_key <> 'PRI' and is_nullable = 'NO' and
+			COLUMN_NAME not in ('buddy_list', 'signature', 'ignore_boards')
+	");
+
+	
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}members
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
