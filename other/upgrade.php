@@ -3193,17 +3193,21 @@ function ConvertUtf8()
 }
 
 /**
- * Repairs serialized data corrupted by changes to the character encoding (e.g. conversion to UTF-8)
+ * Attempts to repair corrupted serialized data strings
  *
  * @param string $string Serialized data that has been corrupted
  * @return string|bool A working version of the serialized data, or the original if the repair failed
  */
-function fix_serialized_s_length($string)
+function fix_serialized_data($string)
 {
+	// If its not broken, don't fix it.
 	if (!is_string($string) || !preg_match('/^[bidsa]:/', $string) || @safe_unserialize($string) !== false)
 		return $string;
 
+	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
 	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+
+	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 
 	// Did it work?
 	if (@safe_unserialize($new_string) !== false)
@@ -3316,7 +3320,7 @@ function serialize_to_json()
 						$temp = @safe_unserialize($modSettings[$var]);
 						// Maybe conversion to UTF-8 corrupted it
 						if ($temp === false)
-							$temp = @safe_unserialize(fix_serialized_s_length($modSettings[$var]));
+							$temp = @safe_unserialize(fix_serialized_data($modSettings[$var]));
 
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
@@ -3350,7 +3354,7 @@ function serialize_to_json()
 					{
 						$temp = @safe_unserialize($row['value']);
 						if ($temp === false)
-							$temp = @safe_unserialize(fix_serialized_s_length($row['value']));
+							$temp = @safe_unserialize(fix_serialized_data($row['value']));
 
 						if ($command_line)
 						{
@@ -3429,7 +3433,7 @@ function serialize_to_json()
 							{
 								$temp = @safe_unserialize($row[$col]);
 								if ($temp === false)
-									$temp = @safe_unserialize(fix_serialized_s_length($row[$col]));
+									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
 
 								if ($temp === false && $command_line)
 								{
