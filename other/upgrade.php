@@ -93,8 +93,8 @@ $upcontext['steps'] = array(
 	1 => array(2, 'upgrade_step_options', 'UpgradeOptions', 2),
 	2 => array(3, 'upgrade_step_backup', 'BackupDatabase', 10),
 	3 => array(4, 'upgrade_step_database', 'DatabaseChanges', 50),
-	4 => array(5, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
-	5 => array(6, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	4 => array(5, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	5 => array(6, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
 	6 => array(7, 'upgrade_step_delete', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
@@ -3225,7 +3225,7 @@ function serialize_to_json()
 	if (!empty($modSettings['json_done']))
 	{
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 		else
 			return true;
 	}
@@ -3490,7 +3490,7 @@ function serialize_to_json()
 		$_GET['substep'] = 0;
 		// Make sure we move on!
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 
 		return true;
 	}
