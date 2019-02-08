@@ -834,12 +834,7 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched TINYINT NOT NULL DEFAULT '0';
----#
-
----# Initializing new column in log_topics...
-UPDATE {$db_prefix}log_topics
-SET unwatched = 0;
+ADD COLUMN unwatched TINYINT NOT NULL DEFAULT 0;
 ---#
 
 ---# Fixing column name change...

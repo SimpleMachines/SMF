@@ -1039,12 +1039,7 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched int NOT NULL DEFAULT '0';
----#
-
----# Initializing new column in log_topics...
-UPDATE {$db_prefix}log_topics
-SET unwatched = 0;
+ADD COLUMN unwatched int NOT NULL DEFAULT 0;
 ---#
 
 ---# Fixing column name change...
@@ -2298,7 +2293,7 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 ---# upgrade check
 ---{
 $table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
-$upcontext['skip_db_substeps'] = !in_array('ip_low', $table_columns);
+$upcontext['skip_db_substeps'] = in_array('ip_low', $table_columns);
 ---}
 ---#
 
