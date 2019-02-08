@@ -2939,9 +2939,9 @@ CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 $request = upgrade_query("
 		SELECT COLUMN_NAME, COLUMN_TYPE
 		FROM INFORMATION_SCHEMA.COLUMNS
-		WHERE TABLE_SCHEMA = '" . $db_name . "' and  TABLE_NAME '" . $db_prefix . "members' and 
-			column_default is null and column_key <> 'PRI' and is_nullable = 'NO' and
-			COLUMN_NAME not in ('buddy_list', 'signature', 'ignore_boards')
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME '" . $db_prefix . "members' AND 
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('buddy_list', 'signature', 'ignore_boards')
 	");
 
 	
