@@ -14,8 +14,8 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC1');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_LANG_VERSION', '2.1 RC1');
 define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_LANG_VERSION', '2.1 RC1');
 define('SMF_INSTALLING', 1);
 
 /**
