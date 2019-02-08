@@ -1394,8 +1394,8 @@ function getBoardTree()
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-		WHERE {query_see_board}
-		ORDER BY c.cat_order, b.child_level, b.board_order',
+		' . (allowedTo('manage_boards') ? '' : 'WHERE {query_see_board}') .
+		'ORDER BY c.cat_order, b.child_level, b.board_order',
 		$boardParameters
 	);
 	$cat_tree = array();
