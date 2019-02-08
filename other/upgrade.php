@@ -3192,6 +3192,26 @@ function ConvertUtf8()
 	return false;
 }
 
+/**
+ * Repairs serialized data corrupted by changes to the character encoding (e.g. conversion to UTF-8)
+ *
+ * @param string $string Serialized data that has been corrupted
+ * @return string|bool A working version of the serialized data, or the original if the repair failed
+ */
+function fix_serialized_s_length($string)
+{
+	if (!is_string($string) || !preg_match('/^[bidsa]:/', $string) || @safe_unserialize($string) !== false)
+		return $string;
+
+	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+
+	// Did it work?
+	if (@safe_unserialize($new_string) !== false)
+		return $new_string;
+	else
+		return $string;
+}
+
 function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt;
@@ -3294,6 +3314,10 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @safe_unserialize($modSettings[$var]);
+						// Maybe conversion to UTF-8 corrupted it
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_s_length($modSettings[$var]));
+
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
@@ -3325,6 +3349,8 @@ function serialize_to_json()
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
 						$temp = @safe_unserialize($row['value']);
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_s_length($row['value']));
 
 						if ($command_line)
 						{
@@ -3402,6 +3428,8 @@ function serialize_to_json()
 							if ($col !== true && $row[$col] != '')
 							{
 								$temp = @safe_unserialize($row[$col]);
+								if ($temp === false)
+									$temp = @safe_unserialize(fix_serialized_s_length($row[$col]));
 
 								if ($temp === false && $command_line)
 								{
