@@ -93,8 +93,8 @@ $upcontext['steps'] = array(
 	1 => array(2, 'upgrade_step_options', 'UpgradeOptions', 2),
 	2 => array(3, 'upgrade_step_backup', 'BackupDatabase', 10),
 	3 => array(4, 'upgrade_step_database', 'DatabaseChanges', 50),
-	4 => array(5, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
-	5 => array(6, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	4 => array(5, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	5 => array(6, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
 	6 => array(7, 'upgrade_step_delete', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
@@ -3192,6 +3192,30 @@ function ConvertUtf8()
 	return false;
 }
 
+/**
+ * Attempts to repair corrupted serialized data strings
+ *
+ * @param string $string Serialized data that has been corrupted
+ * @return string|bool A working version of the serialized data, or the original if the repair failed
+ */
+function fix_serialized_data($string)
+{
+	// If its not broken, don't fix it.
+	if (!is_string($string) || !preg_match('/^[bidsa]:/', $string) || @safe_unserialize($string) !== false)
+		return $string;
+
+	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
+	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+
+	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
+
+	// Did it work?
+	if (@safe_unserialize($new_string) !== false)
+		return $new_string;
+	else
+		return $string;
+}
+
 function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt;
@@ -3201,7 +3225,7 @@ function serialize_to_json()
 	if (!empty($modSettings['json_done']))
 	{
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 		else
 			return true;
 	}
@@ -3294,6 +3318,10 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @safe_unserialize($modSettings[$var]);
+						// Maybe conversion to UTF-8 corrupted it
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_data($modSettings[$var]));
+
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
@@ -3325,6 +3353,8 @@ function serialize_to_json()
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
 						$temp = @safe_unserialize($row['value']);
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_data($row['value']));
 
 						if ($command_line)
 						{
@@ -3402,6 +3432,8 @@ function serialize_to_json()
 							if ($col !== true && $row[$col] != '')
 							{
 								$temp = @safe_unserialize($row[$col]);
+								if ($temp === false)
+									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
 
 								if ($temp === false && $command_line)
 								{
@@ -3458,7 +3490,7 @@ function serialize_to_json()
 		$_GET['substep'] = 0;
 		// Make sure we move on!
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 
 		return true;
 	}
