@@ -1784,13 +1784,13 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 
 				// After moving this from Post template, html() stopped working in all cases.
 				if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined && typeof sceditor.instance(e).getText().html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html();
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html().php_to8bit().php_urlencode();
 				else if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined)
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText();
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().php_to8bit().php_urlencode();
 				else if (typeof document.forms.postmodify[textFields[i]].value.html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html();
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html().php_to8bit().php_urlencode();
 				else
-					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value;;
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.php_to8bit().php_urlencode();
 			}
 
 		// Numbers.
