@@ -152,10 +152,8 @@ img#smflogo {
 
 /* Profile drop it needs reverse on RTL */
 #profile_menu_top > img.avatar {
-
-float: right;
-
-margin: 2px 0 0 5px;
+	float: right;
+	margin: 2px 0 0 5px;
 }
 #profile_menu .profile_user_info {
 	margin: 3px 10px 5px 0;
