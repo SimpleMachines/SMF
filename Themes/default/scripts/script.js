@@ -1846,11 +1846,6 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	if ('last_msg' in document.forms.postmodify)
 		document.forms.postmodify.last_msg.value = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('last_msg')[0].firstChild.nodeValue;
 
-	// Remove the new image from old-new replies!
-	for (i = 0; i < new_replies.length; i++)
-		document.getElementById(this.opts.sNewImageContainerID.replace('%ID%', new_replies[i])).style.display = 'none';
-	new_replies = new Array();
-
 	var ignored_replies = new Array(), ignoring;
 	var newPosts = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0] ? XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0].getElementsByTagName('post') : {length: 0};
 	var numNewPosts = newPosts.length;
@@ -1860,7 +1855,8 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 		var tempHTML;
 		for (var i = 0; i < numNewPosts; i++)
 		{
-			new_replies[new_replies.length] = newPosts[i].getAttribute("id");
+			// new_replies[new_replies.length] = newPosts[i].getAttribute("id");
+			new_replies[i] = newPosts[i].getAttribute("id");
 
 			ignoring = false;
 			if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
@@ -1870,6 +1866,11 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 
 			newPostsHTML += tempHTML;
 		}
+
+		// Remove the new image from old-new replies!
+		for (i = 0; i < new_replies.length; i++)
+			document.getElementById(this.opts.sNewImageContainerID.replace('%ID%', new_replies[i])).style.display = 'none';
+
 		setOuterHTML(document.getElementById('new_replies'), newPostsHTML);
 	}
 
