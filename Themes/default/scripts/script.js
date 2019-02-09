@@ -1853,9 +1853,9 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	{
 		var newPostsHTML = '<span id="new_replies"><' + '/span>';
 		var tempHTML;
+		var new_replies = new Array();
 		for (var i = 0; i < numNewPosts; i++)
 		{
-			// new_replies[new_replies.length] = newPosts[i].getAttribute("id");
 			new_replies[i] = newPosts[i].getAttribute("id");
 
 			ignoring = false;
