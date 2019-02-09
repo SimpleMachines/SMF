@@ -2985,7 +2985,7 @@ span.postby {
 	border-bottom: none;
 	box-shadow: none;
 }
-#description_board h3, #description_board p {
+#description_board h3, #description_board div {
 	display: inline-block;
 }
 #description_board h3::after {
