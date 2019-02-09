@@ -600,6 +600,7 @@ function loadProfileFields($force_reload = false)
 			'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
 			'permission' => 'profile_extra',
 			'label' => $txt['timezone'],
+			'value' => empty($cur_profile['timezone']) ? $modSettings['default_timezone'] : $cur_profile['timezone'],
 			'input_validate' => function($value)
 			{
 				$tz = smf_list_timezones();

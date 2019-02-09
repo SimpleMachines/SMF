@@ -5821,7 +5821,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt;
+	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5844,7 +5844,7 @@ function smf_list_timezones($when = 'now')
 
 	// We'll need these too
 	$date_when = date_create('@' . $when);
-	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
+	$later = strtotime('@' . $when . ' + 1 year');
 
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
@@ -5904,6 +5904,10 @@ function smf_list_timezones($when = 'now')
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Remember this for later
+		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
+			$member_tzkey = $tzkey;
 	}
 
 	// Sort by offset then longitude
@@ -5930,6 +5934,10 @@ function smf_list_timezones($when = 'now')
 			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
+
+		// Automatically fix orphaned timezones on the member profile page
+		if (isset($member_tzkey) && $member_tzkey == $tzkey)
+			$cur_profile['timezone'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
@@ -5937,7 +5945,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC'], '-----'),
+		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
 		$timezones
 	);
 

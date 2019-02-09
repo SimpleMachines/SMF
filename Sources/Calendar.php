@@ -432,7 +432,6 @@ function CalendarPost()
 
 	// Need this so the user can select a timezone for the event.
 	$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
-	unset($context['all_timezones']['']);
 
 	// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
 	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
