@@ -42,7 +42,7 @@ function template_main()
 			<div class="info">
 				<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
 					', $board['name'], '
-					<p class="board_description mobile_display">', $board['description'], '</p>
+					<div class="board_description mobile_display">', $board['description'], '</div>
 				</a>';
 
 			// Has it outstanding posts for approval?
@@ -51,7 +51,7 @@ function template_main()
 				<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 			echo '
-				<p class="board_description">', $board['description'], '</p>';
+				<div class="board_description">', $board['description'], '</div>';
 
 			// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 			if (!empty($board['moderators']) || !empty($board['moderator_groups']))
@@ -133,7 +133,7 @@ function template_main()
 			echo '
 	<div id="description_board" class="generic_list_wrapper">
 		<h3>', $context['name'], '</h3>
-		<p>';
+		<div>';
 
 			if ($context['description'] != '')
 				echo '
@@ -144,7 +144,7 @@ function template_main()
 			', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.';
 
 			echo '
-		</p>
+		</div>
 	</div>';
 		}
 

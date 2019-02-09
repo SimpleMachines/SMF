@@ -12,9 +12,9 @@ var updateAlerts = function ()
 		if (unreadAlerts != parseInt(unreadAlerts))
 			return true;
 
-		if ($('.amt:first').is(':visible'))
-			$('.amt:first').text(unreadAlerts);
-		else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+		if ($('#alerts_menu_top > .amt:first').is(':visible'))
+			$('#alerts_menu_top > .amt:first').text(unreadAlerts);
+		else if (!$('#alerts_menu_top > .amt:first').is(':visible') && unreadAlerts != 0)
 			$('#alerts_menu_top').append(' <span class="amt">' + unreadAlerts + '</span>');
 
 		if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
@@ -25,7 +25,7 @@ var updateAlerts = function ()
 		localStorage.setItem('alertsPoll', +(new Date()));
 	}
 	else
-		unreadAlerts = $('.amt:first').text() ? $('.amt:first').text() : 0;
+		unreadAlerts = $('#alerts_menu_top > .amt:first').text() ? $('#alerts_menu_top > .amt:first').text() : 0;
 
 	unreadAlerts = parseInt(unreadAlerts);
 
@@ -43,9 +43,9 @@ var updateAlerts = function ()
 		if (typeof localStorage != 'undefined')
 			localStorage.setItem('alertsCounter', unreadAlerts);
 
-		if ($('.amt:first').is(':visible'))
-			$('.amt:first').text(unreadAlerts);
-		else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+		if ($('#alerts_menu_top > .amt:first').is(':visible'))
+			$('#alerts_menu_top > .amt:first').text(unreadAlerts);
+		else if (!$('#alerts_menu_top > .amt:first').is(':visible') && unreadAlerts != 0)
 			$('#alerts_menu_top').append('<span class="amt">' + unreadAlerts + '</span>');
 
 		$.each(alerts, function(index, item)
@@ -91,7 +91,7 @@ $(function ()
 	{
 		setTimeout(updateAlerts, pingTime);
 		if (typeof localStorage != 'undefined')
-			localStorage.setItem('alertsCounter', parseInt($('.amt:first').text() ? $('.amt:first').text() : 0));
+			localStorage.setItem('alertsCounter', parseInt($('#alerts_menu_top > .amt:first').text() ? $('#alerts_menu_top > .amt:first').text() : 0));
 	}
 });
 
