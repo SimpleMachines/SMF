@@ -1681,6 +1681,9 @@ $(function() {
 	
 	// Show the Expand bbc button if needed
 	$('.bbc_code').each(function(index, item) {
+		if($(item).css('max-height') == 'none')
+			return;
+
 		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
 			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
 	});

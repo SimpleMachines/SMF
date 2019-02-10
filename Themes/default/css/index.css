@@ -354,7 +354,7 @@ blockquote cite::before {
 }
 /* Expand code bbc */
 .expand_code {
-	max-height: unset;
+	max-height: none;
 }
 /* Let's get a bit more flexibility in font sizes for quotes and code. */
 /* We just need to stop em compounding when elements are nested. */
