@@ -171,6 +171,7 @@ $txt['package_uploaded_successfully'] = 'The package has been uploaded successfu
 $txt['package_modification_malformed'] = 'Malformed or invalid modification file.';
 $txt['package_modification_missing'] = 'The file could not be found.';
 $txt['package_no_zlib'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>zlib</strong>. Without this, the package manager cannot function. Please contact your host about this for more information.';
+$txt['package_no_phar'] = 'Sorry, your PHP configuration doesn\'t have support for <strong>phar</strong>. Without this, the package manager cannot function. Please contact your host about this for more information.';
 
 $txt['package_cleanperms_title'] = 'Cleanup Permissions';
 $txt['package_cleanperms_desc'] = 'This interface allows you to reset the permissions for files throughout your installation, so as to increase security or solve any permission problems you may encounter while installing packages.';

@@ -241,6 +241,10 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
+	// This function sorta needs phar!
+	if (!class_exists('PharData'))
+		fatal_lang_error('package_no_phar', 'critical');
+
 	try
 	{
 		// This may not always be defined...
