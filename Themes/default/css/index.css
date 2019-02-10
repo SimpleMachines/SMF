@@ -3489,7 +3489,7 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .main_icons::before, h3.catbg .icon {
+h3.catbg .main_icons::before, h3.catbg .icon, h3.titlebg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -3672,10 +3672,16 @@ span.member.hidden {
 }
 
 /* These icons needs attention from Gwen */
-.profile_hd, .stats_info {
+.config_hd, .login_hd, .profile_hd, .stats_info {
 	display: inline-block;
 	height: 24px;
 	width: 24px;
+}
+.config_hd {
+	background: url(../images/icons/config_hd.png) no-repeat;
+}
+.login_hd {
+	background: url(../images/icons/login_hd.png) no-repeat;
 }
 .profile_hd {
 	background: url(../images/icons/profile_hd.png) no-repeat;

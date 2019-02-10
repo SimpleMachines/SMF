@@ -471,7 +471,7 @@ function template_set_settings()
 	if ($context['theme_settings']['theme_id'] != 1)
 		echo '
 				<div class="title_bar">
-					<h3 class="titlebg config_hd">
+					<h3 class="titlebg"><span class="config_hd icon"></span>
 						', $txt['theme_edit'], '
 					</h3>
 				</div>
@@ -488,7 +488,7 @@ function template_set_settings()
 
 	echo '
 				<div class="title_bar">
-					<h3 class="titlebg config_hd">
+					<h3 class="titlebg"><span class="config_hd icon"></span>
 						', $txt['theme_url_config'], '
 					</h3>
 				</div>
@@ -524,7 +524,7 @@ function template_set_settings()
 	{
 		echo '
 				<div class="title_bar">
-					<h3 class="titlebg config_hd">
+					<h3 class="titlebg"><span class="config_hd icon"></span>
 						', $txt['theme_variants'], '
 					</h3>
 				</div>
@@ -555,7 +555,7 @@ function template_set_settings()
 
 	echo '
 				<div class="title_bar">
-					<h3 class="titlebg config_hd">
+					<h3 class="titlebg"><span class="config_hd icon"></span>
 						', $txt['theme_options'], '
 					</h3>
 				</div>
