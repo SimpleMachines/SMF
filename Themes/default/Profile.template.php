@@ -868,7 +868,7 @@ function template_editIgnoreList()
 	echo '
 	<div id="edit_buddies">
 		<div class="cat_bar">
-			<h3 class="catbg profile_hd">
+			<h3 class="catbg"><span class="profile_hd icon"></span>
 				', $txt['editIgnoreList'], '
 			</h3>
 		</div>
@@ -1132,7 +1132,7 @@ function template_showPermissions()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg profile_hd">
+			<h3 class="catbg"><span class="profile_hd icon"></span>
 				', $txt['showPermissions'], '
 			</h3>
 		</div>';
@@ -1444,7 +1444,7 @@ function template_edit_options()
 				<input type="password" id="autocompleteFakePassword">
 			</div>
 			<div class="cat_bar">
-				<h3 class="catbg profile_hd">';
+				<h3 class="catbg"><span class="profile_hd icon"></span>';
 
 	// Don't say "Profile" if this isn't the profile...
 	if (!empty($context['profile_header_text']))
@@ -2039,7 +2039,7 @@ function template_groupMembership()
 	echo '
 		<form action="', $scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
-				<h3 class="catbg profile_hd">
+				<h3 class="catbg"><span class="profile_hd icon"></span>
 					', $txt['profile'], '
 				</h3>
 			</div>
@@ -2186,7 +2186,7 @@ function template_ignoreboards()
 	echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
-			<h3 class="catbg profile_hd">
+			<h3 class="catbg"><span class="profile_hd icon"></span>
 				', $txt['profile'], '
 			</h3>
 		</div>
@@ -2259,7 +2259,7 @@ function template_viewWarning()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg profile_hd">
+			<h3 class="catbg"><span class="profile_hd icon"></span>
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
 			</h3>
 		</div>
@@ -2354,7 +2354,7 @@ function template_issueWarning()
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
-			<h3 class="catbg profile_hd">
+			<h3 class="catbg"><span class="profile_hd icon"></span>
 				', $context['user']['is_owner'] ? $txt['profile_warning_level'] : $txt['profile_issue_warning'], '
 			</h3>
 		</div>';
@@ -2528,7 +2528,7 @@ function template_deleteAccount()
 	echo '
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
-				<h3 class="catbg profile_hd">
+				<h3 class="catbg"><span class="profile_hd icon"></span>
 					', $txt['deleteAccount'], '
 				</h3>
 			</div>';

@@ -3671,11 +3671,17 @@ span.member.hidden {
 	font-style: italic;
 }
 
-/* Icons (converted from img to css) */
-/* Stay here till I find a better place for you guys */
-h3.profile_hd {
-	background: url(../images/icons/profile_hd.png) 15px no-repeat;
-	padding: 8px 0 8px 50px;
+/* These icons needs attention from Gwen */
+.profile_hd, .stats_info {
+	display: inline-block;
+	height: 24px;
+	width: 24px;
+}
+.profile_hd {
+	background: url(../images/icons/profile_hd.png) no-repeat;
+}
+.stats_info {
+	background: url(../images/icons/stats_info.png) no-repeat;
 }
 .xx {
 	background: url(../images/post/xx.png) 2px no-repeat;

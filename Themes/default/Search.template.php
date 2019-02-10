@@ -37,9 +37,7 @@ function template_main()
 			<h3 class="catbg">
 				<span class="main_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
-		</div>';
-
-	echo '
+		</div>
 		<div id="advanced_search" class="roundframe">
 			<dl class="settings" id="search_options">
 				<dt>
