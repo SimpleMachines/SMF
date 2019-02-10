@@ -2072,7 +2072,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			foreach ($section as $code)
 				$alltags[] = $code['tag'];
 		}
-		$alltags_regex = '(?>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys($itemcodes)) . ')';
+		$alltags_regex = '(?' . '>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys($itemcodes)) . ')';
 	}
 
 	$pos = -1;
@@ -4832,7 +4832,9 @@ function call_integration_hook($hook, $parameters = array())
 		// Is it valid?
 		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
-
+		// This failed, but we want to do so silently.
+		elseif (!empty($function) && !empty($context['ignore_hook_errors']))
+			return $results;
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($function))
 		{
@@ -4845,7 +4847,6 @@ function call_integration_hook($hook, $parameters = array())
 				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
-
 			// "Assume" the file resides on $boarddir somewhere...
 			else
 				log_error(sprintf($txt['hook_fail_call_to'], $function, $boarddir), 'general');
@@ -5052,8 +5053,11 @@ function call_helper($string, $return = false)
 	else
 		$func = $string;
 
+	// We can't call this helper, but we want to silently ignore this.
+	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
+		return false;
 	// Right, we got what we need, time to do some checks.
-	if (!is_callable($func, false, $callable_name))
+	elseif (!is_callable($func, false, $callable_name))
 	{
 		loadLanguage('Errors');
 		log_error(sprintf($txt['sub_action_fail'], $callable_name), 'general');
